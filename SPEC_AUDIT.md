@@ -26,8 +26,8 @@ demonstrable in the prototype; it does not imply production security, concurrenc
 
 | Requirement family | Status |
 |---|---|
-| Responsive table/calendar planning | Covered in prototype with the new matrix system. |
-| Child portal and separate PIN entry | Covered in prototype; PINs are demo/plaintext and not production authentication. |
+| Responsive table/calendar planning | Covered in prototype with the new matrix system and multi-house/multi-caregiver checkbox assignments. |
+| Child portal and separate PIN entry | Covered in prototype, including a PIN-free 12-hour device session; PINs are demo/plaintext and not production authentication. |
 | Conflict and duplicate validation | Partial rules in the client; no authoritative server validation. |
 | Full RBAC and row-level security | Missing; requires backend/auth database. |
 | Atomic writes, idempotency, optimistic concurrency | Missing locally; the AI endpoint sends an idempotency key, but operational records still use localStorage. |

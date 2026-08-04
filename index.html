@@ -254,6 +254,12 @@
     background:#eff6ff;color:#1d4ed8;cursor:pointer;margin-bottom:9px;transition:.15s}
   .screenshot-drop.drag{border-color:#2563eb;background:#dbeafe;transform:scale(1.01)}
   .screenshot-drop .big{font-size:25px;display:block;margin-bottom:4px}
+  .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:-3px 0 12px}
+  .check-option{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;
+    padding:9px 10px;background:#fff;cursor:pointer;min-width:0}
+  .check-option:has(input:checked){background:#eff6ff;border-color:#60a5fa;color:#1d4ed8;font-weight:650}
+  .check-option input{width:18px;height:18px;flex:0 0 auto;accent-color:var(--brand)}
+  .check-option span{min-width:0;overflow-wrap:anywhere}
   .event-staff-card{border-left:5px solid var(--event-color,#2563eb)}
   .event-flag{display:inline-flex;align-items:center;gap:4px;color:#7c3aed;font-size:11px;font-weight:700}
   .help-fab{position:fixed; right:max(16px,calc((100vw - 1180px)/2 + 16px));
@@ -470,6 +476,7 @@ const T = {
     cameraSecure:'Die Kamera funktioniert nur über HTTPS oder localhost.',
     unexpectedError:'Etwas ist schiefgelaufen. Deine Eingabe bleibt erhalten; versuche es erneut.',
     kidsCount:n=>`${n} ${n===1?'Kind':'Kinder'}`,
+    chooseMany:'Mehrfachauswahl möglich', selectHouse:'Wähle mindestens ein Haus.',
     screenshotDrop:'Screenshot hier ablegen oder auswählen', screenshotPaste:'Oder Screenshot kopieren und hier ⌘V / Strg+V drücken',
     screenshotReady:'Screenshot bereit – OCR startet…', screenshotMissing:'Die Zwischenablage enthält keinen Screenshot.',
   },
@@ -610,6 +617,7 @@ const T = {
     cameraSecure:'Η κάμερα λειτουργεί μόνο με HTTPS ή localhost.',
     unexpectedError:'Κάτι πήγε στραβά. Τα στοιχεία σου παραμένουν· δοκίμασε ξανά.',
     kidsCount:n=>`${n} ${n===1?'παιδί':'παιδιά'}`,
+    chooseMany:'Μπορείς να επιλέξεις πολλά', selectHouse:'Διάλεξε τουλάχιστον ένα σπίτι.',
     screenshotDrop:'Άφησε ή επίλεξε screenshot εδώ', screenshotPaste:'Ή αντέγραψε screenshot και πάτησε εδώ ⌘V / Ctrl+V',
     screenshotReady:'Το screenshot είναι έτοιμο – ξεκινά το OCR…', screenshotMissing:'Το πρόχειρο δεν περιέχει screenshot.',
   },
@@ -1003,6 +1011,10 @@ const house = id => DB.houses.find(h=>h.id===id);
 const L = o => o ? (o[state.lang] ?? o.de ?? o.el ?? '') : '';
 const actLabel = id => { const a = act(id); return a ? L(a) : '—'; };
 const empName = id => { const e = emp(id); return e ? e.name : t('unassigned'); };
+const entryEmployeeIds = e => [...new Set((e?.employeeIds?.length ? e.employeeIds : e?.employeeId ? [e.employeeId] : []).filter(Boolean))];
+const entryHouseIds = e => [...new Set((e?.houseIds?.length ? e.houseIds : e?.houseId ? [e.houseId] : []).filter(Boolean))];
+const employeeNames = e => entryEmployeeIds(e).map(id=>emp(id)?.name).filter(Boolean).join(', ') || t('unassigned');
+const houseNames = e => entryHouseIds(e).map(id=>house(id)?.short).filter(Boolean).join(', ');
 const initials = n => n.split(/[\s.]+/).filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
 const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const dowIdx = d => (d.getDay()+6)%7;
@@ -1049,7 +1061,40 @@ const session = {
   })(),
   ip: null,
   ua: navigator.userAgent.slice(0, 120),
+  sessionId: null,
 };
+
+const AUTH_SESSION_KEY = 'paidia.authSession';
+const AUTH_SESSION_TTL = 12 * 60 * 60 * 1000;
+
+/** Restore a trusted profile on this device without ever storing its PIN. */
+function restoreAuthentication(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) || 'null');
+    if(!saved || !saved.sessionId || !saved.profileId || saved.expiresAt <= Date.now()){
+      localStorage.removeItem(AUTH_SESSION_KEY);
+      return null;
+    }
+    const who = saved.mode === 'child' ? kid(saved.profileId) : emp(saved.profileId);
+    if(!who){ localStorage.removeItem(AUTH_SESSION_KEY); return null; }
+    session.sessionId = saved.sessionId;
+    return {mode:saved.mode === 'child' ? 'child' : 'staff', who};
+  }catch(error){
+    localStorage.removeItem(AUTH_SESSION_KEY);
+    return null;
+  }
+}
+
+function rememberAuthentication(mode, who){
+  const saved = {
+    sessionId: 'ses-' + uid(),
+    mode: mode === 'child' ? 'child' : 'staff',
+    profileId: who.id,
+    expiresAt: Date.now() + AUTH_SESSION_TTL,
+  };
+  localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(saved));
+  session.sessionId = saved.sessionId;
+}
 
 /**
  * Δημόσια IP, best-effort. Ό,τι στέλνει ο client μπορεί να πλαστογραφηθεί —
@@ -1073,6 +1118,7 @@ function logEntry(type, text, extra = {}){
     text,
     ip: session.ip || '—',
     deviceId: session.deviceId,
+    sessionId: session.sessionId,
     ua: session.ua,
     ...extra,
   });
@@ -1082,14 +1128,15 @@ function logEntry(type, text, extra = {}){
 /* ════════════════════════════════════════════════════════════════
    Κατάσταση UI
    ════════════════════════════════════════════════════════════════ */
+const restoredAuth = restoreAuthentication();
 const state = {
   lang: localStorage.getItem('paidia.lang') || 'de',
   tab: 'schedule',
   scheduleView: 'day',
   childView: 'today',
-  mode: 'staff',            // staff | child — δύο ξεχωριστές είσοδοι
-  user: null,               // συνδεδεμένος υπάλληλος
-  child: null,              // συνδεδεμένο παιδί (child portal)
+  mode: restoredAuth?.mode || 'staff',
+  user: restoredAuth?.mode === 'staff' ? restoredAuth.who : null,
+  child: restoredAuth?.mode === 'child' ? restoredAuth.who : null,
   house: 'h1',
   houseFilter: '',
   date: iso(new Date()),
@@ -1335,9 +1382,9 @@ function validateDay(dateStr){
 
     // Ίδιος φροντιστής σε δύο διαφορετικά σπίτια την ίδια ώρα
     const byEmp = {};
-    list.forEach(e => { if(e.employeeId) (byEmp[e.employeeId] ||= []).push(e); });
+    list.forEach(e => entryEmployeeIds(e).forEach(eid=>(byEmp[eid] ||= []).push(e)));
     Object.entries(byEmp).forEach(([eid, es]) => {
-      const houses = [...new Set(es.map(e=>e.houseId).filter(Boolean))];
+      const houses = [...new Set(es.flatMap(entryHouseIds))];
       if(houses.length > 1)
         add('error','twohouses', `${empName(eid)}: ${t('vTwoHouses')} — ${houses.map(h=>house(h).short).join(' + ')} · ${t(b.id)}`);
       const kids = es.flatMap(e=>e.childIds||[]);
@@ -1355,8 +1402,8 @@ function validateDay(dateStr){
 
     // Σπίτι με παιδιά αλλά χωρίς φροντιστή
     DB.houses.forEach(h => {
-      const hl = list.filter(e => e.houseId === h.id);
-      if(hl.length && hl.every(e => !e.employeeId) && hl.some(e => (e.childIds||[]).length))
+      const hl = list.filter(e => entryHouseIds(e).includes(h.id));
+      if(hl.length && hl.every(e => !entryEmployeeIds(e).length) && hl.some(e => (e.childIds||[]).length))
         add('warn','nostaff', `${house(h.id).short}: ${t(b.id)} — ${t('unassigned')}`);
     });
 
@@ -1370,12 +1417,12 @@ function validateDay(dateStr){
     // Διπλοεγγραφή
     const sig = {};
     list.forEach(e => {
-      const k = [e.employeeId, e.activityId, (e.childIds||[]).slice().sort().join(',')].join('|');
+      const k = [entryEmployeeIds(e).sort().join(','), e.activityId, (e.childIds||[]).slice().sort().join(',')].join('|');
       (sig[k] ||= []).push(e);
     });
     Object.values(sig).forEach(es => {
       if(es.length > 1)
-        add('warn','dup', `${t('vDuplicate')}: ${empName(es[0].employeeId)} · ${actLabel(es[0].activityId)}`);
+        add('warn','dup', `${t('vDuplicate')}: ${employeeNames(es[0])} · ${actLabel(es[0].activityId)}`);
     });
   });
 
@@ -1410,9 +1457,10 @@ function eventForEntry(e, dateStr){
 function entryLine(e, dateStr=state.date){
   const a = act(e.activityId);
   const announced = eventForEntry(e,dateStr);
-  const person = e.employeeId ? empName(e.employeeId) : `<span class="pill open">${t('unassigned')}</span>`;
+  const people=entryEmployeeIds(e);
+  const person = people.length ? esc(employeeNames(e)) : `<span class="pill open">${t('unassigned')}</span>`;
   const kids = (e.childIds||[]).map(id=>`<span class="pill kid">${esc(kid(id)?.name||'')}</span>`).join('');
-  const who = emp(e.employeeId);
+  const who = emp(people[0]);
   return `<button class="entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-src="${e.source}">
     <div class="top">
       ${who ? `<div class="avatar" style="background:${who.color}">${initials(who.name)}</div>`
@@ -1420,8 +1468,8 @@ function entryLine(e, dateStr=state.date){
       <div class="grow">
         <div class="act">${who ? esc(a?a.emoji+' ':'') : ''}${esc(actLabel(e.activityId))}
           ${announced ? `<span class="event-flag">📣 ${t('published')}</span>` : ''}</div>
-        <div class="meta">${who ? esc(who.name) : person} · ${esc(entryTime(e))}${
-          e.houseId ? ' · 🏠 ' + esc(house(e.houseId).short) : ''}</div>
+        <div class="meta">${who ? esc(employeeNames(e)) : person} · ${esc(entryTime(e))}${
+          entryHouseIds(e).length ? ' · 🏠 ' + esc(houseNames(e)) : ''}</div>
         ${e.note ? `<div class="meta">${esc(e.note)}</div>` : ''}
       </div>
       <div style="flex:0 0 auto">
@@ -1437,7 +1485,7 @@ function viewScheduleDay(){
   const today = iso(new Date());
   const week = weekDates(state.date);
   const all = entriesFor(state.date)
-    .filter(e => !state.houseFilter || !e.houseId || e.houseId === state.houseFilter);
+    .filter(e => !state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter));
 
   const days = week.map(ds=>{
     const d = new Date(ds+'T12:00:00');
@@ -1452,7 +1500,7 @@ function viewScheduleDay(){
       body = DB.houses
         .filter(h => !state.houseFilter || h.id === state.houseFilter)
         .map(h=>{
-          const rows = list.filter(e => e.houseId === h.id);
+          const rows = list.filter(e => entryHouseIds(e).includes(h.id));
           return `<div class="house-h">${esc(h.name)}</div>` +
             (rows.length ? rows.map(e=>entryLine(e,state.date)).join('')
               : `<button class="empty" style="width:100%;cursor:pointer;background:none"
@@ -1461,9 +1509,9 @@ function viewScheduleDay(){
     }else{
       body = list.length
         ? DB.employees.map(p=>{
-            const rows = list.filter(e => e.employeeId === p.id);
+            const rows = list.filter(e => entryEmployeeIds(e).includes(p.id));
             return rows.length ? rows.map(e=>entryLine(e,state.date)).join('') : '';
-          }).join('') + list.filter(e=>!e.employeeId).map(e=>entryLine(e,state.date)).join('')
+          }).join('') + list.filter(e=>!entryEmployeeIds(e).length).map(e=>entryLine(e,state.date)).join('')
         : `<button class="empty" style="width:100%;cursor:pointer;background:none"
              data-add="${b.id}">${t('noEntries')} · ${t('add')}</button>`;
     }
@@ -1541,7 +1589,7 @@ function viewShifts(){
 /** showWho=false στο πλέγμα ανά άτομο — το όνομα είναι ήδη η γραμμή. */
 function cellItems(list, showWho = true, dateStr=state.date){
   return list.map(e=>{
-    const who = e.employeeId ? esc(emp(e.employeeId).name) : t('unassigned');
+    const who = entryEmployeeIds(e).length ? esc(employeeNames(e)) : t('unassigned');
     const kids = kidNames(e.childIds);
     const sub = [showWho ? who : '', e.note].filter(Boolean).join(' · ');
     return `<div class="cellitem"><b>${esc(actLabel(e.activityId))}</b>${eventForEntry(e,dateStr)?' <span class="event-flag">📣</span>':''}${
@@ -1555,14 +1603,14 @@ function viewScheduleWeek(){
   const week = weekDates(state.date);
   const byDate = {};
   week.forEach(ds => { byDate[ds] = entriesFor(ds).filter(e=>!e.cancelled &&
-    (!state.houseFilter || !e.houseId || e.houseId===state.houseFilter)); });
+    (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter))); });
   const dn = DAY_NAMES[state.lang];
   const visibleHouses=DB.houses.filter(h=>!state.houseFilter || h.id===state.houseFilter);
 
   const houseTable = (blockId) => matrixView(visibleHouses.map(h=>h.name), week.map((ds,i)=>({
     label:dn[i],
     cells:visibleHouses.map(h=>{
-      const list = byDate[ds].filter(e=>e.block===blockId && e.houseId===h.id);
+      const list = byDate[ds].filter(e=>e.block===blockId && entryHouseIds(e).includes(h.id));
       return {html:cellItems(list,true,ds), action:`${ds}|${blockId}|${h.id}|`,
         aria:`${DAY_LONG[state.lang][i]} · ${h.name} · ${t(blockId)}`};
     }),
@@ -1571,7 +1619,7 @@ function viewScheduleWeek(){
   const personTable = matrixView(dn, DB.employees.map(p=>({
     label:esc(p.name),
     cells:week.map((ds,i)=>{
-      const list = byDate[ds].filter(e=>e.block==='afternoon' && e.employeeId===p.id);
+      const list = byDate[ds].filter(e=>e.block==='afternoon' && entryEmployeeIds(e).includes(p.id));
       return {html:cellItems(list,false,ds), action:`${ds}|afternoon||${p.id}`,
         aria:`${p.name} · ${DAY_LONG[state.lang][i]} · ${t('afternoon')}`};
     }),
@@ -1641,14 +1689,18 @@ function sheetEntry(e, dateStr, presets = {}){
   const isNew = !e;
   const blockId = e ? e.block : (presets.block || 'afternoon');
   const def = blockDef(blockId);
+  const presetHouseIds = presets.houseIds || (presets.houseId ? [presets.houseId] :
+    def.by==='house' ? [state.houseFilter || DB.houses[0].id] : []);
+  const presetEmployeeIds = presets.employeeIds || (presets.employeeId ? [presets.employeeId] : []);
   e = e || {
-    block: blockId,
-    houseId: presets.houseId ?? (def.by==='house' ? (state.houseFilter || DB.houses[0].id) : null),
-    employeeId: presets.employeeId ?? null,
+    block: blockId, houseIds:presetHouseIds, houseId:presetHouseIds[0]||null,
+    employeeIds:presetEmployeeIds, employeeId:presetEmployeeIds[0]||null,
     childIds: [], activityId: DB.activities[0].id, note:'', time:'', source:'extra',
   };
   const linkedEvent = DB.events.find(x=>x.scheduleEntryId===e.id && x.scheduleDate===dateStr);
   let pickedAct = e.activityId;
+  let pickedHouses = entryHouseIds(e);
+  let pickedPeople = entryEmployeeIds(e);
   let pickedKids = [...(e.childIds || [])];
   let scope = 'override';
 
@@ -1657,24 +1709,22 @@ function sheetEntry(e, dateStr, presets = {}){
   openSheet(`
     <h3>${isNew ? t('newEntry') : t('edit')} · ${t(blockId)} <span class="muted">${def.from}–${def.to}</span></h3>
 
-    <label class="f"><span>${t('house')}</span>
-      <select id="fHouse">
-        ${def.by==='person' ? `<option value="">—</option>` : ''}
-        ${DB.houses.map(h=>`<option value="${h.id}" ${h.id===e.houseId?'selected':''}>${esc(h.name)}</option>`).join('')}
-      </select></label>
+    <label class="f"><span>${t('house')} · ${t('chooseMany')}</span></label>
+    <div class="check-grid" id="fHouses">
+      ${DB.houses.map(h=>`<label class="check-option"><input type="checkbox" value="${h.id}" ${pickedHouses.includes(h.id)?'checked':''}><span>🏠 ${esc(h.name)}</span></label>`).join('')}
+    </div>
 
-    <label class="f"><span>${t('person')}</span>
-      <select id="fEmp">
-        <option value="">${t('noPerson')}</option>
-        ${DB.employees.map(p=>`<option value="${p.id}" ${p.id===e.employeeId?'selected':''}>${esc(p.name)}</option>`).join('')}
-      </select></label>
+    <label class="f"><span>${t('person')} · ${t('chooseMany')}</span></label>
+    <div class="check-grid" id="fPeople">
+      ${DB.employees.map(p=>`<label class="check-option"><input type="checkbox" value="${p.id}" ${pickedPeople.includes(p.id)?'checked':''}><span>${esc(p.name)}</span></label>`).join('')}
+    </div>
 
     <label class="f"><span>${t('children')}</span></label>
     <div class="chips" id="fGroups" style="margin:-4px 0 8px">
       ${DB.groups.map(g=>`<button class="chip" data-g="${g.id}">👥 ${esc(L(g))}</button>`).join('')}
     </div>
     <div class="chips" id="fKids" style="margin:0 0 12px">
-      ${DB.children.map(c=>`<button class="chip ${pickedKids.includes(c.id)?'on':''}" data-c="${c.id}">${esc(c.name)}</button>`).join('')}
+      ${DB.children.map(c=>`<button class="chip ${pickedKids.includes(c.id)?'on':''}" data-c="${c.id}">${pickedKids.includes(c.id)?'☑':'☐'} ${esc(c.name)}</button>`).join('')}
     </div>
 
     <label class="f"><span>${t('activity')}</span></label>
@@ -1706,7 +1756,7 @@ function sheetEntry(e, dateStr, presets = {}){
     <div id="fEventFields" style="display:${linkedEvent?.status==='published'?'block':'none'}">
       <label class="f"><span>${t('eventTitle')}</span><input id="fEventTitle" value="${esc(linkedEvent?L(linkedEvent):actLabel(e.activityId))}"></label>
       <div class="row" style="gap:10px">
-        <label class="f grow"><span>${t('eventLocation')}</span><input id="fEventLocation" value="${esc(linkedEvent?.location||(e.houseId?house(e.houseId)?.name:''))}"></label>
+        <label class="f grow"><span>${t('eventLocation')}</span><input id="fEventLocation" value="${esc(linkedEvent?.location||entryHouseIds(e).map(id=>house(id)?.name).filter(Boolean).join(', '))}"></label>
         <label class="f grow"><span>${t('eventBring')}</span><input id="fEventBring" value="${esc(linkedEvent?L(linkedEvent.bring):'')}"></label>
       </div>
     </div>
@@ -1734,14 +1784,22 @@ function sheetEntry(e, dateStr, presets = {}){
     });
     box.querySelector('#fNewAct').onclick = openNewActivity;
   }
-  const paintKids = () => sheetEl.querySelectorAll('#fKids .chip')
-    .forEach(x=>x.classList.toggle('on', pickedKids.includes(x.dataset.c)));
+  const paintKids = () => {
+    sheetEl.querySelectorAll('#fKids .chip').forEach(x=>{
+      const on=pickedKids.includes(x.dataset.c), child=kid(x.dataset.c);
+      x.classList.toggle('on',on); x.textContent=`${on?'☑':'☐'} ${child?.name||''}`;
+    });
+    sheetEl.querySelectorAll('#fGroups .chip').forEach(x=>{
+      const g=DB.groups.find(g=>g.id===x.dataset.g);
+      x.classList.toggle('on',!!g && g.childIds.every(id=>pickedKids.includes(id)));
+    });
+  };
 
   sheetEl.querySelectorAll('#fKids .chip').forEach(b=>{
     b.onclick = () => {
       const id = b.dataset.c;
       pickedKids = pickedKids.includes(id) ? pickedKids.filter(x=>x!==id) : [...pickedKids, id];
-      b.classList.toggle('on', pickedKids.includes(id));
+      paintKids();
     };
   });
 
@@ -1784,6 +1842,7 @@ function sheetEntry(e, dateStr, presets = {}){
     wrap.querySelector('#naClose').onclick = () => wrap.remove();
   }
   paintActs();
+  paintKids();
 
   sheetEl.querySelector('#fAnnounce').onchange = ev => {
     sheetEl.querySelector('#fEventFields').style.display=ev.target.checked?'block':'none';
@@ -1815,10 +1874,12 @@ function sheetEntry(e, dateStr, presets = {}){
   const readForm = () => {
     const from = sheetEl.querySelector('#fFrom').value || def.from;
     const to   = sheetEl.querySelector('#fTo').value   || def.to;
+    pickedHouses=[...sheetEl.querySelectorAll('#fHouses input:checked')].map(x=>x.value);
+    pickedPeople=[...sheetEl.querySelectorAll('#fPeople input:checked')].map(x=>x.value);
     return {
       block: blockId,
-      houseId: sheetEl.querySelector('#fHouse').value || null,
-      employeeId: sheetEl.querySelector('#fEmp').value || null,
+      houseIds:[...pickedHouses], houseId:pickedHouses[0]||null,
+      employeeIds:[...pickedPeople], employeeId:pickedPeople[0]||null,
       childIds: [...pickedKids],
       activityId: pickedAct,
       // Κρατάμε ώρα μόνο όταν διαφέρει από το μπλοκ — αλλιώς ισχύει όλο το μπλοκ
@@ -1828,8 +1889,8 @@ function sheetEntry(e, dateStr, presets = {}){
     };
   };
 
-  const describe = f => `${t(blockId)}: ${empName(f.employeeId)}${
-    f.houseId ? ' @ '+house(f.houseId).short : ''} · ${actLabel(f.activityId)}${
+  const describe = f => `${t(blockId)}: ${employeeNames(f)}${
+    entryHouseIds(f).length ? ' @ '+houseNames(f) : ''} · ${actLabel(f.activityId)}${
     f.childIds.length ? ' — ' + kidNames(f.childIds) : ''} (${entryTime({...f, block:blockId})})${
     f.note?' — '+f.note:''}`;
 
@@ -1845,7 +1906,7 @@ function sheetEntry(e, dateStr, presets = {}){
     const value={...prior,id:prior.id||'ev'+uid(),de:title,el:title,
       description:{de:f.note||'',el:f.note||''},date:dateStr,
       from:f.from||def.from,to:f.to||def.to,location:sheetEl.querySelector('#fEventLocation').value.trim(),
-      employeeId:f.employeeId,childIds:[...f.childIds],
+      employeeIds:[...f.employeeIds],employeeId:f.employeeId,childIds:[...f.childIds],
       bring:{de:sheetEl.querySelector('#fEventBring').value.trim(),el:sheetEl.querySelector('#fEventBring').value.trim()},
       emoji:act(f.activityId)?.emoji||'🎉',color:prior.color||'#7c3aed',status:'published',
       scheduleEntryId:entryId,scheduleDate:dateStr};
@@ -1855,7 +1916,7 @@ function sheetEntry(e, dateStr, presets = {}){
 
   sheetEl.querySelector('#fSave').onclick = () => {
     const f = readForm();
-    if(blockDef(blockId).by === 'house' && !f.houseId){ toast(t('house')); return; }
+    if(blockDef(blockId).by === 'house' && !f.houseIds.length){ toast(t('selectHouse'),'error'); return; }
     if(sheetEl.querySelector('#fAnnounce').checked &&
       (!sheetEl.querySelector('#fEventTitle').value.trim() || !f.childIds.length)){
       toast(t('eventRequired'),'error'); return;
@@ -3088,7 +3149,7 @@ function childEntriesFor(dateStr, cid){
 }
 
 function childEntryCard(e, cid){
-  const a = act(e.activityId), who = emp(e.employeeId);
+  const a = act(e.activityId), caregivers=entryEmployeeIds(e).map(emp).filter(Boolean);
   const mates = (e.childIds||[]).filter(x => x !== cid).map(x => kid(x)?.name).filter(Boolean);
   return `<div class="entry" style="cursor:default">
     <div class="top">
@@ -3096,8 +3157,8 @@ function childEntryCard(e, cid){
       <div class="grow">
         <div class="act" style="font-size:15px">${esc(actLabel(e.activityId))}</div>
         <div class="meta">${esc(entryTime(e))}${
-          e.houseId ? ' · 🏠 ' + esc(house(e.houseId).short) : ''}</div>
-        ${who ? `<div class="meta">👤 ${esc(who.name)}</div>` : ''}
+          entryHouseIds(e).length ? ' · 🏠 ' + esc(houseNames(e)) : ''}</div>
+        ${caregivers.length ? `<div class="meta">👤 ${esc(caregivers.map(x=>x.name).join(', '))}</div>` : ''}
         ${mates.length ? `<div class="meta">${t('withWhom')} ${esc(mates.join(', '))}</div>` : ''}
       </div>
     </div>
@@ -3117,7 +3178,7 @@ function eventDayLabel(dateStr){
 }
 
 function childEventHero(e){
-  const who = emp(e.employeeId);
+  const caregivers=entryEmployeeIds(e).map(emp).filter(Boolean);
   return `<div class="card event-hero">
     <div class="event-cover" style="background:linear-gradient(135deg,${esc(e.color||'#2563eb')},#0f172a)">
       <span class="event-emoji">${esc(e.emoji||'🎉')}</span>
@@ -3129,19 +3190,19 @@ function childEventHero(e){
         <div>🗓️ <b>${esc(eventDayLabel(e.date))}</b><br>${esc(e.from)}–${esc(e.to)}</div>
         <div>📍 <b>${esc(e.location)}</b></div>
         <div>🎒 <b>${t('bring')}:</b><br>${esc(L(e.bring))}</div>
-        <div>👤 <b>${t('accompaniedBy')}:</b><br>${esc(who?.name||'—')}</div>
+        <div>👤 <b>${t('accompaniedBy')}:</b><br>${esc(caregivers.map(x=>x.name).join(', ')||'—')}</div>
       </div>
     </div>
   </div>`;
 }
 
 function childEventCard(e){
-  const d = new Date(e.date+'T12:00:00'), who = emp(e.employeeId);
+  const d = new Date(e.date+'T12:00:00'), caregivers=entryEmployeeIds(e).map(emp).filter(Boolean);
   return `<div class="card event-card">
     <div class="event-date"><span>${DAY_NAMES[state.lang][dowIdx(d)]}</span><b>${d.getDate()}</b><span>${d.getMonth()+1}</span></div>
     <div class="grow"><div class="strong">${esc(e.emoji||'🎉')} ${esc(L(e))}</div>
       <div class="muted">${esc(e.from)}–${esc(e.to)} · 📍 ${esc(e.location)}</div>
-      <div class="muted">👤 ${esc(who?.name||'—')} · 🎒 ${esc(L(e.bring))}</div></div>
+      <div class="muted">👤 ${esc(caregivers.map(x=>x.name).join(', ')||'—')} · 🎒 ${esc(L(e.bring))}</div></div>
   </div>`;
 }
 
@@ -3172,7 +3233,7 @@ function staffEventsView(){
         <button class="grow" data-event="${e.id}" style="border:0;background:none;text-align:left;padding:0;cursor:pointer">
           <div class="strong">${esc(e.emoji||'🎉')} ${esc(L(e))}</div>
           <div class="muted">${esc(eventDayLabel(e.date))} · ${esc(e.from)}–${esc(e.to)} · 📍 ${esc(e.location||'—')}</div>
-          <div class="muted">${T[state.lang].kidsCount((e.childIds||[]).length)} · ${esc(emp(e.employeeId)?.name||t('unassigned'))}</div>
+          <div class="muted">${T[state.lang].kidsCount((e.childIds||[]).length)} · ${esc(employeeNames(e))}</div>
           <span class="pill ${e.status==='published'?'in':'gray'}" style="margin-top:7px">${e.status==='published'?t('published'):t('eventDraft')}</span>
         </button>
         <button class="mini-x" data-event-delete="${e.id}" type="button" aria-label="${esc(t('deleteEvent'))}">×</button>
@@ -3184,7 +3245,8 @@ function sheetEvent(existing=null, presets={}){
   const e=existing || {
     id:null, de:presets.title||'', el:presets.title||'', description:{de:'',el:''},
     date:presets.date||state.date, from:presets.from||'16:00', to:presets.to||'18:00',
-    location:presets.location||'', employeeId:presets.employeeId||state.user?.id||'',
+    location:presets.location||'', employeeIds:presets.employeeIds||[presets.employeeId||state.user?.id].filter(Boolean),
+    employeeId:presets.employeeId||state.user?.id||'',
     childIds:[...(presets.childIds||[])], bring:{de:'',el:''}, emoji:'🎉', color:'#7c3aed',
     status:'published', featured:false, scheduleEntryId:presets.scheduleEntryId||null,
     scheduleDate:presets.scheduleDate||null,
@@ -3203,19 +3265,20 @@ function sheetEvent(existing=null, presets={}){
     </div>
     <label class="f"><span>${t('eventLocation')}</span><input id="evLocation" value="${esc(e.location||'')}"></label>
     <label class="f"><span>${t('eventBring')}</span><input id="evBring" value="${esc(L(e.bring))}"></label>
-    <label class="f"><span>${t('person')}</span><select id="evEmp">
-      <option value="">${t('noPerson')}</option>${DB.employees.map(p=>`<option value="${p.id}" ${p.id===e.employeeId?'selected':''}>${esc(p.name)}</option>`).join('')}
-    </select></label>
+    <label class="f"><span>${t('person')} · ${t('chooseMany')}</span></label>
+    <div class="check-grid" id="evPeople">
+      ${DB.employees.map(p=>`<label class="check-option"><input type="checkbox" value="${p.id}" ${entryEmployeeIds(e).includes(p.id)?'checked':''}><span>${esc(p.name)}</span></label>`).join('')}
+    </div>
     <label class="f"><span>${t('children')}</span></label>
     <div class="chips" id="evKids" style="margin:-4px 0 12px">
-      ${DB.children.map(c=>`<button class="chip ${pickedKids.includes(c.id)?'on':''}" data-c="${c.id}" type="button">${esc(c.name)}</button>`).join('')}
+      ${DB.children.map(c=>`<button class="chip ${pickedKids.includes(c.id)?'on':''}" data-c="${c.id}" type="button">${pickedKids.includes(c.id)?'☑':'☐'} ${esc(c.name)}</button>`).join('')}
     </div>
     <label class="row card" style="cursor:pointer"><input type="checkbox" id="evPublish" style="width:auto" ${e.status==='published'?'checked':''}>
       <div><div class="strong">${t('publishEvent')}</div><div class="muted">${t('announceHint')}</div></div></label>
     <div id="evStatus"></div><button class="btn" id="evSave">${t('saveWithPin')}</button>`);
   sheetEl.querySelectorAll('#evKids .chip').forEach(b=>b.onclick=()=>{
     const id=b.dataset.c; pickedKids=pickedKids.includes(id)?pickedKids.filter(x=>x!==id):[...pickedKids,id];
-    b.classList.toggle('on',pickedKids.includes(id));
+    const on=pickedKids.includes(id); b.classList.toggle('on',on); b.textContent=`${on?'☑':'☐'} ${kid(id)?.name||''}`;
   });
   sheetEl.querySelector('#evSave').onclick=()=>{
     const title=sheetEl.querySelector('#evTitle').value.trim();
@@ -3227,9 +3290,11 @@ function sheetEvent(existing=null, presets={}){
       const value={...e,id:e.id||'ev'+uid(),de:title,el:title,
         description:{de:sheetEl.querySelector('#evDesc').value.trim(),el:sheetEl.querySelector('#evDesc').value.trim()},
         date,from,to,location:sheetEl.querySelector('#evLocation').value.trim(),
-        employeeId:sheetEl.querySelector('#evEmp').value||who.id,childIds:[...pickedKids],
+        employeeIds:[...sheetEl.querySelectorAll('#evPeople input:checked')].map(x=>x.value),childIds:[...pickedKids],
         bring:{de:sheetEl.querySelector('#evBring').value.trim(),el:sheetEl.querySelector('#evBring').value.trim()},
         emoji:sheetEl.querySelector('#evEmoji').value.trim()||'🎉',status:sheetEl.querySelector('#evPublish').checked?'published':'draft'};
+      value.employeeId=value.employeeIds[0]||who.id;
+      if(!value.employeeIds.length) value.employeeIds=[value.employeeId];
       const idx=DB.events.findIndex(x=>x.id===value.id);
       if(idx>=0) DB.events[idx]=value; else DB.events.push(value);
       logEntry('EVENT',`${value.status==='published'?t('eventPublished'):t('eventSaved')}: ${title}`);
@@ -3618,7 +3683,12 @@ function renderGatePin(who, mode = 'staff'){
         if(buf === who.pin){
           state.mode = mode;
           if(mode === 'child'){ state.child = who; state.user = null; }
-          else { state.user = who; state.child = null; logEntry('LOGIN', t('loginEntry')); }
+          rememberAuthentication(mode, who);
+          if(mode === 'staff'){
+            state.user = who;
+            state.child = null;
+            logEntry('LOGIN', t('loginEntry'));
+          }
           closeGate(); render();
           toast(T[state.lang].welcome(who.name));
         }else{
@@ -3642,7 +3712,7 @@ window.addEventListener('error', event=>{
   toast(t('unexpectedError'),'error');
 });
 render();
-openGate();
+if(!restoredAuth) openGate();
 resolveIp().then(refreshGateMeta);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>

@@ -112,23 +112,25 @@ Schnitzeljagd, Traumfänger, Seilspringen, Domino XXL κ.λπ.).
 | `children` | `id, name` |
 | `groups` | `id, de, el, childIds[]` |
 | `activities` / `customActivities` | `id, emoji, de, el` |
-| `template` | `id, block, day(0=Δευ…6=Κυρ), houseId, employeeId, childIds[], activityId, time, note` |
+| `template` | `id, block, day(0=Δευ…6=Κυρ), houseIds[], employeeIds[], childIds[], activityId, time, note` — τα παλιά `houseId/employeeId` παραμένουν για συμβατότητα |
 | `overrides` | `id, date, templateId, …ίδια πεδία, cancelled` |
 | `weeks` | κλειδί = Δευτέρα ISO → τα 4 πλαίσια + `createdBy, createdAt` |
 | `stock` | κλειδί `"houseId:productId"` → ποσότητα |
 | `shoppingList` | `id, name, qty, unit, houseId, by, done` |
-| `log` | `id, ts, type, employeeId, text, ip, deviceId, ua, photo?, houseId?` — **append-only** |
+| `log` | `id, ts, type, employeeId, text, ip, deviceId, sessionId, ua, photo?, houseId?` — **append-only** |
 
 `employeeId: null` σημαίνει **«wer?»** — ανοιχτή θέση, όπως στο χαρτί.
 
-Στο `localStorage` αποθηκεύονται μόνο `template, overrides, weeks, shoppingList, stock,
-log, customActivities`. Τα δεδομένα αναφοράς έρχονται πάντα από το `SEED`, ώστε μια
+Στο `localStorage` αποθηκεύονται μόνο τα μεταβαλλόμενα δεδομένα (`template, overrides,
+weeks, events, aiImports, listEntries, stock, log, customActivities, customReasons`) και
+ένα PIN-free authenticated session 12 ωρών. Τα δεδομένα αναφοράς έρχονται πάντα από το `SEED`, ώστε μια
 ενημέρωση της εφαρμογής να μη μπλοκάρεται από παλιό αποθηκευμένο αντίγραφο.
 
 ## Δύο ξεχωριστές είσοδοι (§31.3)
 
 Πρώτη οθόνη: **Personal** ή **Kinder**. Μετά grid προφίλ, μετά 4ψήφιο PIN.
-Τα PIN των παιδιών είναι ανεξάρτητα από του προσωπικού.
+Τα PIN των παιδιών είναι ανεξάρτητα από του προσωπικού. Μετά την επιτυχημένη είσοδο,
+το profile/session ID (ποτέ το PIN) θυμάται τη σύνδεση για 12 ώρες στην ίδια συσκευή.
 
 **Child Portal (§31.4):** το παιδί βλέπει μόνο τον δικό του χρόνο — «Was mache ich heute»,
 η εβδομάδα του, τα events της εβδομάδας. Δεν βλέπει αποθήκη, λίστες, βιβλίο, βάρδιες
@@ -136,9 +138,7 @@ log, customActivities`. Τα δεδομένα αναφοράς έρχονται 
 «Nageltermin»). Βλέπει τον φροντιστή του και τα παιδιά της ομάδας του, γιατί είναι
 λειτουργικά αναγκαίο — αν το θέλεις κρυφό, αλλάζει με μία γραμμή.
 
-Demo PIN παιδιών: Simon `0101` · Kai `0202` · Vincent `0303` · Julian klein `0404` ·
-Julian groß `0505` · Lea `0606` · Valeria `0707` · Jule `0808` · Zwilling A `0909` ·
-Zwilling B `1010` · Daniel `1212` · Leonie `1313`
+Demo PIN παιδιών: `1111` για όλα τα παιδικά προφίλ.
 
 ## Βάρδιες (§6)
 
