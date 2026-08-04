@@ -11,6 +11,7 @@ import os
 import re
 import secrets
 import smtplib
+import ssl
 import threading
 import time
 import urllib.error
@@ -440,10 +441,19 @@ def send_via_smtp(recipient: str, subject: str, text_body: str, html_body: str |
     message.set_content(text_body)
     if html_body:
         message.add_alternative(html_body, subtype="html")
+    context = ssl.create_default_context()
     try:
+        if config["port"] == 465:
+            with smtplib.SMTP_SSL(config["host"], config["port"], timeout=30, context=context) as smtp:
+                if config["user"]:
+                    smtp.login(config["user"], config["password"])
+                smtp.send_message(message)
+            return
         with smtplib.SMTP(config["host"], config["port"], timeout=30) as smtp:
+            smtp.ehlo()
             if config["starttls"]:
-                smtp.starttls()
+                smtp.starttls(context=context)
+                smtp.ehlo()
             if config["user"]:
                 smtp.login(config["user"], config["password"])
             smtp.send_message(message)
