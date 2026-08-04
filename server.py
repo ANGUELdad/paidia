@@ -21,6 +21,20 @@ from email.message import EmailMessage
 from http.cookies import SimpleCookie
 from pathlib import Path
 
+try:
+    from webauthn import (
+        generate_authentication_options, generate_registration_options, options_to_json,
+        verify_authentication_response, verify_registration_response,
+    )
+    from webauthn.helpers.exceptions import InvalidAuthenticationResponse, InvalidRegistrationResponse
+    from webauthn.helpers.structs import (
+        AuthenticatorAttachment, AuthenticatorSelectionCriteria, PublicKeyCredentialDescriptor,
+        ResidentKeyRequirement, UserVerificationRequirement,
+    )
+    WEBAUTHN_AVAILABLE = True
+except ImportError:  # The app still starts with PIN login until requirements are installed.
+    WEBAUTHN_AVAILABLE = False
+
 
 def load_env(path: str = ".env") -> None:
     """Load a small local .env without adding a dependency or overriding shell values."""
@@ -61,6 +75,8 @@ PROFILE_LOGIN_FAILURES: dict[str, list[float]] = {}
 LOGIN_LOCKS: dict[str, float] = {}
 SECURITY_ALERTS: dict[str, float] = {}
 RESET_REQUESTS: dict[str, float] = {}
+PASSKEY_CHALLENGES: dict[str, dict] = {}
+PASSKEY_CHALLENGE_TTL = 5 * 60
 
 
 def env_int(name: str, default: int, minimum: int = 1) -> int:
@@ -79,6 +95,13 @@ SECURITY_ALERT_AFTER = env_int("PAIDIA_SECURITY_ALERT_AFTER", 3)
 SECURITY_ALERT_COOLDOWN = env_int("PAIDIA_SECURITY_ALERT_COOLDOWN", 3600)
 SECURITY_STATE_PATH = Path(os.environ.get("PAIDIA_SECURITY_STATE_PATH", ".paidia-security-state.json"))
 SECURITY_LOG_PATH = Path(os.environ.get("PAIDIA_SECURITY_LOG_PATH", ".paidia-security-events.jsonl"))
+PASSKEY_STORE_PATH = Path(os.environ.get("PAIDIA_PASSKEY_STORE_PATH", ".paidia-passkeys.json"))
+WEBAUTHN_ORIGIN = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", os.environ.get(
+    "PAIDIA_PUBLIC_URL", f"http://localhost:{PORT}"
+)).rstrip("/")
+WEBAUTHN_RP_ID = os.environ.get(
+    "PAIDIA_WEBAUTHN_RP_ID", urllib.parse.urlsplit(WEBAUTHN_ORIGIN).hostname or "localhost"
+)
 
 
 def load_trusted_networks() -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
@@ -220,6 +243,59 @@ ADMIN_PROFILE_IDS = {
     value.strip() for value in os.environ.get("PAIDIA_ADMIN_PROFILE_IDS", "e3,e4,e8").split(",")
     if value.strip()
 }
+
+
+def load_passkeys() -> dict:
+    try:
+        value = json.loads(PASSKEY_STORE_PATH.read_text(encoding="utf-8"))
+        if isinstance(value, dict) and isinstance(value.get("credentials"), dict):
+            value.setdefault("user_handles", {})
+            return value
+    except (OSError, json.JSONDecodeError):
+        pass
+    return {"credentials": {}, "user_handles": {}}
+
+
+PASSKEYS = load_passkeys()
+
+
+def persist_passkeys() -> None:
+    PASSKEY_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = PASSKEY_STORE_PATH.with_name(PASSKEY_STORE_PATH.name + ".tmp")
+    temp_path.write_text(json.dumps(PASSKEYS, separators=(",", ":")), encoding="utf-8")
+    os.chmod(temp_path, 0o600)
+    os.replace(temp_path, PASSKEY_STORE_PATH)
+
+
+def b64url(value: bytes) -> str:
+    import base64
+    return base64.urlsafe_b64encode(value).rstrip(b"=").decode("ascii")
+
+
+def unb64url(value: str) -> bytes:
+    import base64
+    return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+
+
+def profile_passkeys(profile_id: str, mode: str | None = None) -> list[dict]:
+    return [record for record in PASSKEYS["credentials"].values()
+            if record.get("profile_id") == profile_id and (mode is None or record.get("mode") == mode)]
+
+
+def passkey_user_handle(profile_id: str) -> bytes:
+    encoded = PASSKEYS["user_handles"].get(profile_id)
+    if not encoded:
+        encoded = b64url(secrets.token_bytes(32))
+        PASSKEYS["user_handles"][profile_id] = encoded
+        persist_passkeys()
+    return unb64url(encoded)
+
+
+def prune_passkey_challenges() -> None:
+    now = time.time()
+    for key, value in list(PASSKEY_CHALLENGES.items()):
+        if value.get("expires_at", 0) <= now:
+            PASSKEY_CHALLENGES.pop(key, None)
 
 
 def security_alert_recipients() -> list[str]:
@@ -652,6 +728,10 @@ class Handler(SimpleHTTPRequestHandler):
                 "trustedNetworksConfigured": len(TRUSTED_NETWORKS),
                 "trustedProxyNetworksConfigured": len(TRUSTED_PROXY_NETWORKS),
                 "loginAttemptLimit": LOGIN_MAX_ATTEMPTS,
+                "passkeysAvailable": WEBAUTHN_AVAILABLE,
+                "passkeyCredentials": len(PASSKEYS["credentials"]),
+                "passkeyOrigin": WEBAUTHN_ORIGIN,
+                "passkeyRpId": WEBAUTHN_RP_ID,
             })
             return
         if parsed.path == "/api/auth/session":
@@ -666,6 +746,7 @@ class Handler(SimpleHTTPRequestHandler):
                     "admin": bool(session.get("admin")),
                     "sessionId": session["session_id"],
                     "expiresAt": int(session["expires_at"] * 1000),
+                    "passkeys": len(profile_passkeys(session["profile_id"], session["mode"])),
                 })
             return
         if parsed.path == "/api/whatsapp/health":
@@ -709,6 +790,8 @@ class Handler(SimpleHTTPRequestHandler):
         if path not in {
             "/api/ai-shopping", "/api/chat", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
+            "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
+            "/api/auth/passkey/login/options", "/api/auth/passkey/login/verify", "/api/auth/passkey/remove",
         }:
             self.json_response(404, {"error": "Not found"})
             return
@@ -741,6 +824,21 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/auth/reset":
             self.handle_auth_reset(body)
             return
+        if path == "/api/auth/passkey/register/options":
+            self.handle_passkey_register_options(body)
+            return
+        if path == "/api/auth/passkey/register/verify":
+            self.handle_passkey_register_verify(body)
+            return
+        if path == "/api/auth/passkey/login/options":
+            self.handle_passkey_login_options(body)
+            return
+        if path == "/api/auth/passkey/login/verify":
+            self.handle_passkey_login_verify(body)
+            return
+        if path == "/api/auth/passkey/remove":
+            self.handle_passkey_remove(body)
+            return
 
         if path == "/api/whatsapp/test":
             self.handle_whatsapp_test(body)
@@ -761,6 +859,34 @@ class Handler(SimpleHTTPRequestHandler):
             self.handle_chat(body, api_key)
             return
         self.handle_shopping(body, api_key)
+
+    def finish_authentication(self, profile_id: str, mode: str, method: str = "pin") -> None:
+        now = time.time()
+        client_ip = self.client_ip()
+        token = secrets.token_urlsafe(32)
+        session_id = "ses-" + secrets.token_urlsafe(12)
+        expires_at = now + AUTH_SESSION_TTL
+        old_token = self.auth_cookie()
+        with AUTH_LOCK:
+            AUTH_SESSIONS.pop(old_token, None)
+            AUTH_SESSIONS[token] = {
+                "session_id": session_id, "profile_id": profile_id, "mode": mode,
+                "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
+                "expires_at": expires_at, "method": method,
+            }
+            new_ip, first_ip = remember_profile_ip(profile_id, client_ip)
+        if mode == "staff":
+            trusted = is_trusted_ip(client_ip)
+            if not trusted:
+                queue_security_alert(profile_id, "untrusted_ip_login", client_ip, {"attempts": 0})
+            elif new_ip and not first_ip:
+                queue_security_alert(profile_id, "new_ip_login", client_ip, {"attempts": 0})
+        self.json_response(200, {
+            "authenticated": True, "profileId": profile_id, "mode": mode,
+            "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
+            "sessionId": session_id, "expiresAt": int(expires_at * 1000),
+            "authenticationMethod": method,
+        }, {"Set-Cookie": self.set_session_cookie(token)})
 
     def handle_auth_login(self, body: dict) -> None:
         profile_id = str(body.get("profileId", "")).strip()[:64]
@@ -823,35 +949,171 @@ class Handler(SimpleHTTPRequestHandler):
                 "attemptsRemaining": max(0, LOGIN_MAX_ATTEMPTS - pair_count),
             })
             return
-        token = secrets.token_urlsafe(32)
-        session_id = "ses-" + secrets.token_urlsafe(12)
-        expires_at = now + AUTH_SESSION_TTL
-        old_token = self.auth_cookie()
         with AUTH_LOCK:
             LOGIN_FAILURES.pop(attempt_key, None)
-            AUTH_SESSIONS.pop(old_token, None)
-            AUTH_SESSIONS[token] = {
-                "session_id": session_id,
-                "profile_id": profile_id,
-                "mode": mode,
-                "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
-                "expires_at": expires_at,
+        self.finish_authentication(profile_id, mode, "pin")
+
+    def handle_passkey_register_options(self, body: dict) -> None:
+        if not WEBAUTHN_AVAILABLE:
+            self.json_response(503, {"error": "Passkey support is not installed", "code": "passkey_unavailable"})
+            return
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "PIN sign-in is required before adding a passkey", "code": "reauth_required"})
+            return
+        profile_id, mode = session["profile_id"], session["mode"]
+        display_name = str(body.get("displayName", profile_id)).strip()[:80] or profile_id
+        existing = profile_passkeys(profile_id, mode)
+        options = generate_registration_options(
+            rp_id=WEBAUTHN_RP_ID, rp_name="Armonia Thassos", user_name=profile_id,
+            user_id=passkey_user_handle(profile_id), user_display_name=display_name,
+            authenticator_selection=AuthenticatorSelectionCriteria(
+                authenticator_attachment=AuthenticatorAttachment.PLATFORM,
+                resident_key=ResidentKeyRequirement.REQUIRED, require_resident_key=True,
+                user_verification=UserVerificationRequirement.REQUIRED,
+            ),
+            exclude_credentials=[PublicKeyCredentialDescriptor(id=unb64url(item["credential_id"]))
+                                 for item in existing], timeout=60_000,
+        )
+        ceremony_id = secrets.token_urlsafe(24)
+        with AUTH_LOCK:
+            prune_passkey_challenges()
+            PASSKEY_CHALLENGES[ceremony_id] = {
+                "kind": "register", "profile_id": profile_id, "mode": mode,
+                "challenge": options.challenge, "session_id": session["session_id"],
+                "label": str(body.get("label", "This device")).strip()[:80] or "This device",
+                "expires_at": time.time() + PASSKEY_CHALLENGE_TTL,
             }
-            new_ip, first_ip = remember_profile_ip(profile_id, client_ip)
-        if mode == "staff":
-            trusted = is_trusted_ip(client_ip)
-            if not trusted:
-                queue_security_alert(profile_id, "untrusted_ip_login", client_ip, {"attempts": 0})
-            elif new_ip and not first_ip:
-                queue_security_alert(profile_id, "new_ip_login", client_ip, {"attempts": 0})
-        self.json_response(200, {
-            "authenticated": True,
-            "profileId": profile_id,
-            "mode": mode,
-            "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
-            "sessionId": session_id,
-            "expiresAt": int(expires_at * 1000),
-        }, {"Set-Cookie": self.set_session_cookie(token)})
+        self.json_response(200, {"ceremonyId": ceremony_id, "publicKey": json.loads(options_to_json(options))})
+
+    def handle_passkey_register_verify(self, body: dict) -> None:
+        if not WEBAUTHN_AVAILABLE:
+            self.json_response(503, {"error": "Passkey support is not installed", "code": "passkey_unavailable"})
+            return
+        session = self.current_auth_session()
+        ceremony_id = str(body.get("ceremonyId", ""))
+        with AUTH_LOCK:
+            challenge = PASSKEY_CHALLENGES.pop(ceremony_id, None)
+        if (not session or not challenge or challenge.get("kind") != "register" or
+                challenge.get("expires_at", 0) <= time.time() or
+                challenge.get("session_id") != session.get("session_id")):
+            self.json_response(400, {"error": "Passkey setup expired; start again", "code": "challenge_expired"})
+            return
+        credential = body.get("credential")
+        if not isinstance(credential, dict):
+            self.json_response(400, {"error": "Invalid passkey response", "code": "input"})
+            return
+        try:
+            verified = verify_registration_response(
+                credential=credential, expected_challenge=challenge["challenge"],
+                expected_rp_id=WEBAUTHN_RP_ID, expected_origin=WEBAUTHN_ORIGIN,
+                require_user_verification=True,
+            )
+        except (InvalidRegistrationResponse, ValueError, TypeError):
+            self.json_response(401, {"error": "The passkey could not be verified", "code": "verification_failed"})
+            return
+        credential_id = b64url(verified.credential_id)
+        record = {
+            "credential_id": credential_id, "profile_id": challenge["profile_id"],
+            "mode": challenge["mode"], "public_key": b64url(verified.credential_public_key),
+            "sign_count": verified.sign_count, "device_type": verified.credential_device_type.value,
+            "backed_up": verified.credential_backed_up, "label": challenge["label"],
+            "created_at": int(time.time()),
+        }
+        try:
+            with AUTH_LOCK:
+                PASSKEYS["credentials"][credential_id] = record
+                persist_passkeys()
+        except OSError:
+            self.json_response(507, {"error": "The passkey could not be stored", "code": "storage"})
+            return
+        self.json_response(200, {"registered": True, "credentialId": credential_id,
+                                 "passkeys": len(profile_passkeys(challenge["profile_id"], challenge["mode"]))})
+
+    def handle_passkey_login_options(self, body: dict) -> None:
+        if not WEBAUTHN_AVAILABLE:
+            self.json_response(503, {"error": "Passkey support is not installed", "code": "passkey_unavailable"})
+            return
+        profile_id = str(body.get("profileId", "")).strip()[:64]
+        mode = "child" if body.get("mode") == "child" else "staff"
+        user = AUTH_USERS.get(profile_id)
+        credentials = profile_passkeys(profile_id, mode)
+        if not user or user.get("mode") != mode or not credentials:
+            self.json_response(404, {"error": "No passkey is configured for this profile", "code": "no_passkey"})
+            return
+        options = generate_authentication_options(
+            rp_id=WEBAUTHN_RP_ID,
+            allow_credentials=[PublicKeyCredentialDescriptor(id=unb64url(item["credential_id"]))
+                               for item in credentials],
+            user_verification=UserVerificationRequirement.REQUIRED, timeout=60_000,
+        )
+        ceremony_id = secrets.token_urlsafe(24)
+        with AUTH_LOCK:
+            prune_passkey_challenges()
+            PASSKEY_CHALLENGES[ceremony_id] = {
+                "kind": "login", "profile_id": profile_id, "mode": mode,
+                "challenge": options.challenge, "expires_at": time.time() + PASSKEY_CHALLENGE_TTL,
+            }
+        self.json_response(200, {"ceremonyId": ceremony_id, "publicKey": json.loads(options_to_json(options))})
+
+    def handle_passkey_login_verify(self, body: dict) -> None:
+        if not WEBAUTHN_AVAILABLE:
+            self.json_response(503, {"error": "Passkey support is not installed", "code": "passkey_unavailable"})
+            return
+        ceremony_id = str(body.get("ceremonyId", ""))
+        credential = body.get("credential")
+        with AUTH_LOCK:
+            challenge = PASSKEY_CHALLENGES.pop(ceremony_id, None)
+        if (not challenge or challenge.get("kind") != "login" or
+                challenge.get("expires_at", 0) <= time.time() or not isinstance(credential, dict)):
+            self.json_response(400, {"error": "Passkey request expired; try again", "code": "challenge_expired"})
+            return
+        credential_id = str(credential.get("id") or credential.get("rawId") or "")
+        stored = PASSKEYS["credentials"].get(credential_id)
+        if (not stored or stored.get("profile_id") != challenge["profile_id"] or
+                stored.get("mode") != challenge["mode"]):
+            self.json_response(401, {"error": "Passkey does not belong to this profile", "code": "verification_failed"})
+            return
+        try:
+            verified = verify_authentication_response(
+                credential=credential, expected_challenge=challenge["challenge"],
+                expected_rp_id=WEBAUTHN_RP_ID, expected_origin=WEBAUTHN_ORIGIN,
+                credential_public_key=unb64url(stored["public_key"]),
+                credential_current_sign_count=int(stored.get("sign_count", 0)),
+                require_user_verification=True,
+            )
+        except (InvalidAuthenticationResponse, ValueError, TypeError):
+            self.json_response(401, {"error": "Face ID / fingerprint verification failed", "code": "verification_failed"})
+            return
+        try:
+            with AUTH_LOCK:
+                stored["sign_count"] = verified.new_sign_count
+                stored["backed_up"] = verified.credential_backed_up
+                stored["last_used_at"] = int(time.time())
+                persist_passkeys()
+        except OSError:
+            self.json_response(507, {"error": "Passkey state could not be saved", "code": "storage"})
+            return
+        self.finish_authentication(challenge["profile_id"], challenge["mode"], "passkey")
+
+    def handle_passkey_remove(self, body: dict) -> None:
+        del body
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Sign in is required", "code": "reauth_required"})
+            return
+        profile_id, mode = session["profile_id"], session["mode"]
+        removed = [key for key, value in PASSKEYS["credentials"].items()
+                   if value.get("profile_id") == profile_id and value.get("mode") == mode]
+        try:
+            with AUTH_LOCK:
+                for key in removed:
+                    PASSKEYS["credentials"].pop(key, None)
+                persist_passkeys()
+        except OSError:
+            self.json_response(507, {"error": "Passkeys could not be removed", "code": "storage"})
+            return
+        self.json_response(200, {"removed": len(removed)})
 
     def handle_auth_logout(self) -> None:
         token = self.auth_cookie()

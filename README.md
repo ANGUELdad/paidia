@@ -221,6 +221,37 @@ python3 auth_admin.py set-pin e4
 Το `set-pin` ζητά κρυφά το PIN δύο φορές και γράφει μόνο salted hash. Μετά από admin
 αλλαγή email/PIN χρειάζεται restart του `server.py`.
 
+### Passkeys: Face ID, Touch ID, fingerprint, Windows Hello
+
+Μετά από πρώτη είσοδο με PIN, άνοιξε **Profil → Anmeldung & Sicherheit** και πάτησε
+**Face ID / Touch ID einrichten**. Το λειτουργικό σύστημα επιλέγει τον διαθέσιμο τρόπο:
+Face ID/Touch ID σε Apple, fingerprint ή screen lock σε Android και Windows Hello σε
+Windows. Η εφαρμογή δεν λαμβάνει ούτε αποθηκεύει βιομετρικά δεδομένα· αποθηκεύει μόνο
+το δημόσιο WebAuthn credential στο ignored αρχείο `.paidia-passkeys.json`. Το PIN και
+το email reset παραμένουν ως recovery fallback. Από την ίδια οθόνη μπορούν να ανακληθούν
+όλα τα passkeys του profile.
+
+Εγκατάσταση και τοπική εκκίνηση:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python server.py
+```
+
+Το `http://localhost:5173` επιτρέπεται για development. Σε Synology/LAN τα passkeys
+απαιτούν **σταθερό HTTPS hostname** — όχι απλό `http://192.168…`. Παράδειγμα πίσω από
+Synology reverse proxy:
+
+```env
+PAIDIA_PUBLIC_URL=https://paidia.example.com
+PAIDIA_WEBAUTHN_ORIGIN=https://paidia.example.com
+PAIDIA_WEBAUTHN_RP_ID=paidia.example.com
+PAIDIA_COOKIE_SECURE=true
+```
+
+Αν αλλάξει hostname/RP ID, τα παλιά passkeys δεν ισχύουν και πρέπει να εγγραφούν ξανά.
+
 ### Προστασία προσωπικών profiles
 
 Η είσοδος περιορίζει αποτυχημένες προσπάθειες ανά IP+profile (5), συνολικά ανά IP (20)

@@ -8,6 +8,7 @@
 # Python
 __pycache__/
 *.py[cod]
+.venv/
 
 # macOS and editors
 .DS_Store
@@ -18,5 +19,6 @@ __pycache__/
 # Local runtime artifacts
 *.log
 .paidia-security-*
+.paidia-passkeys.json
 .coverage
 coverage/

@@ -519,6 +519,11 @@
   .gate-pin .pinpad button:hover{background:#294b5f;border-color:rgba(94,234,212,.5);transform:translateY(-1px)}
   .gate-pin .pinpad button:active{transform:scale(.95)}
   .gate-pin .btn{background:linear-gradient(135deg,#14b8a6,#0284c7);box-shadow:0 10px 28px rgba(14,165,164,.24)}
+  .passkey-btn{display:none;align-items:center;justify-content:center;gap:9px;width:100%;margin-top:12px;padding:12px 14px;border:1px solid rgba(94,234,212,.42);border-radius:13px;
+    background:rgba(20,184,166,.13);color:#ccfbf1;font-size:13px;font-weight:760;cursor:pointer}.passkey-btn.on{display:flex}.passkey-btn:hover{background:rgba(20,184,166,.23)}
+  .pin-divider{display:flex;align-items:center;gap:9px;margin:13px 0 2px;color:#64748b;font-size:10px}.pin-divider::before,.pin-divider::after{content:'';height:1px;flex:1;background:#334155}
+  .security-hero{padding:16px;border-radius:17px;background:linear-gradient(135deg,#ecfeff,#eef2ff);border:1px solid #bae6fd}.security-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:#fff;font-size:25px;box-shadow:0 8px 20px rgba(14,116,144,.12)}
+  .security-passkey-card{margin:12px 0;padding:14px;border:1px solid #dbeafe;border-radius:15px;background:#f8fafc}.security-passkey-card .btn{margin-top:10px}
   .gate-back{background:none; border:0; color:#94a3b8; font-size:13px; padding:14px; cursor:pointer}
   .gate-meta{margin-top:20px; text-align:center; font-size:11.5px; color:#64748b; line-height:1.6}
   .gate-lang{display:flex; gap:7px; justify-content:center; margin-bottom:18px}
@@ -633,6 +638,12 @@ const T = {
     authUnavailable:'Anmeldung ist gerade nicht erreichbar.', tooManyPins:'Zu viele Versuche.',
     lockedFor:n=>`Anmeldung gesperrt. Versuche es in ${n} Minute${n===1?'':'n'} erneut.`,
     attemptsRemaining:n=>`Falsche PIN. Noch ${n} Versuch${n===1?'':'e'}.`,
+    useBiometrics:'Mit Geräte-Sperre anmelden', passkey:'Passkey', passkeySetup:'Face ID / Touch ID einrichten',
+    passkeyHint:'Dein Gerät entscheidet: Face ID, Touch ID, Fingerabdruck oder Windows Hello. Biometriedaten verlassen das Gerät nie.',
+    passkeyAdded:'Passkey wurde sicher hinzugefügt.', passkeyRemoved:'Passkeys wurden entfernt.', removePasskeys:'Passkeys entfernen',
+    passkeyNone:'Auf diesem Profil ist noch kein Passkey eingerichtet.', passkeyCount:n=>`${n} Passkey${n===1?'':'s'} eingerichtet`,
+    passkeyUnavailable:'Passkeys brauchen ein unterstütztes Gerät und HTTPS.', passkeyCancelled:'Anmeldung wurde abgebrochen.',
+    securityAccess:'Anmeldung & Sicherheit', signOut:'Abmelden', pinFallback:'Oder PIN verwenden', thisDevice:'Dieses Gerät',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
     device:'Gerät', welcome:n=>'Willkommen, '+n,
     pickChild:'Mindestens ein Kind wählen', pickActivity:'Aktivität wählen',
@@ -819,6 +830,12 @@ const T = {
     authUnavailable:'Η σύνδεση δεν είναι διαθέσιμη αυτή τη στιγμή.', tooManyPins:'Πολλές προσπάθειες.',
     lockedFor:n=>`Η σύνδεση κλειδώθηκε. Δοκίμασε ξανά σε ${n} λεπτά.`,
     attemptsRemaining:n=>`Λάθος PIN. Απομένουν ${n} προσπάθειες.`,
+    useBiometrics:'Σύνδεση με κλείδωμα συσκευής', passkey:'Passkey', passkeySetup:'Ρύθμιση Face ID / Touch ID',
+    passkeyHint:'Η συσκευή αποφασίζει: Face ID, Touch ID, δακτυλικό αποτύπωμα ή Windows Hello. Τα βιομετρικά δεν φεύγουν ποτέ από τη συσκευή.',
+    passkeyAdded:'Το passkey προστέθηκε με ασφάλεια.', passkeyRemoved:'Τα passkeys αφαιρέθηκαν.', removePasskeys:'Αφαίρεση passkeys',
+    passkeyNone:'Δεν έχει ρυθμιστεί ακόμη passkey για αυτό το προφίλ.', passkeyCount:n=>`${n} ${n===1?'passkey':'passkeys'} ενεργά`,
+    passkeyUnavailable:'Τα passkeys χρειάζονται συμβατή συσκευή και HTTPS.', passkeyCancelled:'Η σύνδεση ακυρώθηκε.',
+    securityAccess:'Σύνδεση & ασφάλεια', signOut:'Αποσύνδεση', pinFallback:'Ή χρησιμοποίησε PIN', thisDevice:'Αυτή η συσκευή',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
     device:'Συσκευή', welcome:n=>'Καλώς ήρθες, '+n,
     pickChild:'Διάλεξε τουλάχιστον ένα παιδί', pickActivity:'Διάλεξε δραστηριότητα',
@@ -1481,6 +1498,64 @@ async function authenticateProfile(mode,who,pin){
   }
   if(!applyAuthenticatedProfile(data,{logLogin:true})) throw new Error('Unknown profile');
   return data;
+}
+
+const passkeyCapable=()=>window.isSecureContext&&!!window.PublicKeyCredential&&!!navigator.credentials;
+const biometricName=()=>{
+  const ua=navigator.userAgent;
+  if(/iPhone|iPad|iPod/i.test(ua)) return 'Face ID / Touch ID';
+  if(/Macintosh|Mac OS/i.test(ua)) return 'Touch ID';
+  if(/Android/i.test(ua)) return state.lang==='el'?'Δακτυλικό αποτύπωμα / κλείδωμα':'Fingerabdruck / Gerätesperre';
+  if(/Windows/i.test(ua)) return 'Windows Hello';
+  return t('passkey');
+};
+const b64ToBytes=value=>{
+  const base64=String(value).replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(String(value).length/4)*4,'=');
+  return Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
+};
+const bytesToB64=value=>{
+  if(value===null||value===undefined)return null;
+  const bytes=new Uint8Array(value);let binary='';bytes.forEach(b=>binary+=String.fromCharCode(b));
+  return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+};
+function decodePublicKeyOptions(options){
+  const out=structuredClone(options);out.challenge=b64ToBytes(out.challenge);
+  if(out.user?.id)out.user.id=b64ToBytes(out.user.id);
+  for(const key of ['allowCredentials','excludeCredentials']) if(out[key]) out[key]=out[key].map(c=>({...c,id:b64ToBytes(c.id)}));
+  return out;
+}
+function publicKeyCredentialJSON(credential){
+  const response=credential.response;
+  const value={id:credential.id,rawId:bytesToB64(credential.rawId),type:credential.type,
+    authenticatorAttachment:credential.authenticatorAttachment||null,clientExtensionResults:credential.getClientExtensionResults?.()||{},
+    response:{clientDataJSON:bytesToB64(response.clientDataJSON)}};
+  if(response.attestationObject)value.response.attestationObject=bytesToB64(response.attestationObject);
+  if(response.authenticatorData)value.response.authenticatorData=bytesToB64(response.authenticatorData);
+  if(response.signature)value.response.signature=bytesToB64(response.signature);
+  if('userHandle' in response)value.response.userHandle=bytesToB64(response.userHandle);
+  if(response.getTransports)value.response.transports=response.getTransports();
+  return value;
+}
+async function passkeyApi(path,body){
+  const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(body)});
+  const data=await response.json().catch(()=>({error:'Invalid server response'}));
+  if(!response.ok){const error=new Error(data.error||'Passkey request failed');error.status=response.status;error.code=data.code;throw error;}
+  return data;
+}
+async function loginWithPasskey(mode,who){
+  if(!passkeyCapable()){const error=new Error(t('passkeyUnavailable'));error.code='unsupported';throw error;}
+  const options=await passkeyApi('/api/auth/passkey/login/options',{mode,profileId:who.id});
+  const credential=await navigator.credentials.get({publicKey:decodePublicKeyOptions(options.publicKey)});
+  const data=await passkeyApi('/api/auth/passkey/login/verify',{ceremonyId:options.ceremonyId,credential:publicKeyCredentialJSON(credential)});
+  if(!applyAuthenticatedProfile(data,{logLogin:true}))throw new Error('Unknown profile');
+  return data;
+}
+async function registerPasskey(){
+  if(!passkeyCapable())throw new Error(t('passkeyUnavailable'));
+  const who=state.user||state.child;if(!who)throw new Error(t('authUnavailable'));
+  const options=await passkeyApi('/api/auth/passkey/register/options',{displayName:who.name,label:biometricName()});
+  const credential=await navigator.credentials.create({publicKey:decodePublicKeyOptions(options.publicKey)});
+  return passkeyApi('/api/auth/passkey/register/verify',{ceremonyId:options.ceremonyId,credential:publicKeyCredentialJSON(credential)});
 }
 
 async function restoreServerSession(){
@@ -4193,7 +4268,7 @@ function wire(){
 document.querySelectorAll('nav button').forEach(b=>{
   b.onclick = () => { state.tab = b.dataset.tab; render(); };
 });
-document.getElementById('btnUser').onclick = () => state.mode==='child'&&state.child ? logoutServerSession() : openGate();
+document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
 document.getElementById('btnLang').onclick = () => setLang(state.lang === 'de' ? 'el' : 'de');
 
 /* ════════════════════════════════════════════════════════════════
@@ -4201,6 +4276,40 @@ document.getElementById('btnLang').onclick = () => setLang(state.lang === 'de' ?
    ════════════════════════════════════════════════════════════════ */
 const gateEl = document.getElementById('gate');
 const gateBody = document.getElementById('gateBody');
+
+async function sheetSecurityAccess(){
+  const who=state.user||state.child;if(!who){openGate();return;}
+  openSheet(`<div class="security-hero"><div class="row" style="gap:12px"><div class="security-icon">🔐</div><div>
+      <div class="import-kicker">Armonia Thassos</div><h2 style="margin:3px 0">${t('securityAccess')}</h2><div class="muted">${esc(who.name)}</div></div></div></div>
+    <div class="security-passkey-card" id="securityPasskey"><div class="muted">${t('reading')}</div></div>
+    <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
+  const card=sheetEl.querySelector('#securityPasskey');
+  let count=0;
+  try{
+    const response=await fetch('/api/auth/session',{credentials:'same-origin'}),data=await response.json();
+    if(!response.ok||!data.authenticated)throw new Error(t('authUnavailable'));
+    count=Number(data.passkeys)||0;
+    const supported=passkeyCapable()&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+    card.innerHTML=`<div class="row between"><div><b>${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
+      <p class="muted" style="font-size:11.5px;line-height:1.5">${t('passkeyHint')}</p>
+      ${supported?`<button class="btn" id="securityAddPasskey">＋ ${t('passkeySetup')}</button>`:`<div class="status-box error">${t('passkeyUnavailable')}</div>`}
+      ${count?`<button class="btn sec" id="securityRemovePasskeys">${t('removePasskeys')}</button>`:''}`;
+    const add=card.querySelector('#securityAddPasskey');
+    if(add)add.onclick=async()=>{
+      add.disabled=true;
+      try{await registerPasskey();toast(t('passkeyAdded'),'success');closeSheet();sheetSecurityAccess();}
+      catch(error){toast(error.name==='NotAllowedError'?t('passkeyCancelled'):error.message||t('authUnavailable'),'error',5200);add.disabled=false;}
+    };
+    const remove=card.querySelector('#securityRemovePasskeys');
+    if(remove){let armed=false;remove.onclick=async()=>{
+      if(!armed){armed=true;remove.textContent=`${t('removePasskeys')} · ✓`;remove.classList.add('out');return;}
+      remove.disabled=true;
+      try{await passkeyApi('/api/auth/passkey/remove',{});toast(t('passkeyRemoved'),'success');closeSheet();sheetSecurityAccess();}
+      catch(error){toast(error.message||t('authUnavailable'),'error');remove.disabled=false;}
+    };}
+  }catch(error){card.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;}
+  sheetEl.querySelector('#securityLogout').onclick=()=>{closeSheet();logoutServerSession();};
+}
 
 function gateMeta(){
   return `<div class="gate-meta" id="gateMeta">
@@ -4293,6 +4402,8 @@ function renderGatePin(who, mode = 'staff'){
       <div class="pa" style="background:${who.color}">${initials(who.name)}</div>
       <h3>${esc(who.name)}</h3>
       <div class="sub">${mode==='child' ? '' : esc(L(who.role)) + ' · '}${t('gatePin')}</div>
+      <button class="passkey-btn ${passkeyCapable()?'on':''}" id="gPasskey">🔐 <span>${esc(biometricName())}</span></button>
+      <div class="pin-divider" id="gPinDivider" style="${passkeyCapable()?'display:flex':'display:none'}">${t('pinFallback')}</div>
       <div class="pindots" id="gpd"></div>
       <div id="gpErr" style="min-height:18px;color:#f87171;font-size:12.5px"></div>
       <div class="pinpad">
@@ -4309,6 +4420,10 @@ function renderGatePin(who, mode = 'staff'){
       [0,1,2,3,4,5].map(i=>`<i class="${i<buf.length?'f':''}"></i>`).join('');
   };
   draw();
+  if(passkeyCapable()) PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(available=>{
+    const button=gateBody.querySelector('#gPasskey'),divider=gateBody.querySelector('#gPinDivider');
+    if(button&&available){button.classList.add('on');divider.style.display='flex';}
+  }).catch(()=>{});
   gateBody.querySelector('#gBack').onclick = () => renderProfiles(mode);
   gateBody.querySelector('#gForgot').onclick = () => renderResetRequest(who,mode);
   gateBody.querySelectorAll('.pinpad button').forEach(b=>{
@@ -4320,6 +4435,16 @@ function renderGatePin(who, mode = 'staff'){
       draw();
     };
   });
+  gateBody.querySelector('#gPasskey').onclick=async()=>{
+    const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gPasskey');
+    button.disabled=true;errorEl.textContent='';
+    try{
+      await loginWithPasskey(mode,who);closeGate();render();toast(T[state.lang].welcome(who.name),'success');
+    }catch(error){
+      errorEl.textContent=error.code==='no_passkey'?t('passkeyNone'):
+        error.name==='NotAllowedError'?t('passkeyCancelled'):error.message||t('authUnavailable');
+    }finally{button.disabled=false;}
+  };
   gateBody.querySelector('#gLogin').onclick=async()=>{
     const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gLogin');
     if(buf.length<4){errorEl.textContent=t('wrongPin');return;}
