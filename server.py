@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import hashlib
 import hmac
+import ipaddress
 import os
 import re
 import secrets
@@ -51,10 +52,129 @@ RESET_TOKEN_TTL = 30 * 60
 PIN_ITERATIONS = 600_000
 AUTH_COOKIE = "paidia_session"
 AUTH_LOCK = threading.Lock()
+SECURITY_FILE_LOCK = threading.Lock()
 AUTH_SESSIONS: dict[str, dict] = {}
 RESET_TOKENS: dict[str, dict] = {}
 LOGIN_FAILURES: dict[str, list[float]] = {}
+IP_LOGIN_FAILURES: dict[str, list[float]] = {}
+PROFILE_LOGIN_FAILURES: dict[str, list[float]] = {}
+LOGIN_LOCKS: dict[str, float] = {}
+SECURITY_ALERTS: dict[str, float] = {}
 RESET_REQUESTS: dict[str, float] = {}
+
+
+def env_int(name: str, default: int, minimum: int = 1) -> int:
+    try:
+        return max(minimum, int(os.environ.get(name, str(default))))
+    except ValueError:
+        return default
+
+
+LOGIN_WINDOW = env_int("PAIDIA_LOGIN_WINDOW_SECONDS", 600)
+LOGIN_LOCK_TTL = env_int("PAIDIA_LOGIN_LOCK_SECONDS", 900)
+LOGIN_MAX_ATTEMPTS = env_int("PAIDIA_LOGIN_MAX_ATTEMPTS", 5)
+IP_MAX_FAILURES = env_int("PAIDIA_IP_MAX_FAILURES", 20)
+PROFILE_MAX_FAILURES = env_int("PAIDIA_PROFILE_MAX_FAILURES", 12)
+SECURITY_ALERT_AFTER = env_int("PAIDIA_SECURITY_ALERT_AFTER", 3)
+SECURITY_ALERT_COOLDOWN = env_int("PAIDIA_SECURITY_ALERT_COOLDOWN", 3600)
+SECURITY_STATE_PATH = Path(os.environ.get("PAIDIA_SECURITY_STATE_PATH", ".paidia-security-state.json"))
+SECURITY_LOG_PATH = Path(os.environ.get("PAIDIA_SECURITY_LOG_PATH", ".paidia-security-events.jsonl"))
+
+
+def load_trusted_networks() -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
+    networks = []
+    for value in os.environ.get("PAIDIA_TRUSTED_NETWORKS", "").split(","):
+        value = value.strip()
+        if not value:
+            continue
+        try:
+            networks.append(ipaddress.ip_network(value, strict=False))
+        except ValueError:
+            continue
+    return networks
+
+
+TRUSTED_NETWORKS = load_trusted_networks()
+
+
+def load_trusted_proxy_networks() -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
+    networks = []
+    for value in os.environ.get("PAIDIA_TRUSTED_PROXY_NETWORKS", "").split(","):
+        value = value.strip()
+        if not value:
+            continue
+        try:
+            networks.append(ipaddress.ip_network(value, strict=False))
+        except ValueError:
+            continue
+    return networks
+
+
+TRUSTED_PROXY_NETWORKS = load_trusted_proxy_networks()
+
+
+def load_security_state() -> dict:
+    try:
+        state = json.loads(SECURITY_STATE_PATH.read_text(encoding="utf-8"))
+        if isinstance(state, dict) and isinstance(state.get("known_ips"), dict) and state.get("pepper"):
+            return state
+    except (OSError, json.JSONDecodeError):
+        pass
+    return {"pepper": secrets.token_hex(32), "known_ips": {}}
+
+
+SECURITY_STATE = load_security_state()
+
+
+def persist_security_state() -> None:
+    with SECURITY_FILE_LOCK:
+        SECURITY_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = SECURITY_STATE_PATH.with_name(SECURITY_STATE_PATH.name + ".tmp")
+        temp_path.write_text(json.dumps(SECURITY_STATE, separators=(",", ":")), encoding="utf-8")
+        os.chmod(temp_path, 0o600)
+        os.replace(temp_path, SECURITY_STATE_PATH)
+
+
+def ip_fingerprint(ip: str) -> str:
+    return hmac.new(SECURITY_STATE["pepper"].encode(), ip.encode(), hashlib.sha256).hexdigest()
+
+
+def is_trusted_ip(ip: str) -> bool:
+    if not TRUSTED_NETWORKS:
+        return True
+    try:
+        address = ipaddress.ip_address(ip)
+    except ValueError:
+        return False
+    return any(address in network for network in TRUSTED_NETWORKS)
+
+
+def remember_profile_ip(profile_id: str, ip: str) -> tuple[bool, bool]:
+    """Return (new_ip, first_ip) while retaining only non-reversible fingerprints."""
+    fingerprint = ip_fingerprint(ip)
+    known = SECURITY_STATE["known_ips"].setdefault(profile_id, [])
+    first_ip = not known
+    new_ip = fingerprint not in known
+    if new_ip:
+        known.append(fingerprint)
+        del known[:-20]
+        persist_security_state()
+    return new_ip, first_ip
+
+
+def append_security_event(event: str, profile_id: str, ip: str, details: dict | None = None) -> None:
+    record = {
+        "ts": int(time.time()), "event": event, "profileId": profile_id,
+        "ip": ip, "details": details or {},
+    }
+    try:
+        with SECURITY_FILE_LOCK:
+            SECURITY_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+            with SECURITY_LOG_PATH.open("a", encoding="utf-8") as log_file:
+                log_file.write(json.dumps(record, ensure_ascii=False, separators=(",", ":")) + "\n")
+            os.chmod(SECURITY_LOG_PATH, 0o600)
+    except OSError:
+        pass
 
 
 def hash_pin(pin: str) -> str:
@@ -151,6 +271,64 @@ def send_pin_reset_email(recipient: str, reset_url: str) -> None:
         if config["user"]:
             smtp.login(config["user"], config["password"])
         smtp.send_message(message)
+
+
+def send_security_alert_email(recipient: str, profile_id: str, event: str,
+                              ip: str, details: dict) -> None:
+    config = smtp_config()
+    if not config["host"] or not config["sender"]:
+        raise RuntimeError("SMTP is not configured")
+    labels = {
+        "repeated_failures": "Mehrere falsche PIN-Versuche",
+        "login_locked": "Anmeldung vorübergehend gesperrt",
+        "new_ip_login": "Anmeldung von einer neuen IP-Adresse",
+        "untrusted_ip_login": "Anmeldung außerhalb des vertrauenswürdigen Netzwerks",
+    }
+    label = labels.get(event, "Ungewöhnliche Anmeldung")
+    message = EmailMessage()
+    message["Subject"] = f"Armonia Thassos – Sicherheitswarnung: {label}"
+    message["From"] = config["sender"]
+    message["To"] = recipient
+    message.set_content(
+        f"Profil: {profile_id}\n"
+        f"Ereignis: {label}\n"
+        f"IP-Adresse: {ip}\n"
+        f"Zeit: {time.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
+        f"Fehlversuche: {details.get('attempts', 0)}\n\n"
+        "Wenn du das nicht warst, ändere deine PIN über den Link auf der Anmeldeseite "
+        "und informiere die verantwortliche Person. Antworte nicht auf diese automatische Nachricht."
+    )
+    with smtplib.SMTP(config["host"], config["port"], timeout=30) as smtp:
+        if config["starttls"]:
+            smtp.starttls()
+        if config["user"]:
+            smtp.login(config["user"], config["password"])
+        smtp.send_message(message)
+
+
+def queue_security_alert(profile_id: str, event: str, ip: str, details: dict | None = None) -> bool:
+    details = details or {}
+    append_security_event(event, profile_id, ip, details)
+    user = AUTH_USERS.get(profile_id, {})
+    recipient = user.get("email") or os.environ.get("PAIDIA_SECURITY_ALERT_EMAIL", "").strip().lower()
+    config = smtp_config()
+    if not recipient or not config["host"] or not config["sender"]:
+        return False
+    alert_key = f"{profile_id}:{event}:{ip_fingerprint(ip)}"
+    now = time.time()
+    with AUTH_LOCK:
+        if now - SECURITY_ALERTS.get(alert_key, 0) < SECURITY_ALERT_COOLDOWN:
+            return False
+        SECURITY_ALERTS[alert_key] = now
+
+    def deliver() -> None:
+        try:
+            send_security_alert_email(recipient, profile_id, event, ip, details)
+        except (RuntimeError, OSError, smtplib.SMTPException):
+            append_security_event("alert_delivery_failed", profile_id, ip, {"sourceEvent": event})
+
+    threading.Thread(target=deliver, daemon=True, name="paidia-security-email").start()
+    return True
 
 
 def whatsapp_config() -> dict:
@@ -359,6 +537,24 @@ class Handler(SimpleHTTPRequestHandler):
         morsel = cookie.get(AUTH_COOKIE)
         return morsel.value if morsel else ""
 
+    def client_ip(self) -> str:
+        ip = self.client_address[0]
+        trust_proxy = os.environ.get("PAIDIA_TRUST_PROXY", "false").lower() in {"1", "true", "yes"}
+        try:
+            peer = ipaddress.ip_address(ip)
+            trusted_peer = peer.is_loopback or any(peer in network for network in TRUSTED_PROXY_NETWORKS)
+        except ValueError:
+            trusted_peer = False
+        if trust_proxy and trusted_peer:
+            forwarded = self.headers.get("X-Forwarded-For", "").split(",", 1)[0].strip()
+            if forwarded:
+                try:
+                    ipaddress.ip_address(forwarded)
+                    ip = forwarded
+                except ValueError:
+                    pass
+        return ip
+
     def current_auth_session(self) -> dict | None:
         token = self.auth_cookie()
         if not token:
@@ -429,6 +625,13 @@ class Handler(SimpleHTTPRequestHandler):
                 "profilesWithEmail": sum(1 for user in AUTH_USERS.values() if user["email"]),
                 "emailConfigured": bool(smtp["host"] and smtp["sender"]),
                 "secureCookie": os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
+                "securityMonitoring": True,
+                "securityEmailReady": bool(smtp["host"] and smtp["sender"] and
+                    (os.environ.get("PAIDIA_SECURITY_ALERT_EMAIL", "").strip() or
+                     any(user["email"] for user in AUTH_USERS.values()))),
+                "trustedNetworksConfigured": len(TRUSTED_NETWORKS),
+                "trustedProxyNetworksConfigured": len(TRUSTED_PROXY_NETWORKS),
+                "loginAttemptLimit": LOGIN_MAX_ATTEMPTS,
             })
             return
         if parsed.path == "/api/auth/session":
@@ -539,24 +742,65 @@ class Handler(SimpleHTTPRequestHandler):
         self.handle_shopping(body, api_key)
 
     def handle_auth_login(self, body: dict) -> None:
-        profile_id = str(body.get("profileId", "")).strip()
+        profile_id = str(body.get("profileId", "")).strip()[:64]
         mode = "child" if body.get("mode") == "child" else "staff"
-        pin = str(body.get("pin", ""))
-        attempt_key = f"{self.client_address[0]}:{profile_id}"
+        pin = str(body.get("pin", ""))[:12]
+        client_ip = self.client_ip()
+        user = AUTH_USERS.get(profile_id)
+        profile_bucket = profile_id if user else "_unknown"
+        attempt_key = f"pair:{client_ip}:{profile_bucket}"
+        ip_key = f"ip:{client_ip}"
+        profile_key = f"profile:{profile_bucket}"
         now = time.time()
         with AUTH_LOCK:
-            failures = [stamp for stamp in LOGIN_FAILURES.get(attempt_key, []) if now - stamp < 600]
+            failures = [stamp for stamp in LOGIN_FAILURES.get(attempt_key, []) if now - stamp < LOGIN_WINDOW]
+            ip_failures = [stamp for stamp in IP_LOGIN_FAILURES.get(ip_key, []) if now - stamp < LOGIN_WINDOW]
+            profile_failures = [stamp for stamp in PROFILE_LOGIN_FAILURES.get(profile_key, []) if now - stamp < LOGIN_WINDOW]
             LOGIN_FAILURES[attempt_key] = failures
-        if len(failures) >= 5:
-            self.json_response(429, {"error": "Too many PIN attempts", "code": "locked", "retryAfter": 600})
+            IP_LOGIN_FAILURES[ip_key] = ip_failures
+            PROFILE_LOGIN_FAILURES[profile_key] = profile_failures
+            lock_until = max(LOGIN_LOCKS.get(attempt_key, 0), LOGIN_LOCKS.get(ip_key, 0),
+                             LOGIN_LOCKS.get(profile_key, 0))
+            if lock_until <= now:
+                LOGIN_LOCKS.pop(attempt_key, None)
+                LOGIN_LOCKS.pop(ip_key, None)
+                LOGIN_LOCKS.pop(profile_key, None)
+        if lock_until > now:
+            self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
+                                     "retryAfter": max(1, int(lock_until - now))})
             return
-        user = AUTH_USERS.get(profile_id)
         valid = bool(user and user["mode"] == mode and re.fullmatch(r"\d{4,6}", pin) and
                      verify_pin(pin, user["pin_hash"]))
         if not valid:
             with AUTH_LOCK:
                 LOGIN_FAILURES.setdefault(attempt_key, []).append(now)
-            self.json_response(401, {"error": "Invalid profile or PIN", "code": "invalid_pin"})
+                IP_LOGIN_FAILURES.setdefault(ip_key, []).append(now)
+                PROFILE_LOGIN_FAILURES.setdefault(profile_key, []).append(now)
+                pair_count = len(LOGIN_FAILURES[attempt_key])
+                ip_count = len(IP_LOGIN_FAILURES[ip_key])
+                profile_count = len(PROFILE_LOGIN_FAILURES[profile_key])
+                should_lock = (pair_count >= LOGIN_MAX_ATTEMPTS or ip_count >= IP_MAX_FAILURES or
+                               profile_count >= PROFILE_MAX_FAILURES)
+                if should_lock:
+                    lock_until = now + LOGIN_LOCK_TTL
+                    if pair_count >= LOGIN_MAX_ATTEMPTS:
+                        LOGIN_LOCKS[attempt_key] = lock_until
+                    if ip_count >= IP_MAX_FAILURES:
+                        LOGIN_LOCKS[ip_key] = lock_until
+                    if profile_count >= PROFILE_MAX_FAILURES:
+                        LOGIN_LOCKS[profile_key] = lock_until
+            if user and user["mode"] == "staff" and pair_count == SECURITY_ALERT_AFTER:
+                queue_security_alert(profile_id, "repeated_failures", client_ip, {"attempts": pair_count})
+            if should_lock:
+                if user and user["mode"] == "staff":
+                    queue_security_alert(profile_id, "login_locked", client_ip, {"attempts": pair_count})
+                self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
+                                         "retryAfter": LOGIN_LOCK_TTL})
+                return
+            self.json_response(401, {
+                "error": "Invalid profile or PIN", "code": "invalid_pin",
+                "attemptsRemaining": max(0, LOGIN_MAX_ATTEMPTS - pair_count),
+            })
             return
         token = secrets.token_urlsafe(32)
         session_id = "ses-" + secrets.token_urlsafe(12)
@@ -571,6 +815,13 @@ class Handler(SimpleHTTPRequestHandler):
                 "mode": mode,
                 "expires_at": expires_at,
             }
+            new_ip, first_ip = remember_profile_ip(profile_id, client_ip)
+        if mode == "staff":
+            trusted = is_trusted_ip(client_ip)
+            if not trusted:
+                queue_security_alert(profile_id, "untrusted_ip_login", client_ip, {"attempts": 0})
+            elif new_ip and not first_ip:
+                queue_security_alert(profile_id, "new_ip_login", client_ip, {"attempts": 0})
         self.json_response(200, {
             "authenticated": True,
             "profileId": profile_id,

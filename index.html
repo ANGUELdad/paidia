@@ -455,7 +455,9 @@ const T = {
     sendResetLink:'Änderungslink senden', resetLinkSent:'Wenn die E-Mail zu diesem Profil gehört, wurde ein Link gesendet.',
     newPin:'Neue PIN (4–6 Ziffern)', confirmPin:'Neue PIN bestätigen', changePin:'PIN ändern',
     pinChanged:'PIN geändert. Bitte melde dich neu an.', invalidReset:'Der Link ist ungültig oder abgelaufen.',
-    authUnavailable:'Anmeldung ist gerade nicht erreichbar.', tooManyPins:'Zu viele Versuche. Warte 10 Minuten.',
+    authUnavailable:'Anmeldung ist gerade nicht erreichbar.', tooManyPins:'Zu viele Versuche.',
+    lockedFor:n=>`Anmeldung gesperrt. Versuche es in ${n} Minute${n===1?'':'n'} erneut.`,
+    attemptsRemaining:n=>`Falsche PIN. Noch ${n} Versuch${n===1?'':'e'}.`,
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
     device:'Gerät', welcome:n=>'Willkommen, '+n,
     pickChild:'Mindestens ein Kind wählen', pickActivity:'Aktivität wählen',
@@ -612,7 +614,9 @@ const T = {
     sendResetLink:'Αποστολή συνδέσμου αλλαγής', resetLinkSent:'Αν το email ανήκει σε αυτό το προφίλ, στάλθηκε σύνδεσμος.',
     newPin:'Νέο PIN (4–6 ψηφία)', confirmPin:'Επιβεβαίωση νέου PIN', changePin:'Αλλαγή PIN',
     pinChanged:'Το PIN άλλαξε. Συνδέσου ξανά.', invalidReset:'Ο σύνδεσμος δεν ισχύει ή έληξε.',
-    authUnavailable:'Η σύνδεση δεν είναι διαθέσιμη αυτή τη στιγμή.', tooManyPins:'Πολλές προσπάθειες. Περίμενε 10 λεπτά.',
+    authUnavailable:'Η σύνδεση δεν είναι διαθέσιμη αυτή τη στιγμή.', tooManyPins:'Πολλές προσπάθειες.',
+    lockedFor:n=>`Η σύνδεση κλειδώθηκε. Δοκίμασε ξανά σε ${n} λεπτά.`,
+    attemptsRemaining:n=>`Λάθος PIN. Απομένουν ${n} προσπάθειες.`,
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
     device:'Συσκευή', welcome:n=>'Καλώς ήρθες, '+n,
     pickChild:'Διάλεξε τουλάχιστον ένα παιδί', pickActivity:'Διάλεξε δραστηριότητα',
@@ -1234,7 +1238,11 @@ async function authenticateProfile(mode,who,pin){
     body:JSON.stringify({mode,profileId:who.id,pin}),
   });
   const data=await response.json();
-  if(!response.ok){const error=new Error(data.error||String(response.status));error.status=response.status;error.code=data.code;throw error;}
+  if(!response.ok){
+    const error=new Error(data.error||String(response.status));
+    error.status=response.status;error.code=data.code;error.retryAfter=data.retryAfter;
+    error.attemptsRemaining=data.attemptsRemaining;throw error;
+  }
   if(!applyAuthenticatedProfile(data,{logLogin:true})) throw new Error('Unknown profile');
   return data;
 }
@@ -3889,7 +3897,12 @@ function renderGatePin(who, mode = 'staff'){
       await authenticateProfile(mode,who,buf);
       closeGate();render();toast(T[state.lang].welcome(who.name));
     }catch(error){
-      errorEl.textContent=error.status===429?t('tooManyPins'):error.status===401?t('wrongPin'):t('authUnavailable');
+      if(error.status===429){
+        const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||900)/60));
+        errorEl.textContent=T[state.lang].lockedFor(minutes);
+      }else if(error.status===401 && Number.isInteger(error.attemptsRemaining)){
+        errorEl.textContent=T[state.lang].attemptsRemaining(error.attemptsRemaining);
+      }else errorEl.textContent=error.status===401?t('wrongPin'):t('authUnavailable');
       buf='';draw();
     }finally{button.disabled=false;}
   };

@@ -203,6 +203,23 @@ python3 auth_admin.py set-pin e4
 Το `set-pin` ζητά κρυφά το PIN δύο φορές και γράφει μόνο salted hash. Μετά από admin
 αλλαγή email/PIN χρειάζεται restart του `server.py`.
 
+### Προστασία προσωπικών profiles
+
+Η είσοδος περιορίζει αποτυχημένες προσπάθειες ανά IP+profile (5), συνολικά ανά IP (20)
+και ανά profile (12) σε παράθυρο 10 λεπτών. Το lockout κρατά 15 λεπτά. Στην τρίτη
+αποτυχημένη προσπάθεια και στο lockout στέλνεται rate-limited email στο email του
+στοχευμένου staff profile (ή στο `PAIDIA_SECURITY_ALERT_EMAIL`). Επιτυχής είσοδος staff
+από νέο IP επίσης ειδοποιεί, αφού πρώτα δημιουργηθεί το αρχικό γνωστό IP. Αν έχουν οριστεί
+`PAIDIA_TRUSTED_NETWORKS`, είσοδος έξω από αυτά ειδοποιεί ακόμα και την πρώτη φορά.
+
+Τα γνωστά IP αποθηκεύονται μόνο ως keyed fingerprints στο ignored αρχείο
+`.paidia-security-state.json`. Τα συμβάντα ασφαλείας γράφονται με permissions `0600` στο
+`.paidia-security-events.jsonl`. Σε Synology reverse proxy βάλε `PAIDIA_TRUST_PROXY=true`
+ώστε να χρησιμοποιείται το validated `X-Forwarded-For` και όρισε το τοπικό CIDR, π.χ.
+`PAIDIA_TRUSTED_NETWORKS=192.168.1.0/24`. Forwarded headers γίνονται δεκτά μόνο από
+loopback proxy ή CIDR που δηλώνεται στο `PAIDIA_TRUSTED_PROXY_NETWORKS`. Τα email alerts χρειάζονται τα ίδια SMTP πεδία
+με το PIN reset. Οι τιμές και τα όρια τεκμηριώνονται στο `.env.example`.
+
 **Child Portal (§31.4):** το παιδί βλέπει μόνο τον δικό του χρόνο — «Was mache ich heute»,
 η εβδομάδα του, τα events της εβδομάδας. Δεν βλέπει αποθήκη, λίστες, βιβλίο, βάρδιες
 ούτε τις **σημειώσεις βάρδιας** (εκεί γράφονται πράγματα όπως «Sammy krank»,
