@@ -740,7 +740,7 @@ const T = {
     switchProfile:'Anderes Profil öffnen', adminsManageEmails:'Als Admin kannst du die E-Mail jedes Profils verwalten.',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
     device:'Gerät', welcome:n=>'Willkommen, '+n,
-    tutorialRequired:'Erste Einführung · erforderlich', tutorialStep:(n,total)=>`Schritt ${n} von ${total}`,
+    tutorialRequired:'Login-Tutorial · erforderlich', tutorialStep:(n,total)=>`Schritt ${n} von ${total}`,
     tutorialNext:'Weiter', tutorialBack:'Zurück', tutorialFinish:'Einführung abschließen',
     tutorialSaving:'Fortschritt wird sicher gespeichert…', tutorialDone:'Einführung abgeschlossen. Willkommen!',
     tutorialSaveError:'Die Einführung konnte nicht gespeichert werden. Prüfe die Verbindung und versuche es erneut.',
@@ -961,7 +961,7 @@ const T = {
     switchProfile:'Άνοιγμα άλλου προφίλ', adminsManageEmails:'Ως admin μπορείς να διαχειριστείς το email κάθε προφίλ.',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
     device:'Συσκευή', welcome:n=>'Καλώς ήρθες, '+n,
-    tutorialRequired:'Πρώτη ξενάγηση · υποχρεωτική', tutorialStep:(n,total)=>`Βήμα ${n} από ${total}`,
+    tutorialRequired:'Tutorial σύνδεσης · υποχρεωτικό', tutorialStep:(n,total)=>`Βήμα ${n} από ${total}`,
     tutorialNext:'Επόμενο', tutorialBack:'Πίσω', tutorialFinish:'Ολοκλήρωση ξενάγησης',
     tutorialSaving:'Η πρόοδος αποθηκεύεται με ασφάλεια…', tutorialDone:'Η ξενάγηση ολοκληρώθηκε. Καλώς ήρθες!',
     tutorialSaveError:'Η ξενάγηση δεν αποθηκεύτηκε. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
@@ -1825,8 +1825,8 @@ function openTutorial({required=false}={}){
 function openMandatoryTutorial(){openTutorial({required:true});}
 function openAppTutorial(){openTutorial({required:false});}
 
-async function ensureOnboarding(){
-  if(!state.onboardingComplete)openMandatoryTutorial();
+async function ensureOnboarding({afterLogin=false}={}){
+  if(afterLogin||!state.onboardingComplete)openMandatoryTutorial();
 }
 
 function sheetHelpCenter(){
@@ -4803,7 +4803,7 @@ function renderGatePin(who, mode = 'staff'){
     const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gPasskey');
     button.disabled=true;errorEl.textContent='';
     try{
-      await loginWithPasskey(mode,who);closeGate();render();await ensureOnboarding();toast(T[state.lang].welcome(who.name),'success');
+      await loginWithPasskey(mode,who);closeGate();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name),'success');
     }catch(error){
       errorEl.textContent=error.code==='no_passkey'?t('passkeyNone'):
         error.name==='NotAllowedError'?t('passkeyCancelled'):error.message||t('authUnavailable');
@@ -4815,7 +4815,7 @@ function renderGatePin(who, mode = 'staff'){
     button.disabled=true;errorEl.textContent='';
     try{
       await authenticateProfile(mode,who,buf);
-      closeGate();render();await ensureOnboarding();toast(T[state.lang].welcome(who.name));
+      closeGate();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name));
     }catch(error){
       if(error.status===429){
         const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||900)/60));
