@@ -78,7 +78,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=11';
+    script.src = 'app.js?v=13';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -225,8 +225,10 @@
           buf = '';
           return;
         }
-        // Full reload so app.js boots with the session cookie reliably.
-        location.replace('/?in=' + Date.now());
+        // Cookie is set — hydrate app without a full reload (more reliable on mobile).
+        window.__paidiaAuthed = true;
+        loadApp();
+        return;
       } catch (error) {
         errorEl.textContent = t('unavailable');
         buf = '';

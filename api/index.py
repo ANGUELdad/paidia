@@ -126,7 +126,7 @@ def _auth_session():
 def _auth_login():
     if not paidia.AUTH_USERS:
         return _json(503, {
-            "error": "Set PAIDIA_AUTH_USERS_JSON in Vercel env",
+            "error": "Auth profiles missing",
             "code": "auth_not_configured",
         })
     body = _body()
@@ -137,8 +137,7 @@ def _auth_login():
     valid = bool(
         user
         and user["mode"] == mode
-        and re.fullmatch(r"\d{4,6}", pin)
-        and paidia.verify_pin(pin, user["pin_hash"])
+        and paidia.pin_ok(profile_id, pin, user.get("pin_hash", ""))
     )
     if not valid:
         return _json(401, {
