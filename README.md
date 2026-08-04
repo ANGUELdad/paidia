@@ -265,10 +265,18 @@ PAIDIA_COOKIE_SECURE=true
 κλειδωμένο overlay μέχρι να προβληθούν όλα τα βήματα. Staff, admins και παιδιά βλέπουν
 διαφορετικό περιεχόμενο σύμφωνα με τις δυνατότητές τους.
 
+Το πλήρες tutorial παραμένει μόνιμα μέσα στην εφαρμογή από το μπλε **? → Hilfe &
+Tutorial** και από **Profil → App-Tutorial öffnen**. Η επανάληψη κλείνει κανονικά και
+δεν αλλάζει το onboarding status. Περιγράφει Home, Plan και filters, multi-select
+αναθέσεις, Events, ψυγείο/αποθήκη, OCR και merge λιστών, supermarket mode, Protokoll,
+profile security και—μόνο για admins—το Admin Center. Από το ίδιο help center ανοίγει
+ξεχωριστά και η contextual AI βοήθεια.
+
 Η ολοκλήρωση δεν βασίζεται σε `localStorage`: αποθηκεύεται server-side ανά profile στο
 ignored αρχείο `.paidia-onboarding.json` (`PAIDIA_ONBOARDING_STATE_PATH`). Ο server
 δέχεται ολοκλήρωση μόνο από authenticated session και για την τρέχουσα tutorial version.
-Αύξηση του `ONBOARDING_VERSION` εμφανίζει ξανά τη νέα υποχρεωτική ξενάγηση σε όλους.
+Η τρέχουσα πλήρης ξενάγηση είναι version 2. Αύξηση του `ONBOARDING_VERSION` εμφανίζει
+ξανά μια μελλοντική υποχρεωτική ξενάγηση σε όλους.
 
 ### Προστασία προσωπικών profiles
 

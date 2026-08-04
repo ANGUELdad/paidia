@@ -99,7 +99,7 @@ SECURITY_STATE_PATH = Path(os.environ.get("PAIDIA_SECURITY_STATE_PATH", ".paidia
 SECURITY_LOG_PATH = Path(os.environ.get("PAIDIA_SECURITY_LOG_PATH", ".paidia-security-events.jsonl"))
 PASSKEY_STORE_PATH = Path(os.environ.get("PAIDIA_PASSKEY_STORE_PATH", ".paidia-passkeys.json"))
 ONBOARDING_STATE_PATH = Path(os.environ.get("PAIDIA_ONBOARDING_STATE_PATH", ".paidia-onboarding.json"))
-ONBOARDING_VERSION = 1
+ONBOARDING_VERSION = 2
 WEBAUTHN_ORIGIN = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", os.environ.get(
     "PAIDIA_PUBLIC_URL", f"http://localhost:{PORT}"
 )).rstrip("/")

@@ -307,12 +307,22 @@
     text-transform:uppercase;letter-spacing:.15em}
   .tutorial-card h2{position:relative;z-index:1;margin:0 0 10px;font-size:25px;line-height:1.12;letter-spacing:-.025em}
   .tutorial-card p{position:relative;z-index:1;margin:0;max-width:430px;color:#475569;font-size:14px;line-height:1.65}
+  .tutorial-features{position:relative;z-index:1;display:grid;gap:7px;margin:16px 0 0;padding:0;list-style:none}
+  .tutorial-features li{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid rgba(203,213,225,.75);border-radius:11px;background:rgba(255,255,255,.76);color:#334155;font-size:11.5px;line-height:1.4}
+  .tutorial-features li::before{content:'✓';color:#0f766e;font-weight:850}
   .tutorial-tip{position:relative;z-index:1;display:flex;align-items:flex-start;gap:9px;margin-top:18px;padding:11px 12px;
     border-radius:13px;background:rgba(255,255,255,.78);color:#334155;font-size:11.5px;line-height:1.45}
   .tutorial-actions{display:flex;align-items:center;gap:10px;margin-top:16px}.tutorial-actions .btn{margin:0;flex:1}
   .tutorial-back{min-width:94px;padding:12px 15px;border:1px solid var(--line);border-radius:12px;background:#fff;
     color:#475569;font-weight:700;cursor:pointer}.tutorial-back:disabled{opacity:.35;cursor:default}
   .tutorial-status{min-height:19px;margin-top:9px;text-align:center;color:#b91c1c;font-size:11.5px}
+  .help-center-hero{padding:18px;border:1px solid #c7d2fe;border-radius:20px;background:linear-gradient(135deg,#eef2ff,#ecfeff)}
+  .help-center-hero h2{margin:4px 0 5px;font-size:22px}.help-center-hero p{margin:0;color:#64748b;font-size:12.5px}
+  .help-center-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+  .help-center-card{display:block;width:100%;min-height:150px;padding:16px;border:1px solid var(--line);border-radius:17px;background:#fff;color:inherit;text-align:left;cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s}
+  .help-center-card:hover{transform:translateY(-2px);border-color:#93c5fd;box-shadow:0 10px 24px rgba(15,23,42,.08)}
+  .help-center-card .icon{display:grid;place-items:center;width:44px;height:44px;margin-bottom:13px;border-radius:13px;background:#eef2ff;font-size:22px}
+  .help-center-card b{display:block;margin-bottom:5px;font-size:14px}.help-center-card span{display:block;color:#64748b;font-size:11.5px;line-height:1.45}
   @keyframes tutorialIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
   .grabber{width:38px; height:4px; background:var(--line); border-radius:4px; margin:0 auto 12px}
   .pinpad{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:12px}
@@ -602,6 +612,7 @@
   @keyframes gateFloat{from{transform:translate3d(0,-12px,0) scale(.96)}to{transform:translate3d(20px,22px,0) scale(1.06)}}
   @keyframes markBreathe{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(2deg) translateY(-4px)}}
   @media(max-width:540px){#gate{padding:calc(18px + env(safe-area-inset-top,0px)) 12px 22px}.gate-wrap{padding:22px 16px;border-radius:24px}}
+  @media(max-width:520px){.help-center-grid{grid-template-columns:1fr}.help-center-card{min-height:0}}
   @media(prefers-reduced-motion:reduce){#gate,#gate::before,#gate::after,.gate-wrap,.gate-head,.gate-head .mark,.profile{animation:none!important}.profile{transition:none}}
 </style>
 </head>
@@ -727,6 +738,11 @@ const T = {
     tutorialSaving:'Fortschritt wird sicher gespeichert…', tutorialDone:'Einführung abgeschlossen. Willkommen!',
     tutorialSaveError:'Die Einführung konnte nicht gespeichert werden. Prüfe die Verbindung und versuche es erneut.',
     tutorialTip:'Du musst alle Schritte ansehen. Diese Einführung kann nicht übersprungen oder geschlossen werden.',
+    tutorialOpen:'App-Tutorial öffnen', tutorialReplay:'Funktions-Tutorial', tutorialClose:'Tutorial beenden',
+    tutorialReplayTip:'Du kannst dieses Tutorial jederzeit über Hilfe oder Profil erneut öffnen.',
+    helpCenter:'Hilfe & Tutorial', helpCenterHint:'Lerne die App Schritt für Schritt oder frage die AI-Hilfe.',
+    startTutorial:'Geführtes App-Tutorial', startTutorialHint:'Alle Funktionen passend zu deinem Profil – jederzeit wiederholbar.',
+    askAiHelp:'AI-Hilfe fragen', askAiHelpHint:'Stelle eine konkrete Frage zur aktuellen Ansicht oder einem Arbeitsablauf.',
     pickChild:'Mindestens ein Kind wählen', pickActivity:'Aktivität wählen',
     loginEntry:'Anmeldung in der App',
     notesSaved:'Hinweise gespeichert', materialsMoved:n=>`${n} Positionen in die Einkaufsliste übernommen`,
@@ -940,6 +956,11 @@ const T = {
     tutorialSaving:'Η πρόοδος αποθηκεύεται με ασφάλεια…', tutorialDone:'Η ξενάγηση ολοκληρώθηκε. Καλώς ήρθες!',
     tutorialSaveError:'Η ξενάγηση δεν αποθηκεύτηκε. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
     tutorialTip:'Πρέπει να δεις όλα τα βήματα. Η ξενάγηση δεν παραλείπεται και δεν κλείνει.',
+    tutorialOpen:'Άνοιγμα tutorial εφαρμογής', tutorialReplay:'Tutorial λειτουργιών', tutorialClose:'Τέλος tutorial',
+    tutorialReplayTip:'Μπορείς να ανοίξεις ξανά αυτό το tutorial οποιαδήποτε στιγμή από τη Βοήθεια ή το Προφίλ.',
+    helpCenter:'Βοήθεια & Tutorial', helpCenterHint:'Μάθε την εφαρμογή βήμα-βήμα ή ρώτησε τη βοήθεια AI.',
+    startTutorial:'Καθοδηγούμενο tutorial εφαρμογής', startTutorialHint:'Όλες οι λειτουργίες για το προφίλ σου – διαθέσιμο πάντα.',
+    askAiHelp:'Ερώτηση στη βοήθεια AI', askAiHelpHint:'Κάνε συγκεκριμένη ερώτηση για την τρέχουσα οθόνη ή διαδικασία.',
     pickChild:'Διάλεξε τουλάχιστον ένα παιδί', pickActivity:'Διάλεξε δραστηριότητα',
     loginEntry:'Είσοδος στην εφαρμογή',
     notesSaved:'Οι σημειώσεις αποθηκεύτηκαν', materialsMoved:n=>`${n} είδη πέρασαν στη λίστα αγορών`,
@@ -1580,7 +1601,7 @@ const state = {
   bookFilter: {employeeId:'', type:''},
   helpMessages: [],          // session-only; never persisted with operational data
   onboardingComplete: false,
-  onboardingVersion: 1,
+  onboardingVersion: 2,
 };
 const isAdminUser = () => !!(state.mode==='staff' && state.user?.admin);
 
@@ -1730,48 +1751,50 @@ function closeSheet(){
 
 function onboardingSteps(){
   const de=state.lang==='de';
+  const step=(icon,deTitle,elTitle,deBody,elBody,deFeatures,elFeatures)=>({icon,title:de?deTitle:elTitle,body:de?deBody:elBody,features:de?deFeatures:elFeatures});
   if(state.mode==='child') return [
-    {icon:'👋',title:de?'Willkommen bei Armonia Thassos':'Καλώς ήρθες στο Armonia Thassos',
-      body:de?'Auf Home siehst du sofort, was du heute machst und wer dabei ist.':'Στην Αρχική βλέπεις αμέσως τι κάνεις σήμερα και ποιοι είναι μαζί σου.'},
-    {icon:'🎉',title:de?'Events und Mitteilungen':'Events και ανακοινώσεις',
-      body:de?'Neue Events erscheinen in deinem Events-Bereich. Öffne sie für Zeit, Ort und was du mitbringen sollst.':'Τα νέα events εμφανίζονται στην περιοχή Events. Άνοιξέ τα για ώρα, μέρος και ό,τι πρέπει να φέρεις.'},
-    {icon:'🔐',title:de?'Dein Profil bleibt deins':'Το προφίλ σου παραμένει δικό σου',
-      body:de?'Nutze nur dein eigenes Profil und melde dich ab, wenn du fertig bist. Teile deine PIN nicht mit anderen.':'Χρησιμοποίησε μόνο το δικό σου προφίλ και αποσυνδέσου όταν τελειώσεις. Μην μοιράζεσαι το PIN σου.'},
+    step('🏠','Home: dein Tag','Αρχική: η ημέρα σου','Hier beginnt jeder Tag. Du siehst nur Informationen, die zu deinem Profil gehören.','Εδώ αρχίζει κάθε ημέρα. Βλέπεις μόνο πληροφορίες που αφορούν το προφίλ σου.',['Heutige Aktivitäten','Offene Aufgaben','Nächste Events'],['Σημερινές δραστηριότητες','Ανοιχτές εργασίες','Επόμενα events']),
+    step('📅','Heute und Woche','Σήμερα και εβδομάδα','Wechsle zwischen deiner Tagesansicht und der ganzen Woche.','Άλλαξε ανάμεσα στη σημερινή ημέρα και ολόκληρη την εβδομάδα.',['Zeit und Aktivität ansehen','Betreuer und Gruppe sehen','Keine Daten anderer Profile'],['Ώρα και δραστηριότητα','Φροντιστής και ομάδα','Χωρίς δεδομένα άλλων προφίλ']),
+    step('🎉','Events und Mitteilungen','Events και ανακοινώσεις','Öffne ein Event für alle wichtigen Informationen.','Άνοιξε ένα event για όλες τις σημαντικές πληροφορίες.',['Datum und Uhrzeit','Ort und Beschreibung','Was du mitbringen sollst'],['Ημερομηνία και ώρα','Τοποθεσία και περιγραφή','Τι πρέπει να φέρεις']),
+    step('❓','Hilfe benutzen','Χρήση βοήθειας','Das blaue Fragezeichen öffnet dieses Tutorial und die AI-Hilfe.','Το μπλε ερωτηματικό ανοίγει αυτό το tutorial και τη βοήθεια AI.',['Tutorial jederzeit wiederholen','Fragen zur aktuellen Seite stellen','Antworten in deiner Sprache'],['Επανάληψη tutorial οποτεδήποτε','Ερωτήσεις για την τρέχουσα σελίδα','Απαντήσεις στη γλώσσα σου']),
+    step('🔐','Profil und Sicherheit','Προφίλ και ασφάλεια','Dein Profil enthält Anmeldung, E-Mail und Abmeldung.','Το προφίλ σου περιέχει σύνδεση, email και αποσύνδεση.',['Nur dein eigenes Profil nutzen','PIN niemals weitergeben','Nach Benutzung abmelden'],['Χρήση μόνο του δικού σου προφίλ','Ποτέ κοινοποίηση PIN','Αποσύνδεση μετά τη χρήση']),
   ];
   const steps=[
-    {icon:'🏠',title:de?'Dein täglicher Überblick':'Η καθημερινή σου εικόνα',
-      body:de?'Home bündelt heutige Aufgaben, Überfälliges und kommende Events – passend zu deinem Profil.':'Η Αρχική συγκεντρώνει σημερινές εργασίες, καθυστερήσεις και επόμενα events για το προφίλ σου.'},
-    {icon:'📅',title:de?'Planen ohne Tabellenchaos':'Πρόγραμμα χωρίς χάος',
-      body:de?'Wechsle zwischen Tag und Woche, filtere nach Haus und wähle bei einem Eintrag mehrere Häuser, Personen und Kinder.':'Άλλαξε ανάμεσα σε ημέρα και εβδομάδα, φιλτράρισε ανά σπίτι και διάλεξε πολλά σπίτια, άτομα και παιδιά.'},
-    {icon:'🧊',title:de?'Bestand klar buchen':'Καθαρή διαχείριση αποθέματος',
-      body:de?'Im Lager siehst du zuerst leere und knappe Produkte. Eingang und Ausgang geben nach jeder Aktion direkt Rückmeldung.':'Στην αποθήκη βλέπεις πρώτα άδεια και λίγα προϊόντα. Κάθε είσοδος και έξοδος δίνει άμεση επιβεβαίωση.'},
-    {icon:'🛒',title:de?'Freitagslisten aus Text oder Screenshot':'Λίστες Παρασκευής από κείμενο ή screenshot',
-      body:de?'Wähle immer das genaue Freitagsdatum. Füge Text oder einen Screenshot ein, prüfe den OCR-Entwurf und führe ihn intelligent mit der Liste zusammen.':'Διάλεγε πάντα τη σωστή ημερομηνία Παρασκευής. Βάλε κείμενο ή screenshot, έλεγξε το OCR και συγχώνευσέ το έξυπνα.'},
-    {icon:'🎊',title:de?'Events sicher ankündigen':'Ασφαλής ανακοίνωση events',
-      body:de?'Markiere einen Planeintrag als Event, wähle die Kinder und veröffentliche erst nach der Vorschau. Die Mitteilung erscheint in ihrem Profil.':'Κάνε μια εγγραφή event, διάλεξε τα παιδιά και δημοσίευσε μετά την προεπισκόπηση. Η ανακοίνωση εμφανίζεται στο προφίλ τους.'},
+    step('🏠','Home: alles Wichtige zuerst','Αρχική: πρώτα τα σημαντικά','Home ist deine Arbeitszentrale für den aktuellen Tag.','Η Αρχική είναι το κέντρο εργασίας για τη σημερινή ημέρα.',['Eigene Aufgaben und Fälligkeiten','Vergessene oder überfällige Einträge','Kommende Events und offene Zuständigkeiten'],['Δικές σου εργασίες και προθεσμίες','Ξεχασμένες ή εκπρόθεσμες εγγραφές','Επόμενα events και εργασίες χωρίς υπεύθυνο']),
+    step('📅','Plan: Tag, Woche und Haus','Πρόγραμμα: ημέρα, εβδομάδα και σπίτι','Die Filter ändern die Perspektive, ohne Daten zu verlieren.','Τα φίλτρα αλλάζουν την προβολή χωρίς να χάνονται δεδομένα.',['Tag oder ganze Woche','Ein Haus oder kombinierte Ansicht','Dienst- und Events-Ansicht'],['Ημέρα ή ολόκληρη εβδομάδα','Ένα σπίτι ή συνδυαστική προβολή','Βάρδιες και Events']),
+    step('✍️','Planeinträge bearbeiten','Επεξεργασία εγγραφών προγράμματος','Öffne eine Zelle, um eine Aktivität vollständig zuzuweisen.','Άνοιξε ένα κελί για πλήρη ανάθεση δραστηριότητας.',['Mehrere Häuser und Personen','Mehrere Kinder oder Gruppen','Nur heute oder dauerhafte Vorlage'],['Πολλά σπίτια και άτομα','Πολλά παιδιά ή ομάδες','Μόνο σήμερα ή μόνιμο πρότυπο']),
+    step('🎊','Aus einem Eintrag wird ein Event','Μετατροπή εγγραφής σε event','Der Event-Schalter veröffentlicht besondere Termine gezielt für ausgewählte Kinder.','Ο διακόπτης Event δημοσιεύει ειδικά γεγονότα για επιλεγμένα παιδιά.',['Titel, Zeit, Ort und Mitbringen','Vorschau vor Veröffentlichung','In-App- und optionale WhatsApp-Mitteilung'],['Τίτλος, ώρα, μέρος και τι χρειάζεται','Προεπισκόπηση πριν τη δημοσίευση','Ειδοποίηση στην εφαρμογή και προαιρετικά WhatsApp']),
+    step('🧊','Kühlschrank und Lager','Ψυγείο και αποθήκη','Die attention-first Ansicht zeigt zuerst leere und knappe Produkte.','Η προβολή προσοχής δείχνει πρώτα άδεια και λίγα προϊόντα.',['Haus, Suche und Zustandsfilter','Produkt öffnen und Details sehen','Eingang, Ausgang oder direkt zur Einkaufsliste'],['Σπίτι, αναζήτηση και φίλτρα','Άνοιγμα προϊόντος και λεπτομέρειες','Είσοδος, έξοδος ή απευθείας στη λίστα']),
+    step('🛒','Freitagsliste erstellen','Δημιουργία λίστας Παρασκευής','Jede Liste gehört zu einem Haus und einem echten Freitagsdatum.','Κάθε λίστα ανήκει σε ένα σπίτι και πραγματική ημερομηνία Παρασκευής.',['Produkt einzeln hinzufügen','Ganze Textliste einfügen','Screenshot oder Foto mit AI-OCR'],['Προσθήκη μεμονωμένου προϊόντος','Επικόλληση ολόκληρης λίστας','Screenshot ή φωτογραφία με AI-OCR']),
+    step('🧠','OCR prüfen und zusammenführen','Έλεγχος και συγχώνευση OCR','AI-Ergebnisse bleiben ein Entwurf, bis du Namen, Mengen und Einheiten geprüft hast.','Τα αποτελέσματα AI παραμένουν πρόχειρα μέχρι να ελέγξεις ονόματα, ποσότητες και μονάδες.',['Unsichere Zeilen klar markiert','Duplikate intelligent zusammenführen','Anhängen oder Freitag ersetzen'],['Σαφής σήμανση αβέβαιων γραμμών','Έξυπνη συγχώνευση διπλοτύπων','Προσθήκη ή αντικατάσταση Παρασκευής']),
+    step('🛍️','Im Supermarkt','Στο σουπερμάρκετ','Im Einkaufsmodus bekommt jedes Produkt eine ausdrückliche Entscheidung.','Στη λειτουργία αγορών κάθε προϊόν παίρνει σαφή απόφαση.',['Gekauft oder nicht verfügbar','Entscheidung jederzeit zurücksetzen','Abschluss erst wenn alles entschieden ist'],['Αγοράστηκε ή δεν ήταν διαθέσιμο','Επαναφορά απόφασης οποτεδήποτε','Ολοκλήρωση μόνο όταν αποφασιστούν όλα']),
+    step('📖','Protokoll und Korrekturen','Καταγραφές και διορθώσεις','Das Protokoll zeigt nachvollziehbar, wer was wann gemacht hat.','Οι καταγραφές δείχνουν ποιος έκανε τι και πότε.',['Nach Zeitraum, Person und Typ filtern','Einträge bleiben append-only','Fehler mit neuer Korrektur erklären'],['Φίλτρο ανά περίοδο, άτομο και τύπο','Οι εγγραφές παραμένουν append-only','Εξήγηση λάθους με νέα διόρθωση']),
+    step('🔐','Profil, E-Mail und Geräte-Sperre','Προφίλ, email και κλείδωμα συσκευής','Profil bündelt Zugang und persönliche Sicherheit.','Το Προφίλ συγκεντρώνει πρόσβαση και προσωπική ασφάλεια.',['Recovery-E-Mail speichern und testen','Face ID, Touch ID oder Passkey einrichten','Profil wechseln oder sicher abmelden'],['Αποθήκευση και δοκιμή email ανάκτησης','Ρύθμιση Face ID, Touch ID ή Passkey','Αλλαγή προφίλ ή ασφαλής αποσύνδεση']),
+    step('❓','Hilfe bleibt immer erreichbar','Η βοήθεια είναι πάντα διαθέσιμη','Das blaue Fragezeichen öffnet Funktions-Tutorial und AI-Hilfe.','Το μπλε ερωτηματικό ανοίγει tutorial λειτουργιών και βοήθεια AI.',['Dieses Tutorial erneut starten','Fragen zur aktuellen Ansicht','Antworten mit aktuellem App-Kontext'],['Επανεκκίνηση αυτού του tutorial','Ερωτήσεις για την τρέχουσα προβολή','Απαντήσεις με το τρέχον context της εφαρμογής']),
   ];
-  if(isAdminUser()) steps.push({icon:'🛡️',title:de?'Du hast Admin-Kontrolle':'Έχεις έλεγχο διαχειριστή',
-    body:de?'Die Admin-Zentrale zeigt Teamaktivität und Warnungen. Du kannst Planung, Dienste, Events, Bestand und Korrekturen verwalten.':'Το Κέντρο Διαχείρισης δείχνει δραστηριότητα και προειδοποιήσεις. Μπορείς να διαχειριστείς πρόγραμμα, βάρδιες, events, απόθεμα και διορθώσεις.'});
+  if(isAdminUser()) steps.push(step('🛡️','Admin-Zentrale und volle Kontrolle','Κέντρο διαχείρισης και πλήρης έλεγχος','Admins sehen Teamaktivität, Warnungen und Verwaltungsaktionen an einem Ort.','Οι admins βλέπουν δραστηριότητα ομάδας, προειδοποιήσεις και ενέργειες διαχείρισης σε ένα σημείο.',['Alle Profil-E-Mails verwalten','Plan, Dienste und Events ändern','Bestand, Warnungen und Korrekturen prüfen'],['Διαχείριση email όλων των προφίλ','Αλλαγή προγράμματος, βαρδιών και events','Έλεγχος αποθέματος, προειδοποιήσεων και διορθώσεων']));
   return steps;
 }
 
-function openMandatoryTutorial(){
+function openTutorial({required=false}={}){
   const steps=onboardingSteps();let current=0,saving=false;
-  openSheet('<div class="tutorial-shell" id="tutorialRoot"></div>',{dismissable:false});
+  openSheet('<div class="tutorial-shell" id="tutorialRoot"></div>',{dismissable:!required});
   const paint=()=>{
     const root=sheetEl.querySelector('#tutorialRoot');if(!root)return;
     const step=steps[current];
-    root.innerHTML=`<div class="tutorial-top"><span class="tutorial-lock">🔒 ${t('tutorialRequired')}</span><span class="tutorial-count">${T[state.lang].tutorialStep(current+1,steps.length)}</span></div>
+    root.innerHTML=`<div class="tutorial-top"><span class="tutorial-lock">${required?'🔒 '+t('tutorialRequired'):'📘 '+t('tutorialReplay')}</span><span class="tutorial-count">${T[state.lang].tutorialStep(current+1,steps.length)}</span></div>
       <div class="tutorial-progress" style="--steps:${steps.length}" aria-hidden="true">${steps.map((_,i)=>`<i class="${i<=current?'on':''}"></i>`).join('')}</div>
       <section class="tutorial-card"><div class="tutorial-icon">${step.icon}</div><div class="tutorial-kicker">Armonia Thassos</div>
-        <h2>${esc(step.title)}</h2><p>${esc(step.body)}</p><div class="tutorial-tip"><span>ℹ️</span><span>${t('tutorialTip')}</span></div></section>
+        <h2>${esc(step.title)}</h2><p>${esc(step.body)}</p>${step.features?.length?`<ul class="tutorial-features">${step.features.map(feature=>`<li>${esc(feature)}</li>`).join('')}</ul>`:''}
+        <div class="tutorial-tip"><span>ℹ️</span><span>${t(required?'tutorialTip':'tutorialReplayTip')}</span></div></section>
       <div class="tutorial-actions"><button class="tutorial-back" id="tutorialBack" ${current===0?'disabled':''}>${t('tutorialBack')}</button>
-        <button class="btn" id="tutorialNext">${current===steps.length-1?t('tutorialFinish'):t('tutorialNext')+' →'}</button></div>
+        <button class="btn" id="tutorialNext">${current===steps.length-1?t(required?'tutorialFinish':'tutorialClose'):t('tutorialNext')+' →'}</button></div>
       <div class="tutorial-status" id="tutorialStatus" role="status" aria-live="polite"></div>`;
     root.querySelector('#tutorialBack').onclick=()=>{if(!saving&&current>0){current--;paint();}};
     root.querySelector('#tutorialNext').onclick=async()=>{
       if(saving)return;
       if(current<steps.length-1){current++;paint();return;}
+      if(!required){closeSheet();return;}
       saving=true;const button=root.querySelector('#tutorialNext'),status=root.querySelector('#tutorialStatus');
       button.disabled=true;status.textContent=t('tutorialSaving');
       try{
@@ -1785,8 +1808,19 @@ function openMandatoryTutorial(){
   paint();
 }
 
+function openMandatoryTutorial(){openTutorial({required:true});}
+function openAppTutorial(){openTutorial({required:false});}
+
 async function ensureOnboarding(){
   if(!state.onboardingComplete)openMandatoryTutorial();
+}
+
+function sheetHelpCenter(){
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia Thassos</div><h2>${t('helpCenter')}</h2><p>${t('helpCenterHint')}</p></div>
+    <div class="help-center-grid"><button class="help-center-card" id="helpTutorial"><span class="icon">📘</span><b>${t('startTutorial')}</b><span>${t('startTutorialHint')}</span></button>
+      <button class="help-center-card" id="helpAi"><span class="icon">✨</span><b>${t('askAiHelp')}</b><span>${t('askAiHelpHint')}</span></button></div>`);
+  sheetEl.querySelector('#helpTutorial').onclick=openAppTutorial;
+  sheetEl.querySelector('#helpAi').onclick=sheetHelp;
 }
 
 function sheetHelp(){
@@ -4196,8 +4230,8 @@ function renderChild(){
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   document.getElementById('btnUser').textContent = t('childBye');
   document.querySelector('nav').style.display = 'none';
-  document.getElementById('helpFab').setAttribute('aria-label', t('helpChat'));
-  document.getElementById('helpFab').title = t('helpChat');
+  document.getElementById('helpFab').setAttribute('aria-label', t('helpCenter'));
+  document.getElementById('helpFab').title = t('helpCenter');
 
   const days = week.map(ds=>{
     const d = new Date(ds+'T12:00:00');
@@ -4255,8 +4289,8 @@ function renderChild(){
 function render(){
   if(state.mode === 'child' && state.child) return renderChild();
   document.querySelector('nav').style.display = '';
-  document.getElementById('helpFab').setAttribute('aria-label', t('helpChat'));
-  document.getElementById('helpFab').title = t('helpChat');
+  document.getElementById('helpFab').setAttribute('aria-label', t('helpCenter'));
+  document.getElementById('helpFab').title = t('helpCenter');
   document.getElementById('title').textContent =
     t(state.tab==='home'?'titleHome':state.tab==='schedule'?'titleSchedule':state.tab==='stock'?'titleStock':state.tab==='shop'?'titleShop':'titleBook');
   document.getElementById('who').textContent = state.user
@@ -4523,6 +4557,7 @@ async function sheetSecurityAccess(){
       <div class="import-kicker">Armonia Thassos</div><h2 style="margin:3px 0">${t('securityAccess')}</h2><div class="muted">${esc(who.name)}</div></div></div></div>
     <div class="security-passkey-card" id="securityProfile"><div class="muted">${t('reading')}</div></div>
     <div class="security-passkey-card" id="securityPasskey"><div class="muted">${t('reading')}</div></div>
+    <button class="btn sec" id="securityTutorial">📘 ${t('tutorialOpen')}</button>
     <button class="btn sec" id="securitySwitch">↔ ${t('switchProfile')}</button>
     <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
   const profileCard=sheetEl.querySelector('#securityProfile'),card=sheetEl.querySelector('#securityPasskey');
@@ -4587,6 +4622,7 @@ async function sheetSecurityAccess(){
       catch(error){toast(error.message||t('authUnavailable'),'error');remove.disabled=false;}
     };}
   }catch(error){card.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;}
+  sheetEl.querySelector('#securityTutorial').onclick=openAppTutorial;
   sheetEl.querySelector('#securitySwitch').onclick=()=>{closeSheet();logoutServerSession();};
   sheetEl.querySelector('#securityLogout').onclick=()=>{closeSheet();logoutServerSession();};
 }
@@ -4804,7 +4840,7 @@ function renderResetForm(token){
 }
 
 document.documentElement.lang = state.lang;
-document.getElementById('helpFab').onclick = sheetHelp;
+document.getElementById('helpFab').onclick = sheetHelpCenter;
 window.addEventListener('unhandledrejection', event=>{
   console.error('unhandled async error',event.reason);
   toast(t('unexpectedError'),'error');
