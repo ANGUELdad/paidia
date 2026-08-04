@@ -394,12 +394,13 @@ def valid_email(value: str) -> bool:
 
 
 def email_delivery_status() -> dict:
-    resend = resend_config()
     smtp = smtp_config()
-    if resend["api_key"] and resend["sender"]:
-        return {"configured": True, "provider": "resend"}
+    resend = resend_config()
+    # Prefer plain SMTP (Gmail/MailPlus/etc.) — no Resend account or custom domain required.
     if smtp["host"] and smtp["sender"]:
         return {"configured": True, "provider": "smtp"}
+    if resend["api_key"] and resend["sender"]:
+        return {"configured": True, "provider": "resend"}
     return {"configured": False, "provider": "none"}
 
 
@@ -428,35 +429,10 @@ def resend_error(exc: urllib.error.HTTPError) -> EmailDeliveryError:
     return EmailDeliveryError(f"Resend rejected the email (HTTP {exc.code})")
 
 
-def send_email(recipient: str, subject: str, text_body: str, html_body: str | None = None) -> None:
-    resend = resend_config()
-    if resend["api_key"] and resend["sender"]:
-        payload = {"from": resend["sender"], "to": [recipient], "subject": subject, "text": text_body}
-        if html_body:
-            payload["html"] = html_body
-        if resend["reply_to"]:
-            payload["reply_to"] = resend["reply_to"]
-        request = urllib.request.Request(
-            resend["url"], data=json.dumps(payload).encode("utf-8"), method="POST",
-            headers={
-                "Authorization": f"Bearer {resend['api_key']}",
-                "Content-Type": "application/json",
-                "User-Agent": "Armonia-Thassos/1.0",
-            },
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=30) as response:
-                if response.status < 200 or response.status >= 300:
-                    raise RuntimeError(f"Resend returned HTTP {response.status}")
-            return
-        except urllib.error.HTTPError as exc:
-            raise resend_error(exc) from exc
-        except urllib.error.URLError as exc:
-            raise EmailDeliveryError("Resend could not be reached", "email_network") from exc
-
+def send_via_smtp(recipient: str, subject: str, text_body: str, html_body: str | None = None) -> None:
     config = smtp_config()
     if not config["host"] or not config["sender"]:
-        raise RuntimeError("Email delivery is not configured")
+        raise EmailDeliveryError("Email delivery is not configured", "email_not_configured")
     message = EmailMessage()
     message["Subject"] = subject
     message["From"] = config["sender"]
@@ -464,12 +440,59 @@ def send_email(recipient: str, subject: str, text_body: str, html_body: str | No
     message.set_content(text_body)
     if html_body:
         message.add_alternative(html_body, subtype="html")
-    with smtplib.SMTP(config["host"], config["port"], timeout=30) as smtp:
-        if config["starttls"]:
-            smtp.starttls()
-        if config["user"]:
-            smtp.login(config["user"], config["password"])
-        smtp.send_message(message)
+    try:
+        with smtplib.SMTP(config["host"], config["port"], timeout=30) as smtp:
+            if config["starttls"]:
+                smtp.starttls()
+            if config["user"]:
+                smtp.login(config["user"], config["password"])
+            smtp.send_message(message)
+    except smtplib.SMTPAuthenticationError as exc:
+        raise EmailDeliveryError("SMTP login was rejected", "email_auth_failed") from exc
+    except smtplib.SMTPRecipientsRefused as exc:
+        raise EmailDeliveryError("The recipient was rejected by the mail server", "email_recipient_restricted") from exc
+    except smtplib.SMTPSenderRefused as exc:
+        raise EmailDeliveryError("The SMTP sender address was rejected", "email_sender_unverified") from exc
+    except (TimeoutError, smtplib.SMTPException, OSError) as exc:
+        raise EmailDeliveryError("The mail server could not be reached", "email_network") from exc
+
+
+def send_via_resend(recipient: str, subject: str, text_body: str, html_body: str | None = None) -> None:
+    resend = resend_config()
+    if not resend["api_key"] or not resend["sender"]:
+        raise EmailDeliveryError("Email delivery is not configured", "email_not_configured")
+    payload = {"from": resend["sender"], "to": [recipient], "subject": subject, "text": text_body}
+    if html_body:
+        payload["html"] = html_body
+    if resend["reply_to"]:
+        payload["reply_to"] = resend["reply_to"]
+    request = urllib.request.Request(
+        resend["url"], data=json.dumps(payload).encode("utf-8"), method="POST",
+        headers={
+            "Authorization": f"Bearer {resend['api_key']}",
+            "Content-Type": "application/json",
+            "User-Agent": "Armonia-Thassos/1.0",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            if response.status < 200 or response.status >= 300:
+                raise RuntimeError(f"Resend returned HTTP {response.status}")
+    except urllib.error.HTTPError as exc:
+        raise resend_error(exc) from exc
+    except urllib.error.URLError as exc:
+        raise EmailDeliveryError("Resend could not be reached", "email_network") from exc
+
+
+def send_email(recipient: str, subject: str, text_body: str, html_body: str | None = None) -> None:
+    status = email_delivery_status()
+    if status["provider"] == "smtp":
+        send_via_smtp(recipient, subject, text_body, html_body)
+        return
+    if status["provider"] == "resend":
+        send_via_resend(recipient, subject, text_body, html_body)
+        return
+    raise EmailDeliveryError("Email delivery is not configured", "email_not_configured")
 
 
 def send_pin_reset_email(recipient: str, reset_url: str) -> None:

@@ -217,10 +217,21 @@ enumeration, χρησιμοποιείται μία φορά, αλλάζει το
 profile. Το **Test-E-Mail senden** επιβεβαιώνει πραγματική παράδοση. Το κουμπί
 **Anderes Profil öffnen** επιστρέφει πάντα στην επιλογή profile.
 
-Η προτιμώμενη παράδοση είναι Resend μέσω `RESEND_API_KEY` και `RESEND_FROM`, μαζί με
-σωστό `PAIDIA_PUBLIC_URL`. Τα API keys μένουν μόνο στο ignored `.env`. Αν το Resend δεν
-είναι ρυθμισμένο, ο server χρησιμοποιεί προαιρετικά SMTP (`SMTP_HOST/PORT/USER/PASSWORD/FROM`),
-π.χ. Synology MailPlus. Σε HTTPS production βάλε `PAIDIA_COOKIE_SECURE=true`.
+Η προτιμώμενη παράδοση email είναι **SMTP** (π.χ. Gmail App Password ή Synology MailPlus)
+μέσω `SMTP_HOST/PORT/USER/PASSWORD/FROM`, χωρίς Resend και χωρίς δικό σου domain.
+Παράδειγμα Gmail στο `.env`:
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=you@gmail.com
+SMTP_PASSWORD=xxxx-xxxx-xxxx-xxxx
+SMTP_FROM=Armonia Thassos <you@gmail.com>
+SMTP_STARTTLS=true
+PAIDIA_PUBLIC_URL=http://localhost:5173
+```
+
+Το `RESEND_*` παραμένει προαιρετικό fallback μόνο αν το SMTP είναι κενό. Σε HTTPS production βάλε `PAIDIA_COOKIE_SECURE=true`.
 
 Ο admin δεν χρειάζεται να επεξεργάζεται το μεγάλο JSON χειροκίνητα:
 
@@ -308,7 +319,7 @@ ignored αρχείο `.paidia-onboarding.json` (`PAIDIA_ONBOARDING_STATE_PATH`).
 ώστε να χρησιμοποιείται το validated `X-Forwarded-For` και όρισε το τοπικό CIDR, π.χ.
 `PAIDIA_TRUSTED_NETWORKS=192.168.1.0/24`. Forwarded headers γίνονται δεκτά μόνο από
 loopback proxy ή CIDR που δηλώνεται στο `PAIDIA_TRUSTED_PROXY_NETWORKS`. Τα email alerts
-χρησιμοποιούν το ίδιο Resend transport (ή SMTP fallback) με το PIN reset. Οι τιμές και
+χρησιμοποιούν το ίδιο SMTP transport (ή προαιρετικό Resend fallback) με το PIN reset. Οι τιμές και
 τα όρια τεκμηριώνονται στο `.env.example`.
 
 Στο UI οι λειτουργικές προειδοποιήσεις και το Κέντρο Διαχείρισης εμφανίζονται μόνο στους

@@ -390,8 +390,8 @@
   .cart-quick{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:12px 16px;border-bottom:1px solid #eef2f6;background:#fff}.cart-quick input{background:#f8fafc}.cart-quick .btn{margin:0;width:auto}
   .shop-items{display:grid;gap:8px;padding:12px 16px}.shop-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}
   .shop-item-name{font-weight:760}.shop-item-sub{margin-top:3px;color:#64748b;font-size:10.5px}.cart-controls{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}.cart-qty{min-width:70px;text-align:center;font-size:11.5px;font-weight:750}
-  .cart-step{height:40px;min-width:40px;padding:0 8px;border:1px solid var(--line);border-radius:10px;background:#f8fafc;color:#334155;font-size:17px;font-weight:800;cursor:pointer}.cart-step.jump{min-width:42px;border-color:#bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px}.cart-step:active{transform:scale(.94)}
-  .cart-qty-input{width:78px;height:40px;padding:5px 7px;border:2px solid #bfdbfe;border-radius:10px;background:#fff;text-align:center;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}.cart-qty-input:focus{border-color:#2563eb;background:#eff6ff}
+  .cart-step{height:44px;min-width:44px;padding:0 8px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;color:#334155;font-size:20px;font-weight:800;cursor:pointer;touch-action:manipulation}.cart-step.jump{min-width:46px;border-color:#bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px}.cart-step:active{transform:scale(.94);background:#e2e8f0}
+  .cart-qty-input{width:84px;height:44px;padding:5px 7px;border:2px solid #bfdbfe;border-radius:12px;background:#fff;text-align:center;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}.cart-qty-input:focus{border-color:#2563eb;background:#eff6ff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
   .cart-start{position:relative;padding:11px 16px;border-top:1px solid #dbeafe;background:#fff}.cart-start .btn{margin:0}
   .shop-empty{padding:28px 18px;text-align:center}.shop-empty .big{font-size:32px}.shop-empty h3{margin:8px 0 4px}.shop-empty p{margin:0 auto 13px;max-width:330px;color:#64748b;font-size:12.5px}
   .shop-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 13px}
@@ -765,12 +765,12 @@ const T = {
     profileDetails:'Profildaten', manageProfiles:'Profile verwalten', recoveryEmail:'E-Mail für PIN-Wiederherstellung',
     recoveryEmailHint:'An diese Adresse gehen einmalige PIN-Links und wichtige Sicherheitsmeldungen.',
     saveEmail:'E-Mail speichern', emailSaved:'E-Mail wurde gespeichert.', emailInvalid:'Gib eine gültige E-Mail-Adresse ein.',
-    emailProvider:'E-Mail-Versand', emailReady:'bereit', emailNotReady:'Resend ist noch nicht konfiguriert',
+    emailProvider:'E-Mail-Versand', emailReady:'bereit', emailNotReady:'SMTP ist noch nicht konfiguriert',
     sendTestEmail:'Test-E-Mail senden', testEmailSent:'Test-E-Mail wurde gesendet.', testEmailFailed:'Die Test-E-Mail konnte nicht gesendet werden.',
-    testEmailAuthFailed:'Der Resend API-Key wurde abgelehnt. Prüfe den Key in .env und starte den Server neu.',
-    testEmailSenderFailed:'Die Absender-Domain ist bei Resend nicht verifiziert. Nutze zum Testen onboarding@resend.dev oder verifiziere deine Domain.',
-    testEmailRecipientRestricted:'Resend-Testmodus sendet nur an die E-Mail des Resend-Kontos. Nutze diese Adresse oder verifiziere eine eigene Domain.',
-    testEmailRateLimited:'Zu viele E-Mails. Warte kurz und versuche es erneut.', testEmailNetwork:'Resend ist gerade nicht erreichbar. Prüfe Internet und Server.',
+    testEmailAuthFailed:'SMTP-Anmeldung abgelehnt. Prüfe SMTP_USER / SMTP_PASSWORD (z. B. Gmail-App-Passwort) und starte den Server neu.',
+    testEmailSenderFailed:'Absender ungültig. SMTP_FROM muss eine echte Adresse sein, z. B. Armonia Thassos <deinename@gmail.com>.',
+    testEmailRecipientRestricted:'Der Empfänger wurde vom Mailserver abgelehnt. Prüfe die Zieladresse.',
+    testEmailRateLimited:'Zu viele E-Mails. Warte kurz und versuche es erneut.', testEmailNetwork:'Der Mailserver ist nicht erreichbar. Prüfe SMTP_HOST, Internet und Server.',
     switchProfile:'Anderes Profil öffnen', adminsManageEmails:'Als Admin kannst du die E-Mail jedes Profils verwalten.',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
     device:'Gerät', welcome:n=>'Willkommen, '+n,
@@ -819,7 +819,7 @@ const T = {
     boughtItems:'Gekauft', notBoughtItems:'Nicht gekauft', completedBy:'Abgeschlossen von', completedOn:'Abgeschlossen',
     cartQuickAdd:'Produkt schnell hinzufügen…', addToCart:'Hinzufügen', cartReady:n=>`${n} ${n===1?'Produkt':'Produkte'} – Einkauf starten`,
     bookedToHouse:n=>`Gekauft und in ${n} eingebucht`, backToCart:'Zurück zum Warenkorb', externalHome:'Anderes Zuhause', customProducts:'Weitere Produkte',
-    chooseShoppingHouse:'1. Haus auswählen', shoppingHouseHint:'Gekauftes wird nur in den Bestand dieses Hauses gebucht.',
+    chooseShoppingHouse:'1. Haus auswählen', shoppingHouseHint:'Auch Julian groß, Valeria und Lea — nur für Einkauf/Bestand, nicht im Wochenplan.',
     fullBlock:'Ganzer Block', fromTime:'ab', timeFrom:'Von', timeTo:'Bis',
     importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto', fromScreenshot:'Screenshot',
     listJourneyTitle:'Freitagseinkauf', listJourneyHint:'Eine vollständige Liste pro Haus und echtem Freitagsdatum.',
@@ -995,12 +995,12 @@ const T = {
     profileDetails:'Στοιχεία προφίλ', manageProfiles:'Διαχείριση προφίλ', recoveryEmail:'Email ανάκτησης PIN',
     recoveryEmailHint:'Σε αυτή τη διεύθυνση στέλνονται σύνδεσμοι PIN και σημαντικές ειδοποιήσεις ασφαλείας.',
     saveEmail:'Αποθήκευση email', emailSaved:'Το email αποθηκεύτηκε.', emailInvalid:'Βάλε έγκυρη διεύθυνση email.',
-    emailProvider:'Αποστολή email', emailReady:'έτοιμη', emailNotReady:'Το Resend δεν έχει ρυθμιστεί ακόμη',
+    emailProvider:'Αποστολή email', emailReady:'έτοιμη', emailNotReady:'Το SMTP δεν έχει ρυθμιστεί ακόμη',
     sendTestEmail:'Αποστολή δοκιμαστικού email', testEmailSent:'Το δοκιμαστικό email στάλθηκε.', testEmailFailed:'Το δοκιμαστικό email δεν στάλθηκε.',
-    testEmailAuthFailed:'Το Resend API key απορρίφθηκε. Έλεγξε το key στο .env και επανεκκίνησε τον server.',
-    testEmailSenderFailed:'Το domain αποστολέα δεν είναι επαληθευμένο στο Resend. Για δοκιμή χρησιμοποίησε onboarding@resend.dev ή επαλήθευσε δικό σου domain.',
-    testEmailRecipientRestricted:'Το test mode του Resend στέλνει μόνο στο email του λογαριασμού Resend. Χρησιμοποίησε αυτό ή επαλήθευσε δικό σου domain.',
-    testEmailRateLimited:'Στάλθηκαν πολλά email. Περίμενε λίγο και δοκίμασε ξανά.', testEmailNetwork:'Το Resend δεν είναι προσβάσιμο τώρα. Έλεγξε internet και server.',
+    testEmailAuthFailed:'Η είσοδος SMTP απορρίφθηκε. Έλεγξε SMTP_USER / SMTP_PASSWORD (π.χ. Gmail App Password) και επανεκκίνησε τον server.',
+    testEmailSenderFailed:'Μη έγκυρος αποστολέας. Το SMTP_FROM πρέπει να είναι πραγματικό email, π.χ. Armonia Thassos <you@gmail.com>.',
+    testEmailRecipientRestricted:'Ο παραλήπτης απορρίφθηκε από τον mail server. Έλεγξε τη διεύθυνση.',
+    testEmailRateLimited:'Στάλθηκαν πολλά email. Περίμενε λίγο και δοκίμασε ξανά.', testEmailNetwork:'Ο mail server δεν είναι προσβάσιμος. Έλεγξε SMTP_HOST, internet και server.',
     switchProfile:'Άνοιγμα άλλου προφίλ', adminsManageEmails:'Ως admin μπορείς να διαχειριστείς το email κάθε προφίλ.',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
     device:'Συσκευή', welcome:n=>'Καλώς ήρθες, '+n,
@@ -1049,7 +1049,7 @@ const T = {
     boughtItems:'Αγοράστηκαν', notBoughtItems:'Δεν αγοράστηκαν', completedBy:'Ολοκληρώθηκε από', completedOn:'Ολοκληρώθηκε',
     cartQuickAdd:'Γρήγορη προσθήκη προϊόντος…', addToCart:'Προσθήκη', cartReady:n=>`${n} ${n===1?'προϊόν':'προϊόντα'} – έναρξη αγορών`,
     bookedToHouse:n=>`Αγοράστηκαν και καταχωρήθηκαν στο ${n}`, backToCart:'Πίσω στο καλάθι', externalHome:'Άλλο σπίτι', customProducts:'Άλλα προϊόντα',
-    chooseShoppingHouse:'1. Επίλεξε σπίτι', shoppingHouseHint:'Τα αγορασμένα μπαίνουν μόνο στο απόθεμα αυτού του σπιτιού.',
+    chooseShoppingHouse:'1. Επίλεξε σπίτι', shoppingHouseHint:'Και Julian groß, Valeria, Lea — μόνο για ψώνια/απόθεμα, όχι στο πρόγραμμα.',
     fullBlock:'Όλο το μπλοκ', fromTime:'από', timeFrom:'Από', timeTo:'Έως',
     importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία', fromScreenshot:'Screenshot',
     listJourneyTitle:'Ψώνια Παρασκευής', listJourneyHint:'Μία πλήρης λίστα ανά σπίτι και πραγματική ημερομηνία Παρασκευής.',
@@ -1175,6 +1175,7 @@ const SEED = {
   houses: [
     {id:'h1', name:'Kalyvia (Villa)', short:'Kalyvia'},
     {id:'h2', name:'Limenaria',       short:'Limenaria'},
+    /* Μόνο για ψώνια/απόθεμα — δεν εμφανίζονται στο πρόγραμμα. */
     {id:'h3', name:'Julian groß',     short:'Julian groß', planning:false},
     {id:'h4', name:'Valeria',         short:'Valeria', planning:false},
     {id:'h5', name:'Lea',             short:'Lea', planning:false},
@@ -1455,8 +1456,8 @@ const SEED = {
   log: [],
 };
 
-/* v4 starts clean. The old v3 browser data remains untouched as a recovery backup. */
-const KEY = 'paidia.v4';
+/* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
+const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts',
@@ -1472,6 +1473,13 @@ function load(){
       MUTABLE.forEach(k => { if(saved[k] !== undefined) db[k] = saved[k]; });
     }
   }catch(e){ console.warn('load failed', e); }
+  // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
+  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customActivities','customReasons','log']
+    .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
+  if(!db.stock || typeof db.stock !== 'object') db.stock = {};
+  if(!db.weeks || typeof db.weeks !== 'object') db.weeks = {};
+  // Σπίτια χωρίς planning flag από παλιότερα saves δεν μπαίνουν στο πρόγραμμα.
+  db.houses = SEED.houses.map(h => ({...h}));
   return db;
 }
 function save(){
@@ -1498,6 +1506,7 @@ const PRODUCTS = () => [...DB.products, ...(DB.customProducts||[])];
 const prod = id => PRODUCTS().find(p=>p.id===id);
 const house = id => DB.houses.find(h=>h.id===id);
 const planningHouses = () => DB.houses.filter(h=>h.planning!==false);
+const shoppingHouses = () => DB.houses;
 const L = o => o ? (o[state.lang] ?? o.de ?? o.el ?? '') : '';
 const childResidence = child => child?.residenceType==='external' ? t('externalHome') : child?.homeHouseId ? house(child.homeHouseId)?.short||'' : '';
 const childChoiceLabel = child => `${child?.name||''}${childResidence(child)?` · 🏡 ${childResidence(child)}`:''}`;
@@ -1804,7 +1813,7 @@ function onboardingSteps(){
     step('🛍️','Im Supermarkt eindeutig abhaken','Σαφής επιλογή στο σουπερμάρκετ','Liste → „Einkauf starten“','Λίστα → «Έναρξη αγορών»',['Tippe „Einkauf starten“.','Tippe bei jedem Produkt entweder „Gekauft“ oder „Nicht verfügbar“.','Bei einem Fehler tippe „Zurücksetzen“; mit „Zurück zum Warenkorb“ kannst du die Liste weiter bearbeiten.','Wenn nichts mehr offen ist, tippe „Charge bestätigen“.'],['Πάτησε «Έναρξη αγορών».','Για κάθε προϊόν πάτησε «Αγοράστηκε» ή «Δεν ήταν διαθέσιμο».','Σε λάθος πάτησε «Επαναφορά»· με «Πίσω στο καλάθι» μπορείς να διορθώσεις τη λίστα.','Όταν δεν μένει τίποτα ανοιχτό, πάτησε «Επιβεβαίωση παρτίδας».'],'Gekauftes erhöht automatisch den Bestand des gewählten Hauses; fehlende Produkte bleiben als Fehlmenge sichtbar.','Τα αγορασμένα αυξάνουν αυτόματα το απόθεμα του επιλεγμένου σπιτιού· όσα λείπουν μένουν ως έλλειψη.'),
     step('🧾','Einen alten Einkauf prüfen','Έλεγχος παλιότερης αγοράς','Liste → 🧾 Einkaufsverlauf','Λίστα → 🧾 Ιστορικό αγορών',['Tippe „Einkaufsverlauf“.','Wähle das Haus; wische die Hausleiste seitlich für weitere Häuser.','Öffne den gewünschten Freitag.','Vergleiche links „Gekauft“ und rechts „Nicht gekauft“ sowie Person und Abschlusszeit.'],['Πάτησε «Ιστορικό αγορών».','Διάλεξε σπίτι· σύρε τη σειρά στο πλάι για τα υπόλοιπα σπίτια.','Άνοιξε την Παρασκευή που θέλεις.','Σύγκρινε «Αγοράστηκαν» και «Δεν αγοράστηκαν», μαζί με άτομο και ώρα ολοκλήρωσης.'],'Der Verlauf ist ein Snapshot; ein späteres Carry-over verändert den alten Einkauf nicht.','Το ιστορικό είναι snapshot· μεταφορά σε επόμενη λίστα δεν αλλάζει την παλιά αγορά.'),
     step('📖','Protokoll suchen und korrigieren','Αναζήτηση και διόρθωση καταγραφών','Unteres Menü → 📖 Protokoll','Κάτω μενού → 📖 Καταγραφές',['Wähle Zeitraum: Heute, 7 Tage oder benutzerdefiniert.','Filtere bei Bedarf nach Person und Aktionstyp.','Öffne „Korrektur“, beschreibe den Fehler und speichere die neue Korrektur.','Lösche keine alte Buchung: Sie bleibt als Nachweis erhalten.'],['Διάλεξε περίοδο: Σήμερα, 7 ημέρες ή προσαρμοσμένη.','Φίλτραρε αν χρειάζεται ανά άτομο και τύπο ενέργειας.','Άνοιξε «Διόρθωση», περιέγραψε το λάθος και αποθήκευσε νέα διόρθωση.','Μη διαγράψεις την παλιά κίνηση· παραμένει ως αποδεικτικό.'],'Die Korrektur erscheint als neue append-only Zeile mit Benutzer, Zeit, Gerät und IP.','Η διόρθωση εμφανίζεται ως νέα append-only γραμμή με χρήστη, ώρα, συσκευή και IP.'),
-    step('🔐','E-Mail, Passkey und Abmeldung','Email, passkey και αποσύνδεση','Oben rechts → Profil','Επάνω δεξιά → Προφίλ',['Öffne „Profil“.','Trage die Recovery-E-Mail ein und tippe „E-Mail speichern“; nutze danach „Test-E-Mail senden“.','Tippe „Passkey einrichten“ für Face ID, Touch ID, Fingerabdruck oder Windows Hello, wenn verfügbar.','Nutze „Anderes Profil“ oder „Abmelden“, wenn du fertig bist.'],['Άνοιξε «Προφίλ».','Βάλε email ανάκτησης και πάτησε «Αποθήκευση email»· μετά «Αποστολή δοκιμαστικού email».','Πάτησε «Ρύθμιση passkey» για Face ID, Touch ID, δακτυλικό αποτύπωμα ή Windows Hello, αν υποστηρίζεται.','Χρησιμοποίησε «Άλλο προφίλ» ή «Αποσύνδεση» όταν τελειώσεις.'],'E-Mail-Versand funktioniert erst, wenn Resend auf dem Server konfiguriert ist.','Η αποστολή email λειτουργεί αφού ρυθμιστεί το Resend στον server.'),
+    step('🔐','E-Mail, Passkey und Abmeldung','Email, passkey και αποσύνδεση','Oben rechts → Profil','Επάνω δεξιά → Προφίλ',['Öffne „Profil“.','Trage die Recovery-E-Mail ein und tippe „E-Mail speichern“; nutze danach „Test-E-Mail senden“.','Tippe „Passkey einrichten“ für Face ID, Touch ID, Fingerabdruck oder Windows Hello, wenn verfügbar.','Nutze „Anderes Profil“ oder „Abmelden“, wenn du fertig bist.'],['Άνοιξε «Προφίλ».','Βάλε email ανάκτησης και πάτησε «Αποθήκευση email»· μετά «Αποστολή δοκιμαστικού email».','Πάτησε «Ρύθμιση passkey» για Face ID, Touch ID, δακτυλικό αποτύπωμα ή Windows Hello, αν υποστηρίζεται.','Χρησιμοποίησε «Άλλο προφίλ» ή «Αποσύνδεση» όταν τελειώσεις.'],'E-Mail-Versand funktioniert über SMTP (z. B. Gmail App-Passwort), ohne eigene Domain.','Η αποστολή email γίνεται με SMTP (π.χ. Gmail App Password), χωρίς δικό σου domain.'),
     step('❓','Gezielt Hilfe bekommen','Λήψη συγκεκριμένης βοήθειας','Blaues ? unten rechts','Μπλε ? κάτω δεξιά',['Tippe auf das blaue „?“.','Starte unter „Geführtes App-Tutorial“ diese Anleitung neu.','Oder öffne „AI-Hilfe“, beschreibe Ziel und aktuelle Fehlermeldung und tippe „Senden“.'],['Πάτησε το μπλε «?».','Από το «Καθοδηγούμενο tutorial» ξεκίνα ξανά αυτές τις οδηγίες.','Ή άνοιξε «Βοήθεια AI», γράψε στόχο και τρέχον μήνυμα λάθους και πάτησε «Αποστολή».'],'Die AI erklärt den nächsten Schritt, führt aber keine kritische Buchung ohne Bestätigung aus.','Η AI εξηγεί το επόμενο βήμα αλλά δεν κάνει κρίσιμη καταχώρηση χωρίς επιβεβαίωση.'),
   ];
   if(isAdminUser()) steps.push(step('🛡️','Admin-Zentrale benutzen','Χρήση Κέντρου Διαχείρισης','Home → 👑 Admin-Zentrale','Αρχική → 👑 Κέντρο Διαχείρισης',['Öffne Home und lies Teamkarten, Warnungen und letzte Aktivitäten.','Tippe „Wochenplan bearbeiten“, „Dienste bearbeiten“, „Events verwalten“ oder „Protokoll öffnen“.','Öffne eine Teamkarte, um heutige und kommende Aufgaben dieser Person zu prüfen.','Ändere Profil-E-Mails über Profil; dauerhafte Planänderungen speicherst du mit „Dauerhaft“.'],['Άνοιξε την Αρχική και διάβασε κάρτες ομάδας, προειδοποιήσεις και τελευταίες ενέργειες.','Πάτησε «Επεξεργασία εβδομάδας», «Βαρδιών», «Events» ή «Άνοιγμα καταγραφών».','Άνοιξε κάρτα μέλους για σημερινές και επόμενες εργασίες.','Άλλαξε email προφίλ από το Προφίλ· μόνιμες αλλαγές προγράμματος με «Μόνιμα».'],'Nur Admins sehen diese Kontrollen; jede Änderung bleibt im Protokoll nachvollziehbar.','Μόνο οι admins βλέπουν αυτά τα εργαλεία και κάθε αλλαγή καταγράφεται.'));
@@ -1919,12 +1928,11 @@ document.addEventListener('keydown', e => {
   if(e.key === 'Escape' && sheetEl.classList.contains('on') && !sheetLocked) closeSheet();
 });
 
-/** Επαναχρησιμοποιεί το authenticated staff session. PIN ζητείται μόνο χωρίς ενεργή σύνδεση. */
+/** Επαναχρησιμοποιεί το authenticated staff session. PIN ζητείται μόνο χωρίς ενεργή σύνδεση.
+ *  Δεν κλείνει το sheet πριν το onOk — οι φόρμες πρέπει να μπορούν να διαβάσουν τα πεδία τους. */
 function askPin(title, onOk){
   if(state.mode==='staff' && state.user){
-    const who=state.user;
-    closeSheet();
-    onOk(who);
+    onOk(state.user);
     return;
   }
   closeSheet();
@@ -2614,19 +2622,19 @@ function sheetEntry(e, dateStr, presets = {}){
     f.note?' — '+f.note:''}`;
 
   const syncLinkedEvent = (entryId,f) => {
-    if(!sheetEl.querySelector('#fAnnounce').checked){
+    if(!sheetEl.querySelector('#fAnnounce')?.checked){
       const prior=DB.events.find(x=>x.scheduleEntryId===entryId && x.scheduleDate===dateStr);
       if(prior?.status==='published') prior.status='draft';
       return null;
     }
-    const title=sheetEl.querySelector('#fEventTitle').value.trim();
+    const title=sheetEl.querySelector('#fEventTitle')?.value.trim()||'';
     const idx=DB.events.findIndex(x=>x.scheduleEntryId===entryId && x.scheduleDate===dateStr);
     const prior=idx>=0?DB.events[idx]:{};
     const value={...prior,id:prior.id||'ev'+uid(),de:title,el:title,
       description:{de:f.note||'',el:f.note||''},date:dateStr,
-      from:f.from||def.from,to:f.to||def.to,location:sheetEl.querySelector('#fEventLocation').value.trim(),
+      from:f.from||def.from,to:f.to||def.to,location:sheetEl.querySelector('#fEventLocation')?.value.trim()||'',
       employeeIds:[...f.employeeIds],employeeId:f.employeeId,childIds:[...f.childIds],
-      bring:{de:sheetEl.querySelector('#fEventBring').value.trim(),el:sheetEl.querySelector('#fEventBring').value.trim()},
+      bring:{de:sheetEl.querySelector('#fEventBring')?.value.trim()||'',el:sheetEl.querySelector('#fEventBring')?.value.trim()||''},
       emoji:act(f.activityId)?.emoji||'🎉',color:prior.color||'#7c3aed',status:'published',
       scheduleEntryId:entryId,scheduleDate:dateStr};
     if(idx>=0) DB.events[idx]=value; else DB.events.push(value);
@@ -2636,8 +2644,9 @@ function sheetEntry(e, dateStr, presets = {}){
 
   sheetEl.querySelector('#fSave').onclick = () => {
     const f = readForm();
+    const announce=!!sheetEl.querySelector('#fAnnounce')?.checked;
     if(blockDef(blockId).by === 'house' && !f.houseIds.length){ toast(t('selectHouse'),'error'); return; }
-    if(sheetEl.querySelector('#fAnnounce').checked &&
+    if(announce &&
       (!sheetEl.querySelector('#fEventTitle').value.trim() || !f.childIds.length)){
       toast(t('eventRequired'),'error'); return;
     }
@@ -2646,10 +2655,12 @@ function sheetEntry(e, dateStr, presets = {}){
       let savedEntryId=e.id;
       // Μόνιμη αλλαγή προτύπου: μόνο Zoi, Angelos, Dimitris
       if(e.source === 'template' && scope === 'template' && !who.admin){
-        render(); toast(t('adminOnly')); return;
+        toast(t('adminOnly')); return;
       }
       if(e.source === 'template' && scope === 'template'){
-        Object.assign(DB.template.find(x=>x.id===e.id), f);
+        const row=DB.template.find(x=>x.id===e.id);
+        if(!row){ toast(t('unexpectedError'),'error'); return; }
+        Object.assign(row, f);
         DB.overrides = DB.overrides.filter(o => !(o.date===dateStr && o.templateId===e.id));
         logEntry('SCHEDULE', `${DAY_LONG[state.lang][dayIdx]} · Vorlage: ${describe(f)}`);
       }else if(e.source === 'template'){
@@ -2665,7 +2676,7 @@ function sheetEntry(e, dateStr, presets = {}){
       }
       const eventToNotify=syncLinkedEvent(savedEntryId,f);
       if(!save()) return;
-      closeSheet(); render(); toast(sheetEl.querySelector('#fAnnounce')?.checked?t('eventPublished'):t('changesSaved'),'success');
+      closeSheet(); render(); toast(announce?t('eventPublished'):t('changesSaved'),'success');
       if(eventToNotify) sendEventWhatsapp(eventToNotify);
     });
   };
@@ -2791,7 +2802,7 @@ function shortagesCard(hid){
   </div>`;
 }
 
-const REASONS = () => [...DB.reasons, ...DB.customReasons];
+const REASONS = () => [...DB.reasons, ...(Array.isArray(DB.customReasons)?DB.customReasons:[])];
 
 /**
  * Πίνακας ψυγείου: πλακίδια προϊόντων που τα πατάς ή τα σέρνεις στη ζώνη.
@@ -2818,6 +2829,7 @@ function sheetStockBoard(dir,initialPid=null){
   let tapDir = dir;           // τι κάνει το απλό πάτημα σε πλακίδιο
   let basket = initialPid ? {[initialPid]:{qty:stepFor(prod(initialPid)),dir}} : {}; // productId → {qty, dir}
   let reasonId = null;
+  let creatingReason = false;
   let photo = null, camOk = false;
 
   const stockOf = pid => DB.stock[stockKey(hid, pid)] ?? 0;
@@ -2877,11 +2889,7 @@ function sheetStockBoard(dir,initialPid=null){
     <div id="sbReasonWrap" style="display:none">
       <label class="f"><span>${t('reason')}</span></label>
       <div class="chips" id="sbReasons" style="margin:-4px 0 12px"></div>
-      <div class="reason-create" id="sbReasonCreate" hidden>
-        <input id="sbReasonName" maxlength="60" autocomplete="off" placeholder="${t('reasonNamePh')}">
-        <button class="btn sec" id="sbReasonAdd" type="button">＋ ${t('saveReason')}</button>
-        <button class="mini-x" id="sbReasonCancel" type="button" aria-label="${t('close')}">×</button>
-      </div>
+      <div id="sbReasonCreateHost"></div>
       <div id="sbReasonStatus" class="status-box" style="display:none" role="status" aria-live="polite"></div>
     </div>
     <div id="sbCam" style="display:none">
@@ -2894,18 +2902,22 @@ function sheetStockBoard(dir,initialPid=null){
     </div>`);
 
   const $ = s => sheetEl.querySelector(s);
-  const reasonCreate=$('#sbReasonCreate'),reasonInput=$('#sbReasonName'),reasonStatus=$('#sbReasonStatus');
+  const reasonStatus=$('#sbReasonStatus');
 
   const hideReasonCreate=()=>{
-    reasonCreate.hidden=true;reasonInput.value='';reasonStatus.style.display='none';
+    creatingReason=false;
+    reasonStatus.style.display='none';
+    paint();
   };
   const addCustomReason=()=>{
-    const name=reasonInput.value.trim().replace(/\s+/g,' ');
+    if(!Array.isArray(DB.customReasons)) DB.customReasons=[];
+    const input=$('#sbReasonName');
+    const name=(input?.value||'').trim().replace(/\s+/g,' ');
     reasonStatus.style.display='block';
-    if(!name){setStatus(reasonStatus,t('reasonRequired'),'error');reasonInput.focus();return;}
+    if(!name){setStatus(reasonStatus,t('reasonRequired'),'error');input?.focus();return;}
     const existing=REASONS().find(r=>[r.de,r.el,L(r)].some(value=>norm(value)===norm(name)));
     if(existing){
-      reasonId=existing.id;setStatus(reasonStatus,t('reasonExists'),'info');paint();return;
+      reasonId=existing.id;creatingReason=false;setStatus(reasonStatus,t('reasonExists'),'info');paint();return;
     }
     const reason={id:'cr'+uid(),de:name,el:name,custom:true};
     DB.customReasons.push(reason);
@@ -2913,13 +2925,7 @@ function sheetStockBoard(dir,initialPid=null){
       DB.customReasons=DB.customReasons.filter(item=>item.id!==reason.id);
       setStatus(reasonStatus,t('errStorage'),'error');return;
     }
-    reasonId=reason.id;hideReasonCreate();paint();toast(T[state.lang].reasonAdded(name),'success');
-  };
-  $('#sbReasonAdd').onclick=addCustomReason;
-  $('#sbReasonCancel').onclick=hideReasonCreate;
-  reasonInput.onkeydown=event=>{
-    if(event.key==='Enter'){event.preventDefault();addCustomReason();}
-    if(event.key==='Escape'){event.preventDefault();hideReasonCreate();}
+    reasonId=reason.id;creatingReason=false;reasonStatus.style.display='none';paint();toast(T[state.lang].reasonAdded(name),'success');
   };
 
   /** Ενημερώνει μόνο ό,τι αλλάζει — ποτέ το βίντεο. */
@@ -2929,6 +2935,7 @@ function sheetStockBoard(dir,initialPid=null){
     const focused = document.activeElement;
     const keepFocus = focused && focused.classList?.contains('qty-field')
       ? focused.dataset.q : null;
+    const keepReasonDraft = creatingReason ? ($('#sbReasonName')?.value || '') : '';
 
     const nIn = ins().length, nOut = outs().length;
     $('#sbDropIN').classList.toggle('filled', nIn > 0);
@@ -3006,16 +3013,24 @@ function sheetStockBoard(dir,initialPid=null){
 
     // Λόγος μόνο όταν υπάρχει τουλάχιστον μία έξοδος
     $('#sbReasonWrap').style.display = outs().length ? '' : 'none';
+    if(!outs().length) creatingReason=false;
     $('#sbReasons').innerHTML =
       REASONS().map(r=>r.custom
         ? `<span class="reason-option"><button class="chip ${r.id===reasonId?'on':''}" data-r="${r.id}">${esc(L(r))}</button><button class="reason-remove" data-remove-reason="${r.id}" type="button" aria-label="${t('close')}: ${esc(L(r))}">×</button></span>`
         : `<button class="chip ${r.id===reasonId?'on':''}" data-r="${r.id}">${esc(L(r))}</button>`).join('') +
       `<button class="chip" id="sbNewReason" style="border-style:dashed">＋ ${t('newReason')}</button>`;
+    $('#sbReasonCreateHost').innerHTML = creatingReason
+      ? `<div class="reason-create" id="sbReasonCreate">
+          <input id="sbReasonName" maxlength="60" autocomplete="off" placeholder="${t('reasonNamePh')}" value="${esc(keepReasonDraft)}">
+          <button class="btn sec" id="sbReasonAdd" type="button">＋ ${t('saveReason')}</button>
+          <button class="mini-x" id="sbReasonCancel" type="button" aria-label="${t('close')}">×</button>
+        </div>` : '';
     $('#sbReasons').querySelectorAll('.chip[data-r]').forEach(b=>{
-      b.onclick = () => { reasonId = b.dataset.r; paint(); };
+      b.onclick = () => { reasonId = b.dataset.r; creatingReason=false; paint(); };
     });
     $('#sbReasons').querySelectorAll('[data-remove-reason]').forEach(button=>{
       button.onclick=()=>{
+        if(!Array.isArray(DB.customReasons)) DB.customReasons=[];
         const before=[...DB.customReasons],id=button.dataset.removeReason;
         DB.customReasons=DB.customReasons.filter(reason=>reason.id!==id);
         if(!save()){DB.customReasons=before;return;}
@@ -3023,9 +3038,20 @@ function sheetStockBoard(dir,initialPid=null){
         paint();toast(t('reasonRemoved'),'success');
       };
     });
-    $('#sbNewReason').onclick = () => {
-      reasonCreate.hidden=false;reasonStatus.style.display='none';reasonInput.focus();
+    const newReasonBtn=$('#sbNewReason');
+    if(newReasonBtn) newReasonBtn.onclick = () => {
+      creatingReason=true;reasonStatus.style.display='none';paint();
+      const input=$('#sbReasonName'); if(input){input.focus();input.select();}
     };
+    const addBtn=$('#sbReasonAdd'),cancelBtn=$('#sbReasonCancel'),reasonInput=$('#sbReasonName');
+    if(addBtn) addBtn.onclick=addCustomReason;
+    if(cancelBtn) cancelBtn.onclick=hideReasonCreate;
+    if(reasonInput){
+      reasonInput.onkeydown=event=>{
+        if(event.key==='Enter'){event.preventDefault();addCustomReason();}
+        if(event.key==='Escape'){event.preventDefault();hideReasonCreate();}
+      };
+    }
 
     $('#sbCam').style.display = picked.length ? '' : 'none';
     const saveBtn = $('#sbSave');
@@ -3214,7 +3240,7 @@ function viewShop(){
   const seg = `<section class="shop-house-picker">
       <div class="shop-house-picker-head"><div><b>${t('chooseShoppingHouse')}</b><span>${t('shoppingHouseHint')}</span></div><span>🏠 ${esc(house(hid).short)}</span></div>
       <div class="seg house-selector" id="shHouse">
-        ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
+        ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
       </div>
     </section>`;
 
@@ -3681,10 +3707,10 @@ function sheetImportList(){
 
   const saveRows = () => {
     if(!rows || !rows.length){ toast(t('nothingToImport')); return; }
+    const behavior=sheetEl.querySelector('input[name="mergeMode"]:checked')?.value||'merge';
     askPin(t('importTitle'), who => {
       state.user = who;
       const importId=uid();
-      const behavior=sheetEl.querySelector('input[name="mergeMode"]:checked')?.value||'merge';
       if(behavior==='replace'){
         DB.listEntries=DB.listEntries.filter(e=>!(e.houseId===hid&&listEntryFriday(e)===friday&&['open','pending'].includes(e.status)));
       }
@@ -4181,15 +4207,21 @@ function sheetEvent(existing=null, presets={}){
     const title=sheetEl.querySelector('#evTitle').value.trim();
     const date=sheetEl.querySelector('#evDate').value, from=sheetEl.querySelector('#evFrom').value, to=sheetEl.querySelector('#evTo').value;
     const statusEl=sheetEl.querySelector('#evStatus');
+    const description=sheetEl.querySelector('#evDesc').value.trim();
+    const location=sheetEl.querySelector('#evLocation').value.trim();
+    const bring=sheetEl.querySelector('#evBring').value.trim();
+    const emoji=sheetEl.querySelector('#evEmoji').value.trim()||'🎉';
+    const publish=!!sheetEl.querySelector('#evPublish').checked;
+    const employeeIds=[...sheetEl.querySelectorAll('#evPeople input:checked')].map(x=>x.value);
     if(!title || !date || !from || !to || !pickedKids.length){ setStatus(statusEl,t('eventRequired'),'error'); return; }
     if(to<=from){ setStatus(statusEl,t('invalidTime'),'error'); return; }
     askPin(t('saveWithPin'),who=>{
       const value={...e,id:e.id||'ev'+uid(),de:title,el:title,
-        description:{de:sheetEl.querySelector('#evDesc').value.trim(),el:sheetEl.querySelector('#evDesc').value.trim()},
-        date,from,to,location:sheetEl.querySelector('#evLocation').value.trim(),
-        employeeIds:[...sheetEl.querySelectorAll('#evPeople input:checked')].map(x=>x.value),childIds:[...pickedKids],
-        bring:{de:sheetEl.querySelector('#evBring').value.trim(),el:sheetEl.querySelector('#evBring').value.trim()},
-        emoji:sheetEl.querySelector('#evEmoji').value.trim()||'🎉',status:sheetEl.querySelector('#evPublish').checked?'published':'draft'};
+        description:{de:description,el:description},
+        date,from,to,location,
+        employeeIds:[...employeeIds],childIds:[...pickedKids],
+        bring:{de:bring,el:bring},
+        emoji,status:publish?'published':'draft'};
       value.employeeId=value.employeeIds[0]||who.id;
       if(!value.employeeIds.length) value.employeeIds=[value.employeeId];
       const idx=DB.events.findIndex(x=>x.id===value.id);
@@ -4640,7 +4672,10 @@ function wire(){
     const product=entry.productId?prod(entry.productId):null;
     const step=product?stepFor(product):entry.unit==='g'?100:entry.unit==='kg'?0.5:1;
     entry.qty=Math.max(step,Math.round((Number(entry.qty)+Number(button.dataset.listQty)*step)*100)/100);
-    save();render();
+    save();
+    const input=v.querySelector(`[data-list-q="${entry.id}"]`);
+    if(input) input.value=entry.qty;
+    else render();
   });
   v.querySelectorAll('[data-list-q]').forEach(input=>{
     input.onfocus=()=>input.select();
@@ -4650,7 +4685,7 @@ function wire(){
       const step=product?stepFor(product):entry.unit==='g'?100:entry.unit==='kg'?0.5:1;
       const value=Math.round(Number(input.value.replace(',','.'))*100)/100;
       if(!Number.isFinite(value)||value<=0){input.value=entry.qty;toast(t('qty'));return;}
-      entry.qty=Math.max(step,value);save();render();
+      entry.qty=Math.max(step,value);input.value=entry.qty;save();
     };
   });
   const quickName=v.querySelector('#cartQuickName'),quickAdd=v.querySelector('#cartQuickAdd');
