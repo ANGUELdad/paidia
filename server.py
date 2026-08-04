@@ -505,17 +505,53 @@ def send_email(recipient: str, subject: str, text_body: str, html_body: str | No
     raise EmailDeliveryError("Email delivery is not configured", "email_not_configured")
 
 
+def email_shell(title: str, eyebrow: str, body_html: str, footer: str | None = None) -> str:
+    """Shared branded HTML wrapper for transactional mail."""
+    foot = footer or "Armonia Thassos · Thasos · Automatische Nachricht"
+    return f"""<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title></head>
+<body style="margin:0;padding:0;background:#e8eef2;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#e8eef2;padding:28px 12px">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:22px;overflow:hidden;box-shadow:0 18px 50px rgba(15,40,55,.12)">
+        <tr><td style="padding:28px 28px 18px;background:linear-gradient(135deg,#0f3d4c 0%,#146b73 55%,#1d8a7a 100%)">
+          <div style="display:inline-block;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.14);color:#ecfeff;font-weight:800;font-size:20px;line-height:42px;text-align:center">A</div>
+          <div style="margin-top:14px;color:#99f6e4;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase">{eyebrow}</div>
+          <h1 style="margin:8px 0 0;color:#f8fafc;font-size:26px;line-height:1.2;letter-spacing:-.02em">{title}</h1>
+        </td></tr>
+        <tr><td style="padding:26px 28px 8px;color:#1e293b;font-size:15px;line-height:1.65">{body_html}</td></tr>
+        <tr><td style="padding:18px 28px 26px;color:#64748b;font-size:12px;line-height:1.55;border-top:1px solid #eef2f6">{foot}</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>"""
+
+
+def email_button(url: str, label: str) -> str:
+    return (
+        f'<p style="margin:22px 0 8px">'
+        f'<a href="{url}" style="display:inline-block;padding:14px 22px;background:linear-gradient(135deg,#0d9488,#0284c7);'
+        f'color:#ffffff;text-decoration:none;border-radius:12px;font-weight:700;font-size:14px">{label}</a></p>'
+    )
+
+
 def send_pin_reset_email(recipient: str, reset_url: str) -> None:
     text_body = (
         "Du hast eine Änderung deiner Armonia-Thassos-PIN angefordert.\n\n"
         f"Öffne innerhalb von 30 Minuten diesen einmaligen Link:\n{reset_url}\n\n"
         "Wenn du das nicht angefordert hast, ignoriere diese Nachricht."
     )
-    html_body = (
-        "<div style=\"font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#172033\">"
-        "<h2>Armonia Thassos</h2><p>Du hast eine Änderung deiner PIN angefordert.</p>"
-        f"<p><a href=\"{reset_url}\" style=\"display:inline-block;padding:12px 18px;background:#2563eb;color:white;text-decoration:none;border-radius:10px\">PIN sicher ändern</a></p>"
-        "<p style=\"color:#64748b;font-size:13px\">Der Link gilt 30 Minuten und kann nur einmal verwendet werden.</p></div>"
+    html_body = email_shell(
+        "PIN sicher ändern",
+        "Armonia Thassos",
+        (
+            "<p style=\"margin:0 0 12px\">Du hast eine Änderung deiner PIN angefordert.</p>"
+            "<p style=\"margin:0 0 4px;color:#475569\">Der Link gilt <b>30 Minuten</b> und kann nur einmal verwendet werden.</p>"
+            f"{email_button(reset_url, 'PIN jetzt ändern')}"
+            f'<p style="margin:14px 0 0;font-size:12px;color:#94a3b8;word-break:break-all">{reset_url}</p>'
+            "<p style=\"margin:18px 0 0;color:#64748b\">Wenn du das nicht warst, ignoriere diese Nachricht.</p>"
+        ),
     )
     send_email(recipient, "Armonia Thassos – PIN ändern", text_body, html_body)
 
@@ -529,16 +565,57 @@ def send_security_alert_email(recipient: str, profile_id: str, event: str,
         "untrusted_ip_login": "Anmeldung außerhalb des vertrauenswürdigen Netzwerks",
     }
     label = labels.get(event, "Ungewöhnliche Anmeldung")
+    when = time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    attempts = details.get("attempts", 0)
     text_body = (
         f"Profil: {profile_id}\n"
         f"Ereignis: {label}\n"
         f"IP-Adresse: {ip}\n"
-        f"Zeit: {time.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
-        f"Fehlversuche: {details.get('attempts', 0)}\n\n"
+        f"Zeit: {when}\n"
+        f"Fehlversuche: {attempts}\n\n"
         "Wenn du das nicht warst, ändere deine PIN über den Link auf der Anmeldeseite "
         "und informiere die verantwortliche Person. Antworte nicht auf diese automatische Nachricht."
     )
-    send_email(recipient, f"Armonia Thassos – Sicherheitswarnung: {label}", text_body)
+    html_body = email_shell(
+        "Sicherheitswarnung",
+        "Armonia Thassos · Alert",
+        (
+            f"<p style=\"margin:0 0 16px\">Es gab eine ungewöhnliche Anmeldung:</p>"
+            "<table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" "
+            "style=\"background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px\">"
+            f"<tr><td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;color:#64748b;font-size:12px\">Ereignis</td>"
+            f"<td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;text-align:right;font-weight:700\">{label}</td></tr>"
+            f"<tr><td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;color:#64748b;font-size:12px\">Profil</td>"
+            f"<td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;text-align:right;font-weight:700\">{profile_id}</td></tr>"
+            f"<tr><td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;color:#64748b;font-size:12px\">IP</td>"
+            f"<td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;text-align:right;font-weight:700\">{ip}</td></tr>"
+            f"<tr><td style=\"padding:12px 14px;color:#64748b;font-size:12px\">Zeit</td>"
+            f"<td style=\"padding:12px 14px;text-align:right;font-weight:700\">{when}</td></tr>"
+            "</table>"
+            "<p style=\"margin:18px 0 0;color:#64748b\">Wenn du das nicht warst, ändere deine PIN und informiere die Leitung.</p>"
+        ),
+        "Keine Antwort nötig · Nur für Admins / Profil-Recovery",
+    )
+    send_email(recipient, f"Armonia Thassos – Sicherheitswarnung: {label}", text_body, html_body)
+
+
+def send_test_profile_email(recipient: str) -> None:
+    text_body = (
+        "Deine Profil-E-Mail ist verbunden. "
+        "PIN-Links und Sicherheitsmeldungen können zugestellt werden."
+    )
+    html_body = email_shell(
+        "E-Mail funktioniert",
+        "Armonia Thassos · Test",
+        (
+            "<p style=\"margin:0 0 12px\">Deine Profil-E-Mail ist erfolgreich verbunden.</p>"
+            "<p style=\"margin:0;color:#475569\">PIN-Reset-Links und Sicherheitsmeldungen "
+            "können jetzt an diese Adresse gesendet werden.</p>"
+            "<div style=\"margin:20px 0 0;padding:14px 16px;border-radius:14px;background:#ecfeff;border:1px solid #99f6e4;color:#0f766e;font-weight:700\">"
+            "✓ SMTP bereit · Kein eigenes Domain nötig</div>"
+        ),
+    )
+    send_email(recipient, "Armonia Thassos – E-Mail funktioniert", text_body, html_body)
 
 
 def queue_security_alert(profile_id: str, event: str, ip: str, details: dict | None = None) -> bool:
@@ -1389,13 +1466,7 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             RESET_REQUESTS[rate_key] = now
         try:
-            send_email(
-                user["email"], "Armonia Thassos – E-Mail funktioniert",
-                "Deine Profil-E-Mail ist verbunden. PIN-Links und Sicherheitsmeldungen können zugestellt werden.",
-                "<div style=\"font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#172033\">"
-                "<h2>Armonia Thassos</h2><p>Deine Profil-E-Mail ist erfolgreich verbunden.</p>"
-                "<p>PIN-Links und Sicherheitsmeldungen können jetzt zugestellt werden.</p></div>",
-            )
+            send_test_profile_email(user["email"])
         except EmailDeliveryError as exc:
             self.json_response(502, {"error": str(exc), "code": exc.code})
             return

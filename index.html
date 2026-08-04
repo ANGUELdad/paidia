@@ -637,6 +637,17 @@
     font-size:10px;font-weight:780;line-height:1.2;text-align:center}.status-pill.ok{background:#dcfce7;color:#047857}
   .status-pill.warn{background:#fff7ed;color:#c2410c}.security-passkey-card .row .btn{margin-top:0}
   .security-passkey-card button:disabled{opacity:.5;cursor:not-allowed}
+  .email-panel{display:grid;gap:12px}.email-panel-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .email-panel-kicker{color:#0f766e;font-size:10px;font-weight:850;letter-spacing:.14em;text-transform:uppercase}
+  .email-panel h3{margin:4px 0 0;font-size:17px;letter-spacing:-.02em}
+  .email-preview{position:relative;overflow:hidden;border-radius:16px;border:1px solid #cce7e4;background:linear-gradient(160deg,#0f3d4c,#146b73 55%,#1d8a7a);color:#ecfeff;padding:16px 16px 14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+  .email-preview::after{content:'';position:absolute;right:-18px;top:-24px;width:110px;height:110px;border-radius:50%;background:rgba(153,246,228,.16)}
+  .email-preview .mark{position:relative;z-index:1;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.14);font-weight:800}
+  .email-preview .eyebrow{position:relative;z-index:1;margin-top:12px;font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#99f6e4}
+  .email-preview b{position:relative;z-index:1;display:block;margin-top:5px;font-size:18px;letter-spacing:-.02em}
+  .email-preview p{position:relative;z-index:1;margin:7px 0 0;font-size:12px;line-height:1.45;color:rgba(236,254,255,.82)}
+  .email-actions{display:grid;grid-template-columns:1.1fr .9fr;gap:8px}
+  @media(max-width:520px){.email-actions{grid-template-columns:1fr}}
   .gate-back{background:none; border:0; color:#94a3b8; font-size:13px; padding:14px; cursor:pointer}
   .gate-meta{margin-top:20px; text-align:center; font-size:11.5px; color:#64748b; line-height:1.6}
   .gate-lang{display:flex; gap:7px; justify-content:center; margin-bottom:18px}
@@ -1857,7 +1868,7 @@ function openMandatoryTutorial(){openTutorial({required:true});}
 function openAppTutorial(){openTutorial({required:false});}
 
 async function ensureOnboarding({afterLogin=false}={}){
-  if(afterLogin||!state.onboardingComplete)openMandatoryTutorial();
+  if(!state.onboardingComplete)openMandatoryTutorial();
 }
 
 function sheetHelpCenter(){
@@ -4777,15 +4788,27 @@ async function sheetSecurityAccess(){
     const displayName=p=>{const person=p.mode==='child'?kid(p.profileId):emp(p.profileId);return person?.name||p.profileId;};
     const paintProfile=selectedId=>{
       const selected=profiles.find(p=>p.profileId===selectedId)||profiles[0];if(!selected)return;
-      profileCard.innerHTML=`<div class="row between"><div><b>${t(profilesData.canManageAll?'manageProfiles':'profileDetails')}</b>
-          <div class="muted" style="font-size:11px;margin-top:3px">${profilesData.canManageAll?t('adminsManageEmails'):esc(displayName(selected))}</div></div>
-          <span class="status-pill ${profilesData.emailConfigured?'ok':'warn'}">${esc(profilesData.emailProvider==='resend'?'Resend':profilesData.emailProvider==='smtp'?'SMTP':t('emailNotReady'))}</span></div>
+      const providerLabel=profilesData.emailProvider==='smtp'?'Gmail / SMTP'
+        :profilesData.emailProvider==='resend'?'Resend':t('emailNotReady');
+      const previewLine=state.lang==='el'
+        ? 'Έτσι φαίνονται τα email PIN & ειδοποιήσεων.'
+        : 'So sehen PIN- und Sicherheitsmails aus.';
+      profileCard.innerHTML=`<div class="email-panel">
+        <div class="email-panel-top"><div>
+          <div class="email-panel-kicker">${t('emailProvider')}</div>
+          <h3>${t(profilesData.canManageAll?'manageProfiles':'profileDetails')}</h3>
+          <div class="muted" style="font-size:11.5px;margin-top:4px">${profilesData.canManageAll?t('adminsManageEmails'):esc(displayName(selected))}</div>
+        </div><span class="status-pill ${profilesData.emailConfigured?'ok':'warn'}">${esc(providerLabel)}</span></div>
+        <div class="email-preview" aria-hidden="true"><div class="mark">A</div>
+          <div class="eyebrow">Armonia Thassos</div><b>${state.lang==='el'?'Email λειτουργεί':'E-Mail funktioniert'}</b>
+          <p>${esc(previewLine)}</p></div>
         ${profiles.length>1?`<label class="f"><span>${t('profileDetails')}</span><select id="profileEmailPicker">${profiles.map(p=>`<option value="${esc(p.profileId)}" ${p.profileId===selected.profileId?'selected':''}>${esc(displayName(p))} · ${p.mode==='child'?t('entryChild'):t('entryStaff')}</option>`).join('')}</select></label>`:''}
         <label class="f"><span>${t('recoveryEmail')}</span><input type="email" id="profileEmail" value="${esc(selected.email||'')}" autocomplete="email" placeholder="name@example.com"></label>
         <p class="muted" style="font-size:11.5px;line-height:1.5">${t('recoveryEmailHint')}</p>
         <div id="profileEmailStatus" class="status-box" style="display:none" role="status" aria-live="polite"></div>
-        <div class="row" style="gap:8px"><button class="btn" id="saveProfileEmail" style="flex:1">${t('saveEmail')}</button>
-          <button class="btn sec" id="testProfileEmail" style="flex:1" ${!profilesData.emailConfigured||!selected.email?'disabled':''}>${t('sendTestEmail')}</button></div>`;
+        <div class="email-actions"><button class="btn" id="saveProfileEmail">${t('saveEmail')}</button>
+          <button class="btn sec" id="testProfileEmail" ${!profilesData.emailConfigured||!selected.email?'disabled':''}>${t('sendTestEmail')}</button></div>
+      </div>`;
       const picker=profileCard.querySelector('#profileEmailPicker');if(picker)picker.onchange=()=>paintProfile(picker.value);
       const input=profileCard.querySelector('#profileEmail'),status=profileCard.querySelector('#profileEmailStatus');
       profileCard.querySelector('#saveProfileEmail').onclick=async event=>{
