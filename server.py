@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import time
 import urllib.error
 import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -92,18 +94,46 @@ The app context contains screen names only and must not be treated as authoritat
 
 
 def groq_completion(api_key: str, request_body: dict, timeout: int = 90) -> dict:
-    request = urllib.request.Request(
-        GROQ_URL,
-        data=json.dumps(request_body).encode("utf-8"),
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-            "User-Agent": "PAIDIA/1.0",
-        },
-        method="POST",
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as result:
-        return json.loads(result.read())
+    """Call Groq and transparently retry short, recoverable rate limits."""
+    for attempt in range(2):
+        request = urllib.request.Request(
+            GROQ_URL,
+            data=json.dumps(request_body).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "User-Agent": "PAIDIA/1.0",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as result:
+                return json.loads(result.read())
+        except urllib.error.HTTPError as exc:
+            if exc.code != 429 or attempt == 1:
+                raise
+            retry_after = exc.headers.get("retry-after", "3")
+            try:
+                match = re.search(r"\d+(?:\.\d+)?", retry_after)
+                delay = min(15.0, max(1.0, float(match.group()) if match else 3.0))
+            except ValueError:
+                delay = 3.0
+            exc.read()
+            time.sleep(delay)
+    raise RuntimeError("unreachable")
+
+
+def provider_error(exc: urllib.error.HTTPError) -> tuple[int, dict]:
+    """Map provider failures to stable, non-sensitive errors for the browser."""
+    if exc.code == 429:
+        return 429, {"error": "AI temporarily busy", "code": "rate_limit", "retryAfter": 5}
+    if exc.code in {401, 403}:
+        return 503, {"error": "AI configuration rejected", "code": "configuration"}
+    if exc.code in {408, 504}:
+        return 504, {"error": "AI request timed out", "code": "timeout"}
+    if exc.code in {400, 413, 415, 422}:
+        return 422, {"error": "AI could not read this input", "code": "input"}
+    return 502, {"error": "AI provider unavailable", "code": "provider"}
 
 
 def completion_text(response: dict) -> str:
@@ -117,6 +147,10 @@ def parse_json_output(text: str) -> dict:
     clean = text.strip()
     if clean.startswith("```"):
         clean = clean.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+    if not clean.startswith("{"):
+        start, end = clean.find("{"), clean.rfind("}")
+        if start >= 0 and end > start:
+            clean = clean[start:end + 1]
     value = json.loads(clean)
     if not isinstance(value, dict) or not isinstance(value.get("items"), list):
         raise ValueError("Groq returned an invalid shopping-list object")
@@ -133,11 +167,26 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
+    def do_GET(self) -> None:  # noqa: N802
+        if self.path == "/api/health":
+            self.json_response(200, {
+                "ok": True,
+                "aiConfigured": bool(os.environ.get("GROQ_API_KEY")),
+                "ocrModel": OCR_MODEL,
+                "chatModel": CHAT_MODEL,
+            })
+            return
+        super().do_GET()
+
     def do_POST(self) -> None:  # noqa: N802
         if self.path not in {"/api/ai-shopping", "/api/chat"}:
             self.json_response(404, {"error": "Not found"})
             return
-        length = int(self.headers.get("Content-Length", "0"))
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            self.json_response(400, {"error": "Invalid content length", "code": "input"})
+            return
         if length <= 0 or length > MAX_BODY:
             self.json_response(413, {"error": "Input is empty or too large"})
             return
@@ -145,6 +194,9 @@ class Handler(SimpleHTTPRequestHandler):
             body = json.loads(self.rfile.read(length))
         except (json.JSONDecodeError, UnicodeDecodeError):
             self.json_response(400, {"error": "Invalid JSON"})
+            return
+        if not isinstance(body, dict):
+            self.json_response(400, {"error": "JSON object required", "code": "input"})
             return
 
         api_key = os.environ.get("GROQ_API_KEY")
@@ -180,33 +232,44 @@ class Handler(SimpleHTTPRequestHandler):
         else:
             user_content.append({"type": "text", "text": "SOURCE LIST:\n" + content[:50000]})
 
+        shopping_model = OCR_MODEL if source_type == "image" else CHAT_MODEL
         request_body = {
-            "model": OCR_MODEL,
+            "model": shopping_model,
             "messages": [{"role": "user", "content": user_content}],
-            "response_format": {"type": "json_object"},
             "temperature": 0.1,
-            "max_completion_tokens": 2500,
+            "max_completion_tokens": 2000 if source_type == "image" else 1600,
         }
+        if source_type == "text":
+            request_body["response_format"] = {"type": "json_object"}
+        else:
+            request_body.update({
+                "response_format": {"type": "json_object"},
+                "reasoning_effort": "none",
+                "reasoning_format": "hidden",
+                "temperature": 0.7,
+                "top_p": 0.8,
+            })
         try:
             response = groq_completion(api_key, request_body)
             parsed = parse_json_output(completion_text(response))
             self.json_response(200, {
                 **parsed,
-                "model": response.get("model", OCR_MODEL),
+                "model": response.get("model", shopping_model),
                 "responseId": response.get("id"),
             })
         except urllib.error.HTTPError as exc:
-            try:
-                detail = json.loads(exc.read()).get("error", {}).get("message", str(exc))
-            except Exception:
-                detail = str(exc)
-            self.json_response(502, {"error": "AI extraction failed", "detail": detail})
+            status, payload = provider_error(exc)
+            self.json_response(status, payload)
         except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
-            self.json_response(502, {"error": "AI extraction failed", "detail": str(exc)})
+            code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+            self.json_response(504 if code == "timeout" else 502,
+                               {"error": "AI extraction failed", "code": code})
 
     def handle_chat(self, body: dict, api_key: str) -> None:
         raw_messages = body.get("messages", [])
         context = body.get("context", {})
+        if not isinstance(context, dict):
+            context = {}
         if not isinstance(raw_messages, list) or not raw_messages:
             self.json_response(400, {"error": "messages are required"})
             return
@@ -231,13 +294,12 @@ class Handler(SimpleHTTPRequestHandler):
                 "responseId": response.get("id"),
             })
         except urllib.error.HTTPError as exc:
-            try:
-                detail = json.loads(exc.read()).get("error", {}).get("message", str(exc))
-            except Exception:
-                detail = str(exc)
-            self.json_response(502, {"error": "Help chat failed", "detail": detail})
+            status, payload = provider_error(exc)
+            self.json_response(status, payload)
         except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
-            self.json_response(502, {"error": "Help chat failed", "detail": str(exc)})
+            code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+            self.json_response(504 if code == "timeout" else 502,
+                               {"error": "Help chat failed", "code": code})
 
 
 if __name__ == "__main__":

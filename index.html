@@ -246,6 +246,12 @@
     background:#0f172a; color:#fff; padding:11px 16px; border-radius:11px; font-size:13.5px; z-index:60;
     opacity:0; pointer-events:none; transition:opacity .2s; max-width:88%}
   .toast.on{opacity:1}
+  .toast.success{background:#047857}.toast.error{background:#b91c1c}.toast.info{background:#0f172a}
+  .status-box{border-radius:10px;padding:9px 11px;margin:7px 0 10px;font-size:12.5px;background:#eef2f6;color:#475569}
+  .status-box.busy{background:#eff6ff;color:#1d4ed8}.status-box.success{background:#ecfdf5;color:#047857}
+  .status-box.error{background:#fef2f2;color:#b91c1c}
+  .event-staff-card{border-left:5px solid var(--event-color,#2563eb)}
+  .event-flag{display:inline-flex;align-items:center;gap:4px;color:#7c3aed;font-size:11px;font-weight:700}
   .help-fab{position:fixed; right:max(16px,calc((100vw - 1180px)/2 + 16px));
     bottom:calc(82px + var(--safe-b)); z-index:35; width:48px; height:48px; border:0;
     border-radius:50%; background:var(--brand); color:#fff; font-size:22px; font-weight:750;
@@ -315,7 +321,7 @@
 <div id="gate"><div class="gate-wrap" id="gateBody"></div></div>
 <div class="sheet-bg" id="sheetBg"></div>
 <div class="sheet" id="sheet"></div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <button class="help-fab" id="helpFab" type="button">?</button>
 
 <script>
@@ -372,7 +378,7 @@ const T = {
     correctionWhat:'Was korrigierst du', saved:'Gespeichert',
     logNoDelete:'Einträge werden nie gelöscht oder geändert. Jede Korrektur ist ein neuer Eintrag.',
     typeIN:'Eingang', typeOUT:'Ausgang', typeSHOP:'Einkauf', typeSCHEDULE:'Plan',
-    typeCORRECTION:'Korrektur', typeLOGIN:'Anmeldung', typeNOTES:'Hinweise',
+    typeCORRECTION:'Korrektur', typeLOGIN:'Anmeldung', typeNOTES:'Hinweise', typeEVENT:'Event',
     entryStaff:'Personal', entryChild:'Kinder',
     entryStaffSub:'Plan, Lager, Einkauf, Buch', entryChildSub:'Was mache ich diese Woche',
     whoAreYou:'Wer bist du?',
@@ -438,6 +444,28 @@ const T = {
     helpChat:'Hilfe', helpWelcome:'Hallo! Was möchtest du in PAIDIA erledigen?',
     helpPlaceholder:'Frage zur aktuellen Ansicht…', helpSend:'Senden',
     helpThinking:'Ich prüfe das…', helpUnavailable:'Die Hilfe ist gerade nicht erreichbar.',
+    viewEvents:'Events', eventsPanel:'Events & Ankündigungen', newEvent:'Neues Event', editEvent:'Event bearbeiten',
+    eventTitle:'Titel', eventDescription:'Beschreibung', eventLocation:'Ort', eventBring:'Mitbringen',
+    eventEmoji:'Symbol', announceEvent:'Als Event ankündigen', announceHint:'Wird sofort im Events-Tab der ausgewählten Kinder veröffentlicht.',
+    publishEvent:'Für Kinder veröffentlichen', eventPublished:'Event veröffentlicht', eventDraft:'Entwurf',
+    eventSaved:'Event gespeichert', eventDeleted:'Event gelöscht', deleteEvent:'Event löschen',
+    eventRequired:'Titel, Datum, gültige Uhrzeit und mindestens ein Kind sind erforderlich.',
+    invalidTime:'Die Endzeit muss nach der Startzeit liegen.', noStaffEvents:'Noch keine Events für diesen Zeitraum.',
+    changesSaved:'Änderungen gespeichert', retry:'Bitte erneut versuchen.',
+    errNetwork:'Keine Verbindung zum AI-Dienst. Prüfe Internet und Server und versuche es erneut.',
+    errTimeout:'Die AI-Antwort hat zu lange gedauert. Bitte versuche es erneut.',
+    errRate:'Die AI ist gerade ausgelastet. Warte kurz und versuche es erneut.',
+    errConfig:'AI ist nicht eingerichtet. Prüfe GROQ_API_KEY in .env und starte server.py neu.',
+    errImage:'Das Bild konnte nicht gelesen werden. Verwende JPG, PNG oder WebP mit gut sichtbarem Text.',
+    errServer:'Die AI konnte die Anfrage nicht verarbeiten. Bitte versuche es erneut.',
+    errFile:'Diese Datei konnte nicht geöffnet werden. Wähle ein anderes Bild.',
+    errStorage:'Speichern fehlgeschlagen. Der Gerätespeicher ist möglicherweise voll.',
+    aiReady:'AI-OCR ist bereit. Füge Text ein oder wähle ein Bild zum Testen.',
+    cameraDenied:'Kamerazugriff wurde abgelehnt. Erlaube die Kamera in den Browser-Einstellungen.',
+    cameraBusy:'Die Kamera wird bereits von einer anderen App verwendet.',
+    cameraSecure:'Die Kamera funktioniert nur über HTTPS oder localhost.',
+    unexpectedError:'Etwas ist schiefgelaufen. Deine Eingabe bleibt erhalten; versuche es erneut.',
+    kidsCount:n=>`${n} ${n===1?'Kind':'Kinder'}`,
   },
   el: {
     appTitle:'Πρόγραμμα', navSchedule:'Πρόγραμμα', navStock:'Ψυγείο', navShop:'Λίστα', navBook:'Το Βιβλίο',
@@ -488,7 +516,7 @@ const T = {
     correctionWhat:'Τι διορθώνεις', saved:'Αποθηκεύτηκε',
     logNoDelete:'Οι εγγραφές δεν διαγράφονται και δεν τροποποιούνται. Κάθε διόρθωση είναι νέα εγγραφή.',
     typeIN:'Είσοδος', typeOUT:'Έξοδος', typeSHOP:'Ψώνια', typeSCHEDULE:'Πρόγραμμα',
-    typeCORRECTION:'Διόρθωση', typeLOGIN:'Σύνδεση', typeNOTES:'Σημειώσεις',
+    typeCORRECTION:'Διόρθωση', typeLOGIN:'Σύνδεση', typeNOTES:'Σημειώσεις', typeEVENT:'Event',
     entryStaff:'Προσωπικό', entryChild:'Παιδιά',
     entryStaffSub:'Πρόγραμμα, αποθήκη, ψώνια, βιβλίο', entryChildSub:'Τι κάνω αυτή την εβδομάδα',
     whoAreYou:'Ποιος είσαι;',
@@ -554,6 +582,28 @@ const T = {
     helpChat:'Βοήθεια', helpWelcome:'Γεια! Τι θέλεις να κάνεις στο PAIDIA;',
     helpPlaceholder:'Ρώτησε για την τρέχουσα οθόνη…', helpSend:'Αποστολή',
     helpThinking:'Το ελέγχω…', helpUnavailable:'Η βοήθεια δεν είναι διαθέσιμη αυτή τη στιγμή.',
+    viewEvents:'Events', eventsPanel:'Events & ανακοινώσεις', newEvent:'Νέο event', editEvent:'Επεξεργασία event',
+    eventTitle:'Τίτλος', eventDescription:'Περιγραφή', eventLocation:'Τοποθεσία', eventBring:'Τι να φέρουν',
+    eventEmoji:'Σύμβολο', announceEvent:'Ανακοίνωση ως event', announceHint:'Δημοσιεύεται αμέσως στο Events tab των επιλεγμένων παιδιών.',
+    publishEvent:'Δημοσίευση στα παιδιά', eventPublished:'Το event δημοσιεύτηκε', eventDraft:'Πρόχειρο',
+    eventSaved:'Το event αποθηκεύτηκε', eventDeleted:'Το event διαγράφηκε', deleteEvent:'Διαγραφή event',
+    eventRequired:'Χρειάζονται τίτλος, ημερομηνία, σωστή ώρα και τουλάχιστον ένα παιδί.',
+    invalidTime:'Η ώρα λήξης πρέπει να είναι μετά την ώρα έναρξης.', noStaffEvents:'Δεν υπάρχουν events για αυτή την περίοδο.',
+    changesSaved:'Οι αλλαγές αποθηκεύτηκαν', retry:'Δοκίμασε ξανά.',
+    errNetwork:'Δεν υπάρχει σύνδεση με το AI. Έλεγξε internet και server και δοκίμασε ξανά.',
+    errTimeout:'Το AI άργησε να απαντήσει. Δοκίμασε ξανά.',
+    errRate:'Το AI έχει προσωρινά μεγάλο φόρτο. Περίμενε λίγο και δοκίμασε ξανά.',
+    errConfig:'Το AI δεν έχει ρυθμιστεί. Έλεγξε το GROQ_API_KEY στο .env και επανεκκίνησε το server.py.',
+    errImage:'Η εικόνα δεν διαβάστηκε. Χρησιμοποίησε JPG, PNG ή WebP με καθαρό κείμενο.',
+    errServer:'Το AI δεν μπόρεσε να επεξεργαστεί το αίτημα. Δοκίμασε ξανά.',
+    errFile:'Το αρχείο δεν άνοιξε. Διάλεξε άλλη εικόνα.',
+    errStorage:'Η αποθήκευση απέτυχε. Ο χώρος της συσκευής μπορεί να είναι γεμάτος.',
+    aiReady:'Το AI OCR είναι έτοιμο. Βάλε κείμενο ή διάλεξε εικόνα για δοκιμή.',
+    cameraDenied:'Η πρόσβαση στην κάμερα απορρίφθηκε. Επίτρεψέ την από τις ρυθμίσεις του browser.',
+    cameraBusy:'Η κάμερα χρησιμοποιείται ήδη από άλλη εφαρμογή.',
+    cameraSecure:'Η κάμερα λειτουργεί μόνο με HTTPS ή localhost.',
+    unexpectedError:'Κάτι πήγε στραβά. Τα στοιχεία σου παραμένουν· δοκίμασε ξανά.',
+    kidsCount:n=>`${n} ${n===1?'παιδί':'παιδιά'}`,
   },
 };
 
@@ -921,9 +971,16 @@ function load(){
   return db;
 }
 function save(){
-  const out = {};
-  MUTABLE.forEach(k => { out[k] = DB[k]; });
-  localStorage.setItem(KEY, JSON.stringify(out));
+  try{
+    const out = {};
+    MUTABLE.forEach(k => { out[k] = DB[k]; });
+    localStorage.setItem(KEY, JSON.stringify(out));
+    return true;
+  }catch(error){
+    console.error('save failed', error);
+    toast(t('errStorage'), 'error', 5200);
+    return false;
+  }
 }
 
 /* Βοηθητικά */
@@ -947,10 +1004,32 @@ const fmtDT = ts => new Date(ts).toLocaleString(state.lang==='de'?'de-DE':'el-GR
 const kidNames = ids => (ids||[]).map(i=>kid(i)?.name).filter(Boolean).join(', ');
 
 let toastT;
-function toast(msg){
+function toast(msg, type='info', duration){
   const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('on');
-  clearTimeout(toastT); toastT = setTimeout(()=>el.classList.remove('on'), 2600);
+  el.textContent = msg;
+  el.className = `toast on ${type}`;
+  el.setAttribute('role', type==='error' ? 'alert' : 'status');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>el.classList.remove('on'), duration || (type==='error'?4800:3000));
+}
+
+function setStatus(el, message='', type='info'){
+  if(!el) return;
+  el.textContent = message;
+  el.className = message ? `status-box ${type}` : 'muted';
+  el.setAttribute('role', type==='error' ? 'alert' : 'status');
+  el.setAttribute('aria-live', 'polite');
+}
+
+function friendlyAiError(error){
+  const status=Number(error?.status||0), code=String(error?.code||'').toLowerCase();
+  const detail=String(error?.detail||error?.message||'').toLowerCase();
+  if(status===503 || detail.includes('not configured') || detail.includes('groq_api_key')) return t('errConfig');
+  if(status===429 || detail.includes('rate limit')) return t('errRate');
+  if(status===408 || code==='aborterror' || detail.includes('timed out') || detail.includes('timeout')) return t('errTimeout');
+  if(status===413 || detail.includes('too large') || detail.includes('image')) return t('errImage');
+  if(!navigator.onLine || status===0 || detail.includes('failed to fetch') || detail.includes('network')) return t('errNetwork');
+  return t('errServer');
 }
 
 /* ── Ταυτότητα συσκευής & δικτύου ── */
@@ -1159,11 +1238,15 @@ async function startCamera(videoEl, statusEl){
     await videoEl.play();
     return true;
   }catch(e){
-    statusEl.textContent = t('noCam') + ' (' + e.name + ')';
+    const message = !window.isSecureContext ? t('cameraSecure')
+      : ['NotAllowedError','SecurityError'].includes(e.name) ? t('cameraDenied')
+      : ['NotReadableError','AbortError'].includes(e.name) ? t('cameraBusy') : t('noCam');
+    setStatus(statusEl, message, 'error');
     return false;
   }
 }
 function snap(videoEl){
+  if(!videoEl.videoWidth || !videoEl.videoHeight) return null;
   const w = 640, h = Math.round(videoEl.videoHeight / videoEl.videoWidth * w) || 480;
   const cv = document.createElement('canvas');
   cv.width = w; cv.height = h;
@@ -1311,8 +1394,13 @@ function weekDates(anchorStr){
 }
 const weekKey = anchorStr => weekDates(anchorStr)[0];
 
-function entryLine(e){
+function eventForEntry(e, dateStr){
+  return DB.events.find(x=>x.scheduleEntryId===e.id && x.scheduleDate===dateStr && x.status==='published');
+}
+
+function entryLine(e, dateStr=state.date){
   const a = act(e.activityId);
+  const announced = eventForEntry(e,dateStr);
   const person = e.employeeId ? empName(e.employeeId) : `<span class="pill open">${t('unassigned')}</span>`;
   const kids = (e.childIds||[]).map(id=>`<span class="pill kid">${esc(kid(id)?.name||'')}</span>`).join('');
   const who = emp(e.employeeId);
@@ -1321,7 +1409,8 @@ function entryLine(e){
       ${who ? `<div class="avatar" style="background:${who.color}">${initials(who.name)}</div>`
             : `<span class="emoji">${a?a.emoji:'📝'}</span>`}
       <div class="grow">
-        <div class="act">${who ? esc(a?a.emoji+' ':'') : ''}${esc(actLabel(e.activityId))}</div>
+        <div class="act">${who ? esc(a?a.emoji+' ':'') : ''}${esc(actLabel(e.activityId))}
+          ${announced ? `<span class="event-flag">📣 ${t('published')}</span>` : ''}</div>
         <div class="meta">${who ? esc(who.name) : person} · ${esc(entryTime(e))}${
           e.houseId ? ' · 🏠 ' + esc(house(e.houseId).short) : ''}</div>
         ${e.note ? `<div class="meta">${esc(e.note)}</div>` : ''}
@@ -1356,7 +1445,7 @@ function viewScheduleDay(){
         .map(h=>{
           const rows = list.filter(e => e.houseId === h.id);
           return `<div class="house-h">${esc(h.name)}</div>` +
-            (rows.length ? rows.map(entryLine).join('')
+            (rows.length ? rows.map(e=>entryLine(e,state.date)).join('')
               : `<button class="empty" style="width:100%;cursor:pointer;background:none"
                    data-add="${b.id}" data-house="${h.id}">${t('noEntries')} · ${t('add')}</button>`);
         }).join('');
@@ -1364,8 +1453,8 @@ function viewScheduleDay(){
       body = list.length
         ? DB.employees.map(p=>{
             const rows = list.filter(e => e.employeeId === p.id);
-            return rows.length ? rows.map(entryLine).join('') : '';
-          }).join('') + list.filter(e=>!e.employeeId).map(entryLine).join('')
+            return rows.length ? rows.map(e=>entryLine(e,state.date)).join('') : '';
+          }).join('') + list.filter(e=>!e.employeeId).map(e=>entryLine(e,state.date)).join('')
         : `<button class="empty" style="width:100%;cursor:pointer;background:none"
              data-add="${b.id}">${t('noEntries')} · ${t('add')}</button>`;
     }
@@ -1441,12 +1530,12 @@ function viewShifts(){
 }
 
 /** showWho=false στο πλέγμα ανά άτομο — το όνομα είναι ήδη η γραμμή. */
-function cellItems(list, showWho = true){
+function cellItems(list, showWho = true, dateStr=state.date){
   return list.map(e=>{
     const who = e.employeeId ? esc(emp(e.employeeId).name) : t('unassigned');
     const kids = kidNames(e.childIds);
     const sub = [showWho ? who : '', e.note].filter(Boolean).join(' · ');
-    return `<div class="cellitem"><b>${esc(actLabel(e.activityId))}</b>${
+    return `<div class="cellitem"><b>${esc(actLabel(e.activityId))}</b>${eventForEntry(e,dateStr)?' <span class="event-flag">📣</span>':''}${
       kids ? ` <span class="c">${esc(kids)}</span>` : ''}${
       (e.from || e.time) ? ` <span class="c">${esc(entryTime(e))}</span>` : ''}${
       sub ? `<br><span style="color:#64748b">${esc(sub)}</span>` : ''}</div>`;
@@ -1465,7 +1554,7 @@ function viewScheduleWeek(){
     label:dn[i],
     cells:visibleHouses.map(h=>{
       const list = byDate[ds].filter(e=>e.block===blockId && e.houseId===h.id);
-      return {html:cellItems(list), action:`${ds}|${blockId}|${h.id}|`,
+      return {html:cellItems(list,true,ds), action:`${ds}|${blockId}|${h.id}|`,
         aria:`${DAY_LONG[state.lang][i]} · ${h.name} · ${t(blockId)}`};
     }),
   })), {label:state.lang==='de'?'Tag':'Ημέρα', interactive:true});
@@ -1474,7 +1563,7 @@ function viewScheduleWeek(){
     label:esc(p.name),
     cells:week.map((ds,i)=>{
       const list = byDate[ds].filter(e=>e.block==='afternoon' && e.employeeId===p.id);
-      return {html:cellItems(list,false), action:`${ds}|afternoon||${p.id}`,
+      return {html:cellItems(list,false,ds), action:`${ds}|afternoon||${p.id}`,
         aria:`${p.name} · ${DAY_LONG[state.lang][i]} · ${t('afternoon')}`};
     }),
   })), {label:state.lang==='de'?'Person':'Άτομο', interactive:true});
@@ -1525,15 +1614,17 @@ function viewSchedule(){
         <button class="${state.scheduleView==='day'?'on':''}" data-v="day">${t('viewDay')}</button>
         <button class="${state.scheduleView==='week'?'on':''}" data-v="week">${t('viewWeek')}</button>
         <button class="${state.scheduleView==='shift'?'on':''}" data-v="shift">${t('viewShift')}</button>
+        <button class="${state.scheduleView==='events'?'on':''}" data-v="events">${t('viewEvents')}</button>
       </div>
-      ${state.scheduleView==='shift' ? '' : `<span class="filter-label">${t('filterHouse')}</span>
+      ${['shift','events'].includes(state.scheduleView) ? '' : `<span class="filter-label">${t('filterHouse')}</span>
       <div class="seg" id="hFilter">
         <button class="${state.houseFilter===''?'on':''}" data-h="">${t('allHouses')}</button>
         ${DB.houses.map(h=>`<button class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
       </div>`}
     </div>
     ${state.scheduleView==='day' ? viewScheduleDay()
-      : state.scheduleView==='week' ? viewScheduleWeek() : viewShifts()}`;
+      : state.scheduleView==='week' ? viewScheduleWeek()
+      : state.scheduleView==='shift' ? viewShifts() : staffEventsView()}`;
 }
 
 /* ── Φόρμα εγγραφής ── */
@@ -1547,6 +1638,7 @@ function sheetEntry(e, dateStr, presets = {}){
     employeeId: presets.employeeId ?? null,
     childIds: [], activityId: DB.activities[0].id, note:'', time:'', source:'extra',
   };
+  const linkedEvent = DB.events.find(x=>x.scheduleEntryId===e.id && x.scheduleDate===dateStr);
   let pickedAct = e.activityId;
   let pickedKids = [...(e.childIds || [])];
   let scope = 'override';
@@ -1597,6 +1689,18 @@ function sheetEntry(e, dateStr, presets = {}){
     </div>
     <label class="f"><span>${t('note')}</span>
       <textarea id="fNote" rows="2" placeholder="${t('notePh')}">${esc(e.note||'')}</textarea></label>
+
+    <label class="row card" style="cursor:pointer;border-color:#c4b5fd">
+      <input type="checkbox" id="fAnnounce" style="width:auto" ${linkedEvent?.status==='published'?'checked':''}>
+      <div><div class="strong">📣 ${t('announceEvent')}</div><div class="muted">${t('announceHint')}</div></div>
+    </label>
+    <div id="fEventFields" style="display:${linkedEvent?.status==='published'?'block':'none'}">
+      <label class="f"><span>${t('eventTitle')}</span><input id="fEventTitle" value="${esc(linkedEvent?L(linkedEvent):actLabel(e.activityId))}"></label>
+      <div class="row" style="gap:10px">
+        <label class="f grow"><span>${t('eventLocation')}</span><input id="fEventLocation" value="${esc(linkedEvent?.location||(e.houseId?house(e.houseId)?.name:''))}"></label>
+        <label class="f grow"><span>${t('eventBring')}</span><input id="fEventBring" value="${esc(linkedEvent?L(linkedEvent.bring):'')}"></label>
+      </div>
+    </div>
 
     ${e.source==='template' ? `
       <div class="seg" id="fScope">
@@ -1672,6 +1776,12 @@ function sheetEntry(e, dateStr, presets = {}){
   }
   paintActs();
 
+  sheetEl.querySelector('#fAnnounce').onchange = ev => {
+    sheetEl.querySelector('#fEventFields').style.display=ev.target.checked?'block':'none';
+    if(ev.target.checked && !sheetEl.querySelector('#fEventTitle').value.trim())
+      sheetEl.querySelector('#fEventTitle').value=actLabel(pickedAct);
+  };
+
   const segEl = sheetEl.querySelector('#fScope');
   if(segEl) segEl.querySelectorAll('button').forEach(b=>{
     b.onclick = () => {
@@ -1714,11 +1824,36 @@ function sheetEntry(e, dateStr, presets = {}){
     f.childIds.length ? ' — ' + kidNames(f.childIds) : ''} (${entryTime({...f, block:blockId})})${
     f.note?' — '+f.note:''}`;
 
+  const syncLinkedEvent = (entryId,f) => {
+    if(!sheetEl.querySelector('#fAnnounce').checked){
+      const prior=DB.events.find(x=>x.scheduleEntryId===entryId && x.scheduleDate===dateStr);
+      if(prior?.status==='published') prior.status='draft';
+      return;
+    }
+    const title=sheetEl.querySelector('#fEventTitle').value.trim();
+    const idx=DB.events.findIndex(x=>x.scheduleEntryId===entryId && x.scheduleDate===dateStr);
+    const prior=idx>=0?DB.events[idx]:{};
+    const value={...prior,id:prior.id||'ev'+uid(),de:title,el:title,
+      description:{de:f.note||'',el:f.note||''},date:dateStr,
+      from:f.from||def.from,to:f.to||def.to,location:sheetEl.querySelector('#fEventLocation').value.trim(),
+      employeeId:f.employeeId,childIds:[...f.childIds],
+      bring:{de:sheetEl.querySelector('#fEventBring').value.trim(),el:sheetEl.querySelector('#fEventBring').value.trim()},
+      emoji:act(f.activityId)?.emoji||'🎉',color:prior.color||'#7c3aed',status:'published',
+      scheduleEntryId:entryId,scheduleDate:dateStr};
+    if(idx>=0) DB.events[idx]=value; else DB.events.push(value);
+    logEntry('EVENT',`${t('eventPublished')}: ${title}`);
+  };
+
   sheetEl.querySelector('#fSave').onclick = () => {
     const f = readForm();
     if(blockDef(blockId).by === 'house' && !f.houseId){ toast(t('house')); return; }
+    if(sheetEl.querySelector('#fAnnounce').checked &&
+      (!sheetEl.querySelector('#fEventTitle').value.trim() || !f.childIds.length)){
+      toast(t('eventRequired'),'error'); return;
+    }
     askPin(t('saveWithPin'), who => {
       state.user = who;
+      let savedEntryId=e.id;
       // Μόνιμη αλλαγή προτύπου: μόνο Zoi, Angelos, Dimitris
       if(e.source === 'template' && scope === 'template' && !who.admin){
         render(); toast(t('adminOnly')); return;
@@ -1735,10 +1870,12 @@ function sheetEntry(e, dateStr, presets = {}){
       }else{
         const ex = DB.overrides.find(o=>o.id===e.id);
         if(ex) Object.assign(ex, f);
-        else DB.overrides.push({id:uid(), date:dateStr, templateId:null, ...f});
+        else { savedEntryId=uid(); DB.overrides.push({id:savedEntryId, date:dateStr, templateId:null, ...f}); }
         logEntry('SCHEDULE', `${dateStr} · ${describe(f)}`);
       }
-      save(); closeSheet(); render(); toast(t('saved'));
+      syncLinkedEvent(savedEntryId,f);
+      if(!save()) return;
+      closeSheet(); render(); toast(sheetEl.querySelector('#fAnnounce')?.checked?t('eventPublished'):t('changesSaved'),'success');
     });
   };
 
@@ -1754,6 +1891,8 @@ function sheetEntry(e, dateStr, presets = {}){
         const ex = DB.overrides.find(o=>o.id===e.id);
         if(ex) ex.cancelled = true;
       }
+      const linked=DB.events.find(x=>x.scheduleEntryId===e.id && x.scheduleDate===dateStr);
+      if(linked) linked.status='draft';
       logEntry('SCHEDULE', `${dateStr} · ${t('cancelled')}: ${describe(e)}`);
       save(); closeSheet(); render(); toast(t('saved'));
     });
@@ -2510,14 +2649,29 @@ function rowsFromAi(result, hid){
 }
 
 async function aiExtractShopping(sourceType, content, purpose='list'){
+  if(location.protocol==='file:'){
+    const error=new Error('file-protocol'); error.status=503; error.detail='GROQ_API_KEY server required'; throw error;
+  }
   const idempotencyKey = `paidia-${sourceType}-${uid()}-${Date.now()}`;
-  const response = await fetch('/api/ai-shopping', {
-    method:'POST', headers:{'Content-Type':'application/json','Idempotency-Key':idempotencyKey},
-    body:JSON.stringify({sourceType,content,locale:state.lang,purpose}),
-  });
-  const result = await response.json().catch(()=>({error:`HTTP ${response.status}`}));
-  if(!response.ok) throw new Error(result.setup || result.detail || result.error || `HTTP ${response.status}`);
-  return result;
+  const ctl = new AbortController();
+  const timer = setTimeout(()=>ctl.abort(), 90000);
+  try{
+    const response = await fetch('/api/ai-shopping', {
+      method:'POST', signal:ctl.signal,
+      headers:{'Content-Type':'application/json','Idempotency-Key':idempotencyKey},
+      body:JSON.stringify({sourceType,content,locale:state.lang,purpose}),
+    });
+    const result = await response.json().catch(()=>({error:'invalid-response'}));
+    if(!response.ok){
+      const error = new Error(result.error || 'AI request failed');
+      error.status=response.status; error.detail=result.detail||result.setup||result.error;
+      throw error;
+    }
+    if(!Array.isArray(result.items)){
+      const error=new Error('invalid-result'); error.status=502; throw error;
+    }
+    return result;
+  }finally{ clearTimeout(timer); }
 }
 
 function imageFileData(file){
@@ -2623,14 +2777,25 @@ function sheetImportList(){
       <button class="btn sec" id="imCamera" style="margin-bottom:8px">📷 ${t('useCamera')}</button>
       <video id="imVid" playsinline muted style="display:none"></video>
       <img id="imPreview" class="thumb" style="display:none;margin-bottom:8px" alt="">
-      <div class="muted" id="imStatus" style="margin:6px 0 10px"></div>
       <button class="btn" id="imSnap" style="display:none">${t('shootList')}</button>
     </div>
+    <div class="muted" id="imStatus" style="margin:6px 0 10px"></div>
     <div id="imRows"></div>`);
 
   const paneText = sheetEl.querySelector('#imText');
   const panePhoto = sheetEl.querySelector('#imPhoto');
   let camStarted = false, busy = false;
+
+  (async()=>{
+    const status=sheetEl.querySelector('#imStatus');
+    if(location.protocol==='file:'){ setStatus(status,t('errConfig'),'error'); return; }
+    try{
+      const ctl=new AbortController(), timer=setTimeout(()=>ctl.abort(),4000);
+      const response=await fetch('/api/health',{signal:ctl.signal}); clearTimeout(timer);
+      const health=await response.json();
+      if(!busy) setStatus(status,health.aiConfigured?t('aiReady'):t('errConfig'),health.aiConfigured?'success':'error');
+    }catch(error){ if(!busy) setStatus(status,t('errNetwork'),'error'); }
+  })();
 
   const setBusy = on => {
     busy=on;
@@ -2638,23 +2803,27 @@ function sheetImportList(){
   };
   const analyse = async (sourceType, content) => {
     const status=sheetEl.querySelector('#imStatus');
-    setBusy(true); status.textContent=t('aiReading'); rows=null; draw();
+    setBusy(true); setStatus(status,t('aiReading'),'busy'); rows=null; draw();
     try{
       const result=await aiExtractShopping(sourceType,content);
       aiMeta={model:result.model,responseId:result.responseId};
       extractedText=result.extracted_text||'';
       rows=rowsFromAi(result,hid);
       initialRows=structuredClone(rows);
-      status.textContent=T[state.lang].found(rows.length);
+      setStatus(status,T[state.lang].found(rows.length),rows.length?'success':'error');
     }catch(error){
       aiMeta=null;
       if(sourceType==='text'){
         extractedText=content;
         rows=parseListText(content).map(r=>decorateImportRow(r,hid));
         initialRows=structuredClone(rows);
-        status.textContent=t('aiUnavailable');
+        setStatus(status,t('aiUnavailable'),'error');
       }else{
-        status.textContent=t('aiNeedsServer')+' '+error.message;
+        setStatus(status,friendlyAiError(error),'error');
+        const retry=document.createElement('button');
+        retry.type='button'; retry.className='btn sm sec'; retry.style.marginTop='8px';
+        retry.textContent='↻ '+t('retry'); retry.onclick=()=>analyse(sourceType,content);
+        status.appendChild(retry);
       }
     }finally{ setBusy(false); draw(); }
   };
@@ -2666,7 +2835,7 @@ function sheetImportList(){
       paneText.style.display  = m === 'text'  ? '' : 'none';
       panePhoto.style.display = m === 'photo' ? '' : 'none';
       rows = null; draw();
-      sheetEl.querySelector('#imStatus').textContent='';
+      setStatus(sheetEl.querySelector('#imStatus'));
     };
   });
 
@@ -2680,12 +2849,15 @@ function sheetImportList(){
 
   sheetEl.querySelector('#imFile').onchange = async e => {
     const file=e.target.files?.[0]; if(!file) return;
+    if(!file.type.startsWith('image/') || file.size>10*1024*1024){
+      setStatus(sheetEl.querySelector('#imStatus'),t('errImage'),'error'); return;
+    }
     try{
       photo=await imageFileData(file);
       const preview=sheetEl.querySelector('#imPreview'); preview.src=photo; preview.style.display='block';
-      sheetEl.querySelector('#imStatus').textContent=t('imageReady');
+      setStatus(sheetEl.querySelector('#imStatus'),t('imageReady'),'success');
       await analyse('image',photo);
-    }catch(error){ sheetEl.querySelector('#imStatus').textContent=error.message; }
+    }catch(error){ setStatus(sheetEl.querySelector('#imStatus'),t('errFile'),'error'); }
   };
 
   sheetEl.querySelector('#imCamera').onclick = async () => {
@@ -2723,7 +2895,7 @@ function sheetReceipt(){
     photo = camOk ? snap(vid) : null;
     if(!photo){ toast(t('noCam')); return; }
     stopCamera(); vid.style.display='none';
-    status.textContent = t('reading');
+    setStatus(status,t('reading'),'busy');
     sheetEl.querySelector('#rSnap').disabled=true;
     try{
       const result=await aiExtractShopping('image',photo,'receipt');
@@ -2733,7 +2905,7 @@ function sheetReceipt(){
         const match=pending.find(e=>(r.productId && e.productId===r.productId) || norm(e.name)===norm(r.name));
         return {name:r.name,qty:r.qty,unit:r.unit,matchId:match?.id||null,confidence:r.confidence};
       });
-      status.textContent = T[state.lang].found(lines.length);
+      setStatus(status,T[state.lang].found(lines.length),lines.length?'success':'error');
       sheetEl.querySelector('#rBody').innerHTML = `
         ${photo?`<img class="thumb" src="${photo}">`:''}
         <div class="card" style="margin-top:12px"><h2>${t('result')}</h2>
@@ -2763,7 +2935,7 @@ function sheetReceipt(){
         save(); closeSheet(); render(); toast(t('batchDone'));
       };
     }catch(error){
-      status.textContent=t('aiNeedsServer')+' '+error.message;
+      setStatus(status,friendlyAiError(error),'error');
       sheetEl.querySelector('#rSnap').disabled=false;
     }
   };
@@ -2772,7 +2944,7 @@ function sheetReceipt(){
 /* ════════════════════════════════════════════════════════════════
    Το Βιβλίο
    ════════════════════════════════════════════════════════════════ */
-const LOG_TYPES = ['IN','OUT','SHOP','SCHEDULE','NOTES','CORRECTION','LOGIN'];
+const LOG_TYPES = ['IN','OUT','SHOP','SCHEDULE','EVENT','NOTES','CORRECTION','LOGIN'];
 const typeLabel = ty => t('type'+ty);
 
 /**
@@ -2958,6 +3130,84 @@ function childEventsView(cid){
     <div class="block-h"><span class="t">${title}</span></div>${list.map(childEventCard).join('')}`).join('')}`;
 }
 
+function staffEventsView(){
+  const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
+  return `<div class="row between" style="margin-bottom:11px">
+      <div><div class="strong">${t('eventsPanel')}</div><div class="muted">${t('announceHint')}</div></div>
+      <button class="btn sm" id="addEvent">＋ ${t('newEvent')}</button>
+    </div>
+    ${events.length ? events.map(e=>`<div class="card event-staff-card" style="--event-color:${esc(e.color||'#2563eb')}">
+      <div class="row between" style="align-items:flex-start">
+        <button class="grow" data-event="${e.id}" style="border:0;background:none;text-align:left;padding:0;cursor:pointer">
+          <div class="strong">${esc(e.emoji||'🎉')} ${esc(L(e))}</div>
+          <div class="muted">${esc(eventDayLabel(e.date))} · ${esc(e.from)}–${esc(e.to)} · 📍 ${esc(e.location||'—')}</div>
+          <div class="muted">${T[state.lang].kidsCount((e.childIds||[]).length)} · ${esc(emp(e.employeeId)?.name||t('unassigned'))}</div>
+          <span class="pill ${e.status==='published'?'in':'gray'}" style="margin-top:7px">${e.status==='published'?t('published'):t('eventDraft')}</span>
+        </button>
+        <button class="mini-x" data-event-delete="${e.id}" type="button" aria-label="${esc(t('deleteEvent'))}">×</button>
+      </div>
+    </div>`).join('') : `<div class="empty">${t('noStaffEvents')}</div>`}`;
+}
+
+function sheetEvent(existing=null, presets={}){
+  const e=existing || {
+    id:null, de:presets.title||'', el:presets.title||'', description:{de:'',el:''},
+    date:presets.date||state.date, from:presets.from||'16:00', to:presets.to||'18:00',
+    location:presets.location||'', employeeId:presets.employeeId||state.user?.id||'',
+    childIds:[...(presets.childIds||[])], bring:{de:'',el:''}, emoji:'🎉', color:'#7c3aed',
+    status:'published', featured:false, scheduleEntryId:presets.scheduleEntryId||null,
+    scheduleDate:presets.scheduleDate||null,
+  };
+  let pickedKids=[...(e.childIds||[])];
+  openSheet(`<h3>${existing?t('editEvent'):t('newEvent')}</h3>
+    <div class="row" style="gap:10px">
+      <label class="f" style="width:74px"><span>${t('eventEmoji')}</span><input id="evEmoji" maxlength="3" value="${esc(e.emoji||'🎉')}"></label>
+      <label class="f grow"><span>${t('eventTitle')}</span><input id="evTitle" value="${esc(L(e))}" required></label>
+    </div>
+    <label class="f"><span>${t('eventDescription')}</span><textarea id="evDesc" rows="2">${esc(L(e.description))}</textarea></label>
+    <div class="row" style="gap:10px">
+      <label class="f grow"><span>${t('today')}</span><input type="date" id="evDate" value="${esc(e.date)}"></label>
+      <label class="f grow"><span>${t('timeFrom')}</span><input type="time" id="evFrom" value="${esc(e.from)}"></label>
+      <label class="f grow"><span>${t('timeTo')}</span><input type="time" id="evTo" value="${esc(e.to)}"></label>
+    </div>
+    <label class="f"><span>${t('eventLocation')}</span><input id="evLocation" value="${esc(e.location||'')}"></label>
+    <label class="f"><span>${t('eventBring')}</span><input id="evBring" value="${esc(L(e.bring))}"></label>
+    <label class="f"><span>${t('person')}</span><select id="evEmp">
+      <option value="">${t('noPerson')}</option>${DB.employees.map(p=>`<option value="${p.id}" ${p.id===e.employeeId?'selected':''}>${esc(p.name)}</option>`).join('')}
+    </select></label>
+    <label class="f"><span>${t('children')}</span></label>
+    <div class="chips" id="evKids" style="margin:-4px 0 12px">
+      ${DB.children.map(c=>`<button class="chip ${pickedKids.includes(c.id)?'on':''}" data-c="${c.id}" type="button">${esc(c.name)}</button>`).join('')}
+    </div>
+    <label class="row card" style="cursor:pointer"><input type="checkbox" id="evPublish" style="width:auto" ${e.status==='published'?'checked':''}>
+      <div><div class="strong">${t('publishEvent')}</div><div class="muted">${t('announceHint')}</div></div></label>
+    <div id="evStatus"></div><button class="btn" id="evSave">${t('saveWithPin')}</button>`);
+  sheetEl.querySelectorAll('#evKids .chip').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.c; pickedKids=pickedKids.includes(id)?pickedKids.filter(x=>x!==id):[...pickedKids,id];
+    b.classList.toggle('on',pickedKids.includes(id));
+  });
+  sheetEl.querySelector('#evSave').onclick=()=>{
+    const title=sheetEl.querySelector('#evTitle').value.trim();
+    const date=sheetEl.querySelector('#evDate').value, from=sheetEl.querySelector('#evFrom').value, to=sheetEl.querySelector('#evTo').value;
+    const statusEl=sheetEl.querySelector('#evStatus');
+    if(!title || !date || !from || !to || !pickedKids.length){ setStatus(statusEl,t('eventRequired'),'error'); return; }
+    if(to<=from){ setStatus(statusEl,t('invalidTime'),'error'); return; }
+    askPin(t('saveWithPin'),who=>{
+      const value={...e,id:e.id||'ev'+uid(),de:title,el:title,
+        description:{de:sheetEl.querySelector('#evDesc').value.trim(),el:sheetEl.querySelector('#evDesc').value.trim()},
+        date,from,to,location:sheetEl.querySelector('#evLocation').value.trim(),
+        employeeId:sheetEl.querySelector('#evEmp').value||who.id,childIds:[...pickedKids],
+        bring:{de:sheetEl.querySelector('#evBring').value.trim(),el:sheetEl.querySelector('#evBring').value.trim()},
+        emoji:sheetEl.querySelector('#evEmoji').value.trim()||'🎉',status:sheetEl.querySelector('#evPublish').checked?'published':'draft'};
+      const idx=DB.events.findIndex(x=>x.id===value.id);
+      if(idx>=0) DB.events[idx]=value; else DB.events.push(value);
+      logEntry('EVENT',`${value.status==='published'?t('eventPublished'):t('eventSaved')}: ${title}`);
+      if(!save()) return;
+      closeSheet();render();toast(value.status==='published'?t('eventPublished'):t('eventSaved'),'success');
+    });
+  };
+}
+
 function renderChild(){
   const c = state.child;
   const today = iso(new Date());
@@ -3047,6 +3297,20 @@ function render(){
 
 function wire(){
   const v = document.getElementById('view');
+
+  const addEvent=v.querySelector('#addEvent');
+  if(addEvent) addEvent.onclick=()=>sheetEvent();
+  v.querySelectorAll('[data-event]').forEach(b=>b.onclick=()=>{
+    const event=DB.events.find(e=>e.id===b.dataset.event); if(event) sheetEvent(event);
+  });
+  v.querySelectorAll('[data-event-delete]').forEach(b=>b.onclick=()=>{
+    const event=DB.events.find(e=>e.id===b.dataset.eventDelete); if(!event) return;
+    if(!confirm(`${t('deleteEvent')}: ${L(event)}?`)) return;
+    DB.events=DB.events.filter(e=>e.id!==event.id);
+    logEntry('EVENT',`${t('eventDeleted')}: ${L(event)}`);
+    if(!save()) return;
+    render();toast(t('eventDeleted'),'success');
+  });
 
   v.querySelectorAll('#schView button').forEach(b=>{
     b.onclick = () => { state.scheduleView = b.dataset.v; render(); };
@@ -3337,6 +3601,15 @@ function renderGatePin(who, mode = 'staff'){
 
 document.documentElement.lang = state.lang;
 document.getElementById('helpFab').onclick = sheetHelp;
+window.addEventListener('unhandledrejection', event=>{
+  console.error('unhandled async error',event.reason);
+  toast(t('unexpectedError'),'error');
+  event.preventDefault();
+});
+window.addEventListener('error', event=>{
+  console.error('unexpected UI error',event.error||event.message);
+  toast(t('unexpectedError'),'error');
+});
 render();
 openGate();
 resolveIp().then(refreshGateMeta);

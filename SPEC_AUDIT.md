@@ -15,7 +15,7 @@ demonstrable in the prototype; it does not imply production security, concurrenc
 | Afternoon Planning | Covered in prototype | Caregiver rows with children, activity, time and house; location/status need richer fields. |
 | Evening Planning | Covered in prototype | Same responsive house matrix as morning. |
 | Daily Call | Partial | Daily view and notes exist; no finalized call workflow, attendance, decisions or lock. |
-| Events | Partial | Child-specific published Events tab exists; staff CRUD, approvals, calendar, gallery and event audit remain. |
+| Events | Partial | Child-specific Events tab, staff CRUD/drafts/publishing, schedule-linked announcements and event audit exist; approvals, full calendar and gallery remain. |
 | Shopping | Partial | AI import/review, Friday list, store mode, AI receipt matching and inventory handoff exist; full statuses and approval workflow remain. |
 | Inventory | Partial | Two-house stock, IN/OUT, photo and audit exist; transfers, expiry, reconciliation and atomic backend transactions remain. |
 | AI Assistant | Partial | Shopping text/vision extraction and contextual in-app help exist; permissions, citations and other module tools remain. |

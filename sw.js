@@ -1,5 +1,5 @@
 // Ελάχιστο service worker — μόνο για να εγκαθίσταται ως PWA και να δουλεύει offline.
-const CACHE = 'paidia-v1';
+const CACHE = 'paidia-v2';
 const ASSETS = ['./', './index.html', './manifest.webmanifest'];
 
 self.addEventListener('install', e => {
