@@ -343,7 +343,41 @@
     display:grid;place-items:center;font-size:12px;font-weight:800}
   .nav-badge{min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#dc2626;color:#fff;
     display:inline-grid;place-items:center;font-size:9px;margin-left:3px;vertical-align:middle}
+  .admin-center{grid-column:1/-1;overflow:hidden;padding:0;border:1px solid #dbeafe;
+    box-shadow:0 12px 34px rgba(30,64,175,.09)}
+  .admin-center-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px;
+    color:#fff;background:linear-gradient(135deg,#111827,#1e3a8a 55%,#0f766e)}
+  .admin-center-head h2{font-size:20px;margin:2px 0 4px}.admin-center-head .muted{color:#bfdbfe}
+  .admin-crown{width:52px;height:52px;display:grid;place-items:center;border-radius:17px;
+    background:rgba(255,255,255,.14);font-size:26px;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+  .admin-actions{display:flex;flex-wrap:wrap;gap:7px;padding:13px 15px;border-bottom:1px solid #e5e7eb;background:#f8fafc}
+  .admin-actions .btn{width:auto}
+  .admin-alert-strip{display:flex;align-items:center;gap:10px;margin:14px 15px 0;padding:11px 12px;
+    border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:12.5px}
+  .admin-alert-strip.clear{background:#ecfdf5;border-color:#a7f3d0;color:#047857}
+  .admin-team-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:15px}
+  .admin-person{display:block;width:100%;min-width:0;padding:13px;border:1px solid #e5e7eb;border-radius:15px;
+    background:#fff;text-align:left;color:inherit;cursor:pointer;transition:transform .18s,box-shadow .18s,border-color .18s}
+  .admin-person:hover{transform:translateY(-2px);border-color:#93c5fd;box-shadow:0 10px 24px rgba(15,23,42,.08)}
+  .admin-person-top{display:flex;align-items:center;gap:9px}.admin-person .avatar{width:38px;height:38px;font-size:12px;flex:0 0 auto}
+  .admin-person-name{font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .admin-person-role{font-size:10.5px;color:#64748b}.admin-person-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:11px}
+  .admin-person-stats span{padding:7px;border-radius:9px;background:#f8fafc;color:#64748b;font-size:10px}
+  .admin-person-stats b{display:block;color:#0f172a;font-size:15px}.admin-person-next{margin-top:9px;font-size:11px;color:#475569;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .admin-detail-hero{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:15px;border-radius:17px;
+    background:linear-gradient(135deg,#eff6ff,#eef2ff);border:1px solid #dbeafe}
+  .admin-detail-hero .avatar{width:54px;height:54px;font-size:17px}.admin-detail-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+  .admin-detail-stat{padding:10px;border-radius:12px;background:#f8fafc;text-align:center}.admin-detail-stat b{display:block;font-size:20px}
+  .admin-timeline{display:grid;gap:7px;max-height:260px;overflow:auto}.admin-timeline-row{display:flex;gap:9px;padding:9px;
+    border:1px solid #e5e7eb;border-radius:11px;background:#fff;font-size:12px}
+  .shift-editor-list{display:grid;gap:8px;margin:10px 0}.shift-edit-row{display:grid;grid-template-columns:1.15fr 1fr 1fr auto;
+    gap:7px;align-items:end;padding:10px;border:1px solid #e5e7eb;border-radius:12px;background:#f8fafc}
+  .shift-edit-row label{margin:0}.admin-badge{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:2px 7px;
+    border-radius:999px;background:#fef3c7;color:#92400e;font-size:9px;font-weight:800;vertical-align:middle}
+  @media(max-width:900px){.admin-team-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:640px){.dashboard-grid{grid-template-columns:1fr}.dashboard-grid .wide{grid-column:auto}.home-stats{gap:6px}}
+  @media(max-width:520px){.admin-team-grid{grid-template-columns:1fr}.admin-center-head{align-items:flex-start}.admin-crown{width:44px;height:44px}.shift-edit-row{grid-template-columns:1fr 1fr}.shift-edit-row .mini-x{align-self:end}}
   .help-fab{position:fixed; right:max(16px,calc((100vw - 1180px)/2 + 16px));
     bottom:calc(82px + var(--safe-b)); z-index:35; width:48px; height:48px; border:0;
     border-radius:50%; background:var(--brand); color:#fff; font-size:22px; font-weight:750;
@@ -592,6 +626,14 @@ const T = {
     eventButton:'Event', eventButtonOn:'Event wird veröffentlicht', childNotifications:'Neue Event-Mitteilungen',
     openEvents:'Events öffnen', kidsNotified:n=>`${n} Kinder erhalten die Mitteilung in der App.`,
     eventCollection:n=>`${n} ${n===1?'Event':'Events'} geplant`,
+    adminCenter:'Admin-Zentrale', adminOverview:'Team, Aufgaben und Änderungen auf einen Blick',
+    adminWarnings:'Nur Admins sehen betriebliche Warnungen', adminAllClear:'Keine aktuellen Planwarnungen',
+    adminEditPlan:'Wochenplan bearbeiten', adminEditShifts:'Dienste bearbeiten', adminManageEvents:'Events verwalten',
+    adminOpenAudit:'Protokoll öffnen', adminToday:'Heute', adminNext7:'Nächste 7 Tage', adminDone:'Erledigt',
+    adminLastAction:'Letzte Aktivität', adminNoActivity:'Noch keine Aktivität', adminDetails:'Teamdetails',
+    adminFullControl:'Admins können Planung, Dienste, Events, Notizen, Bestand und Protokollkorrekturen ändern.',
+    editShiftDay:'Dienste bearbeiten', addShift:'Dienst hinzufügen', shiftType:'Typ', deleteShift:'Dienst entfernen',
+    shiftSaved:'Dienste gespeichert', adminRequired:'Diese Funktion ist nur für Admins verfügbar.',
     whatsappSent:n=>`WhatsApp-Mitteilung an ${n} Kontakt${n===1?'':'e'} gesendet.`,
     whatsappSkipped:'In-App veröffentlicht; für WhatsApp sind noch keine Empfänger eingerichtet.',
     whatsappFailed:'Das Event ist in der App veröffentlicht, aber WhatsApp konnte nicht gesendet werden.',
@@ -752,6 +794,14 @@ const T = {
     eventButton:'Event', eventButtonOn:'Το event θα δημοσιευτεί', childNotifications:'Νέες ανακοινώσεις event',
     openEvents:'Άνοιγμα events', kidsNotified:n=>`${n} παιδιά λαμβάνουν την ανακοίνωση στην εφαρμογή.`,
     eventCollection:n=>`${n} ${n===1?'event':'events'} προγραμματισμένα`,
+    adminCenter:'Κέντρο διαχείρισης', adminOverview:'Ομάδα, εργασίες και αλλαγές με μία ματιά',
+    adminWarnings:'Μόνο οι admins βλέπουν λειτουργικές προειδοποιήσεις', adminAllClear:'Δεν υπάρχουν προειδοποιήσεις προγράμματος',
+    adminEditPlan:'Επεξεργασία εβδομάδας', adminEditShifts:'Επεξεργασία βαρδιών', adminManageEvents:'Διαχείριση events',
+    adminOpenAudit:'Άνοιγμα καταγραφών', adminToday:'Σήμερα', adminNext7:'Επόμενες 7 ημέρες', adminDone:'Ολοκληρωμένα',
+    adminLastAction:'Τελευταία δραστηριότητα', adminNoActivity:'Καμία δραστηριότητα ακόμη', adminDetails:'Στοιχεία ομάδας',
+    adminFullControl:'Οι admins μπορούν να αλλάζουν πρόγραμμα, βάρδιες, events, σημειώσεις, απόθεμα και διορθώσεις καταγραφών.',
+    editShiftDay:'Επεξεργασία βαρδιών', addShift:'Προσθήκη βάρδιας', shiftType:'Τύπος', deleteShift:'Αφαίρεση βάρδιας',
+    shiftSaved:'Οι βάρδιες αποθηκεύτηκαν', adminRequired:'Αυτή η λειτουργία είναι διαθέσιμη μόνο στους admins.',
     whatsappSent:n=>`Η ανακοίνωση WhatsApp στάλθηκε σε ${n} ${n===1?'επαφή':'επαφές'}.`,
     whatsappSkipped:'Δημοσιεύτηκε στην εφαρμογή· δεν έχουν ακόμη ρυθμιστεί παραλήπτες WhatsApp.',
     whatsappFailed:'Το event δημοσιεύτηκε στην εφαρμογή, αλλά η αποστολή WhatsApp απέτυχε.',
@@ -1282,14 +1332,16 @@ const state = {
   bookFilter: {employeeId:'', type:''},
   helpMessages: [],          // session-only; never persisted with operational data
 };
+const isAdminUser = () => !!(state.mode==='staff' && state.user?.admin);
 
 function applyAuthenticatedProfile(data,{logLogin=false}={}){
   const mode=data.mode==='child'?'child':'staff';
   const who=mode==='child'?kid(data.profileId):emp(data.profileId);
   if(!who) return false;
+  const authenticatedWho=mode==='staff'?{...who,admin:data.admin===true}:who;
   state.mode=mode;
-  state.child=mode==='child'?who:null;
-  state.user=mode==='staff'?who:null;
+  state.child=mode==='child'?authenticatedWho:null;
+  state.user=mode==='staff'?authenticatedWho:null;
   session.sessionId=data.sessionId||session.sessionId;
   if(logLogin && mode==='staff') logEntry('LOGIN',t('loginEntry'));
   return true;
@@ -1354,6 +1406,7 @@ function closeSheet(){
   sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
   stopCamera();
+  sheetEl.replaceChildren();
 }
 
 function sheetHelp(){
@@ -1579,6 +1632,7 @@ function validateDay(dateStr){
 }
 
 function validationCard(dateStr){
+  if(!isAdminUser()) return '';
   const issues = validateDay(dateStr);
   if(!issues.length) return `<div class="card"><div class="row" style="gap:8px">
     <span style="font-size:17px">✅</span><div class="muted">${t('vNone')}</div></div></div>`;
@@ -1720,14 +1774,70 @@ function viewShifts(){
       return `<div class="cellitem"><b>${s.from}–${s.to}</b></div>`;
     }).join('');
   };
-  const rows = DB.employees.filter(e=>DB.shifts.some(s=>s.employeeId===e.id)).map(p=>({
+  const rows = DB.employees.map(p=>({
     label:esc(p.name),
-    cells:dn.map((_,d)=>({html:cell(p.id,d)})),
+    cells:dn.map((_,d)=>({
+      html:cell(p.id,d),
+      action:isAdminUser()?`shift:${p.id}:${d}`:'',
+      aria:`${p.name} · ${DAY_LONG[state.lang][d]} · ${t('editShiftDay')}`,
+    })),
   }));
   return `
     ${matrixView(dn, rows, {label:state.lang==='de'?'Person':'Άτομο'})}
     <div class="muted" style="margin-bottom:12px">${t('tenMinRule')}</div>
     ${validationCard(state.date)}`;
+}
+
+function sheetShiftDay(employeeId, day){
+  if(!isAdminUser()){toast(t('adminRequired'),'error');return;}
+  const person=emp(employeeId); if(!person) return;
+  const existing=shiftsOf(employeeId,day).map(s=>({...s}));
+  const rowHtml=s=>`<div class="shift-edit-row" data-shift-id="${esc(s.id||'')}">
+    <label class="f"><span>${t('shiftType')}</span><select class="seType">
+      ${['NORMAL','H24','HANDOVER','OFF'].map(type=>`<option value="${type}" ${s.type===type?'selected':''}>${type==='NORMAL'?'Normal':type==='H24'?t('h24'):type==='HANDOVER'?t('handover'):t('off')}</option>`).join('')}
+    </select></label>
+    <label class="f"><span>${t('timeFrom')}</span><input class="seFrom" type="time" value="${esc(s.from||'11:00')}"></label>
+    <label class="f"><span>${t('timeTo')}</span><input class="seTo" type="time" value="${esc(s.to||s.from||'19:00')}"></label>
+    <button class="mini-x seDelete" type="button" aria-label="${esc(t('deleteShift'))}">×</button>
+  </div>`;
+  openSheet(`<div class="admin-detail-hero">
+      <div class="pa avatar" style="background:${person.color}">${initials(person.name)}</div>
+      <div><div class="muted">${t('editShiftDay')}</div><h3 style="margin:1px 0">${esc(person.name)}</h3>
+        <div class="muted">${DAY_LONG[state.lang][day]}</div></div>
+    </div>
+    <div class="shift-editor-list" id="shiftEditorList">${existing.map(rowHtml).join('')}</div>
+    <button class="btn sec" id="addShiftRow" type="button">＋ ${t('addShift')}</button>
+    <div id="shiftEditStatus"></div>
+    <button class="btn" id="saveShiftDay" type="button" style="margin-top:9px">${t('saveWithPin')}</button>`);
+
+  const list=sheetEl.querySelector('#shiftEditorList');
+  const wireRows=()=>list.querySelectorAll('.shift-edit-row').forEach(row=>{
+    const sync=()=>{
+      const off=row.querySelector('.seType').value==='OFF';
+      row.querySelector('.seFrom').disabled=off;row.querySelector('.seTo').disabled=off;
+    };
+    row.querySelector('.seType').onchange=sync;sync();
+    row.querySelector('.seDelete').onclick=()=>row.remove();
+  });
+  wireRows();
+  sheetEl.querySelector('#addShiftRow').onclick=()=>{
+    list.insertAdjacentHTML('beforeend',rowHtml({id:'',type:'NORMAL',from:'11:00',to:'19:00'}));wireRows();
+  };
+  sheetEl.querySelector('#saveShiftDay').onclick=()=>{
+    const status=sheetEl.querySelector('#shiftEditStatus'), values=[];
+    for(const row of list.querySelectorAll('.shift-edit-row')){
+      const type=row.querySelector('.seType').value,from=row.querySelector('.seFrom').value,to=row.querySelector('.seTo').value;
+      if(type!=='OFF'&&(!from||!to)){setStatus(status,t('invalidTime'),'error');return;}
+      values.push({id:row.dataset.shiftId||'sh'+uid(),employeeId,day,type,
+        ...(type==='OFF'?{}:{from,to:type==='H24'?from:to})});
+    }
+    askPin(t('saveWithPin'),who=>{
+      if(!who.admin){setStatus(status,t('adminRequired'),'error');return;}
+      DB.shifts=DB.shifts.filter(s=>!(s.employeeId===employeeId&&s.day===day)).concat(values);
+      logEntry('SCHEDULE',`${t('editShiftDay')}: ${person.name} · ${DAY_LONG[state.lang][day]}`);
+      if(!save()) return;closeSheet();render();toast(t('shiftSaved'),'success');
+    });
+  };
 }
 
 /** showWho=false στο πλέγμα ανά άτομο — το όνομα είναι ήδη η γραμμή. */
@@ -3199,6 +3309,7 @@ function sheetReceipt(){
    ════════════════════════════════════════════════════════════════ */
 const LOG_TYPES = ['IN','OUT','SHOP','SCHEDULE','EVENT','NOTES','CORRECTION','LOGIN'];
 const typeLabel = ty => t('type'+ty);
+const typeIcon = ty => ({IN:'➕',OUT:'➖',SHOP:'🛒',SCHEDULE:'📅',EVENT:'🎉',NOTES:'📝',CORRECTION:'✍️',LOGIN:'🔐'}[ty]||'•');
 
 /**
  * «Ποιος έκανε τι» — σύνοψη ανά άτομο, ορατή σε όλους.
@@ -3529,6 +3640,75 @@ function homeEventCard(e){
   </button>`;
 }
 
+function employeeShiftSummary(employeeId,dateStr){
+  const day=dowIdx(new Date(dateStr+'T12:00:00')), shifts=shiftsOf(employeeId,day);
+  if(!shifts.length) return '—';
+  return shifts.map(s=>s.type==='OFF'?t('off'):s.type==='H24'?`${s.from} · ${t('h24')}`:`${s.from}–${s.to}`).join(', ');
+}
+
+function adminTeamPanel(today){
+  if(!isAdminUser()) return '';
+  const dates=dashboardDates(0,6);
+  const issues=weekDates(today).flatMap(dateStr=>validateDay(dateStr).map(issue=>({...issue,dateStr})));
+  const team=DB.employees.map(person=>{
+    const todayItems=dashboardAssignments(today,person.id);
+    const nextItems=dates.flatMap(dateStr=>dashboardAssignments(dateStr,person.id).map(e=>({e,dateStr})));
+    const done=todayItems.filter(e=>completionFor(today,e.id,person.id)).length;
+    const next=nextItems[0];
+    return `<button class="admin-person" data-admin-staff="${person.id}" type="button">
+      <div class="admin-person-top"><div class="pa avatar" style="background:${person.color}">${initials(person.name)}</div>
+        <div class="grow"><div class="admin-person-name">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</div>
+          <div class="admin-person-role">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div></div>
+      <div class="admin-person-stats"><span><b>${todayItems.length}</b>${t('adminToday')}</span><span><b>${nextItems.length}</b>${t('adminNext7')}</span></div>
+      <div class="admin-person-next">${next?`${esc(eventDayLabel(next.dateStr))} · ${esc(actLabel(next.e.activityId))}`:`✓ ${t('noTasks')}`}</div>
+      ${done?`<div class="muted" style="margin-top:5px">✓ ${done} ${t('adminDone')}</div>`:''}
+    </button>`;
+  }).join('');
+  return `<section class="card admin-center">
+    <div class="admin-center-head"><div><div class="brand-kicker">ARMONIA THASSOS</div><h2>👑 ${t('adminCenter')}</h2>
+      <div class="muted">${t('adminOverview')}</div></div><div class="admin-crown">🛡️</div></div>
+    <div class="admin-actions">
+      <button class="btn sm" data-admin-go="week">📅 ${t('adminEditPlan')}</button>
+      <button class="btn sm sec" data-admin-go="shift">🕒 ${t('adminEditShifts')}</button>
+      <button class="btn sm sec" data-admin-go="events">🎉 ${t('adminManageEvents')}</button>
+      <button class="btn sm sec" data-admin-go="audit">📖 ${t('adminOpenAudit')}</button>
+    </div>
+    <div class="admin-alert-strip ${issues.length?'':'clear'}"><span>${issues.length?'⚠️':'✅'}</span><div class="grow"><b>${issues.length?`${issues.length} · ${t('adminWarnings')}`:t('adminAllClear')}</b>
+      <div style="margin-top:2px">${t('adminFullControl')}</div></div></div>
+    <div class="admin-team-grid">${team}</div>
+  </section>`;
+}
+
+function sheetAdminStaff(employeeId){
+  if(!isAdminUser()){toast(t('adminRequired'),'error');return;}
+  const person=emp(employeeId);if(!person)return;
+  const today=iso(new Date()), dates=dashboardDates(0,6);
+  const assignments=dates.flatMap(dateStr=>dashboardAssignments(dateStr,employeeId).map(e=>({e,dateStr})));
+  const todayItems=assignments.filter(x=>x.dateStr===today);
+  const completed=todayItems.filter(x=>completionFor(today,x.e.id,employeeId)).length;
+  const activity=[...DB.log].reverse().filter(x=>x.employeeId===employeeId).slice(0,8);
+  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:${person.color}">${initials(person.name)}</div>
+      <div class="grow"><div class="muted">${t('adminDetails')}</div><h3 style="margin:1px 0">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</h3>
+        <div class="muted">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div></div>
+    <div class="admin-detail-stats"><div class="admin-detail-stat"><b>${todayItems.length}</b>${t('adminToday')}</div>
+      <div class="admin-detail-stat"><b>${assignments.length}</b>${t('adminNext7')}</div><div class="admin-detail-stat"><b>${completed}</b>${t('adminDone')}</div></div>
+    <div class="row" style="gap:7px;margin-bottom:14px"><button class="btn sm" id="adminAddAssignment">＋ ${t('newEntry')}</button>
+      <button class="btn sm sec" id="adminPersonShifts">🕒 ${t('adminEditShifts')}</button>
+      <button class="btn sm sec" id="adminPersonAudit">📖 ${t('adminOpenAudit')}</button></div>
+    <div class="block-h"><span class="t">📅 ${t('adminNext7')}</span></div>
+    <div class="admin-timeline">${assignments.length?assignments.map(({e,dateStr})=>`<button class="admin-timeline-row" data-admin-entry="${esc(e.id)}" data-admin-date="${dateStr}" type="button">
+      <span>${esc(act(e.activityId)?.emoji||'📝')}</span><span class="grow" style="text-align:left"><b>${esc(actLabel(e.activityId))}</b><br><span class="muted">${esc(eventDayLabel(dateStr))} · ${esc(entryTime(e))} · ${esc(houseNames(e)||'—')}</span></span></button>`).join(''):`<div class="empty">${t('noTasks')}</div>`}</div>
+    <div class="block-h" style="margin-top:15px"><span class="t">🕘 ${t('adminLastAction')}</span></div>
+    <div class="admin-timeline">${activity.length?activity.map(x=>`<div class="admin-timeline-row"><span>${esc(typeIcon(x.type))}</span><span class="grow"><b>${esc(typeLabel(x.type))}</b><br>${esc(x.text)}<br><span class="muted">${fmtDT(x.ts)}</span></span></div>`).join(''):`<div class="empty">${t('adminNoActivity')}</div>`}</div>`);
+  sheetEl.querySelectorAll('[data-admin-entry]').forEach(button=>button.onclick=()=>{
+    const dateStr=button.dataset.adminDate,e=entriesFor(dateStr).find(x=>x.id===button.dataset.adminEntry);
+    if(!e)return;closeSheet();setTimeout(()=>sheetEntry(e,dateStr),180);
+  });
+  sheetEl.querySelector('#adminAddAssignment').onclick=()=>{closeSheet();setTimeout(()=>sheetEntry(null,today,{employeeId}),180);};
+  sheetEl.querySelector('#adminPersonShifts').onclick=()=>{closeSheet();state.tab='schedule';state.scheduleView='shift';render();};
+  sheetEl.querySelector('#adminPersonAudit').onclick=()=>{closeSheet();state.tab='book';state.bookFilter.employeeId=employeeId;render();};
+}
+
 function viewHome(){
   const today=iso(new Date()), user=state.user;
   const todayAssignments=user?dashboardAssignments(today,user.id):[];
@@ -3552,6 +3732,7 @@ function viewHome(){
       </div>
     </div>
     <div class="dashboard-grid">
+      ${adminTeamPanel(today)}
       <section class="card"><div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
         <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):`<div class="empty">${t('noTasks')}</div>`}</div>
       </section>
@@ -3647,6 +3828,7 @@ function render(){
     t(state.tab==='home'?'titleHome':state.tab==='schedule'?'titleSchedule':state.tab==='stock'?'titleStock':state.tab==='shop'?'titleShop':'titleBook');
   document.getElementById('who').textContent = state.user
     ? state.user.name + ' · ' + L(state.user.role) : t('noUser');
+  if(isAdminUser()) document.getElementById('who').innerHTML += ' <span class="admin-badge">ADMIN</span>';
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   document.getElementById('btnUser').textContent = t('logout');
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
@@ -3665,6 +3847,14 @@ function render(){
 
 function wire(){
   const v = document.getElementById('view');
+
+  v.querySelectorAll('[data-admin-staff]').forEach(button=>button.onclick=()=>sheetAdminStaff(button.dataset.adminStaff));
+  v.querySelectorAll('[data-admin-go]').forEach(button=>button.onclick=()=>{
+    const destination=button.dataset.adminGo;
+    if(destination==='audit'){state.tab='book';state.bookRange='week';}
+    else{state.tab='schedule';state.scheduleView=destination;}
+    render();
+  });
 
   const homeAllEvents=v.querySelector('#homeAllEvents');
   if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';state.scheduleView='events';render();};
@@ -3725,6 +3915,9 @@ function wire(){
   });
   v.querySelectorAll('[data-cell]').forEach(td=>{
     const openCell = () => {
+      if(td.dataset.cell.startsWith('shift:')){
+        const [,employeeId,day]=td.dataset.cell.split(':');sheetShiftDay(employeeId,Number(day));return;
+      }
       const [ds, block, houseId, employeeId] = td.dataset.cell.split('|');
       state.date = ds;
       sheetEntry(null, ds, {block, houseId: houseId||null, employeeId: employeeId||null});
@@ -3870,7 +4063,7 @@ function wireLangSwitch(){
   });
 }
 
-function openGate(){ gateEl.classList.add('on'); renderEntrance(); }
+function openGate(){ closeSheet(); gateEl.classList.add('on'); renderEntrance(); }
 function closeGate(){ gateEl.classList.remove('on'); }
 
 /** Βήμα 1 — δύο ξεχωριστές είσοδοι: Προσωπικό / Παιδιά (§31.3). */

@@ -207,8 +207,9 @@ python3 auth_admin.py set-pin e4
 
 Η είσοδος περιορίζει αποτυχημένες προσπάθειες ανά IP+profile (5), συνολικά ανά IP (20)
 και ανά profile (12) σε παράθυρο 10 λεπτών. Το lockout κρατά 15 λεπτά. Στην τρίτη
-αποτυχημένη προσπάθεια και στο lockout στέλνεται rate-limited email στο email του
-στοχευμένου staff profile (ή στο `PAIDIA_SECURITY_ALERT_EMAIL`). Επιτυχής είσοδος staff
+αποτυχημένη προσπάθεια και στο lockout στέλνεται rate-limited email **μόνο στους admins**
+που ορίζονται στο `PAIDIA_ADMIN_PROFILE_IDS` (ή στο admin fallback
+`PAIDIA_SECURITY_ALERT_EMAIL`). Επιτυχής είσοδος staff
 από νέο IP επίσης ειδοποιεί, αφού πρώτα δημιουργηθεί το αρχικό γνωστό IP. Αν έχουν οριστεί
 `PAIDIA_TRUSTED_NETWORKS`, είσοδος έξω από αυτά ειδοποιεί ακόμα και την πρώτη φορά.
 
@@ -219,6 +220,11 @@ python3 auth_admin.py set-pin e4
 `PAIDIA_TRUSTED_NETWORKS=192.168.1.0/24`. Forwarded headers γίνονται δεκτά μόνο από
 loopback proxy ή CIDR που δηλώνεται στο `PAIDIA_TRUSTED_PROXY_NETWORKS`. Τα email alerts χρειάζονται τα ίδια SMTP πεδία
 με το PIN reset. Οι τιμές και τα όρια τεκμηριώνονται στο `.env.example`.
+
+Στο UI οι λειτουργικές προειδοποιήσεις και το Κέντρο Διαχείρισης εμφανίζονται μόνο στους
+Zoi, Angelos και Dimitris. Το κέντρο δείχνει ανά εργαζόμενο σημερινές/επόμενες αναθέσεις,
+τρέχουσα βάρδια, ολοκληρώσεις και πρόσφατη δραστηριότητα. Από εκεί οι admins ανοίγουν και
+αλλάζουν εβδομαδιαίο πλάνο, βάρδιες ανά ημέρα, events και append-only καταγραφές.
 
 **Child Portal (§31.4):** το παιδί βλέπει μόνο τον δικό του χρόνο — «Was mache ich heute»,
 η εβδομάδα του, τα events της εβδομάδας. Δεν βλέπει αποθήκη, λίστες, βιβλίο, βάρδιες

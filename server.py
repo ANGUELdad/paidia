@@ -216,6 +216,23 @@ def load_auth_users() -> dict[str, dict]:
 
 
 AUTH_USERS = load_auth_users()
+ADMIN_PROFILE_IDS = {
+    value.strip() for value in os.environ.get("PAIDIA_ADMIN_PROFILE_IDS", "e3,e4,e8").split(",")
+    if value.strip()
+}
+
+
+def security_alert_recipients() -> list[str]:
+    recipients = []
+    for profile_id in ADMIN_PROFILE_IDS:
+        email = AUTH_USERS.get(profile_id, {}).get("email", "")
+        if email:
+            recipients.append(email)
+    recipients.extend(
+        value.strip().lower() for value in os.environ.get("PAIDIA_SECURITY_ALERT_EMAIL", "").split(",")
+        if value.strip()
+    )
+    return list(dict.fromkeys(recipients))
 
 
 def persist_auth_users() -> None:
@@ -309,10 +326,9 @@ def send_security_alert_email(recipient: str, profile_id: str, event: str,
 def queue_security_alert(profile_id: str, event: str, ip: str, details: dict | None = None) -> bool:
     details = details or {}
     append_security_event(event, profile_id, ip, details)
-    user = AUTH_USERS.get(profile_id, {})
-    recipient = user.get("email") or os.environ.get("PAIDIA_SECURITY_ALERT_EMAIL", "").strip().lower()
+    recipients = security_alert_recipients()
     config = smtp_config()
-    if not recipient or not config["host"] or not config["sender"]:
+    if not recipients or not config["host"] or not config["sender"]:
         return False
     alert_key = f"{profile_id}:{event}:{ip_fingerprint(ip)}"
     now = time.time()
@@ -322,10 +338,15 @@ def queue_security_alert(profile_id: str, event: str, ip: str, details: dict | N
         SECURITY_ALERTS[alert_key] = now
 
     def deliver() -> None:
-        try:
-            send_security_alert_email(recipient, profile_id, event, ip, details)
-        except (RuntimeError, OSError, smtplib.SMTPException):
-            append_security_event("alert_delivery_failed", profile_id, ip, {"sourceEvent": event})
+        failed = 0
+        for recipient in recipients:
+            try:
+                send_security_alert_email(recipient, profile_id, event, ip, details)
+            except (RuntimeError, OSError, smtplib.SMTPException):
+                failed += 1
+        if failed:
+            append_security_event("alert_delivery_failed", profile_id, ip,
+                                  {"sourceEvent": event, "failedRecipients": failed})
 
     threading.Thread(target=deliver, daemon=True, name="paidia-security-email").start()
     return True
@@ -626,9 +647,8 @@ class Handler(SimpleHTTPRequestHandler):
                 "emailConfigured": bool(smtp["host"] and smtp["sender"]),
                 "secureCookie": os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
                 "securityMonitoring": True,
-                "securityEmailReady": bool(smtp["host"] and smtp["sender"] and
-                    (os.environ.get("PAIDIA_SECURITY_ALERT_EMAIL", "").strip() or
-                     any(user["email"] for user in AUTH_USERS.values()))),
+                "securityEmailReady": bool(smtp["host"] and smtp["sender"] and security_alert_recipients()),
+                "securityAdminRecipients": len(security_alert_recipients()),
                 "trustedNetworksConfigured": len(TRUSTED_NETWORKS),
                 "trustedProxyNetworksConfigured": len(TRUSTED_PROXY_NETWORKS),
                 "loginAttemptLimit": LOGIN_MAX_ATTEMPTS,
@@ -643,6 +663,7 @@ class Handler(SimpleHTTPRequestHandler):
                     "authenticated": True,
                     "profileId": session["profile_id"],
                     "mode": session["mode"],
+                    "admin": bool(session.get("admin")),
                     "sessionId": session["session_id"],
                     "expiresAt": int(session["expires_at"] * 1000),
                 })
@@ -813,6 +834,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "session_id": session_id,
                 "profile_id": profile_id,
                 "mode": mode,
+                "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
                 "expires_at": expires_at,
             }
             new_ip, first_ip = remember_profile_ip(profile_id, client_ip)
@@ -826,6 +848,7 @@ class Handler(SimpleHTTPRequestHandler):
             "authenticated": True,
             "profileId": profile_id,
             "mode": mode,
+            "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
             "sessionId": session_id,
             "expiresAt": int(expires_at * 1000),
         }, {"Set-Cookie": self.set_session_cookie(token)})
