@@ -67,6 +67,7 @@ PIN_ITERATIONS = 600_000
 AUTH_COOKIE = "paidia_session"
 AUTH_LOCK = threading.Lock()
 SECURITY_FILE_LOCK = threading.Lock()
+ONBOARDING_LOCK = threading.Lock()
 AUTH_SESSIONS: dict[str, dict] = {}
 RESET_TOKENS: dict[str, dict] = {}
 LOGIN_FAILURES: dict[str, list[float]] = {}
@@ -96,6 +97,8 @@ SECURITY_ALERT_COOLDOWN = env_int("PAIDIA_SECURITY_ALERT_COOLDOWN", 3600)
 SECURITY_STATE_PATH = Path(os.environ.get("PAIDIA_SECURITY_STATE_PATH", ".paidia-security-state.json"))
 SECURITY_LOG_PATH = Path(os.environ.get("PAIDIA_SECURITY_LOG_PATH", ".paidia-security-events.jsonl"))
 PASSKEY_STORE_PATH = Path(os.environ.get("PAIDIA_PASSKEY_STORE_PATH", ".paidia-passkeys.json"))
+ONBOARDING_STATE_PATH = Path(os.environ.get("PAIDIA_ONBOARDING_STATE_PATH", ".paidia-onboarding.json"))
+ONBOARDING_VERSION = 1
 WEBAUTHN_ORIGIN = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", os.environ.get(
     "PAIDIA_PUBLIC_URL", f"http://localhost:{PORT}"
 )).rstrip("/")
@@ -243,6 +246,33 @@ ADMIN_PROFILE_IDS = {
     value.strip() for value in os.environ.get("PAIDIA_ADMIN_PROFILE_IDS", "e3,e4,e8").split(",")
     if value.strip()
 }
+
+
+def load_onboarding_state() -> dict:
+    try:
+        value = json.loads(ONBOARDING_STATE_PATH.read_text(encoding="utf-8"))
+        if isinstance(value, dict) and isinstance(value.get("profiles"), dict):
+            return value
+    except (OSError, json.JSONDecodeError):
+        pass
+    return {"profiles": {}}
+
+
+ONBOARDING_STATE = load_onboarding_state()
+
+
+def onboarding_complete(profile_id: str, mode: str) -> bool:
+    with ONBOARDING_LOCK:
+        record = ONBOARDING_STATE["profiles"].get(profile_id, {})
+        return record.get("version") == ONBOARDING_VERSION and record.get("mode") == mode
+
+
+def persist_onboarding_state() -> None:
+    ONBOARDING_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = ONBOARDING_STATE_PATH.with_name(ONBOARDING_STATE_PATH.name + ".tmp")
+    temp_path.write_text(json.dumps(ONBOARDING_STATE, separators=(",", ":")), encoding="utf-8")
+    os.chmod(temp_path, 0o600)
+    os.replace(temp_path, ONBOARDING_STATE_PATH)
 
 
 def load_passkeys() -> dict:
@@ -732,6 +762,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "passkeyCredentials": len(PASSKEYS["credentials"]),
                 "passkeyOrigin": WEBAUTHN_ORIGIN,
                 "passkeyRpId": WEBAUTHN_RP_ID,
+                "onboardingVersion": ONBOARDING_VERSION,
             })
             return
         if parsed.path == "/api/auth/session":
@@ -747,6 +778,8 @@ class Handler(SimpleHTTPRequestHandler):
                     "sessionId": session["session_id"],
                     "expiresAt": int(session["expires_at"] * 1000),
                     "passkeys": len(profile_passkeys(session["profile_id"], session["mode"])),
+                    "onboardingComplete": onboarding_complete(session["profile_id"], session["mode"]),
+                    "onboardingVersion": ONBOARDING_VERSION,
                 })
             return
         if parsed.path == "/api/whatsapp/health":
@@ -792,6 +825,7 @@ class Handler(SimpleHTTPRequestHandler):
             "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
             "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
             "/api/auth/passkey/login/options", "/api/auth/passkey/login/verify", "/api/auth/passkey/remove",
+            "/api/auth/onboarding/complete",
         }:
             self.json_response(404, {"error": "Not found"})
             return
@@ -838,6 +872,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/auth/passkey/remove":
             self.handle_passkey_remove(body)
+            return
+        if path == "/api/auth/onboarding/complete":
+            self.handle_onboarding_complete(body)
             return
 
         if path == "/api/whatsapp/test":
@@ -886,7 +923,42 @@ class Handler(SimpleHTTPRequestHandler):
             "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
             "sessionId": session_id, "expiresAt": int(expires_at * 1000),
             "authenticationMethod": method,
+            "onboardingComplete": onboarding_complete(profile_id, mode),
+            "onboardingVersion": ONBOARDING_VERSION,
         }, {"Set-Cookie": self.set_session_cookie(token)})
+
+    def handle_onboarding_complete(self, body: dict) -> None:
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        if body.get("version") != ONBOARDING_VERSION:
+            self.json_response(409, {
+                "error": "Tutorial version changed. Please restart the tutorial.",
+                "code": "onboarding_version",
+                "version": ONBOARDING_VERSION,
+            })
+            return
+        with ONBOARDING_LOCK:
+            previous = ONBOARDING_STATE["profiles"].get(session["profile_id"])
+            ONBOARDING_STATE["profiles"][session["profile_id"]] = {
+                "version": ONBOARDING_VERSION,
+                "mode": session["mode"],
+                "completed_at": int(time.time()),
+            }
+            try:
+                persist_onboarding_state()
+            except OSError:
+                if previous is None:
+                    ONBOARDING_STATE["profiles"].pop(session["profile_id"], None)
+                else:
+                    ONBOARDING_STATE["profiles"][session["profile_id"]] = previous
+                self.json_response(500, {
+                    "error": "Tutorial progress could not be saved.",
+                    "code": "onboarding_storage",
+                })
+                return
+        self.json_response(200, {"completed": True, "version": ONBOARDING_VERSION})
 
     def handle_auth_login(self, body: dict) -> None:
         profile_id = str(body.get("profileId", "")).strip()[:64]

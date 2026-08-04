@@ -252,6 +252,18 @@ PAIDIA_COOKIE_SECURE=true
 
 Αν αλλάξει hostname/RP ID, τα παλιά passkeys δεν ισχύουν και πρέπει να εγγραφούν ξανά.
 
+## Υποχρεωτική ξενάγηση πρώτης σύνδεσης
+
+Κάθε profile ολοκληρώνει μία role-specific ξενάγηση στην πρώτη επιτυχημένη σύνδεση.
+Το sheet δεν έχει ×, δεν κλείνει με backdrop ή Escape και η εφαρμογή παραμένει πίσω από
+κλειδωμένο overlay μέχρι να προβληθούν όλα τα βήματα. Staff, admins και παιδιά βλέπουν
+διαφορετικό περιεχόμενο σύμφωνα με τις δυνατότητές τους.
+
+Η ολοκλήρωση δεν βασίζεται σε `localStorage`: αποθηκεύεται server-side ανά profile στο
+ignored αρχείο `.paidia-onboarding.json` (`PAIDIA_ONBOARDING_STATE_PATH`). Ο server
+δέχεται ολοκλήρωση μόνο από authenticated session και για την τρέχουσα tutorial version.
+Αύξηση του `ONBOARDING_VERSION` εμφανίζει ξανά τη νέα υποχρεωτική ξενάγηση σε όλους.
+
 ### Προστασία προσωπικών profiles
 
 Η είσοδος περιορίζει αποτυχημένες προσπάθειες ανά IP+profile (5), συνολικά ανά IP (20)

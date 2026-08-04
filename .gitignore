@@ -20,5 +20,6 @@ __pycache__/
 *.log
 .paidia-security-*
 .paidia-passkeys.json
+.paidia-onboarding.json
 .coverage
 coverage/

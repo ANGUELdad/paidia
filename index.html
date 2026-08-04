@@ -289,6 +289,31 @@
     max-height:90vh; overflow:auto; transform:translateY(100%); transition:transform .22s ease}
   .sheet.on{transform:translateY(0)}
   .sheet h3{margin:0 0 12px; font-size:16px}
+  .tutorial-shell{max-width:560px;margin:0 auto;padding:2px 2px 4px}
+  .tutorial-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+  .tutorial-lock{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;
+    background:#eef2ff;color:#4338ca;font-size:10.5px;font-weight:800;letter-spacing:.02em}
+  .tutorial-count{color:#64748b;font-size:11.5px;font-weight:700}
+  .tutorial-progress{display:grid;grid-template-columns:repeat(var(--steps),1fr);gap:6px;margin-bottom:18px}
+  .tutorial-progress i{height:5px;border-radius:999px;background:#e2e8f0;transition:background .25s,transform .25s}
+  .tutorial-progress i.on{background:linear-gradient(90deg,#14b8a6,#4f46e5);transform:scaleY(1.18)}
+  .tutorial-card{position:relative;overflow:hidden;min-height:285px;padding:25px;border:1px solid #e0e7ff;
+    border-radius:24px;background:linear-gradient(145deg,#f8fafc,#eef2ff);animation:tutorialIn .28s ease both}
+  .tutorial-card::after{content:'';position:absolute;width:180px;height:180px;right:-78px;top:-84px;
+    border-radius:50%;background:rgba(99,102,241,.11);box-shadow:-115px 200px 0 rgba(20,184,166,.07)}
+  .tutorial-icon{position:relative;z-index:1;width:68px;height:68px;display:grid;place-items:center;margin-bottom:21px;
+    border-radius:21px;background:#fff;font-size:34px;box-shadow:0 12px 30px rgba(79,70,229,.13)}
+  .tutorial-kicker{position:relative;z-index:1;margin-bottom:6px;color:#4f46e5;font-size:10px;font-weight:850;
+    text-transform:uppercase;letter-spacing:.15em}
+  .tutorial-card h2{position:relative;z-index:1;margin:0 0 10px;font-size:25px;line-height:1.12;letter-spacing:-.025em}
+  .tutorial-card p{position:relative;z-index:1;margin:0;max-width:430px;color:#475569;font-size:14px;line-height:1.65}
+  .tutorial-tip{position:relative;z-index:1;display:flex;align-items:flex-start;gap:9px;margin-top:18px;padding:11px 12px;
+    border-radius:13px;background:rgba(255,255,255,.78);color:#334155;font-size:11.5px;line-height:1.45}
+  .tutorial-actions{display:flex;align-items:center;gap:10px;margin-top:16px}.tutorial-actions .btn{margin:0;flex:1}
+  .tutorial-back{min-width:94px;padding:12px 15px;border:1px solid var(--line);border-radius:12px;background:#fff;
+    color:#475569;font-weight:700;cursor:pointer}.tutorial-back:disabled{opacity:.35;cursor:default}
+  .tutorial-status{min-height:19px;margin-top:9px;text-align:center;color:#b91c1c;font-size:11.5px}
+  @keyframes tutorialIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
   .grabber{width:38px; height:4px; background:var(--line); border-radius:4px; margin:0 auto 12px}
   .pinpad{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:12px}
   .pinpad button{padding:15px 0; font-size:19px; font-weight:600; border:1px solid var(--line);
@@ -653,6 +678,11 @@ const T = {
     securityAccess:'Anmeldung & Sicherheit', signOut:'Abmelden', pinFallback:'Oder PIN verwenden', thisDevice:'Dieses Gerät',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
     device:'Gerät', welcome:n=>'Willkommen, '+n,
+    tutorialRequired:'Erste Einführung · erforderlich', tutorialStep:(n,total)=>`Schritt ${n} von ${total}`,
+    tutorialNext:'Weiter', tutorialBack:'Zurück', tutorialFinish:'Einführung abschließen',
+    tutorialSaving:'Fortschritt wird sicher gespeichert…', tutorialDone:'Einführung abgeschlossen. Willkommen!',
+    tutorialSaveError:'Die Einführung konnte nicht gespeichert werden. Prüfe die Verbindung und versuche es erneut.',
+    tutorialTip:'Du musst alle Schritte ansehen. Diese Einführung kann nicht übersprungen oder geschlossen werden.',
     pickChild:'Mindestens ein Kind wählen', pickActivity:'Aktivität wählen',
     loginEntry:'Anmeldung in der App',
     notesSaved:'Hinweise gespeichert', materialsMoved:n=>`${n} Positionen in die Einkaufsliste übernommen`,
@@ -846,6 +876,11 @@ const T = {
     securityAccess:'Σύνδεση & ασφάλεια', signOut:'Αποσύνδεση', pinFallback:'Ή χρησιμοποίησε PIN', thisDevice:'Αυτή η συσκευή',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
     device:'Συσκευή', welcome:n=>'Καλώς ήρθες, '+n,
+    tutorialRequired:'Πρώτη ξενάγηση · υποχρεωτική', tutorialStep:(n,total)=>`Βήμα ${n} από ${total}`,
+    tutorialNext:'Επόμενο', tutorialBack:'Πίσω', tutorialFinish:'Ολοκλήρωση ξενάγησης',
+    tutorialSaving:'Η πρόοδος αποθηκεύεται με ασφάλεια…', tutorialDone:'Η ξενάγηση ολοκληρώθηκε. Καλώς ήρθες!',
+    tutorialSaveError:'Η ξενάγηση δεν αποθηκεύτηκε. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
+    tutorialTip:'Πρέπει να δεις όλα τα βήματα. Η ξενάγηση δεν παραλείπεται και δεν κλείνει.',
     pickChild:'Διάλεξε τουλάχιστον ένα παιδί', pickActivity:'Διάλεξε δραστηριότητα',
     loginEntry:'Είσοδος στην εφαρμογή',
     notesSaved:'Οι σημειώσεις αποθηκεύτηκαν', materialsMoved:n=>`${n} είδη πέρασαν στη λίστα αγορών`,
@@ -1478,6 +1513,8 @@ const state = {
   bookRange: 'today',
   bookFilter: {employeeId:'', type:''},
   helpMessages: [],          // session-only; never persisted with operational data
+  onboardingComplete: false,
+  onboardingVersion: 1,
 };
 const isAdminUser = () => !!(state.mode==='staff' && state.user?.admin);
 
@@ -1489,6 +1526,8 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   state.mode=mode;
   state.child=mode==='child'?authenticatedWho:null;
   state.user=mode==='staff'?authenticatedWho:null;
+  state.onboardingComplete=data.onboardingComplete===true;
+  state.onboardingVersion=Number(data.onboardingVersion)||1;
   session.sessionId=data.sessionId||session.sessionId;
   if(logLogin && mode==='staff') logEntry('LOGIN',t('loginEntry'));
   return true;
@@ -1571,7 +1610,9 @@ async function restoreServerSession(){
   try{
     const response=await fetch('/api/auth/session',{credentials:'same-origin'});
     const data=await response.json();
-    if(response.ok && data.authenticated && applyAuthenticatedProfile(data)){closeGate();render();return true;}
+    if(response.ok && data.authenticated && applyAuthenticatedProfile(data)){
+      closeGate();render();await ensureOnboarding();return true;
+    }
   }catch(error){ console.error('session restore failed',error); }
   openGate();
   return false;
@@ -1599,6 +1640,10 @@ let sheetLocked = false;
 
 function openSheet(html, {dismissable = true} = {}){
   sheetLocked = !dismissable;
+  document.getElementById('app').inert = sheetLocked;
+  document.getElementById('helpFab').inert = sheetLocked;
+  sheetEl.setAttribute('role','dialog');
+  sheetEl.setAttribute('aria-modal','true');
   sheetEl.innerHTML = (dismissable
     ? `<button class="sheet-close" type="button" aria-label="${esc(t('close'))}" title="${esc(t('close'))}">×</button><div class="grabber"></div>`
     : '') + html;
@@ -1608,10 +1653,74 @@ function openSheet(html, {dismissable = true} = {}){
 }
 function closeSheet(){
   sheetLocked = false;
+  document.getElementById('app').inert = false;
+  document.getElementById('helpFab').inert = false;
+  sheetEl.removeAttribute('role');sheetEl.removeAttribute('aria-modal');
   sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
   stopCamera();
   sheetEl.replaceChildren();
+}
+
+function onboardingSteps(){
+  const de=state.lang==='de';
+  if(state.mode==='child') return [
+    {icon:'👋',title:de?'Willkommen bei Armonia Thassos':'Καλώς ήρθες στο Armonia Thassos',
+      body:de?'Auf Home siehst du sofort, was du heute machst und wer dabei ist.':'Στην Αρχική βλέπεις αμέσως τι κάνεις σήμερα και ποιοι είναι μαζί σου.'},
+    {icon:'🎉',title:de?'Events und Mitteilungen':'Events και ανακοινώσεις',
+      body:de?'Neue Events erscheinen in deinem Events-Bereich. Öffne sie für Zeit, Ort und was du mitbringen sollst.':'Τα νέα events εμφανίζονται στην περιοχή Events. Άνοιξέ τα για ώρα, μέρος και ό,τι πρέπει να φέρεις.'},
+    {icon:'🔐',title:de?'Dein Profil bleibt deins':'Το προφίλ σου παραμένει δικό σου',
+      body:de?'Nutze nur dein eigenes Profil und melde dich ab, wenn du fertig bist. Teile deine PIN nicht mit anderen.':'Χρησιμοποίησε μόνο το δικό σου προφίλ και αποσυνδέσου όταν τελειώσεις. Μην μοιράζεσαι το PIN σου.'},
+  ];
+  const steps=[
+    {icon:'🏠',title:de?'Dein täglicher Überblick':'Η καθημερινή σου εικόνα',
+      body:de?'Home bündelt heutige Aufgaben, Überfälliges und kommende Events – passend zu deinem Profil.':'Η Αρχική συγκεντρώνει σημερινές εργασίες, καθυστερήσεις και επόμενα events για το προφίλ σου.'},
+    {icon:'📅',title:de?'Planen ohne Tabellenchaos':'Πρόγραμμα χωρίς χάος',
+      body:de?'Wechsle zwischen Tag und Woche, filtere nach Haus und wähle bei einem Eintrag mehrere Häuser, Personen und Kinder.':'Άλλαξε ανάμεσα σε ημέρα και εβδομάδα, φιλτράρισε ανά σπίτι και διάλεξε πολλά σπίτια, άτομα και παιδιά.'},
+    {icon:'🧊',title:de?'Bestand klar buchen':'Καθαρή διαχείριση αποθέματος',
+      body:de?'Im Lager siehst du zuerst leere und knappe Produkte. Eingang und Ausgang geben nach jeder Aktion direkt Rückmeldung.':'Στην αποθήκη βλέπεις πρώτα άδεια και λίγα προϊόντα. Κάθε είσοδος και έξοδος δίνει άμεση επιβεβαίωση.'},
+    {icon:'🛒',title:de?'Freitagslisten aus Text oder Screenshot':'Λίστες Παρασκευής από κείμενο ή screenshot',
+      body:de?'Wähle immer das genaue Freitagsdatum. Füge Text oder einen Screenshot ein, prüfe den OCR-Entwurf und führe ihn intelligent mit der Liste zusammen.':'Διάλεγε πάντα τη σωστή ημερομηνία Παρασκευής. Βάλε κείμενο ή screenshot, έλεγξε το OCR και συγχώνευσέ το έξυπνα.'},
+    {icon:'🎊',title:de?'Events sicher ankündigen':'Ασφαλής ανακοίνωση events',
+      body:de?'Markiere einen Planeintrag als Event, wähle die Kinder und veröffentliche erst nach der Vorschau. Die Mitteilung erscheint in ihrem Profil.':'Κάνε μια εγγραφή event, διάλεξε τα παιδιά και δημοσίευσε μετά την προεπισκόπηση. Η ανακοίνωση εμφανίζεται στο προφίλ τους.'},
+  ];
+  if(isAdminUser()) steps.push({icon:'🛡️',title:de?'Du hast Admin-Kontrolle':'Έχεις έλεγχο διαχειριστή',
+    body:de?'Die Admin-Zentrale zeigt Teamaktivität und Warnungen. Du kannst Planung, Dienste, Events, Bestand und Korrekturen verwalten.':'Το Κέντρο Διαχείρισης δείχνει δραστηριότητα και προειδοποιήσεις. Μπορείς να διαχειριστείς πρόγραμμα, βάρδιες, events, απόθεμα και διορθώσεις.'});
+  return steps;
+}
+
+function openMandatoryTutorial(){
+  const steps=onboardingSteps();let current=0,saving=false;
+  openSheet('<div class="tutorial-shell" id="tutorialRoot"></div>',{dismissable:false});
+  const paint=()=>{
+    const root=sheetEl.querySelector('#tutorialRoot');if(!root)return;
+    const step=steps[current];
+    root.innerHTML=`<div class="tutorial-top"><span class="tutorial-lock">🔒 ${t('tutorialRequired')}</span><span class="tutorial-count">${T[state.lang].tutorialStep(current+1,steps.length)}</span></div>
+      <div class="tutorial-progress" style="--steps:${steps.length}" aria-hidden="true">${steps.map((_,i)=>`<i class="${i<=current?'on':''}"></i>`).join('')}</div>
+      <section class="tutorial-card"><div class="tutorial-icon">${step.icon}</div><div class="tutorial-kicker">Armonia Thassos</div>
+        <h2>${esc(step.title)}</h2><p>${esc(step.body)}</p><div class="tutorial-tip"><span>ℹ️</span><span>${t('tutorialTip')}</span></div></section>
+      <div class="tutorial-actions"><button class="tutorial-back" id="tutorialBack" ${current===0?'disabled':''}>${t('tutorialBack')}</button>
+        <button class="btn" id="tutorialNext">${current===steps.length-1?t('tutorialFinish'):t('tutorialNext')+' →'}</button></div>
+      <div class="tutorial-status" id="tutorialStatus" role="status" aria-live="polite"></div>`;
+    root.querySelector('#tutorialBack').onclick=()=>{if(!saving&&current>0){current--;paint();}};
+    root.querySelector('#tutorialNext').onclick=async()=>{
+      if(saving)return;
+      if(current<steps.length-1){current++;paint();return;}
+      saving=true;const button=root.querySelector('#tutorialNext'),status=root.querySelector('#tutorialStatus');
+      button.disabled=true;status.textContent=t('tutorialSaving');
+      try{
+        const response=await fetch('/api/auth/onboarding/complete',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({version:state.onboardingVersion})});
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok||data.completed!==true)throw new Error(data.error||'save failed');
+        state.onboardingComplete=true;closeSheet();toast(t('tutorialDone'),'success',4200);
+      }catch(error){saving=false;button.disabled=false;status.textContent=t('tutorialSaveError');}
+    };
+  };
+  paint();
+}
+
+async function ensureOnboarding(){
+  if(!state.onboardingComplete)openMandatoryTutorial();
 }
 
 function sheetHelp(){
@@ -4465,7 +4574,7 @@ function renderGatePin(who, mode = 'staff'){
     const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gPasskey');
     button.disabled=true;errorEl.textContent='';
     try{
-      await loginWithPasskey(mode,who);closeGate();render();toast(T[state.lang].welcome(who.name),'success');
+      await loginWithPasskey(mode,who);closeGate();render();await ensureOnboarding();toast(T[state.lang].welcome(who.name),'success');
     }catch(error){
       errorEl.textContent=error.code==='no_passkey'?t('passkeyNone'):
         error.name==='NotAllowedError'?t('passkeyCancelled'):error.message||t('authUnavailable');
@@ -4477,7 +4586,7 @@ function renderGatePin(who, mode = 'staff'){
     button.disabled=true;errorEl.textContent='';
     try{
       await authenticateProfile(mode,who,buf);
-      closeGate();render();toast(T[state.lang].welcome(who.name));
+      closeGate();render();await ensureOnboarding();toast(T[state.lang].welcome(who.name));
     }catch(error){
       if(error.status===429){
         const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||900)/60));
