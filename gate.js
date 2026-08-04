@@ -78,7 +78,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=10';
+    script.src = 'app.js?v=11';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -275,16 +275,31 @@
     document.documentElement.lang = lang;
     gate.classList.add('on');
     document.body.classList.add('auth-pending');
+    // Never hang on "Laden…" if the session probe is slow/broken.
+    const bootTimer = setTimeout(() => {
+      if (!body.querySelector('[data-mode]')) renderEntrance();
+    }, 2500);
     try {
-      const response = await fetch('/api/auth/session', { credentials: 'same-origin' });
-      const data = await response.json();
+      const controller = new AbortController();
+      const kill = setTimeout(() => controller.abort(), 4000);
+      const response = await fetch('/api/auth/session', {
+        credentials: 'same-origin',
+        signal: controller.signal,
+        headers: { Accept: 'application/json' },
+      });
+      clearTimeout(kill);
+      const raw = await response.text();
+      let data = {};
+      try { data = JSON.parse(raw); } catch (error) { data = {}; }
       if (response.ok && data.authenticated) {
+        clearTimeout(bootTimer);
         loadApp();
         return;
       }
     } catch (error) {
       /* fall through to login */
     }
+    clearTimeout(bootTimer);
     renderEntrance();
   }
 

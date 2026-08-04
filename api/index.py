@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import mimetypes
 import os
 import re
 import sys
 from pathlib import Path
+from urllib.parse import unquote
 
 from flask import Flask, jsonify, make_response, request, send_from_directory
 
@@ -17,11 +17,6 @@ if str(ROOT) not in sys.path:
 import server as paidia  # noqa: E402
 
 app = Flask(__name__)
-
-STATIC_NAMES = {
-    "index.html", "gate.js", "app.js", "sw.js", "manifest.webmanifest",
-    "email-preview.html", "paidia-preview.html",
-}
 
 
 def _json(status: int, payload: dict, cookie: str | None = None):
@@ -61,17 +56,28 @@ def _session_from_request() -> dict | None:
     return paidia.decode_session_token(token)
 
 
-def _normalize_api_path(path: str) -> str:
-    """Accept /api/auth/login, /auth/login, api/auth/login, etc."""
-    value = "/" + (path or "").lstrip("/")
-    if value.startswith("/api/"):
-        value = value[4:]  # keep leading slash via next line
-        value = "/" + value.lstrip("/")
-    if value.startswith("/index/"):
-        value = value[len("/index"):]
-    if value == "/index":
-        value = "/"
-    return value if value.startswith("/") else "/" + value
+def _incoming_path() -> str:
+    """Recover the browser path. Vercel rewrites hide it in request.path."""
+    for key in ("__p", "path"):
+        value = request.args.get(key)
+        if value:
+            return "/" + unquote(value).lstrip("/")
+    for header in (
+        "x-forwarded-uri",
+        "x-vercel-forwarded-path",
+        "x-invoke-path",
+        "x-matched-path",
+        "x-original-uri",
+        "x-rewrite-url",
+    ):
+        value = request.headers.get(header)
+        if value:
+            return "/" + unquote(value.split("?", 1)[0]).lstrip("/")
+    # Fall back to Flask path, stripping a bare /api mount.
+    path = request.path or "/"
+    if path in {"/api", "/api/"}:
+        return "/"
+    return path
 
 
 def _auth_health():
@@ -84,7 +90,7 @@ def _auth_health():
         "emailProvider": delivery["provider"],
         "runtime": "vercel-flask",
         "onboardingVersion": paidia.ONBOARDING_VERSION,
-        "path": request.path,
+        "usersConfigured": bool(paidia.AUTH_USERS),
     })
 
 
@@ -110,6 +116,11 @@ def _auth_session():
 
 
 def _auth_login():
+    if not paidia.AUTH_USERS:
+        return _json(503, {
+            "error": "Set PAIDIA_AUTH_USERS_JSON in Vercel env",
+            "code": "auth_not_configured",
+        })
     body = _body()
     profile_id = str(body.get("profileId", "")).strip()[:64]
     mode = "child" if body.get("mode") == "child" else "staff"
@@ -126,11 +137,6 @@ def _auth_login():
             "error": "Invalid profile or PIN",
             "code": "invalid_pin",
             "attemptsRemaining": 4,
-        })
-    if not paidia.AUTH_USERS:
-        return _json(503, {
-            "error": "Auth users are not configured on the server",
-            "code": "auth_not_configured",
         })
     token, payload = paidia.encode_session_token(profile_id, mode, "pin")
     return _json(200, {
@@ -151,24 +157,26 @@ def _auth_logout():
 
 
 def _serve_static(rel: str):
-    rel = rel.lstrip("/") or "index.html"
+    rel = (rel or "index.html").lstrip("/")
+    if not rel or rel.endswith("/"):
+        rel = (rel or "") + "index.html"
     if ".." in rel.split("/"):
         return _json(400, {"error": "Invalid path"})
     target = (ROOT / rel).resolve()
-    if not str(target).startswith(str(ROOT.resolve())):
+    root = ROOT.resolve()
+    if root != target and root not in target.parents:
         return _json(400, {"error": "Invalid path"})
     if target.is_file():
-        response = send_from_directory(ROOT, rel)
-        if rel.endswith((".html", ".js")):
+        response = send_from_directory(root, rel)
+        if rel.endswith((".html", ".js", ".webmanifest")):
             response.headers["Cache-Control"] = "no-store"
         return response
-    # SPA-style fallback
-    return send_from_directory(ROOT, "index.html")
+    return send_from_directory(root, "index.html")
 
 
-@app.route("/", defaults={"path": ""}, methods=["GET", "POST", "OPTIONS", "HEAD"])
-@app.route("/<path:path>", methods=["GET", "POST", "OPTIONS", "HEAD"])
-def entry(path: str = ""):
+@app.route("/", defaults={"flask_path": ""}, methods=["GET", "POST", "OPTIONS", "HEAD"])
+@app.route("/<path:flask_path>", methods=["GET", "POST", "OPTIONS", "HEAD"])
+def entry(flask_path: str = ""):
     if request.method == "OPTIONS":
         response = make_response("", 204)
         response.headers["Access-Control-Allow-Origin"] = request.headers.get("Origin", "*")
@@ -177,38 +185,26 @@ def entry(path: str = ""):
         response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
         return response
 
-    raw = path or ""
-    api_path = _normalize_api_path(raw if raw.startswith("api/") or raw.startswith("auth/") or raw.startswith("health") else request.path)
+    path = _incoming_path()
+    # Normalize API aliases
+    api = path
+    if api.startswith("/api/"):
+        api = api[4:]
+    if not api.startswith("/"):
+        api = "/" + api
 
-    # Also inspect the raw request path Vercel actually sent.
-    candidates = {
-        _normalize_api_path(request.path),
-        _normalize_api_path(raw),
-        _normalize_api_path("api/" + raw) if raw and not raw.startswith("api/") else "",
-    }
-    candidates.discard("")
+    if request.method == "GET" and api in {"/health", "/api/health"}:
+        return _json(200, {"ok": True, "runtime": "vercel-flask", "path": path})
+    if request.method == "GET" and api in {"/auth/health", "/api/auth/health"}:
+        return _auth_health()
+    if request.method == "GET" and api in {"/auth/session", "/api/auth/session"}:
+        return _auth_session()
+    if request.method == "POST" and api in {"/auth/login", "/api/auth/login"}:
+        return _auth_login()
+    if request.method == "POST" and api in {"/auth/logout", "/api/auth/logout"}:
+        return _auth_logout()
 
-    for candidate in candidates:
-        if candidate in {"/health", "/api/health"} or candidate.endswith("/health") and "auth" not in candidate:
-            if request.method == "GET":
-                return _json(200, {"ok": True, "runtime": "vercel-flask", "path": request.path})
-        if candidate in {"/auth/health", "/api/auth/health"} or candidate.endswith("/auth/health"):
-            if request.method == "GET":
-                return _auth_health()
-        if candidate in {"/auth/session", "/api/auth/session"} or candidate.endswith("/auth/session"):
-            if request.method == "GET":
-                return _auth_session()
-        if candidate in {"/auth/login", "/api/auth/login"} or candidate.endswith("/auth/login"):
-            if request.method == "POST":
-                return _auth_login()
-        if candidate in {"/auth/logout", "/api/auth/logout"} or candidate.endswith("/auth/logout"):
-            if request.method == "POST":
-                return _auth_logout()
-
-    # Non-API: serve frontend assets from the repo root.
     if request.method in {"GET", "HEAD"}:
-        if not raw or raw in STATIC_NAMES or "." in Path(raw).name or raw.endswith("/"):
-            return _serve_static(raw)
-        return _serve_static("index.html")
+        return _serve_static(path)
 
-    return _json(404, {"error": "Not found", "path": request.path, "raw": raw})
+    return _json(404, {"error": "Not found", "path": path, "flask_path": flask_path})
