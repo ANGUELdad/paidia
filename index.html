@@ -15,6 +15,13 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
   html,body{margin:0; padding:0; background:var(--bg); color:var(--ink);
     font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif}
+  /* Boot gate only — no app chrome / floating orbs without the login card */
+  html:has(body.auth-pending), body.auth-pending{
+    background:#071a2b!important; color:#fff; overflow:hidden;
+  }
+  body.auth-pending > *:not(#gate){display:none!important}
+  body.auth-pending #gate{display:block!important}
+  body.auth-pending #app[hidden]{display:none!important}
   #app{max-width:1180px; margin:0 auto; min-height:100vh; padding-bottom:calc(72px + var(--safe-b))}
   header{position:sticky; top:0; z-index:20; background:#0f172a; color:#fff;
     padding:13px 14px 11px; display:flex; align-items:center; gap:10px}
@@ -662,9 +669,6 @@
   @media(max-width:540px){#gate{padding:calc(18px + env(safe-area-inset-top,0px)) 12px 22px}.gate-wrap{padding:22px 16px;border-radius:24px}}
   @media(max-width:520px){.help-center-grid{grid-template-columns:1fr}.help-center-card{min-height:0}.trip-results{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){#gate,#gate::before,#gate::after,.gate-wrap,.gate-head,.gate-head .mark,.profile{animation:none!important}.profile{transition:none}}
-  /* Hide app chrome until auth resolves — stops panel flash on boot */
-  body.auth-pending #app, body.auth-pending .help-fab{visibility:hidden!important;pointer-events:none!important}
-  body.auth-pending #gate{display:block!important}
   .passkey-btn{min-height:48px;font-size:14px}.passkey-btn .pk-sub{display:block;font-size:10.5px;font-weight:600;opacity:.78;margin-top:2px}
   .gate-pin .btn.logging{opacity:.7;pointer-events:none}
   .pindots i.busy{animation:markBreathe 1s ease-in-out infinite}
@@ -689,7 +693,14 @@
     <button data-tab="book"><span class="i">📖</span><span data-nav="book"></span></button>
   </nav>
 </div>
-<div id="gate"><div class="gate-wrap" id="gateBody"></div></div>
+<div id="gate" class="on"><div class="gate-wrap" id="gateBody">
+  <div class="gate-head">
+    <div class="mark" aria-hidden="true">A</div>
+    <div class="brand-kicker">Armonia Thassos</div>
+    <h2>Armonia Thassos</h2>
+    <p>Anmeldung wird geladen…</p>
+  </div>
+</div></div>
 <div class="sheet-bg" id="sheetBg"></div>
 <div class="sheet" id="sheet"></div>
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -1781,6 +1792,7 @@ async function registerPasskey(){
 function revealApp(){
   document.body.classList.remove('auth-pending');
   document.getElementById('app').hidden=false;
+  document.body.style.overflow='';
 }
 
 async function restoreServerSession(){
@@ -4926,11 +4938,17 @@ function wireLangSwitch(){
   });
 }
 
-function openGate(){ closeSheet(); gateEl.classList.add('on'); renderEntrance(); }
-function closeGate(){ gateEl.classList.remove('on'); }
+let pinKeyAbort=null;
+function stopPinKeyboard(){
+  if(pinKeyAbort){ pinKeyAbort.abort(); pinKeyAbort=null; }
+}
+
+function openGate(){ closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); renderEntrance(); }
+function closeGate(){ stopPinKeyboard(); gateEl.classList.remove('on'); }
 
 /** Βήμα 1 — δύο ξεχωριστές είσοδοι: Προσωπικό / Παιδιά (§31.3). */
 function renderEntrance(){
+  stopPinKeyboard();
   gateBody.innerHTML = `
     ${langSwitch()}
     <div class="gate-head">
@@ -4960,6 +4978,7 @@ function renderEntrance(){
 
 /** Βήμα 2 — grid προφίλ, προσωπικού ή παιδιών. */
 function renderProfiles(mode = 'staff'){
+  stopPinKeyboard();
   const people = mode === 'child'
     ? DB.children.map(c=>({id:c.id, name:c.name, color:c.color, sub: childResidence(c)||(c.temporary?'·':'')}))
     : DB.employees.map(e=>({id:e.id, name:e.name, color:e.color, sub:L(e.role)}));
@@ -4991,6 +5010,7 @@ function renderProfiles(mode = 'staff'){
 
 /** Βήμα 3 — PIN μόνο για το επιλεγμένο προφίλ. */
 function renderGatePin(who, mode = 'staff'){
+  stopPinKeyboard();
   let buf = '';
   let busy = false;
   gateBody.innerHTML = `
@@ -5006,8 +5026,8 @@ function renderGatePin(who, mode = 'staff'){
         ${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join('')}
         <button type="button" data-k="del" aria-label="Backspace">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="clr" aria-label="Clear">C</button>
       </div>
-      <button class="btn" id="gLogin" type="button" style="margin-top:12px;display:none">${t('loginEntry')}</button>
-      <div class="muted" style="margin-top:10px;font-size:11.5px">${state.lang==='el'?'Το PIN ολοκληρώνει αυτόματα την είσοδο.':'Die PIN meldet dich automatisch an.'}</div>
+      <button class="btn" id="gLogin" type="button" style="margin-top:12px">${t('loginEntry')}</button>
+      <div class="muted" style="margin-top:10px;font-size:11.5px">${state.lang==='el'?'6 ψηφία · είσοδος αυτόματα.':'6 Ziffern · Anmeldung automatisch.'}</div>
       <button class="gate-back" id="gForgot" type="button" style="display:block;margin:2px auto">${t('forgotPin')}</button>
       <button class="gate-back" id="gBack" type="button">${t('gateBack')}</button>
     </div>
@@ -5038,6 +5058,7 @@ function renderGatePin(who, mode = 'staff'){
     busy=true;button.classList.add('logging');button.disabled=true;errorEl.textContent='';draw();
     try{
       await authenticateProfile(mode,who,buf);
+      stopPinKeyboard();
       closeGate();revealApp();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name),'success');
     }catch(error){
       if(error.status===429){
@@ -5067,19 +5088,15 @@ function renderGatePin(who, mode = 'staff'){
   });
   gateBody.querySelector('#gLogin').onclick=finishLogin;
 
-  // Hardware keyboard / iPad keyboard support
-  const onKey=event=>{
+  // One active keyboard handler only — stacked listeners were doubling digits.
+  pinKeyAbort=new AbortController();
+  window.addEventListener('keydown', event=>{
     if(!gateEl.classList.contains('on')||busy) return;
     if(event.key>='0'&&event.key<='9'){event.preventDefault();pushKey(event.key);}
     else if(event.key==='Backspace'){event.preventDefault();pushKey('del');}
     else if(event.key==='Escape'){event.preventDefault();buf='';draw();}
     else if(event.key==='Enter'&&buf.length>=4){event.preventDefault();finishLogin();}
-  };
-  window.addEventListener('keydown', onKey, {passive:false});
-  const cleanup=()=>window.removeEventListener('keydown', onKey);
-  const prevBack=gateBody.querySelector('#gBack').onclick;
-  gateBody.querySelector('#gBack').onclick=()=>{cleanup();prevBack();};
-  gateBody.querySelector('#gForgot').onclick=()=>{cleanup();renderResetRequest(who,mode);};
+  }, {passive:false, signal:pinKeyAbort.signal});
 
   gateBody.querySelector('#gPasskey').onclick=async()=>{
     const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gPasskey');
@@ -5087,7 +5104,8 @@ function renderGatePin(who, mode = 'staff'){
     busy=true;button.disabled=true;errorEl.textContent='';
     try{
       await loginWithPasskey(mode,who);
-      cleanup();closeGate();revealApp();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name),'success');
+      stopPinKeyboard();
+      closeGate();revealApp();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name),'success');
     }catch(error){
       errorEl.textContent=error.code==='no_passkey'?t('passkeyNone'):
         error.code==='unsupported'?t('passkeyUnavailable'):
@@ -5097,6 +5115,7 @@ function renderGatePin(who, mode = 'staff'){
 }
 
 function renderResetRequest(who,mode){
+  stopPinKeyboard();
   gateBody.innerHTML=`
     <div class="gate-pin">
       <div class="pa" style="background:${who.color}">${initials(who.name)}</div>
