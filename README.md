@@ -53,9 +53,60 @@ OCR model. Τα σύντομα rate limits επαναδοκιμάζονται α
 
 Η τέταρτη προβολή **Events** στο Πρόγραμμα επιτρέπει στο προσωπικό δημιουργία,
 επεξεργασία, draft/δημοσίευση και διαγραφή event. Από κάθε κελί προγράμματος μπορείς
-να ενεργοποιήσεις **📣 Ανακοίνωση ως event**· το event συνδέεται με την εγγραφή και
+να πατήσεις το εμφανές μωβ κουμπί **📣 Event** στην κορυφή της εγγραφής· το event συνδέεται με την εγγραφή και
 εμφανίζεται με ειδικό σήμα στο ημερήσιο/εβδομαδιαίο πρόγραμμα και στο Events tab των
-επιλεγμένων παιδιών.
+επιλεγμένων παιδιών. Στο παιδικό portal εμφανίζεται άμεσα badge και notification banner
+με τον αριθμό των επερχόμενων δημοσιευμένων events.
+
+## WhatsApp Cloud API
+
+Το `server.py` έχει server-side WhatsApp Cloud API integration για event templates,
+test message και signed webhook. Τα access tokens και τα τηλέφωνα δεν περνούν ποτέ
+στον browser ή στο Git.
+
+1. Στο Meta App Dashboard σύνδεσε WhatsApp Business Account και κράτησε Phone Number ID
+   και Business Account ID.
+2. Δημιούργησε system-user permanent token με `business_management`,
+   `whatsapp_business_messaging` και `whatsapp_business_management`.
+3. Συμπλήρωσε στο μη tracked `.env`: `WHATSAPP_ACCESS_TOKEN`,
+   `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_BUSINESS_ACCOUNT_ID`, ένα δικό σου τυχαίο
+   `WHATSAPP_VERIFY_TOKEN`, και το Meta App Secret ως `WHATSAPP_APP_SECRET`.
+4. Δημιούργησε και έγκρινε template `paidia_event_notification` με τέσσερις body
+   παραμέτρους: event title, date, time, location. Ρύθμισε τη σωστή γλώσσα στο
+   `WHATSAPP_TEMPLATE_LANGUAGE`.
+5. Το `WHATSAPP_RECIPIENTS_JSON` αντιστοιχίζει child ID σε εγκεκριμένο τηλέφωνο
+   κηδεμόνα/test σε E.164 μορφή, π.χ. `{"k1":"491234567890"}`. Δέχεται και λίστα
+   αριθμών ανά παιδί. Μην βάζεις αριθμούς ανηλίκων χωρίς τεκμηριωμένη συναίνεση.
+6. Άφησε `WHATSAPP_SEND_ENABLED=false` μέχρι να ολοκληρωθεί το test και μετά άλλαξέ το
+   σε `true` και επανεκκίνησε τον server.
+
+Webhook URL: `https://<public-host>/api/whatsapp/webhook`. Στο Meta Configuration βάλε
+το ίδιο verify token και subscribe στο `messages`. Το App Secret ενεργοποιεί έλεγχο
+`X-Hub-Signature-256`. Το endpoint αναγνωρίζει delivery/read callbacks χωρίς να
+αποθηκεύει locally το περιεχόμενο μηνυμάτων.
+
+Έλεγχος ρύθμισης: `GET /api/whatsapp/health`. Για το πρώτο Meta `hello_world` test,
+συμπλήρωσε `WHATSAPP_TEST_RECIPIENT`, ενεργοποίησε προσωρινά την αποστολή και κάλεσε:
+
+```bash
+curl -X POST http://localhost:5173/api/whatsapp/test \
+  -H 'Content-Type: application/json' -d '{}'
+```
+
+Τα schedule-linked και standalone published events καλούν αυτόματα το event endpoint.
+Υπάρχει deduplication 10 λεπτών ανά event/παραλήπτη. Για public Synology deployment
+χρειάζονται HTTPS reverse proxy και κανονικό backend authentication πριν εκτεθεί η
+λειτουργία αποστολής στο Internet.
+
+## Home dashboard
+
+Η **Αρχική / Home** είναι η προεπιλεγμένη οθόνη προσωπικού και συγκεντρώνει live:
+
+- τις σημερινές εργασίες του συνδεδεμένου χρήστη,
+- ξεχασμένες/εκπρόθεσμες εργασίες των τελευταίων 7 ημερών,
+- ολοκλήρωση και επαναφορά εργασίας ανά χρήστη,
+- όλα τα events με κατάσταση δημοσίευσης, παιδιά και συνοδούς,
+- εγγραφές των επόμενων 3 ημερών που δεν έχουν ακόμη υπεύθυνο.
 
 **Demo PIN:** Dora `1111` · Karin `2222` · Dimitris `3333` · Angelos `4444` ·
 Claudio `5555` · Löhri `6666` · Amalia `7777` · **Zoi `9999`**
@@ -114,6 +165,7 @@ Schnitzeljagd, Traumfänger, Seilspringen, Domino XXL κ.λπ.).
 | `activities` / `customActivities` | `id, emoji, de, el` |
 | `template` | `id, block, day(0=Δευ…6=Κυρ), houseIds[], employeeIds[], childIds[], activityId, time, note` — τα παλιά `houseId/employeeId` παραμένουν για συμβατότητα |
 | `overrides` | `id, date, templateId, …ίδια πεδία, cancelled` |
+| `taskCompletions` | `id, date, entryId, employeeId, completedAt, completedBy` — ανεξάρτητο tick ανά ανατεθειμένο άτομο |
 | `weeks` | κλειδί = Δευτέρα ISO → τα 4 πλαίσια + `createdBy, createdAt` |
 | `stock` | κλειδί `"houseId:productId"` → ποσότητα |
 | `shoppingList` | `id, name, qty, unit, houseId, by, done` |
@@ -122,7 +174,7 @@ Schnitzeljagd, Traumfänger, Seilspringen, Domino XXL κ.λπ.).
 `employeeId: null` σημαίνει **«wer?»** — ανοιχτή θέση, όπως στο χαρτί.
 
 Στο `localStorage` αποθηκεύονται μόνο τα μεταβαλλόμενα δεδομένα (`template, overrides,
-weeks, events, aiImports, listEntries, stock, log, customActivities, customReasons`) και
+weeks, events, taskCompletions, aiImports, listEntries, stock, log, customActivities, customReasons`) και
 ένα PIN-free authenticated session 12 ωρών. Τα δεδομένα αναφοράς έρχονται πάντα από το `SEED`, ώστε μια
 ενημέρωση της εφαρμογής να μη μπλοκάρεται από παλιό αποθηκευμένο αντίγραφο.
 

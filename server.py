@@ -4,10 +4,13 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import hmac
 import os
 import re
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
@@ -33,6 +36,77 @@ OCR_MODEL = os.environ.get("GROQ_OCR_MODEL", "qwen/qwen3.6-27b")
 CHAT_MODEL = os.environ.get("GROQ_CHAT_MODEL", "llama-3.3-70b-versatile")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 MAX_BODY = 12 * 1024 * 1024
+WHATSAPP_GRAPH_VERSION = os.environ.get("WHATSAPP_GRAPH_VERSION", "v23.0")
+WHATSAPP_GRAPH_URL = "https://graph.facebook.com"
+WHATSAPP_DEDUPE_WINDOW = 10 * 60
+WHATSAPP_SENT: dict[str, float] = {}
+
+
+def whatsapp_config() -> dict:
+    return {
+        "access_token": os.environ.get("WHATSAPP_ACCESS_TOKEN", "").strip(),
+        "phone_number_id": os.environ.get("WHATSAPP_PHONE_NUMBER_ID", "").strip(),
+        "business_account_id": os.environ.get("WHATSAPP_BUSINESS_ACCOUNT_ID", "").strip(),
+        "verify_token": os.environ.get("WHATSAPP_VERIFY_TOKEN", "").strip(),
+        "app_secret": os.environ.get("WHATSAPP_APP_SECRET", "").strip(),
+        "event_template": os.environ.get("WHATSAPP_EVENT_TEMPLATE", "paidia_event_notification").strip(),
+        "template_language": os.environ.get("WHATSAPP_TEMPLATE_LANGUAGE", "de").strip(),
+        "test_recipient": os.environ.get("WHATSAPP_TEST_RECIPIENT", "").strip(),
+        "send_enabled": os.environ.get("WHATSAPP_SEND_ENABLED", "false").lower() in {"1", "true", "yes"},
+    }
+
+
+def whatsapp_recipients() -> dict[str, list[str]]:
+    try:
+        raw = json.loads(os.environ.get("WHATSAPP_RECIPIENTS_JSON", "{}"))
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    result: dict[str, list[str]] = {}
+    for child_id, values in raw.items():
+        numbers = values if isinstance(values, list) else [values]
+        clean = []
+        for value in numbers:
+            digits = re.sub(r"\D", "", str(value))
+            if 8 <= len(digits) <= 15:
+                clean.append(digits)
+        if clean:
+            result[str(child_id)] = clean
+    return result
+
+
+def send_whatsapp_template(to: str, template: str, language: str,
+                           parameters: list[str] | None = None) -> dict:
+    config = whatsapp_config()
+    if not config["send_enabled"]:
+        raise RuntimeError("WhatsApp sending is disabled")
+    if not config["access_token"] or not config["phone_number_id"]:
+        raise RuntimeError("WhatsApp credentials are incomplete")
+    payload = {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": re.sub(r"\D", "", to),
+        "type": "template",
+        "template": {"name": template, "language": {"code": language}},
+    }
+    if parameters:
+        payload["template"]["components"] = [{
+            "type": "body",
+            "parameters": [{"type": "text", "text": str(value)[:1024]} for value in parameters],
+        }]
+    request = urllib.request.Request(
+        f"{WHATSAPP_GRAPH_URL}/{WHATSAPP_GRAPH_VERSION}/{config['phone_number_id']}/messages",
+        data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {config['access_token']}",
+            "Content-Type": "application/json",
+            "User-Agent": "PAIDIA/1.0",
+        },
+        method="POST",
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        return json.loads(response.read())
 
 
 ITEM_SCHEMA = {
@@ -167,19 +241,89 @@ class Handler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
+    def text_response(self, status: int, value: str) -> None:
+        raw = value.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(raw)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(raw)
+
+    def read_json_body(self) -> tuple[bytes, dict | None]:
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            return b"", None
+        if length <= 0 or length > MAX_BODY:
+            return b"", None
+        raw = self.rfile.read(length)
+        try:
+            value = json.loads(raw)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return raw, None
+        return raw, value if isinstance(value, dict) else None
+
+    def whatsapp_signature_valid(self, raw: bytes) -> bool:
+        secret = whatsapp_config()["app_secret"]
+        if not secret:
+            return True
+        supplied = self.headers.get("X-Hub-Signature-256", "")
+        expected = "sha256=" + hmac.new(secret.encode(), raw, hashlib.sha256).hexdigest()
+        return hmac.compare_digest(supplied, expected)
+
     def do_GET(self) -> None:  # noqa: N802
-        if self.path == "/api/health":
+        parsed = urllib.parse.urlsplit(self.path)
+        if parsed.path == "/api/health":
             self.json_response(200, {
                 "ok": True,
                 "aiConfigured": bool(os.environ.get("GROQ_API_KEY")),
                 "ocrModel": OCR_MODEL,
                 "chatModel": CHAT_MODEL,
+                "whatsappConfigured": bool(whatsapp_config()["access_token"] and
+                                             whatsapp_config()["phone_number_id"]),
+                "whatsappSendEnabled": whatsapp_config()["send_enabled"],
             })
+            return
+        if parsed.path == "/api/whatsapp/health":
+            config = whatsapp_config()
+            self.json_response(200, {
+                "ok": True,
+                "configured": bool(config["access_token"] and config["phone_number_id"]),
+                "sendEnabled": config["send_enabled"],
+                "webhookConfigured": bool(config["verify_token"]),
+                "signatureVerification": bool(config["app_secret"]),
+                "businessAccountConfigured": bool(config["business_account_id"]),
+                "recipientProfiles": len(whatsapp_recipients()),
+                "graphVersion": WHATSAPP_GRAPH_VERSION,
+                "eventTemplate": config["event_template"],
+            })
+            return
+        if parsed.path == "/api/whatsapp/webhook":
+            query = urllib.parse.parse_qs(parsed.query)
+            config = whatsapp_config()
+            if (query.get("hub.mode", [""])[0] == "subscribe" and config["verify_token"] and
+                    hmac.compare_digest(query.get("hub.verify_token", [""])[0], config["verify_token"])):
+                self.text_response(200, query.get("hub.challenge", [""])[0])
+            else:
+                self.json_response(403, {"error": "Webhook verification failed"})
             return
         super().do_GET()
 
     def do_POST(self) -> None:  # noqa: N802
-        if self.path not in {"/api/ai-shopping", "/api/chat"}:
+        path = urllib.parse.urlsplit(self.path).path
+        if path == "/api/whatsapp/webhook":
+            raw, body = self.read_json_body()
+            if body is None:
+                self.json_response(400, {"error": "Invalid webhook payload"})
+                return
+            if not self.whatsapp_signature_valid(raw):
+                self.json_response(401, {"error": "Invalid webhook signature"})
+                return
+            # Acknowledge quickly. Delivery/read payloads are intentionally not persisted locally.
+            self.json_response(200, {"received": True})
+            return
+        if path not in {"/api/ai-shopping", "/api/chat", "/api/whatsapp/test", "/api/whatsapp/event"}:
             self.json_response(404, {"error": "Not found"})
             return
         try:
@@ -199,6 +343,13 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(400, {"error": "JSON object required", "code": "input"})
             return
 
+        if path == "/api/whatsapp/test":
+            self.handle_whatsapp_test(body)
+            return
+        if path == "/api/whatsapp/event":
+            self.handle_whatsapp_event(body)
+            return
+
         api_key = os.environ.get("GROQ_API_KEY")
         if not api_key:
             self.json_response(503, {
@@ -207,10 +358,91 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return
 
-        if self.path == "/api/chat":
+        if path == "/api/chat":
             self.handle_chat(body, api_key)
             return
         self.handle_shopping(body, api_key)
+
+    def handle_whatsapp_test(self, body: dict) -> None:
+        del body
+        config = whatsapp_config()
+        recipient = re.sub(r"\D", "", config["test_recipient"])
+        if not recipient:
+            self.json_response(503, {
+                "error": "WhatsApp test recipient is not configured",
+                "setup": "Set WHATSAPP_TEST_RECIPIENT in .env",
+            })
+            return
+        try:
+            response = send_whatsapp_template(
+                recipient,
+                os.environ.get("WHATSAPP_TEST_TEMPLATE", "hello_world"),
+                os.environ.get("WHATSAPP_TEST_LANGUAGE", "en_US"),
+            )
+            self.json_response(200, {
+                "sent": True,
+                "messageId": ((response.get("messages") or [{}])[0]).get("id"),
+            })
+        except RuntimeError as exc:
+            self.json_response(503, {"error": str(exc), "code": "configuration"})
+        except urllib.error.HTTPError as exc:
+            try:
+                provider = json.loads(exc.read())
+                provider_code = provider.get("error", {}).get("code")
+            except (json.JSONDecodeError, AttributeError):
+                provider_code = None
+            self.json_response(502, {
+                "error": "Meta rejected the WhatsApp test message",
+                "code": "provider",
+                "providerCode": provider_code,
+            })
+        except (urllib.error.URLError, TimeoutError):
+            self.json_response(504, {"error": "WhatsApp request timed out", "code": "timeout"})
+
+    def handle_whatsapp_event(self, body: dict) -> None:
+        title = str(body.get("title", "")).strip()[:200]
+        event_id = str(body.get("eventId", "")).strip()[:100]
+        date = str(body.get("date", "")).strip()[:20]
+        from_time = str(body.get("from", "")).strip()[:10]
+        to_time = str(body.get("to", "")).strip()[:10]
+        location = str(body.get("location", "")).strip()[:200] or "—"
+        child_ids = body.get("childIds", [])
+        if not title or not event_id or not date or not from_time or not to_time or not isinstance(child_ids, list):
+            self.json_response(400, {"error": "Valid event details and childIds are required", "code": "input"})
+            return
+        mapping = whatsapp_recipients()
+        recipients = sorted({number for child_id in child_ids for number in mapping.get(str(child_id), [])})
+        if not recipients:
+            self.json_response(422, {
+                "error": "No approved WhatsApp recipients are configured for these children",
+                "code": "recipients",
+            })
+            return
+        config = whatsapp_config()
+        sent = 0
+        skipped = 0
+        failures = 0
+        now = time.time()
+        for recipient in recipients[:30]:
+            dedupe_key = f"{event_id}:{recipient}"
+            if now - WHATSAPP_SENT.get(dedupe_key, 0) < WHATSAPP_DEDUPE_WINDOW:
+                skipped += 1
+                continue
+            try:
+                send_whatsapp_template(recipient, config["event_template"], config["template_language"], [
+                    title, date, f"{from_time}–{to_time}", location,
+                ])
+                WHATSAPP_SENT[dedupe_key] = now
+                sent += 1
+            except (RuntimeError, urllib.error.HTTPError, urllib.error.URLError, TimeoutError):
+                failures += 1
+        status = 200 if sent or skipped else 502
+        self.json_response(status, {
+            "sent": sent,
+            "skippedDuplicates": skipped,
+            "failed": failures,
+            "recipientCount": len(recipients),
+        })
 
     def handle_shopping(self, body: dict, api_key: str) -> None:
         source_type = body.get("sourceType")

@@ -262,6 +262,27 @@
   .check-option span{min-width:0;overflow-wrap:anywhere}
   .event-staff-card{border-left:5px solid var(--event-color,#2563eb)}
   .event-flag{display:inline-flex;align-items:center;gap:4px;color:#7c3aed;font-size:11px;font-weight:700}
+  .event-toggle{width:auto;flex:0 0 auto;border:1px solid #c4b5fd;background:#f5f3ff;color:#6d28d9;
+    border-radius:11px;padding:9px 12px;font-size:12.5px;font-weight:750;cursor:pointer}
+  .event-toggle.on{background:#6d28d9;border-color:#6d28d9;color:#fff;box-shadow:0 4px 12px rgba(109,40,217,.22)}
+  .home-hero{background:linear-gradient(135deg,#172554,#2563eb);color:#fff;border:0;padding:18px}
+  .home-hero h2{font-size:21px;margin:3px 0 4px}.home-hero .muted{color:#dbeafe}
+  .home-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+  .home-stat{background:rgba(255,255,255,.13);border-radius:12px;padding:10px;min-width:0}
+  .home-stat b{display:block;font-size:22px}.home-stat span{font-size:10.5px;color:#dbeafe}
+  .dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+  .dashboard-grid .wide{grid-column:1/-1}.task-list{display:grid;gap:7px}
+  .task-row{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
+  .task-row.overdue{border-color:#fecaca;background:#fff7f7}.task-row.done{opacity:.62;background:#f8fafc}
+  .task-check{width:28px;height:28px;flex:0 0 auto;border:2px solid #94a3b8;border-radius:8px;background:#fff;
+    color:transparent;font-weight:800;cursor:pointer}.task-row.done .task-check{background:#16a34a;border-color:#16a34a;color:#fff}
+  .notification-card{display:flex;align-items:center;gap:11px;border:1px solid #fde68a;background:#fffbeb;
+    border-radius:14px;padding:12px;margin-bottom:12px;cursor:pointer;width:100%;text-align:left}
+  .notification-count{min-width:28px;height:28px;padding:0 7px;border-radius:999px;background:#dc2626;color:#fff;
+    display:grid;place-items:center;font-size:12px;font-weight:800}
+  .nav-badge{min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#dc2626;color:#fff;
+    display:inline-grid;place-items:center;font-size:9px;margin-left:3px;vertical-align:middle}
+  @media(max-width:640px){.dashboard-grid{grid-template-columns:1fr}.dashboard-grid .wide{grid-column:auto}.home-stats{gap:6px}}
   .help-fab{position:fixed; right:max(16px,calc((100vw - 1180px)/2 + 16px));
     bottom:calc(82px + var(--safe-b)); z-index:35; width:48px; height:48px; border:0;
     border-radius:50%; background:var(--brand); color:#fff; font-size:22px; font-weight:750;
@@ -322,6 +343,7 @@
   </header>
   <main id="view"></main>
   <nav>
+    <button data-tab="home"><span class="i">🏠</span><span data-nav="home"></span></button>
     <button data-tab="schedule" class="on"><span class="i">📅</span><span data-nav="schedule"></span></button>
     <button data-tab="stock"><span class="i">🧊</span><span data-nav="stock"></span></button>
     <button data-tab="shop"><span class="i">🛒</span><span data-nav="shop"></span></button>
@@ -340,8 +362,8 @@
    ════════════════════════════════════════════════════════════════ */
 const T = {
   de: {
-    appTitle:'Wochenplan', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Das Buch',
-    titleSchedule:'Wochenplan', titleStock:'Kühlschrank / Lager', titleShop:'Listen & Einkauf', titleBook:'Das Buch',
+    appTitle:'Wochenplan', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Das Buch',
+    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Kühlschrank / Lager', titleShop:'Listen & Einkauf', titleBook:'Das Buch',
     logout:'Profil', noUser:'Nicht angemeldet',
     viewDay:'Tag', viewWeek:'Woche', filterView:'Ansicht', filterHouse:'Haus',
     allHouses:'Kombiniert',
@@ -461,6 +483,17 @@ const T = {
     eventSaved:'Event gespeichert', eventDeleted:'Event gelöscht', deleteEvent:'Event löschen',
     eventRequired:'Titel, Datum, gültige Uhrzeit und mindestens ein Kind sind erforderlich.',
     invalidTime:'Die Endzeit muss nach der Startzeit liegen.', noStaffEvents:'Noch keine Events für diesen Zeitraum.',
+    homeHello:'Guten Tag', homeOverview:'Dein Überblick für heute', myTasks:'Meine Aufgaben',
+    overdueTasks:'Vergessen / überfällig', unassignedTasks:'Noch ohne Person', allEvents:'Alle Events',
+    dueToday:'Heute zu tun', overdue:'Überfällig', eventsSoon:'Events', noTasks:'Keine offenen Aufgaben.',
+    noOverdue:'Nichts vergessen – alles im grünen Bereich.', noUnassigned:'Alle Aufgaben sind zugeteilt.',
+    markDone:'Als erledigt markieren', markOpen:'Wieder öffnen', taskDone:'Aufgabe erledigt', taskReopened:'Aufgabe wieder geöffnet',
+    next3Days:'Nächste 3 Tage',
+    eventButton:'Event', eventButtonOn:'Event wird veröffentlicht', childNotifications:'Neue Event-Mitteilungen',
+    openEvents:'Events öffnen', kidsNotified:n=>`${n} Kinder erhalten die Mitteilung in der App.`,
+    whatsappSent:n=>`WhatsApp-Mitteilung an ${n} Kontakt${n===1?'':'e'} gesendet.`,
+    whatsappSkipped:'In-App veröffentlicht; für WhatsApp sind noch keine Empfänger eingerichtet.',
+    whatsappFailed:'Das Event ist in der App veröffentlicht, aber WhatsApp konnte nicht gesendet werden.',
     changesSaved:'Änderungen gespeichert', retry:'Bitte erneut versuchen.',
     errNetwork:'Keine Verbindung zum AI-Dienst. Prüfe Internet und Server und versuche es erneut.',
     errTimeout:'Die AI-Antwort hat zu lange gedauert. Bitte versuche es erneut.',
@@ -481,8 +514,8 @@ const T = {
     screenshotReady:'Screenshot bereit – OCR startet…', screenshotMissing:'Die Zwischenablage enthält keinen Screenshot.',
   },
   el: {
-    appTitle:'Πρόγραμμα', navSchedule:'Πρόγραμμα', navStock:'Ψυγείο', navShop:'Λίστα', navBook:'Το Βιβλίο',
-    titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Ψυγείο / Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Το Βιβλίο',
+    appTitle:'Πρόγραμμα', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Ψυγείο', navShop:'Λίστα', navBook:'Το Βιβλίο',
+    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Ψυγείο / Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Το Βιβλίο',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
     viewDay:'Ημέρα', viewWeek:'Εβδομάδα', filterView:'Προβολή', filterHouse:'Σπίτι',
     allHouses:'Συνδυαστικά',
@@ -602,6 +635,17 @@ const T = {
     eventSaved:'Το event αποθηκεύτηκε', eventDeleted:'Το event διαγράφηκε', deleteEvent:'Διαγραφή event',
     eventRequired:'Χρειάζονται τίτλος, ημερομηνία, σωστή ώρα και τουλάχιστον ένα παιδί.',
     invalidTime:'Η ώρα λήξης πρέπει να είναι μετά την ώρα έναρξης.', noStaffEvents:'Δεν υπάρχουν events για αυτή την περίοδο.',
+    homeHello:'Καλημέρα', homeOverview:'Η εικόνα της ημέρας σου', myTasks:'Οι εργασίες μου',
+    overdueTasks:'Ξεχασμένα / εκπρόθεσμα', unassignedTasks:'Χωρίς υπεύθυνο', allEvents:'Όλα τα events',
+    dueToday:'Για σήμερα', overdue:'Εκπρόθεσμα', eventsSoon:'Events', noTasks:'Δεν υπάρχουν ανοιχτές εργασίες.',
+    noOverdue:'Δεν ξέχασες τίποτα – όλα καλά.', noUnassigned:'Όλες οι εργασίες έχουν υπεύθυνο.',
+    markDone:'Σήμανση ως ολοκληρωμένο', markOpen:'Άνοιγμα ξανά', taskDone:'Η εργασία ολοκληρώθηκε', taskReopened:'Η εργασία άνοιξε ξανά',
+    next3Days:'Επόμενες 3 ημέρες',
+    eventButton:'Event', eventButtonOn:'Το event θα δημοσιευτεί', childNotifications:'Νέες ανακοινώσεις event',
+    openEvents:'Άνοιγμα events', kidsNotified:n=>`${n} παιδιά λαμβάνουν την ανακοίνωση στην εφαρμογή.`,
+    whatsappSent:n=>`Η ανακοίνωση WhatsApp στάλθηκε σε ${n} ${n===1?'επαφή':'επαφές'}.`,
+    whatsappSkipped:'Δημοσιεύτηκε στην εφαρμογή· δεν έχουν ακόμη ρυθμιστεί παραλήπτες WhatsApp.',
+    whatsappFailed:'Το event δημοσιεύτηκε στην εφαρμογή, αλλά η αποστολή WhatsApp απέτυχε.',
     changesSaved:'Οι αλλαγές αποθηκεύτηκαν', retry:'Δοκίμασε ξανά.',
     errNetwork:'Δεν υπάρχει σύνδεση με το AI. Έλεγξε internet και server και δοκίμασε ξανά.',
     errTimeout:'Το AI άργησε να απαντήσει. Δοκίμασε ξανά.',
@@ -672,7 +716,7 @@ const SEED = {
     {id:'e8', name:'Zoi',     pin:'9999', role:{de:'Leitung',    el:'Υπεύθυνη'},    color:'#f5d0fe', admin:true},
   ],
   /* Παιδιά κατά §5.1. Κάθε παιδί έχει δικό του PIN, ανεξάρτητο από του προσωπικού (§31.3).
-     Τα δίδυμα είναι δύο ξεχωριστά records + saved group «Zwillinge». */
+     Οι δίδυμες Samantha και Lilly είναι δύο ξεχωριστά records + saved group «Zwillinge». */
   /* Στο demo όλα τα παιδιά έχουν το ίδιο PIN για να δοκιμάζεται γρήγορα.
      Στην παραγωγή κάθε παιδί παίρνει δικό του, αποθηκευμένο hashed (§4.2). */
   children: [
@@ -684,14 +728,14 @@ const SEED = {
     {id:'k6',  name:'Lea',          pin:'1111', color:'#fed7aa'},
     {id:'k7',  name:'Valeria',      pin:'1111', color:'#d9f99d'},
     {id:'k8',  name:'Jule',         pin:'1111', color:'#f5d0fe'},
-    {id:'k9',  name:'Zwilling A',   pin:'1111', color:'#99f6e4'},
-    {id:'k10', name:'Zwilling B',   pin:'1111', color:'#99f6e4'},
+    {id:'k9',  name:'Samantha',     pin:'1111', color:'#99f6e4'},
+    {id:'k10', name:'Lilly',        pin:'1111', color:'#99f6e4'},
     {id:'k11', name:'Daniel',       pin:'1111', color:'#fecaca'},
     {id:'k12', name:'Leonie',       pin:'1111', color:'#e9d5ff', temporary:true},
   ],
   /* Saved groups — μόνο όσες προκύπτουν από τα έγγραφα (§5.3, Nachmittagsbetreuung). */
   groups: [
-    {id:'g1', de:'Zwillinge',        el:'Δίδυμα',            childIds:['k9','k10']},
+    {id:'g1', de:'Zwillinge: Samantha + Lilly', el:'Δίδυμα: Samantha + Lilly', childIds:['k9','k10']},
     {id:'g2', de:'Kai + Simon + Vincent', el:'Kai + Simon + Vincent', childIds:['k2','k1','k3']},
     {id:'g3', de:'Jule + Julian klein',   el:'Jule + Julian klein',   childIds:['k8','k4']},
     {id:'g4', de:'Alle Kinder',      el:'Όλα τα παιδιά',
@@ -711,6 +755,7 @@ const SEED = {
       date:seedDate(7), from:'10:30', to:'13:00', location:'Limenaria', employeeId:'e5', childIds:['k3','k4','k6','k7','k8','k11'],
       bring:{de:'Kappe und feste Schuhe',el:'Καπέλο και κλειστά παπούτσια'}, emoji:'🗺️', color:'#047857', status:'published'},
   ],
+  taskCompletions: [],
 
   /* Λόγοι κίνησης αποθέματος (§10.4). Presets + «άλλο» + προσθήκη νέου. */
   reasons: [
@@ -971,7 +1016,7 @@ const SEED = {
 
 const KEY = 'paidia.v3';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
-const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'aiImports', 'listEntries', 'stock', 'log',
+const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'stock', 'log',
                  'customActivities', 'customReasons'];
 
 let DB = load();
@@ -1050,6 +1095,23 @@ function friendlyAiError(error){
   if(status===413 || detail.includes('too large') || detail.includes('image')) return t('errImage');
   if(!navigator.onLine || status===0 || detail.includes('failed to fetch') || detail.includes('network')) return t('errNetwork');
   return t('errServer');
+}
+
+async function sendEventWhatsapp(event){
+  try{
+    const response=await fetch('/api/whatsapp/event',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({eventId:event.id,title:L(event),date:event.date,from:event.from,to:event.to,
+        location:event.location||'',childIds:event.childIds||[]}),
+    });
+    const result=await response.json();
+    if(response.status===422 || response.status===503){ toast(t('whatsappSkipped')); return; }
+    if(!response.ok) throw new Error(result.error||String(response.status));
+    if(result.sent) toast(T[state.lang].whatsappSent(result.sent),'success');
+  }catch(error){
+    console.error('WhatsApp event notification failed',error);
+    toast(t('whatsappFailed'),'error',5200);
+  }
 }
 
 /* ── Ταυτότητα συσκευής & δικτύου ── */
@@ -1131,7 +1193,7 @@ function logEntry(type, text, extra = {}){
 const restoredAuth = restoreAuthentication();
 const state = {
   lang: localStorage.getItem('paidia.lang') || 'de',
-  tab: 'schedule',
+  tab: 'home',
   scheduleView: 'day',
   childView: 'today',
   mode: restoredAuth?.mode || 'staff',
@@ -1707,7 +1769,12 @@ function sheetEntry(e, dateStr, presets = {}){
   const dayIdx = dowIdx(new Date(dateStr+'T12:00:00'));
 
   openSheet(`
-    <h3>${isNew ? t('newEntry') : t('edit')} · ${t(blockId)} <span class="muted">${def.from}–${def.to}</span></h3>
+    <div class="row between" style="align-items:flex-start;margin-bottom:12px">
+      <h3 style="margin:0">${isNew ? t('newEntry') : t('edit')} · ${t(blockId)} <span class="muted">${def.from}–${def.to}</span></h3>
+      <button class="event-toggle ${linkedEvent?.status==='published'?'on':''}" id="fEventToggle" type="button"
+        aria-pressed="${linkedEvent?.status==='published'?'true':'false'}">📣 ${linkedEvent?.status==='published'?t('eventButtonOn'):t('eventButton')}</button>
+      <input type="checkbox" id="fAnnounce" hidden ${linkedEvent?.status==='published'?'checked':''}>
+    </div>
 
     <label class="f"><span>${t('house')} · ${t('chooseMany')}</span></label>
     <div class="check-grid" id="fHouses">
@@ -1749,11 +1816,11 @@ function sheetEntry(e, dateStr, presets = {}){
     <label class="f"><span>${t('note')}</span>
       <textarea id="fNote" rows="2" placeholder="${t('notePh')}">${esc(e.note||'')}</textarea></label>
 
-    <label class="row card" style="cursor:pointer;border-color:#c4b5fd">
-      <input type="checkbox" id="fAnnounce" style="width:auto" ${linkedEvent?.status==='published'?'checked':''}>
-      <div><div class="strong">📣 ${t('announceEvent')}</div><div class="muted">${t('announceHint')}</div></div>
-    </label>
     <div id="fEventFields" style="display:${linkedEvent?.status==='published'?'block':'none'}">
+      <div class="card" style="border-color:#c4b5fd;background:#faf5ff;margin-bottom:10px">
+        <div class="strong">📣 ${t('announceEvent')}</div>
+        <div class="muted" id="fEventAudience">${T[state.lang].kidsNotified(pickedKids.length)} ${t('announceHint')}</div>
+      </div>
       <label class="f"><span>${t('eventTitle')}</span><input id="fEventTitle" value="${esc(linkedEvent?L(linkedEvent):actLabel(e.activityId))}"></label>
       <div class="row" style="gap:10px">
         <label class="f grow"><span>${t('eventLocation')}</span><input id="fEventLocation" value="${esc(linkedEvent?.location||entryHouseIds(e).map(id=>house(id)?.name).filter(Boolean).join(', '))}"></label>
@@ -1793,6 +1860,8 @@ function sheetEntry(e, dateStr, presets = {}){
       const g=DB.groups.find(g=>g.id===x.dataset.g);
       x.classList.toggle('on',!!g && g.childIds.every(id=>pickedKids.includes(id)));
     });
+    const audience=sheetEl.querySelector('#fEventAudience');
+    if(audience) audience.textContent=`${T[state.lang].kidsNotified(pickedKids.length)} ${t('announceHint')}`;
   };
 
   sheetEl.querySelectorAll('#fKids .chip').forEach(b=>{
@@ -1844,11 +1913,19 @@ function sheetEntry(e, dateStr, presets = {}){
   paintActs();
   paintKids();
 
-  sheetEl.querySelector('#fAnnounce').onchange = ev => {
-    sheetEl.querySelector('#fEventFields').style.display=ev.target.checked?'block':'none';
-    if(ev.target.checked && !sheetEl.querySelector('#fEventTitle').value.trim())
+  const paintEventToggle = () => {
+    const input=sheetEl.querySelector('#fAnnounce'), button=sheetEl.querySelector('#fEventToggle');
+    sheetEl.querySelector('#fEventFields').style.display=input.checked?'block':'none';
+    button.classList.toggle('on',input.checked);
+    button.setAttribute('aria-pressed',String(input.checked));
+    button.textContent=`📣 ${input.checked?t('eventButtonOn'):t('eventButton')}`;
+    if(input.checked && !sheetEl.querySelector('#fEventTitle').value.trim())
       sheetEl.querySelector('#fEventTitle').value=actLabel(pickedAct);
   };
+  sheetEl.querySelector('#fEventToggle').onclick=()=>{
+    const input=sheetEl.querySelector('#fAnnounce'); input.checked=!input.checked; paintEventToggle();
+  };
+  paintEventToggle();
 
   const segEl = sheetEl.querySelector('#fScope');
   if(segEl) segEl.querySelectorAll('button').forEach(b=>{
@@ -1898,7 +1975,7 @@ function sheetEntry(e, dateStr, presets = {}){
     if(!sheetEl.querySelector('#fAnnounce').checked){
       const prior=DB.events.find(x=>x.scheduleEntryId===entryId && x.scheduleDate===dateStr);
       if(prior?.status==='published') prior.status='draft';
-      return;
+      return null;
     }
     const title=sheetEl.querySelector('#fEventTitle').value.trim();
     const idx=DB.events.findIndex(x=>x.scheduleEntryId===entryId && x.scheduleDate===dateStr);
@@ -1912,6 +1989,7 @@ function sheetEntry(e, dateStr, presets = {}){
       scheduleEntryId:entryId,scheduleDate:dateStr};
     if(idx>=0) DB.events[idx]=value; else DB.events.push(value);
     logEntry('EVENT',`${t('eventPublished')}: ${title}`);
+    return value;
   };
 
   sheetEl.querySelector('#fSave').onclick = () => {
@@ -1943,9 +2021,10 @@ function sheetEntry(e, dateStr, presets = {}){
         else { savedEntryId=uid(); DB.overrides.push({id:savedEntryId, date:dateStr, templateId:null, ...f}); }
         logEntry('SCHEDULE', `${dateStr} · ${describe(f)}`);
       }
-      syncLinkedEvent(savedEntryId,f);
+      const eventToNotify=syncLinkedEvent(savedEntryId,f);
       if(!save()) return;
       closeSheet(); render(); toast(sheetEl.querySelector('#fAnnounce')?.checked?t('eventPublished'):t('changesSaved'),'success');
+      if(eventToNotify) sendEventWhatsapp(eventToNotify);
     });
   };
 
@@ -3300,8 +3379,91 @@ function sheetEvent(existing=null, presets={}){
       logEntry('EVENT',`${value.status==='published'?t('eventPublished'):t('eventSaved')}: ${title}`);
       if(!save()) return;
       closeSheet();render();toast(value.status==='published'?t('eventPublished'):t('eventSaved'),'success');
+      if(value.status==='published') sendEventWhatsapp(value);
     });
   };
+}
+
+function completionFor(dateStr,entryId,employeeId){
+  return (DB.taskCompletions||[]).find(x=>x.date===dateStr && x.entryId===entryId && x.employeeId===employeeId);
+}
+
+function dashboardDates(startOffset,endOffset){
+  const out=[];
+  for(let offset=startOffset;offset<=endOffset;offset++){
+    const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+offset); out.push(iso(d));
+  }
+  return out;
+}
+
+function dashboardAssignments(dateStr,employeeId){
+  return entriesFor(dateStr).filter(e=>!e.cancelled && entryEmployeeIds(e).includes(employeeId));
+}
+
+function dashboardTaskCard(e,dateStr,employeeId,{overdue=false,readonly=false}={}){
+  const done=!!completionFor(dateStr,e.id,employeeId), a=act(e.activityId);
+  return `<div class="task-row ${overdue?'overdue':''} ${done?'done':''}">
+    ${readonly?`<span class="task-check" style="display:grid;place-items:center;color:#64748b">?</span>`:`<button class="task-check" type="button" data-task="${esc(e.id)}" data-task-date="${esc(dateStr)}"
+      data-task-employee="${esc(employeeId)}" aria-label="${esc(done?t('markOpen'):t('markDone'))}" title="${esc(done?t('markOpen'):t('markDone'))}">${done?'✓':''}</button>
+    `}
+    <div class="grow">
+      <div class="strong">${esc(a?.emoji||'📝')} ${esc(actLabel(e.activityId))}</div>
+      <div class="muted">${esc(eventDayLabel(dateStr))} · ${esc(entryTime(e))}${entryHouseIds(e).length?' · 🏠 '+esc(houseNames(e)):''}</div>
+      ${(e.childIds||[]).length?`<div class="muted">👥 ${esc(kidNames(e.childIds))}</div>`:''}
+      ${e.note?`<div class="muted">📝 ${esc(e.note)}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function homeEventCard(e){
+  return `<button class="task-row" data-event="${esc(e.id)}" style="width:100%;text-align:left;cursor:pointer" type="button">
+    <div class="event-date"><span>${DAY_NAMES[state.lang][dowIdx(new Date(e.date+'T12:00:00'))]}</span><b>${new Date(e.date+'T12:00:00').getDate()}</b></div>
+    <div class="grow"><div class="strong">${esc(e.emoji||'🎉')} ${esc(L(e))}</div>
+      <div class="muted">${esc(e.from)}–${esc(e.to)} · 📍 ${esc(e.location||'—')}</div>
+      <div class="muted">👤 ${esc(employeeNames(e))} · ${T[state.lang].kidsCount((e.childIds||[]).length)}</div>
+      <span class="pill ${e.status==='published'?'in':'gray'}" style="margin-top:5px">${e.status==='published'?t('published'):t('eventDraft')}</span>
+    </div>
+  </button>`;
+}
+
+function viewHome(){
+  const today=iso(new Date()), user=state.user;
+  const todayAssignments=user?dashboardAssignments(today,user.id):[];
+  const todayOpen=todayAssignments.filter(e=>!completionFor(today,e.id,user.id));
+  const overdue=[],recentlyDone=[];
+  if(user) dashboardDates(-7,-1).forEach(dateStr=>dashboardAssignments(dateStr,user.id).forEach(e=>{
+    (completionFor(dateStr,e.id,user.id)?recentlyDone:overdue).push({e,dateStr});
+  }));
+  const unassigned=[];
+  dashboardDates(0,2).forEach(dateStr=>entriesFor(dateStr).filter(e=>!e.cancelled && !entryEmployeeIds(e).length)
+    .forEach(e=>unassigned.push({e,dateStr})));
+  const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
+  const upcoming=events.filter(e=>e.status==='published' && e.date>=today);
+  return `<div class="card home-hero">
+      <div class="muted">${t('homeHello')}${user?', '+esc(user.name):''}</div>
+      <h2>${t('homeOverview')}</h2>
+      <div class="home-stats">
+        <div class="home-stat"><b>${todayOpen.length}</b><span>${t('dueToday')}</span></div>
+        <div class="home-stat"><b>${overdue.length}</b><span>${t('overdue')}</span></div>
+        <div class="home-stat"><b>${upcoming.length}</b><span>${t('eventsSoon')}</span></div>
+      </div>
+    </div>
+    <div class="dashboard-grid">
+      <section class="card"><div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
+        <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):`<div class="empty">${t('noTasks')}</div>`}</div>
+      </section>
+      <section class="card"><div class="block-h"><span class="t">⚠️ ${t('overdueTasks')}</span><span class="hrs">7</span></div>
+        <div class="task-list">${overdue.length||recentlyDone.length?
+          overdue.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id,{overdue:true})).join('')+
+          recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):`<div class="empty">${t('noOverdue')}</div>`}</div>
+      </section>
+      <section class="card wide"><div class="block-h"><span class="t">📣 ${t('allEvents')}</span><button class="btn sm sec" id="homeAllEvents" type="button">${t('openEvents')} →</button></div>
+        <div class="task-list">${events.length?events.map(homeEventCard).join(''):`<div class="empty">${t('noEvents')}</div>`}</div>
+      </section>
+      <section class="card wide"><div class="block-h"><span class="t">👤 ${t('unassignedTasks')}</span><span class="hrs">${t('next3Days')}</span></div>
+        <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):`<div class="empty">${t('noUnassigned')}</div>`}</div>
+      </section>
+    </div>`;
 }
 
 function renderChild(){
@@ -3310,6 +3472,7 @@ function renderChild(){
   const week = weekDates(state.date);
   const wk = DB.weeks[weekKey(state.date)] || {};
   const todays = childEntriesFor(state.date, c.id);
+  const childUpcomingEvents = childEventsFor(c.id).filter(e=>e.date>=today);
 
   document.getElementById('title').textContent = esc(c.name);
   document.getElementById('who').textContent = t('myWeek');
@@ -3344,10 +3507,13 @@ function renderChild(){
     </div>`;
   const tabs = `<div class="seg child-tabs" id="childTabs">
     <button class="${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('childToday')}</button>
-    <button class="${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('childEvents')}</button>
+    <button class="${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('childEvents')}${childUpcomingEvents.length?` <span class="nav-badge">${childUpcomingEvents.length}</span>`:''}</button>
     <button class="${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('childWeek')}</button>
   </div>`;
   const todayView = `
+    ${childUpcomingEvents.length?`<button class="notification-card" id="childEventNotice" type="button">
+      <span style="font-size:24px">📣</span><span class="grow"><span class="strong">${t('childNotifications')}</span><br><span class="muted">${t('openEvents')}</span></span>
+      <span class="notification-count">${childUpcomingEvents.length}</span></button>`:''}
     <div class="days">${days}</div>
     <div class="block-h" style="margin-top:6px"><span class="t">${t('myToday')}</span></div>
     ${todays.length ? todays.map(e=>childEntryCard(e, c.id)).join('')
@@ -3365,6 +3531,8 @@ function renderChild(){
   document.getElementById('view').querySelectorAll('[data-child-view]').forEach(b=>{
     b.onclick = () => { state.childView = b.dataset.childView; render(); };
   });
+  const eventNotice=document.getElementById('view').querySelector('#childEventNotice');
+  if(eventNotice) eventNotice.onclick=()=>{state.childView='events';render();};
 }
 
 function render(){
@@ -3373,7 +3541,7 @@ function render(){
   document.getElementById('helpFab').setAttribute('aria-label', t('helpChat'));
   document.getElementById('helpFab').title = t('helpChat');
   document.getElementById('title').textContent =
-    t(state.tab==='schedule'?'titleSchedule':state.tab==='stock'?'titleStock':state.tab==='shop'?'titleShop':'titleBook');
+    t(state.tab==='home'?'titleHome':state.tab==='schedule'?'titleSchedule':state.tab==='stock'?'titleStock':state.tab==='shop'?'titleShop':'titleBook');
   document.getElementById('who').textContent = state.user
     ? state.user.name + ' · ' + L(state.user.role) : t('noUser');
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
@@ -3384,7 +3552,8 @@ function render(){
   });
 
   document.getElementById('view').innerHTML =
-      state.tab==='schedule' ? viewSchedule()
+      state.tab==='home'     ? viewHome()
+    : state.tab==='schedule' ? viewSchedule()
     : state.tab==='stock'    ? viewStock()
     : state.tab==='shop'     ? viewShop()
     : viewBook();
@@ -3393,6 +3562,18 @@ function render(){
 
 function wire(){
   const v = document.getElementById('view');
+
+  const homeAllEvents=v.querySelector('#homeAllEvents');
+  if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';state.scheduleView='events';render();};
+  v.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{
+    const entryId=b.dataset.task,dateStr=b.dataset.taskDate,employeeId=b.dataset.taskEmployee;
+    const idx=(DB.taskCompletions||[]).findIndex(x=>x.date===dateStr&&x.entryId===entryId&&x.employeeId===employeeId);
+    const reopening=idx>=0;
+    if(reopening) DB.taskCompletions.splice(idx,1);
+    else DB.taskCompletions.push({id:'tc'+uid(),date:dateStr,entryId,employeeId,completedAt:Date.now(),completedBy:state.user?.id||employeeId});
+    logEntry('SCHEDULE',`${reopening?t('taskReopened'):t('taskDone')}: ${dateStr}`);
+    render(); toast(reopening?t('taskReopened'):t('taskDone'),'success');
+  });
 
   const addEvent=v.querySelector('#addEvent');
   if(addEvent) addEvent.onclick=()=>sheetEvent();

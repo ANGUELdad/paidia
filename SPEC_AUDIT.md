@@ -10,12 +10,12 @@ demonstrable in the prototype; it does not imply production security, concurrenc
 
 | Module | Status | Current coverage / missing production work |
 |---|---|---|
-| Dashboard | Missing | No operational dashboard widgets or cross-module live summary. |
+| Dashboard | Covered in prototype | Live Home summary includes per-user tasks, overdue/completed work, all events and unassigned upcoming entries; shared backend aggregation still remains. |
 | Morning Planning | Covered in prototype | Monday–Sunday, Villa/Limenaria, daily and weekly matrix. |
 | Afternoon Planning | Covered in prototype | Caregiver rows with children, activity, time and house; location/status need richer fields. |
 | Evening Planning | Covered in prototype | Same responsive house matrix as morning. |
 | Daily Call | Partial | Daily view and notes exist; no finalized call workflow, attendance, decisions or lock. |
-| Events | Partial | Child-specific Events tab, staff CRUD/drafts/publishing, schedule-linked announcements and event audit exist; approvals, full calendar and gallery remain. |
+| Events | Partial | Child-specific Events tab with notification badge/banner, staff CRUD/drafts/publishing, prominent schedule-linked Event action and event audit exist; push delivery, approvals, full calendar and gallery remain. |
 | Shopping | Partial | AI import/review, Friday list, store mode, AI receipt matching and inventory handoff exist; full statuses and approval workflow remain. |
 | Inventory | Partial | Two-house stock, IN/OUT, photo and audit exist; transfers, expiry, reconciliation and atomic backend transactions remain. |
 | AI Assistant | Partial | Shopping text/vision extraction and contextual in-app help exist; permissions, citations and other module tools remain. |
@@ -33,7 +33,7 @@ demonstrable in the prototype; it does not imply production security, concurrenc
 | Atomic writes, idempotency, optimistic concurrency | Missing locally; the AI endpoint sends an idempotency key, but operational records still use localStorage. |
 | Server-side IP/time and immutable audit | Missing; current evidence is client-controlled. |
 | Media server, signed URLs, retention and GDPR tooling | Missing. |
-| Email/WhatsApp reminders, daily digest and jobs | Missing. |
+| Email/WhatsApp reminders, daily digest and jobs | Partial WhatsApp Cloud API event-template sender, health/test endpoint and signed webhook exist; Meta credentials, consent records, durable delivery state, email/digests and background jobs remain. |
 | Backups, monitoring, health checks and disaster recovery | Missing. |
 | Offline sync and conflict resolution | Missing; local prototype is not multi-device sync. |
 
