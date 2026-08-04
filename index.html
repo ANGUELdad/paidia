@@ -72,6 +72,14 @@
   .seg button{flex:1; border:0; background:none; padding:8px 4px; border-radius:9px; font-size:12.5px;
     font-weight:600; color:var(--muted); cursor:pointer}
   .seg button.on{background:#fff; color:var(--ink); box-shadow:0 1px 2px rgba(15,23,42,.08)}
+  .house-selector{overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity}
+  .house-selector::-webkit-scrollbar{display:none}
+  .house-selector button{flex:0 0 auto;min-width:max-content;padding-inline:14px;scroll-snap-align:start}
+  .shop-house-picker{margin-bottom:12px;padding:12px;border:1px solid #bfdbfe;border-radius:16px;background:#eff6ff}
+  .shop-house-picker-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 2px 9px}
+  .shop-house-picker-head b{display:block;color:#1e3a8a;font-size:13px}
+  .shop-house-picker-head span{display:block;margin-top:2px;color:#64748b;font-size:10.5px}
+  .shop-house-picker .seg{margin-bottom:0;background:#dbeafe}
 
   /* Μπλοκ ώρας — αντιγράφει τα τρία τμήματα του εντύπου */
   .block{margin-bottom:14px}
@@ -435,6 +443,12 @@
   button.stock-product{width:100%;color:inherit;text-align:left;font:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
   button.stock-product:hover,button.stock-product:focus-visible{transform:translateY(-2px);border-color:#93c5fd;box-shadow:0 8px 20px rgba(15,23,42,.08);outline:none}
   .stock-product-side{display:flex;align-items:center;gap:8px}.stock-open{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#fff;color:#64748b;box-shadow:0 2px 7px rgba(15,23,42,.08)}
+  .stock-house-quantities{display:flex;gap:9px}
+  .stock-product.multi-house{grid-template-columns:1fr;align-items:start}
+  .stock-product.multi-house .stock-product-side{justify-content:space-between;align-items:flex-end}
+  .stock-product.multi-house .stock-house-quantities{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:5px}
+  .stock-product.multi-house .stock-qty{min-width:0;padding:6px 7px;border:1px solid rgba(148,163,184,.22);border-radius:9px;background:rgba(255,255,255,.72);text-align:left;font-size:12px}
+  .stock-product.multi-house .stock-state{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .stock-detail-head{display:flex;align-items:center;gap:13px;padding:16px;border:1px solid #ccfbf1;border-radius:17px;background:linear-gradient(135deg,#ecfdf5,#ecfeff)}
   .stock-detail-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:#fff;font-size:25px;box-shadow:0 8px 18px rgba(15,118,110,.1)}
   .stock-detail-houses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}.stock-detail-house{padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.stock-detail-house b{display:block;margin-top:3px;font-size:18px}
@@ -780,7 +794,7 @@ const T = {
     confirmBatch:'Charge bestätigen', batchHint:'Alle Positionen werden gemeinsam gebucht.',
     carryOver:'↩︎ Zurück auf die Liste', nothingPending:'Keine offene Charge',
     whereIsWhat:'Was ist wo', inFridge:'Im Kühlschrank', lastPurchase:'Letzter Einkauf',
-    bothHouses:'Beide Häuser', shortage:'Fehlmenge',
+    bothHouses:'Alle Häuser', shortage:'Fehlmenge',
     boughtNotOnList:'gekauft, war nicht auf der Liste',
     batchBooked:n=>`${n} Positionen gebucht`, nothingToStart:'Die Liste ist leer',
     shoppingHistory:'Einkaufsverlauf', shoppingHistoryHint:'Jeder abgeschlossene Einkauf – mit gekauft und nicht gekauft.',
@@ -788,6 +802,7 @@ const T = {
     boughtItems:'Gekauft', notBoughtItems:'Nicht gekauft', completedBy:'Abgeschlossen von', completedOn:'Abgeschlossen',
     cartQuickAdd:'Produkt schnell hinzufügen…', addToCart:'Hinzufügen', cartReady:n=>`${n} ${n===1?'Produkt':'Produkte'} – Einkauf starten`,
     bookedToHouse:n=>`Gekauft und in ${n} eingebucht`, backToCart:'Zurück zum Warenkorb', externalHome:'Anderes Zuhause', customProducts:'Weitere Produkte',
+    chooseShoppingHouse:'1. Haus auswählen', shoppingHouseHint:'Gekauftes wird nur in den Bestand dieses Hauses gebucht.',
     fullBlock:'Ganzer Block', fromTime:'ab', timeFrom:'Von', timeTo:'Bis',
     importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto', fromScreenshot:'Screenshot',
     listJourneyTitle:'Freitagseinkauf', listJourneyHint:'Eine vollständige Liste pro Haus und echtem Freitagsdatum.',
@@ -1003,7 +1018,7 @@ const T = {
     confirmBatch:'Επιβεβαίωση παρτίδας', batchHint:'Όλα τα είδη καταχωρούνται μαζί.',
     carryOver:'↩︎ Πίσω στη λίστα', nothingPending:'Καμία ανοιχτή παρτίδα',
     whereIsWhat:'Τι είναι πού', inFridge:'Στο ψυγείο', lastPurchase:'Τελευταία αγορά',
-    bothHouses:'Και τα δύο σπίτια', shortage:'Έλλειψη',
+    bothHouses:'Όλα τα σπίτια', shortage:'Έλλειψη',
     boughtNotOnList:'αγοράστηκε, δεν ήταν στη λίστα',
     batchBooked:n=>`${n} είδη καταχωρήθηκαν`, nothingToStart:'Η λίστα είναι άδεια',
     shoppingHistory:'Ιστορικό αγορών', shoppingHistoryHint:'Κάθε ολοκληρωμένη αγορά – με όσα αγοράστηκαν και όσα δεν αγοράστηκαν.',
@@ -1011,6 +1026,7 @@ const T = {
     boughtItems:'Αγοράστηκαν', notBoughtItems:'Δεν αγοράστηκαν', completedBy:'Ολοκληρώθηκε από', completedOn:'Ολοκληρώθηκε',
     cartQuickAdd:'Γρήγορη προσθήκη προϊόντος…', addToCart:'Προσθήκη', cartReady:n=>`${n} ${n===1?'προϊόν':'προϊόντα'} – έναρξη αγορών`,
     bookedToHouse:n=>`Αγοράστηκαν και καταχωρήθηκαν στο ${n}`, backToCart:'Πίσω στο καλάθι', externalHome:'Άλλο σπίτι', customProducts:'Άλλα προϊόντα',
+    chooseShoppingHouse:'1. Επίλεξε σπίτι', shoppingHouseHint:'Τα αγορασμένα μπαίνουν μόνο στο απόθεμα αυτού του σπιτιού.',
     fullBlock:'Όλο το μπλοκ', fromTime:'από', timeFrom:'Από', timeTo:'Έως',
     importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία', fromScreenshot:'Screenshot',
     listJourneyTitle:'Ψώνια Παρασκευής', listJourneyHint:'Μία πλήρης λίστα ανά σπίτι και πραγματική ημερομηνία Παρασκευής.',
@@ -1141,6 +1157,9 @@ const SEED = {
   houses: [
     {id:'h1', name:'Kalyvia (Villa)', short:'Kalyvia'},
     {id:'h2', name:'Limenaria',       short:'Limenaria'},
+    {id:'h3', name:'Julian groß',     short:'Julian groß'},
+    {id:'h4', name:'Valeria',         short:'Valeria'},
+    {id:'h5', name:'Lea',             short:'Lea'},
   ],
   /* admin: πλήρης έλεγχος — μόνο αυτοί αλλάζουν το μόνιμο εβδομαδιαίο πρότυπο.
      Zoi (υπεύθυνη) και οι γιοι της Angelos & Dimitris. */
@@ -1163,9 +1182,9 @@ const SEED = {
     {id:'k2',  name:'Kai',          color:'#a7f3d0'},
     {id:'k3',  name:'Vincent',      color:'#fde68a'},
     {id:'k4',  name:'Julian klein', color:'#fbcfe8'},
-    {id:'k5',  name:'Julian groß',  color:'#c7d2fe', homeHouseId:null, residenceType:'external'},
-    {id:'k6',  name:'Lea',          color:'#fed7aa', homeHouseId:null, residenceType:'external'},
-    {id:'k7',  name:'Valeria',      color:'#d9f99d', homeHouseId:null, residenceType:'external'},
+    {id:'k5',  name:'Julian groß',  color:'#c7d2fe', homeHouseId:'h3'},
+    {id:'k6',  name:'Lea',          color:'#fed7aa', homeHouseId:'h5'},
+    {id:'k7',  name:'Valeria',      color:'#d9f99d', homeHouseId:'h4'},
     {id:'k8',  name:'Jule',         color:'#f5d0fe'},
     {id:'k9',  name:'Samantha',     color:'#99f6e4'},
     {id:'k10', name:'Lilly',        color:'#99f6e4'},
@@ -1794,14 +1813,14 @@ function onboardingSteps(){
   ];
   const steps=[
     step('🏠','Home-Aufgabe erledigen','Ολοκλήρωση εργασίας από την Αρχική','Unteres Menü → 🏠 Home','Κάτω μενού → 🏠 Αρχική',['Öffne „Home“.','Lies oben „Heute zu tun“, „Überfällig“ und „Events“.','Öffne deine Aufgabe und tippe „Als erledigt markieren“; bei einem Fehler tippst du „Wieder öffnen“.'],['Άνοιξε «Αρχική».','Διάβασε επάνω «Σήμερα», «Εκπρόθεσμα» και «Events».','Άνοιξε τη δική σου εργασία και πάτησε «Σήμανση ως ολοκληρωμένο»· σε λάθος πάτησε «Άνοιγμα ξανά».'],'Die Aufgabe wechselt sofort zwischen offen und erledigt und wird pro Person gespeichert.','Η εργασία αλλάζει αμέσως μεταξύ ανοιχτής και ολοκληρωμένης και αποθηκεύεται ανά άτομο.'),
-    step('📅','Plan richtig filtern','Σωστό φιλτράρισμα προγράμματος','Unteres Menü → 📅 Plan → Ansicht / Haus','Κάτω μενού → 📅 Πρόγραμμα → Προβολή / Σπίτι',['Tippe „Tag“ für das tägliche Meeting oder „Woche“ für alle sieben Tage.','Wähle „Kalyvia“, „Limenaria“ oder „Kombiniert“.','Nutze „Dienste“ für Schichten und „Events“ für besondere Termine.'],['Πάτησε «Ημέρα» για το καθημερινό meeting ή «Εβδομάδα» για επτά ημέρες.','Διάλεξε «Kalyvia», «Limenaria» ή «Συνδυαστικά».','Χρησιμοποίησε «Βάρδιες» για ωράρια και «Events» για ειδικά γεγονότα.'],'Der Filter ändert nur die Ansicht; er löscht oder verschiebt keine Einträge.','Το φίλτρο αλλάζει μόνο την προβολή· δεν διαγράφει ούτε μετακινεί εγγραφές.'),
+    step('📅','Plan richtig filtern','Σωστό φιλτράρισμα προγράμματος','Unteres Menü → 📅 Plan → Ansicht / Haus','Κάτω μενού → 📅 Πρόγραμμα → Προβολή / Σπίτι',['Tippe „Tag“ für das tägliche Meeting oder „Woche“ für alle sieben Tage.','Wähle das gewünschte Haus; wische die Hausleiste seitlich für Julian groß, Valeria oder Lea. „Kombiniert“ zeigt alle.','Nutze „Dienste“ für Schichten und „Events“ für besondere Termine.'],['Πάτησε «Ημέρα» για το καθημερινό meeting ή «Εβδομάδα» για επτά ημέρες.','Διάλεξε το σπίτι· σύρε τη σειρά στο πλάι για Julian groß, Valeria ή Lea. Το «Συνδυαστικά» δείχνει όλα.','Χρησιμοποίησε «Βάρδιες» για ωράρια και «Events» για ειδικά γεγονότα.'],'Der Filter ändert nur die Ansicht; er löscht oder verschiebt keine Einträge.','Το φίλτρο αλλάζει μόνο την προβολή· δεν διαγράφει ούτε μετακινεί εγγραφές.'),
     step('✍️','Einen Planeintrag speichern','Αποθήκευση εγγραφής προγράμματος','Plan → gewünschte Zelle / „+ Eintrag“','Πρόγραμμα → επιθυμητό κελί / «+ Εγγραφή»',['Tippe die Zelle des richtigen Tages und Zeitblocks.','Setze Häkchen bei einem oder mehreren Häusern und Personen.','Wähle Kinder einzeln oder über eine Gruppe, danach Aktivität und Uhrzeit.','Wähle „Nur heute“ oder – als Admin – „Dauerhaft“ und tippe „Speichern“.'],['Πάτησε το κελί της σωστής ημέρας και ζώνης ώρας.','Τσέκαρε ένα ή περισσότερα σπίτια και άτομα.','Διάλεξε παιδιά μεμονωμένα ή μέσω ομάδας και μετά δραστηριότητα και ώρα.','Διάλεξε «Μόνο σήμερα» ή – ως admin – «Μόνιμα» και πάτησε «Αποθήκευση».'],'Nach dem Speichern erscheint die Karte in genau diesem Tag und Block.','Μετά την αποθήκευση η κάρτα εμφανίζεται στη σωστή ημέρα και ζώνη.'),
     step('🎊','Planeintrag als Event veröffentlichen','Δημοσίευση εγγραφής ως event','Plan → Zelle öffnen → 📣 Event','Πρόγραμμα → άνοιγμα κελιού → 📣 Event',['Aktiviere oben „Event“.','Trage Eventtitel, Ort und „Mitbringen“ ein und kontrolliere Start/Ende.','Prüfe die ausgewählten Kinder; nur diese Profile erhalten die Ankündigung.','Tippe „Speichern“.'],['Ενεργοποίησε επάνω το «Event».','Συμπλήρωσε τίτλο, μέρος και «Τι να φέρουν» και έλεγξε ώρα αρχής/τέλους.','Έλεγξε τα επιλεγμένα παιδιά· μόνο αυτά θα λάβουν την ανακοίνωση.','Πάτησε «Αποθήκευση».'],'Das Event erscheint im Events-Tab der ausgewählten Kinder; WhatsApp wird nur bei vorhandener Konfiguration versucht.','Το event εμφανίζεται στο tab Events των επιλεγμένων παιδιών· WhatsApp επιχειρείται μόνο αν είναι ρυθμισμένο.'),
-    step('🧊','Bestand ein- oder ausbuchen','Καταχώρηση εισόδου ή εξόδου αποθέματος','Unteres Menü → 🧊 Lager','Κάτω μενού → 🧊 Ψυγείο',['Wähle zuerst Kalyvia oder Limenaria.','Suche ein Produkt oder filtere „Braucht Aufmerksamkeit“, „Nur leer“ oder „Alle“.','Öffne das Produkt und tippe „Eingang“ oder „Ausgang“.','Setze Menge und bei Ausgang Grund/Foto; bestätige die Buchung.'],['Διάλεξε πρώτα Kalyvia ή Limenaria.','Αναζήτησε προϊόν ή βάλε φίλτρο «Χρειάζεται προσοχή», «Μόνο άδεια» ή «Όλα».','Άνοιξε το προϊόν και πάτησε «Είσοδος» ή «Έξοδος».','Βάλε ποσότητα και στην έξοδο λόγο/φωτογραφία· επιβεβαίωσε.'],'Die Menge ändert sich nur im zuvor gewählten Haus und die Bewegung steht im Protokoll.','Η ποσότητα αλλάζει μόνο στο επιλεγμένο σπίτι και η κίνηση γράφεται στις καταγραφές.'),
+    step('🧊','Bestand ein- oder ausbuchen','Καταχώρηση εισόδου ή εξόδου αποθέματος','Unteres Menü → 🧊 Lager','Κάτω μενού → 🧊 Ψυγείο',['Wähle zuerst das richtige Haus; wische die Hausleiste seitlich, falls es nicht sichtbar ist.','Suche ein Produkt oder filtere „Braucht Aufmerksamkeit“, „Nur leer“ oder „Alle“.','Öffne das Produkt und tippe „Eingang“ oder „Ausgang“.','Setze Menge und bei Ausgang Grund/Foto; bestätige die Buchung.'],['Διάλεξε πρώτα το σωστό σπίτι· σύρε τη σειρά σπιτιών στο πλάι αν δεν φαίνεται.','Αναζήτησε προϊόν ή βάλε φίλτρο «Χρειάζεται προσοχή», «Μόνο άδεια» ή «Όλα».','Άνοιξε το προϊόν και πάτησε «Είσοδος» ή «Έξοδος».','Βάλε ποσότητα και στην έξοδο λόγο/φωτογραφία· επιβεβαίωσε.'],'Die Menge ändert sich nur im zuvor gewählten Haus und die Bewegung steht im Protokoll.','Η ποσότητα αλλάζει μόνο στο επιλεγμένο σπίτι και η κίνηση γράφεται στις καταγραφές.'),
     step('🛒','Warenkorb für den richtigen Freitag bauen','Δημιουργία καλαθιού για τη σωστή Παρασκευή','Unteres Menü → 🛒 Liste','Κάτω μενού → 🛒 Λίστα',['Wähle oben das Haus.','Stelle mit den Pfeilen oder dem Datumsfeld den tatsächlichen Freitag ein.','Tippe einen Namen in „Produkt schnell hinzufügen“ oder nutze „Liste hinzufügen“.','Ändere Mengen mit +/−; entferne eine falsche Zeile mit ×.'],['Διάλεξε επάνω το σπίτι.','Με τα βέλη ή το πεδίο ημερομηνίας διάλεξε την πραγματική Παρασκευή.','Γράψε όνομα στη «Γρήγορη προσθήκη» ή χρησιμοποίησε «Προσθήκη λίστας».','Άλλαξε ποσότητες με +/− και αφαίρεσε λάθος γραμμή με ×.'],'Haus und Freitag stehen immer über der Liste; prüfe beides vor dem Einkauf.','Σπίτι και Παρασκευή φαίνονται πάντα πάνω από τη λίστα· έλεγξέ τα πριν τα ψώνια.'),
     step('🧠','Text oder Screenshot mit OCR einlesen','Εισαγωγή κειμένου ή screenshot με OCR','Liste → „Liste hinzufügen“','Λίστα → «Προσθήκη λίστας»',['Wähle „Text“ und füge die komplette Liste ein – oder „Screenshot/Foto“ und lade das Bild hoch bzw. füge es ein.','Tippe „Analysieren/Einlesen“ und warte auf den Entwurf.','Korrigiere Produktname, Menge und Einheit in jeder unsicheren Zeile.','Wähle „Intelligent zusammenführen“, „Neue Zeilen“ oder „Freitag ersetzen“ und speichere.'],['Διάλεξε «Κείμενο» και επικόλλησε όλη τη λίστα – ή «Screenshot/φωτογραφία» και ανέβασε/επικόλλησε εικόνα.','Πάτησε «Ανάλυση/Ανάγνωση» και περίμενε το πρόχειρο.','Διόρθωσε όνομα, ποσότητα και μονάδα σε κάθε αβέβαιη γραμμή.','Διάλεξε «Έξυπνη συγχώνευση», «Νέες γραμμές» ή «Αντικατάσταση Παρασκευής» και αποθήκευσε.'],'OCR speichert nie automatisch: Erst deine Bestätigung schreibt die Zeilen in den Warenkorb.','Το OCR δεν αποθηκεύει αυτόματα· μόνο η δική σου επιβεβαίωση γράφει τις γραμμές στο καλάθι.'),
     step('🛍️','Im Supermarkt eindeutig abhaken','Σαφής επιλογή στο σουπερμάρκετ','Liste → „Einkauf starten“','Λίστα → «Έναρξη αγορών»',['Tippe „Einkauf starten“.','Tippe bei jedem Produkt entweder „Gekauft“ oder „Nicht verfügbar“.','Bei einem Fehler tippe „Zurücksetzen“; mit „Zurück zum Warenkorb“ kannst du die Liste weiter bearbeiten.','Wenn nichts mehr offen ist, tippe „Charge bestätigen“.'],['Πάτησε «Έναρξη αγορών».','Για κάθε προϊόν πάτησε «Αγοράστηκε» ή «Δεν ήταν διαθέσιμο».','Σε λάθος πάτησε «Επαναφορά»· με «Πίσω στο καλάθι» μπορείς να διορθώσεις τη λίστα.','Όταν δεν μένει τίποτα ανοιχτό, πάτησε «Επιβεβαίωση παρτίδας».'],'Gekauftes erhöht automatisch den Bestand des gewählten Hauses; fehlende Produkte bleiben als Fehlmenge sichtbar.','Τα αγορασμένα αυξάνουν αυτόματα το απόθεμα του επιλεγμένου σπιτιού· όσα λείπουν μένουν ως έλλειψη.'),
-    step('🧾','Einen alten Einkauf prüfen','Έλεγχος παλιότερης αγοράς','Liste → 🧾 Einkaufsverlauf','Λίστα → 🧾 Ιστορικό αγορών',['Tippe „Einkaufsverlauf“.','Wähle Kalyvia oder Limenaria.','Öffne den gewünschten Freitag.','Vergleiche links „Gekauft“ und rechts „Nicht gekauft“ sowie Person und Abschlusszeit.'],['Πάτησε «Ιστορικό αγορών».','Διάλεξε Kalyvia ή Limenaria.','Άνοιξε την Παρασκευή που θέλεις.','Σύγκρινε «Αγοράστηκαν» και «Δεν αγοράστηκαν», μαζί με άτομο και ώρα ολοκλήρωσης.'],'Der Verlauf ist ein Snapshot; ein späteres Carry-over verändert den alten Einkauf nicht.','Το ιστορικό είναι snapshot· μεταφορά σε επόμενη λίστα δεν αλλάζει την παλιά αγορά.'),
+    step('🧾','Einen alten Einkauf prüfen','Έλεγχος παλιότερης αγοράς','Liste → 🧾 Einkaufsverlauf','Λίστα → 🧾 Ιστορικό αγορών',['Tippe „Einkaufsverlauf“.','Wähle das Haus; wische die Hausleiste seitlich für weitere Häuser.','Öffne den gewünschten Freitag.','Vergleiche links „Gekauft“ und rechts „Nicht gekauft“ sowie Person und Abschlusszeit.'],['Πάτησε «Ιστορικό αγορών».','Διάλεξε σπίτι· σύρε τη σειρά στο πλάι για τα υπόλοιπα σπίτια.','Άνοιξε την Παρασκευή που θέλεις.','Σύγκρινε «Αγοράστηκαν» και «Δεν αγοράστηκαν», μαζί με άτομο και ώρα ολοκλήρωσης.'],'Der Verlauf ist ein Snapshot; ein späteres Carry-over verändert den alten Einkauf nicht.','Το ιστορικό είναι snapshot· μεταφορά σε επόμενη λίστα δεν αλλάζει την παλιά αγορά.'),
     step('📖','Protokoll suchen und korrigieren','Αναζήτηση και διόρθωση καταγραφών','Unteres Menü → 📖 Protokoll','Κάτω μενού → 📖 Καταγραφές',['Wähle Zeitraum: Heute, 7 Tage oder benutzerdefiniert.','Filtere bei Bedarf nach Person und Aktionstyp.','Öffne „Korrektur“, beschreibe den Fehler und speichere die neue Korrektur.','Lösche keine alte Buchung: Sie bleibt als Nachweis erhalten.'],['Διάλεξε περίοδο: Σήμερα, 7 ημέρες ή προσαρμοσμένη.','Φίλτραρε αν χρειάζεται ανά άτομο και τύπο ενέργειας.','Άνοιξε «Διόρθωση», περιέγραψε το λάθος και αποθήκευσε νέα διόρθωση.','Μη διαγράψεις την παλιά κίνηση· παραμένει ως αποδεικτικό.'],'Die Korrektur erscheint als neue append-only Zeile mit Benutzer, Zeit, Gerät und IP.','Η διόρθωση εμφανίζεται ως νέα append-only γραμμή με χρήστη, ώρα, συσκευή και IP.'),
     step('🔐','E-Mail, Passkey und Abmeldung','Email, passkey και αποσύνδεση','Oben rechts → Profil','Επάνω δεξιά → Προφίλ',['Öffne „Profil“.','Trage die Recovery-E-Mail ein und tippe „E-Mail speichern“; nutze danach „Test-E-Mail senden“.','Tippe „Passkey einrichten“ für Face ID, Touch ID, Fingerabdruck oder Windows Hello, wenn verfügbar.','Nutze „Anderes Profil“ oder „Abmelden“, wenn du fertig bist.'],['Άνοιξε «Προφίλ».','Βάλε email ανάκτησης και πάτησε «Αποθήκευση email»· μετά «Αποστολή δοκιμαστικού email».','Πάτησε «Ρύθμιση passkey» για Face ID, Touch ID, δακτυλικό αποτύπωμα ή Windows Hello, αν υποστηρίζεται.','Χρησιμοποίησε «Άλλο προφίλ» ή «Αποσύνδεση» όταν τελειώσεις.'],'E-Mail-Versand funktioniert erst, wenn Resend auf dem Server konfiguriert ist.','Η αποστολή email λειτουργεί αφού ρυθμιστεί το Resend στον server.'),
     step('❓','Gezielt Hilfe bekommen','Λήψη συγκεκριμένης βοήθειας','Blaues ? unten rechts','Μπλε ? κάτω δεξιά',['Tippe auf das blaue „?“.','Starte unter „Geführtes App-Tutorial“ diese Anleitung neu.','Oder öffne „AI-Hilfe“, beschreibe Ziel und aktuelle Fehlermeldung und tippe „Senden“.'],['Πάτησε το μπλε «?».','Από το «Καθοδηγούμενο tutorial» ξεκίνα ξανά αυτές τις οδηγίες.','Ή άνοιξε «Βοήθεια AI», γράψε στόχο και τρέχον μήνυμα λάθους και πάτησε «Αποστολή».'],'Die AI erklärt den nächsten Schritt, führt aber keine kritische Buchung ohne Bestätigung aus.','Η AI εξηγεί το επόμενο βήμα αλλά δεν κάνει κρίσιμη καταχώρηση χωρίς επιβεβαίωση.'),
@@ -2377,7 +2396,7 @@ function viewSchedule(){
         <button class="${state.scheduleView==='events'?'on':''}" data-v="events">${t('viewEvents')}</button>
       </div>
       ${['shift','events'].includes(state.scheduleView) ? '' : `<span class="filter-label">${t('filterHouse')}</span>
-      <div class="seg" id="hFilter">
+      <div class="seg house-selector" id="hFilter">
         <button class="${state.houseFilter===''?'on':''}" data-h="">${t('allHouses')}</button>
         ${DB.houses.map(h=>`<button class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
       </div>`}
@@ -2704,7 +2723,7 @@ function lastPurchaseOf(hid, pid){
 
 function viewStock(){
   const hid = state.house;
-  const seg = `<div class="seg inventory-scope" id="sHouse" aria-label="${t('filterHouse')}">
+  const seg = `<div class="seg inventory-scope house-selector" id="sHouse" aria-label="${t('filterHouse')}">
       ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
       <button class="${hid==='all'?'on':''}" data-h="all">${t('bothHouses')}</button>
     </div>`;
@@ -2725,9 +2744,9 @@ function viewStock(){
   const productCard=p=>{
     const st=productState(p),lp=hid==='all'?null:lastPurchaseOf(hid,p.id);
     const quantities=houses.map(h=>`<div class="stock-qty">${hid==='all'?`<span class="stock-state">${esc(h.short)}</span>`:''}${DB.stock[stockKey(h.id,p.id)]??0} ${esc(p.unit)}</div>`).join('');
-    return `<button class="stock-product ${st}" data-stock-product="${p.id}" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div><div class="stock-product-name">${esc(L(p))}</div>
+    return `<button class="stock-product ${st} ${hid==='all'?'multi-house':''}" data-stock-product="${p.id}" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div><div class="stock-product-name">${esc(L(p))}</div>
       <div class="stock-product-meta">${lp?`${t('lastPurchase')}: ${fmtDT(lp.decidedAt)} · ${esc(emp(lp.decidedBy)?.name||'—')}`:t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div></div>
-      <div class="stock-product-side"><div style="display:flex;gap:9px">${quantities}</div><span class="stock-open">›</span></div></button>`;
+      <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div><span class="stock-open">›</span></div></button>`;
   };
   const categoryHtml=DB.categories.map(c=>{
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
@@ -3141,7 +3160,7 @@ function sheetShoppingHistory(){
     return rows.length?`<ul>${rows.map(item=>`<li><span>${esc(item.name)}</span><span>${item.qty} ${esc(item.unit)}</span></li>`).join('')}</ul>`:`<div class="muted" style="font-size:11px">—</div>`;
   };
   openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(house(hid).short)}</div><h2>🛒 ${t('shoppingHistory')}</h2><p>${t('shoppingHistoryHint')}</p></div>
-    <div class="seg" id="historyHouse" style="margin-top:12px">${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-history-house="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}</div>
+    <div class="seg house-selector" id="historyHouse" style="margin-top:12px">${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-history-house="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}</div>
     <div class="trip-history-list">${trips.length?trips.map((trip,index)=>{
       const bought=trip.items.filter(item=>item.result==='bought'),missing=trip.items.filter(item=>item.result==='missing'),who=emp(trip.completedBy);
       const dateDay=new Date(trip.fridayDate+'T12:00:00').getDate();
@@ -3158,9 +3177,12 @@ function viewShop(){
   const of = st => fridayList.filter(e=>e.status===st);
   const open = of('open'), pending = of('pending'), bought = of('bought'), missing = of('missing');
 
-  const seg = `<div class="seg" id="shHouse">
-      ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
-    </div>`;
+  const seg = `<section class="shop-house-picker">
+      <div class="shop-house-picker-head"><div><b>${t('chooseShoppingHouse')}</b><span>${t('shoppingHouseHint')}</span></div><span>🏠 ${esc(house(hid).short)}</span></div>
+      <div class="seg house-selector" id="shHouse">
+        ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
+      </div>
+    </section>`;
 
   const fridayState=pending.length?t('fridayActive'):(open.length?t('fridayPlanned'):(bought.length||missing.length?t('fridayCompleted'):t('fridayPlanned')));
   const hero=`<section class="shop-hero">
