@@ -250,6 +250,66 @@ ADMIN_PROFILE_IDS = {
 }
 
 
+def session_secret() -> bytes:
+    raw = os.environ.get("PAIDIA_SESSION_SECRET", "").strip()
+    if not raw:
+        # Local/dev fallback — set PAIDIA_SESSION_SECRET in production (Vercel).
+        raw = "paidia-dev:" + os.environ.get("PAIDIA_AUTH_USERS_JSON", " unpaid")[:96]
+    return hashlib.sha256(raw.encode("utf-8")).digest()
+
+
+def encode_session_token(profile_id: str, mode: str, method: str = "pin") -> tuple[str, dict]:
+    import base64
+    now = time.time()
+    expires_at = now + AUTH_SESSION_TTL
+    session_id = "ses-" + secrets.token_urlsafe(12)
+    payload = {
+        "session_id": session_id,
+        "profile_id": profile_id,
+        "mode": mode,
+        "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
+        "expires_at": expires_at,
+        "method": method,
+    }
+    raw = base64.urlsafe_b64encode(
+        json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    ).decode("ascii").rstrip("=")
+    sig = hmac.new(session_secret(), raw.encode("ascii"), hashlib.sha256).hexdigest()
+    return f"v1.{raw}.{sig}", payload
+
+
+def decode_session_token(token: str) -> dict | None:
+    import base64
+    try:
+        version, raw, sig = token.split(".", 2)
+        if version != "v1":
+            return None
+        expected = hmac.new(session_secret(), raw.encode("ascii"), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expected, sig):
+            return None
+        padded = raw + "=" * (-len(raw) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(padded.encode("ascii")))
+        if not isinstance(payload, dict):
+            return None
+        if float(payload.get("expires_at", 0)) <= time.time():
+            return None
+        profile_id = str(payload.get("profile_id", ""))
+        mode = "child" if payload.get("mode") == "child" else "staff"
+        if profile_id not in AUTH_USERS or AUTH_USERS[profile_id]["mode"] != mode:
+            return None
+        return {
+            "session_id": str(payload.get("session_id", "")),
+            "profile_id": profile_id,
+            "mode": mode,
+            "admin": bool(payload.get("admin")),
+            "expires_at": float(payload["expires_at"]),
+            "method": str(payload.get("method", "pin")),
+        }
+    except (ValueError, TypeError, json.JSONDecodeError, KeyError):
+        return None
+
+
+
 def load_onboarding_state() -> dict:
     try:
         value = json.loads(ONBOARDING_STATE_PATH.read_text(encoding="utf-8"))
@@ -925,6 +985,9 @@ class Handler(SimpleHTTPRequestHandler):
         token = self.auth_cookie()
         if not token:
             return None
+        signed = decode_session_token(token)
+        if signed:
+            return signed
         with AUTH_LOCK:
             session = AUTH_SESSIONS.get(token)
             if not session or session["expires_at"] <= time.time():
@@ -933,8 +996,11 @@ class Handler(SimpleHTTPRequestHandler):
             return dict(session)
 
     def set_session_cookie(self, token: str, max_age: int = AUTH_SESSION_TTL) -> str:
-        secure = os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}
-        parts = [f"{AUTH_COOKIE}={token}", "Path=/", f"Max-Age={max_age}", "HttpOnly", "SameSite=Strict"]
+        secure = (
+            os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}
+            or os.environ.get("VERCEL", "") == "1"
+        )
+        parts = [f"{AUTH_COOKIE}={token}", "Path=/", f"Max-Age={max_age}", "HttpOnly", "SameSite=Lax"]
         if secure:
             parts.append("Secure")
         return "; ".join(parts)
@@ -1190,19 +1256,10 @@ class Handler(SimpleHTTPRequestHandler):
         self.handle_shopping(body, api_key)
 
     def finish_authentication(self, profile_id: str, mode: str, method: str = "pin") -> None:
-        now = time.time()
         client_ip = self.client_ip()
-        token = secrets.token_urlsafe(32)
-        session_id = "ses-" + secrets.token_urlsafe(12)
-        expires_at = now + AUTH_SESSION_TTL
-        old_token = self.auth_cookie()
+        token, payload = encode_session_token(profile_id, mode, method)
         with AUTH_LOCK:
-            AUTH_SESSIONS.pop(old_token, None)
-            AUTH_SESSIONS[token] = {
-                "session_id": session_id, "profile_id": profile_id, "mode": mode,
-                "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
-                "expires_at": expires_at, "method": method,
-            }
+            AUTH_SESSIONS.pop(self.auth_cookie(), None)
             new_ip, first_ip = remember_profile_ip(profile_id, client_ip)
         if mode == "staff":
             trusted = is_trusted_ip(client_ip)
@@ -1212,8 +1269,8 @@ class Handler(SimpleHTTPRequestHandler):
                 queue_security_alert(profile_id, "new_ip_login", client_ip, {"attempts": 0})
         self.json_response(200, {
             "authenticated": True, "profileId": profile_id, "mode": mode,
-            "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
-            "sessionId": session_id, "expiresAt": int(expires_at * 1000),
+            "admin": bool(payload["admin"]),
+            "sessionId": payload["session_id"], "expiresAt": int(payload["expires_at"] * 1000),
             "authenticationMethod": method,
             "onboardingComplete": onboarding_complete(profile_id, mode),
             "onboardingVersion": ONBOARDING_VERSION,
