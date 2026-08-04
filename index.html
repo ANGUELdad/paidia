@@ -360,9 +360,29 @@
   .shop-summary b{display:block;font-size:18px}.shop-summary span{color:#64748b;font-size:10.5px}
   .shop-list-card{overflow:hidden;padding:0}.shop-list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
     padding:14px 16px;border-bottom:1px solid #eef2f6;background:#f8fafc}.shop-list-head h2{margin:0}
-  .shop-items{padding:4px 16px 8px}.shop-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;
+  .shop-items{padding:4px 16px 8px}.shop-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto 34px;gap:8px;align-items:center;
     padding:11px 0;border-bottom:1px solid #eef2f6}.shop-item:last-child{border-bottom:0}.shop-item-name{font-weight:700}
   .shop-empty{padding:28px 18px;text-align:center}.shop-empty .big{font-size:32px}.shop-empty h3{margin:8px 0 4px}.shop-empty p{margin:0 auto 13px;max-width:330px;color:#64748b;font-size:12.5px}
+  .shop-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 13px}
+  .shop-step{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:#fff;color:#94a3b8;font-size:10px;font-weight:750}
+  .shop-step i{width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:#eef2f6;font-style:normal}
+  .shop-step.on{border-color:#93c5fd;background:#eff6ff;color:#1d4ed8}.shop-step.done{border-color:#a7f3d0;background:#ecfdf5;color:#047857}
+  .store-cockpit{overflow:hidden;padding:0;border:1px solid #bfdbfe;border-radius:20px;background:#fff;box-shadow:0 14px 34px rgba(30,64,175,.1)}
+  .store-cockpit-head{padding:16px;background:linear-gradient(135deg,#172554,#1d4ed8);color:#fff}
+  .store-cockpit-head h2{margin:2px 0 4px}.store-cockpit-head p{margin:0;color:#bfdbfe;font-size:11.5px}
+  .store-progress{height:7px;margin-top:12px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden}
+  .store-progress i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#34d399,#5eead4);transition:width .25s}
+  .store-progress-label{display:flex;justify-content:space-between;margin-top:6px;color:#dbeafe;font-size:10px}
+  .store-search{padding:10px 12px;border-bottom:1px solid #eef2f6;background:#f8fafc}.store-search input{background:#fff}
+  .store-category{padding:10px 12px 3px}.store-category+.store-category{border-top:1px solid #eef2f6}.store-category .house-h{margin:0 0 7px}
+  .store-choice{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid #f1f5f9}
+  .store-choice:last-child{border-bottom:0}.store-choice-main{min-width:0}.store-choice-name{font-weight:760}.store-choice-qty{margin-top:3px;color:#64748b;font-size:11px}
+  .store-choice-actions{display:flex;gap:5px}.store-decision{min-width:38px;height:36px;padding:0 9px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:14px;font-weight:800;cursor:pointer}
+  .store-decision.yes{color:#047857}.store-decision.no{color:#dc2626}.store-decision.yes.on{border-color:#34d399;background:#dcfce7}.store-decision.no.on{border-color:#f87171;background:#fee2e2}
+  .store-decision.undo{color:#64748b}.store-finish{position:relative;padding:11px 12px;border-top:1px solid #dbeafe;background:#fff;box-shadow:0 -8px 24px rgba(15,23,42,.06)}
+  .store-finish .row{gap:8px}.store-finish .btn{margin:0}.store-finish .btn.sec{width:auto}.store-finish .btn:disabled{opacity:.45;cursor:not-allowed}
+  .shop-history{padding:0;overflow:hidden}.shop-history summary{display:flex;align-items:center;gap:9px;padding:13px 15px;cursor:pointer;font-weight:760;list-style:none}.shop-history summary::-webkit-details-marker{display:none}.shop-history summary span:last-child{margin-left:auto}
+  .shop-history-body{padding:0 15px 10px;border-top:1px solid #eef2f6}
   .stock-hero{position:relative;overflow:hidden;margin:12px 0;padding:18px;border-radius:20px;color:#fff;
     background:linear-gradient(135deg,#064e3b,#0f766e 58%,#0891b2);box-shadow:0 15px 34px rgba(15,118,110,.15)}
   .stock-hero::after{content:'🧊';position:absolute;right:20px;top:13px;font-size:54px;opacity:.17;transform:rotate(8deg)}
@@ -387,6 +407,15 @@
   .stock-product-name{font-weight:720;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.stock-product-meta{margin-top:3px;color:#64748b;font-size:9.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .stock-qty{text-align:right;font-size:15px;font-weight:800}.stock-product.low .stock-qty{color:#c2410c}.stock-product.empty .stock-qty{color:#dc2626}
   .stock-state{display:block;margin-top:2px;font-size:9px;font-weight:700}.stock-product.empty .stock-state{color:#dc2626}.stock-product.low .stock-state{color:#c2410c}.stock-product.ok .stock-state{color:#047857}
+  .inventory-scope{position:sticky;top:66px;z-index:13;padding:5px;background:#e9eef5;border-radius:15px;box-shadow:0 5px 18px rgba(15,23,42,.07)}
+  .inventory-health{position:relative;z-index:1;margin-top:13px}.inventory-health-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;color:#ccfbf1;font-size:10.5px}
+  .inventory-health-bar{height:7px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden}.inventory-health-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#5eead4,#d1fae5)}
+  button.stock-product{width:100%;color:inherit;text-align:left;font:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+  button.stock-product:hover,button.stock-product:focus-visible{transform:translateY(-2px);border-color:#93c5fd;box-shadow:0 8px 20px rgba(15,23,42,.08);outline:none}
+  .stock-product-side{display:flex;align-items:center;gap:8px}.stock-open{display:grid;place-items:center;width:25px;height:25px;border-radius:50%;background:#fff;color:#64748b;box-shadow:0 2px 7px rgba(15,23,42,.08)}
+  .stock-detail-head{display:flex;align-items:center;gap:13px;padding:16px;border:1px solid #ccfbf1;border-radius:17px;background:linear-gradient(135deg,#ecfdf5,#ecfeff)}
+  .stock-detail-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:#fff;font-size:25px;box-shadow:0 8px 18px rgba(15,118,110,.1)}
+  .stock-detail-houses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}.stock-detail-house{padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.stock-detail-house b{display:block;margin-top:3px;font-size:18px}
   .stock-notice{display:flex;align-items:center;gap:10px;margin:10px 0;padding:11px 12px;border:1px solid #fecaca;border-radius:13px;background:#fff7f7;color:#991b1b}
   .stock-notice .btn{width:auto;margin-left:auto}.stock-moves{margin-top:10px}.stock-moves summary{cursor:pointer;font-weight:760}
   .stock-footer-actions{position:sticky;z-index:25;bottom:calc(64px + var(--safe-b));display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
@@ -485,7 +514,8 @@
   @media(max-width:640px){.shop-hero-top{display:block}.shop-hero .btn{width:100%;margin-top:12px}.shop-summary{grid-template-columns:repeat(3,1fr)}
     .import-source-grid{grid-template-columns:1fr}.merge-choice{grid-template-columns:1fr}.import-context{grid-template-columns:1fr 1fr}.import-review-row{grid-template-columns:minmax(0,1fr) 58px 50px 32px}
     .import-preview-card{grid-template-columns:88px minmax(0,1fr)}.import-preview-card img{width:88px;height:72px}
-    .stock-product-grid{grid-template-columns:1fr}.stock-toolbar{top:62px}.stock-hero::after{right:7px}.stock-actions{gap:7px}}
+    .stock-product-grid{grid-template-columns:1fr}.stock-toolbar{top:112px}.stock-hero::after{right:7px}.stock-actions{gap:7px}
+    .inventory-scope{top:62px}.shop-step{display:block;text-align:center}.shop-step i{margin:0 auto 3px}.store-choice{grid-template-columns:1fr}.store-choice-actions{display:grid;grid-template-columns:repeat(2,1fr)}.store-decision{width:100%}.store-decision.undo{grid-column:1/-1}.store-finish .row{display:grid;grid-template-columns:auto 1fr}}
   .help-fab{position:fixed; right:max(16px,calc((100vw - 1180px)/2 + 16px));
     bottom:calc(82px + var(--safe-b)); z-index:35; width:48px; height:48px; border:0;
     border-radius:50%; background:var(--brand); color:#fff; font-size:22px; font-weight:750;
@@ -633,6 +663,10 @@ const T = {
     stockIn:'➕ Eingang', stockOut:'➖ Ausgang',
     stockTitle:'Bestand', lastMoves:'Letzte Bewegungen',
     inventoryDashboard:'Lagerübersicht', inventoryHint:'Zuerst sehen, was fehlt – den vollständigen Bestand nur bei Bedarf öffnen.',
+    inventoryHealth:'Bestandssicherheit', inventoryHealthyPct:n=>`${n}% der Produkte sind ausreichend vorhanden`,
+    tapProduct:'Produkt öffnen', productDetail:'Produktdetails', addToShopping:'Zur Einkaufsliste hinzufügen',
+    addedToShopping:'Zur Einkaufsliste hinzugefügt', alreadyPlanned:'Bereits auf der Einkaufsliste',
+    listItemRemoved:'Position aus der Liste entfernt.',
     stockSearch:'Produkt suchen…', stockAttention:'Braucht Aufmerksamkeit', stockAll:'Alle Produkte', stockEmpty:'Nur leer',
     stockHealthy:'Gut versorgt', stockLow:'Wenig', stockOutState:'Leer', productTypes:'Produkte',
     noStockResults:'Keine passenden Produkte gefunden.', openShopping:'Zur Einkaufsliste', missingFromShop:n=>`${n} Fehlmenge${n===1?'':'n'} aus dem Einkauf`,
@@ -708,6 +742,11 @@ const T = {
     bookN:n=>`${n} ${n===1?'Position':'Positionen'} buchen`,
     reason:'Grund', newReason:'Neuer Grund',
     storeMode:'Im Supermarkt', other:'Sonstiges',
+    storeFocus:'Einkaufsmodus', storeFocusHint:'Entscheide jede Position eindeutig. Nichts wird automatisch als fehlend markiert.',
+    storeSearch:'In dieser Einkaufsliste suchen…', storeRemaining:'Noch zu entscheiden', storeComplete:'Alles entschieden',
+    markBought:'Gekauft', markMissing:'Nicht verfügbar', undoDecision:'Zurücksetzen',
+    decideAll:'Entscheide zuerst alle Positionen.', shoppingProgress:'Einkaufsfortschritt',
+    listPlanned:'Liste geplant', listShopping:'Im Einkauf', listFinished:'Abgeschlossen',
     tapToTick:'Tippen: gekauft → nicht da → offen',
     gotIt:'✓ gekauft', notThere:'✕ nicht da',
     confirmBatch:'Charge bestätigen', batchHint:'Alle Positionen werden gemeinsam gebucht.',
@@ -837,6 +876,10 @@ const T = {
     stockIn:'➕ Είσοδος', stockOut:'➖ Έξοδος',
     stockTitle:'Απόθεμα', lastMoves:'Τελευταίες κινήσεις',
     inventoryDashboard:'Εικόνα αποθέματος', inventoryHint:'Δες πρώτα τι χρειάζεται προσοχή – άνοιξε ολόκληρο τον κατάλογο μόνο όταν τον χρειάζεσαι.',
+    inventoryHealth:'Ασφάλεια αποθέματος', inventoryHealthyPct:n=>`${n}% των προϊόντων έχουν επαρκές απόθεμα`,
+    tapProduct:'Άνοιγμα προϊόντος', productDetail:'Στοιχεία προϊόντος', addToShopping:'Προσθήκη στη λίστα αγορών',
+    addedToShopping:'Προστέθηκε στη λίστα αγορών', alreadyPlanned:'Υπάρχει ήδη στη λίστα αγορών',
+    listItemRemoved:'Το είδος αφαιρέθηκε από τη λίστα.',
     stockSearch:'Αναζήτηση προϊόντος…', stockAttention:'Χρειάζεται προσοχή', stockAll:'Όλα τα προϊόντα', stockEmpty:'Μόνο άδεια',
     stockHealthy:'Επαρκές', stockLow:'Λίγο', stockOutState:'Άδειο', productTypes:'Προϊόντα',
     noStockResults:'Δεν βρέθηκαν προϊόντα.', openShopping:'Στη λίστα αγορών', missingFromShop:n=>`${n} ${n===1?'έλλειψη':'ελλείψεις'} από τα ψώνια`,
@@ -912,6 +955,11 @@ const T = {
     bookN:n=>`Καταχώρηση ${n} ${n===1?'είδους':'ειδών'}`,
     reason:'Λόγος', newReason:'Νέος λόγος',
     storeMode:'Στο σουπερμάρκετ', other:'Άλλα',
+    storeFocus:'Λειτουργία αγορών', storeFocusHint:'Αποφάσισε καθαρά για κάθε είδος. Τίποτα δεν σημειώνεται αυτόματα ως έλλειψη.',
+    storeSearch:'Αναζήτηση σε αυτή τη λίστα…', storeRemaining:'Μένουν για απόφαση', storeComplete:'Όλα αποφασίστηκαν',
+    markBought:'Αγοράστηκε', markMissing:'Δεν ήταν διαθέσιμο', undoDecision:'Επαναφορά',
+    decideAll:'Αποφάσισε πρώτα για όλα τα είδη.', shoppingProgress:'Πρόοδος αγορών',
+    listPlanned:'Σχεδιασμένη λίστα', listShopping:'Στα ψώνια', listFinished:'Ολοκληρώθηκε',
     tapToTick:'Πάτα: αγοράστηκε → δεν υπήρχε → ανοιχτό',
     gotIt:'✓ αγοράστηκε', notThere:'✕ δεν υπήρχε',
     confirmBatch:'Επιβεβαίωση παρτίδας', batchHint:'Όλα τα είδη καταχωρούνται μαζί.',
@@ -1522,8 +1570,10 @@ const state = {
   child: null,
   house: 'h1',
   shopFriday: fridayFor(),
-  stockFilter: 'empty',
+  stockFilter: 'attention',
   stockQuery: '',
+  stockOpenCategories: null,
+  shopQuery: '',
   houseFilter: '',
   date: iso(new Date()),
   bookRange: 'today',
@@ -2585,7 +2635,7 @@ function lastPurchaseOf(hid, pid){
 
 function viewStock(){
   const hid = state.house;
-  const seg = `<div class="seg" id="sHouse">
+  const seg = `<div class="seg inventory-scope" id="sHouse" aria-label="${t('filterHouse')}">
       ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
       <button class="${hid==='all'?'on':''}" data-h="all">${t('bothHouses')}</button>
     </div>`;
@@ -2595,6 +2645,7 @@ function viewStock(){
     return values.some(q=>q===0)?'empty':values.some(q=>q<=lowThreshold(p))?'low':'ok';
   };
   const counts={empty:0,low:0,ok:0};DB.products.forEach(p=>counts[productState(p)]++);
+  const healthyPct=Math.round(counts.ok/Math.max(1,DB.products.length)*100);
   const query=norm(state.stockQuery||'');
   const visible=DB.products.filter(p=>{
     const st=productState(p), matches=!query||norm(`${p.de} ${p.el}`).includes(query);
@@ -2604,14 +2655,14 @@ function viewStock(){
   const productCard=p=>{
     const st=productState(p),lp=hid==='all'?null:lastPurchaseOf(hid,p.id);
     const quantities=houses.map(h=>`<div class="stock-qty">${hid==='all'?`<span class="stock-state">${esc(h.short)}</span>`:''}${DB.stock[stockKey(h.id,p.id)]??0} ${esc(p.unit)}</div>`).join('');
-    return `<div class="stock-product ${st}"><div><div class="stock-product-name">${esc(L(p))}</div>
+    return `<button class="stock-product ${st}" data-stock-product="${p.id}" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div><div class="stock-product-name">${esc(L(p))}</div>
       <div class="stock-product-meta">${lp?`${t('lastPurchase')}: ${fmtDT(lp.decidedAt)} · ${esc(emp(lp.decidedBy)?.name||'—')}`:t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div></div>
-      <div style="display:flex;gap:9px">${quantities}</div></div>`;
+      <div class="stock-product-side"><div style="display:flex;gap:9px">${quantities}</div><span class="stock-open">›</span></div></button>`;
   };
   const categoryHtml=DB.categories.map(c=>{
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
-    const shouldOpen=state.stockFilter!=='all'||!!query;
-    return `<details class="stock-category" ${shouldOpen?'open':''}><summary><span>${catIcon[c.id]||'📦'}</span><span>${esc(L(c))}</span>
+    const shouldOpen=!!query||state.stockFilter==='empty'||products.some(p=>productState(p)==='empty');
+    return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"><summary><span>${catIcon[c.id]||'📦'}</span><span>${esc(L(c))}</span>
       <span class="stock-cat-count">${products.length}</span></summary><div class="stock-product-grid">${products.map(productCard).join('')}</div></details>`;
   }).join('');
   const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
@@ -2622,7 +2673,9 @@ function viewStock(){
       <h2>${t('inventoryDashboard')}</h2><p>${t('inventoryHint')}</p><div class="stock-stats">
         <div class="stock-stat"><b>${counts.empty}</b><span>${t('stockOutState')}</span></div>
         <div class="stock-stat"><b>${counts.low}</b><span>${t('stockLow')}</span></div>
-        <div class="stock-stat"><b>${counts.ok}</b><span>${t('stockHealthy')}</span></div></div></section>
+        <div class="stock-stat"><b>${counts.ok}</b><span>${t('stockHealthy')}</span></div></div>
+      <div class="inventory-health"><div class="inventory-health-top"><span>${t('inventoryHealth')}</span><b>${T[state.lang].inventoryHealthyPct(healthyPct)}</b></div>
+        <div class="inventory-health-bar"><i style="width:${healthyPct}%"></i></div></div></section>
     ${hid!=='all'?`<div class="stock-actions"><button class="btn in" id="btnIn">${t('stockIn')}</button><button class="btn out" id="btnOut">${t('stockOut')}</button></div>`:''}
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
     <div class="stock-toolbar"><label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
@@ -2632,6 +2685,27 @@ function viewStock(){
     <div class="stock-categories">${categoryHtml||`<div class="card empty">${t('noStockResults')}</div>`}</div>
     ${moves.length?`<details class="card stock-moves"><summary>${t('lastMoves')} · ${moves.length}</summary><div style="margin-top:9px">${moves.map(l=>`<div class="kv"><div class="grow truncate">${esc(l.text)}</div><div class="muted" style="flex:0 0 auto;margin-left:8px">${fmtDT(l.ts)}</div></div>`).join('')}</div></details>`:''}
     ${hid!=='all'?`<div class="stock-footer-actions" aria-label="${t('stockBoard')}"><button class="btn in" data-stock-action="IN">${t('stockIn')}</button><button class="btn out" data-stock-action="OUT">${t('stockOut')}</button></div>`:''}`;
+}
+
+function sheetStockDetail(pid,hid=state.house){
+  const p=prod(pid);if(!p)return;
+  const houses=hid==='all'?DB.houses:[house(hid)];
+  const cat=DB.categories.find(c=>c.id===p.cat),icon={fridge:'🧀',produce:'🥬',dry:'🥫',drinks:'🥤',household:'🧻'}[p.cat]||'📦';
+  const isPlanned=houseId=>fridayEntries(houseId).some(e=>['open','pending'].includes(e.status)&&e.productId===pid);
+  openSheet(`<div class="stock-detail-head"><div class="stock-detail-icon">${icon}</div><div><div class="import-kicker">${t('productDetail')}</div>
+      <h2 style="margin:3px 0">${esc(L(p))}</h2><div class="muted">${esc(cat?L(cat):'')}</div></div></div>
+    <div class="stock-detail-houses">${houses.map(h=>{const qty=DB.stock[stockKey(h.id,pid)]??0,lp=lastPurchaseOf(h.id,pid);return `<div class="stock-detail-house"><span class="muted">🏠 ${esc(h.short)}</span><b>${qty} ${esc(p.unit)}</b><small class="muted">${lp?`${t('lastPurchase')}: ${fmtDT(lp.decidedAt)}`:t(qty===0?'stockOutState':qty<=lowThreshold(p)?'stockLow':'stockHealthy')}</small></div>`;}).join('')}</div>
+    ${hid!=='all'?`<div class="stock-actions"><button class="btn in" id="detailIn">${t('stockIn')}</button><button class="btn out" id="detailOut">${t('stockOut')}</button></div>`:''}
+    <div class="${hid==='all'?'stock-actions':''}">${houses.map(h=>`<button class="btn sec" data-detail-shop="${h.id}" ${isPlanned(h.id)?'disabled':''}>${isPlanned(h.id)?'✓ '+t('alreadyPlanned'):`🛒 ${t('addToShopping')}${hid==='all'?' · '+esc(h.short):''}`}</button>`).join('')}</div>`);
+  const add=sheetEl.querySelector('#detailIn'),remove=sheetEl.querySelector('#detailOut');
+  if(add)add.onclick=()=>{closeSheet();sheetStockBoard('IN',pid);};
+  if(remove)remove.onclick=()=>{closeSheet();sheetStockBoard('OUT',pid);};
+  sheetEl.querySelectorAll('[data-detail-shop]').forEach(shop=>shop.onclick=()=>{
+    const targetHouse=shop.dataset.detailShop;if(isPlanned(targetHouse))return;
+    DB.listEntries.push({id:uid(),productId:pid,name:L(p),qty:Math.max(1,lowThreshold(p)),unit:p.unit,
+      houseId:targetHouse,fridayDate:state.shopFriday||fridayFor(),by:state.user?.id||null,status:'open'});
+    save();closeSheet();render();toast(t('addedToShopping'),'success');
+  });
 }
 
 /** Ό,τι ζητήθηκε αλλά δεν υπήρχε στο σουπερμάρκετ — ορατό και από το ψυγείο. */
@@ -2668,10 +2742,10 @@ function lowThreshold(p){
   return p.unit === 'g' ? 200 : p.unit === 'kg' ? 1 : 1;
 }
 
-function sheetStockBoard(dir){
+function sheetStockBoard(dir,initialPid=null){
   const hid = state.house;
   let tapDir = dir;           // τι κάνει το απλό πάτημα σε πλακίδιο
-  let basket = {};            // productId → {qty, dir}  — κάθε είδος έχει δική του φορά
+  let basket = initialPid ? {[initialPid]:{qty:stepFor(prod(initialPid)),dir}} : {}; // productId → {qty, dir}
   let reasonId = null;
   let photo = null, camOk = false;
 
@@ -3004,12 +3078,18 @@ function viewShop(){
       <div><b>${fridayList.length}</b><span>${t('listItems')}</span></div>
       <div><b>${open.length+pending.filter(e=>!e.decision).length}</b><span>${t('openItems')}</span></div>
       <div><b>${bought.length}</b><span>${t('completedItems')}</span></div>
-    </div>`;
+    </div>
+    <div class="shop-steps"><div class="shop-step ${open.length?'on':'done'}"><i>${open.length?'1':'✓'}</i>${t('listPlanned')}</div>
+      <div class="shop-step ${pending.length?'on':bought.length||missing.length?'done':''}"><i>${pending.length?'2':bought.length||missing.length?'✓':'2'}</i>${t('listShopping')}</div>
+      <div class="shop-step ${!open.length&&!pending.length&&(bought.length||missing.length)?'on':''}"><i>3</i>${t('listFinished')}</div></div>`;
 
   // ── Store mode: μεγάλες γραμμές, ένα tap, ομαδοποίηση κατά διάδρομο ──
   const done = pending.filter(e => e.decision).length;
+  const remaining=pending.length-done,progress=pending.length?Math.round(done/pending.length*100):0;
+  const shopQuery=norm(state.shopQuery||'');
+  const pendingVisible=pending.filter(e=>!shopQuery||norm(`${e.name} ${e.note||''}`).includes(shopQuery));
   const byCat = {};
-  pending.forEach(e => {
+  pendingVisible.forEach(e => {
     const c = e.productId ? (prod(e.productId)?.cat || 'other') : 'other';
     (byCat[c] ||= []).push(e);
   });
@@ -3017,55 +3097,42 @@ function viewShop(){
 
   const storeRow = e => {
     const st = e.decision;
-    return `<button class="store-row ${st||''}" data-tap="${e.id}">
-      <span class="tick">${st==='bought'?'✓':st==='missing'?'✕':''}</span>
-      <span class="grow" style="text-align:left">
-        <span class="strong">${esc(e.name)}</span>
-        ${e.note?`<span class="muted" style="display:block;font-size:11.5px">${esc(e.note)}</span>`:''}
-      </span>
-      <span class="muted" style="flex:0 0 auto">${e.qty} ${esc(e.unit)}</span>
-    </button>`;
+    return `<div class="store-choice ${st||''}"><div class="store-choice-main"><div class="store-choice-name">${esc(e.name)}</div>
+        <div class="store-choice-qty">${e.qty} ${esc(e.unit)}${e.note?' · '+esc(e.note):''}</div></div>
+      <div class="store-choice-actions"><button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}" aria-label="${t('markBought')}">✓</button>
+        <button class="store-decision no ${st==='missing'?'on':''}" data-decision="missing" data-entry="${e.id}" aria-label="${t('markMissing')}">×</button>
+        ${st?`<button class="store-decision undo" data-decision="undo" data-entry="${e.id}" aria-label="${t('undoDecision')}">↶</button>`:''}</div></div>`;
   };
 
   const pendingCard = pending.length ? `
-    <div class="card" style="border-color:#fcd34d;background:#fffbeb">
-      <div class="row between" style="margin-bottom:4px">
-        <h2 style="margin:0">${t('storeMode')}</h2>
-        <span class="pill ${done===pending.length?'in':'ovr'}">${done}/${pending.length}</span>
-      </div>
-      <div class="muted" style="margin-bottom:10px">${t('tapToTick')}</div>
+    <section class="store-cockpit"><div class="store-cockpit-head"><div class="import-kicker" style="color:#93c5fd">${t('storeFocus')}</div>
+        <h2>${done===pending.length?'✓ '+t('storeComplete'):t('storeMode')}</h2><p>${t('storeFocusHint')}</p>
+        <div class="store-progress"><i style="width:${progress}%"></i></div><div class="store-progress-label"><span>${t('shoppingProgress')}</span><b>${done}/${pending.length} · ${remaining?t('storeRemaining'):t('storeComplete')}</b></div></div>
+      <div class="store-search"><input id="storeSearch" value="${esc(state.shopQuery)}" placeholder="${t('storeSearch')}" aria-label="${t('storeSearch')}"></div>
       ${catOrder.filter(c=>byCat[c]).map(c=>{
         const cat = DB.categories.find(x=>x.id===c);
-        return `<div class="house-h">${cat?esc(L(cat)):t('other')}</div>` +
-          byCat[c].map(storeRow).join('');
+        return `<div class="store-category"><div class="house-h">${cat?esc(L(cat)):t('other')}</div>${byCat[c].map(storeRow).join('')}</div>`;
       }).join('')}
-      <div class="muted" style="margin:10px 0">${t('batchHint')}</div>
-      <button class="btn sec" id="btnReceipt" style="margin-bottom:8px">${t('scanReceipt')}</button>
-      <button class="btn" id="confirmBatch">${t('confirmBatch')}</button>
-    </div>` : '';
+      ${!pendingVisible.length?`<div class="shop-empty"><div class="big">⌕</div><h3>${t('noStockResults')}</h3></div>`:''}
+      <div class="store-finish"><div class="row"><button class="btn sec sm" id="btnReceipt">${t('scanReceipt')}</button>
+        <button class="btn" id="confirmBatch" ${remaining?'disabled':''}>${remaining?`${remaining} · ${t('storeRemaining')}`:t('confirmBatch')}</button></div>
+        ${remaining?`<div class="muted" style="margin-top:7px;text-align:center;font-size:10.5px">${t('decideAll')}</div>`:''}</div></section>` : '';
 
-  const openCard = `<div class="card shop-list-card">
+  const openCard = pending.length?'':`<div class="card shop-list-card">
     <div class="shop-list-head"><div><h2>${t('secOpen')}</h2><div class="muted" style="font-size:11px">${esc(fridayText(friday))}</div></div>
       <button class="btn sec sm" id="addItem">${t('addProduct')}</button></div>
     ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${esc(e.name)}</div>
-      ${e.note?`<div class="muted" style="font-size:11px">${esc(e.note)}</div>`:''}</div><span class="muted">${e.qty} ${esc(e.unit)}</span><span class="pill gray">${t('stOpen')}</span></div>`).join('')}</div>`:
+      ${e.note?`<div class="muted" style="font-size:11px">${esc(e.note)}</div>`:''}</div><span class="muted">${e.qty} ${esc(e.unit)}</span><span class="pill gray">${t('stOpen')}</span><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div>`).join('')}</div>`:
       `<div class="shop-empty"><div class="big">🧺</div><h3>${t('noFridayItems')}</h3><p>${t('noFridayItemsHint')}</p>
         <button class="btn sm" id="emptyImport">＋ ${t('addToFriday')}</button></div>`}
     ${open.length&&!pending.length?`<div style="padding:0 16px 15px"><button class="btn" id="startFriday">${t('startFriday')}</button></div>`:''}
     </div>`;
 
-  const missingCard = missing.length ? `
-    <div class="card" style="border-color:#fca5a5">
-      <h2>${t('secMissing')}</h2>
-      ${missing.map(e=>entryRow(e,
-        `<button class="btn sm sec" data-carry="${e.id}">${t('carryOver')}</button>`)).join('')}
-    </div>` : '';
+  const missingCard = missing.length ? `<details class="card shop-history" open><summary>⚠️ ${t('secMissing')}<span class="pill out">${missing.length}</span></summary><div class="shop-history-body">
+      ${missing.map(e=>entryRow(e,`<button class="btn sm sec" data-carry="${e.id}">${t('carryOver')}</button>`)).join('')}</div></details>` : '';
 
-  const boughtCard = bought.length ? `
-    <div class="card"><h2>${t('secBought')}</h2>
-      ${bought.slice(-8).reverse().map(e=>entryRow(e,
-        `<span class="pill in">${t('stBought')}</span>`)).join('')}
-    </div>` : '';
+  const boughtCard = bought.length ? `<details class="card shop-history"><summary>✓ ${t('secBought')}<span class="pill in">${bought.length}</span></summary><div class="shop-history-body">
+      ${bought.slice(-8).reverse().map(e=>entryRow(e,`<span class="pill in">${t('stBought')}</span>`)).join('')}</div></details>` : '';
 
   return seg + hero + pendingCard + openCard + missingCard + boughtCard;
 }
@@ -3076,17 +3143,19 @@ function startFridayBatch(){
   const open = fridayEntries(hid).filter(e=>e.status==='open');
   if(!open.length){ toast(t('nothingToStart')); return; }
   open.forEach(e => { e.status = 'pending'; delete e.decision; });
+  state.shopQuery='';
   save(); render();
 }
 
 /**
  * Κλείνει την παρτίδα με ένα PIN. Ό,τι τσεκαρίστηκε ως αγορασμένο μπαίνει στο
- * απόθεμα του σπιτιού· ό,τι δεν τσεκαρίστηκε μένει ως έλλειψη στη λίστα.
+ * απόθεμα του σπιτιού· μόνο ό,τι δηλώθηκε ρητά μη διαθέσιμο γίνεται έλλειψη.
  */
 function confirmFridayBatch(){
   const hid = shopHouse();
   const pending = fridayEntries(hid).filter(e=>e.status==='pending');
   if(!pending.length){ toast(t('nothingPending')); return; }
+  if(pending.some(e=>!e.decision)){toast(t('decideAll'),'error',3600);return;}
   askPin(t('confirmBatch'), who => {
     state.user = who;
     const got = [], miss = [];
@@ -3099,7 +3168,7 @@ function confirmFridayBatch(){
           DB.stock[k] = (DB.stock[k] ?? 0) + e.qty;
         }
         got.push(`${e.name} ${e.qty}${e.unit}`);
-      }else{
+      }else if(e.decision === 'missing'){
         e.status = 'missing';           // ό,τι δεν πατήθηκε = δεν υπήρχε
         miss.push(`${e.name} ${e.qty}${e.unit}`);
       }
@@ -4335,6 +4404,19 @@ function wire(){
   if(bi) bi.onclick = () => sheetStockBoard('IN');
   if(bo) bo.onclick = () => sheetStockBoard('OUT');
   v.querySelectorAll('[data-stock-action]').forEach(b=>b.onclick=()=>sheetStockBoard(b.dataset.stockAction));
+  v.querySelectorAll('[data-stock-product]').forEach(b=>b.onclick=()=>sheetStockDetail(b.dataset.stockProduct,state.house));
+  const stockCategories=[...v.querySelectorAll('[data-stock-category]')];
+  if(stockCategories.length){
+    if(!Array.isArray(state.stockOpenCategories))state.stockOpenCategories=stockCategories.filter(d=>d.dataset.defaultOpen==='1').map(d=>d.dataset.stockCategory);
+    stockCategories.forEach(d=>{
+      d.open=!!state.stockQuery||state.stockOpenCategories.includes(d.dataset.stockCategory);
+      d.ontoggle=()=>{
+        if(state.stockQuery)return;
+        const id=d.dataset.stockCategory,set=new Set(state.stockOpenCategories);
+        if(d.open)set.add(id);else set.delete(id);state.stockOpenCategories=[...set];
+      };
+    });
+  }
   v.querySelectorAll('[data-stock-filter]').forEach(b=>{
     b.onclick=()=>{state.stockFilter=b.dataset.stockFilter;render();};
   });
@@ -4357,21 +4439,28 @@ function wire(){
   if(fridayInput) fridayInput.onchange=()=>{ state.shopFriday=fridayFor(fridayInput.value); render(); };
   const cb = v.querySelector('#confirmBatch');
   if(cb) cb.onclick = confirmFridayBatch;
-  // Ένα tap: κανένα → αγοράστηκε → δεν υπήρχε → κανένα
-  v.querySelectorAll('[data-tap]').forEach(b=>{
+  v.querySelectorAll('[data-decision]').forEach(b=>{
     b.onclick = () => {
-      const e = DB.listEntries.find(x=>x.id===b.dataset.tap);
-      e.decision = e.decision === 'bought' ? 'missing'
-                 : e.decision === 'missing' ? undefined : 'bought';
+      const e = DB.listEntries.find(x=>x.id===b.dataset.entry);if(!e)return;
+      e.decision=b.dataset.decision==='undo'?undefined:b.dataset.decision;
       save(); render();
     };
   });
+  const storeSearch=v.querySelector('#storeSearch');
+  if(storeSearch)storeSearch.oninput=()=>{
+    state.shopQuery=storeSearch.value;render();
+    const next=document.querySelector('#storeSearch');if(next){next.focus();next.setSelectionRange(next.value.length,next.value.length);}
+  };
   v.querySelectorAll('[data-carry]').forEach(b=>{
     b.onclick = () => {
       const e = DB.listEntries.find(x=>x.id===b.dataset.carry);
       e.status = 'open'; delete e.decidedAt; delete e.decidedBy;
       save(); render();
     };
+  });
+  v.querySelectorAll('[data-remove-list]').forEach(b=>b.onclick=()=>{
+    DB.listEntries=DB.listEntries.filter(e=>e.id!==b.dataset.removeList);
+    save();render();toast(t('listItemRemoved'),'success');
   });
   const ai = v.querySelector('#addItem');
   if(ai) ai.onclick = () => {
