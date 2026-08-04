@@ -5063,7 +5063,8 @@ window.addEventListener('error', event=>{
 render();
 localStorage.removeItem('paidia.authSession');
 const resetToken=new URLSearchParams(location.search).get('reset');
-if(resetToken) renderResetForm(resetToken); else restoreServerSession();
+if(resetToken) renderResetForm(resetToken);
+else { openGate(); restoreServerSession(); }
 resolveIp().then(refreshGateMeta);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
