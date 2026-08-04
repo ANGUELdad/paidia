@@ -316,6 +316,49 @@
     background:#eff6ff;color:#1d4ed8;cursor:pointer;margin-bottom:9px;transition:.15s}
   .screenshot-drop.drag{border-color:#2563eb;background:#dbeafe;transform:scale(1.01)}
   .screenshot-drop .big{font-size:25px;display:block;margin-bottom:4px}
+  .shop-hero{position:relative;overflow:hidden;margin-bottom:12px;padding:18px;border-radius:20px;color:#fff;
+    background:linear-gradient(135deg,#172554 0%,#2563eb 56%,#0f766e 120%);box-shadow:0 15px 34px rgba(30,64,175,.16)}
+  .shop-hero::after{content:'';position:absolute;width:180px;height:180px;right:-62px;top:-96px;border-radius:50%;
+    background:rgba(255,255,255,.11)}
+  .shop-hero-top{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .shop-hero h2{margin:2px 0 5px;font-size:21px}.shop-hero p{margin:0;color:#dbeafe;font-size:12.5px}
+  .shop-hero .btn{position:relative;z-index:1;width:auto;background:#fff;color:#1d4ed8;border-color:#fff;box-shadow:none}
+  .friday-picker{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;margin-top:15px}
+  .friday-picker>button{height:42px;min-width:42px;border:1px solid rgba(255,255,255,.22);border-radius:12px;
+    background:rgba(255,255,255,.12);color:#fff;font-size:18px;cursor:pointer}
+  .friday-date{position:relative;display:flex;align-items:center;justify-content:center;gap:9px;min-height:42px;padding:8px 12px;border:1px solid rgba(255,255,255,.22);
+    border-radius:12px;background:rgba(255,255,255,.13);backdrop-filter:blur(8px);text-align:center;cursor:pointer}
+  .friday-date b{display:block;font-size:13.5px}.friday-date span{display:block;color:#bfdbfe;font-size:10.5px}
+  .friday-date input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+  .shop-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+  .shop-summary>div{padding:11px 12px;border:1px solid var(--line);border-radius:13px;background:#fff}
+  .shop-summary b{display:block;font-size:18px}.shop-summary span{color:#64748b;font-size:10.5px}
+  .shop-list-card{overflow:hidden;padding:0}.shop-list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:14px 16px;border-bottom:1px solid #eef2f6;background:#f8fafc}.shop-list-head h2{margin:0}
+  .shop-items{padding:4px 16px 8px}.shop-item{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;
+    padding:11px 0;border-bottom:1px solid #eef2f6}.shop-item:last-child{border-bottom:0}.shop-item-name{font-weight:700}
+  .shop-empty{padding:28px 18px;text-align:center}.shop-empty .big{font-size:32px}.shop-empty h3{margin:8px 0 4px}.shop-empty p{margin:0 auto 13px;max-width:330px;color:#64748b;font-size:12.5px}
+  .import-flow{margin:-2px}.import-hero{padding:16px;border-radius:18px;background:linear-gradient(135deg,#eff6ff,#f0fdfa);border:1px solid #bfdbfe}
+  .import-kicker{color:#2563eb;font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+  .import-hero h2{margin:4px 0 4px;font-size:20px}.import-hero p{margin:0;color:#64748b;font-size:12.5px}
+  .import-context{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}
+  .import-context>div{padding:9px;border-radius:11px;background:rgba(255,255,255,.78);font-size:10px;color:#64748b}
+  .import-context b{display:block;margin-top:2px;color:#0f172a;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .import-source-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:10px;margin:12px 0}
+  .import-source{padding:13px;border:1px solid var(--line);border-radius:15px;background:#fff}.import-source h3{margin:0 0 3px;font-size:14px}
+  .import-source p{margin:0 0 9px;color:#64748b;font-size:11.5px}.import-source textarea{min-height:126px;resize:vertical}
+  .import-source .screenshot-drop{height:126px;display:grid;place-content:center;margin:0;padding:12px;background:#f8fafc;border-color:#cbd5e1;color:#475569}
+  .import-source .screenshot-drop:hover{border-color:#60a5fa;background:#eff6ff;color:#1d4ed8}
+  .import-action-row{display:flex;gap:7px;margin-top:8px}.import-action-row .btn{width:auto;flex:1}
+  .merge-choice{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0}
+  .merge-choice label{display:block;padding:10px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:#fff}
+  .merge-choice label:has(input:checked){border-color:#60a5fa;background:#eff6ff;color:#1d4ed8}.merge-choice input{margin-right:5px}
+  .merge-choice b{font-size:11.5px}.merge-choice small{display:block;margin:4px 0 0 21px;color:#64748b;font-size:9.5px;line-height:1.3}
+  .import-review{margin-top:12px;border:1px solid #c7d2fe;border-radius:16px;overflow:hidden;background:#fff}
+  .import-review-head{display:flex;justify-content:space-between;align-items:center;padding:12px 13px;background:#eef2ff}
+  .import-review-row{display:grid;grid-template-columns:minmax(0,1fr) 68px 62px 34px;gap:7px;align-items:start;padding:10px 12px;border-top:1px solid #eef2f6}
+  .import-review-row input{padding:7px 8px}.import-review-row .mini-x{height:34px}.import-savebar{position:sticky;bottom:-18px;margin:12px -16px -18px;padding:11px 16px calc(12px + var(--safe-b));background:rgba(255,255,255,.95);border-top:1px solid var(--line);backdrop-filter:blur(10px)}
+  #sheet:has(.import-flow){max-width:780px}
   .check-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:-3px 0 12px}
   .check-option{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;
     padding:9px 10px;background:#fff;cursor:pointer;min-width:0}
@@ -378,6 +421,8 @@
   @media(max-width:900px){.admin-team-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:640px){.dashboard-grid{grid-template-columns:1fr}.dashboard-grid .wide{grid-column:auto}.home-stats{gap:6px}}
   @media(max-width:520px){.admin-team-grid{grid-template-columns:1fr}.admin-center-head{align-items:flex-start}.admin-crown{width:44px;height:44px}.shift-edit-row{grid-template-columns:1fr 1fr}.shift-edit-row .mini-x{align-self:end}}
+  @media(max-width:640px){.shop-hero-top{display:block}.shop-hero .btn{width:100%;margin-top:12px}.shop-summary{grid-template-columns:repeat(3,1fr)}
+    .import-source-grid{grid-template-columns:1fr}.merge-choice{grid-template-columns:1fr}.import-context{grid-template-columns:1fr 1fr}.import-review-row{grid-template-columns:minmax(0,1fr) 58px 50px 32px}}
   .help-fab{position:fixed; right:max(16px,calc((100vw - 1180px)/2 + 16px));
     bottom:calc(82px + var(--safe-b)); z-index:35; width:48px; height:48px; border:0;
     border-radius:50%; background:var(--brand); color:#fff; font-size:22px; font-weight:750;
@@ -580,6 +625,20 @@ const T = {
     batchBooked:n=>`${n} Positionen gebucht`, nothingToStart:'Die Liste ist leer',
     fullBlock:'Ganzer Block', fromTime:'ab', timeFrom:'Von', timeTo:'Bis',
     importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto', fromScreenshot:'Screenshot',
+    listJourneyTitle:'Freitagseinkauf', listJourneyHint:'Eine vollständige Liste pro Haus und echtem Freitagsdatum.',
+    addToFriday:'Liste hinzufügen', chooseFriday:'Freitag wählen', previousFriday:'Vorheriger Freitag', nextFriday:'Nächster Freitag',
+    fridayLabel:'Freitag', listItems:'Positionen', completedItems:'Erledigt', openItems:'Offen',
+    importStep:'Neue Liste erfassen', importStepHint:'Text und Screenshot sind immer verfügbar – auch wenn schon Einträge vorhanden sind.',
+    sourceTextTitle:'Text einfügen', sourceTextHint:'Eine Zeile pro Produkt oder eine komplette Nachricht einfügen.',
+    sourceImageTitle:'Screenshot / Foto', sourceImageHint:'Hochladen, einfügen oder direkt fotografieren.',
+    analyzeText:'Text analysieren', uploadImage:'Bild auswählen', existingFriday:'Bereits auf diesem Freitag',
+    saveBehavior:'Wie soll gespeichert werden?', mergeSmart:'Intelligent zusammenführen', mergeSmartHint:'Gleiche Produkte werden addiert.',
+    appendSeparate:'Als neue Zeilen', appendSeparateHint:'Vorhandene Einträge bleiben unverändert.',
+    replaceFriday:'Freitag ersetzen', replaceFridayHint:'Offene Einträge dieses Freitags werden ersetzt.',
+    importDestination:'Ziel', importSource:'Quelle', importReview:'Vorschau & Korrektur',
+    importedToFriday:d=>`Liste für Freitag, ${d}, gespeichert`, noFridayItems:'Für diesen Freitag gibt es noch keine Liste.',
+    noFridayItemsHint:'Füge Text ein oder lade einen Screenshot hoch. Du kannst später jederzeit weitere Produkte ergänzen.',
+    fridayActive:'Einkauf läuft', fridayPlanned:'Geplant', fridayCompleted:'Abgeschlossen',
     pasteList:'Liste einfügen oder tippen',
     pastePh:'Nutella 2, Milch light 2, Wasser groß 4, Nektarinen 10–12',
     readIt:'🪄 Einlesen', shootList:'📷 Liste fotografieren',
@@ -748,6 +807,20 @@ const T = {
     batchBooked:n=>`${n} είδη καταχωρήθηκαν`, nothingToStart:'Η λίστα είναι άδεια',
     fullBlock:'Όλο το μπλοκ', fromTime:'από', timeFrom:'Από', timeTo:'Έως',
     importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία', fromScreenshot:'Screenshot',
+    listJourneyTitle:'Ψώνια Παρασκευής', listJourneyHint:'Μία πλήρης λίστα ανά σπίτι και πραγματική ημερομηνία Παρασκευής.',
+    addToFriday:'Προσθήκη λίστας', chooseFriday:'Επιλογή Παρασκευής', previousFriday:'Προηγούμενη Παρασκευή', nextFriday:'Επόμενη Παρασκευή',
+    fridayLabel:'Παρασκευή', listItems:'Είδη', completedItems:'Ολοκληρωμένα', openItems:'Ανοιχτά',
+    importStep:'Καταχώρηση νέας λίστας', importStepHint:'Κείμενο και screenshot είναι πάντα διαθέσιμα – ακόμη κι αν υπάρχει ήδη λίστα.',
+    sourceTextTitle:'Επικόλληση κειμένου', sourceTextHint:'Μία γραμμή ανά προϊόν ή επικόλλησε ολόκληρο μήνυμα.',
+    sourceImageTitle:'Screenshot / φωτογραφία', sourceImageHint:'Ανέβασε, επικόλλησε ή φωτογράφισε απευθείας.',
+    analyzeText:'Ανάλυση κειμένου', uploadImage:'Επιλογή εικόνας', existingFriday:'Ήδη σε αυτή την Παρασκευή',
+    saveBehavior:'Πώς να αποθηκευτεί;', mergeSmart:'Έξυπνη συγχώνευση', mergeSmartHint:'Τα ίδια προϊόντα προστίθενται μαζί.',
+    appendSeparate:'Ως νέες γραμμές', appendSeparateHint:'Οι υπάρχουσες εγγραφές μένουν ως έχουν.',
+    replaceFriday:'Αντικατάσταση Παρασκευής', replaceFridayHint:'Αντικαθιστά τα ανοιχτά είδη αυτής της Παρασκευής.',
+    importDestination:'Προορισμός', importSource:'Πηγή', importReview:'Προεπισκόπηση & διόρθωση',
+    importedToFriday:d=>`Η λίστα για την Παρασκευή ${d} αποθηκεύτηκε`, noFridayItems:'Δεν υπάρχει ακόμη λίστα για αυτή την Παρασκευή.',
+    noFridayItemsHint:'Επικόλλησε κείμενο ή ανέβασε screenshot. Μπορείς να προσθέσεις κι άλλα προϊόντα οποιαδήποτε στιγμή.',
+    fridayActive:'Τα ψώνια τρέχουν', fridayPlanned:'Προγραμματισμένη', fridayCompleted:'Ολοκληρωμένη',
     pasteList:'Επικόλλησε ή γράψε τη λίστα',
     pastePh:'Γάλα 2, Ψωμί 4, Ντομάτες 3 kg, Νεκταρίνια 10–12',
     readIt:'🪄 Ανάγνωση', shootList:'📷 Φωτογράφισε τη λίστα',
@@ -1222,6 +1295,12 @@ const houseNames = e => entryHouseIds(e).map(id=>house(id)?.short).filter(Boolea
 const initials = n => n.split(/[\s.]+/).filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
 const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const dowIdx = d => (d.getDay()+6)%7;
+const shiftDate = (dateStr,days) => { const d=new Date(dateStr+'T12:00:00'); d.setDate(d.getDate()+days); return iso(d); };
+const fridayFor = (dateStr=iso(new Date())) => {
+  const d=new Date(dateStr+'T12:00:00'), delta=(5-d.getDay()+7)%7; d.setDate(d.getDate()+delta); return iso(d);
+};
+const fridayText = dateStr => new Intl.DateTimeFormat(state.lang==='el'?'el-GR':'de-DE',
+  {weekday:'long',day:'2-digit',month:'long',year:'numeric'}).format(new Date(dateStr+'T12:00:00'));
 const esc = s => String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fmtDT = ts => new Date(ts).toLocaleString(state.lang==='de'?'de-DE':'el-GR',
   {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -1326,6 +1405,7 @@ const state = {
   user: null,
   child: null,
   house: 'h1',
+  shopFriday: fridayFor(),
   houseFilter: '',
   date: iso(new Date()),
   bookRange: 'today',
@@ -2632,13 +2712,45 @@ function entryRow(e, extra = ''){
       <span class="muted">${e.qty} ${esc(e.unit)}</span>${extra}</div></div>`;
 }
 
+function listEntryFriday(e){
+  if(e.fridayDate) return e.fridayDate;
+  if(e.decidedAt){
+    const d=new Date(e.decidedAt), ds=iso(d), day=d.getDay();
+    return shiftDate(ds, day>=5 ? 5-day : -(day+2));
+  }
+  return fridayFor();
+}
+
+function fridayEntries(hid,friday=state.shopFriday){
+  return DB.listEntries.filter(e=>e.houseId===hid && listEntryFriday(e)===friday);
+}
+
 function viewShop(){
   const hid = shopHouse();
-  const of = st => DB.listEntries.filter(e=>e.houseId===hid && e.status===st);
+  const friday=state.shopFriday||fridayFor();
+  const fridayList=fridayEntries(hid,friday);
+  const of = st => fridayList.filter(e=>e.status===st);
   const open = of('open'), pending = of('pending'), bought = of('bought'), missing = of('missing');
 
   const seg = `<div class="seg" id="shHouse">
       ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
+    </div>`;
+
+  const fridayState=pending.length?t('fridayActive'):(open.length?t('fridayPlanned'):(bought.length||missing.length?t('fridayCompleted'):t('fridayPlanned')));
+  const hero=`<section class="shop-hero">
+    <div class="shop-hero-top"><div><div class="import-kicker" style="color:#93c5fd">${t('shopTitle')}</div>
+      <h2>${t('listJourneyTitle')}</h2><p>${t('listJourneyHint')}</p></div>
+      <button class="btn sm" id="importList">＋ ${t('addToFriday')}</button></div>
+    <div class="friday-picker">
+      <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
+      <label class="friday-date" title="${t('chooseFriday')}"><span>📅</span><span><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${esc(house(hid).short)}</span></span>
+        <input type="date" id="shopFridayDate" value="${friday}"></label>
+      <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
+    </div></section>
+    <div class="shop-summary">
+      <div><b>${fridayList.length}</b><span>${t('listItems')}</span></div>
+      <div><b>${open.length+pending.filter(e=>!e.decision).length}</b><span>${t('openItems')}</span></div>
+      <div><b>${bought.length}</b><span>${t('completedItems')}</span></div>
     </div>`;
 
   // ── Store mode: μεγάλες γραμμές, ένα tap, ομαδοποίηση κατά διάδρομο ──
@@ -2679,14 +2791,14 @@ function viewShop(){
       <button class="btn" id="confirmBatch">${t('confirmBatch')}</button>
     </div>` : '';
 
-  const openCard = `
-    <div class="card"><h2>${t('secOpen')} · ${esc(house(hid).short)}</h2>
-      ${open.length ? open.map(e=>entryRow(e)).join('') : `<div class="empty">${t('emptyList')}</div>`}
-      <div class="row" style="gap:8px;margin-top:10px;flex-wrap:wrap">
-        <button class="btn sec sm" id="addItem">${t('addProduct')}</button>
-        <button class="btn sec sm" id="importList">${t('importList')}</button>
-        ${open.length && !pending.length ? `<button class="btn sm" id="startFriday">${t('startFriday')}</button>` : ''}
-      </div>
+  const openCard = `<div class="card shop-list-card">
+    <div class="shop-list-head"><div><h2>${t('secOpen')}</h2><div class="muted" style="font-size:11px">${esc(fridayText(friday))}</div></div>
+      <button class="btn sec sm" id="addItem">${t('addProduct')}</button></div>
+    ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${esc(e.name)}</div>
+      ${e.note?`<div class="muted" style="font-size:11px">${esc(e.note)}</div>`:''}</div><span class="muted">${e.qty} ${esc(e.unit)}</span><span class="pill gray">${t('stOpen')}</span></div>`).join('')}</div>`:
+      `<div class="shop-empty"><div class="big">🧺</div><h3>${t('noFridayItems')}</h3><p>${t('noFridayItemsHint')}</p>
+        <button class="btn sm" id="emptyImport">＋ ${t('addToFriday')}</button></div>`}
+    ${open.length&&!pending.length?`<div style="padding:0 16px 15px"><button class="btn" id="startFriday">${t('startFriday')}</button></div>`:''}
     </div>`;
 
   const missingCard = missing.length ? `
@@ -2702,13 +2814,13 @@ function viewShop(){
         `<span class="pill in">${t('stBought')}</span>`)).join('')}
     </div>` : '';
 
-  return seg + pendingCard + openCard + missingCard + boughtCard;
+  return seg + hero + pendingCard + openCard + missingCard + boughtCard;
 }
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
 function startFridayBatch(){
   const hid = shopHouse();
-  const open = DB.listEntries.filter(e=>e.houseId===hid && e.status==='open');
+  const open = fridayEntries(hid).filter(e=>e.status==='open');
   if(!open.length){ toast(t('nothingToStart')); return; }
   open.forEach(e => { e.status = 'pending'; delete e.decision; });
   save(); render();
@@ -2720,7 +2832,7 @@ function startFridayBatch(){
  */
 function confirmFridayBatch(){
   const hid = shopHouse();
-  const pending = DB.listEntries.filter(e=>e.houseId===hid && e.status==='pending');
+  const pending = fridayEntries(hid).filter(e=>e.status==='pending');
   if(!pending.length){ toast(t('nothingPending')); return; }
   askPin(t('confirmBatch'), who => {
     state.user = who;
@@ -3031,34 +3143,28 @@ function imageFileData(file){
 
 function sheetImportList(){
   const hid = shopHouse();
-  let rows = null, photo = null, imageSource = null, sourceText = '', extractedText = '', aiMeta = null, initialRows = null;
+  const friday=state.shopFriday||fridayFor();
+  const existing=fridayEntries(hid,friday).filter(e=>['open','pending'].includes(e.status));
+  const batchIsActive=existing.some(e=>e.status==='pending');
+  let rows = null, photo = null, imageSource = null, sourceText = '', extractedText = '', aiMeta = null, initialRows = null, busy=false;
 
   const draw = () => {
     const box = sheetEl.querySelector('#imRows');
     if(!rows){ box.innerHTML = ''; return; }
     box.innerHTML = `
-      <div class="card" style="margin-top:12px"><div class="row between"><h2>${t('aiDraft')}</h2>
-        <span class="pill gray">${rows.length}</span></div>
-      ${extractedText ? `<details style="margin-bottom:10px"><summary class="muted">${t('extractedText')}</summary><div class="muted" style="white-space:pre-wrap;margin-top:6px">${esc(extractedText)}</div></details>` : ''}
-      ${rows.map((r,i)=>`<div class="kv">
-        <div class="grow" style="padding-right:8px">
-          <input data-n="${i}" value="${esc(r.name)}" aria-label="${t('itemName')}" style="padding:6px 8px;font-weight:650;margin-bottom:5px">
-          <span class="pill ${confidenceClass(r.confidence)}">${confidenceLabel(r.confidence)}</span>
+      <div class="import-review"><div class="import-review-head"><div><b>${t('importReview')}</b>
+        <div class="muted" style="font-size:10.5px">${t('checkBeforeSave')}</div></div><span class="pill gray">${rows.length}</span></div>
+      ${extractedText ? `<details style="padding:9px 12px"><summary class="muted">${t('extractedText')}</summary><div class="muted" style="white-space:pre-wrap;margin-top:6px">${esc(extractedText)}</div></details>` : ''}
+      ${rows.map((r,i)=>`<div class="import-review-row">
+        <div><input data-n="${i}" value="${esc(r.name)}" aria-label="${t('itemName')}" style="font-weight:650">
+          <div style="margin-top:5px"><span class="pill ${confidenceClass(r.confidence)}">${confidenceLabel(r.confidence)}</span>
           ${r.unknown ? '<span class="pill ovr">?</span>' : ''}
-          ${r.note ? `<div class="muted" style="font-size:11.5px">${esc(r.note)}</div>` : ''}
-          ${r.dupe ? `<div class="muted" style="font-size:11.5px;color:#d97706">${t('alreadyOnList')}</div>` : ''}
-          ${r.possibleDuplicate ? `<div class="muted" style="font-size:11.5px;color:#d97706">${t('vDuplicate')}</div>` : ''}
-          ${r.uncertain ? `<div class="muted" style="font-size:11.5px">${t('qtyGuessed')}</div>` : ''}</div>
-        <div class="row" style="flex:0 0 auto;gap:6px">
-          <input type="number" data-q="${i}" value="${r.qty}" step="0.5" min="0"
-            style="width:66px;padding:6px 8px;text-align:right">
-          <input data-u="${i}" value="${esc(r.unit)}" style="width:58px;padding:6px 8px">
-          <button class="btn sm sec" data-rm="${i}">✕</button>
-        </div>
-        ${r.stockQty!==null ? `<div class="muted" style="font-size:11px;margin-top:4px">${t('stockNow')}: ${r.stockQty} ${esc(r.stockUnit)}</div>` : ''}
-        </div>`).join('')}
-      </div>
-      <button class="btn" id="imSave">${T[state.lang].importN(rows.length)}</button>`;
+          ${r.dupe ? `<span class="pill ovr">${t('alreadyOnList')}</span>` : ''}</div>
+          ${r.note ? `<div class="muted" style="font-size:10.5px;margin-top:4px">${esc(r.note)}</div>` : ''}</div>
+        <input type="number" data-q="${i}" value="${r.qty}" step="0.5" min="0" aria-label="${t('qty')}">
+        <input data-u="${i}" value="${esc(r.unit)}" aria-label="${t('unit')}">
+        <button class="mini-x" data-rm="${i}" aria-label="${t('close')}">×</button></div>`).join('')}</div>
+      <div class="import-savebar"><button class="btn" id="imSave">${T[state.lang].importN(rows.length)} → ${esc(fridayText(friday))}</button></div>`;
 
     box.querySelectorAll('[data-n]').forEach(inp=>{
       inp.onchange=()=>{
@@ -3085,51 +3191,51 @@ function sheetImportList(){
     askPin(t('importTitle'), who => {
       state.user = who;
       const importId=uid();
-      rows.forEach(r => DB.listEntries.push({
-        id: uid(), productId: r.productId, name: r.name, qty: r.qty, unit: r.unit,
-        note: r.note || '', houseId: hid, by: who.id, status: 'open',
-        source: photo ? `${imageSource||'image'}-ai` : aiMeta ? 'text-ai' : 'text-local', aiImportId:importId,
-      }));
+      const behavior=sheetEl.querySelector('input[name="mergeMode"]:checked')?.value||'merge';
+      if(behavior==='replace'){
+        DB.listEntries=DB.listEntries.filter(e=>!(e.houseId===hid&&listEntryFriday(e)===friday&&['open','pending'].includes(e.status)));
+      }
+      rows.forEach(r => {
+        const match=behavior==='merge'&&DB.listEntries.find(e=>e.houseId===hid&&listEntryFriday(e)===friday&&
+          ['open','pending'].includes(e.status)&&(r.productId&&e.productId===r.productId||norm(e.name)===norm(r.name))&&norm(e.unit)===norm(r.unit));
+        if(match){ match.qty=(Number(match.qty)||0)+(Number(r.qty)||0); match.note=[match.note,r.note].filter(Boolean).join(' · '); match.aiImportId=importId; return; }
+        DB.listEntries.push({id:uid(),productId:r.productId,name:r.name,qty:r.qty,unit:r.unit,note:r.note||'',
+          houseId:hid,fridayDate:friday,by:who.id,status:batchIsActive?'pending':'open',
+          source:photo?`${imageSource||'image'}-ai`:aiMeta?'text-ai':'text-local',aiImportId:importId});
+      });
       DB.aiImports.push({id:importId, ts:Date.now(), houseId:hid, uploader:who.id,
+        fridayDate:friday,mergeMode:behavior,
         sourceType:photo?'image':'text', imageSource, originalText:sourceText, originalImage:photo,
         extractedText, model:aiMeta?.model||'local-parser', responseId:aiMeta?.responseId||null,
         aiRows:initialRows, finalRows:structuredClone(rows)});
       logEntry('SHOP', `${t('importTitle')} @ ${house(hid).short}: ` +
         rows.map(r=>`${r.name} ${r.qty}${r.unit}`).join(', '), {houseId: hid, photo, aiImportId:importId});
       save(); closeSheet(); render();
-      toast(T[state.lang].importN(rows.length));
+      toast(T[state.lang].importedToFriday(fridayText(friday)),'success',4200);
     });
   };
 
   openSheet(`
-    <h3>${t('importTitle')} · ${esc(house(hid).short)}</h3>
-    <div class="seg" id="imMode">
-      <button class="on" data-m="text">${t('fromText')}</button>
-      <button data-m="photo">${t('fromScreenshot')}</button>
-    </div>
-    <div id="imText">
-      <label class="f"><span>${t('pasteList')}</span>
-        <textarea id="imTxt" rows="5" placeholder="${t('pastePh')}"></textarea></label>
-      <button class="btn sec" id="imParse">${t('readIt')}</button>
-    </div>
-    <div id="imPhoto" style="display:none">
-      <label class="screenshot-drop" id="imDrop" tabindex="0">
-        <span class="big">🖼️</span><strong>${t('screenshotDrop')}</strong>
-        <div class="muted" style="margin-top:4px">${t('screenshotPaste')}</div>
-        <input type="file" id="imFile" accept="image/png,image/jpeg,image/webp" style="display:none">
-      </label>
-      <button class="btn sec" id="imCamera" style="margin-bottom:8px">📷 ${t('useCamera')}</button>
-      <video id="imVid" playsinline muted style="display:none"></video>
-      <img id="imPreview" class="thumb" style="display:none;margin-bottom:8px" alt="">
-      <button class="btn" id="imSnap" style="display:none">${t('shootList')}</button>
-    </div>
-    <div class="muted" id="imStatus" style="margin:6px 0 10px"></div>
-    <div id="imRows"></div>`);
+    <div class="import-flow"><div class="import-hero"><div class="import-kicker">${t('importStep')}</div>
+      <h2>${t('importTitle')}</h2><p>${t('importStepHint')}</p>
+      <div class="import-context"><div>${t('importDestination')}<b>🏠 ${esc(house(hid).short)}</b></div>
+        <div>${t('fridayLabel')}<b>${esc(fridayText(friday))}</b></div><div>${t('existingFriday')}<b>${existing.length} ${t('listItems')}</b></div></div></div>
+    <div class="import-source-grid">
+      <section class="import-source"><h3>✍️ ${t('sourceTextTitle')}</h3><p>${t('sourceTextHint')}</p>
+        <textarea id="imTxt" placeholder="${t('pastePh')}"></textarea><div class="import-action-row"><button class="btn" id="imParse">✨ ${t('analyzeText')}</button></div></section>
+      <section class="import-source"><h3>🖼️ ${t('sourceImageTitle')}</h3><p>${t('sourceImageHint')}</p>
+        <label class="screenshot-drop" id="imDrop" tabindex="0"><span class="big">＋</span><strong>${t('uploadImage')}</strong>
+          <div class="muted">${t('screenshotPaste')}</div><input type="file" id="imFile" accept="image/png,image/jpeg,image/webp" style="display:none"></label>
+        <div class="import-action-row"><button class="btn sec" id="imCamera">📷 ${t('useCamera')}</button></div></section></div>
+    <video id="imVid" playsinline muted style="display:none"></video><img id="imPreview" class="thumb" style="display:none;margin-bottom:8px" alt="">
+    <button class="btn" id="imSnap" style="display:none;margin-bottom:8px">${t('shootList')}</button>
+    <div class="merge-choice"><label><input type="radio" name="mergeMode" value="merge" checked><b>${t('mergeSmart')}</b><small>${t('mergeSmartHint')}</small></label>
+      <label><input type="radio" name="mergeMode" value="append"><b>${t('appendSeparate')}</b><small>${t('appendSeparateHint')}</small></label>
+      <label><input type="radio" name="mergeMode" value="replace"><b>${t('replaceFriday')}</b><small>${t('replaceFridayHint')}</small></label></div>
+    <div id="imStatus" class="status-box"></div><div id="imRows"></div></div>`);
 
-  const paneText = sheetEl.querySelector('#imText');
-  const panePhoto = sheetEl.querySelector('#imPhoto');
   const dropZone = sheetEl.querySelector('#imDrop');
-  let camStarted = false, busy = false;
+  let camStarted = false;
 
   (async()=>{
     const status=sheetEl.querySelector('#imStatus');
@@ -3173,18 +3279,10 @@ function sheetImportList(){
     }finally{ setBusy(false); draw(); }
   };
 
-  const chooseMode = (m, clear=true) => {
-      sheetEl.querySelectorAll('#imMode button').forEach(x=>x.classList.toggle('on', x.dataset.m===m));
-      paneText.style.display  = m === 'text'  ? '' : 'none';
-      panePhoto.style.display = m === 'photo' ? '' : 'none';
-      if(clear){ rows = null; draw(); setStatus(sheetEl.querySelector('#imStatus')); }
-  };
-  sheetEl.querySelectorAll('#imMode button').forEach(b=>b.onclick=()=>chooseMode(b.dataset.m));
-
   sheetEl.querySelector('#imParse').onclick = async () => {
     const txt = sheetEl.querySelector('#imTxt').value;
     if(!txt.trim()){ toast(t('pasteList')); return; }
-    sourceText=txt;
+    sourceText=txt; photo=null; imageSource=null;
     await analyse('text',txt);
     if(!rows?.length) toast(t('nothingToImport'));
   };
@@ -3196,7 +3294,6 @@ function sheetImportList(){
       setStatus(sheetEl.querySelector('#imStatus'),t('errImage'),'error'); return;
     }
     try{
-      chooseMode('photo',false);
       imageSource='screenshot';
       photo=await imageFileData(file);
       const preview=sheetEl.querySelector('#imPreview'); preview.src=photo; preview.style.display='block';
@@ -3215,10 +3312,7 @@ function sheetImportList(){
   };
   sheetEl.onpaste = e => {
     const item=[...(e.clipboardData?.items||[])].find(x=>x.type.startsWith('image/'));
-    if(!item){
-      if(panePhoto.style.display!=='none') setStatus(sheetEl.querySelector('#imStatus'),t('screenshotMissing'),'error');
-      return;
-    }
+    if(!item) return;
     e.preventDefault(); readScreenshot(item.getAsFile());
   };
 
@@ -3263,7 +3357,7 @@ function sheetReceipt(){
     try{
       const result=await aiExtractShopping('image',photo,'receipt');
       const hid=shopHouse();
-      const pending=DB.listEntries.filter(e=>e.houseId===hid && e.status==='pending');
+      const pending=fridayEntries(hid).filter(e=>e.status==='pending');
       lines=rowsFromAi(result,hid).map(r=>{
         const match=pending.find(e=>(r.productId && e.productId===r.productId) || norm(e.name)===norm(r.name));
         return {name:r.name,qty:r.qty,unit:r.unit,matchId:match?.id||null,confidence:r.confidence};
@@ -3290,7 +3384,7 @@ function sheetReceipt(){
             const p = DB.products.find(x=>x.de===l.name || x.el===l.name);
             DB.listEntries.push({
               id: uid(), productId: p ? p.id : null, name: l.name, qty: l.qty, unit: l.unit,
-              houseId: hid, by: state.user ? state.user.id : null,
+              houseId: hid, fridayDate:state.shopFriday||fridayFor(), by: state.user ? state.user.id : null,
               status: 'pending', decision: 'bought', notOnList: true, receiptPhoto: photo,
             });
           }
@@ -3959,7 +4053,7 @@ function wire(){
           id: uid(), productId: p ? p.id : null, name: nm,
           qty:  m ? parseFloat(m[2].replace(',','.')) : 1,
           unit: (m && m[3]) ? m[3] : 'Stk',
-          houseId: shopHouse(), by: who.id, status:'open',
+          houseId: shopHouse(), fridayDate:state.shopFriday||fridayFor(), by: who.id, status:'open',
         });
       });
       logEntry('SHOP', `${t('materials')} → ${t('shopTitle')}: ${lines.join(', ')}`, {houseId: state.house});
@@ -3973,6 +4067,11 @@ function wire(){
 
   const sf = v.querySelector('#startFriday');
   if(sf) sf.onclick = startFridayBatch;
+  v.querySelectorAll('[data-friday-shift]').forEach(b=>{
+    b.onclick=()=>{ state.shopFriday=shiftDate(state.shopFriday||fridayFor(),Number(b.dataset.fridayShift)); render(); };
+  });
+  const fridayInput=v.querySelector('#shopFridayDate');
+  if(fridayInput) fridayInput.onchange=()=>{ state.shopFriday=fridayFor(fridayInput.value); render(); };
   const cb = v.querySelector('#confirmBatch');
   if(cb) cb.onclick = confirmFridayBatch;
   // Ένα tap: κανένα → αγοράστηκε → δεν υπήρχε → κανένα
@@ -4006,7 +4105,8 @@ function wire(){
       DB.listEntries.push({id:uid(), productId: p ? p.id : null, name,
         qty: parseFloat(sheetEl.querySelector('#nQty').value)||1,
         unit: sheetEl.querySelector('#nUnit').value.trim()||'Stk',
-        houseId: shopHouse(), by: state.user ? state.user.id : null, status:'open'});
+        houseId: shopHouse(), fridayDate:state.shopFriday||fridayFor(), by: state.user ? state.user.id : null,
+        status:fridayEntries(shopHouse()).some(e=>e.status==='pending')?'pending':'open'});
       save(); closeSheet(); render();
     };
   };
@@ -4014,6 +4114,8 @@ function wire(){
   if(br) br.onclick = sheetReceipt;
   const il = v.querySelector('#importList');
   if(il) il.onclick = sheetImportList;
+  const emptyImport=v.querySelector('#emptyImport');
+  if(emptyImport) emptyImport.onclick=sheetImportList;
 
   v.querySelectorAll('#bRange button').forEach(b=>{
     b.onclick = () => { state.bookRange = b.dataset.r; render(); };
