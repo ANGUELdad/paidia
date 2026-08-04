@@ -149,7 +149,8 @@ Schnitzeljagd, Traumfänger, Seilspringen, Domino XXL κ.λπ.).
 Παιδιά: Simon, Kai, Vincent, Julian klein, Julian groß, Lea, Valeria, Jule, Samantha,
 Lilly, Daniel και Leonie. Οι Julian groß, Valeria και Lea έχουν πλέον το καθένα
 **δικό του σπίτι** στο σύστημα, ξεχωριστά από Kalyvia και Limenaria. Τα πέντε σπίτια
-είναι διαθέσιμα σε πρόγραμμα, φίλτρα, λίστες αγορών, ιστορικό και απόθεμα. **Ομάδες** όπως
+είναι διαθέσιμα σε λίστες αγορών, ιστορικό και απόθεμα. Στο πρόγραμμα εμφανίζονται μόνο
+Kalyvia και Limenaria· τα τρία επιπλέον σπίτια είναι αποκλειστικά χώροι αγορών/αποθέματος. **Ομάδες** όπως
 Zwillinge, Kai + Simon + Vincent, Jule + Julian klein και Alle Kinder επιλέγουν πολλά
 παιδιά με ένα πάτημα.
 

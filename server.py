@@ -403,6 +403,31 @@ def email_delivery_status() -> dict:
     return {"configured": False, "provider": "none"}
 
 
+class EmailDeliveryError(RuntimeError):
+    """A safe, user-actionable email failure without leaking provider responses."""
+
+    def __init__(self, message: str, code: str = "delivery_failed") -> None:
+        super().__init__(message)
+        self.code = code
+
+
+def resend_error(exc: urllib.error.HTTPError) -> EmailDeliveryError:
+    try:
+        payload = json.loads(exc.read().decode("utf-8", errors="replace"))
+        detail = str(payload.get("message", "")).lower()
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        detail = ""
+    if exc.code in {401, 403} and not any(term in detail for term in ("testing email", "own email", "verify a domain")):
+        return EmailDeliveryError("The Resend API key was rejected", "email_auth_failed")
+    if exc.code == 429:
+        return EmailDeliveryError("Resend is rate limiting email delivery", "email_rate_limited")
+    if any(term in detail for term in ("testing email", "own email", "only send", "verify a domain")):
+        return EmailDeliveryError("Resend test mode only allows the account email", "email_recipient_restricted")
+    if any(term in detail for term in ("domain is not verified", "domain not verified", "invalid `from`", "invalid from")):
+        return EmailDeliveryError("The Resend sender domain is not verified", "email_sender_unverified")
+    return EmailDeliveryError(f"Resend rejected the email (HTTP {exc.code})")
+
+
 def send_email(recipient: str, subject: str, text_body: str, html_body: str | None = None) -> None:
     resend = resend_config()
     if resend["api_key"] and resend["sender"]:
@@ -413,7 +438,11 @@ def send_email(recipient: str, subject: str, text_body: str, html_body: str | No
             payload["reply_to"] = resend["reply_to"]
         request = urllib.request.Request(
             resend["url"], data=json.dumps(payload).encode("utf-8"), method="POST",
-            headers={"Authorization": f"Bearer {resend['api_key']}", "Content-Type": "application/json"},
+            headers={
+                "Authorization": f"Bearer {resend['api_key']}",
+                "Content-Type": "application/json",
+                "User-Agent": "Armonia-Thassos/1.0",
+            },
         )
         try:
             with urllib.request.urlopen(request, timeout=30) as response:
@@ -421,9 +450,9 @@ def send_email(recipient: str, subject: str, text_body: str, html_body: str | No
                     raise RuntimeError(f"Resend returned HTTP {response.status}")
             return
         except urllib.error.HTTPError as exc:
-            raise RuntimeError(f"Resend rejected the email (HTTP {exc.code})") from exc
+            raise resend_error(exc) from exc
         except urllib.error.URLError as exc:
-            raise RuntimeError("Resend could not be reached") from exc
+            raise EmailDeliveryError("Resend could not be reached", "email_network") from exc
 
     config = smtp_config()
     if not config["host"] or not config["sender"]:
@@ -1334,6 +1363,9 @@ class Handler(SimpleHTTPRequestHandler):
                 "<h2>Armonia Thassos</h2><p>Deine Profil-E-Mail ist erfolgreich verbunden.</p>"
                 "<p>PIN-Links und Sicherheitsmeldungen können jetzt zugestellt werden.</p></div>",
             )
+        except EmailDeliveryError as exc:
+            self.json_response(502, {"error": str(exc), "code": exc.code})
+            return
         except (RuntimeError, OSError, smtplib.SMTPException):
             self.json_response(502, {"error": "The test email could not be delivered", "code": "delivery_failed"})
             return

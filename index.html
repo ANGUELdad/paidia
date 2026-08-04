@@ -756,6 +756,10 @@ const T = {
     saveEmail:'E-Mail speichern', emailSaved:'E-Mail wurde gespeichert.', emailInvalid:'Gib eine gültige E-Mail-Adresse ein.',
     emailProvider:'E-Mail-Versand', emailReady:'bereit', emailNotReady:'Resend ist noch nicht konfiguriert',
     sendTestEmail:'Test-E-Mail senden', testEmailSent:'Test-E-Mail wurde gesendet.', testEmailFailed:'Die Test-E-Mail konnte nicht gesendet werden.',
+    testEmailAuthFailed:'Der Resend API-Key wurde abgelehnt. Prüfe den Key in .env und starte den Server neu.',
+    testEmailSenderFailed:'Die Absender-Domain ist bei Resend nicht verifiziert. Nutze zum Testen onboarding@resend.dev oder verifiziere deine Domain.',
+    testEmailRecipientRestricted:'Resend-Testmodus sendet nur an die E-Mail des Resend-Kontos. Nutze diese Adresse oder verifiziere eine eigene Domain.',
+    testEmailRateLimited:'Zu viele E-Mails. Warte kurz und versuche es erneut.', testEmailNetwork:'Resend ist gerade nicht erreichbar. Prüfe Internet und Server.',
     switchProfile:'Anderes Profil öffnen', adminsManageEmails:'Als Admin kannst du die E-Mail jedes Profils verwalten.',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
     device:'Gerät', welcome:n=>'Willkommen, '+n,
@@ -980,6 +984,10 @@ const T = {
     saveEmail:'Αποθήκευση email', emailSaved:'Το email αποθηκεύτηκε.', emailInvalid:'Βάλε έγκυρη διεύθυνση email.',
     emailProvider:'Αποστολή email', emailReady:'έτοιμη', emailNotReady:'Το Resend δεν έχει ρυθμιστεί ακόμη',
     sendTestEmail:'Αποστολή δοκιμαστικού email', testEmailSent:'Το δοκιμαστικό email στάλθηκε.', testEmailFailed:'Το δοκιμαστικό email δεν στάλθηκε.',
+    testEmailAuthFailed:'Το Resend API key απορρίφθηκε. Έλεγξε το key στο .env και επανεκκίνησε τον server.',
+    testEmailSenderFailed:'Το domain αποστολέα δεν είναι επαληθευμένο στο Resend. Για δοκιμή χρησιμοποίησε onboarding@resend.dev ή επαλήθευσε δικό σου domain.',
+    testEmailRecipientRestricted:'Το test mode του Resend στέλνει μόνο στο email του λογαριασμού Resend. Χρησιμοποίησε αυτό ή επαλήθευσε δικό σου domain.',
+    testEmailRateLimited:'Στάλθηκαν πολλά email. Περίμενε λίγο και δοκίμασε ξανά.', testEmailNetwork:'Το Resend δεν είναι προσβάσιμο τώρα. Έλεγξε internet και server.',
     switchProfile:'Άνοιγμα άλλου προφίλ', adminsManageEmails:'Ως admin μπορείς να διαχειριστείς το email κάθε προφίλ.',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
     device:'Συσκευή', welcome:n=>'Καλώς ήρθες, '+n,
@@ -1157,9 +1165,9 @@ const SEED = {
   houses: [
     {id:'h1', name:'Kalyvia (Villa)', short:'Kalyvia'},
     {id:'h2', name:'Limenaria',       short:'Limenaria'},
-    {id:'h3', name:'Julian groß',     short:'Julian groß'},
-    {id:'h4', name:'Valeria',         short:'Valeria'},
-    {id:'h5', name:'Lea',             short:'Lea'},
+    {id:'h3', name:'Julian groß',     short:'Julian groß', planning:false},
+    {id:'h4', name:'Valeria',         short:'Valeria', planning:false},
+    {id:'h5', name:'Lea',             short:'Lea', planning:false},
   ],
   /* admin: πλήρης έλεγχος — μόνο αυτοί αλλάζουν το μόνιμο εβδομαδιαίο πρότυπο.
      Zoi (υπεύθυνη) και οι γιοι της Angelos & Dimitris. */
@@ -1516,6 +1524,7 @@ const act = id => ACTS().find(a=>a.id===id);
 const PRODUCTS = () => [...DB.products, ...(DB.customProducts||[])];
 const prod = id => PRODUCTS().find(p=>p.id===id);
 const house = id => DB.houses.find(h=>h.id===id);
+const planningHouses = () => DB.houses.filter(h=>h.planning!==false);
 const L = o => o ? (o[state.lang] ?? o.de ?? o.el ?? '') : '';
 const childResidence = child => child?.residenceType==='external' ? t('externalHome') : child?.homeHouseId ? house(child.homeHouseId)?.short||'' : '';
 const childChoiceLabel = child => `${child?.name||''}${childResidence(child)?` · 🏡 ${childResidence(child)}`:''}`;
@@ -1813,7 +1822,7 @@ function onboardingSteps(){
   ];
   const steps=[
     step('🏠','Home-Aufgabe erledigen','Ολοκλήρωση εργασίας από την Αρχική','Unteres Menü → 🏠 Home','Κάτω μενού → 🏠 Αρχική',['Öffne „Home“.','Lies oben „Heute zu tun“, „Überfällig“ und „Events“.','Öffne deine Aufgabe und tippe „Als erledigt markieren“; bei einem Fehler tippst du „Wieder öffnen“.'],['Άνοιξε «Αρχική».','Διάβασε επάνω «Σήμερα», «Εκπρόθεσμα» και «Events».','Άνοιξε τη δική σου εργασία και πάτησε «Σήμανση ως ολοκληρωμένο»· σε λάθος πάτησε «Άνοιγμα ξανά».'],'Die Aufgabe wechselt sofort zwischen offen und erledigt und wird pro Person gespeichert.','Η εργασία αλλάζει αμέσως μεταξύ ανοιχτής και ολοκληρωμένης και αποθηκεύεται ανά άτομο.'),
-    step('📅','Plan richtig filtern','Σωστό φιλτράρισμα προγράμματος','Unteres Menü → 📅 Plan → Ansicht / Haus','Κάτω μενού → 📅 Πρόγραμμα → Προβολή / Σπίτι',['Tippe „Tag“ für das tägliche Meeting oder „Woche“ für alle sieben Tage.','Wähle das gewünschte Haus; wische die Hausleiste seitlich für Julian groß, Valeria oder Lea. „Kombiniert“ zeigt alle.','Nutze „Dienste“ für Schichten und „Events“ für besondere Termine.'],['Πάτησε «Ημέρα» για το καθημερινό meeting ή «Εβδομάδα» για επτά ημέρες.','Διάλεξε το σπίτι· σύρε τη σειρά στο πλάι για Julian groß, Valeria ή Lea. Το «Συνδυαστικά» δείχνει όλα.','Χρησιμοποίησε «Βάρδιες» για ωράρια και «Events» για ειδικά γεγονότα.'],'Der Filter ändert nur die Ansicht; er löscht oder verschiebt keine Einträge.','Το φίλτρο αλλάζει μόνο την προβολή· δεν διαγράφει ούτε μετακινεί εγγραφές.'),
+    step('📅','Plan richtig filtern','Σωστό φιλτράρισμα προγράμματος','Unteres Menü → 📅 Plan → Ansicht / Haus','Κάτω μενού → 📅 Πρόγραμμα → Προβολή / Σπίτι',['Tippe „Tag“ für das tägliche Meeting oder „Woche“ für alle sieben Tage.','Wähle „Kalyvia“, „Limenaria“ oder „Kombiniert“. Die drei Einkaufshäuser erscheinen bewusst nicht im Plan.','Nutze „Dienste“ für Schichten und „Events“ für besondere Termine.'],['Πάτησε «Ημέρα» για το καθημερινό meeting ή «Εβδομάδα» για επτά ημέρες.','Διάλεξε «Kalyvia», «Limenaria» ή «Συνδυαστικά». Τα τρία σπίτια αγορών δεν εμφανίζονται σκόπιμα στο πρόγραμμα.','Χρησιμοποίησε «Βάρδιες» για ωράρια και «Events» για ειδικά γεγονότα.'],'Der Filter ändert nur die Ansicht; er löscht oder verschiebt keine Einträge.','Το φίλτρο αλλάζει μόνο την προβολή· δεν διαγράφει ούτε μετακινεί εγγραφές.'),
     step('✍️','Einen Planeintrag speichern','Αποθήκευση εγγραφής προγράμματος','Plan → gewünschte Zelle / „+ Eintrag“','Πρόγραμμα → επιθυμητό κελί / «+ Εγγραφή»',['Tippe die Zelle des richtigen Tages und Zeitblocks.','Setze Häkchen bei einem oder mehreren Häusern und Personen.','Wähle Kinder einzeln oder über eine Gruppe, danach Aktivität und Uhrzeit.','Wähle „Nur heute“ oder – als Admin – „Dauerhaft“ und tippe „Speichern“.'],['Πάτησε το κελί της σωστής ημέρας και ζώνης ώρας.','Τσέκαρε ένα ή περισσότερα σπίτια και άτομα.','Διάλεξε παιδιά μεμονωμένα ή μέσω ομάδας και μετά δραστηριότητα και ώρα.','Διάλεξε «Μόνο σήμερα» ή – ως admin – «Μόνιμα» και πάτησε «Αποθήκευση».'],'Nach dem Speichern erscheint die Karte in genau diesem Tag und Block.','Μετά την αποθήκευση η κάρτα εμφανίζεται στη σωστή ημέρα και ζώνη.'),
     step('🎊','Planeintrag als Event veröffentlichen','Δημοσίευση εγγραφής ως event','Plan → Zelle öffnen → 📣 Event','Πρόγραμμα → άνοιγμα κελιού → 📣 Event',['Aktiviere oben „Event“.','Trage Eventtitel, Ort und „Mitbringen“ ein und kontrolliere Start/Ende.','Prüfe die ausgewählten Kinder; nur diese Profile erhalten die Ankündigung.','Tippe „Speichern“.'],['Ενεργοποίησε επάνω το «Event».','Συμπλήρωσε τίτλο, μέρος και «Τι να φέρουν» και έλεγξε ώρα αρχής/τέλους.','Έλεγξε τα επιλεγμένα παιδιά· μόνο αυτά θα λάβουν την ανακοίνωση.','Πάτησε «Αποθήκευση».'],'Das Event erscheint im Events-Tab der ausgewählten Kinder; WhatsApp wird nur bei vorhandener Konfiguration versucht.','Το event εμφανίζεται στο tab Events των επιλεγμένων παιδιών· WhatsApp επιχειρείται μόνο αν είναι ρυθμισμένο.'),
     step('🧊','Bestand ein- oder ausbuchen','Καταχώρηση εισόδου ή εξόδου αποθέματος','Unteres Menü → 🧊 Lager','Κάτω μενού → 🧊 Ψυγείο',['Wähle zuerst das richtige Haus; wische die Hausleiste seitlich, falls es nicht sichtbar ist.','Suche ein Produkt oder filtere „Braucht Aufmerksamkeit“, „Nur leer“ oder „Alle“.','Öffne das Produkt und tippe „Eingang“ oder „Ausgang“.','Setze Menge und bei Ausgang Grund/Foto; bestätige die Buchung.'],['Διάλεξε πρώτα το σωστό σπίτι· σύρε τη σειρά σπιτιών στο πλάι αν δεν φαίνεται.','Αναζήτησε προϊόν ή βάλε φίλτρο «Χρειάζεται προσοχή», «Μόνο άδεια» ή «Όλα».','Άνοιξε το προϊόν και πάτησε «Είσοδος» ή «Έξοδος».','Βάλε ποσότητα και στην έξοδο λόγο/φωτογραφία· επιβεβαίωσε.'],'Die Menge ändert sich nur im zuvor gewählten Haus und die Bewegung steht im Protokoll.','Η ποσότητα αλλάζει μόνο στο επιλεγμένο σπίτι και η κίνηση γράφεται στις καταγραφές.'),
@@ -2071,7 +2080,7 @@ function validateDay(dateStr){
     });
 
     // Σπίτι με παιδιά αλλά χωρίς φροντιστή
-    DB.houses.forEach(h => {
+    planningHouses().forEach(h => {
       const hl = list.filter(e => entryHouseIds(e).includes(h.id));
       if(hl.length && hl.every(e => !entryEmployeeIds(e).length) && hl.some(e => (e.childIds||[]).length))
         add('warn','nostaff', `${house(h.id).short}: ${t(b.id)} — ${t('unassigned')}`);
@@ -2168,7 +2177,7 @@ function viewScheduleDay(){
     const list = all.filter(e => e.block === b.id);
     let body;
     if(b.by === 'house'){
-      body = DB.houses
+      body = planningHouses()
         .filter(h => !state.houseFilter || h.id === state.houseFilter)
         .map(h=>{
           const rows = list.filter(e => entryHouseIds(e).includes(h.id));
@@ -2327,7 +2336,7 @@ function viewScheduleWeek(){
   week.forEach(ds => { byDate[ds] = entriesFor(ds).filter(e=>!e.cancelled &&
     (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter))); });
   const dn = DAY_NAMES[state.lang];
-  const visibleHouses=DB.houses.filter(h=>!state.houseFilter || h.id===state.houseFilter);
+  const visibleHouses=planningHouses().filter(h=>!state.houseFilter || h.id===state.houseFilter);
 
   const houseTable = (blockId) => matrixView(visibleHouses.map(h=>h.name), week.map((ds,i)=>({
     label:dn[i],
@@ -2398,7 +2407,7 @@ function viewSchedule(){
       ${['shift','events'].includes(state.scheduleView) ? '' : `<span class="filter-label">${t('filterHouse')}</span>
       <div class="seg house-selector" id="hFilter">
         <button class="${state.houseFilter===''?'on':''}" data-h="">${t('allHouses')}</button>
-        ${DB.houses.map(h=>`<button class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
+        ${planningHouses().map(h=>`<button class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
       </div>`}
     </div>
     ${state.scheduleView==='day' ? viewScheduleDay()
@@ -2412,7 +2421,7 @@ function sheetEntry(e, dateStr, presets = {}){
   const blockId = e ? e.block : (presets.block || 'afternoon');
   const def = blockDef(blockId);
   const presetHouseIds = presets.houseIds || (presets.houseId ? [presets.houseId] :
-    def.by==='house' ? [state.houseFilter || DB.houses[0].id] : []);
+    def.by==='house' ? [state.houseFilter || planningHouses()[0].id] : []);
   const presetEmployeeIds = presets.employeeIds || (presets.employeeId ? [presets.employeeId] : []);
   e = e || {
     block: blockId, houseIds:presetHouseIds, houseId:presetHouseIds[0]||null,
@@ -2438,7 +2447,7 @@ function sheetEntry(e, dateStr, presets = {}){
 
     <label class="f"><span>${t('house')} · ${t('chooseMany')}</span></label>
     <div class="check-grid" id="fHouses">
-      ${DB.houses.map(h=>`<label class="check-option"><input type="checkbox" value="${h.id}" ${pickedHouses.includes(h.id)?'checked':''}><span>🏠 ${esc(h.name)}</span></label>`).join('')}
+      ${planningHouses().map(h=>`<label class="check-option"><input type="checkbox" value="${h.id}" ${pickedHouses.includes(h.id)?'checked':''}><span>🏠 ${esc(h.name)}</span></label>`).join('')}
     </div>
 
     <label class="f"><span>${t('person')} · ${t('chooseMany')}</span></label>
@@ -4722,7 +4731,12 @@ async function sheetSecurityAccess(){
       profileCard.querySelector('#testProfileEmail').onclick=async event=>{
         const button=event.currentTarget;button.disabled=true;status.style.display='block';
         try{await passkeyApi('/api/auth/profile/email/test',{profileId:selected.profileId});setStatus(status,t('testEmailSent'),'success');}
-        catch(error){setStatus(status,error.code==='email_not_configured'?t('emailNotReady'):t('testEmailFailed'),'error');}
+        catch(error){
+          const feedback={email_not_configured:'emailNotReady',email_auth_failed:'testEmailAuthFailed',
+            email_sender_unverified:'testEmailSenderFailed',email_recipient_restricted:'testEmailRecipientRestricted',
+            email_rate_limited:'testEmailRateLimited',rate_limited:'testEmailRateLimited',email_network:'testEmailNetwork'};
+          setStatus(status,t(feedback[error.code]||'testEmailFailed'),'error');
+        }
         finally{button.disabled=false;}
       };
     };
