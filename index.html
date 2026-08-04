@@ -364,6 +364,10 @@
   .stock-state{display:block;margin-top:2px;font-size:9px;font-weight:700}.stock-product.empty .stock-state{color:#dc2626}.stock-product.low .stock-state{color:#c2410c}.stock-product.ok .stock-state{color:#047857}
   .stock-notice{display:flex;align-items:center;gap:10px;margin:10px 0;padding:11px 12px;border:1px solid #fecaca;border-radius:13px;background:#fff7f7;color:#991b1b}
   .stock-notice .btn{width:auto;margin-left:auto}.stock-moves{margin-top:10px}.stock-moves summary{cursor:pointer;font-weight:760}
+  .stock-footer-actions{position:sticky;z-index:25;bottom:calc(64px + var(--safe-b));display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+    margin:14px -2px 2px;padding:9px;border:1px solid rgba(203,213,225,.9);border-radius:17px;background:rgba(255,255,255,.94);
+    box-shadow:0 -8px 28px rgba(15,23,42,.11);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .stock-footer-actions .btn{min-height:44px;border-radius:12px}
   .import-flow{margin:-2px}.import-hero{padding:16px;border-radius:18px;background:linear-gradient(135deg,#eff6ff,#f0fdfa);border:1px solid #bfdbfe}
   .import-kicker{color:#2563eb;font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
   .import-hero h2{margin:4px 0 4px;font-size:20px}.import-hero p{margin:0;color:#64748b;font-size:12.5px}
@@ -2417,7 +2421,8 @@ function viewStock(){
         <button class="stock-filter ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty">○ ${t('stockEmpty')} · ${counts.empty}</button>
         <button class="stock-filter ${state.stockFilter==='all'?'on':''}" data-stock-filter="all">${t('stockAll')} · ${DB.products.length}</button></div></div>
     <div class="stock-categories">${categoryHtml||`<div class="card empty">${t('noStockResults')}</div>`}</div>
-    ${moves.length?`<details class="card stock-moves"><summary>${t('lastMoves')} · ${moves.length}</summary><div style="margin-top:9px">${moves.map(l=>`<div class="kv"><div class="grow truncate">${esc(l.text)}</div><div class="muted" style="flex:0 0 auto;margin-left:8px">${fmtDT(l.ts)}</div></div>`).join('')}</div></details>`:''}`;
+    ${moves.length?`<details class="card stock-moves"><summary>${t('lastMoves')} · ${moves.length}</summary><div style="margin-top:9px">${moves.map(l=>`<div class="kv"><div class="grow truncate">${esc(l.text)}</div><div class="muted" style="flex:0 0 auto;margin-left:8px">${fmtDT(l.ts)}</div></div>`).join('')}</div></details>`:''}
+    ${hid!=='all'?`<div class="stock-footer-actions" aria-label="${t('stockBoard')}"><button class="btn in" data-stock-action="IN">${t('stockIn')}</button><button class="btn out" data-stock-action="OUT">${t('stockOut')}</button></div>`:''}`;
 }
 
 /** Ό,τι ζητήθηκε αλλά δεν υπήρχε στο σουπερμάρκετ — ορατό και από το ψυγείο. */
@@ -4103,6 +4108,7 @@ function wire(){
   const bi = v.querySelector('#btnIn'), bo = v.querySelector('#btnOut');
   if(bi) bi.onclick = () => sheetStockBoard('IN');
   if(bo) bo.onclick = () => sheetStockBoard('OUT');
+  v.querySelectorAll('[data-stock-action]').forEach(b=>b.onclick=()=>sheetStockBoard(b.dataset.stockAction));
   v.querySelectorAll('[data-stock-filter]').forEach(b=>{
     b.onclick=()=>{state.stockFilter=b.dataset.stockFilter;render();};
   });
