@@ -1720,17 +1720,12 @@ function viewShifts(){
       return `<div class="cellitem"><b>${s.from}–${s.to}</b></div>`;
     }).join('');
   };
-  const hours = empId => {
-    const total = DB.shifts.filter(s=>s.employeeId===empId && s.type!=='OFF' && s.from)
-      .reduce((sum,s)=>{ const sp = shiftSpan(s); return sum + (sp.end - sp.start); }, 0);
-    return Math.round(total/60);
-  };
   const rows = DB.employees.filter(e=>DB.shifts.some(s=>s.employeeId===e.id)).map(p=>({
     label:esc(p.name),
-    cells:[...dn.map((_,d)=>({html:cell(p.id,d)})), {html:`<b>${hours(p.id)} h</b>`}],
+    cells:dn.map((_,d)=>({html:cell(p.id,d)})),
   }));
   return `
-    ${matrixView([...dn, 'Σ h'], rows, {label:state.lang==='de'?'Person':'Άτομο'})}
+    ${matrixView(dn, rows, {label:state.lang==='de'?'Person':'Άτομο'})}
     <div class="muted" style="margin-bottom:12px">${t('tenMinRule')}</div>
     ${validationCard(state.date)}`;
 }
