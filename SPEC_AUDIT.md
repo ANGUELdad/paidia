@@ -18,7 +18,7 @@ demonstrable in the prototype; it does not imply production security, concurrenc
 | Events | Partial | Child-specific published Events tab exists; staff CRUD, approvals, calendar, gallery and event audit remain. |
 | Shopping | Partial | AI import/review, Friday list, store mode, AI receipt matching and inventory handoff exist; full statuses and approval workflow remain. |
 | Inventory | Partial | Two-house stock, IN/OUT, photo and audit exist; transfers, expiry, reconciliation and atomic backend transactions remain. |
-| AI Assistant | Partial | Shopping text/vision extraction exists; general assistant, permissions, citations and other module tools remain. |
+| AI Assistant | Partial | Shopping text/vision extraction and contextual in-app help exist; permissions, citations and other module tools remain. |
 | Activity Timeline | Partial | Append-only local audit view exists; server timestamps, durable retention and cross-entity timeline remain. |
 | Reports | Missing | Daily, weekly and monthly reporting/export are not implemented. |
 
@@ -42,7 +42,7 @@ demonstrable in the prototype; it does not imply production security, concurrenc
 | Requirement | Status |
 |---|---|
 | Pasted text and mixed Greek/German/English | Implemented through AI with a robust local text fallback. |
-| Handwritten/printed image or screenshot | Implemented through `/api/ai-shopping`; requires `OPENAI_API_KEY`. |
+| Handwritten/printed image or screenshot | Implemented through `/api/ai-shopping`; requires `GROQ_API_KEY`. |
 | Quantity, unit, brand, package size, category, notes | Implemented in structured model output. |
 | Canonical-product and alias matching | Implemented against the local product catalog. |
 | Confidence per item and low-confidence review | Implemented; all rows remain editable and require confirmation. |

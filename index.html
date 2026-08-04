@@ -246,6 +246,19 @@
     background:#0f172a; color:#fff; padding:11px 16px; border-radius:11px; font-size:13.5px; z-index:60;
     opacity:0; pointer-events:none; transition:opacity .2s; max-width:88%}
   .toast.on{opacity:1}
+  .help-fab{position:fixed; right:max(16px,calc((100vw - 1180px)/2 + 16px));
+    bottom:calc(82px + var(--safe-b)); z-index:35; width:48px; height:48px; border:0;
+    border-radius:50%; background:var(--brand); color:#fff; font-size:22px; font-weight:750;
+    cursor:pointer; box-shadow:0 8px 24px rgba(37,99,235,.34)}
+  .chat-log{display:flex; flex-direction:column; gap:9px; min-height:180px; max-height:48vh;
+    overflow:auto; padding:4px 2px 12px}
+  .chat-msg{max-width:88%; padding:9px 11px; border-radius:13px; white-space:pre-wrap;
+    overflow-wrap:anywhere; font-size:13.5px}
+  .chat-msg.user{align-self:flex-end; background:var(--brand); color:#fff; border-bottom-right-radius:4px}
+  .chat-msg.assistant{align-self:flex-start; background:#eef2f6; color:var(--ink); border-bottom-left-radius:4px}
+  .chat-compose{display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end}
+  .chat-compose textarea{resize:none; min-height:44px; max-height:110px}
+  .chat-compose .btn{width:auto; min-height:44px}
 
   /* Login panel */
   #gate{position:fixed; inset:0; z-index:80; background:#0f172a; color:#fff;
@@ -303,6 +316,7 @@
 <div class="sheet-bg" id="sheetBg"></div>
 <div class="sheet" id="sheet"></div>
 <div class="toast" id="toast"></div>
+<button class="help-fab" id="helpFab" type="button">?</button>
 
 <script>
 /* ════════════════════════════════════════════════════════════════
@@ -402,7 +416,7 @@ const T = {
     nothingToImport:'Nichts erkannt',
     importList:'🪄 Liste einlesen',
     aiReading:'AI liest und strukturiert die Liste…', aiUnavailable:'AI ist nicht erreichbar. Text wurde lokal analysiert.',
-    aiNeedsServer:'AI-Fotoerkennung ist nicht konfiguriert. Starte die App mit server.py und OPENAI_API_KEY.',
+    aiNeedsServer:'AI-Fotoerkennung ist nicht konfiguriert. Starte die App mit server.py und GROQ_API_KEY.',
     chooseImage:'Bild / Screenshot wählen', useCamera:'Kamera verwenden', extractedText:'Erkannter Text',
     confHigh:'Hohe Sicherheit', confMedium:'Prüfen', confLow:'Unklar', stockNow:'Bestand',
     aiDraft:'AI-Entwurf — bitte prüfen', imageReady:'Bild bereit', itemName:'Produktname',
@@ -421,6 +435,9 @@ const T = {
     close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche',
     eventOfWeek:'Event der Woche', eventToday:'Heute', eventTomorrow:'Morgen', upcomingEvents:'Demnächst',
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
+    helpChat:'Hilfe', helpWelcome:'Hallo! Was möchtest du in PAIDIA erledigen?',
+    helpPlaceholder:'Frage zur aktuellen Ansicht…', helpSend:'Senden',
+    helpThinking:'Ich prüfe das…', helpUnavailable:'Die Hilfe ist gerade nicht erreichbar.',
   },
   el: {
     appTitle:'Πρόγραμμα', navSchedule:'Πρόγραμμα', navStock:'Ψυγείο', navShop:'Λίστα', navBook:'Το Βιβλίο',
@@ -515,7 +532,7 @@ const T = {
     nothingToImport:'Δεν αναγνωρίστηκε τίποτα',
     importList:'🪄 Εισαγωγή λίστας',
     aiReading:'Το AI διαβάζει και οργανώνει τη λίστα…', aiUnavailable:'Το AI δεν είναι διαθέσιμο. Το κείμενο αναλύθηκε τοπικά.',
-    aiNeedsServer:'Η ανάγνωση φωτογραφίας με AI δεν έχει ρυθμιστεί. Εκκίνησε με server.py και OPENAI_API_KEY.',
+    aiNeedsServer:'Η ανάγνωση φωτογραφίας με AI δεν έχει ρυθμιστεί. Εκκίνησε με server.py και GROQ_API_KEY.',
     chooseImage:'Επιλογή εικόνας / screenshot', useCamera:'Χρήση κάμερας', extractedText:'Κείμενο που αναγνωρίστηκε',
     confHigh:'Υψηλή βεβαιότητα', confMedium:'Χρειάζεται έλεγχο', confLow:'Ασαφές', stockNow:'Απόθεμα',
     aiDraft:'Πρόχειρο AI — έλεγξέ το', imageReady:'Η εικόνα είναι έτοιμη', itemName:'Όνομα προϊόντος',
@@ -534,6 +551,9 @@ const T = {
     close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα',
     eventOfWeek:'Event της εβδομάδας', eventToday:'Σήμερα', eventTomorrow:'Αύριο', upcomingEvents:'Επόμενα events',
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
+    helpChat:'Βοήθεια', helpWelcome:'Γεια! Τι θέλεις να κάνεις στο PAIDIA;',
+    helpPlaceholder:'Ρώτησε για την τρέχουσα οθόνη…', helpSend:'Αποστολή',
+    helpThinking:'Το ελέγχω…', helpUnavailable:'Η βοήθεια δεν είναι διαθέσιμη αυτή τη στιγμή.',
   },
 };
 
@@ -988,6 +1008,7 @@ const state = {
   date: iso(new Date()),
   bookRange: 'today',
   bookFilter: {employeeId:'', type:''},
+  helpMessages: [],          // session-only; never persisted with operational data
 };
 
 function setLang(l){
@@ -1018,6 +1039,62 @@ function closeSheet(){
   sheetLocked = false;
   sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
   stopCamera();
+}
+
+function sheetHelp(){
+  if(!state.helpMessages.length){
+    state.helpMessages.push({role:'assistant', content:t('helpWelcome')});
+  }
+  const paint = () => {
+    const log = sheetEl.querySelector('#helpLog');
+    if(!log) return;
+    log.innerHTML = state.helpMessages.map(m =>
+      `<div class="chat-msg ${m.role==='user'?'user':'assistant'}">${esc(m.content)}</div>`).join('');
+    log.scrollTop = log.scrollHeight;
+  };
+  openSheet(`<h3>✨ ${t('helpChat')}</h3>
+    <div class="chat-log" id="helpLog" aria-live="polite"></div>
+    <div class="chat-compose">
+      <textarea id="helpInput" rows="1" placeholder="${esc(t('helpPlaceholder'))}"></textarea>
+      <button class="btn" id="helpSend" type="button">${t('helpSend')}</button>
+    </div>`);
+  paint();
+  const input = sheetEl.querySelector('#helpInput');
+  const send = sheetEl.querySelector('#helpSend');
+  const submit = async () => {
+    const content = input.value.trim();
+    if(!content || send.disabled) return;
+    state.helpMessages.push({role:'user', content});
+    state.helpMessages = state.helpMessages.slice(-12);
+    input.value = ''; send.disabled = true; paint();
+    const thinking = document.createElement('div');
+    thinking.className = 'chat-msg assistant'; thinking.id = 'helpThinking';
+    thinking.textContent = t('helpThinking');
+    sheetEl.querySelector('#helpLog').appendChild(thinking);
+    try{
+      const response = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          messages:state.helpMessages,
+          context:{mode:state.mode, tab:state.mode==='child'?state.childView:state.tab,
+            scheduleView:state.scheduleView, houseFilter:state.houseFilter, lang:state.lang},
+        }),
+      });
+      const data = await response.json();
+      if(!response.ok) throw new Error(data.detail || data.error || String(response.status));
+      state.helpMessages.push({role:'assistant', content:data.message || t('helpUnavailable')});
+      state.helpMessages = state.helpMessages.slice(-12);
+    }catch(error){
+      state.helpMessages.push({role:'assistant', content:t('helpUnavailable')});
+    }finally{
+      send.disabled = false; paint(); input.focus();
+    }
+  };
+  send.onclick = submit;
+  input.onkeydown = e => {
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); }
+  };
+  input.focus();
 }
 sheetBg.onclick = () => { if(!sheetLocked) closeSheet(); };
 document.addEventListener('keydown', e => {
@@ -2893,6 +2970,8 @@ function renderChild(){
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   document.getElementById('btnUser').textContent = t('childBye');
   document.querySelector('nav').style.display = 'none';
+  document.getElementById('helpFab').setAttribute('aria-label', t('helpChat'));
+  document.getElementById('helpFab').title = t('helpChat');
 
   const days = week.map(ds=>{
     const d = new Date(ds+'T12:00:00');
@@ -2945,6 +3024,8 @@ function renderChild(){
 function render(){
   if(state.mode === 'child' && state.child) return renderChild();
   document.querySelector('nav').style.display = '';
+  document.getElementById('helpFab').setAttribute('aria-label', t('helpChat'));
+  document.getElementById('helpFab').title = t('helpChat');
   document.getElementById('title').textContent =
     t(state.tab==='schedule'?'titleSchedule':state.tab==='stock'?'titleStock':state.tab==='shop'?'titleShop':'titleBook');
   document.getElementById('who').textContent = state.user
@@ -3255,6 +3336,7 @@ function renderGatePin(who, mode = 'staff'){
 }
 
 document.documentElement.lang = state.lang;
+document.getElementById('helpFab').onclick = sheetHelp;
 render();
 openGate();
 resolveIp().then(refreshGateMeta);
