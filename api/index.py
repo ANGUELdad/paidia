@@ -1,15 +1,14 @@
-"""Vercel Flask entry — auth API for the static Armonia frontend."""
+"""Vercel Flask entry — auth API + static Armonia frontend."""
 
 from __future__ import annotations
 
-import json
+import mimetypes
 import os
 import re
 import sys
-import time
 from pathlib import Path
 
-from flask import Flask, jsonify, make_response, request
+from flask import Flask, jsonify, make_response, request, send_from_directory
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -18,6 +17,11 @@ if str(ROOT) not in sys.path:
 import server as paidia  # noqa: E402
 
 app = Flask(__name__)
+
+STATIC_NAMES = {
+    "index.html", "gate.js", "app.js", "sw.js", "manifest.webmanifest",
+    "email-preview.html", "paidia-preview.html",
+}
 
 
 def _json(status: int, payload: dict, cookie: str | None = None):
@@ -57,9 +61,20 @@ def _session_from_request() -> dict | None:
     return paidia.decode_session_token(token)
 
 
-@app.get("/api/auth/health")
-@app.get("/auth/health")
-def auth_health():
+def _normalize_api_path(path: str) -> str:
+    """Accept /api/auth/login, /auth/login, api/auth/login, etc."""
+    value = "/" + (path or "").lstrip("/")
+    if value.startswith("/api/"):
+        value = value[4:]  # keep leading slash via next line
+        value = "/" + value.lstrip("/")
+    if value.startswith("/index/"):
+        value = value[len("/index"):]
+    if value == "/index":
+        value = "/"
+    return value if value.startswith("/") else "/" + value
+
+
+def _auth_health():
     delivery = paidia.email_delivery_status()
     return _json(200, {
         "ok": True,
@@ -69,12 +84,11 @@ def auth_health():
         "emailProvider": delivery["provider"],
         "runtime": "vercel-flask",
         "onboardingVersion": paidia.ONBOARDING_VERSION,
+        "path": request.path,
     })
 
 
-@app.get("/api/auth/session")
-@app.get("/auth/session")
-def auth_session():
+def _auth_session():
     session = _session_from_request()
     if not session:
         return _json(200, {"authenticated": False})
@@ -95,9 +109,7 @@ def auth_session():
     })
 
 
-@app.post("/api/auth/login")
-@app.post("/auth/login")
-def auth_login():
+def _auth_login():
     body = _body()
     profile_id = str(body.get("profileId", "")).strip()[:64]
     mode = "child" if body.get("mode") == "child" else "staff"
@@ -115,6 +127,11 @@ def auth_login():
             "code": "invalid_pin",
             "attemptsRemaining": 4,
         })
+    if not paidia.AUTH_USERS:
+        return _json(503, {
+            "error": "Auth users are not configured on the server",
+            "code": "auth_not_configured",
+        })
     token, payload = paidia.encode_session_token(profile_id, mode, "pin")
     return _json(200, {
         "authenticated": True,
@@ -129,13 +146,69 @@ def auth_login():
     }, cookie=_cookie_header(token))
 
 
-@app.post("/api/auth/logout")
-@app.post("/auth/logout")
-def auth_logout():
+def _auth_logout():
     return _json(200, {"loggedOut": True}, cookie=_cookie_header("", max_age=0))
 
 
-@app.get("/api/health")
-@app.get("/health")
-def health():
-    return _json(200, {"ok": True, "runtime": "vercel-flask"})
+def _serve_static(rel: str):
+    rel = rel.lstrip("/") or "index.html"
+    if ".." in rel.split("/"):
+        return _json(400, {"error": "Invalid path"})
+    target = (ROOT / rel).resolve()
+    if not str(target).startswith(str(ROOT.resolve())):
+        return _json(400, {"error": "Invalid path"})
+    if target.is_file():
+        response = send_from_directory(ROOT, rel)
+        if rel.endswith((".html", ".js")):
+            response.headers["Cache-Control"] = "no-store"
+        return response
+    # SPA-style fallback
+    return send_from_directory(ROOT, "index.html")
+
+
+@app.route("/", defaults={"path": ""}, methods=["GET", "POST", "OPTIONS", "HEAD"])
+@app.route("/<path:path>", methods=["GET", "POST", "OPTIONS", "HEAD"])
+def entry(path: str = ""):
+    if request.method == "OPTIONS":
+        response = make_response("", 204)
+        response.headers["Access-Control-Allow-Origin"] = request.headers.get("Origin", "*")
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+        return response
+
+    raw = path or ""
+    api_path = _normalize_api_path(raw if raw.startswith("api/") or raw.startswith("auth/") or raw.startswith("health") else request.path)
+
+    # Also inspect the raw request path Vercel actually sent.
+    candidates = {
+        _normalize_api_path(request.path),
+        _normalize_api_path(raw),
+        _normalize_api_path("api/" + raw) if raw and not raw.startswith("api/") else "",
+    }
+    candidates.discard("")
+
+    for candidate in candidates:
+        if candidate in {"/health", "/api/health"} or candidate.endswith("/health") and "auth" not in candidate:
+            if request.method == "GET":
+                return _json(200, {"ok": True, "runtime": "vercel-flask", "path": request.path})
+        if candidate in {"/auth/health", "/api/auth/health"} or candidate.endswith("/auth/health"):
+            if request.method == "GET":
+                return _auth_health()
+        if candidate in {"/auth/session", "/api/auth/session"} or candidate.endswith("/auth/session"):
+            if request.method == "GET":
+                return _auth_session()
+        if candidate in {"/auth/login", "/api/auth/login"} or candidate.endswith("/auth/login"):
+            if request.method == "POST":
+                return _auth_login()
+        if candidate in {"/auth/logout", "/api/auth/logout"} or candidate.endswith("/auth/logout"):
+            if request.method == "POST":
+                return _auth_logout()
+
+    # Non-API: serve frontend assets from the repo root.
+    if request.method in {"GET", "HEAD"}:
+        if not raw or raw in STATIC_NAMES or "." in Path(raw).name or raw.endswith("/"):
+            return _serve_static(raw)
+        return _serve_static("index.html")
+
+    return _json(404, {"error": "Not found", "path": request.path, "raw": raw})
