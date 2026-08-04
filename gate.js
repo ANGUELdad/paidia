@@ -78,7 +78,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=9';
+    script.src = 'app.js?v=10';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -204,7 +204,15 @@
           credentials: 'same-origin',
           body: JSON.stringify({ mode, profileId: who.id, pin: buf }),
         });
-        const data = await response.json().catch(() => ({}));
+        const raw = await response.text();
+        let data = {};
+        try { data = JSON.parse(raw); } catch (error) {
+          errorEl.textContent = lang === 'el'
+            ? 'Ο server δεν απαντά. Άνοιξε μέσω python3 server.py ή Vercel API.'
+            : 'Server antwortet nicht. Starte python3 server.py oder Vercel-API.';
+          buf = '';
+          return;
+        }
         if (!response.ok) {
           if (response.status === 429) {
             const minutes = Math.max(1, Math.ceil((Number(data.retryAfter) || 900) / 60));
@@ -217,7 +225,8 @@
           buf = '';
           return;
         }
-        loadApp();
+        // Full reload so app.js boots with the session cookie reliably.
+        location.replace('/?in=' + Date.now());
       } catch (error) {
         errorEl.textContent = t('unavailable');
         buf = '';
@@ -226,7 +235,7 @@
         loginBtn.disabled = false;
         input.disabled = false;
         draw();
-        input.focus();
+        try { input.focus(); } catch (error) {}
       }
     };
 
