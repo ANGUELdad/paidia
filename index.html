@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="manifest.webmanifest">
-<title>Wochenplan &amp; Lager</title>
+<title>Armonia Thassos</title>
 <style>
   :root{
     --bg:#f4f5f7; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
@@ -297,20 +297,41 @@
   .chat-compose textarea{resize:none; min-height:44px; max-height:110px}
   .chat-compose .btn{width:auto; min-height:44px}
 
-  /* Login panel */
-  #gate{position:fixed; inset:0; z-index:80; background:#0f172a; color:#fff;
-    display:none; overflow:auto; padding:calc(26px + env(safe-area-inset-top,0px)) 20px 26px}
-  #gate.on{display:block}
-  .gate-wrap{max-width:460px; margin:0 auto}
-  .gate-head{text-align:center; margin-bottom:22px}
-  .gate-head .mark{width:52px; height:52px; border-radius:16px; margin:0 auto 11px;
-    background:#1e293b; display:grid; place-items:center; font-size:24px}
-  .gate-head h2{margin:0; font-size:20px; font-weight:650; letter-spacing:-.02em}
-  .gate-head p{margin:5px 0 0; font-size:13px; color:#94a3b8}
+  /* Login panel — Armonia Thassos */
+  #gate{position:fixed; inset:0; z-index:80; color:#fff; display:none; overflow:auto;
+    padding:calc(34px + env(safe-area-inset-top,0px)) 20px 34px; isolation:isolate;
+    background:
+      radial-gradient(circle at 12% 15%,rgba(45,212,191,.26),transparent 31%),
+      radial-gradient(circle at 88% 82%,rgba(56,189,248,.22),transparent 34%),
+      linear-gradient(145deg,#071a2b 0%,#0b3140 48%,#10253a 100%)}
+  #gate::before,#gate::after{content:"";position:fixed;z-index:-1;border-radius:50%;filter:blur(1px);
+    opacity:.55;pointer-events:none;animation:gateFloat 11s ease-in-out infinite alternate}
+  #gate::before{width:260px;height:260px;left:-90px;top:17%;background:linear-gradient(145deg,#2dd4bf,#0ea5e9)}
+  #gate::after{width:190px;height:190px;right:-48px;bottom:9%;background:linear-gradient(145deg,#fbbf24,#fb7185);
+    animation-duration:14s;animation-direction:alternate-reverse}
+  #gate.on{display:block;animation:gateFade .38s ease both}
+  .gate-wrap{max-width:480px;margin:0 auto;padding:26px;border:1px solid rgba(255,255,255,.14);
+    border-radius:30px;background:rgba(7,25,42,.68);box-shadow:0 28px 80px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.08);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+    animation:gateCardIn .52s cubic-bezier(.2,.8,.2,1) both}
+  .gate-head{text-align:center;margin-bottom:24px;animation:gateRise .55s .08s ease both}
+  .gate-head .mark{width:66px;height:66px;border-radius:22px;margin:0 auto 14px;
+    background:linear-gradient(145deg,#5eead4,#38bdf8);box-shadow:0 12px 34px rgba(45,212,191,.28),
+    inset 0 1px 0 rgba(255,255,255,.65);display:grid;place-items:center;font-size:29px;font-weight:800;
+    color:#073344;transform:rotate(-4deg);animation:markBreathe 3.8s ease-in-out infinite}
+  .gate-head h2{margin:0;font-size:27px;font-weight:760;letter-spacing:-.035em}
+  .gate-head .brand-kicker{margin:0 0 6px;text-transform:uppercase;letter-spacing:.22em;
+    font-size:10px;font-weight:800;color:#5eead4}
+  .gate-head p{margin:7px 0 0;font-size:13.5px;color:#b8c8d6}
   .profiles{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
-  .profile{background:#1e293b; border:1px solid #334155; border-radius:16px; padding:14px 10px;
-    text-align:center; cursor:pointer; color:#fff; transition:transform .12s, background .12s}
-  .profile:active{transform:scale(.97); background:#243449}
+  .profile{background:rgba(30,55,73,.72);border:1px solid rgba(148,183,204,.2);border-radius:18px;padding:14px 10px;
+    text-align:center;cursor:pointer;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    transition:transform .22s ease,background .22s ease,border-color .22s ease,box-shadow .22s ease;
+    animation:gateRise .48s ease both}
+  .profile:nth-child(2n){animation-delay:.045s}.profile:nth-child(3n){animation-delay:.09s}
+  .profile:hover{transform:translateY(-3px);background:rgba(41,75,94,.86);border-color:rgba(94,234,212,.48);
+    box-shadow:0 12px 28px rgba(0,0,0,.17)}
+  .profile:active{transform:scale(.97);background:#29475b}
   .profile .pa{width:48px; height:48px; border-radius:50%; margin:0 auto 8px; display:grid;
     place-items:center; font-size:16px; font-weight:700; color:#0f172a}
   .profile .pn{font-size:13.5px; font-weight:600}
@@ -322,13 +343,24 @@
   .gate-pin .sub{font-size:12.5px; color:#94a3b8; margin-top:4px}
   .gate-pin .pindots i{background:#334155}
   .gate-pin .pindots i.f{background:#34d399}
-  .gate-pin .pinpad button{background:#1e293b; border-color:#334155; color:#fff}
+  .gate-pin .pinpad button{background:rgba(30,55,73,.8);border-color:rgba(148,183,204,.22);color:#fff;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);transition:transform .12s,background .12s,border-color .12s}
+  .gate-pin .pinpad button:hover{background:#294b5f;border-color:rgba(94,234,212,.5);transform:translateY(-1px)}
+  .gate-pin .pinpad button:active{transform:scale(.95)}
+  .gate-pin .btn{background:linear-gradient(135deg,#14b8a6,#0284c7);box-shadow:0 10px 28px rgba(14,165,164,.24)}
   .gate-back{background:none; border:0; color:#94a3b8; font-size:13px; padding:14px; cursor:pointer}
   .gate-meta{margin-top:20px; text-align:center; font-size:11.5px; color:#64748b; line-height:1.6}
   .gate-lang{display:flex; gap:7px; justify-content:center; margin-bottom:18px}
-  .gate-lang button{background:#1e293b; border:1px solid #334155; color:#94a3b8; border-radius:9px;
+  .gate-lang button{background:rgba(30,55,73,.72);border:1px solid rgba(148,183,204,.2);color:#a9bdcb;border-radius:999px;
     padding:6px 13px; font-size:12px; font-weight:650; cursor:pointer}
-  .gate-lang button.on{background:#334155; color:#fff}
+  .gate-lang button.on{background:#dffdf7;color:#07575a;border-color:#99f6e4}
+  @keyframes gateFade{from{opacity:0}to{opacity:1}}
+  @keyframes gateCardIn{from{opacity:0;transform:translateY(18px) scale(.975)}to{opacity:1;transform:none}}
+  @keyframes gateRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+  @keyframes gateFloat{from{transform:translate3d(0,-12px,0) scale(.96)}to{transform:translate3d(20px,22px,0) scale(1.06)}}
+  @keyframes markBreathe{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(2deg) translateY(-4px)}}
+  @media(max-width:540px){#gate{padding:calc(18px + env(safe-area-inset-top,0px)) 12px 22px}.gate-wrap{padding:22px 16px;border-radius:24px}}
+  @media(prefers-reduced-motion:reduce){#gate,#gate::before,#gate::after,.gate-wrap,.gate-head,.gate-head .mark,.profile{animation:none!important}.profile{transition:none}}
 </style>
 </head>
 <body>
@@ -362,8 +394,8 @@
    ════════════════════════════════════════════════════════════════ */
 const T = {
   de: {
-    appTitle:'Wochenplan', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Das Buch',
-    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Kühlschrank / Lager', titleShop:'Listen & Einkauf', titleBook:'Das Buch',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Protokoll',
+    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Kühlschrank / Lager', titleShop:'Listen & Einkauf', titleBook:'Protokoll',
     logout:'Profil', noUser:'Nicht angemeldet',
     viewDay:'Tag', viewWeek:'Woche', filterView:'Ansicht', filterHouse:'Haus',
     allHouses:'Kombiniert',
@@ -412,12 +444,12 @@ const T = {
     typeIN:'Eingang', typeOUT:'Ausgang', typeSHOP:'Einkauf', typeSCHEDULE:'Plan',
     typeCORRECTION:'Korrektur', typeLOGIN:'Anmeldung', typeNOTES:'Hinweise', typeEVENT:'Event',
     entryStaff:'Personal', entryChild:'Kinder',
-    entryStaffSub:'Plan, Lager, Einkauf, Buch', entryChildSub:'Was mache ich diese Woche',
+    entryStaffSub:'Plan, Lager, Einkauf, Protokoll', entryChildSub:'Was mache ich diese Woche',
     whoAreYou:'Wer bist du?',
     myWeek:'Meine Woche', myToday:'Was mache ich heute', weekEvents:'Events der Woche',
     withWhom:'mit', nothingToday:'Heute ist nichts eingetragen',
     childBye:'Abmelden', announcements:'Ankündigungen',
-    gateTitle:'Das Buch', gatePick:'Wähle dein Profil', gatePin:'Gib deine PIN ein',
+    gateTitle:'Armonia Thassos', gateBrandLine:'Gemeinsam durch den Tag', gatePick:'Wähle dein Profil', gatePin:'Gib deine PIN ein',
     gateBack:'← Anderes Profil', wrongPin:'Falsche PIN',
     forgotPin:'PIN vergessen oder ändern?', resetPinTitle:'PIN per E-Mail ändern', emailLabel:'Deine E-Mail-Adresse',
     sendResetLink:'Änderungslink senden', resetLinkSent:'Wenn die E-Mail zu diesem Profil gehört, wurde ein Link gesendet.',
@@ -519,8 +551,8 @@ const T = {
     screenshotReady:'Screenshot bereit – OCR startet…', screenshotMissing:'Die Zwischenablage enthält keinen Screenshot.',
   },
   el: {
-    appTitle:'Πρόγραμμα', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Ψυγείο', navShop:'Λίστα', navBook:'Το Βιβλίο',
-    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Ψυγείο / Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Το Βιβλίο',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Ψυγείο', navShop:'Λίστα', navBook:'Καταγραφές',
+    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Ψυγείο / Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Καταγραφές',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
     viewDay:'Ημέρα', viewWeek:'Εβδομάδα', filterView:'Προβολή', filterHouse:'Σπίτι',
     allHouses:'Συνδυαστικά',
@@ -569,12 +601,12 @@ const T = {
     typeIN:'Είσοδος', typeOUT:'Έξοδος', typeSHOP:'Ψώνια', typeSCHEDULE:'Πρόγραμμα',
     typeCORRECTION:'Διόρθωση', typeLOGIN:'Σύνδεση', typeNOTES:'Σημειώσεις', typeEVENT:'Event',
     entryStaff:'Προσωπικό', entryChild:'Παιδιά',
-    entryStaffSub:'Πρόγραμμα, αποθήκη, ψώνια, βιβλίο', entryChildSub:'Τι κάνω αυτή την εβδομάδα',
+    entryStaffSub:'Πρόγραμμα, αποθήκη, ψώνια, καταγραφές', entryChildSub:'Τι κάνω αυτή την εβδομάδα',
     whoAreYou:'Ποιος είσαι;',
     myWeek:'Η εβδομάδα μου', myToday:'Τι κάνω σήμερα', weekEvents:'Events της εβδομάδας',
     withWhom:'με', nothingToday:'Σήμερα δεν έχει καταχωρηθεί κάτι',
     childBye:'Αποσύνδεση', announcements:'Ανακοινώσεις',
-    gateTitle:'Το Βιβλίο', gatePick:'Διάλεξε το προφίλ σου', gatePin:'Βάλε το PIN σου',
+    gateTitle:'Armonia Thassos', gateBrandLine:'Μαζί, κάθε μέρα', gatePick:'Διάλεξε το προφίλ σου', gatePin:'Βάλε το PIN σου',
     gateBack:'← Άλλο προφίλ', wrongPin:'Λάθος PIN',
     forgotPin:'Ξέχασες ή θέλεις να αλλάξεις PIN;', resetPinTitle:'Αλλαγή PIN μέσω email', emailLabel:'Η διεύθυνση email σου',
     sendResetLink:'Αποστολή συνδέσμου αλλαγής', resetLinkSent:'Αν το email ανήκει σε αυτό το προφίλ, στάλθηκε σύνδεσμος.',
@@ -3759,7 +3791,8 @@ function renderEntrance(){
   gateBody.innerHTML = `
     ${langSwitch()}
     <div class="gate-head">
-      <div class="mark">📖</div>
+      <div class="mark" aria-hidden="true">A</div>
+      <div class="brand-kicker">${t('gateBrandLine')}</div>
       <h2>${t('gateTitle')}</h2>
       <p>${t('whoAreYou')}</p>
     </div>
@@ -3791,6 +3824,7 @@ function renderProfiles(mode = 'staff'){
     ${langSwitch()}
     <div class="gate-head">
       <div class="mark">${mode==='child'?'🎈':'👥'}</div>
+      <div class="brand-kicker">Armonia Thassos</div>
       <h2>${mode==='child' ? t('entryChild') : t('entryStaff')}</h2>
       <p>${t('gatePick')}</p>
     </div>
