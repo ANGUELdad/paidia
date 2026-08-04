@@ -618,6 +618,57 @@ def send_test_profile_email(recipient: str) -> None:
     send_email(recipient, "Armonia Thassos – E-Mail funktioniert", text_body, html_body)
 
 
+def send_pin_changed_email(recipient: str, profile_name: str) -> None:
+    text_body = (
+        f"Die PIN für {profile_name} wurde erfolgreich geändert.\n\n"
+        "Wenn du das nicht warst, setze die PIN sofort zurück und informiere die Leitung."
+    )
+    html_body = email_shell(
+        "PIN geändert",
+        "Armonia Thassos · Sicherheit",
+        (
+            f"<p style=\"margin:0 0 12px\">Die PIN für <b>{profile_name}</b> wurde erfolgreich geändert.</p>"
+            "<p style=\"margin:0;color:#475569\">Wenn du das nicht warst, setze die PIN sofort zurück "
+            "über die Anmeldeseite und informiere die Leitung.</p>"
+        ),
+    )
+    send_email(recipient, "Armonia Thassos – PIN geändert", text_body, html_body)
+
+
+def send_event_announcement_email(recipient: str, title: str, date: str, start: str, end: str,
+                                  location: str, children: str, note: str) -> None:
+    text_body = (
+        f"Neues Event: {title}\n"
+        f"Datum: {date}\n"
+        f"Zeit: {start}–{end}\n"
+        f"Ort: {location or '—'}\n"
+        f"Kinder: {children or '—'}\n"
+        f"Hinweis: {note or '—'}\n"
+    )
+    rows = "".join(
+        f"<tr><td style=\"padding:10px 14px;border-bottom:1px solid #eef2f6;color:#64748b;font-size:12px\">{label}</td>"
+        f"<td style=\"padding:10px 14px;border-bottom:1px solid #eef2f6;text-align:right;font-weight:700\">{value or '—'}</td></tr>"
+        for label, value in (
+            ("Datum", date),
+            ("Zeit", f"{start}–{end}" if start or end else ""),
+            ("Ort", location),
+            ("Kinder", children),
+        )
+    )
+    html_body = email_shell(
+        title or "Neues Event",
+        "Armonia Thassos · Event",
+        (
+            "<p style=\"margin:0 0 14px\">Ein neues Event wurde veröffentlicht.</p>"
+            "<table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" "
+            f"style=\"background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px\">{rows}</table>"
+            + (f"<p style=\"margin:16px 0 0;color:#475569\">{note}</p>" if note else "")
+        ),
+        "Bitte im PAIDIA Events-Tab nachsehen",
+    )
+    send_email(recipient, f"Armonia Thassos – Event: {title}", text_body, html_body)
+
+
 def queue_security_alert(profile_id: str, event: str, ip: str, details: dict | None = None) -> bool:
     details = details or {}
     append_security_event(event, profile_id, ip, details)
@@ -1031,6 +1082,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path not in {
             "/api/ai-shopping", "/api/chat", "/api/whatsapp/test", "/api/whatsapp/event",
+            "/api/notify/event-email",
             "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
             "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
             "/api/auth/passkey/login/options", "/api/auth/passkey/login/verify", "/api/auth/passkey/remove",
@@ -1098,6 +1150,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/whatsapp/event":
             self.handle_whatsapp_event(body)
+            return
+        if path == "/api/notify/event-email":
+            self.handle_event_email(body)
             return
 
         api_key = os.environ.get("GROQ_API_KEY")
@@ -1546,6 +1601,19 @@ class Handler(SimpleHTTPRequestHandler):
             for session_token, session in list(AUTH_SESSIONS.items()):
                 if session["profile_id"] == profile_id:
                     AUTH_SESSIONS.pop(session_token, None)
+        recipient = (user.get("email") or "").strip()
+        if recipient and email_delivery_status()["configured"]:
+            profile_name = {
+                "e1": "Dora", "e2": "Karin", "e3": "Dimitris", "e4": "Angelos",
+                "e5": "Claudio", "e6": "Löhri", "e7": "Amalia", "e8": "Zoi",
+                "k1": "Simon", "k2": "Kai", "k3": "Vincent", "k4": "Julian klein",
+                "k5": "Julian groß", "k6": "Lea", "k7": "Valeria", "k8": "Jule",
+                "k9": "Samantha", "k10": "Lilly", "k11": "Daniel", "k12": "Leonie",
+            }.get(profile_id, profile_id)
+            try:
+                send_pin_changed_email(recipient, profile_name)
+            except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
+                append_security_event("pin_changed_email_failed", profile_id, self.client_ip(), {})
         self.json_response(200, {"changed": True}, {
             "Set-Cookie": self.set_session_cookie("", max_age=0),
         })
@@ -1629,6 +1697,61 @@ class Handler(SimpleHTTPRequestHandler):
             "skippedDuplicates": skipped,
             "failed": failures,
             "recipientCount": len(recipients),
+        })
+
+    def handle_event_email(self, body: dict) -> None:
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        if not email_delivery_status()["configured"]:
+            self.json_response(503, {"error": "Email delivery is not configured", "code": "email_not_configured"})
+            return
+        title = str(body.get("title", "")).strip()[:200]
+        event_id = str(body.get("eventId", "")).strip()[:100]
+        date = str(body.get("date", "")).strip()[:20]
+        from_time = str(body.get("from", "")).strip()[:10]
+        to_time = str(body.get("to", "")).strip()[:10]
+        location = str(body.get("location", "")).strip()[:200]
+        note = str(body.get("note", "")).strip()[:500]
+        child_ids = body.get("childIds", [])
+        if not title or not event_id or not date or not isinstance(child_ids, list):
+            self.json_response(400, {"error": "Valid event details are required", "code": "input"})
+            return
+        child_names = {
+            "k1": "Simon", "k2": "Kai", "k3": "Vincent", "k4": "Julian klein",
+            "k5": "Julian groß", "k6": "Lea", "k7": "Valeria", "k8": "Jule",
+            "k9": "Samantha", "k10": "Lilly", "k11": "Daniel", "k12": "Leonie",
+        }
+        children = ", ".join(child_names.get(str(cid), str(cid)) for cid in child_ids if cid)
+        # Notify every staff profile with a recovery email, plus any child profiles that have one.
+        recipients: list[str] = []
+        for profile_id, user in AUTH_USERS.items():
+            email = (user.get("email") or "").strip()
+            if not email:
+                continue
+            if user.get("mode") == "staff" or str(profile_id) in {str(cid) for cid in child_ids}:
+                recipients.append(email)
+        recipients = sorted(set(recipients))
+        if not recipients:
+            self.json_response(422, {"error": "No profile emails are configured", "code": "recipients"})
+            return
+        sent = 0
+        failures = 0
+        for recipient in recipients[:40]:
+            try:
+                send_event_announcement_email(
+                    recipient, title, date, from_time, to_time, location, children, note,
+                )
+                sent += 1
+            except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
+                failures += 1
+        status = 200 if sent else 502
+        self.json_response(status, {
+            "sent": sent,
+            "failed": failures,
+            "recipientCount": len(recipients),
+            "eventId": event_id,
         })
 
     def handle_shopping(self, body: dict, api_key: str) -> None:

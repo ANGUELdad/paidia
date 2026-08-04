@@ -662,10 +662,16 @@
   @media(max-width:540px){#gate{padding:calc(18px + env(safe-area-inset-top,0px)) 12px 22px}.gate-wrap{padding:22px 16px;border-radius:24px}}
   @media(max-width:520px){.help-center-grid{grid-template-columns:1fr}.help-center-card{min-height:0}.trip-results{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){#gate,#gate::before,#gate::after,.gate-wrap,.gate-head,.gate-head .mark,.profile{animation:none!important}.profile{transition:none}}
+  /* Hide app chrome until auth resolves — stops panel flash on boot */
+  body.auth-pending #app, body.auth-pending .help-fab{visibility:hidden!important;pointer-events:none!important}
+  body.auth-pending #gate{display:block!important}
+  .passkey-btn{min-height:48px;font-size:14px}.passkey-btn .pk-sub{display:block;font-size:10.5px;font-weight:600;opacity:.78;margin-top:2px}
+  .gate-pin .btn.logging{opacity:.7;pointer-events:none}
+  .pindots i.busy{animation:markBreathe 1s ease-in-out infinite}
 </style>
 </head>
-<body>
-<div id="app">
+<body class="auth-pending">
+<div id="app" hidden>
   <header>
     <div class="grow">
       <h1 id="title"></h1>
@@ -1571,19 +1577,37 @@ function friendlyAiError(error){
 }
 
 async function sendEventWhatsapp(event){
+  let whatsappOk=false;
   try{
     const response=await fetch('/api/whatsapp/event',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({eventId:event.id,title:L(event),date:event.date,from:event.from,to:event.to,
         location:event.location||'',childIds:event.childIds||[]}),
     });
-    const result=await response.json();
-    if(response.status===422 || response.status===503){ toast(t('whatsappSkipped')); return; }
-    if(!response.ok) throw new Error(result.error||String(response.status));
-    if(result.sent) toast(T[state.lang].whatsappSent(result.sent),'success');
+    const result=await response.json().catch(()=>({}));
+    if(response.ok && result.sent){ whatsappOk=true; toast(T[state.lang].whatsappSent(result.sent),'success'); }
+    else if(response.status!==422 && response.status!==503 && !response.ok)
+      throw new Error(result.error||String(response.status));
   }catch(error){
     console.error('WhatsApp event notification failed',error);
-    toast(t('whatsappFailed'),'error',5200);
+  }
+  try{
+    const response=await fetch('/api/notify/event-email',{
+      method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
+      body:JSON.stringify({eventId:event.id,title:L(event),date:event.date,from:event.from,to:event.to,
+        location:event.location||'',childIds:event.childIds||[],note:event.note||L(event.description||{})||''}),
+    });
+    const result=await response.json().catch(()=>({}));
+    if(response.ok && result.sent){
+      toast(state.lang==='el'?`Email σε ${result.sent} άτομα`:`E-Mail an ${result.sent} Personen`,'success');
+    }else if(!whatsappOk && (response.status===503||result.code==='email_not_configured')){
+      toast(t('whatsappSkipped'));
+    }else if(!whatsappOk && !response.ok){
+      toast(t('whatsappFailed'),'error',5200);
+    }
+  }catch(error){
+    console.error('Event email notification failed',error);
+    if(!whatsappOk) toast(t('whatsappFailed'),'error',5200);
   }
 }
 
@@ -1689,11 +1713,15 @@ const passkeyCapable=()=>window.isSecureContext&&!!window.PublicKeyCredential&&!
 const biometricName=()=>{
   const ua=navigator.userAgent;
   if(/iPhone|iPad|iPod/i.test(ua)) return 'Face ID / Touch ID';
-  if(/Macintosh|Mac OS/i.test(ua)) return 'Touch ID';
+  if(/Macintosh|Mac OS/i.test(ua)) return 'Touch ID / Passkey';
   if(/Android/i.test(ua)) return state.lang==='el'?'Δακτυλικό αποτύπωμα / κλείδωμα':'Fingerabdruck / Gerätesperre';
   if(/Windows/i.test(ua)) return 'Windows Hello';
   return t('passkey');
 };
+const biometricHint=()=>state.lang==='el'
+  ? 'Γρήγορη είσοδος σε αυτό τη συσκευή'
+  : 'Schnelle Anmeldung auf diesem Gerät';
+
 const b64ToBytes=value=>{
   const base64=String(value).replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(String(value).length/4)*4,'=');
   return Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
@@ -1730,7 +1758,14 @@ async function passkeyApi(path,body){
 async function loginWithPasskey(mode,who){
   if(!passkeyCapable()){const error=new Error(t('passkeyUnavailable'));error.code='unsupported';throw error;}
   const options=await passkeyApi('/api/auth/passkey/login/options',{mode,profileId:who.id});
-  const credential=await navigator.credentials.get({publicKey:decodePublicKeyOptions(options.publicKey)});
+  const publicKey=decodePublicKeyOptions(options.publicKey);
+  const getOptions={publicKey};
+  // Conditional UI / autofill mediation when the browser supports it (Chrome/Android/Safari).
+  if(window.PublicKeyCredential?.isConditionalMediationAvailable){
+    const conditional=await PublicKeyCredential.isConditionalMediationAvailable().catch(()=>false);
+    if(conditional) getOptions.mediation='optional';
+  }
+  const credential=await navigator.credentials.get(getOptions);
   const data=await passkeyApi('/api/auth/passkey/login/verify',{ceremonyId:options.ceremonyId,credential:publicKeyCredentialJSON(credential)});
   if(!applyAuthenticatedProfile(data,{logLogin:true}))throw new Error('Unknown profile');
   return data;
@@ -1743,12 +1778,17 @@ async function registerPasskey(){
   return passkeyApi('/api/auth/passkey/register/verify',{ceremonyId:options.ceremonyId,credential:publicKeyCredentialJSON(credential)});
 }
 
+function revealApp(){
+  document.body.classList.remove('auth-pending');
+  document.getElementById('app').hidden=false;
+}
+
 async function restoreServerSession(){
   try{
     const response=await fetch('/api/auth/session',{credentials:'same-origin'});
     const data=await response.json();
     if(response.ok && data.authenticated && applyAuthenticatedProfile(data)){
-      closeGate();render();await ensureOnboarding();return true;
+      closeGate();revealApp();render();await ensureOnboarding();return true;
     }
   }catch(error){ console.error('session restore failed',error); }
   openGate();
@@ -1757,15 +1797,21 @@ async function restoreServerSession(){
 
 async function logoutServerSession(){
   try{await fetch('/api/auth/logout',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:'{}'});}catch(error){}
-  state.user=null;state.child=null;state.mode='staff';session.sessionId=null;openGate();
+  state.user=null;state.child=null;state.mode='staff';session.sessionId=null;
+  document.body.classList.add('auth-pending');
+  document.getElementById('app').hidden=true;
+  openGate();
 }
 
 function setLang(l){
   state.lang = l;
   localStorage.setItem('paidia.lang', l);
   document.documentElement.lang = l;
-  render();
-  if(gateEl.classList.contains('on')) renderProfiles();
+  if(!document.body.classList.contains('auth-pending')) render();
+  if(gateEl.classList.contains('on')){
+    // Keep the user on the login shell; refresh copy via entrance.
+    if(state.user||state.child) render(); else renderEntrance();
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -4946,61 +4992,53 @@ function renderProfiles(mode = 'staff'){
 /** Βήμα 3 — PIN μόνο για το επιλεγμένο προφίλ. */
 function renderGatePin(who, mode = 'staff'){
   let buf = '';
+  let busy = false;
   gateBody.innerHTML = `
     <div class="gate-pin">
       <div class="pa" style="background:${who.color}">${initials(who.name)}</div>
       <h3>${esc(who.name)}</h3>
       <div class="sub">${mode==='child' ? '' : esc(L(who.role)) + ' · '}${t('gatePin')}</div>
-      <button class="passkey-btn ${passkeyCapable()?'on':''}" id="gPasskey">🔐 <span>${esc(biometricName())}</span></button>
-      <div class="pin-divider" id="gPinDivider" style="${passkeyCapable()?'display:flex':'display:none'}">${t('pinFallback')}</div>
-      <div class="pindots" id="gpd"></div>
-      <div id="gpErr" style="min-height:18px;color:#f87171;font-size:12.5px"></div>
-      <div class="pinpad">
-        ${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-k="${n}">${n}</button>`).join('')}
-        <button data-k="del">⌫</button><button data-k="0">0</button><button data-k="clr">C</button>
+      <button class="passkey-btn" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricName())}</b><span class="pk-sub">${esc(biometricHint())}</span></span></button>
+      <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
+      <div class="pindots" id="gpd" aria-live="polite"></div>
+      <div id="gpErr" style="min-height:18px;color:#f87171;font-size:12.5px" role="alert"></div>
+      <div class="pinpad" role="group" aria-label="PIN">
+        ${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join('')}
+        <button type="button" data-k="del" aria-label="Backspace">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="clr" aria-label="Clear">C</button>
       </div>
-      <button class="btn" id="gLogin" style="margin-top:12px">${t('loginEntry')}</button>
-      <button class="gate-back" id="gForgot" style="display:block;margin:2px auto">${t('forgotPin')}</button>
-      <button class="gate-back" id="gBack">${t('gateBack')}</button>
+      <button class="btn" id="gLogin" type="button" style="margin-top:12px;display:none">${t('loginEntry')}</button>
+      <div class="muted" style="margin-top:10px;font-size:11.5px">${state.lang==='el'?'Το PIN ολοκληρώνει αυτόματα την είσοδο.':'Die PIN meldet dich automatisch an.'}</div>
+      <button class="gate-back" id="gForgot" type="button" style="display:block;margin:2px auto">${t('forgotPin')}</button>
+      <button class="gate-back" id="gBack" type="button">${t('gateBack')}</button>
     </div>
     ${gateMeta()}`;
   const draw = () => {
     gateBody.querySelector('#gpd').innerHTML =
-      [0,1,2,3,4,5].map(i=>`<i class="${i<buf.length?'f':''}"></i>`).join('');
+      [0,1,2,3,4,5].map(i=>`<i class="${i<buf.length?'f':''} ${busy&&i<buf.length?'busy':''}"></i>`).join('');
   };
   draw();
-  if(passkeyCapable()) PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(available=>{
+  const showPasskey=()=>{
     const button=gateBody.querySelector('#gPasskey'),divider=gateBody.querySelector('#gPinDivider');
-    if(button&&available){button.classList.add('on');divider.style.display='flex';}
-  }).catch(()=>{});
+    if(!button||!divider) return;
+    button.hidden=false;button.classList.add('on');divider.hidden=false;divider.style.display='flex';
+  };
+  if(passkeyCapable()){
+    showPasskey();
+    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable?.().then(available=>{
+      if(available) showPasskey();
+    }).catch(()=>{});
+  }
   gateBody.querySelector('#gBack').onclick = () => renderProfiles(mode);
   gateBody.querySelector('#gForgot').onclick = () => renderResetRequest(who,mode);
-  gateBody.querySelectorAll('.pinpad button').forEach(b=>{
-    b.onclick = () => {
-      const k = b.dataset.k;
-      if(k==='del') buf = buf.slice(0,-1);
-      else if(k==='clr') buf = '';
-      else if(buf.length<6) buf += k;
-      draw();
-    };
-  });
-  gateBody.querySelector('#gPasskey').onclick=async()=>{
-    const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gPasskey');
-    button.disabled=true;errorEl.textContent='';
-    try{
-      await loginWithPasskey(mode,who);closeGate();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name),'success');
-    }catch(error){
-      errorEl.textContent=error.code==='no_passkey'?t('passkeyNone'):
-        error.name==='NotAllowedError'?t('passkeyCancelled'):error.message||t('authUnavailable');
-    }finally{button.disabled=false;}
-  };
-  gateBody.querySelector('#gLogin').onclick=async()=>{
+
+  const finishLogin=async()=>{
+    if(busy) return;
     const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gLogin');
     if(buf.length<4){errorEl.textContent=t('wrongPin');return;}
-    button.disabled=true;errorEl.textContent='';
+    busy=true;button.classList.add('logging');button.disabled=true;errorEl.textContent='';draw();
     try{
       await authenticateProfile(mode,who,buf);
-      closeGate();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name));
+      closeGate();revealApp();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name),'success');
     }catch(error){
       if(error.status===429){
         const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||900)/60));
@@ -5008,8 +5046,53 @@ function renderGatePin(who, mode = 'staff'){
       }else if(error.status===401 && Number.isInteger(error.attemptsRemaining)){
         errorEl.textContent=T[state.lang].attemptsRemaining(error.attemptsRemaining);
       }else errorEl.textContent=error.status===401?t('wrongPin'):t('authUnavailable');
-      buf='';draw();
-    }finally{button.disabled=false;}
+      buf='';
+    }finally{
+      busy=false;button.classList.remove('logging');button.disabled=false;draw();
+    }
+  };
+
+  const pushKey=k=>{
+    if(busy) return;
+    if(k==='del') buf = buf.slice(0,-1);
+    else if(k==='clr') buf = '';
+    else if(/^\d$/.test(k) && buf.length<6) buf += k;
+    draw();
+    // All Armonia PINs are 6 digits — auto-login as soon as complete.
+    if(buf.length===6) finishLogin();
+  };
+
+  gateBody.querySelectorAll('.pinpad button').forEach(b=>{
+    b.onclick = () => pushKey(b.dataset.k);
+  });
+  gateBody.querySelector('#gLogin').onclick=finishLogin;
+
+  // Hardware keyboard / iPad keyboard support
+  const onKey=event=>{
+    if(!gateEl.classList.contains('on')||busy) return;
+    if(event.key>='0'&&event.key<='9'){event.preventDefault();pushKey(event.key);}
+    else if(event.key==='Backspace'){event.preventDefault();pushKey('del');}
+    else if(event.key==='Escape'){event.preventDefault();buf='';draw();}
+    else if(event.key==='Enter'&&buf.length>=4){event.preventDefault();finishLogin();}
+  };
+  window.addEventListener('keydown', onKey, {passive:false});
+  const cleanup=()=>window.removeEventListener('keydown', onKey);
+  const prevBack=gateBody.querySelector('#gBack').onclick;
+  gateBody.querySelector('#gBack').onclick=()=>{cleanup();prevBack();};
+  gateBody.querySelector('#gForgot').onclick=()=>{cleanup();renderResetRequest(who,mode);};
+
+  gateBody.querySelector('#gPasskey').onclick=async()=>{
+    const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gPasskey');
+    if(busy) return;
+    busy=true;button.disabled=true;errorEl.textContent='';
+    try{
+      await loginWithPasskey(mode,who);
+      cleanup();closeGate();revealApp();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name),'success');
+    }catch(error){
+      errorEl.textContent=error.code==='no_passkey'?t('passkeyNone'):
+        error.code==='unsupported'?t('passkeyUnavailable'):
+        error.name==='NotAllowedError'?t('passkeyCancelled'):error.message||t('authUnavailable');
+    }finally{busy=false;button.disabled=false;}
   };
 }
 
@@ -5066,6 +5149,8 @@ function renderResetForm(token){
       if(!response.ok) throw new Error(data.code||String(response.status));
       history.replaceState({},'',location.pathname);
       state.user=null;state.child=null;state.mode='staff';session.sessionId=null;
+      document.body.classList.add('auth-pending');
+      document.getElementById('app').hidden=true;
       renderEntrance();toast(t('pinChanged'),'success',5200);
     }catch(error){setStatus(status,error.message==='storage'?t('errStorage'):t('invalidReset'),'error');}
     finally{button.disabled=false;}
@@ -5083,9 +5168,9 @@ window.addEventListener('error', event=>{
   console.error('unexpected UI error',event.error||event.message);
   toast(t('unexpectedError'),'error');
 });
-render();
 localStorage.removeItem('paidia.authSession');
 const resetToken=new URLSearchParams(location.search).get('reset');
+openGate();
 if(resetToken) renderResetForm(resetToken); else restoreServerSession();
 resolveIp().then(refreshGateMeta);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
