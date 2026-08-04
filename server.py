@@ -1065,6 +1065,27 @@ class Handler(SimpleHTTPRequestHandler):
             else:
                 self.json_response(403, {"error": "Webhook verification failed"})
             return
+        # Never let browsers/PWAs keep a stale login shell.
+        if parsed.path in {"/", "/index.html", "/app.js", "/gate.js", "/sw.js"} or parsed.path.endswith((".html", ".js", ".css", ".webmanifest")):
+            path = self.translate_path(self.path)
+            if os.path.isdir(path):
+                path = os.path.join(path, "index.html")
+            try:
+                with open(path, "rb") as file_obj:
+                    payload = file_obj.read()
+            except OSError:
+                self.send_error(404, "File not found")
+                return
+            content_type = self.guess_type(path)
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(payload)))
+            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
+            self.end_headers()
+            self.wfile.write(payload)
+            return
         super().do_GET()
 
     def do_POST(self) -> None:  # noqa: N802
