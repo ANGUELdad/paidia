@@ -449,6 +449,10 @@
   .stock-product.multi-house .stock-house-quantities{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:5px}
   .stock-product.multi-house .stock-qty{min-width:0;padding:6px 7px;border:1px solid rgba(148,163,184,.22);border-radius:9px;background:rgba(255,255,255,.72);text-align:left;font-size:12px}
   .stock-product.multi-house .stock-state{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .reason-create{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;align-items:center;margin:-4px 0 10px}
+  .reason-create .btn{width:auto;margin:0;white-space:nowrap}.reason-create[hidden]{display:none}
+  .reason-option{display:inline-flex;align-items:center;gap:2px}.reason-option .chip{margin:0}
+  .reason-remove{width:24px;height:24px;border:0;border-radius:50%;background:#fee2e2;color:#b91c1c;font-weight:800;cursor:pointer}
   .stock-detail-head{display:flex;align-items:center;gap:13px;padding:16px;border:1px solid #ccfbf1;border-radius:17px;background:linear-gradient(135deg,#ecfdf5,#ecfeff)}
   .stock-detail-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:#fff;font-size:25px;box-shadow:0 8px 18px rgba(15,118,110,.1)}
   .stock-detail-houses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}.stock-detail-house{padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.stock-detail-house b{display:block;margin-top:3px;font-size:18px}
@@ -786,7 +790,9 @@ const T = {
     stockBoard:'Kühlschrank & Lager', dropHere:'Antippen oder in ein Feld ziehen',
     itemsPicked:'ausgewählt', pickSomething:'Tippe Produkte an oder zieh sie in das Feld oben',
     bookN:n=>`${n} ${n===1?'Position':'Positionen'} buchen`,
-    reason:'Grund', newReason:'Neuer Grund',
+    reason:'Grund', newReason:'Neuer Grund', reasonNamePh:'z. B. Spende, Reparatur oder Teamküche',
+    saveReason:'Grund hinzufügen', reasonRequired:'Schreibe zuerst einen Namen für den Grund.',
+    reasonExists:'Dieser Grund existiert bereits und wurde ausgewählt.', reasonAdded:n=>`„${n}“ wurde gespeichert und ausgewählt.`, reasonRemoved:'Eigener Grund entfernt.',
     storeMode:'Im Supermarkt', other:'Sonstiges',
     storeFocus:'Einkaufsmodus', storeFocusHint:'Entscheide jede Position eindeutig. Nichts wird automatisch als fehlend markiert.',
     storeSearch:'In dieser Einkaufsliste suchen…', storeRemaining:'Noch zu entscheiden', storeComplete:'Alles entschieden',
@@ -1014,7 +1020,9 @@ const T = {
     stockBoard:'Ψυγείο & αποθήκη', dropHere:'Πάτα ή σύρε σε μία ζώνη',
     itemsPicked:'επιλεγμένα', pickSomething:'Πάτα προϊόντα ή σύρ’ τα στο πλαίσιο πάνω',
     bookN:n=>`Καταχώρηση ${n} ${n===1?'είδους':'ειδών'}`,
-    reason:'Λόγος', newReason:'Νέος λόγος',
+    reason:'Λόγος', newReason:'Νέος λόγος', reasonNamePh:'π.χ. δωρεά, επισκευή ή κουζίνα ομάδας',
+    saveReason:'Προσθήκη λόγου', reasonRequired:'Γράψε πρώτα ένα όνομα για τον λόγο.',
+    reasonExists:'Αυτός ο λόγος υπάρχει ήδη και επιλέχθηκε.', reasonAdded:n=>`Το «${n}» αποθηκεύτηκε και επιλέχθηκε.`, reasonRemoved:'Ο προσαρμοσμένος λόγος αφαιρέθηκε.',
     storeMode:'Στο σουπερμάρκετ', other:'Άλλα',
     storeFocus:'Λειτουργία αγορών', storeFocusHint:'Αποφάσισε καθαρά για κάθε είδος. Τίποτα δεν σημειώνεται αυτόματα ως έλλειψη.',
     storeSearch:'Αναζήτηση σε αυτή τη λίστα…', storeRemaining:'Μένουν για απόφαση', storeComplete:'Όλα αποφασίστηκαν',
@@ -1783,7 +1791,7 @@ function onboardingSteps(){
     step('📅','Plan richtig filtern','Σωστό φιλτράρισμα προγράμματος','Unteres Menü → 📅 Plan → Ansicht / Haus','Κάτω μενού → 📅 Πρόγραμμα → Προβολή / Σπίτι',['Tippe „Tag“ für das tägliche Meeting oder „Woche“ für alle sieben Tage.','Wähle „Kalyvia“, „Limenaria“ oder „Kombiniert“. Die drei Einkaufshäuser erscheinen bewusst nicht im Plan.','Nutze „Dienste“ für Schichten und „Events“ für besondere Termine.'],['Πάτησε «Ημέρα» για το καθημερινό meeting ή «Εβδομάδα» για επτά ημέρες.','Διάλεξε «Kalyvia», «Limenaria» ή «Συνδυαστικά». Τα τρία σπίτια αγορών δεν εμφανίζονται σκόπιμα στο πρόγραμμα.','Χρησιμοποίησε «Βάρδιες» για ωράρια και «Events» για ειδικά γεγονότα.'],'Der Filter ändert nur die Ansicht; er löscht oder verschiebt keine Einträge.','Το φίλτρο αλλάζει μόνο την προβολή· δεν διαγράφει ούτε μετακινεί εγγραφές.'),
     step('✍️','Einen Planeintrag speichern','Αποθήκευση εγγραφής προγράμματος','Plan → gewünschte Zelle / „+ Eintrag“','Πρόγραμμα → επιθυμητό κελί / «+ Εγγραφή»',['Tippe die Zelle des richtigen Tages und Zeitblocks.','Setze Häkchen bei einem oder mehreren Häusern und Personen.','Wähle Kinder einzeln oder über eine Gruppe, danach Aktivität und Uhrzeit.','Wähle „Nur heute“ oder – als Admin – „Dauerhaft“ und tippe „Speichern“.'],['Πάτησε το κελί της σωστής ημέρας και ζώνης ώρας.','Τσέκαρε ένα ή περισσότερα σπίτια και άτομα.','Διάλεξε παιδιά μεμονωμένα ή μέσω ομάδας και μετά δραστηριότητα και ώρα.','Διάλεξε «Μόνο σήμερα» ή – ως admin – «Μόνιμα» και πάτησε «Αποθήκευση».'],'Nach dem Speichern erscheint die Karte in genau diesem Tag und Block.','Μετά την αποθήκευση η κάρτα εμφανίζεται στη σωστή ημέρα και ζώνη.'),
     step('🎊','Planeintrag als Event veröffentlichen','Δημοσίευση εγγραφής ως event','Plan → Zelle öffnen → 📣 Event','Πρόγραμμα → άνοιγμα κελιού → 📣 Event',['Aktiviere oben „Event“.','Trage Eventtitel, Ort und „Mitbringen“ ein und kontrolliere Start/Ende.','Prüfe die ausgewählten Kinder; nur diese Profile erhalten die Ankündigung.','Tippe „Speichern“.'],['Ενεργοποίησε επάνω το «Event».','Συμπλήρωσε τίτλο, μέρος και «Τι να φέρουν» και έλεγξε ώρα αρχής/τέλους.','Έλεγξε τα επιλεγμένα παιδιά· μόνο αυτά θα λάβουν την ανακοίνωση.','Πάτησε «Αποθήκευση».'],'Das Event erscheint im Events-Tab der ausgewählten Kinder; WhatsApp wird nur bei vorhandener Konfiguration versucht.','Το event εμφανίζεται στο tab Events των επιλεγμένων παιδιών· WhatsApp επιχειρείται μόνο αν είναι ρυθμισμένο.'),
-    step('🧊','Bestand ein- oder ausbuchen','Καταχώρηση εισόδου ή εξόδου αποθέματος','Unteres Menü → 🧊 Lager','Κάτω μενού → 🧊 Ψυγείο',['Wähle zuerst das richtige Haus; wische die Hausleiste seitlich, falls es nicht sichtbar ist.','Suche ein Produkt oder filtere „Braucht Aufmerksamkeit“, „Nur leer“ oder „Alle“.','Öffne das Produkt und tippe „Eingang“ oder „Ausgang“.','Setze Menge und bei Ausgang Grund/Foto; bestätige die Buchung.'],['Διάλεξε πρώτα το σωστό σπίτι· σύρε τη σειρά σπιτιών στο πλάι αν δεν φαίνεται.','Αναζήτησε προϊόν ή βάλε φίλτρο «Χρειάζεται προσοχή», «Μόνο άδεια» ή «Όλα».','Άνοιξε το προϊόν και πάτησε «Είσοδος» ή «Έξοδος».','Βάλε ποσότητα και στην έξοδο λόγο/φωτογραφία· επιβεβαίωσε.'],'Die Menge ändert sich nur im zuvor gewählten Haus und die Bewegung steht im Protokoll.','Η ποσότητα αλλάζει μόνο στο επιλεγμένο σπίτι και η κίνηση γράφεται στις καταγραφές.'),
+    step('🧊','Bestand ein- oder ausbuchen','Καταχώρηση εισόδου ή εξόδου αποθέματος','Unteres Menü → 🧊 Lager','Κάτω μενού → 🧊 Ψυγείο',['Wähle zuerst das richtige Haus; wische die Hausleiste seitlich, falls es nicht sichtbar ist.','Suche ein Produkt oder filtere „Braucht Aufmerksamkeit“, „Nur leer“ oder „Alle“.','Öffne das Produkt und tippe „Eingang“ oder „Ausgang“.','Bei Ausgang: Wähle einen Grund oder tippe „+ Neuer Grund“, schreibe ihn ins Feld und speichere ihn.','Setze Menge und Foto; bestätige die Buchung.'],['Διάλεξε πρώτα το σωστό σπίτι· σύρε τη σειρά σπιτιών στο πλάι αν δεν φαίνεται.','Αναζήτησε προϊόν ή βάλε φίλτρο «Χρειάζεται προσοχή», «Μόνο άδεια» ή «Όλα».','Άνοιξε το προϊόν και πάτησε «Είσοδος» ή «Έξοδος».','Στην έξοδο: διάλεξε λόγο ή πάτησε «+ Νέος λόγος», γράψ’ τον στο πεδίο και αποθήκευσέ τον.','Βάλε ποσότητα και φωτογραφία· επιβεβαίωσε.'],'Die Menge ändert sich nur im zuvor gewählten Haus und die Bewegung steht im Protokoll.','Η ποσότητα αλλάζει μόνο στο επιλεγμένο σπίτι και η κίνηση γράφεται στις καταγραφές.'),
     step('🛒','Warenkorb für den richtigen Freitag bauen','Δημιουργία καλαθιού για τη σωστή Παρασκευή','Unteres Menü → 🛒 Liste','Κάτω μενού → 🛒 Λίστα',['Wähle oben das Haus.','Stelle mit den Pfeilen oder dem Datumsfeld den tatsächlichen Freitag ein.','Tippe einen Namen in „Produkt schnell hinzufügen“ oder nutze „Liste hinzufügen“.','Ändere Mengen mit +/−; entferne eine falsche Zeile mit ×.'],['Διάλεξε επάνω το σπίτι.','Με τα βέλη ή το πεδίο ημερομηνίας διάλεξε την πραγματική Παρασκευή.','Γράψε όνομα στη «Γρήγορη προσθήκη» ή χρησιμοποίησε «Προσθήκη λίστας».','Άλλαξε ποσότητες με +/− και αφαίρεσε λάθος γραμμή με ×.'],'Haus und Freitag stehen immer über der Liste; prüfe beides vor dem Einkauf.','Σπίτι και Παρασκευή φαίνονται πάντα πάνω από τη λίστα· έλεγξέ τα πριν τα ψώνια.'),
     step('🧠','Text oder Screenshot mit OCR einlesen','Εισαγωγή κειμένου ή screenshot με OCR','Liste → „Liste hinzufügen“','Λίστα → «Προσθήκη λίστας»',['Wähle „Text“ und füge die komplette Liste ein – oder „Screenshot/Foto“ und lade das Bild hoch bzw. füge es ein.','Tippe „Analysieren/Einlesen“ und warte auf den Entwurf.','Korrigiere Produktname, Menge und Einheit in jeder unsicheren Zeile.','Wähle „Intelligent zusammenführen“, „Neue Zeilen“ oder „Freitag ersetzen“ und speichere.'],['Διάλεξε «Κείμενο» και επικόλλησε όλη τη λίστα – ή «Screenshot/φωτογραφία» και ανέβασε/επικόλλησε εικόνα.','Πάτησε «Ανάλυση/Ανάγνωση» και περίμενε το πρόχειρο.','Διόρθωσε όνομα, ποσότητα και μονάδα σε κάθε αβέβαιη γραμμή.','Διάλεξε «Έξυπνη συγχώνευση», «Νέες γραμμές» ή «Αντικατάσταση Παρασκευής» και αποθήκευσε.'],'OCR speichert nie automatisch: Erst deine Bestätigung schreibt die Zeilen in den Warenkorb.','Το OCR δεν αποθηκεύει αυτόματα· μόνο η δική σου επιβεβαίωση γράφει τις γραμμές στο καλάθι.'),
     step('🛍️','Im Supermarkt eindeutig abhaken','Σαφής επιλογή στο σουπερμάρκετ','Liste → „Einkauf starten“','Λίστα → «Έναρξη αγορών»',['Tippe „Einkauf starten“.','Tippe bei jedem Produkt entweder „Gekauft“ oder „Nicht verfügbar“.','Bei einem Fehler tippe „Zurücksetzen“; mit „Zurück zum Warenkorb“ kannst du die Liste weiter bearbeiten.','Wenn nichts mehr offen ist, tippe „Charge bestätigen“.'],['Πάτησε «Έναρξη αγορών».','Για κάθε προϊόν πάτησε «Αγοράστηκε» ή «Δεν ήταν διαθέσιμο».','Σε λάθος πάτησε «Επαναφορά»· με «Πίσω στο καλάθι» μπορείς να διορθώσεις τη λίστα.','Όταν δεν μένει τίποτα ανοιχτό, πάτησε «Επιβεβαίωση παρτίδας».'],'Gekauftes erhöht automatisch den Bestand des gewählten Hauses; fehlende Produkte bleiben als Fehlmenge sichtbar.','Τα αγορασμένα αυξάνουν αυτόματα το απόθεμα του επιλεγμένου σπιτιού· όσα λείπουν μένουν ως έλλειψη.'),
@@ -2862,6 +2870,12 @@ function sheetStockBoard(dir,initialPid=null){
     <div id="sbReasonWrap" style="display:none">
       <label class="f"><span>${t('reason')}</span></label>
       <div class="chips" id="sbReasons" style="margin:-4px 0 12px"></div>
+      <div class="reason-create" id="sbReasonCreate" hidden>
+        <input id="sbReasonName" maxlength="60" autocomplete="off" placeholder="${t('reasonNamePh')}">
+        <button class="btn sec" id="sbReasonAdd" type="button">＋ ${t('saveReason')}</button>
+        <button class="mini-x" id="sbReasonCancel" type="button" aria-label="${t('close')}">×</button>
+      </div>
+      <div id="sbReasonStatus" class="status-box" style="display:none" role="status" aria-live="polite"></div>
     </div>
     <div id="sbCam" style="display:none">
       <label class="f"><span>${t('photoLabel')}</span></label>
@@ -2873,6 +2887,33 @@ function sheetStockBoard(dir,initialPid=null){
     </div>`);
 
   const $ = s => sheetEl.querySelector(s);
+  const reasonCreate=$('#sbReasonCreate'),reasonInput=$('#sbReasonName'),reasonStatus=$('#sbReasonStatus');
+
+  const hideReasonCreate=()=>{
+    reasonCreate.hidden=true;reasonInput.value='';reasonStatus.style.display='none';
+  };
+  const addCustomReason=()=>{
+    const name=reasonInput.value.trim().replace(/\s+/g,' ');
+    reasonStatus.style.display='block';
+    if(!name){setStatus(reasonStatus,t('reasonRequired'),'error');reasonInput.focus();return;}
+    const existing=REASONS().find(r=>[r.de,r.el,L(r)].some(value=>norm(value)===norm(name)));
+    if(existing){
+      reasonId=existing.id;setStatus(reasonStatus,t('reasonExists'),'info');paint();return;
+    }
+    const reason={id:'cr'+uid(),de:name,el:name,custom:true};
+    DB.customReasons.push(reason);
+    if(!save()){
+      DB.customReasons=DB.customReasons.filter(item=>item.id!==reason.id);
+      setStatus(reasonStatus,t('errStorage'),'error');return;
+    }
+    reasonId=reason.id;hideReasonCreate();paint();toast(T[state.lang].reasonAdded(name),'success');
+  };
+  $('#sbReasonAdd').onclick=addCustomReason;
+  $('#sbReasonCancel').onclick=hideReasonCreate;
+  reasonInput.onkeydown=event=>{
+    if(event.key==='Enter'){event.preventDefault();addCustomReason();}
+    if(event.key==='Escape'){event.preventDefault();hideReasonCreate();}
+  };
 
   /** Ενημερώνει μόνο ό,τι αλλάζει — ποτέ το βίντεο. */
   function paint(){
@@ -2948,16 +2989,24 @@ function sheetStockBoard(dir,initialPid=null){
     // Λόγος μόνο όταν υπάρχει τουλάχιστον μία έξοδος
     $('#sbReasonWrap').style.display = outs().length ? '' : 'none';
     $('#sbReasons').innerHTML =
-      REASONS().map(r=>`<button class="chip ${r.id===reasonId?'on':''}" data-r="${r.id}">${esc(L(r))}</button>`).join('') +
+      REASONS().map(r=>r.custom
+        ? `<span class="reason-option"><button class="chip ${r.id===reasonId?'on':''}" data-r="${r.id}">${esc(L(r))}</button><button class="reason-remove" data-remove-reason="${r.id}" type="button" aria-label="${t('close')}: ${esc(L(r))}">×</button></span>`
+        : `<button class="chip ${r.id===reasonId?'on':''}" data-r="${r.id}">${esc(L(r))}</button>`).join('') +
       `<button class="chip" id="sbNewReason" style="border-style:dashed">＋ ${t('newReason')}</button>`;
     $('#sbReasons').querySelectorAll('.chip[data-r]').forEach(b=>{
       b.onclick = () => { reasonId = b.dataset.r; paint(); };
     });
+    $('#sbReasons').querySelectorAll('[data-remove-reason]').forEach(button=>{
+      button.onclick=()=>{
+        const before=[...DB.customReasons],id=button.dataset.removeReason;
+        DB.customReasons=DB.customReasons.filter(reason=>reason.id!==id);
+        if(!save()){DB.customReasons=before;return;}
+        if(reasonId===id)reasonId=null;
+        paint();toast(t('reasonRemoved'),'success');
+      };
+    });
     $('#sbNewReason').onclick = () => {
-      const name = prompt(t('newReason'));
-      if(!name || !name.trim()) return;
-      const r = {id:'cr'+uid(), de:name.trim(), el:name.trim(), custom:true};
-      DB.customReasons.push(r); save(); reasonId = r.id; paint();
+      reasonCreate.hidden=false;reasonStatus.style.display='none';reasonInput.focus();
     };
 
     $('#sbCam').style.display = picked.length ? '' : 'none';
