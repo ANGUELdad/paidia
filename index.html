@@ -358,6 +358,7 @@
   .shop-hero-top{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
   .shop-hero h2{margin:2px 0 5px;font-size:21px}.shop-hero p{margin:0;color:#dbeafe;font-size:12.5px}
   .shop-hero .btn{position:relative;z-index:1;width:auto;background:#fff;color:#1d4ed8;border-color:#fff;box-shadow:none}
+  .shop-hero-actions{display:flex;gap:7px}
   .friday-picker{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;margin-top:15px}
   .friday-picker>button{height:42px;min-width:42px;border:1px solid rgba(255,255,255,.22);border-radius:12px;
     background:rgba(255,255,255,.12);color:#fff;font-size:18px;cursor:pointer}
@@ -393,6 +394,12 @@
   .store-finish .row{gap:8px}.store-finish .btn{margin:0}.store-finish .btn.sec{width:auto}.store-finish .btn:disabled{opacity:.45;cursor:not-allowed}
   .shop-history{padding:0;overflow:hidden}.shop-history summary{display:flex;align-items:center;gap:9px;padding:13px 15px;cursor:pointer;font-weight:760;list-style:none}.shop-history summary::-webkit-details-marker{display:none}.shop-history summary span:last-child{margin-left:auto}
   .shop-history-body{padding:0 15px 10px;border-top:1px solid #eef2f6}
+  .trip-history-list{display:grid;gap:10px;margin-top:12px}.trip-card{overflow:hidden;border:1px solid var(--line);border-radius:17px;background:#fff}
+  .trip-card summary{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:11px;align-items:center;padding:14px;cursor:pointer;list-style:none}.trip-card summary::-webkit-details-marker{display:none}
+  .trip-date{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:#eff6ff;color:#1d4ed8;font-size:18px}.trip-card h3{margin:0 0 3px;font-size:14px}.trip-card .trip-meta{color:#64748b;font-size:10.5px}
+  .trip-counts{display:flex;gap:5px}.trip-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:11px 14px 14px;border-top:1px solid #eef2f6;background:#f8fafc}
+  .trip-result{padding:11px;border-radius:13px;background:#fff}.trip-result.bought{border:1px solid #a7f3d0}.trip-result.missing{border:1px solid #fecaca}.trip-result h4{margin:0 0 7px;font-size:11px}.trip-result ul{display:grid;gap:6px;margin:0;padding:0;list-style:none}.trip-result li{display:flex;justify-content:space-between;gap:10px;font-size:11.5px}.trip-result li span:last-child{color:#64748b;white-space:nowrap}
+  .trip-empty{padding:26px 14px;text-align:center;color:#64748b}.trip-empty .big{font-size:32px;margin-bottom:6px}
   .stock-hero{position:relative;overflow:hidden;margin:12px 0;padding:18px;border-radius:20px;color:#fff;
     background:linear-gradient(135deg,#064e3b,#0f766e 58%,#0891b2);box-shadow:0 15px 34px rgba(15,118,110,.15)}
   .stock-hero::after{content:'🧊';position:absolute;right:20px;top:13px;font-size:54px;opacity:.17;transform:rotate(8deg)}
@@ -521,7 +528,7 @@
   @media(max-width:900px){.admin-team-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:640px){.dashboard-grid{grid-template-columns:1fr}.dashboard-grid .wide{grid-column:auto}.home-stats{gap:6px}}
   @media(max-width:520px){.admin-team-grid{grid-template-columns:1fr}.admin-center-head{align-items:flex-start}.admin-crown{width:44px;height:44px}.shift-edit-row{grid-template-columns:1fr 1fr}.shift-edit-row .mini-x{align-self:end}}
-  @media(max-width:640px){.shop-hero-top{display:block}.shop-hero .btn{width:100%;margin-top:12px}.shop-summary{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:640px){.shop-hero-top{display:block}.shop-hero-actions{display:grid;grid-template-columns:1fr;margin-top:12px}.shop-hero .btn{width:100%;margin:0}.shop-summary{grid-template-columns:repeat(3,1fr)}
     .import-source-grid{grid-template-columns:1fr}.merge-choice{grid-template-columns:1fr}.import-context{grid-template-columns:1fr 1fr}.import-review-row{grid-template-columns:minmax(0,1fr) 58px 50px 32px}
     .import-preview-card{grid-template-columns:88px minmax(0,1fr)}.import-preview-card img{width:88px;height:72px}
     .stock-product-grid{grid-template-columns:1fr}.stock-toolbar{top:112px}.stock-hero::after{right:7px}.stock-actions{gap:7px}
@@ -612,7 +619,7 @@
   @keyframes gateFloat{from{transform:translate3d(0,-12px,0) scale(.96)}to{transform:translate3d(20px,22px,0) scale(1.06)}}
   @keyframes markBreathe{0%,100%{transform:rotate(-4deg) translateY(0)}50%{transform:rotate(2deg) translateY(-4px)}}
   @media(max-width:540px){#gate{padding:calc(18px + env(safe-area-inset-top,0px)) 12px 22px}.gate-wrap{padding:22px 16px;border-radius:24px}}
-  @media(max-width:520px){.help-center-grid{grid-template-columns:1fr}.help-center-card{min-height:0}}
+  @media(max-width:520px){.help-center-grid{grid-template-columns:1fr}.help-center-card{min-height:0}.trip-results{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){#gate,#gate::before,#gate::after,.gate-wrap,.gate-head,.gate-head .mark,.profile{animation:none!important}.profile{transition:none}}
 </style>
 </head>
@@ -771,6 +778,9 @@ const T = {
     bothHouses:'Beide Häuser', shortage:'Fehlmenge',
     boughtNotOnList:'gekauft, war nicht auf der Liste',
     batchBooked:n=>`${n} Positionen gebucht`, nothingToStart:'Die Liste ist leer',
+    shoppingHistory:'Einkaufsverlauf', shoppingHistoryHint:'Jeder abgeschlossene Einkauf – mit gekauft und nicht gekauft.',
+    noShoppingHistory:'Noch kein abgeschlossener Einkauf', noShoppingHistoryHint:'Nach der Bestätigung im Supermarkt erscheint der Einkauf automatisch hier.',
+    boughtItems:'Gekauft', notBoughtItems:'Nicht gekauft', completedBy:'Abgeschlossen von', completedOn:'Abgeschlossen',
     fullBlock:'Ganzer Block', fromTime:'ab', timeFrom:'Von', timeTo:'Bis',
     importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto', fromScreenshot:'Screenshot',
     listJourneyTitle:'Freitagseinkauf', listJourneyHint:'Eine vollständige Liste pro Haus und echtem Freitagsdatum.',
@@ -989,6 +999,9 @@ const T = {
     bothHouses:'Και τα δύο σπίτια', shortage:'Έλλειψη',
     boughtNotOnList:'αγοράστηκε, δεν ήταν στη λίστα',
     batchBooked:n=>`${n} είδη καταχωρήθηκαν`, nothingToStart:'Η λίστα είναι άδεια',
+    shoppingHistory:'Ιστορικό αγορών', shoppingHistoryHint:'Κάθε ολοκληρωμένη αγορά – με όσα αγοράστηκαν και όσα δεν αγοράστηκαν.',
+    noShoppingHistory:'Δεν υπάρχει ολοκληρωμένη αγορά ακόμη', noShoppingHistoryHint:'Μετά την επιβεβαίωση στο σουπερμάρκετ, η αγορά εμφανίζεται αυτόματα εδώ.',
+    boughtItems:'Αγοράστηκαν', notBoughtItems:'Δεν αγοράστηκαν', completedBy:'Ολοκληρώθηκε από', completedOn:'Ολοκληρώθηκε',
     fullBlock:'Όλο το μπλοκ', fromTime:'από', timeFrom:'Από', timeTo:'Έως',
     importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία', fromScreenshot:'Screenshot',
     listJourneyTitle:'Ψώνια Παρασκευής', listJourneyHint:'Μία πλήρης λίστα ανά σπίτι και πραγματική ημερομηνία Παρασκευής.',
@@ -1407,6 +1420,7 @@ const SEED = {
     {id:'s5', productId:'p70', name:'Wasser',       qty:4,  unit:'Stk', houseId:'h2', by:'e5', status:'open'},
     {id:'s6', productId:'p81', name:'Küchenrolle',  qty:1,  unit:'Stk', houseId:'h2', by:'e5', status:'open'},
   ],
+  shoppingTrips: [],
   /* Ρεαλιστικό απόθεμα και στα δύο σπίτια, ώστε να ξεχωρίζει τι πραγματικά λείπει. */
   stock: {
     'h1:p1':6,  'h1:p2':3,  'h1:p3':1,  'h1:p4':800, 'h1:p5':4,  'h1:p6':2,  'h1:p7':400, 'h1:p8':6,
@@ -1433,7 +1447,7 @@ const SEED = {
 
 const KEY = 'paidia.v3';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
-const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'stock', 'log',
+const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customActivities', 'customReasons'];
 
 let DB = load();
@@ -1767,7 +1781,7 @@ function onboardingSteps(){
     step('🧊','Kühlschrank und Lager','Ψυγείο και αποθήκη','Die attention-first Ansicht zeigt zuerst leere und knappe Produkte.','Η προβολή προσοχής δείχνει πρώτα άδεια και λίγα προϊόντα.',['Haus, Suche und Zustandsfilter','Produkt öffnen und Details sehen','Eingang, Ausgang oder direkt zur Einkaufsliste'],['Σπίτι, αναζήτηση και φίλτρα','Άνοιγμα προϊόντος και λεπτομέρειες','Είσοδος, έξοδος ή απευθείας στη λίστα']),
     step('🛒','Freitagsliste erstellen','Δημιουργία λίστας Παρασκευής','Jede Liste gehört zu einem Haus und einem echten Freitagsdatum.','Κάθε λίστα ανήκει σε ένα σπίτι και πραγματική ημερομηνία Παρασκευής.',['Produkt einzeln hinzufügen','Ganze Textliste einfügen','Screenshot oder Foto mit AI-OCR'],['Προσθήκη μεμονωμένου προϊόντος','Επικόλληση ολόκληρης λίστας','Screenshot ή φωτογραφία με AI-OCR']),
     step('🧠','OCR prüfen und zusammenführen','Έλεγχος και συγχώνευση OCR','AI-Ergebnisse bleiben ein Entwurf, bis du Namen, Mengen und Einheiten geprüft hast.','Τα αποτελέσματα AI παραμένουν πρόχειρα μέχρι να ελέγξεις ονόματα, ποσότητες και μονάδες.',['Unsichere Zeilen klar markiert','Duplikate intelligent zusammenführen','Anhängen oder Freitag ersetzen'],['Σαφής σήμανση αβέβαιων γραμμών','Έξυπνη συγχώνευση διπλοτύπων','Προσθήκη ή αντικατάσταση Παρασκευής']),
-    step('🛍️','Im Supermarkt','Στο σουπερμάρκετ','Im Einkaufsmodus bekommt jedes Produkt eine ausdrückliche Entscheidung.','Στη λειτουργία αγορών κάθε προϊόν παίρνει σαφή απόφαση.',['Gekauft oder nicht verfügbar','Entscheidung jederzeit zurücksetzen','Abschluss erst wenn alles entschieden ist'],['Αγοράστηκε ή δεν ήταν διαθέσιμο','Επαναφορά απόφασης οποτεδήποτε','Ολοκλήρωση μόνο όταν αποφασιστούν όλα']),
+    step('🛍️','Im Supermarkt','Στο σουπερμάρκετ','Im Einkaufsmodus bekommt jedes Produkt eine ausdrückliche Entscheidung.','Στη λειτουργία αγορών κάθε προϊόν παίρνει σαφή απόφαση.',['Gekauft oder nicht verfügbar','Entscheidung jederzeit zurücksetzen','Abschluss erst wenn alles entschieden ist','Verlauf zeigt gekauft und nicht gekauft'],['Αγοράστηκε ή δεν ήταν διαθέσιμο','Επαναφορά απόφασης οποτεδήποτε','Ολοκλήρωση μόνο όταν αποφασιστούν όλα','Το ιστορικό δείχνει τι αγοράστηκε και τι όχι']),
     step('📖','Protokoll und Korrekturen','Καταγραφές και διορθώσεις','Das Protokoll zeigt nachvollziehbar, wer was wann gemacht hat.','Οι καταγραφές δείχνουν ποιος έκανε τι και πότε.',['Nach Zeitraum, Person und Typ filtern','Einträge bleiben append-only','Fehler mit neuer Korrektur erklären'],['Φίλτρο ανά περίοδο, άτομο και τύπο','Οι εγγραφές παραμένουν append-only','Εξήγηση λάθους με νέα διόρθωση']),
     step('🔐','Profil, E-Mail und Geräte-Sperre','Προφίλ, email και κλείδωμα συσκευής','Profil bündelt Zugang und persönliche Sicherheit.','Το Προφίλ συγκεντρώνει πρόσβαση και προσωπική ασφάλεια.',['Recovery-E-Mail speichern und testen','Face ID, Touch ID oder Passkey einrichten','Profil wechseln oder sicher abmelden'],['Αποθήκευση και δοκιμή email ανάκτησης','Ρύθμιση Face ID, Touch ID ή Passkey','Αλλαγή προφίλ ή ασφαλής αποσύνδεση']),
     step('❓','Hilfe bleibt immer erreichbar','Η βοήθεια είναι πάντα διαθέσιμη','Das blaue Fragezeichen öffnet Funktions-Tutorial und AI-Hilfe.','Το μπλε ερωτηματικό ανοίγει tutorial λειτουργιών και βοήθεια AI.',['Dieses Tutorial erneut starten','Fragen zur aktuellen Ansicht','Antworten mit aktuellem App-Kontext'],['Επανεκκίνηση αυτού του tutorial','Ερωτήσεις για την τρέχουσα προβολή','Απαντήσεις με το τρέχον context της εφαρμογής']),
@@ -3086,6 +3100,35 @@ function fridayEntries(hid,friday=state.shopFriday){
   return DB.listEntries.filter(e=>e.houseId===hid && listEntryFriday(e)===friday);
 }
 
+function shoppingHistory(hid){
+  const saved=(DB.shoppingTrips||[]).filter(trip=>trip.houseId===hid);
+  const capturedIds=new Set(saved.flatMap(trip=>(trip.items||[]).map(item=>item.entryId).filter(Boolean)));
+  const legacy=new Map();
+  DB.listEntries.filter(e=>e.houseId===hid&&['bought','missing'].includes(e.status)&&!capturedIds.has(e.id)).forEach(e=>{
+    const friday=listEntryFriday(e),key=`${hid}:${friday}`,trip=legacy.get(key)||{id:`legacy-${key}`,houseId:hid,fridayDate:friday,completedAt:0,completedBy:null,items:[],legacy:true};
+    trip.completedAt=Math.max(trip.completedAt,Number(e.decidedAt)||0);trip.completedBy=e.decidedBy||trip.completedBy;
+    trip.items.push({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status});legacy.set(key,trip);
+  });
+  return [...saved,...legacy.values()].sort((a,b)=>(b.completedAt||new Date(b.fridayDate+'T12:00:00'))-(a.completedAt||new Date(a.fridayDate+'T12:00:00')));
+}
+
+function sheetShoppingHistory(){
+  const hid=shopHouse(),trips=shoppingHistory(hid);
+  const itemList=(items,kind)=>{
+    const rows=items.filter(item=>item.result===kind);
+    return rows.length?`<ul>${rows.map(item=>`<li><span>${esc(item.name)}</span><span>${item.qty} ${esc(item.unit)}</span></li>`).join('')}</ul>`:`<div class="muted" style="font-size:11px">—</div>`;
+  };
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(house(hid).short)}</div><h2>🛒 ${t('shoppingHistory')}</h2><p>${t('shoppingHistoryHint')}</p></div>
+    <div class="seg" id="historyHouse" style="margin-top:12px">${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-history-house="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}</div>
+    <div class="trip-history-list">${trips.length?trips.map((trip,index)=>{
+      const bought=trip.items.filter(item=>item.result==='bought'),missing=trip.items.filter(item=>item.result==='missing'),who=emp(trip.completedBy);
+      const dateDay=new Date(trip.fridayDate+'T12:00:00').getDate();
+      return `<details class="trip-card" ${index===0?'open':''}><summary><div class="trip-date">${dateDay}</div><div><h3>${esc(fridayText(trip.fridayDate))}</h3><div class="trip-meta">${t('completedBy')} ${esc(who?.name||'—')}${trip.completedAt?' · '+t('completedOn')+' '+esc(fmtDT(trip.completedAt)):''}</div></div><div class="trip-counts"><span class="pill in">✓ ${bought.length}</span><span class="pill out">× ${missing.length}</span></div></summary>
+        <div class="trip-results"><section class="trip-result bought"><h4>✓ ${t('boughtItems')}</h4>${itemList(trip.items,'bought')}</section><section class="trip-result missing"><h4>× ${t('notBoughtItems')}</h4>${itemList(trip.items,'missing')}</section></div></details>`;
+    }).join(''):`<div class="trip-empty"><div class="big">🧾</div><b>${t('noShoppingHistory')}</b><div style="margin-top:5px;font-size:11.5px">${t('noShoppingHistoryHint')}</div></div>`}</div>`);
+  sheetEl.querySelectorAll('[data-history-house]').forEach(button=>button.onclick=()=>{state.house=button.dataset.historyHouse;closeSheet();sheetShoppingHistory();});
+}
+
 function viewShop(){
   const hid = shopHouse();
   const friday=state.shopFriday||fridayFor();
@@ -3101,7 +3144,7 @@ function viewShop(){
   const hero=`<section class="shop-hero">
     <div class="shop-hero-top"><div><div class="import-kicker" style="color:#93c5fd">${t('shopTitle')}</div>
       <h2>${t('listJourneyTitle')}</h2><p>${t('listJourneyHint')}</p></div>
-      <button class="btn sm" id="importList">＋ ${t('addToFriday')}</button></div>
+      <div class="shop-hero-actions"><button class="btn sm" id="shoppingHistory">🧾 ${t('shoppingHistory')}</button><button class="btn sm" id="importList">＋ ${t('addToFriday')}</button></div></div>
     <div class="friday-picker">
       <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
       <label class="friday-date" title="${t('chooseFriday')}"><span>📅</span><span><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${esc(house(hid).short)}</span></span>
@@ -3192,9 +3235,9 @@ function confirmFridayBatch(){
   if(pending.some(e=>!e.decision)){toast(t('decideAll'),'error',3600);return;}
   askPin(t('confirmBatch'), who => {
     state.user = who;
-    const got = [], miss = [];
+    const got = [], miss = [], completedAt=Date.now(), friday=state.shopFriday||fridayFor();
     pending.forEach(e=>{
-      e.decidedBy = who.id; e.decidedAt = Date.now();
+      e.decidedBy = who.id; e.decidedAt = completedAt;
       if(e.decision === 'bought'){
         e.status = 'bought';
         if(e.productId){
@@ -3208,6 +3251,9 @@ function confirmFridayBatch(){
       }
       delete e.decision;
     });
+    DB.shoppingTrips ||= [];
+    DB.shoppingTrips.push({id:'trip-'+uid(),houseId:hid,fridayDate:friday,completedAt,completedBy:who.id,
+      items:pending.map(e=>({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status}))});
     logEntry('SHOP',
       `${t('typeSHOP')} @ ${house(hid).short} — ${t('stBought')}: ${got.join(', ') || '—'}` +
       ` | ${t('shortage')}: ${miss.join(', ') || '—'}`,
@@ -4520,6 +4566,8 @@ function wire(){
   if(br) br.onclick = sheetReceipt;
   const il = v.querySelector('#importList');
   if(il) il.onclick = sheetImportList;
+  const historyButton=v.querySelector('#shoppingHistory');
+  if(historyButton)historyButton.onclick=sheetShoppingHistory;
   const emptyImport=v.querySelector('#emptyImport');
   if(emptyImport) emptyImport.onclick=sheetImportList;
 
