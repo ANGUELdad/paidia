@@ -271,6 +271,12 @@ PAIDIA_COOKIE_SECURE=true
 κλειδωμένο overlay μέχρι να προβληθούν όλα τα βήματα. Staff, admins και παιδιά βλέπουν
 διαφορετικό περιεχόμενο σύμφωνα με τις δυνατότητές τους.
 
+Κάθε βήμα είναι διαδικαστικό και όχι γενική περιγραφή: εμφανίζει ακριβή διαδρομή
+πλοήγησης (π.χ. `Λίστα → Έναρξη αγορών`), αριθμημένες ενέργειες με τα πραγματικά labels
+των κουμπιών και το αναμενόμενο αποτέλεσμα. Περιλαμβάνονται ξεχωριστές πραγματικές
+ροές για Plan, Events, inventory, cart/Friday, OCR review, supermarket completion,
+shopping history, audit corrections, profile/passkey, help και Admin Center.
+
 Το πλήρες tutorial παραμένει μόνιμα μέσα στην εφαρμογή από το μπλε **? → Hilfe &
 Tutorial** και από **Profil → App-Tutorial öffnen**. Η επανάληψη κλείνει κανονικά και
 δεν αλλάζει το onboarding status. Περιγράφει Home, Plan και filters, multi-select
