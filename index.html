@@ -133,17 +133,23 @@
   .dirbtn.out{background:#fef2f2; border-color:#fca5a5; color:var(--out)}
   .ghost{position:fixed; z-index:90; pointer-events:none; opacity:.9; transform:translate(-50%,-50%) scale(1.05);
     background:#0f172a; color:#fff; padding:8px 12px; border-radius:11px; font-size:13px; font-weight:600}
-  .basket-row{display:flex; align-items:center; gap:7px; padding:8px 0; border-bottom:1px solid var(--line)}
+  .basket-row{display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:8px;
+    padding:11px 0; border-bottom:1px solid var(--line)}
   .basket-row:last-child{border-bottom:0}
   .basket-row .grow{min-width:0; overflow-wrap:anywhere}
-  .step{width:40px; height:40px; border-radius:10px; border:1px solid var(--line); background:#f8fafc;
-    font-size:20px; font-weight:700; cursor:pointer; flex:0 0 auto; line-height:1}
+  .quantity-controls{grid-column:1/-1;display:grid;grid-template-columns:44px 48px minmax(70px,1fr) 48px 44px;
+    align-items:center;gap:6px;padding-top:2px}
+  .step{width:48px; height:48px; border-radius:12px; border:1px solid var(--line); background:#f8fafc;
+    font-size:23px; font-weight:800; cursor:pointer; line-height:1}
   .step:active{background:#e2e8f0}
-  /* Το πεδίο ποσότητας: γραμμή από κάτω, ώστε να φαίνεται ότι γράφεται */
-  .qty-field{width:56px; flex:0 0 auto; padding:6px 2px; text-align:center; font-weight:700;
-    font-size:16px; border:0; border-bottom:2px solid var(--brand); border-radius:0;
-    background:transparent; font-variant-numeric:tabular-nums}
-  .qty-field:focus{border-bottom-color:#1d4ed8; background:#eff6ff}
+  .qty-jump{width:44px;height:40px;padding:0 5px;border:1px solid #bfdbfe;border-radius:999px;
+    background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+  .qty-jump:active{background:#dbeafe;transform:scale(.97)}
+  .qty-input-wrap{position:relative;min-width:0}.qty-input-wrap span{position:absolute;right:10px;top:50%;
+    transform:translateY(-50%);color:#64748b;font-size:11px;font-weight:750;pointer-events:none}
+  .qty-field{width:100%;height:48px;padding:8px 38px 8px 10px;text-align:center;font-weight:800;
+    font-size:17px;border:2px solid #bfdbfe;border-radius:12px;background:#fff;font-variant-numeric:tabular-nums}
+  .qty-field:focus{border-color:#2563eb;background:#eff6ff;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 
   /* Store mode — μεγάλα κουμπιά για χρήση μέσα στο σουπερμάρκετ */
   .store-row{display:flex; align-items:center; gap:11px; width:100%; text-align:left;
@@ -383,8 +389,9 @@
     padding:14px 16px;border-bottom:1px solid #eef2f6;background:#f8fafc}.shop-list-head h2{margin:0}
   .cart-quick{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:12px 16px;border-bottom:1px solid #eef2f6;background:#fff}.cart-quick input{background:#f8fafc}.cart-quick .btn{margin:0;width:auto}
   .shop-items{display:grid;gap:8px;padding:12px 16px}.shop-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px;border:1px solid #e2e8f0;border-radius:14px;background:#fff}
-  .shop-item-name{font-weight:760}.shop-item-sub{margin-top:3px;color:#64748b;font-size:10.5px}.cart-controls{display:flex;align-items:center;gap:5px}.cart-qty{min-width:70px;text-align:center;font-size:11.5px;font-weight:750}
-  .cart-step{width:32px;height:32px;border:1px solid var(--line);border-radius:9px;background:#f8fafc;color:#334155;font-size:16px;font-weight:800;cursor:pointer}.cart-step:active{transform:scale(.94)}
+  .shop-item-name{font-weight:760}.shop-item-sub{margin-top:3px;color:#64748b;font-size:10.5px}.cart-controls{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}.cart-qty{min-width:70px;text-align:center;font-size:11.5px;font-weight:750}
+  .cart-step{height:40px;min-width:40px;padding:0 8px;border:1px solid var(--line);border-radius:10px;background:#f8fafc;color:#334155;font-size:17px;font-weight:800;cursor:pointer}.cart-step.jump{min-width:42px;border-color:#bfdbfe;background:#eff6ff;color:#1d4ed8;font-size:11px}.cart-step:active{transform:scale(.94)}
+  .cart-qty-input{width:78px;height:40px;padding:5px 7px;border:2px solid #bfdbfe;border-radius:10px;background:#fff;text-align:center;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}.cart-qty-input:focus{border-color:#2563eb;background:#eff6ff}
   .cart-start{position:relative;padding:11px 16px;border-top:1px solid #dbeafe;background:#fff}.cart-start .btn{margin:0}
   .shop-empty{padding:28px 18px;text-align:center}.shop-empty .big{font-size:32px}.shop-empty h3{margin:8px 0 4px}.shop-empty p{margin:0 auto 13px;max-width:330px;color:#64748b;font-size:12.5px}
   .shop-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 13px}
@@ -2948,16 +2955,22 @@ function sheetStockBoard(dir,initialPid=null){
     const rows = pid => {
       const p = prod(pid), b = basket[pid];
       const after = round(stockOf(pid) + (b.dir === 'IN' ? b.qty : -b.qty));
+      const jump = round(stepFor(p) * 5);
       return `<div class="basket-row">
         <button class="dirbtn ${b.dir==='IN'?'in':'out'}" data-f="${pid}"
           title="${t('switchDir')}">${b.dir==='IN'?'+':'−'}</button>
         <div class="grow"><span class="strong">${esc(L(p))}</span>
           <div class="muted" style="font-size:11.5px">${stockOf(pid)} → ${
             after < 0 ? `<b style="color:#dc2626">${after}</b>` : after} ${esc(p.unit)}</div></div>
-        <button class="step" data-m="${pid}">−</button>
-        <input class="qty-field" data-q="${pid}" value="${b.qty}"
-          type="text" inputmode="decimal" enterkeyhint="done">
-        <button class="step" data-a="${pid}">+</button>
+        <button class="mini-x" data-basket-remove="${pid}" type="button" aria-label="${t('close')}: ${esc(L(p))}">×</button>
+        <div class="quantity-controls">
+          <button class="qty-jump" data-jump="-5" data-pid="${pid}" type="button" title="−${jump} ${esc(p.unit)}" aria-label="−${jump} ${esc(p.unit)}">−5×</button>
+          <button class="step" data-m="${pid}" type="button" aria-label="− ${stepFor(p)} ${esc(p.unit)}">−</button>
+          <label class="qty-input-wrap"><input class="qty-field" data-q="${pid}" value="${b.qty}"
+            type="text" inputmode="decimal" enterkeyhint="done" aria-label="${esc(L(p))}"><span>${esc(p.unit)}</span></label>
+          <button class="step" data-a="${pid}" type="button" aria-label="＋ ${stepFor(p)} ${esc(p.unit)}">+</button>
+          <button class="qty-jump" data-jump="5" data-pid="${pid}" type="button" title="+${jump} ${esc(p.unit)}" aria-label="+${jump} ${esc(p.unit)}">+5×</button>
+        </div>
       </div>`;
     };
 
@@ -2977,6 +2990,11 @@ function sheetStockBoard(dir,initialPid=null){
       b.onclick = () => add(b.dataset.a, basket[b.dataset.a].dir, +1));
     $('#sbBasket').querySelectorAll('.step[data-m]').forEach(b=>
       b.onclick = () => add(b.dataset.m, basket[b.dataset.m].dir, -1));
+    $('#sbBasket').querySelectorAll('[data-jump]').forEach(b=>
+      b.onclick = () => add(b.dataset.pid, basket[b.dataset.pid].dir, Number(b.dataset.jump)));
+    $('#sbBasket').querySelectorAll('[data-basket-remove]').forEach(b=> b.onclick = () => {
+      delete basket[b.dataset.basketRemove]; paint();
+    });
     $('#sbBasket').querySelectorAll('[data-q]').forEach(inp=>{
       inp.onchange = () => setQty(inp.dataset.q, inp.value.replace(',','.'));
       inp.onfocus  = () => inp.select();
@@ -3260,7 +3278,7 @@ function viewShop(){
       <button class="btn sec sm" id="addItem">${t('addProduct')}</button></div>
     <div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}"><button class="btn sm" id="cartQuickAdd">＋ ${t('addToCart')}</button></div>
     ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${esc(e.name)}</div>
-      <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${t('stOpen')}</div></div><div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><span class="cart-qty">${e.qty} ${esc(e.unit)}</span><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
+      <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${t('stOpen')} · ${esc(e.unit)}</div></div><div class="cart-controls"><button class="cart-step jump" data-list-qty="-5" data-entry="${e.id}" aria-label="−5">−5×</button><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="cart-step jump" data-list-qty="5" data-entry="${e.id}" aria-label="＋5">+5×</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
       `<div class="shop-empty"><div class="big">🧺</div><h3>${t('noFridayItems')}</h3><p>${t('noFridayItemsHint')}</p>
         <button class="btn sm" id="emptyImport">＋ ${t('addToFriday')}</button></div>`}
     ${open.length&&!pending.length?`<div class="cart-start"><button class="btn" id="startFriday">${T[state.lang].cartReady(open.length)}</button></div>`:''}
@@ -4623,6 +4641,17 @@ function wire(){
     const step=product?stepFor(product):entry.unit==='g'?100:entry.unit==='kg'?0.5:1;
     entry.qty=Math.max(step,Math.round((Number(entry.qty)+Number(button.dataset.listQty)*step)*100)/100);
     save();render();
+  });
+  v.querySelectorAll('[data-list-q]').forEach(input=>{
+    input.onfocus=()=>input.select();
+    input.onchange=()=>{
+      const entry=DB.listEntries.find(e=>e.id===input.dataset.listQ);if(!entry)return;
+      const product=entry.productId?prod(entry.productId):null;
+      const step=product?stepFor(product):entry.unit==='g'?100:entry.unit==='kg'?0.5:1;
+      const value=Math.round(Number(input.value.replace(',','.'))*100)/100;
+      if(!Number.isFinite(value)||value<=0){input.value=entry.qty;toast(t('qty'));return;}
+      entry.qty=Math.max(step,value);save();render();
+    };
   });
   const quickName=v.querySelector('#cartQuickName'),quickAdd=v.querySelector('#cartQuickAdd');
   const addQuick=()=>{
