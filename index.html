@@ -1145,7 +1145,7 @@ const t = k => {
 };
 
 /* ════════════════════════════════════════════════════════════════
-   Δεδομένα — demo σε localStorage. Σε παραγωγή: Supabase.
+   Δεδομένα αναφοράς και καθαρή τοπική λειτουργική κατάσταση.
    ════════════════════════════════════════════════════════════════ */
 
 /** Τα τρία σταθερά μπλοκ του εντύπου. `by` = πώς οργανώνεται το πλέγμα. */
@@ -1155,11 +1155,6 @@ const BLOCKS = [
   {id:'evening',   from:'19:00', to:'22:00', by:'house'},
 ];
 const blockDef = id => BLOCKS.find(b=>b.id===id);
-
-const seedDate = offset => {
-  const d = new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+offset);
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-};
 
 const SEED = {
   houses: [
@@ -1183,8 +1178,7 @@ const SEED = {
   ],
   /* Παιδιά κατά §5.1. Κάθε παιδί έχει δικό του PIN, ανεξάρτητο από του προσωπικού (§31.3).
      Οι δίδυμες Samantha και Lilly είναι δύο ξεχωριστά records + saved group «Zwillinge». */
-  /* Στο demo όλα τα παιδιά έχουν το ίδιο PIN για να δοκιμάζεται γρήγορα.
-     Στην παραγωγή κάθε παιδί παίρνει δικό του, αποθηκευμένο hashed (§4.2). */
+  /* Τα PIN και τα recovery emails μένουν μόνο στο server-side .env, ποτέ στον browser. */
   children: [
     {id:'k1',  name:'Simon',        color:'#bfdbfe'},
     {id:'k2',  name:'Kai',          color:'#a7f3d0'},
@@ -1210,17 +1204,7 @@ const SEED = {
   /* Δραστηριότητες που προσθέτει το προσωπικό μέσα από την εφαρμογή */
   customActivities: [],
 
-  events: [
-    {id:'ev1', de:'Beach Games', el:'Παιχνίδια στην παραλία', description:{de:'Teams, Spiele und Picknick am Meer.',el:'Ομάδες, παιχνίδια και πικνίκ δίπλα στη θάλασσα.'},
-      date:seedDate(1), from:'16:30', to:'19:00', location:'Potos Beach', employeeId:'e4', childIds:['k1','k2','k3','k4','k5','k6','k7','k8','k9','k10','k11','k12'],
-      bring:{de:'Badesachen, Handtuch, Wasser',el:'Μαγιό, πετσέτα, νερό'}, emoji:'🏖️', color:'#0369a1', status:'published', featured:true},
-    {id:'ev2', de:'Cinema Night', el:'Βραδιά κινηματογράφου', description:{de:'Film und Popcorn in der Villa.',el:'Ταινία και ποπ κορν στη Villa.'},
-      date:seedDate(3), from:'20:00', to:'22:00', location:'Kalyvia (Villa)', employeeId:'e1', childIds:['k1','k2','k3','k4','k5','k6','k7','k8'],
-      bring:{de:'Lieblingskissen',el:'Το αγαπημένο σου μαξιλάρι'}, emoji:'🎬', color:'#7c3aed', status:'published'},
-    {id:'ev3', de:'Treasure Hunt', el:'Κυνήγι θησαυρού', description:{de:'Rätsel und kleine Teams.',el:'Γρίφοι και μικρές ομάδες.'},
-      date:seedDate(7), from:'10:30', to:'13:00', location:'Limenaria', employeeId:'e5', childIds:['k3','k4','k6','k7','k8','k11'],
-      bring:{de:'Kappe und feste Schuhe',el:'Καπέλο και κλειστά παπούτσια'}, emoji:'🗺️', color:'#047857', status:'published'},
-  ],
+  events: [],
   taskCompletions: [],
 
   /* Λόγοι κίνησης αποθέματος (§10.4). Presets + «άλλο» + προσθήκη νέου. */
@@ -1450,40 +1434,14 @@ const SEED = {
      open → pending (μπήκε στην παρτίδα Παρασκευής, περιμένει επιβεβαίωση)
           → bought (αγοράστηκε, μπήκε στο απόθεμα του σπιτιού)
           → missing (δεν υπήρχε στο σουπερμάρκετ — μένει στη λίστα ως έλλειψη) */
-  listEntries: [
-    {id:'s1', productId:'p1',  name:'Milch',        qty:3,  unit:'L',   houseId:'h1', by:'e1', status:'open', note:'1,5 L'},
-    {id:'s2', productId:'p9',  name:'Eier',         qty:1,  unit:'Stk', houseId:'h1', by:'e1', status:'open'},
-    {id:'s3', productId:'p4',  name:'Käse',         qty:500,unit:'g',   houseId:'h1', by:'e2', status:'open'},
-    {id:'s4', productId:'p40', name:'Toastbrot',    qty:2,  unit:'Stk', houseId:'h1', by:'e2', status:'open'},
-    {id:'s5', productId:'p70', name:'Wasser',       qty:4,  unit:'Stk', houseId:'h2', by:'e5', status:'open'},
-    {id:'s6', productId:'p81', name:'Küchenrolle',  qty:1,  unit:'Stk', houseId:'h2', by:'e5', status:'open'},
-  ],
+  listEntries: [],
   shoppingTrips: [],
-  /* Ρεαλιστικό απόθεμα και στα δύο σπίτια, ώστε να ξεχωρίζει τι πραγματικά λείπει. */
-  stock: {
-    'h1:p1':6,  'h1:p2':3,  'h1:p3':1,  'h1:p4':800, 'h1:p5':4,  'h1:p6':2,  'h1:p7':400, 'h1:p8':6,
-    'h1:p9':18, 'h1:p10':300,'h1:p11':0,
-    'h1:p20':6, 'h1:p21':3, 'h1:p22':8, 'h1:p23':2, 'h1:p24':2, 'h1:p25':4, 'h1:p26':3, 'h1:p27':5,
-    'h1:p28':1, 'h1:p29':1, 'h1:p30':6, 'h1:p31':7, 'h1:p32':5, 'h1:p33':3, 'h1:p34':1,
-    'h1:p40':2, 'h1:p41':1, 'h1:p42':2, 'h1:p43':1, 'h1:p44':2, 'h1:p45':1, 'h1:p46':5, 'h1:p47':3,
-    'h1:p48':4, 'h1:p49':4, 'h1:p50':1, 'h1:p51':2, 'h1:p52':2, 'h1:p53':1, 'h1:p54':3, 'h1:p55':1,
-    'h1:p56':1, 'h1:p57':4, 'h1:p58':1, 'h1:p59':2, 'h1:p60':1, 'h1:p61':1, 'h1:p62':0, 'h1:p63':1,
-    'h1:p64':2, 'h1:p70':12,'h1:p71':4,
-    'h1:p80':9, 'h1:p81':3, 'h1:p82':3, 'h1:p83':2, 'h1:p84':4, 'h1:p85':2, 'h1:p86':1, 'h1:p87':1, 'h1:p88':1,
-    'h2:p1':4,  'h2:p2':2,  'h2:p3':1,  'h2:p4':300, 'h2:p5':2,  'h2:p6':1,  'h2:p7':0,   'h2:p8':3,
-    'h2:p9':12, 'h2:p10':150,'h2:p11':100,
-    'h2:p20':4, 'h2:p21':2, 'h2:p22':5, 'h2:p23':1, 'h2:p24':1, 'h2:p25':2, 'h2:p26':2, 'h2:p27':3,
-    'h2:p28':0, 'h2:p29':1, 'h2:p30':4, 'h2:p31':4, 'h2:p32':3, 'h2:p33':2, 'h2:p34':0,
-    'h2:p40':1, 'h2:p41':1, 'h2:p42':1, 'h2:p43':0, 'h2:p44':1, 'h2:p45':1, 'h2:p46':3, 'h2:p47':2,
-    'h2:p48':2, 'h2:p49':2, 'h2:p50':0, 'h2:p51':1, 'h2:p52':1, 'h2:p53':1, 'h2:p54':2, 'h2:p55':1,
-    'h2:p56':0, 'h2:p57':2, 'h2:p58':1, 'h2:p59':1, 'h2:p60':1, 'h2:p61':1, 'h2:p62':0, 'h2:p63':0,
-    'h2:p64':1, 'h2:p70':8, 'h2:p71':2,
-    'h2:p80':6, 'h2:p81':1, 'h2:p82':2, 'h2:p83':1, 'h2:p84':2, 'h2:p85':1, 'h2:p86':1, 'h2:p87':0, 'h2:p88':1,
-  },
+  stock: {},
   log: [],
 };
 
-const KEY = 'paidia.v3';
+/* v4 starts clean. The old v3 browser data remains untouched as a recovery backup. */
+const KEY = 'paidia.v4';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts',
