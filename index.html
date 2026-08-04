@@ -250,6 +250,10 @@
   .status-box{border-radius:10px;padding:9px 11px;margin:7px 0 10px;font-size:12.5px;background:#eef2f6;color:#475569}
   .status-box.busy{background:#eff6ff;color:#1d4ed8}.status-box.success{background:#ecfdf5;color:#047857}
   .status-box.error{background:#fef2f2;color:#b91c1c}
+  .screenshot-drop{border:2px dashed #93c5fd;border-radius:13px;padding:18px 12px;text-align:center;
+    background:#eff6ff;color:#1d4ed8;cursor:pointer;margin-bottom:9px;transition:.15s}
+  .screenshot-drop.drag{border-color:#2563eb;background:#dbeafe;transform:scale(1.01)}
+  .screenshot-drop .big{font-size:25px;display:block;margin-bottom:4px}
   .event-staff-card{border-left:5px solid var(--event-color,#2563eb)}
   .event-flag{display:inline-flex;align-items:center;gap:4px;color:#7c3aed;font-size:11px;font-weight:700}
   .help-fab{position:fixed; right:max(16px,calc((100vw - 1180px)/2 + 16px));
@@ -413,7 +417,7 @@ const T = {
     boughtNotOnList:'gekauft, war nicht auf der Liste',
     batchBooked:n=>`${n} Positionen gebucht`, nothingToStart:'Die Liste ist leer',
     fullBlock:'Ganzer Block', fromTime:'ab', timeFrom:'Von', timeTo:'Bis',
-    importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto',
+    importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto', fromScreenshot:'Screenshot',
     pasteList:'Liste einfügen oder tippen',
     pastePh:'Nutella 2, Milch light 2, Wasser groß 4, Nektarinen 10–12',
     readIt:'🪄 Einlesen', shootList:'📷 Liste fotografieren',
@@ -460,12 +464,14 @@ const T = {
     errServer:'Die AI konnte die Anfrage nicht verarbeiten. Bitte versuche es erneut.',
     errFile:'Diese Datei konnte nicht geöffnet werden. Wähle ein anderes Bild.',
     errStorage:'Speichern fehlgeschlagen. Der Gerätespeicher ist möglicherweise voll.',
-    aiReady:'AI-OCR ist bereit. Füge Text ein oder wähle ein Bild zum Testen.',
+    aiReady:'AI-OCR ist bereit. Füge Text ein oder lade einen Screenshot hoch.',
     cameraDenied:'Kamerazugriff wurde abgelehnt. Erlaube die Kamera in den Browser-Einstellungen.',
     cameraBusy:'Die Kamera wird bereits von einer anderen App verwendet.',
     cameraSecure:'Die Kamera funktioniert nur über HTTPS oder localhost.',
     unexpectedError:'Etwas ist schiefgelaufen. Deine Eingabe bleibt erhalten; versuche es erneut.',
     kidsCount:n=>`${n} ${n===1?'Kind':'Kinder'}`,
+    screenshotDrop:'Screenshot hier ablegen oder auswählen', screenshotPaste:'Oder Screenshot kopieren und hier ⌘V / Strg+V drücken',
+    screenshotReady:'Screenshot bereit – OCR startet…', screenshotMissing:'Die Zwischenablage enthält keinen Screenshot.',
   },
   el: {
     appTitle:'Πρόγραμμα', navSchedule:'Πρόγραμμα', navStock:'Ψυγείο', navShop:'Λίστα', navBook:'Το Βιβλίο',
@@ -551,7 +557,7 @@ const T = {
     boughtNotOnList:'αγοράστηκε, δεν ήταν στη λίστα',
     batchBooked:n=>`${n} είδη καταχωρήθηκαν`, nothingToStart:'Η λίστα είναι άδεια',
     fullBlock:'Όλο το μπλοκ', fromTime:'από', timeFrom:'Από', timeTo:'Έως',
-    importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία',
+    importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία', fromScreenshot:'Screenshot',
     pasteList:'Επικόλλησε ή γράψε τη λίστα',
     pastePh:'Γάλα 2, Ψωμί 4, Ντομάτες 3 kg, Νεκταρίνια 10–12',
     readIt:'🪄 Ανάγνωση', shootList:'📷 Φωτογράφισε τη λίστα',
@@ -598,12 +604,14 @@ const T = {
     errServer:'Το AI δεν μπόρεσε να επεξεργαστεί το αίτημα. Δοκίμασε ξανά.',
     errFile:'Το αρχείο δεν άνοιξε. Διάλεξε άλλη εικόνα.',
     errStorage:'Η αποθήκευση απέτυχε. Ο χώρος της συσκευής μπορεί να είναι γεμάτος.',
-    aiReady:'Το AI OCR είναι έτοιμο. Βάλε κείμενο ή διάλεξε εικόνα για δοκιμή.',
+    aiReady:'Το AI OCR είναι έτοιμο. Βάλε κείμενο ή ανέβασε screenshot.',
     cameraDenied:'Η πρόσβαση στην κάμερα απορρίφθηκε. Επίτρεψέ την από τις ρυθμίσεις του browser.',
     cameraBusy:'Η κάμερα χρησιμοποιείται ήδη από άλλη εφαρμογή.',
     cameraSecure:'Η κάμερα λειτουργεί μόνο με HTTPS ή localhost.',
     unexpectedError:'Κάτι πήγε στραβά. Τα στοιχεία σου παραμένουν· δοκίμασε ξανά.',
     kidsCount:n=>`${n} ${n===1?'παιδί':'παιδιά'}`,
+    screenshotDrop:'Άφησε ή επίλεξε screenshot εδώ', screenshotPaste:'Ή αντέγραψε screenshot και πάτησε εδώ ⌘V / Ctrl+V',
+    screenshotReady:'Το screenshot είναι έτοιμο – ξεκινά το OCR…', screenshotMissing:'Το πρόχειρο δεν περιέχει screenshot.',
   },
 };
 
@@ -1117,6 +1125,7 @@ function openSheet(html, {dismissable = true} = {}){
 function closeSheet(){
   sheetLocked = false;
   sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
+  sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
   stopCamera();
 }
 
@@ -2690,7 +2699,7 @@ function imageFileData(file){
 
 function sheetImportList(){
   const hid = shopHouse();
-  let rows = null, photo = null, sourceText = '', extractedText = '', aiMeta = null, initialRows = null;
+  let rows = null, photo = null, imageSource = null, sourceText = '', extractedText = '', aiMeta = null, initialRows = null;
 
   const draw = () => {
     const box = sheetEl.querySelector('#imRows');
@@ -2747,10 +2756,10 @@ function sheetImportList(){
       rows.forEach(r => DB.listEntries.push({
         id: uid(), productId: r.productId, name: r.name, qty: r.qty, unit: r.unit,
         note: r.note || '', houseId: hid, by: who.id, status: 'open',
-        source: photo ? 'photo-ai' : aiMeta ? 'text-ai' : 'text-local', aiImportId:importId,
+        source: photo ? `${imageSource||'image'}-ai` : aiMeta ? 'text-ai' : 'text-local', aiImportId:importId,
       }));
       DB.aiImports.push({id:importId, ts:Date.now(), houseId:hid, uploader:who.id,
-        sourceType:photo?'image':'text', originalText:sourceText, originalImage:photo,
+        sourceType:photo?'image':'text', imageSource, originalText:sourceText, originalImage:photo,
         extractedText, model:aiMeta?.model||'local-parser', responseId:aiMeta?.responseId||null,
         aiRows:initialRows, finalRows:structuredClone(rows)});
       logEntry('SHOP', `${t('importTitle')} @ ${house(hid).short}: ` +
@@ -2764,7 +2773,7 @@ function sheetImportList(){
     <h3>${t('importTitle')} · ${esc(house(hid).short)}</h3>
     <div class="seg" id="imMode">
       <button class="on" data-m="text">${t('fromText')}</button>
-      <button data-m="photo">${t('fromPhoto')}</button>
+      <button data-m="photo">${t('fromScreenshot')}</button>
     </div>
     <div id="imText">
       <label class="f"><span>${t('pasteList')}</span>
@@ -2772,8 +2781,11 @@ function sheetImportList(){
       <button class="btn sec" id="imParse">${t('readIt')}</button>
     </div>
     <div id="imPhoto" style="display:none">
-      <label class="btn sec" style="display:block;text-align:center;margin-bottom:8px;cursor:pointer">
-        🖼️ ${t('chooseImage')}<input type="file" id="imFile" accept="image/*" style="display:none"></label>
+      <label class="screenshot-drop" id="imDrop" tabindex="0">
+        <span class="big">🖼️</span><strong>${t('screenshotDrop')}</strong>
+        <div class="muted" style="margin-top:4px">${t('screenshotPaste')}</div>
+        <input type="file" id="imFile" accept="image/png,image/jpeg,image/webp" style="display:none">
+      </label>
       <button class="btn sec" id="imCamera" style="margin-bottom:8px">📷 ${t('useCamera')}</button>
       <video id="imVid" playsinline muted style="display:none"></video>
       <img id="imPreview" class="thumb" style="display:none;margin-bottom:8px" alt="">
@@ -2784,6 +2796,7 @@ function sheetImportList(){
 
   const paneText = sheetEl.querySelector('#imText');
   const panePhoto = sheetEl.querySelector('#imPhoto');
+  const dropZone = sheetEl.querySelector('#imDrop');
   let camStarted = false, busy = false;
 
   (async()=>{
@@ -2828,16 +2841,13 @@ function sheetImportList(){
     }finally{ setBusy(false); draw(); }
   };
 
-  sheetEl.querySelectorAll('#imMode button').forEach(b=>{
-    b.onclick = () => {
-      const m = b.dataset.m;
-      sheetEl.querySelectorAll('#imMode button').forEach(x=>x.classList.toggle('on', x===b));
+  const chooseMode = (m, clear=true) => {
+      sheetEl.querySelectorAll('#imMode button').forEach(x=>x.classList.toggle('on', x.dataset.m===m));
       paneText.style.display  = m === 'text'  ? '' : 'none';
       panePhoto.style.display = m === 'photo' ? '' : 'none';
-      rows = null; draw();
-      setStatus(sheetEl.querySelector('#imStatus'));
-    };
-  });
+      if(clear){ rows = null; draw(); setStatus(sheetEl.querySelector('#imStatus')); }
+  };
+  sheetEl.querySelectorAll('#imMode button').forEach(b=>b.onclick=()=>chooseMode(b.dataset.m));
 
   sheetEl.querySelector('#imParse').onclick = async () => {
     const txt = sheetEl.querySelector('#imTxt').value;
@@ -2847,17 +2857,37 @@ function sheetImportList(){
     if(!rows?.length) toast(t('nothingToImport'));
   };
 
-  sheetEl.querySelector('#imFile').onchange = async e => {
-    const file=e.target.files?.[0]; if(!file) return;
+  const readScreenshot = async file => {
+    if(!file) return;
+    if(busy){ toast(t('aiReading')); return; }
     if(!file.type.startsWith('image/') || file.size>10*1024*1024){
       setStatus(sheetEl.querySelector('#imStatus'),t('errImage'),'error'); return;
     }
     try{
+      chooseMode('photo',false);
+      imageSource='screenshot';
       photo=await imageFileData(file);
       const preview=sheetEl.querySelector('#imPreview'); preview.src=photo; preview.style.display='block';
-      setStatus(sheetEl.querySelector('#imStatus'),t('imageReady'),'success');
+      setStatus(sheetEl.querySelector('#imStatus'),t('screenshotReady'),'busy');
       await analyse('image',photo);
     }catch(error){ setStatus(sheetEl.querySelector('#imStatus'),t('errFile'),'error'); }
+  };
+  sheetEl.querySelector('#imFile').onchange = e => readScreenshot(e.target.files?.[0]);
+  dropZone.onkeydown = e => {
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); sheetEl.querySelector('#imFile').click(); }
+  };
+  dropZone.ondragenter = dropZone.ondragover = e => { e.preventDefault(); dropZone.classList.add('drag'); };
+  dropZone.ondragleave = () => dropZone.classList.remove('drag');
+  dropZone.ondrop = e => {
+    e.preventDefault(); dropZone.classList.remove('drag'); readScreenshot(e.dataTransfer?.files?.[0]);
+  };
+  sheetEl.onpaste = e => {
+    const item=[...(e.clipboardData?.items||[])].find(x=>x.type.startsWith('image/'));
+    if(!item){
+      if(panePhoto.style.display!=='none') setStatus(sheetEl.querySelector('#imStatus'),t('screenshotMissing'),'error');
+      return;
+    }
+    e.preventDefault(); readScreenshot(item.getAsFile());
   };
 
   sheetEl.querySelector('#imCamera').onclick = async () => {
@@ -2872,6 +2902,7 @@ function sheetImportList(){
     const vid = sheetEl.querySelector('#imVid');
     photo = camStream ? snap(vid) : null;
     if(!photo){ toast(t('noCam')); return; }
+    imageSource='camera';
     stopCamera(); vid.style.display='none';
     const preview=sheetEl.querySelector('#imPreview'); preview.src=photo; preview.style.display='block';
     await analyse('image',photo);
