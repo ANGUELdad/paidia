@@ -108,8 +108,8 @@ curl -X POST http://localhost:5173/api/whatsapp/test \
 - όλα τα events με κατάσταση δημοσίευσης, παιδιά και συνοδούς,
 - εγγραφές των επόμενων 3 ημερών που δεν έχουν ακόμη υπεύθυνο.
 
-**Demo PIN:** Dora `1111` · Karin `2222` · Dimitris `3333` · Angelos `4444` ·
-Claudio `5555` · Löhri `6666` · Amalia `7777` · **Zoi `9999`**
+Οι PIN δεν υπάρχουν πλέον στον client ή στο README· μόνο salted PBKDF2 hashes υπάρχουν
+στο μη tracked `.env`.
 
 ## Γλώσσα
 
@@ -124,8 +124,8 @@ Schnitzeljagd, Traumfänger, Seilspringen, Domino XXL κ.λπ.).
 | **Zoi** (Leitung), **Angelos**, **Dimitris** | ✅ | ✅ |
 | Dora, Karin, Claudio, Löhri, Amalia | ✅ | ❌ |
 
-Ο έλεγχος γίνεται στο **PIN της υπογραφής**, όχι στο ποιος είναι συνδεδεμένος —
-αν μη-admin επιχειρήσει μόνιμη αλλαγή, απορρίπτεται και το πρότυπο μένει ανέπαφο.
+Ο έλεγχος γίνεται από το authenticated server session. Αν μη-admin επιχειρήσει μόνιμη
+αλλαγή, απορρίπτεται και το πρότυπο μένει ανέπαφο.
 
 ## Δομή προγράμματος — αντιγράφει το έντυπο
 
@@ -159,7 +159,7 @@ Schnitzeljagd, Traumfänger, Seilspringen, Domino XXL κ.λπ.).
 | Πίνακας | Πεδία |
 |---|---|
 | `houses` | `id, name, short` — Kalyvia (Villa), Limenaria |
-| `employees` | `id, name, pin, role{de,el}, color, admin` |
+| `employees` | `id, name, role{de,el}, color, admin` — χωρίς PIN/email στον browser |
 | `children` | `id, name` |
 | `groups` | `id, de, el, childIds[]` |
 | `activities` / `customActivities` | `id, emoji, de, el` |
@@ -174,15 +174,34 @@ Schnitzeljagd, Traumfänger, Seilspringen, Domino XXL κ.λπ.).
 `employeeId: null` σημαίνει **«wer?»** — ανοιχτή θέση, όπως στο χαρτί.
 
 Στο `localStorage` αποθηκεύονται μόνο τα μεταβαλλόμενα δεδομένα (`template, overrides,
-weeks, events, taskCompletions, aiImports, listEntries, stock, log, customActivities, customReasons`) και
-ένα PIN-free authenticated session 12 ωρών. Τα δεδομένα αναφοράς έρχονται πάντα από το `SEED`, ώστε μια
+weeks, events, taskCompletions, aiImports, listEntries, stock, log, customActivities, customReasons`).
+Το authenticated session είναι 12ωρο HttpOnly/SameSite cookie του server, όχι localStorage.
+Τα δεδομένα αναφοράς έρχονται πάντα από το `SEED`, ώστε μια
 ενημέρωση της εφαρμογής να μη μπλοκάρεται από παλιό αποθηκευμένο αντίγραφο.
 
 ## Δύο ξεχωριστές είσοδοι (§31.3)
 
-Πρώτη οθόνη: **Personal** ή **Kinder**. Μετά grid προφίλ, μετά 4ψήφιο PIN.
-Τα PIN των παιδιών είναι ανεξάρτητα από του προσωπικού. Μετά την επιτυχημένη είσοδο,
-το profile/session ID (ποτέ το PIN) θυμάται τη σύνδεση για 12 ώρες στην ίδια συσκευή.
+Πρώτη οθόνη: **Personal** ή **Kinder**. Μετά grid προφίλ και PIN 4–6 ψηφίων.
+Το PIN στέλνεται μόνο στο same-origin `/api/auth/login` και ελέγχεται server-side με
+salted PBKDF2-SHA256 hash. Μετά την επιτυχημένη είσοδο δημιουργείται 12ωρο HttpOnly cookie.
+
+Κάθε profile έχει κουμπί **PIN vergessen oder ändern?**. Ο χρήστης γράφει το email του και
+λαμβάνει one-time link 30 λεπτών. Το link δεν αποκαλύπτεται στο API, δεν γίνεται email
+enumeration, χρησιμοποιείται μία φορά, αλλάζει το hash μέσα στο `.env` και ακυρώνει όλα
+τα ενεργά sessions του profile. Χρειάζονται πραγματικά emails στο `PAIDIA_AUTH_USERS_JSON`,
+`PAIDIA_PUBLIC_URL` και SMTP (`SMTP_HOST/PORT/USER/PASSWORD/FROM`). Σε Synology μπορεί να
+χρησιμοποιηθεί MailPlus SMTP. Σε HTTPS production βάλε `PAIDIA_COOKIE_SECURE=true`.
+
+Ο admin δεν χρειάζεται να επεξεργάζεται το μεγάλο JSON χειροκίνητα:
+
+```bash
+python3 auth_admin.py status
+python3 auth_admin.py set-email e4 angelos@example.com
+python3 auth_admin.py set-pin e4
+```
+
+Το `set-pin` ζητά κρυφά το PIN δύο φορές και γράφει μόνο salted hash. Μετά από admin
+αλλαγή email/PIN χρειάζεται restart του `server.py`.
 
 **Child Portal (§31.4):** το παιδί βλέπει μόνο τον δικό του χρόνο — «Was mache ich heute»,
 η εβδομάδα του, τα events της εβδομάδας. Δεν βλέπει αποθήκη, λίστες, βιβλίο, βάρδιες
@@ -190,7 +209,8 @@ weeks, events, taskCompletions, aiImports, listEntries, stock, log, customActivi
 «Nageltermin»). Βλέπει τον φροντιστή του και τα παιδιά της ομάδας του, γιατί είναι
 λειτουργικά αναγκαίο — αν το θέλεις κρυφό, αλλάζει με μία γραμμή.
 
-Demo PIN παιδιών: `1111` για όλα τα παιδικά προφίλ.
+Τα αρχικά hashes όλων των profiles έχουν μεταφερθεί στο τοπικό `.env`. Τα πραγματικά
+emails παραμένουν κενά μέχρι να συμπληρωθούν από τον διαχειριστή.
 
 ## Βάρδιες (§6)
 

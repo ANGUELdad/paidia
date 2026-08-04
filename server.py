@@ -8,11 +8,17 @@ import hashlib
 import hmac
 import os
 import re
+import secrets
+import smtplib
+import threading
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from email.message import EmailMessage
+from http.cookies import SimpleCookie
+from pathlib import Path
 
 
 def load_env(path: str = ".env") -> None:
@@ -40,6 +46,111 @@ WHATSAPP_GRAPH_VERSION = os.environ.get("WHATSAPP_GRAPH_VERSION", "v23.0")
 WHATSAPP_GRAPH_URL = "https://graph.facebook.com"
 WHATSAPP_DEDUPE_WINDOW = 10 * 60
 WHATSAPP_SENT: dict[str, float] = {}
+AUTH_SESSION_TTL = 12 * 60 * 60
+RESET_TOKEN_TTL = 30 * 60
+PIN_ITERATIONS = 600_000
+AUTH_COOKIE = "paidia_session"
+AUTH_LOCK = threading.Lock()
+AUTH_SESSIONS: dict[str, dict] = {}
+RESET_TOKENS: dict[str, dict] = {}
+LOGIN_FAILURES: dict[str, list[float]] = {}
+RESET_REQUESTS: dict[str, float] = {}
+
+
+def hash_pin(pin: str) -> str:
+    salt = secrets.token_bytes(16)
+    digest = hashlib.pbkdf2_hmac("sha256", pin.encode(), salt, PIN_ITERATIONS)
+    return f"pbkdf2_sha256${PIN_ITERATIONS}${salt.hex()}${digest.hex()}"
+
+
+def verify_pin(pin: str, encoded: str) -> bool:
+    try:
+        algorithm, iterations, salt_hex, digest_hex = encoded.split("$", 3)
+        if algorithm != "pbkdf2_sha256":
+            return False
+        candidate = hashlib.pbkdf2_hmac(
+            "sha256", pin.encode(), bytes.fromhex(salt_hex), int(iterations)
+        ).hex()
+        return hmac.compare_digest(candidate, digest_hex)
+    except (ValueError, TypeError):
+        return False
+
+
+def load_auth_users() -> dict[str, dict]:
+    try:
+        raw = json.loads(os.environ.get("PAIDIA_AUTH_USERS_JSON", "{}"))
+    except json.JSONDecodeError:
+        return {}
+    users = {}
+    if not isinstance(raw, dict):
+        return users
+    for profile_id, record in raw.items():
+        if not isinstance(record, dict):
+            continue
+        mode = "child" if record.get("mode") == "child" else "staff"
+        email = str(record.get("email", "")).strip().lower()
+        pin_hash = str(record.get("pin_hash", "")).strip()
+        if pin_hash:
+            users[str(profile_id)] = {"mode": mode, "email": email, "pin_hash": pin_hash}
+    return users
+
+
+AUTH_USERS = load_auth_users()
+
+
+def persist_auth_users() -> None:
+    value = json.dumps(AUTH_USERS, ensure_ascii=False, separators=(",", ":"))
+    os.environ["PAIDIA_AUTH_USERS_JSON"] = value
+    env_path = Path(os.environ.get("PAIDIA_ENV_PATH", ".env"))
+    try:
+        lines = env_path.read_text(encoding="utf-8").splitlines() if env_path.exists() else []
+        replacement = "PAIDIA_AUTH_USERS_JSON=" + value
+        found = False
+        for index, line in enumerate(lines):
+            if line.startswith("PAIDIA_AUTH_USERS_JSON="):
+                lines[index] = replacement
+                found = True
+                break
+        if not found:
+            lines.extend(["", "# Server-only profile emails and salted PIN hashes", replacement])
+        temp_path = env_path.with_name(env_path.name + ".tmp")
+        temp_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        os.chmod(temp_path, 0o600)
+        os.replace(temp_path, env_path)
+    except OSError as exc:
+        raise RuntimeError("Could not persist the new PIN") from exc
+
+
+def smtp_config() -> dict:
+    return {
+        "host": os.environ.get("SMTP_HOST", "").strip(),
+        "port": int(os.environ.get("SMTP_PORT", "587")),
+        "user": os.environ.get("SMTP_USER", "").strip(),
+        "password": os.environ.get("SMTP_PASSWORD", ""),
+        "sender": os.environ.get("SMTP_FROM", "").strip(),
+        "starttls": os.environ.get("SMTP_STARTTLS", "true").lower() in {"1", "true", "yes"},
+    }
+
+
+def send_pin_reset_email(recipient: str, reset_url: str) -> None:
+    config = smtp_config()
+    if not config["host"] or not config["sender"]:
+        raise RuntimeError("SMTP is not configured")
+    message = EmailMessage()
+    message["Subject"] = "PAIDIA – PIN ändern"
+    message["From"] = config["sender"]
+    message["To"] = recipient
+    message.set_content(
+        "Du hast eine Änderung deiner PAIDIA-PIN angefordert.\n\n"
+        f"Öffne innerhalb von 30 Minuten diesen einmaligen Link:\n{reset_url}\n\n"
+        "Wenn du das nicht angefordert hast, ignoriere diese Nachricht."
+    )
+    with smtplib.SMTP(config["host"], config["port"], timeout=30) as smtp:
+        if config["starttls"]:
+            smtp.starttls()
+        if config["user"]:
+            smtp.login(config["user"], config["password"])
+        smtp.send_message(message)
 
 
 def whatsapp_config() -> dict:
@@ -232,14 +343,39 @@ def parse_json_output(text: str) -> dict:
 
 
 class Handler(SimpleHTTPRequestHandler):
-    def json_response(self, status: int, payload: dict) -> None:
+    def json_response(self, status: int, payload: dict, headers: dict | None = None) -> None:
         raw = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(raw)))
         self.send_header("Cache-Control", "no-store")
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(raw)
+
+    def auth_cookie(self) -> str:
+        cookie = SimpleCookie(self.headers.get("Cookie", ""))
+        morsel = cookie.get(AUTH_COOKIE)
+        return morsel.value if morsel else ""
+
+    def current_auth_session(self) -> dict | None:
+        token = self.auth_cookie()
+        if not token:
+            return None
+        with AUTH_LOCK:
+            session = AUTH_SESSIONS.get(token)
+            if not session or session["expires_at"] <= time.time():
+                AUTH_SESSIONS.pop(token, None)
+                return None
+            return dict(session)
+
+    def set_session_cookie(self, token: str, max_age: int = AUTH_SESSION_TTL) -> str:
+        secure = os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}
+        parts = [f"{AUTH_COOKIE}={token}", "Path=/", f"Max-Age={max_age}", "HttpOnly", "SameSite=Strict"]
+        if secure:
+            parts.append("Secure")
+        return "; ".join(parts)
 
     def text_response(self, status: int, value: str) -> None:
         raw = value.encode("utf-8")
@@ -285,6 +421,29 @@ class Handler(SimpleHTTPRequestHandler):
                 "whatsappSendEnabled": whatsapp_config()["send_enabled"],
             })
             return
+        if parsed.path == "/api/auth/health":
+            smtp = smtp_config()
+            self.json_response(200, {
+                "ok": True,
+                "configuredProfiles": len(AUTH_USERS),
+                "profilesWithEmail": sum(1 for user in AUTH_USERS.values() if user["email"]),
+                "emailConfigured": bool(smtp["host"] and smtp["sender"]),
+                "secureCookie": os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
+            })
+            return
+        if parsed.path == "/api/auth/session":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(200, {"authenticated": False})
+            else:
+                self.json_response(200, {
+                    "authenticated": True,
+                    "profileId": session["profile_id"],
+                    "mode": session["mode"],
+                    "sessionId": session["session_id"],
+                    "expiresAt": int(session["expires_at"] * 1000),
+                })
+            return
         if parsed.path == "/api/whatsapp/health":
             config = whatsapp_config()
             self.json_response(200, {
@@ -323,7 +482,10 @@ class Handler(SimpleHTTPRequestHandler):
             # Acknowledge quickly. Delivery/read payloads are intentionally not persisted locally.
             self.json_response(200, {"received": True})
             return
-        if path not in {"/api/ai-shopping", "/api/chat", "/api/whatsapp/test", "/api/whatsapp/event"}:
+        if path not in {
+            "/api/ai-shopping", "/api/chat", "/api/whatsapp/test", "/api/whatsapp/event",
+            "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
+        }:
             self.json_response(404, {"error": "Not found"})
             return
         try:
@@ -341,6 +503,19 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if not isinstance(body, dict):
             self.json_response(400, {"error": "JSON object required", "code": "input"})
+            return
+
+        if path == "/api/auth/login":
+            self.handle_auth_login(body)
+            return
+        if path == "/api/auth/logout":
+            self.handle_auth_logout()
+            return
+        if path == "/api/auth/request-reset":
+            self.handle_auth_request_reset(body)
+            return
+        if path == "/api/auth/reset":
+            self.handle_auth_reset(body)
             return
 
         if path == "/api/whatsapp/test":
@@ -362,6 +537,130 @@ class Handler(SimpleHTTPRequestHandler):
             self.handle_chat(body, api_key)
             return
         self.handle_shopping(body, api_key)
+
+    def handle_auth_login(self, body: dict) -> None:
+        profile_id = str(body.get("profileId", "")).strip()
+        mode = "child" if body.get("mode") == "child" else "staff"
+        pin = str(body.get("pin", ""))
+        attempt_key = f"{self.client_address[0]}:{profile_id}"
+        now = time.time()
+        with AUTH_LOCK:
+            failures = [stamp for stamp in LOGIN_FAILURES.get(attempt_key, []) if now - stamp < 600]
+            LOGIN_FAILURES[attempt_key] = failures
+        if len(failures) >= 5:
+            self.json_response(429, {"error": "Too many PIN attempts", "code": "locked", "retryAfter": 600})
+            return
+        user = AUTH_USERS.get(profile_id)
+        valid = bool(user and user["mode"] == mode and re.fullmatch(r"\d{4,6}", pin) and
+                     verify_pin(pin, user["pin_hash"]))
+        if not valid:
+            with AUTH_LOCK:
+                LOGIN_FAILURES.setdefault(attempt_key, []).append(now)
+            self.json_response(401, {"error": "Invalid profile or PIN", "code": "invalid_pin"})
+            return
+        token = secrets.token_urlsafe(32)
+        session_id = "ses-" + secrets.token_urlsafe(12)
+        expires_at = now + AUTH_SESSION_TTL
+        old_token = self.auth_cookie()
+        with AUTH_LOCK:
+            LOGIN_FAILURES.pop(attempt_key, None)
+            AUTH_SESSIONS.pop(old_token, None)
+            AUTH_SESSIONS[token] = {
+                "session_id": session_id,
+                "profile_id": profile_id,
+                "mode": mode,
+                "expires_at": expires_at,
+            }
+        self.json_response(200, {
+            "authenticated": True,
+            "profileId": profile_id,
+            "mode": mode,
+            "sessionId": session_id,
+            "expiresAt": int(expires_at * 1000),
+        }, {"Set-Cookie": self.set_session_cookie(token)})
+
+    def handle_auth_logout(self) -> None:
+        token = self.auth_cookie()
+        with AUTH_LOCK:
+            AUTH_SESSIONS.pop(token, None)
+        self.json_response(200, {"loggedOut": True}, {
+            "Set-Cookie": self.set_session_cookie("", max_age=0),
+        })
+
+    def handle_auth_request_reset(self, body: dict) -> None:
+        profile_id = str(body.get("profileId", "")).strip()
+        email = str(body.get("email", "")).strip().lower()[:320]
+        generic = {
+            "accepted": True,
+            "message": "If the email matches this profile, a reset link will be sent.",
+        }
+        rate_key = hashlib.sha256(f"{self.client_address[0]}:{email}".encode()).hexdigest()
+        now = time.time()
+        with AUTH_LOCK:
+            if now - RESET_REQUESTS.get(rate_key, 0) < 60:
+                self.json_response(200, generic)
+                return
+            RESET_REQUESTS[rate_key] = now
+        user = AUTH_USERS.get(profile_id)
+        if not user or not email or not user["email"] or not hmac.compare_digest(email, user["email"]):
+            self.json_response(200, generic)
+            return
+        raw_token = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+        public_url = os.environ.get("PAIDIA_PUBLIC_URL", "").rstrip("/")
+        if not public_url:
+            scheme = self.headers.get("X-Forwarded-Proto", "http").split(",", 1)[0].strip()
+            public_url = f"{scheme}://{self.headers.get('Host', f'{HOST}:{PORT}')}"
+        reset_url = f"{public_url}/?reset={urllib.parse.quote(raw_token)}"
+        with AUTH_LOCK:
+            RESET_TOKENS[token_hash] = {
+                "profile_id": profile_id,
+                "expires_at": now + RESET_TOKEN_TTL,
+            }
+        try:
+            send_pin_reset_email(email, reset_url)
+        except (RuntimeError, OSError, smtplib.SMTPException):
+            with AUTH_LOCK:
+                RESET_TOKENS.pop(token_hash, None)
+        self.json_response(200, generic)
+
+    def handle_auth_reset(self, body: dict) -> None:
+        token = str(body.get("token", ""))
+        pin = str(body.get("pin", ""))
+        confirm = str(body.get("confirmPin", ""))
+        if pin != confirm or not re.fullmatch(r"\d{4,6}", pin):
+            self.json_response(400, {"error": "PINs must match and contain 4 to 6 digits", "code": "invalid_pin"})
+            return
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        now = time.time()
+        with AUTH_LOCK:
+            reset = RESET_TOKENS.get(token_hash)
+        if not reset or reset["expires_at"] <= now:
+            with AUTH_LOCK:
+                RESET_TOKENS.pop(token_hash, None)
+            self.json_response(400, {"error": "Reset link is invalid or expired", "code": "invalid_token"})
+            return
+        profile_id = reset["profile_id"]
+        user = AUTH_USERS.get(profile_id)
+        if not user:
+            self.json_response(400, {"error": "Reset link is invalid or expired", "code": "invalid_token"})
+            return
+        old_hash = user["pin_hash"]
+        user["pin_hash"] = hash_pin(pin)
+        try:
+            persist_auth_users()
+        except RuntimeError:
+            user["pin_hash"] = old_hash
+            self.json_response(507, {"error": "The new PIN could not be saved", "code": "storage"})
+            return
+        with AUTH_LOCK:
+            RESET_TOKENS.pop(token_hash, None)
+            for session_token, session in list(AUTH_SESSIONS.items()):
+                if session["profile_id"] == profile_id:
+                    AUTH_SESSIONS.pop(session_token, None)
+        self.json_response(200, {"changed": True}, {
+            "Set-Cookie": self.set_session_cookie("", max_age=0),
+        })
 
     def handle_whatsapp_test(self, body: dict) -> None:
         del body
