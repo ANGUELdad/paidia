@@ -206,9 +206,15 @@ salted PBKDF2-SHA256 hash. Μετά την επιτυχημένη είσοδο �
 Κάθε profile έχει κουμπί **PIN vergessen oder ändern?**. Ο χρήστης γράφει το email του και
 λαμβάνει one-time link 30 λεπτών. Το link δεν αποκαλύπτεται στο API, δεν γίνεται email
 enumeration, χρησιμοποιείται μία φορά, αλλάζει το hash μέσα στο `.env` και ακυρώνει όλα
-τα ενεργά sessions του profile. Χρειάζονται πραγματικά emails στο `PAIDIA_AUTH_USERS_JSON`,
-`PAIDIA_PUBLIC_URL` και SMTP (`SMTP_HOST/PORT/USER/PASSWORD/FROM`). Σε Synology μπορεί να
-χρησιμοποιηθεί MailPlus SMTP. Σε HTTPS production βάλε `PAIDIA_COOKIE_SECURE=true`.
+τα ενεργά sessions του profile. Από **Profil → Profildaten** κάθε χρήστης αποθηκεύει τη
+δική του recovery email, ενώ οι admins μπορούν να επιλέξουν και να ενημερώσουν οποιοδήποτε
+profile. Το **Test-E-Mail senden** επιβεβαιώνει πραγματική παράδοση. Το κουμπί
+**Anderes Profil öffnen** επιστρέφει πάντα στην επιλογή profile.
+
+Η προτιμώμενη παράδοση είναι Resend μέσω `RESEND_API_KEY` και `RESEND_FROM`, μαζί με
+σωστό `PAIDIA_PUBLIC_URL`. Τα API keys μένουν μόνο στο ignored `.env`. Αν το Resend δεν
+είναι ρυθμισμένο, ο server χρησιμοποιεί προαιρετικά SMTP (`SMTP_HOST/PORT/USER/PASSWORD/FROM`),
+π.χ. Synology MailPlus. Σε HTTPS production βάλε `PAIDIA_COOKIE_SECURE=true`.
 
 Ο admin δεν χρειάζεται να επεξεργάζεται το μεγάλο JSON χειροκίνητα:
 
@@ -279,8 +285,9 @@ ignored αρχείο `.paidia-onboarding.json` (`PAIDIA_ONBOARDING_STATE_PATH`).
 `.paidia-security-events.jsonl`. Σε Synology reverse proxy βάλε `PAIDIA_TRUST_PROXY=true`
 ώστε να χρησιμοποιείται το validated `X-Forwarded-For` και όρισε το τοπικό CIDR, π.χ.
 `PAIDIA_TRUSTED_NETWORKS=192.168.1.0/24`. Forwarded headers γίνονται δεκτά μόνο από
-loopback proxy ή CIDR που δηλώνεται στο `PAIDIA_TRUSTED_PROXY_NETWORKS`. Τα email alerts χρειάζονται τα ίδια SMTP πεδία
-με το PIN reset. Οι τιμές και τα όρια τεκμηριώνονται στο `.env.example`.
+loopback proxy ή CIDR που δηλώνεται στο `PAIDIA_TRUSTED_PROXY_NETWORKS`. Τα email alerts
+χρησιμοποιούν το ίδιο Resend transport (ή SMTP fallback) με το PIN reset. Οι τιμές και
+τα όρια τεκμηριώνονται στο `.env.example`.
 
 Στο UI οι λειτουργικές προειδοποιήσεις και το Κέντρο Διαχείρισης εμφανίζονται μόνο στους
 Zoi, Angelos και Dimitris. Το κέντρο δείχνει ανά εργαζόμενο σημερινές/επόμενες αναθέσεις,

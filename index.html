@@ -556,6 +556,10 @@
   .pin-divider{display:flex;align-items:center;gap:9px;margin:13px 0 2px;color:#64748b;font-size:10px}.pin-divider::before,.pin-divider::after{content:'';height:1px;flex:1;background:#334155}
   .security-hero{padding:16px;border-radius:17px;background:linear-gradient(135deg,#ecfeff,#eef2ff);border:1px solid #bae6fd}.security-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:#fff;font-size:25px;box-shadow:0 8px 20px rgba(14,116,144,.12)}
   .security-passkey-card{margin:12px 0;padding:14px;border:1px solid #dbeafe;border-radius:15px;background:#f8fafc}.security-passkey-card .btn{margin-top:10px}
+  .status-pill{display:inline-flex;align-items:center;max-width:190px;padding:6px 9px;border-radius:999px;
+    font-size:10px;font-weight:780;line-height:1.2;text-align:center}.status-pill.ok{background:#dcfce7;color:#047857}
+  .status-pill.warn{background:#fff7ed;color:#c2410c}.security-passkey-card .row .btn{margin-top:0}
+  .security-passkey-card button:disabled{opacity:.5;cursor:not-allowed}
   .gate-back{background:none; border:0; color:#94a3b8; font-size:13px; padding:14px; cursor:pointer}
   .gate-meta{margin-top:20px; text-align:center; font-size:11.5px; color:#64748b; line-height:1.6}
   .gate-lang{display:flex; gap:7px; justify-content:center; margin-bottom:18px}
@@ -676,6 +680,12 @@ const T = {
     passkeyNone:'Auf diesem Profil ist noch kein Passkey eingerichtet.', passkeyCount:n=>`${n} Passkey${n===1?'':'s'} eingerichtet`,
     passkeyUnavailable:'Passkeys brauchen ein unterstütztes Gerät und HTTPS.', passkeyCancelled:'Anmeldung wurde abgebrochen.',
     securityAccess:'Anmeldung & Sicherheit', signOut:'Abmelden', pinFallback:'Oder PIN verwenden', thisDevice:'Dieses Gerät',
+    profileDetails:'Profildaten', manageProfiles:'Profile verwalten', recoveryEmail:'E-Mail für PIN-Wiederherstellung',
+    recoveryEmailHint:'An diese Adresse gehen einmalige PIN-Links und wichtige Sicherheitsmeldungen.',
+    saveEmail:'E-Mail speichern', emailSaved:'E-Mail wurde gespeichert.', emailInvalid:'Gib eine gültige E-Mail-Adresse ein.',
+    emailProvider:'E-Mail-Versand', emailReady:'bereit', emailNotReady:'Resend ist noch nicht konfiguriert',
+    sendTestEmail:'Test-E-Mail senden', testEmailSent:'Test-E-Mail wurde gesendet.', testEmailFailed:'Die Test-E-Mail konnte nicht gesendet werden.',
+    switchProfile:'Anderes Profil öffnen', adminsManageEmails:'Als Admin kannst du die E-Mail jedes Profils verwalten.',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
     device:'Gerät', welcome:n=>'Willkommen, '+n,
     tutorialRequired:'Erste Einführung · erforderlich', tutorialStep:(n,total)=>`Schritt ${n} von ${total}`,
@@ -874,6 +884,12 @@ const T = {
     passkeyNone:'Δεν έχει ρυθμιστεί ακόμη passkey για αυτό το προφίλ.', passkeyCount:n=>`${n} ${n===1?'passkey':'passkeys'} ενεργά`,
     passkeyUnavailable:'Τα passkeys χρειάζονται συμβατή συσκευή και HTTPS.', passkeyCancelled:'Η σύνδεση ακυρώθηκε.',
     securityAccess:'Σύνδεση & ασφάλεια', signOut:'Αποσύνδεση', pinFallback:'Ή χρησιμοποίησε PIN', thisDevice:'Αυτή η συσκευή',
+    profileDetails:'Στοιχεία προφίλ', manageProfiles:'Διαχείριση προφίλ', recoveryEmail:'Email ανάκτησης PIN',
+    recoveryEmailHint:'Σε αυτή τη διεύθυνση στέλνονται σύνδεσμοι PIN και σημαντικές ειδοποιήσεις ασφαλείας.',
+    saveEmail:'Αποθήκευση email', emailSaved:'Το email αποθηκεύτηκε.', emailInvalid:'Βάλε έγκυρη διεύθυνση email.',
+    emailProvider:'Αποστολή email', emailReady:'έτοιμη', emailNotReady:'Το Resend δεν έχει ρυθμιστεί ακόμη',
+    sendTestEmail:'Αποστολή δοκιμαστικού email', testEmailSent:'Το δοκιμαστικό email στάλθηκε.', testEmailFailed:'Το δοκιμαστικό email δεν στάλθηκε.',
+    switchProfile:'Άνοιγμα άλλου προφίλ', adminsManageEmails:'Ως admin μπορείς να διαχειριστείς το email κάθε προφίλ.',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
     device:'Συσκευή', welcome:n=>'Καλώς ήρθες, '+n,
     tutorialRequired:'Πρώτη ξενάγηση · υποχρεωτική', tutorialStep:(n,total)=>`Βήμα ${n} από ${total}`,
@@ -4416,13 +4432,52 @@ async function sheetSecurityAccess(){
   const who=state.user||state.child;if(!who){openGate();return;}
   openSheet(`<div class="security-hero"><div class="row" style="gap:12px"><div class="security-icon">🔐</div><div>
       <div class="import-kicker">Armonia Thassos</div><h2 style="margin:3px 0">${t('securityAccess')}</h2><div class="muted">${esc(who.name)}</div></div></div></div>
+    <div class="security-passkey-card" id="securityProfile"><div class="muted">${t('reading')}</div></div>
     <div class="security-passkey-card" id="securityPasskey"><div class="muted">${t('reading')}</div></div>
+    <button class="btn sec" id="securitySwitch">↔ ${t('switchProfile')}</button>
     <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
-  const card=sheetEl.querySelector('#securityPasskey');
+  const profileCard=sheetEl.querySelector('#securityProfile'),card=sheetEl.querySelector('#securityPasskey');
   let count=0;
   try{
-    const response=await fetch('/api/auth/session',{credentials:'same-origin'}),data=await response.json();
+    const [response,profilesResponse]=await Promise.all([
+      fetch('/api/auth/session',{credentials:'same-origin'}),fetch('/api/auth/profiles',{credentials:'same-origin'})
+    ]),data=await response.json(),profilesData=await profilesResponse.json();
     if(!response.ok||!data.authenticated)throw new Error(t('authUnavailable'));
+    if(!profilesResponse.ok||!Array.isArray(profilesData.profiles))throw new Error(t('authUnavailable'));
+    const profiles=profilesData.profiles;
+    const displayName=p=>{const person=p.mode==='child'?kid(p.profileId):emp(p.profileId);return person?.name||p.profileId;};
+    const paintProfile=selectedId=>{
+      const selected=profiles.find(p=>p.profileId===selectedId)||profiles[0];if(!selected)return;
+      profileCard.innerHTML=`<div class="row between"><div><b>${t(profilesData.canManageAll?'manageProfiles':'profileDetails')}</b>
+          <div class="muted" style="font-size:11px;margin-top:3px">${profilesData.canManageAll?t('adminsManageEmails'):esc(displayName(selected))}</div></div>
+          <span class="status-pill ${profilesData.emailConfigured?'ok':'warn'}">${esc(profilesData.emailProvider==='resend'?'Resend':profilesData.emailProvider==='smtp'?'SMTP':t('emailNotReady'))}</span></div>
+        ${profiles.length>1?`<label class="f"><span>${t('profileDetails')}</span><select id="profileEmailPicker">${profiles.map(p=>`<option value="${esc(p.profileId)}" ${p.profileId===selected.profileId?'selected':''}>${esc(displayName(p))} · ${p.mode==='child'?t('entryChild'):t('entryStaff')}</option>`).join('')}</select></label>`:''}
+        <label class="f"><span>${t('recoveryEmail')}</span><input type="email" id="profileEmail" value="${esc(selected.email||'')}" autocomplete="email" placeholder="name@example.com"></label>
+        <p class="muted" style="font-size:11.5px;line-height:1.5">${t('recoveryEmailHint')}</p>
+        <div id="profileEmailStatus" class="status-box" style="display:none" role="status" aria-live="polite"></div>
+        <div class="row" style="gap:8px"><button class="btn" id="saveProfileEmail" style="flex:1">${t('saveEmail')}</button>
+          <button class="btn sec" id="testProfileEmail" style="flex:1" ${!profilesData.emailConfigured||!selected.email?'disabled':''}>${t('sendTestEmail')}</button></div>`;
+      const picker=profileCard.querySelector('#profileEmailPicker');if(picker)picker.onchange=()=>paintProfile(picker.value);
+      const input=profileCard.querySelector('#profileEmail'),status=profileCard.querySelector('#profileEmailStatus');
+      profileCard.querySelector('#saveProfileEmail').onclick=async event=>{
+        const email=input.value.trim(),button=event.currentTarget;
+        if(email&&!input.validity.valid){status.style.display='block';setStatus(status,t('emailInvalid'),'error');return;}
+        button.disabled=true;status.style.display='block';
+        try{
+          const saved=await passkeyApi('/api/auth/profile/email',{profileId:selected.profileId,email});
+          selected.email=saved.email;setStatus(status,t('emailSaved'),'success');
+          const test=profileCard.querySelector('#testProfileEmail');if(test)test.disabled=!saved.email||!saved.emailConfigured;
+        }catch(error){setStatus(status,error.code==='invalid_email'?t('emailInvalid'):error.message||t('authUnavailable'),'error');}
+        finally{button.disabled=false;}
+      };
+      profileCard.querySelector('#testProfileEmail').onclick=async event=>{
+        const button=event.currentTarget;button.disabled=true;status.style.display='block';
+        try{await passkeyApi('/api/auth/profile/email/test',{profileId:selected.profileId});setStatus(status,t('testEmailSent'),'success');}
+        catch(error){setStatus(status,error.code==='email_not_configured'?t('emailNotReady'):t('testEmailFailed'),'error');}
+        finally{button.disabled=false;}
+      };
+    };
+    paintProfile(data.profileId);
     count=Number(data.passkeys)||0;
     const supported=passkeyCapable()&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
     card.innerHTML=`<div class="row between"><div><b>${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
@@ -4443,6 +4498,7 @@ async function sheetSecurityAccess(){
       catch(error){toast(error.message||t('authUnavailable'),'error');remove.disabled=false;}
     };}
   }catch(error){card.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;}
+  sheetEl.querySelector('#securitySwitch').onclick=()=>{closeSheet();logoutServerSession();};
   sheetEl.querySelector('#securityLogout').onclick=()=>{closeSheet();logoutServerSession();};
 }
 

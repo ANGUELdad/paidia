@@ -18,6 +18,7 @@ import urllib.parse
 import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from email.message import EmailMessage
+from email.utils import parseaddr
 from http.cookies import SimpleCookie
 from pathlib import Path
 
@@ -375,19 +376,65 @@ def smtp_config() -> dict:
     }
 
 
-def send_pin_reset_email(recipient: str, reset_url: str) -> None:
+def resend_config() -> dict:
+    return {
+        "api_key": os.environ.get("RESEND_API_KEY", "").strip(),
+        "sender": os.environ.get("RESEND_FROM", "").strip(),
+        "reply_to": os.environ.get("RESEND_REPLY_TO", "").strip(),
+        "url": os.environ.get("RESEND_API_URL", "https://api.resend.com/emails").strip(),
+    }
+
+
+def valid_email(value: str) -> bool:
+    _, address = parseaddr(value)
+    return address == value and len(value) <= 320 and bool(re.fullmatch(
+        r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+",
+        value,
+    ))
+
+
+def email_delivery_status() -> dict:
+    resend = resend_config()
+    smtp = smtp_config()
+    if resend["api_key"] and resend["sender"]:
+        return {"configured": True, "provider": "resend"}
+    if smtp["host"] and smtp["sender"]:
+        return {"configured": True, "provider": "smtp"}
+    return {"configured": False, "provider": "none"}
+
+
+def send_email(recipient: str, subject: str, text_body: str, html_body: str | None = None) -> None:
+    resend = resend_config()
+    if resend["api_key"] and resend["sender"]:
+        payload = {"from": resend["sender"], "to": [recipient], "subject": subject, "text": text_body}
+        if html_body:
+            payload["html"] = html_body
+        if resend["reply_to"]:
+            payload["reply_to"] = resend["reply_to"]
+        request = urllib.request.Request(
+            resend["url"], data=json.dumps(payload).encode("utf-8"), method="POST",
+            headers={"Authorization": f"Bearer {resend['api_key']}", "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                if response.status < 200 or response.status >= 300:
+                    raise RuntimeError(f"Resend returned HTTP {response.status}")
+            return
+        except urllib.error.HTTPError as exc:
+            raise RuntimeError(f"Resend rejected the email (HTTP {exc.code})") from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError("Resend could not be reached") from exc
+
     config = smtp_config()
     if not config["host"] or not config["sender"]:
-        raise RuntimeError("SMTP is not configured")
+        raise RuntimeError("Email delivery is not configured")
     message = EmailMessage()
-    message["Subject"] = "PAIDIA – PIN ändern"
+    message["Subject"] = subject
     message["From"] = config["sender"]
     message["To"] = recipient
-    message.set_content(
-        "Du hast eine Änderung deiner PAIDIA-PIN angefordert.\n\n"
-        f"Öffne innerhalb von 30 Minuten diesen einmaligen Link:\n{reset_url}\n\n"
-        "Wenn du das nicht angefordert hast, ignoriere diese Nachricht."
-    )
+    message.set_content(text_body)
+    if html_body:
+        message.add_alternative(html_body, subtype="html")
     with smtplib.SMTP(config["host"], config["port"], timeout=30) as smtp:
         if config["starttls"]:
             smtp.starttls()
@@ -396,11 +443,23 @@ def send_pin_reset_email(recipient: str, reset_url: str) -> None:
         smtp.send_message(message)
 
 
+def send_pin_reset_email(recipient: str, reset_url: str) -> None:
+    text_body = (
+        "Du hast eine Änderung deiner Armonia-Thassos-PIN angefordert.\n\n"
+        f"Öffne innerhalb von 30 Minuten diesen einmaligen Link:\n{reset_url}\n\n"
+        "Wenn du das nicht angefordert hast, ignoriere diese Nachricht."
+    )
+    html_body = (
+        "<div style=\"font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#172033\">"
+        "<h2>Armonia Thassos</h2><p>Du hast eine Änderung deiner PIN angefordert.</p>"
+        f"<p><a href=\"{reset_url}\" style=\"display:inline-block;padding:12px 18px;background:#2563eb;color:white;text-decoration:none;border-radius:10px\">PIN sicher ändern</a></p>"
+        "<p style=\"color:#64748b;font-size:13px\">Der Link gilt 30 Minuten und kann nur einmal verwendet werden.</p></div>"
+    )
+    send_email(recipient, "Armonia Thassos – PIN ändern", text_body, html_body)
+
+
 def send_security_alert_email(recipient: str, profile_id: str, event: str,
                               ip: str, details: dict) -> None:
-    config = smtp_config()
-    if not config["host"] or not config["sender"]:
-        raise RuntimeError("SMTP is not configured")
     labels = {
         "repeated_failures": "Mehrere falsche PIN-Versuche",
         "login_locked": "Anmeldung vorübergehend gesperrt",
@@ -408,11 +467,7 @@ def send_security_alert_email(recipient: str, profile_id: str, event: str,
         "untrusted_ip_login": "Anmeldung außerhalb des vertrauenswürdigen Netzwerks",
     }
     label = labels.get(event, "Ungewöhnliche Anmeldung")
-    message = EmailMessage()
-    message["Subject"] = f"Armonia Thassos – Sicherheitswarnung: {label}"
-    message["From"] = config["sender"]
-    message["To"] = recipient
-    message.set_content(
+    text_body = (
         f"Profil: {profile_id}\n"
         f"Ereignis: {label}\n"
         f"IP-Adresse: {ip}\n"
@@ -421,20 +476,14 @@ def send_security_alert_email(recipient: str, profile_id: str, event: str,
         "Wenn du das nicht warst, ändere deine PIN über den Link auf der Anmeldeseite "
         "und informiere die verantwortliche Person. Antworte nicht auf diese automatische Nachricht."
     )
-    with smtplib.SMTP(config["host"], config["port"], timeout=30) as smtp:
-        if config["starttls"]:
-            smtp.starttls()
-        if config["user"]:
-            smtp.login(config["user"], config["password"])
-        smtp.send_message(message)
+    send_email(recipient, f"Armonia Thassos – Sicherheitswarnung: {label}", text_body)
 
 
 def queue_security_alert(profile_id: str, event: str, ip: str, details: dict | None = None) -> bool:
     details = details or {}
     append_security_event(event, profile_id, ip, details)
     recipients = security_alert_recipients()
-    config = smtp_config()
-    if not recipients or not config["host"] or not config["sender"]:
+    if not recipients or not email_delivery_status()["configured"]:
         return False
     alert_key = f"{profile_id}:{event}:{ip_fingerprint(ip)}"
     now = time.time()
@@ -745,15 +794,16 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return
         if parsed.path == "/api/auth/health":
-            smtp = smtp_config()
+            delivery = email_delivery_status()
             self.json_response(200, {
                 "ok": True,
                 "configuredProfiles": len(AUTH_USERS),
                 "profilesWithEmail": sum(1 for user in AUTH_USERS.values() if user["email"]),
-                "emailConfigured": bool(smtp["host"] and smtp["sender"]),
+                "emailConfigured": delivery["configured"],
+                "emailProvider": delivery["provider"],
                 "secureCookie": os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
                 "securityMonitoring": True,
-                "securityEmailReady": bool(smtp["host"] and smtp["sender"] and security_alert_recipients()),
+                "securityEmailReady": bool(delivery["configured"] and security_alert_recipients()),
                 "securityAdminRecipients": len(security_alert_recipients()),
                 "trustedNetworksConfigured": len(TRUSTED_NETWORKS),
                 "trustedProxyNetworksConfigured": len(TRUSTED_PROXY_NETWORKS),
@@ -763,6 +813,23 @@ class Handler(SimpleHTTPRequestHandler):
                 "passkeyOrigin": WEBAUTHN_ORIGIN,
                 "passkeyRpId": WEBAUTHN_RP_ID,
                 "onboardingVersion": ONBOARDING_VERSION,
+            })
+            return
+        if parsed.path == "/api/auth/profiles":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            profile_ids = list(AUTH_USERS) if session.get("admin") else [session["profile_id"]]
+            self.json_response(200, {
+                "profiles": [{
+                    "profileId": profile_id,
+                    "mode": AUTH_USERS[profile_id]["mode"],
+                    "email": AUTH_USERS[profile_id]["email"],
+                } for profile_id in profile_ids],
+                "canManageAll": bool(session.get("admin")),
+                "emailConfigured": email_delivery_status()["configured"],
+                "emailProvider": email_delivery_status()["provider"],
             })
             return
         if parsed.path == "/api/auth/session":
@@ -780,6 +847,9 @@ class Handler(SimpleHTTPRequestHandler):
                     "passkeys": len(profile_passkeys(session["profile_id"], session["mode"])),
                     "onboardingComplete": onboarding_complete(session["profile_id"], session["mode"]),
                     "onboardingVersion": ONBOARDING_VERSION,
+                    "email": AUTH_USERS.get(session["profile_id"], {}).get("email", ""),
+                    "emailConfigured": email_delivery_status()["configured"],
+                    "emailProvider": email_delivery_status()["provider"],
                 })
             return
         if parsed.path == "/api/whatsapp/health":
@@ -826,6 +896,7 @@ class Handler(SimpleHTTPRequestHandler):
             "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
             "/api/auth/passkey/login/options", "/api/auth/passkey/login/verify", "/api/auth/passkey/remove",
             "/api/auth/onboarding/complete",
+            "/api/auth/profile/email", "/api/auth/profile/email/test",
         }:
             self.json_response(404, {"error": "Not found"})
             return
@@ -875,6 +946,12 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/auth/onboarding/complete":
             self.handle_onboarding_complete(body)
+            return
+        if path == "/api/auth/profile/email":
+            self.handle_profile_email(body)
+            return
+        if path == "/api/auth/profile/email/test":
+            self.handle_profile_email_test(body)
             return
 
         if path == "/api/whatsapp/test":
@@ -1194,6 +1271,73 @@ class Handler(SimpleHTTPRequestHandler):
         self.json_response(200, {"loggedOut": True}, {
             "Set-Cookie": self.set_session_cookie("", max_age=0),
         })
+
+    def editable_profile(self, body: dict) -> tuple[dict | None, str]:
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return None, ""
+        profile_id = str(body.get("profileId") or session["profile_id"]).strip()[:64]
+        if profile_id != session["profile_id"] and not session.get("admin"):
+            self.json_response(403, {"error": "Admins alone can edit another profile", "code": "admin_required"})
+            return None, ""
+        user = AUTH_USERS.get(profile_id)
+        if not user:
+            self.json_response(404, {"error": "Profile not found", "code": "profile_not_found"})
+            return None, ""
+        return user, profile_id
+
+    def handle_profile_email(self, body: dict) -> None:
+        user, profile_id = self.editable_profile(body)
+        if not user:
+            return
+        email = str(body.get("email", "")).strip().lower()[:320]
+        if email and not valid_email(email):
+            self.json_response(400, {"error": "Enter a valid email address", "code": "invalid_email"})
+            return
+        previous = user["email"]
+        user["email"] = email
+        try:
+            persist_auth_users()
+        except RuntimeError:
+            user["email"] = previous
+            self.json_response(507, {"error": "The email address could not be saved", "code": "storage"})
+            return
+        self.json_response(200, {
+            "saved": True, "profileId": profile_id, "email": email,
+            "emailConfigured": email_delivery_status()["configured"],
+            "emailProvider": email_delivery_status()["provider"],
+        })
+
+    def handle_profile_email_test(self, body: dict) -> None:
+        user, profile_id = self.editable_profile(body)
+        if not user:
+            return
+        if not user["email"]:
+            self.json_response(400, {"error": "Save an email address first", "code": "email_missing"})
+            return
+        if not email_delivery_status()["configured"]:
+            self.json_response(503, {"error": "Email delivery is not configured", "code": "email_not_configured"})
+            return
+        rate_key = f"email-test:{profile_id}"
+        now = time.time()
+        with AUTH_LOCK:
+            if now - RESET_REQUESTS.get(rate_key, 0) < 30:
+                self.json_response(429, {"error": "Wait before sending another test", "code": "rate_limited"})
+                return
+            RESET_REQUESTS[rate_key] = now
+        try:
+            send_email(
+                user["email"], "Armonia Thassos – E-Mail funktioniert",
+                "Deine Profil-E-Mail ist verbunden. PIN-Links und Sicherheitsmeldungen können zugestellt werden.",
+                "<div style=\"font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#172033\">"
+                "<h2>Armonia Thassos</h2><p>Deine Profil-E-Mail ist erfolgreich verbunden.</p>"
+                "<p>PIN-Links und Sicherheitsmeldungen können jetzt zugestellt werden.</p></div>",
+            )
+        except (RuntimeError, OSError, smtplib.SMTPException):
+            self.json_response(502, {"error": "The test email could not be delivered", "code": "delivery_failed"})
+            return
+        self.json_response(200, {"sent": True, "profileId": profile_id})
 
     def handle_auth_request_reset(self, body: dict) -> None:
         profile_id = str(body.get("profileId", "")).strip()
