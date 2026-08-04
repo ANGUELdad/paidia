@@ -57,7 +57,7 @@ def _session_from_request() -> dict | None:
 
 
 def _incoming_path() -> str:
-    """Recover the browser path. Vercel rewrites hide it in request.path."""
+    """Recover the browser path across Vercel rewrites / catch-all routing."""
     for key in ("__p", "path"):
         value = request.args.get(key)
         if value:
@@ -72,10 +72,18 @@ def _incoming_path() -> str:
     ):
         value = request.headers.get(header)
         if value:
-            return "/" + unquote(value.split("?", 1)[0]).lstrip("/")
-    # Fall back to Flask path, stripping a bare /api mount.
+            raw = "/" + unquote(value.split("?", 1)[0]).lstrip("/")
+            if raw not in {"/", "/api", "/api/"}:
+                return raw
+
     path = request.path or "/"
-    if path in {"/api", "/api/"}:
+    # Asset rewrite: /api/_asset/gate.js or /_asset/gate.js → /gate.js
+    for prefix in ("/api/_asset/", "/_asset/"):
+        if path.startswith(prefix):
+            rest = path[len(prefix) :]
+            return "/" + rest if rest else "/"
+    # Bare mount points
+    if path in {"/api", "/api/", "/", ""}:
         return "/"
     return path
 
@@ -186,7 +194,7 @@ def entry(flask_path: str = ""):
         return response
 
     path = _incoming_path()
-    # Normalize API aliases
+    # Normalize API aliases (/api/auth/login, /auth/login)
     api = path
     if api.startswith("/api/"):
         api = api[4:]
@@ -194,7 +202,13 @@ def entry(flask_path: str = ""):
         api = "/" + api
 
     if request.method == "GET" and api in {"/health", "/api/health"}:
-        return _json(200, {"ok": True, "runtime": "vercel-flask", "path": path})
+        return _json(200, {
+            "ok": True,
+            "runtime": "vercel-flask",
+            "path": path,
+            "flask_path": flask_path,
+            "request_path": request.path,
+        })
     if request.method == "GET" and api in {"/auth/health", "/api/auth/health"}:
         return _auth_health()
     if request.method == "GET" and api in {"/auth/session", "/api/auth/session"}:
@@ -205,6 +219,14 @@ def entry(flask_path: str = ""):
         return _auth_logout()
 
     if request.method in {"GET", "HEAD"}:
-        return _serve_static(path)
+        # Prefer real static files for /, gate.js, app.js, etc.
+        static_rel = path.lstrip("/") or "index.html"
+        return _serve_static(static_rel)
 
-    return _json(404, {"error": "Not found", "path": path, "flask_path": flask_path})
+    return _json(404, {
+        "error": "Not found",
+        "path": path,
+        "flask_path": flask_path,
+        "request_path": request.path,
+        "args": dict(request.args),
+    })
