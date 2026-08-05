@@ -39,7 +39,7 @@ except ImportError:  # The app still starts with PIN login until requirements ar
 
 
 def load_env(path: str = ".env") -> None:
-    """Load a small local .env without adding a dependency or overriding shell values."""
+    """Load local .env. File values win so restarting always picks up new PINs/secrets."""
     try:
         with open(path, encoding="utf-8") as env_file:
             for raw_line in env_file:
@@ -47,7 +47,10 @@ def load_env(path: str = ".env") -> None:
                 if not line or line.startswith("#") or "=" not in line:
                     continue
                 key, value = line.split("=", 1)
-                os.environ.setdefault(key.strip(), value.strip().strip("'\""))
+                key = key.strip()
+                if not key:
+                    continue
+                os.environ[key] = value.strip().strip("'\"")
     except FileNotFoundError:
         pass
 
@@ -224,63 +227,17 @@ def verify_pin(pin: str, encoded: str) -> bool:
         return False
 
 
-# Hardcoded PINs — always work, even if Vercel env is wrong/missing.
-# Staff e1–e8 = 111111–888888 · Kids k1–k12 = 100001–100012
-BUILTIN_PROFILE_PINS: dict[str, str] = {
-    "e1": "111111", "e2": "222222", "e3": "333333", "e4": "444444",
-    "e5": "555555", "e6": "666666", "e7": "777777", "e8": "888888",
-    "k1": "100001", "k2": "100002", "k3": "100003", "k4": "100004",
-    "k5": "100005", "k6": "100006", "k7": "100007", "k8": "100008",
-    "k9": "100009", "k10": "100010", "k11": "100011", "k12": "100012",
-}
-DEFAULT_PROFILE_EMAIL = "dadalisaggelos@gmail.com"
-
-
-def _builtin_pin_hash(pin: str) -> str:
-    """Stable hash so cold starts keep the same pin_hash for builtins."""
-    salt = hashlib.sha256(f"paidia-builtin-v1:{pin}".encode("utf-8")).digest()[:16]
-    iterations = 120_000
-    digest = hashlib.pbkdf2_hmac("sha256", pin.encode("utf-8"), salt, iterations)
-    return f"pbkdf2_sha256${iterations}${salt.hex()}${digest.hex()}"
-
-
-def pin_ok(profile_id: str, pin: str, pin_hash: str = "") -> bool:
-    """Accept hardcoded PIN first, then env hash — login must not depend on env alone."""
-    if not re.fullmatch(r"\d{4,6}", pin or ""):
-        return False
-    builtin = BUILTIN_PROFILE_PINS.get(profile_id)
-    if builtin is not None and hmac.compare_digest(pin, builtin):
-        return True
-    return bool(pin_hash) and verify_pin(pin, pin_hash)
-
-
 def load_auth_users() -> dict[str, dict]:
+    """Auth profiles come only from PAIDIA_AUTH_USERS_JSON (local .env or Vercel env)."""
     try:
-        raw = json.loads(os.environ.get("PAIDIA_AUTH_USERS_JSON", "{}"))
+        raw = json.loads(os.environ.get("PAIDIA_AUTH_USERS_JSON", "{}") or "{}")
     except json.JSONDecodeError:
-        raw = {}
-    if not isinstance(raw, dict):
-        raw = {}
-
+        return {}
     users: dict[str, dict] = {}
-    # Always install hardcoded profiles so login never depends on env.
-    for profile_id, pin in BUILTIN_PROFILE_PINS.items():
-        mode = "child" if profile_id.startswith("k") else "staff"
-        email = DEFAULT_PROFILE_EMAIL
-        record = raw.get(profile_id)
-        if isinstance(record, dict):
-            maybe = str(record.get("email", "")).strip().lower()
-            if maybe:
-                email = maybe
-        users[profile_id] = {
-            "mode": mode,
-            "email": email,
-            "pin_hash": _builtin_pin_hash(pin),
-        }
-
-    # Keep any extra env profiles (custom) that are not builtins.
+    if not isinstance(raw, dict):
+        return users
     for profile_id, record in raw.items():
-        if profile_id in users or not isinstance(record, dict):
+        if not isinstance(record, dict):
             continue
         mode = "child" if record.get("mode") == "child" else "staff"
         email = str(record.get("email", "")).strip().lower()
@@ -1387,7 +1344,8 @@ class Handler(SimpleHTTPRequestHandler):
         valid = bool(
             user
             and user["mode"] == mode
-            and pin_ok(profile_id, pin, user.get("pin_hash", ""))
+            and re.fullmatch(r"\d{4,6}", pin)
+            and verify_pin(pin, user["pin_hash"])
         )
         if not valid:
             with AUTH_LOCK:

@@ -78,7 +78,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=13';
+    script.src = 'app.js?v=14';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -225,9 +225,13 @@
           buf = '';
           return;
         }
-        // Cookie is set — hydrate app without a full reload (more reliable on mobile).
+        // Cookie is set — hydrate app; fall back to hard reload if script load fails.
         window.__paidiaAuthed = true;
-        loadApp();
+        try {
+          loadApp();
+        } catch (error) {
+          location.replace('/?in=' + Date.now());
+        }
         return;
       } catch (error) {
         errorEl.textContent = t('unavailable');
