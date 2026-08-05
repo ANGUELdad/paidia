@@ -18,11 +18,14 @@ __pycache__/
 
 # Local runtime artifacts
 *.log
+.paidia.db
+.paidia.db-*
 .paidia-security-*
 .paidia-passkeys.json
 .paidia-onboarding.json
 .paidia-talk.json
 .paidia-ops.json
+.paidia-auth-overrides.json
 .paidia-pin-hash-backup.json
 .coverage
 coverage/

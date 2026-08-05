@@ -109,9 +109,18 @@ def _api_path(path: str) -> str:
     return api
 
 
+def _db_health():
+    try:
+        import db as paidia_db
+        return paidia_db.health()
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "backend": "unknown", "error": str(exc)[:200]}
+
+
 def _auth_health():
     delivery = paidia.email_delivery_status()
     reset = paidia.pin_reset_status()
+    db_info = _db_health()
     payload = {
         "ok": True,
         "configuredProfiles": len(paidia.AUTH_USERS),
@@ -122,6 +131,8 @@ def _auth_health():
         "onboardingVersion": paidia.ONBOARDING_VERSION,
         "usersConfigured": bool(paidia.AUTH_USERS),
         "passkeysAvailable": paidia.WEBAUTHN_AVAILABLE,
+        "database": db_info,
+        "durableStorage": bool(db_info.get("ok") and db_info.get("backend") == "postgres"),
     }
     # Detailed origin/RP IDs only when authenticated as admin.
     session = _session_from_request()
@@ -368,6 +379,7 @@ def entry(flask_path: str = ""):
             "aiConfigured": bool(os.environ.get("GROQ_API_KEY", "").strip()),
             "chatModel": paidia.CHAT_MODEL,
             "ocrModel": paidia.OCR_MODEL,
+            "database": _db_health(),
         })
     if request.method == "GET" and api in {"/auth/health", "/api/auth/health"}:
         return _auth_health()
@@ -476,7 +488,8 @@ def entry(flask_path: str = ""):
                 "setup": "Set GROQ_API_KEY in Vercel env",
             })
         body = _body()
-        status, payload = paidia.run_chat(body, api_key, session=session)
+        client_ip = (request.headers.get("X-Forwarded-For") or request.remote_addr or "").split(",")[0].strip()
+        status, payload = paidia.run_chat(body, api_key, session=session, client_ip=client_ip)
         return _json(status, payload)
 
     if request.method in {"GET", "HEAD"}:

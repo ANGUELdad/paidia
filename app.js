@@ -7,7 +7,7 @@ const T = {
     appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch',
     titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch',
     logout:'Profil', noUser:'Nicht angemeldet',
-    navChat:'Chat', topChat:'Chat', topHelp:'Hilfe', topTalk:'Team', topTutorial:'Tutorial',
+    navChat:'Chat', topChat:'Chat', topHelp:'Zo-Ai', topTalk:'Team', topTutorial:'Tutorial',
     topAdd:'＋ Eintrag', topIn:'＋ Ein', topOut:'− Aus', topBoard:'Bewegung', topFood:'＋ Ware',
     topShop:'Liste', topScan:'Scan', topHistory:'Verlauf', topShift:'Schicht', topFix:'Korrektur',
     topDay:'Tag', topWeek:'Woche', topEvents:'Events', topBoth:'Beide Häuser',
@@ -161,9 +161,9 @@ const T = {
     tutorialTip:'Du musst alle Schritte ansehen. Diese Einführung kann nicht übersprungen oder geschlossen werden.',
     tutorialOpen:'App-Tutorial öffnen', tutorialReplay:'Funktions-Tutorial', tutorialClose:'Tutorial beenden',
     tutorialReplayTip:'Du kannst dieses Tutorial jederzeit über Hilfe (?) oder Profil erneut öffnen.',
-    helpCenter:'Hilfe & Tutorial', helpCenterHint:'Tutorial, Team-Gespräch und AI-Hilfe. Die AI kann mit Bestätigung Lager und Liste ändern.',
+    helpCenter:'Hilfe & Zo-Ai', helpCenterHint:'Tutorial, Team-Gespräch und Zo-Ai. Zo-Ai kann mit Bestätigung Lager, Liste und Plan ändern.',
     startTutorial:'Geführtes App-Tutorial', startTutorialHint:'Alle Funktionen passend zu deinem Profil – jederzeit wiederholbar über ?.',
-    askAiHelp:'AI-Hilfe fragen', askAiHelpHint:'Fragen stellen, per Sprache diktieren, oder Lager/Liste mit Bestätigung ändern.',
+    askAiHelp:'Zo-Ai fragen', askAiHelpHint:'Lager, Liste, Plan — in einfacher Sprache',
     staffTalk:'Team sprechen', staffTalkHint:'Chat mit Mikrofon, Besprechungsthemen und gemeinsamer Videoanruf.',
     staffTalkTitle:'Team-Gespräch', staffTalkIntro:'Schreibt oder sprecht per Mikrofon. Themen merken wir für die Besprechung. Video geht über einen gemeinsamen Jitsi-Raum.',
     staffTalkEmpty:'Noch keine Nachrichten. Schreibt die erste.',
@@ -277,15 +277,23 @@ const T = {
     gameYourTurn:'Du bist dran', gameCpuTurn:'Computer denkt…', gameYou:'Du', gameCpu:'PC',
     eventOfWeek:'Event der Woche', eventToday:'Heute', eventTomorrow:'Morgen', upcomingEvents:'Demnächst',
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
-    helpChat:'Hilfe', helpWelcome:'Hallo! Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauchen deine Bestätigung. Du kannst auch das Mikrofon nutzen.',
-    helpWelcomeChild:'Hallo! Ich helfe dir bei deinem Tag, Events und Spielen. Frag z. B. „Was habe ich heute?“ oder „Wie spiele ich Memory?“',
-    helpWelcomeStaff:'Hallo! Ich helfe bei Plan, Events, Lager und Einkaufsliste. Sag z. B. „2 Milch nach Kalyvia“ — Änderungen brauchst du danach zu bestätigen.',
-    helpWelcomeAdmin:'Hallo! Du hast Admin-Rechte. Ich helfe bei Betrieb, Admin-Zentrale, Dauerplan und Lager. Sag z. B. „2 Milch nach Kalyvia“ oder frag, wie du den Dauerplan änderst.',
+    helpChat:'Zo-Ai', helpWelcome:'Hallo! Ich bin Zo-Ai. Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauche ich danach deine Bestätigung.',
+    helpWelcomeChild:'Hallo! Ich bin Zo-Ai. Ich helfe dir bei deinem Tag, Events und Spielen. Frag z. B. „Was habe ich heute?“ oder „Wie spiele ich Memory?“',
+    helpWelcomeStaff:'Hallo! Ich bin Zo-Ai, dein Assistent. Ich helfe bei Plan, Events, Lager und Liste. Sag z. B. „2 Milch nach Kalyvia“ oder „Fußball morgen Nachmittag für Maria“. Danach bestätigen.',
+    helpWelcomeAdmin:'Hallo! Ich bin Zo-Ai. Du hast Admin-Rechte. Ich helfe bei Betrieb, Admin-Zentrale, Dauerplan und Lager. Sag z. B. „2 Milch nach Kalyvia“ oder „trage Schwimmen dauerhaft Dienstag Vormittag ein“.',
     helpRoleChild:'Kind', helpRoleStaff:'Betreuung', helpRoleAdmin:'Admin',
     helpQuickChild:'Schnell fragen', helpQuickAdmin:'Schnell: Lager / Admin',
-    helpChildHint:'Du siehst nur deine Termine und Spiele. Essensänderungen macht die Betreuung.',
-    helpAdminHint:'Als Admin kannst du Dauerplan, Dienste und die Admin-Zentrale steuern. Lager-Änderungen brauchen trotzdem Bestätigung.',
-    helpMutateHint:'Als angemeldetes Personal kannst du z.B. sagen: „Milch +2 Kalyvia“ oder „Reis auf die Liste“. Dann bestätigen.',
+    helpChildHint:'Du siehst nur deine Termine und Spiele. Essens- oder Planänderungen macht die Betreuung.',
+    helpAdminHint:'Als Admin kannst du Dauerplan und Dienste vorschlagen lassen. Jede Änderung braucht Bestätigung und PIN.',
+    helpMutateHint:'Sag Zo-Ai z. B.: „Milch +2 Kalyvia“, „Reis auf die Liste“ oder „trag morgen Nachmittag Fußball für Angelos ein“. Dann prüfen und speichern.',
+    zoAiReady:'Zo-Ai ist bereit — frag jederzeit um Hilfe.',
+    zoAiReadyChild:'Zo-Ai ist da — frag z. B. was du heute machst.',
+    zoAiBannerTitle:'Zo-Ai · dein Assistent',
+    zoAiBannerTitleChild:'Zo-Ai · Hilfe für dich',
+    zoAiBannerHint:'Frag in einfacher Sprache. Zo-Ai kann Lager, Liste und den Plan vorschlagen — du bestätigst.',
+    zoAiBannerHintChild:'Frag Zo-Ai zu deinem Tag, Events oder Spielen. Zo-Ai ändert nichts ohne Erwachsene.',
+    zoAiBannerOpen:'Zo-Ai öffnen',
+    zoAiBannerDismiss:'Später',
     helpVoice:'Spracheingabe', helpVoiceListening:'Höre zu… tippe erneut zum Stoppen',
     helpVoiceUnsupported:'Spracheingabe wird auf diesem Gerät nicht unterstützt.',
     helpVoiceError:'Spracheingabe fehlgeschlagen. Tippe die Frage stattdessen.',
@@ -296,18 +304,24 @@ const T = {
     helpQuickFood:'Schnell: Lager / Liste',
     helpConfirmInline:'Jetzt speichern',
     helpDiscardInline:'Verwerfen',
-    helpProposeTitle:'Vorgeschlagene Änderungen', helpProposeHint:'Noch nicht gespeichert. Prüfe und bestätige.',
+    helpProposeTitle:'Zo-Ai Vorschläge', helpProposeHint:'Noch nicht gespeichert. Prüfe die Liste und bestätige.',
     helpProposeConfirm:'Änderungen speichern', helpProposeCancel:'Verwerfen',
     helpProposeDone:n=>`${n} ${n===1?'Änderung':'Änderungen'} gespeichert`,
-    helpProposeDenied:'Nur angemeldete Betreuer können Lager und Liste ändern.',
+    helpProposeDenied:'Nur angemeldete Betreuer können Änderungen speichern.',
     helpProposeEmpty:'Keine gültigen Änderungen erkannt.',
+    helpProposeNeedPin:'Für Plan-Änderungen bitte PIN bestätigen.',
     helpActionStock:(dir,qty,unit,name,house)=>`${dir==='IN'?'+':'−'} ${qty} ${unit} ${name} @ ${house}`,
     helpActionShopAdd:(qty,unit,name,house)=>`🛒 + ${qty} ${unit} ${name} → Liste ${house}`,
     helpActionShopRemove:(name,house)=>`🛒 entfernen: ${name} @ ${house}`,
-    helpPlaceholder:'Frage zur aktuellen Ansicht…', helpSend:'Senden',
-    helpThinking:'Ich prüfe das…', helpUnavailable:'Die Hilfe ist gerade nicht erreichbar.',
-    helpAuthExpired:'Sitzung abgelaufen. Bitte erneut anmelden und nochmal fragen.',
-    helpConfigBanner:'Hilfe-AI ist nicht eingerichtet. In Vercel → Environment Variables GROQ_API_KEY setzen und neu deployen.',
+    helpActionScheduleAdd:(when,block,what,who)=>`📅 + ${when} · ${block}: ${what}${who?' · '+who:''}`,
+    helpActionScheduleUpdate:(when,what)=>`📅 ändern ${when}: ${what}`,
+    helpActionScheduleCancel:(when,what)=>`📅 streichen ${when}: ${what}`,
+    helpActionScheduleTemplate:(day,block,what)=>`📅 Dauerhaft ${day} · ${block}: ${what}`,
+    helpPlaceholder:'Frag Zo-Ai…', helpSend:'Senden',
+    helpThinking:'Zo-Ai prüft das…', helpUnavailable:'Zo-Ai ist gerade nicht erreichbar.',
+    helpAuthExpired:'Sitzung abgelaufen. Bitte erneut anmelden und Zo-Ai nochmal fragen.',
+    helpConfigBanner:'Zo-Ai ist nicht eingerichtet. In Vercel → Environment Variables GROQ_API_KEY setzen und neu deployen.',
+    askAiHelp:'Zo-Ai fragen', askAiHelpHint:'Lager, Liste, Plan — in einfacher Sprache',
     viewEvents:'Events', eventsPanel:'Events & Ankündigungen', newEvent:'Neues Event', editEvent:'Event bearbeiten',
     eventTitle:'Titel', eventDescription:'Beschreibung', eventLocation:'Ort', eventBring:'Mitbringen',
     eventEmoji:'Symbol', announceEvent:'Als Event ankündigen', announceHint:'Wird sofort im Events-Tab der ausgewählten Kinder veröffentlicht.',
@@ -359,7 +373,7 @@ const T = {
     appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο',
     titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
-    navChat:'Chat', topChat:'Chat', topHelp:'Βοήθεια', topTalk:'Ομάδα', topTutorial:'Tutorial',
+    navChat:'Chat', topChat:'Chat', topHelp:'Zo-Ai', topTalk:'Ομάδα', topTutorial:'Tutorial',
     topAdd:'＋ Εγγραφή', topIn:'＋ Εισ', topOut:'− Έξ', topBoard:'Κίνηση', topFood:'＋ Είδος',
     topShop:'Λίστα', topScan:'Σάρωση', topHistory:'Ιστορικό', topShift:'Βάρδια', topFix:'Διόρθωση',
     topDay:'Ημέρα', topWeek:'Εβδομάδα', topEvents:'Events', topBoth:'Και τα δύο',
@@ -513,9 +527,9 @@ const T = {
     tutorialTip:'Πρέπει να δεις όλα τα βήματα. Η ξενάγηση δεν παραλείπεται και δεν κλείνει.',
     tutorialOpen:'Άνοιγμα tutorial εφαρμογής', tutorialReplay:'Tutorial λειτουργιών', tutorialClose:'Τέλος tutorial',
     tutorialReplayTip:'Μπορείς να ανοίξεις ξανά αυτό το tutorial οποιαδήποτε στιγμή από το ? ή το Προφίλ.',
-    helpCenter:'Βοήθεια & Tutorial', helpCenterHint:'Tutorial, συνομιλία ομάδας και βοήθεια AI. Η AI μπορεί με επιβεβαίωση να αλλάξει αποθήκη και λίστα.',
+    helpCenter:'Βοήθεια & Zo-Ai', helpCenterHint:'Tutorial, συνομιλία ομάδας και Zo-Ai. Η Zo-Ai μπορεί με επιβεβαίωση να αλλάξει αποθήκη, λίστα και πρόγραμμα.',
     startTutorial:'Καθοδηγούμενο tutorial εφαρμογής', startTutorialHint:'Όλες οι λειτουργίες για το προφίλ σου – επαναλαμβάνεται από το ?.',
-    askAiHelp:'Ερώτηση στη βοήθεια AI', askAiHelpHint:'Κάνε ερώτηση, υπαγόρευσε με μικρόφωνο, ή άλλαξε ψυγείο/λίστα με επιβεβαίωση.',
+    askAiHelp:'Ρώτα τη Zo-Ai', askAiHelpHint:'Αποθήκη, λίστα, πρόγραμμα — με απλά λόγια',
     staffTalk:'Ομάδα — συνομιλία', staffTalkHint:'Chat με μικρόφωνο, θέματα σύσκεψης και κοινό βιντεοκλήση.',
     staffTalkTitle:'Συνομιλία ομάδας', staffTalkIntro:'Γράψτε ή μιλήστε με μικρόφωνο. Τα θέματα μένουν για τη σύσκεψη. Το βίντεο είναι κοινό δωμάτιο Jitsi.',
     staffTalkEmpty:'Δεν υπάρχουν ακόμη μηνύματα. Γράψτε το πρώτο.',
@@ -629,14 +643,23 @@ const T = {
     gameYourTurn:'Η σειρά σου', gameCpuTurn:'Σκέφτεται ο υπολογιστής…', gameYou:'Εσύ', gameCpu:'PC',
     eventOfWeek:'Event της εβδομάδας', eventToday:'Σήμερα', eventTomorrow:'Αύριο', upcomingEvents:'Επόμενα events',
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
-    helpChat:'Βοήθεια', helpWelcome:'Γεια! Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση. Μπορείς και μικρόφωνο.',
-    helpWelcomeChild:'Γεια! Σε βοηθάω με τη μέρα σου, τα events και τα παιχνίδια. Ρώτα π.χ. «Τι έχω σήμερα;» ή «Πώς παίζω Μνήμη;»',
-    helpWelcomeStaff:'Γεια! Σε βοηθάω με πρόγραμμα, events, αποθήκη και λίστα. Πες π.χ. «2 γάλα στο Kalyvia» — οι αλλαγές χρειάζονται επιβεβαίωση.',
-    helpWelcomeAdmin:'Γεια! Έχεις δικαιώματα admin. Σε βοηθάω με λειτουργία, Κέντρο διαχείρισης, μόνιμο πρόγραμμα και απόθεμα. Πες π.χ. «2 γάλα Kalyvia» ή ρώτα πώς αλλάζει το μόνιμο πρόγραμμα.',
+    helpChat:'Zo-Ai', helpWelcome:'Γεια! Είμαι η Zo-Ai. Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση.',
+    helpWelcomeChild:'Γεια! Είμαι η Zo-Ai. Σε βοηθάω με τη μέρα σου, τα events και τα παιχνίδια. Ρώτα π.χ. «Τι έχω σήμερα;» ή «Πώς παίζω Μνήμη;»',
+    helpWelcomeStaff:'Γεια! Είμαι η Zo-Ai, ο βοηθός σου. Σε βοηθάω με πρόγραμμα, events, αποθήκη και λίστα. Πες π.χ. «2 γάλα στο Kalyvia» ή «βάλε αύριο απόγευμα ποδόσφαιρο για τη Μαρία». Μετά επιβεβαίωσε.',
+    helpWelcomeAdmin:'Γεια! Είμαι η Zo-Ai. Έχεις δικαιώματα admin. Σε βοηθάω με λειτουργία, Κέντρο διαχείρισης, μόνιμο πρόγραμμα και απόθεμα. Πες π.χ. «2 γάλα Kalyvia» ή «βάλε μόνιμα Τρίτη πρωί κολύμπι».',
     helpRoleChild:'Παιδί', helpRoleStaff:'Φροντιστής', helpRoleAdmin:'Admin',
     helpQuickChild:'Γρήγορες ερωτήσεις', helpQuickAdmin:'Γρήγορα: ψυγείο / admin',
-    helpChildHint:'Βλέπεις μόνο τα δικά σου και τα παιχνίδια. Αλλαγές φαγητού τις κάνει ο φροντιστής.',
-    helpAdminHint:'Ως admin μπορείς να αλλάξεις μόνιμο πρόγραμμα, βάρδιες και το Κέντρο διαχείρισης. Οι αλλαγές ψυγείου χρειάζονται επιβεβαίωση.',
+    helpChildHint:'Βλέπεις μόνο τα δικά σου και τα παιχνίδια. Αλλαγές φαγητού ή προγράμματος τις κάνει ο φροντιστής.',
+    helpAdminHint:'Ως admin μπορείς να προτείνεις μόνιμο πρόγραμμα και βάρδιες. Κάθε αλλαγή χρειάζεται επιβεβαίωση και PIN.',
+    helpMutateHint:'Πες στη Zo-Ai π.χ.: «γάλα +2 Kalyvia», «ρύζι στη λίστα» ή «βάλε αύριο απόγευμα ποδόσφαιρο για τον Άγγελο». Μετά έλεγξε και αποθήκευσε.',
+    zoAiReady:'Η Zo-Ai είναι έτοιμη — ρώτα όποτε χρειάζεσαι βοήθεια.',
+    zoAiReadyChild:'Η Zo-Ai είναι εδώ — ρώτα π.χ. τι έχεις σήμερα.',
+    zoAiBannerTitle:'Zo-Ai · ο βοηθός σου',
+    zoAiBannerTitleChild:'Zo-Ai · βοήθεια για σένα',
+    zoAiBannerHint:'Μίλα απλά. Η Zo-Ai προτείνει αλλαγές σε αποθήκη, λίστα και πρόγραμμα — εσύ επιβεβαιώνεις.',
+    zoAiBannerHintChild:'Ρώτα τη Zo-Ai για τη μέρα σου, events ή παιχνίδια. Δεν αλλάζει τίποτα χωρίς ενήλικα.',
+    zoAiBannerOpen:'Άνοιγμα Zo-Ai',
+    zoAiBannerDismiss:'Αργότερα',
     helpVoice:'Φωνητική εισαγωγή', helpVoiceListening:'Ακούω… πάτα ξανά για stop',
     helpVoiceUnsupported:'Η φωνητική εισαγωγή δεν υποστηρίζεται σε αυτή τη συσκευή.',
     helpVoiceError:'Η φωνητική εισαγωγή απέτυχε. Γράψε την ερώτηση.',
@@ -647,19 +670,24 @@ const T = {
     helpQuickFood:'Γρήγορα: ψυγείο / λίστα',
     helpConfirmInline:'Αποθήκευση τώρα',
     helpDiscardInline:'Απόρριψη',
-    helpMutateHint:'Ως συνδεδεμένο προσωπικό μπορείς π.χ. να πεις: «γάλα +2 Kalyvia» ή «ρύζι στη λίστα». Μετά επιβεβαίωσε.',
-    helpProposeTitle:'Προτεινόμενες αλλαγές', helpProposeHint:'Δεν αποθηκεύτηκαν ακόμη. Έλεγξε και επιβεβαίωσε.',
+    helpProposeTitle:'Προτάσεις Zo-Ai', helpProposeHint:'Δεν αποθηκεύτηκαν ακόμη. Έλεγξε τη λίστα και επιβεβαίωσε.',
     helpProposeConfirm:'Αποθήκευση αλλαγών', helpProposeCancel:'Απόρριψη',
     helpProposeDone:n=>`${n} ${n===1?'αλλαγή':'αλλαγές'} αποθηκεύτηκαν`,
-    helpProposeDenied:'Μόνο συνδεδεμένοι φροντιστές μπορούν να αλλάξουν ψυγείο και λίστα.',
+    helpProposeDenied:'Μόνο συνδεδεμένοι φροντιστές μπορούν να αποθηκεύσουν αλλαγές.',
     helpProposeEmpty:'Δεν αναγνωρίστηκαν έγκυρες αλλαγές.',
+    helpProposeNeedPin:'Για αλλαγές προγράμματος χρειάζεται PIN.',
     helpActionStock:(dir,qty,unit,name,house)=>`${dir==='IN'?'+':'−'} ${qty} ${unit} ${name} @ ${house}`,
     helpActionShopAdd:(qty,unit,name,house)=>`🛒 + ${qty} ${unit} ${name} → λίστα ${house}`,
     helpActionShopRemove:(name,house)=>`🛒 αφαίρεση: ${name} @ ${house}`,
-    helpPlaceholder:'Ρώτησε για την τρέχουσα οθόνη…', helpSend:'Αποστολή',
-    helpThinking:'Το ελέγχω…', helpUnavailable:'Η βοήθεια δεν είναι διαθέσιμη αυτή τη στιγμή.',
-    helpAuthExpired:'Η συνεδρία έληξε. Ξανασυνδέσου και ρώτα ξανά.',
-    helpConfigBanner:'Το AI βοήθειας δεν είναι ρυθμισμένο. Στο Vercel → Environment Variables βάλε GROQ_API_KEY και κάνε νέο deploy.',
+    helpActionScheduleAdd:(when,block,what,who)=>`📅 + ${when} · ${block}: ${what}${who?' · '+who:''}`,
+    helpActionScheduleUpdate:(when,what)=>`📅 αλλαγή ${when}: ${what}`,
+    helpActionScheduleCancel:(when,what)=>`📅 διαγραφή ${when}: ${what}`,
+    helpActionScheduleTemplate:(day,block,what)=>`📅 Μόνιμα ${day} · ${block}: ${what}`,
+    helpPlaceholder:'Ρώτα τη Zo-Ai…', helpSend:'Αποστολή',
+    helpThinking:'Η Zo-Ai το ελέγχει…', helpUnavailable:'Η Zo-Ai δεν είναι διαθέσιμη αυτή τη στιγμή.',
+    helpAuthExpired:'Η συνεδρία έληξε. Ξανασυνδέσου και ρώτα τη Zo-Ai ξανά.',
+    helpConfigBanner:'Η Zo-Ai δεν είναι ρυθμισμένη. Στο Vercel → Environment Variables βάλε GROQ_API_KEY και κάνε νέο deploy.',
+    askAiHelp:'Ρώτα τη Zo-Ai', askAiHelpHint:'Αποθήκη, λίστα, πρόγραμμα — με απλά λόγια',
     viewEvents:'Events', eventsPanel:'Events & ανακοινώσεις', newEvent:'Νέο event', editEvent:'Επεξεργασία event',
     eventTitle:'Τίτλος', eventDescription:'Περιγραφή', eventLocation:'Τοποθεσία', eventBring:'Τι να φέρουν',
     eventEmoji:'Σύμβολο', announceEvent:'Ανακοίνωση ως event', announceHint:'Δημοσιεύεται αμέσως στο Events tab των επιλεγμένων παιδιών.',
@@ -1276,116 +1304,8 @@ function setStatus(el, message='', type='info'){
   el.setAttribute('aria-live', 'polite');
 }
 
-/* ── Subtle UI clicks (filtered noise ticks — not musical beeps) ── */
-let _audioCtx = null;
-let _lastSfxAt = 0;
-const SFX_MASTER = 0.22; // keep everything quiet
-/** Interaction sounds are soft ticks; save/error get a tiny tonal cue. */
-const SFX_KIND = {
-  tap:     { mode:'tick', freq:2100, dur:0.018, gain:0.045 },
-  select:  { mode:'tick', freq:2400, dur:0.02,  gain:0.05 },
-  open:    { mode:'tick', freq:1600, dur:0.024, gain:0.055 },
-  toggle:  { mode:'tick', freq:1900, dur:0.02,  gain:0.045 },
-  success: { mode:'chime', freqs:[660, 880], dur:0.07, gap:0.04, gain:0.04 },
-  save:    { mode:'chime', freqs:[620, 820], dur:0.08, gap:0.045, gain:0.045 },
-  warn:    { mode:'tick', freq:900,  dur:0.04,  gain:0.06 },
-  error:   { mode:'thud', freq:140,  dur:0.09,  gain:0.07 },
-};
-function unlockAudio(){
-  try{
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if(!AC) return;
-    if(!_audioCtx) _audioCtx = new AC();
-    if(_audioCtx.state === 'suspended') _audioCtx.resume();
-  }catch{}
-}
-['pointerdown','keydown','touchstart'].forEach(ev=>
-  window.addEventListener(ev, unlockAudio, {once:true, capture:true}));
-
-function playNoiseTick(ctx, {freq=2000, dur=0.02, gain=0.05, t0}){
-  const n = Math.max(32, Math.floor(ctx.sampleRate * dur));
-  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
-  const data = buf.getChannelData(0);
-  for(let i=0;i<n;i++){
-    const env = Math.exp(-i / (n * 0.18));
-    data[i] = (Math.random() * 2 - 1) * env;
-  }
-  const src = ctx.createBufferSource();
-  src.buffer = buf;
-  const bp = ctx.createBiquadFilter();
-  bp.type = 'bandpass';
-  bp.frequency.value = freq;
-  bp.Q.value = 0.9;
-  const lp = ctx.createBiquadFilter();
-  lp.type = 'lowpass';
-  lp.frequency.value = 3200;
-  const g = ctx.createGain();
-  const peak = Math.max(0.004, gain * SFX_MASTER);
-  g.gain.setValueAtTime(peak, t0);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  src.connect(bp); bp.connect(lp); lp.connect(g); g.connect(ctx.destination);
-  src.start(t0); src.stop(t0 + dur + 0.01);
-}
-
-function playSoftTone(ctx, {freq, dur, gain, type='sine', t0}){
-  const osc = ctx.createOscillator();
-  const g = ctx.createGain();
-  const lp = ctx.createBiquadFilter();
-  lp.type = 'lowpass';
-  lp.frequency.value = 1800;
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, t0);
-  const peak = Math.max(0.004, gain * SFX_MASTER);
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(peak, t0 + 0.008);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  osc.connect(lp); lp.connect(g); g.connect(ctx.destination);
-  osc.start(t0); osc.stop(t0 + dur + 0.02);
-}
-
-function playSfx(name){
-  const spec = SFX_KIND[name] || SFX_KIND.tap;
-  const nowMs = performance.now();
-  if(nowMs - _lastSfxAt < 40) return;
-  _lastSfxAt = nowMs;
-  try{
-    unlockAudio();
-    const ctx = _audioCtx;
-    if(!ctx) return;
-    const t0 = ctx.currentTime + 0.001;
-    if(spec.mode === 'tick'){
-      playNoiseTick(ctx, {freq:spec.freq, dur:spec.dur, gain:spec.gain, t0});
-      return;
-    }
-    if(spec.mode === 'thud'){
-      playSoftTone(ctx, {freq:spec.freq, dur:spec.dur, gain:spec.gain, type:'sine', t0});
-      return;
-    }
-    (spec.freqs||[]).forEach((freq, i)=>{
-      playSoftTone(ctx, {
-        freq, dur:spec.dur, gain:spec.gain * (1 - i * 0.15), type:'sine',
-        t0: t0 + i * (spec.gap || 0.04),
-      });
-    });
-  }catch{}
-}
-function haptic(kind='light'){
-  if(typeof navigator==='undefined' || !navigator.vibrate) return;
-  const pattern = ({
-    light:8, medium:16, heavy:28, select:10,
-    success:[8,36,12], error:[28,40,28], toggle:12,
-  })[kind] ?? 8;
-  try{ navigator.vibrate(pattern); }catch{}
-}
-function feedback(kind='select'){
-  const map = {
-    select:['select','select'], tap:['tap','light'], open:['open','medium'],
-    success:['success','success'], save:['save','success'],
-    toggle:['toggle','toggle'], error:['error','error'], warn:['warn','medium'],
-  };
-  const [sfx, hap] = map[kind] || map.select;
-  haptic(hap); playSfx(sfx);
-}
+/* UI feedback — silent (no SFX). */
+function feedback(_kind){}
 
 function entrySec(icon, label, hint=''){
   return `<div class="entry-sec"><span class="sec-ico" aria-hidden="true">${icon}</span><span>${esc(label)}</span>${hint?`<span class="sec-hint">${esc(hint)}</span>`:''}</div>`;
@@ -1513,7 +1433,7 @@ const state = {
   child: null,
   house: 'h1',
   shopFriday: fridayFor(),
-  stockFilter: 'attention',
+  stockFilter: 'all',
   stockQuery: '',
   stockOpenCategories: null,
   stockDraft: {},
@@ -2065,6 +1985,18 @@ function helpUiContext(){
   }
   if(role==='staff' || role==='admin'){
     base.inventory = helpInventoryContext();
+    base.activeDate = state.date || iso(new Date());
+    base.blocks = BLOCKS.map(b=>({id:b.id, from:b.from, to:b.to, by:b.by}));
+    base.activities = (DB.activities||[]).slice(0,80).map(a=>({id:a.id, name:L(a)}));
+    base.employees = (DB.employees||[]).map(e=>({id:e.id, name:e.name}));
+    base.houses = (DB.houses||[]).map(h=>({id:h.id, name:h.short||h.name}));
+    base.todaySchedule = entriesFor(base.activeDate).filter(e=>!e.cancelled).slice(0,40).map(e=>({
+      id:e.id, block:e.block, activity:actLabel(e.activityId), activityId:e.activityId,
+      time:entryTime(e), houses:entryHouseIds(e), people:entryEmployeeIds(e), source:e.source,
+    }));
+    base.examples = state.lang==='el'
+      ? ['πρόσθεσε 2 γάλα στο Kalyvia','βάλε ρύζι στη λίστα','βάλε αύριο απόγευμα ποδόσφαιρο για τη Μαρία']
+      : ['2 Milch nach Kalyvia','Reis auf die Liste','trag morgen Nachmittag Fußball für Maria ein'];
   }
   return base;
 }
@@ -2124,7 +2056,6 @@ function bindVoiceInput({input, mic, statusEl, onTranscript}={}){
       toast(t('helpVoiceSecure'),'error',5200); return;
     }
     if(listening){ stop(); return; }
-    unlockAudio();
     starting=true;
     setStatus(t('helpVoiceStart'), true);
     try{
@@ -2191,6 +2122,64 @@ function bindVoiceInput({input, mic, statusEl, onTranscript}={}){
   return {stop, isListening:()=>listening};
 }
 
+function matchActivity(query){
+  const n = norm(query||'');
+  if(!n) return null;
+  const list = DB.activities||[];
+  for(const a of list){
+    if([a.de,a.el,a.en,a.id].filter(Boolean).some(k=>norm(k)===n)) return a;
+  }
+  let best=null, bestDiff=Infinity;
+  for(const a of list){
+    for(const k of [a.de,a.el,a.en].filter(Boolean)){
+      const kn=norm(k);
+      if(kn.includes(n) || n.includes(kn)){
+        const diff=Math.abs(kn.length-n.length);
+        if(diff<bestDiff){ best=a; bestDiff=diff; }
+      }else{
+        const d=lev(n, kn);
+        if(d<=2 && d<bestDiff){ best=a; bestDiff=d; }
+      }
+    }
+  }
+  return best;
+}
+
+function matchEmployee(query){
+  const n=norm(query||'');
+  if(!n) return null;
+  return (DB.employees||[]).find(e=>norm(e.name)===n || norm(e.name).includes(n))||null;
+}
+
+function helpActionsNeedPin(actions){
+  return (actions||[]).some(a=>String(a.type||'').startsWith('schedule'));
+}
+
+function findScheduleEntryForAction(action){
+  const date=String(action.date||'').trim();
+  if(!date) return null;
+  let list=entriesFor(date).filter(e=>!e.cancelled);
+  if(action.entryId){
+    const hit=list.find(e=>e.id===action.entryId);
+    if(hit) return hit;
+  }
+  if(action.block) list=list.filter(e=>e.block===action.block);
+  const actMatched=action.activityId ? act(action.activityId) : matchActivity(action.activityQuery||'');
+  if(actMatched) list=list.filter(e=>e.activityId===actMatched.id);
+  else if(action.activityQuery){
+    const q=norm(action.activityQuery);
+    list=list.filter(e=>norm(actLabel(e.activityId)).includes(q) || norm(e.note||'').includes(q));
+  }
+  if(action.employeeId) list=list.filter(e=>entryEmployeeIds(e).includes(action.employeeId));
+  if(action.houseId) list=list.filter(e=>entryHouseIds(e).includes(action.houseId));
+  return list[0]||null;
+}
+
+function resolveActivityId(action){
+  if(action.activityId && act(action.activityId)) return action.activityId;
+  return matchActivity(action.activityQuery||'')?.id || null;
+}
+
 function describeHelpAction(action){
   const query=action.productQuery||action.name||'';
   const product=matchProduct(query);
@@ -2201,6 +2190,32 @@ function describeHelpAction(action){
   if(action.type==='stock_adjust') return T[state.lang].helpActionStock(action.dir||'IN', action.qty||1, unit, name, houseName);
   if(action.type==='shop_add') return T[state.lang].helpActionShopAdd(action.qty||1, unit, name, houseName);
   if(action.type==='shop_remove') return T[state.lang].helpActionShopRemove(name, houseName);
+  if(action.type==='schedule_add' || action.type==='schedule_template_add'){
+    const actId=resolveActivityId(action);
+    const what=actId?actLabel(actId):(action.activityQuery||'?');
+    const block=t(action.block||'afternoon');
+    const who=[
+      action.employeeId?emp(action.employeeId)?.name:'',
+      action.houseId?house(action.houseId)?.short:'',
+    ].filter(Boolean).join(' · ');
+    if(action.type==='schedule_template_add'){
+      const dayName=DAY_LONG[state.lang][Number(action.day)||0]||String(action.day);
+      return T[state.lang].helpActionScheduleTemplate(dayName, block, what);
+    }
+    return T[state.lang].helpActionScheduleAdd(action.date||'', block, what, who);
+  }
+  if(action.type==='schedule_update' || action.type==='schedule_template_update'){
+    const hit=action.type==='schedule_template_update'
+      ? (DB.template||[]).find(x=>x.id===action.entryId)
+      : findScheduleEntryForAction(action);
+    const what=hit?actLabel(hit.activityId):(action.activityQuery||action.entryId||'?');
+    return T[state.lang].helpActionScheduleUpdate(action.date||t('scopeTemplate'), what);
+  }
+  if(action.type==='schedule_cancel'){
+    const hit=findScheduleEntryForAction(action);
+    const what=hit?actLabel(hit.activityId):(action.activityQuery||'?');
+    return T[state.lang].helpActionScheduleCancel(action.date||'', what);
+  }
   return name;
 }
 
@@ -2208,96 +2223,254 @@ function applyHelpActions(actions){
   if(state.mode!=='staff' || !state.user){ toast(t('helpProposeDenied'),'error'); return 0; }
   let applied=0;
   actions.forEach(action=>{
-    const query=action.productQuery||action.name||'';
-    const product=matchProduct(query);
-    const hid=action.houseId && house(action.houseId) ? action.houseId : shopHouse();
-    if(action.type==='stock_adjust'){
-      const qty=Number(action.qty)||0; if(qty<=0) return;
-      const p=product||{id:null,unit:action.unit||'Stk',de:query,el:query};
-      if(!product){
-        DB.customProducts ||= [];
-        const created={id:'cp-'+uid(),cat:'custom',de:query,el:query,unit:action.unit||'Stk',alias:[]};
-        DB.customProducts.push(created);
-        Object.assign(p, created);
-      }
-      const key=stockKey(hid,p.id);
-      const delta=action.dir==='OUT'?-qty:qty;
-      DB.stock[key]=Math.max(0, Math.round(((DB.stock[key]??0)+delta)*100)/100);
-      logEntry(action.dir==='OUT'?'OUT':'IN',
-        `AI · ${describeHelpAction(action)}`,
-        {houseId:hid, reason:action.reason||'AI help', items:[{pid:p.id, qty}]});
-      applied++;
-      return;
-    }
-    if(action.type==='shop_add'){
-      const qty=Number(action.qty)||1;
-      const name=product?L(product):(action.name||query);
-      const unit=action.unit||product?.unit||'Stk';
-      const friday=state.shopFriday||fridayFor();
-      const existing=fridayEntries(hid,friday).find(e=>e.status==='open'&&((product&&e.productId===product.id)||norm(e.name)===norm(name)));
-      if(existing) existing.qty=Math.round((Number(existing.qty)+qty)*100)/100;
-      else DB.listEntries.push({id:uid(),productId:product?.id||null,name,qty,unit,houseId:hid,fridayDate:friday,by:state.user.id,status:'open'});
-      logEntry('SHOP',`AI · ${describeHelpAction(action)}`,{houseId:hid});
-      applied++;
-      return;
-    }
-    if(action.type==='shop_remove'){
-      const before=DB.listEntries.length;
-      DB.listEntries=DB.listEntries.filter(e=>{
-        if(e.houseId!==hid || !['open','pending'].includes(e.status)) return true;
-        if(product && e.productId===product.id) return false;
-        return norm(e.name)!==norm(query);
-      });
-      if(DB.listEntries.length!==before){
-        logEntry('SHOP',`AI · ${describeHelpAction(action)}`,{houseId:hid});
+    const kind=action.type;
+    if(kind==='stock_adjust' || kind==='shop_add' || kind==='shop_remove'){
+      const query=action.productQuery||action.name||'';
+      const product=matchProduct(query);
+      const hid=action.houseId && house(action.houseId) ? action.houseId : shopHouse();
+      if(kind==='stock_adjust'){
+        const qty=Number(action.qty)||0; if(qty<=0) return;
+        const p=product||{id:null,unit:action.unit||'Stk',de:query,el:query};
+        if(!product){
+          DB.customProducts ||= [];
+          const created={id:'cp-'+uid(),cat:'custom',de:query,el:query,unit:action.unit||'Stk',alias:[]};
+          DB.customProducts.push(created);
+          Object.assign(p, created);
+        }
+        const key=stockKey(hid,p.id);
+        const delta=action.dir==='OUT'?-qty:qty;
+        DB.stock[key]=Math.max(0, Math.round(((DB.stock[key]??0)+delta)*100)/100);
+        logEntry(action.dir==='OUT'?'OUT':'IN',
+          `Zo-Ai · ${describeHelpAction(action)}`,
+          {houseId:hid, reason:action.reason||'Zo-Ai', items:[{pid:p.id, qty}]});
         applied++;
+        return;
       }
+      if(kind==='shop_add'){
+        const qty=Number(action.qty)||1;
+        const nm=product?L(product):(action.name||query);
+        const unit=action.unit||product?.unit||'Stk';
+        const friday=state.shopFriday||fridayFor();
+        const existing=fridayEntries(hid,friday).find(e=>e.status==='open'&&((product&&e.productId===product.id)||norm(e.name)===norm(nm)));
+        if(existing) existing.qty=Math.round((Number(existing.qty)+qty)*100)/100;
+        else DB.listEntries.push({id:uid(),productId:product?.id||null,name:nm,qty,unit,houseId:hid,fridayDate:friday,by:state.user.id,status:'open'});
+        logEntry('SHOP',`Zo-Ai · ${describeHelpAction(action)}`,{houseId:hid});
+        applied++;
+        return;
+      }
+      if(kind==='shop_remove'){
+        const before=DB.listEntries.length;
+        DB.listEntries=DB.listEntries.filter(e=>{
+          if(e.houseId!==hid || !['open','pending'].includes(e.status)) return true;
+          if(product && e.productId===product.id) return false;
+          return norm(e.name)!==norm(query);
+        });
+        if(DB.listEntries.length!==before){
+          logEntry('SHOP',`Zo-Ai · ${describeHelpAction(action)}`,{houseId:hid});
+          applied++;
+        }
+      }
+      return;
+    }
+
+    if(kind==='schedule_add'){
+      const activityId=resolveActivityId(action);
+      if(!activityId || !action.date || !action.block) return;
+      const def=blockDef(action.block); if(!def) return;
+      const employeeId=action.employeeId && emp(action.employeeId) ? action.employeeId
+        : (action.employeeQuery ? matchEmployee(action.employeeQuery)?.id : null);
+      const houseId=action.houseId && house(action.houseId) ? action.houseId : null;
+      const from=action.from||'', to=action.to||'';
+      DB.overrides.push({
+        id:uid(), date:action.date, templateId:null, block:action.block,
+        houseId, houseIds:houseId?[houseId]:[],
+        employeeId:employeeId||null, employeeIds:employeeId?[employeeId]:[],
+        childIds:Array.isArray(action.childIds)?action.childIds:[],
+        activityId, from, to, note:action.note||'',
+      });
+      logEntry('SCHEDULE',`Zo-Ai · ${describeHelpAction(action)}`);
+      applied++;
+      return;
+    }
+
+    if(kind==='schedule_update'){
+      const hit=findScheduleEntryForAction(action);
+      if(!hit) return;
+      const patch={};
+      const activityId=resolveActivityId(action);
+      if(activityId) patch.activityId=activityId;
+      if(action.block && blockDef(action.block)) patch.block=action.block;
+      if(action.from!=null) patch.from=action.from;
+      if(action.to!=null) patch.to=action.to;
+      if(action.note!=null) patch.note=action.note;
+      if(action.houseId && house(action.houseId)){
+        patch.houseId=action.houseId; patch.houseIds=[action.houseId];
+      }
+      if(action.employeeId && emp(action.employeeId)){
+        patch.employeeId=action.employeeId; patch.employeeIds=[action.employeeId];
+      }
+      if(hit.source==='template'){
+        const ex=DB.overrides.find(o=>o.date===action.date && o.templateId===hit.id);
+        if(ex) Object.assign(ex, patch, {cancelled:false});
+        else DB.overrides.push({id:uid(), date:action.date, templateId:hit.id, ...patch});
+      }else{
+        const ex=DB.overrides.find(o=>o.id===hit.id);
+        if(ex) Object.assign(ex, patch);
+      }
+      logEntry('SCHEDULE',`Zo-Ai · ${describeHelpAction(action)}`);
+      applied++;
+      return;
+    }
+
+    if(kind==='schedule_cancel'){
+      const hit=findScheduleEntryForAction(action);
+      if(!hit) return;
+      applyCancelScheduleEntry(hit, action.date);
+      logEntry('AI',`Zo-Ai · ${describeHelpAction(action)}`);
+      applied++;
+      return;
+    }
+
+    if(kind==='schedule_template_add'){
+      if(!isAdminUser()) return;
+      const activityId=resolveActivityId(action);
+      const day=Number(action.day);
+      if(!activityId || !action.block || !(day>=0 && day<=6)) return;
+      const employeeId=action.employeeId && emp(action.employeeId) ? action.employeeId : null;
+      const houseId=action.houseId && house(action.houseId) ? action.houseId : null;
+      DB.template.push({
+        id:'t'+uid(), day, block:action.block,
+        houseId, employeeId,
+        childIds:Array.isArray(action.childIds)?action.childIds:[],
+        activityId, note:action.note||'', time:'',
+        from:action.from||'', to:action.to||'',
+      });
+      logEntry('SCHEDULE',`Zo-Ai · ${describeHelpAction(action)}`);
+      applied++;
+      return;
+    }
+
+    if(kind==='schedule_template_update'){
+      if(!isAdminUser()) return;
+      const row=(DB.template||[]).find(x=>x.id===action.entryId);
+      if(!row) return;
+      const activityId=resolveActivityId(action);
+      if(activityId) row.activityId=activityId;
+      if(action.block && blockDef(action.block)) row.block=action.block;
+      if(action.day!=null && action.day>=0 && action.day<=6) row.day=Number(action.day);
+      if(action.from!=null) row.from=action.from;
+      if(action.to!=null) row.to=action.to;
+      if(action.note!=null) row.note=action.note;
+      if(action.houseId && house(action.houseId)) row.houseId=action.houseId;
+      if(action.employeeId && emp(action.employeeId)) row.employeeId=action.employeeId;
+      logEntry('SCHEDULE',`Zo-Ai · ${describeHelpAction(action)}`);
+      applied++;
     }
   });
   if(applied) save();
   return applied;
 }
 
+function openZoAiPinConfirm(title, onOk){
+  const who=state.user;
+  if(!who){ toast(t('helpProposeDenied'),'error'); return; }
+  let buf='';
+  let busy=false;
+  openSheet(`<div class="import-kicker">Zo-Ai</div>
+    <h3 style="margin:4px 0 8px">${esc(title)}</h3>
+    <p class="muted" style="margin:0 0 12px">${esc(t('helpProposeNeedPin'))}</p>
+    <div class="pindots" id="zoPinDots">${'<i></i>'.repeat(6)}</div>
+    <div class="pinpad" id="zoPinPad">
+      ${[1,2,3,4,5,6,7,8,9,'clr',0,'del'].map(k=>
+        `<button type="button" data-k="${k}">${k==='clr'?'C':k==='del'?'⌫':k}</button>`).join('')}
+    </div>
+    <div class="status-box error" id="zoPinErr" style="display:none"></div>
+    <div class="row" style="gap:8px;margin-top:10px">
+      <button class="btn sec" type="button" id="zoPinCancel">${t('helpProposeCancel')}</button>
+      <button class="btn" type="button" id="zoPinOk">${t('helpProposeConfirm')}</button>
+    </div>`);
+  const dots=()=>sheetEl.querySelectorAll('#zoPinDots i').forEach((el,i)=>el.classList.toggle('f', i<buf.length));
+  const err=sheetEl.querySelector('#zoPinErr');
+  const trySubmit=async()=>{
+    if(busy || buf.length<4){ err.style.display='block'; err.textContent=t('wrongPin'); return; }
+    busy=true;
+    err.style.display='none';
+    try{
+      await authenticateProfile('staff', who, buf);
+      closeSheet();
+      onOk(state.user||who);
+    }catch{
+      err.style.display='block';
+      err.textContent=t('wrongPin');
+      buf='';
+      dots();
+      busy=false;
+    }
+  };
+  sheetEl.querySelector('#zoPinCancel').onclick=()=>closeSheet();
+  sheetEl.querySelector('#zoPinOk').onclick=()=>trySubmit();
+  sheetEl.querySelectorAll('#zoPinPad [data-k]').forEach(btn=>{
+    btn.onclick=()=>{
+      if(busy) return;
+      const k=btn.dataset.k;
+      if(k==='del') buf=buf.slice(0,-1);
+      else if(k==='clr') buf='';
+      else if(/^\d$/.test(k) && buf.length<6) buf+=k;
+      dots();
+      if(buf.length===6) trySubmit();
+    };
+  });
+  dots();
+}
+
 function sheetHelpProposals(actions, {inline=false, onDone=null}={}){
   if(!actions?.length){ toast(t('helpProposeEmpty')); return; }
   if(state.mode!=='staff' || !state.user){ toast(t('helpProposeDenied'),'error'); return; }
   state.pendingHelpActions=[...actions];
+  const needPin=helpActionsNeedPin(actions);
   const confirm=()=>{
-    askPin(t('helpProposeConfirm'), who=>{
+    const run=who=>{
       state.user=who;
       const n=applyHelpActions(state.pendingHelpActions);
       state.pendingHelpActions=[];
       if(n){
-        feedback('save');
         state.helpMessages.push({role:'assistant', content:T[state.lang].helpProposeDone(n)});
         state.helpMessages=state.helpMessages.slice(-12);
         render();
         toast(T[state.lang].helpProposeDone(n),'success');
       }else toast(t('helpProposeEmpty'));
       onDone?.(n);
-    });
+    };
+    if(needPin) askPin(t('helpProposeConfirm'), run, {requirePin:true});
+    else askPin(t('helpProposeConfirm'), run);
   };
   const discard=()=>{
     state.pendingHelpActions=[];
-    feedback('toggle');
     onDone?.(0);
   };
   if(inline){
-    const box=sheetEl.querySelector('#helpProposeBox');
-    if(!box){ confirm(); return; }
-    box.hidden=false;
-    box.innerHTML=`<div class="help-propose-inline"><div class="strong">${esc(t('helpProposeTitle'))}</div>
-      <div class="muted" style="font-size:11.5px;margin:4px 0 8px">${esc(t('helpProposeHint'))}</div>
-      <div class="help-propose-list">${actions.map((action,i)=>`<div class="help-propose-row"><b>${i+1}.</b><span>${esc(describeHelpAction(action))}</span></div>`).join('')}</div>
-      <div class="row" style="gap:8px;margin-top:10px">
-        <button class="btn sec" id="helpProposeCancel" type="button">${t('helpDiscardInline')}</button>
-        <button class="btn" id="helpProposeConfirm" type="button">✓ ${t('helpConfirmInline')}</button>
-      </div></div>`;
-    box.querySelector('#helpProposeCancel').onclick=()=>{ box.hidden=true; discard(); };
-    box.querySelector('#helpProposeConfirm').onclick=()=>{ box.hidden=true; confirm(); };
-    return;
+    const box=document.querySelector('#chatBody #helpProposeBox')
+      || document.querySelector('#helpProposeBox')
+      || sheetEl.querySelector('#helpProposeBox');
+    if(!box){
+      // Never auto-apply — fall back to sheet confirm UI.
+      inline=false;
+    }else{
+      box.hidden=false;
+      box.innerHTML=`<div class="help-propose-inline"><div class="strong">${esc(t('helpProposeTitle'))}</div>
+        <div class="muted" style="font-size:11.5px;margin:4px 0 8px">${esc(t('helpProposeHint'))}${needPin?' · '+esc(t('helpProposeNeedPin')):''}</div>
+        <div class="help-propose-list">${actions.map((action,i)=>`<div class="help-propose-row"><b>${i+1}.</b><span>${esc(describeHelpAction(action))}</span></div>`).join('')}</div>
+        <div class="row" style="gap:8px;margin-top:10px">
+          <button class="btn sec" id="helpProposeCancel" type="button">${t('helpDiscardInline')}</button>
+          <button class="btn" id="helpProposeConfirm" type="button">✓ ${t('helpConfirmInline')}</button>
+        </div></div>`;
+      box.querySelector('#helpProposeCancel').onclick=()=>{ box.hidden=true; discard(); };
+      box.querySelector('#helpProposeConfirm').onclick=()=>{ box.hidden=true; confirm(); };
+      try{ box.scrollIntoView({behavior:'smooth', block:'nearest'}); }catch{}
+      return;
+    }
   }
-  openSheet(`<div class="help-center-hero"><div class="import-kicker">AI</div><h2>${t('helpProposeTitle')}</h2><p>${t('helpProposeHint')}</p></div>
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">Zo-Ai</div><h2>${t('helpProposeTitle')}</h2><p>${t('helpProposeHint')}${needPin?' · '+t('helpProposeNeedPin'):''}</p></div>
     <div class="help-propose-list">${actions.map((action,i)=>`<div class="help-propose-row"><b>${i+1}.</b><span>${esc(describeHelpAction(action))}</span></div>`).join('')}</div>
     <div class="row" style="gap:8px;margin-top:14px"><button class="btn sec" id="helpProposeCancel" type="button">${t('helpProposeCancel')}</button>
       <button class="btn" id="helpProposeConfirm" type="button">${t('helpProposeConfirm')}</button></div>`);
@@ -2662,9 +2835,13 @@ document.addEventListener('keydown', e => {
   if(e.key === 'Escape' && sheetEl.classList.contains('on') && !sheetLocked) closeSheet();
 });
 
-/** Επαναχρησιμοποιεί το authenticated staff session. PIN ζητείται μόνο χωρίς ενεργή σύνδεση.
- *  Δεν κλείνει το sheet πριν το onOk — οι φόρμες πρέπει να μπορούν να διαβάσουν τα πεδία τους. */
-function askPin(title, onOk){
+/** Επαναχρησιμοποιεί το authenticated staff session. PIN ζητείται μόνο χωρίς ενεργή σύνδεση,
+ *  ή όταν requirePin=true (Zo-Ai schedule / admin mutations). */
+function askPin(title, onOk, {requirePin=false}={}){
+  if(state.mode==='staff' && state.user && requirePin){
+    openZoAiPinConfirm(title, onOk);
+    return;
+  }
   if(state.mode==='staff' && state.user){
     onOk(state.user);
     return;
@@ -3105,9 +3282,9 @@ function cellItems(list, showWho = true, dateStr=state.date){
     return `<div class="cellitem" data-open-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" role="button" tabindex="0">
       <button type="button" class="cellitem-x" data-remove-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" aria-label="${esc(t('removeFromTable'))}" title="${esc(t('removeFromTable'))}">×</button>
       <div class="cellitem-body"><b>${esc(actLabel(e.activityId))}</b>${eventForEntry(e,dateStr)?' <span class="event-flag">📣</span>':''}${
-      kids ? ` <span class="c">${esc(kids)}</span>` : ''}${
-      (e.from || e.time) ? ` <span class="c">${esc(entryTime(e))}</span>` : ''}${
-      sub ? `<br><span style="color:#64748b">${esc(sub)}</span>` : ''}</div></div>`;
+      kids ? ` <span class="c">${esc(kids)}</span>` : ''}
+      <div class="cellitem-time">${esc(entryTime(e))}</div>${
+      sub ? `<div class="cellitem-sub">${esc(sub)}</div>` : ''}</div></div>`;
   }).join('');
 }
 
@@ -3538,7 +3715,6 @@ function viewStock(){
   };
   const allProducts=PRODUCTS();
   const counts={empty:0,low:0,ok:0};allProducts.forEach(p=>counts[productState(p)]++);
-  const healthyPct=Math.round(counts.ok/Math.max(1,allProducts.length)*100);
   const query=norm(state.stockQuery||'');
   const visible=allProducts.filter(p=>{
     const st=productState(p), matches=!query||norm(`${p.de} ${p.el}`).includes(query);
@@ -3572,38 +3748,31 @@ function viewStock(){
   };
   const categoryHtml=CATS().map(c=>{
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
-    const shouldOpen=!!query||state.stockFilter==='empty'||products.some(p=>productState(p)==='empty');
-    return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"><summary><span>${catIcon[c.id]||'📦'}</span><span>${esc(L(c))}</span>
+    // Show stock by default — collapsed categories made the fridge feel empty.
+    const shouldOpen=true;
+    return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}" open><summary><span>${catIcon[c.id]||'📦'}</span><span>${esc(L(c))}</span>
       <span class="stock-cat-count">${products.length}</span></summary><div class="stock-product-grid">${products.map(productCard).join('')}</div></details>`;
   }).join('');
   const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
-  const moves=hid==='all'?[]:DB.log.filter(l=>(l.type==='IN'||l.type==='OUT'||l.type==='SHOP')&&l.houseId===hid).slice(-5).reverse();
-  const location=hid==='all'?t('bothHouses'):house(hid).short;
   const attention=counts.empty+counts.low;
 
-  return seg+`<section class="stock-strip" aria-label="${t('inventoryDashboard')}">
-      <div class="stock-strip-main"><b>${esc(location)}</b><span>${attention?T[state.lang].inventoryHealthyPct(healthyPct):t('stockHealthy')}</span></div>
+  return seg+`<div class="stock-toolbar">
+      <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
       <div class="stock-strip-stats">
         <button type="button" class="stock-chip empty ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b>${t('stockEmpty')}</button>
         <button type="button" class="stock-chip low ${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b>${t('stockAttention')}</button>
         <button type="button" class="stock-chip ok ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b>${t('stockAll')}</button>
-      </div></section>
-    ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
-    <div class="stock-toolbar">
-      <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
+      </div>
       ${hid!=='all'?`<div class="stock-toolbar-actions">
         <button class="btn sec sm" type="button" id="stockQuickFood">${t('stockAddFood')}</button>
-        <button class="btn sec sm" type="button" id="stockQuickCat">${t('stockAddCat')}</button>
         <button class="btn sec sm" type="button" id="stockOpenBoard">${t('stockBoard')}</button>
       </div>`:''}
     </div>
+    ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
     <div class="stock-categories">${categoryHtml||`<div class="card empty">${t('noStockResults')}</div>`}</div>
-    ${moves.length?`<details class="card stock-moves"><summary>${t('lastMoves')} · ${moves.length}</summary><div style="margin-top:9px">${moves.map(l=>`<div class="kv"><div class="grow truncate">${esc(l.text)}</div><div class="muted" style="flex:0 0 auto;margin-left:8px">${fmtDT(l.ts)}</div></div>`).join('')}</div></details>`:''}
     ${hid!=='all'?(()=>{
       const draft=stockDraftEntries();
-      if(!draft.length){
-        return `<div class="stock-footer-actions" aria-label="${t('stockBoard')}"><button class="btn in" data-stock-action="IN">${t('stockIn')}</button><button class="btn out" data-stock-action="OUT">${t('stockOut')}</button></div>`;
-      }
+      if(!draft.length) return '';
       const ins=draft.filter(([,d])=>d>0).length;
       const outs=draft.filter(([,d])=>d<0).length;
       const reasons=outs?`<div class="stock-draft-reasons" id="stockDraftReasons">
@@ -3800,12 +3969,12 @@ function sheetStockBoard(dir,initialPid=null){
           <div class="muted" style="font-size:11.5px;margin:-2px 0 8px">${esc(t('photoOptional'))}</div>
           <video id="sbVid" playsinline muted></video>
           <div class="muted" id="sbStatus" style="margin:6px 0 10px"></div>
-          <button class="btn sec" id="sbSnap">${t('takePhoto')}</button>
-          <img class="thumb" id="sbThumb" style="display:none">
-          <button class="btn" id="sbSave" style="margin-top:12px"></button>
+          <button class="btn sec" id="sbSnap" type="button">${t('takePhoto')}</button>
+          <img class="thumb" id="sbThumb" style="display:none" alt="">
         </div>
       </div>
       <div class="stock-drops-dock" aria-label="${esc(t('stockDragDock'))}">
+        <button class="btn stock-board-save" id="sbSave" type="button" disabled></button>
         <div class="muted" style="text-align:center;font-size:11px;margin-bottom:7px">${esc(t('stockDragDock'))}</div>
         <div class="drops">
           <div class="dropzone zin"  id="sbDropIN"  data-dz="IN">${t('stockIn')}</div>
@@ -4097,11 +4266,18 @@ function sheetStockBoard(dir,initialPid=null){
 
     $('#sbCam').style.display = picked.length ? '' : 'none';
     const saveBtn = $('#sbSave');
-    saveBtn.className = 'btn' + (nOut && !nIn ? ' out' : nIn && !nOut ? ' in' : '');
-    saveBtn.textContent = photo
-      ? T[state.lang].bookN(picked.length)
-      : `${T[state.lang].bookN(picked.length)} · ${t('skipPhoto')}`;
-    saveBtn.disabled = !picked.length;
+    const needReason = nOut > 0 && !reasonId;
+    saveBtn.className = 'btn stock-board-save' + (nOut && !nIn ? ' out' : nIn && !nOut ? ' in' : '');
+    if(!picked.length){
+      saveBtn.textContent = t('pickSomething');
+    }else if(needReason){
+      saveBtn.textContent = t('stockDraftNeedReason');
+    }else if(photo){
+      saveBtn.textContent = T[state.lang].bookN(picked.length);
+    }else{
+      saveBtn.textContent = `${T[state.lang].bookN(picked.length)} · ${t('skipPhoto')}`;
+    }
+    saveBtn.disabled = !picked.length || needReason;
     if(picked.length) ensureCamera();
   }
 
@@ -4216,9 +4392,19 @@ function sheetStockBoard(dir,initialPid=null){
 
   function commit(){
     const picked = Object.keys(basket);
-    if(!picked.length){ toast(t('pickSomething')); return; }
+    if(!picked.length){ toast(t('pickSomething'),'error'); return; }
     const reason = reasonId ? L(REASONS().find(r=>r.id===reasonId)) : '';
-    if(outs().length && !reason){ toast(t('reason')); return; }
+    if(outs().length && !reason){
+      toast(t('stockDraftNeedReason'),'error');
+      const wrap = $('#sbReasonWrap');
+      if(wrap){
+        wrap.style.display = '';
+        wrap.scrollIntoView({behavior:'smooth', block:'center'});
+        wrap.classList.add('flash-need');
+        setTimeout(()=>wrap.classList.remove('flash-need'), 1200);
+      }
+      return;
+    }
 
     askPin(T[state.lang].bookN(picked.length), who => {
       state.user = who;
@@ -4316,13 +4502,12 @@ function viewShop(){
   const fridayState=pending.length?t('fridayActive'):(open.length?t('fridayPlanned'):(bought.length||missing.length?t('fridayCompleted'):t('fridayPlanned')));
   const hero=inStore?'':`<section class="shop-bar">
     <div class="shop-bar-top">
-      <div><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length} ${t('openItems')}</span></div>
-      <button class="btn ghost sm" id="shoppingHistory" type="button">🧾 ${t('shoppingHistory')}</button>
-    </div>
-    <div class="friday-picker compact">
-      <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
-      <label class="friday-date" title="${t('chooseFriday')}"><input type="date" id="shopFridayDate" value="${friday}"><span>${t('chooseFriday')}</span></label>
-      <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
+      <div class="friday-picker compact">
+        <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
+        <label class="friday-date" title="${t('chooseFriday')}"><input type="date" id="shopFridayDate" value="${friday}"><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length}</span></label>
+        <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
+      </div>
+      <button class="btn ghost sm" id="shoppingHistory" type="button">🧾</button>
     </div></section>`;
 
   // ── Store mode: full-page compact aisle list ──
@@ -4393,18 +4578,13 @@ function viewShop(){
     <div class="shop-list-head"><div><h2>${t('secOpen')}</h2><div class="muted" style="font-size:11px">${open.length} · ${esc(house(hid).short)}</div></div>
       <button class="btn ghost sm" id="importList" type="button">${t('importList')}</button></div>
     <div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}"><button class="btn sm" id="cartQuickAdd">＋ ${t('addToCart')}</button></div>
-    <div class="shop-shot-row">
-      <button class="btn sec" id="pickListShot" type="button">🖼️ ${t('pickScreenshot')}</button>
-      <button class="btn sec" id="pasteListShot" type="button">📋 ${t('pasteScreenshot')}</button>
-      <input class="file-input-hidden" id="shopShotFile" type="file" accept="image/*,.heic,.heif,image/heic,image/heif">
-    </div>
     ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${esc(e.name)}</div>
       <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)}</div></div><div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
       `<div class="shop-empty compact"><div class="big">🧺</div><h3>${t('noFridayItems')}</h3><p>${t('noFridayItemsHint')}</p></div>`}
     ${open.length&&!pending.length?`<div class="cart-start"><button class="btn" id="startFriday">${T[state.lang].cartReady(open.length)}</button></div>`:''}
     </div>`;
 
-  const missingCard = missing.length ? `<details class="card shop-history" open><summary>⚠️ ${t('secMissing')}<span class="pill out">${missing.length}</span></summary><div class="shop-history-body">
+  const missingCard = missing.length ? `<details class="card shop-history"><summary>⚠️ ${t('secMissing')}<span class="pill out">${missing.length}</span></summary><div class="shop-history-body">
       ${missing.map(e=>entryRow(e,`<button class="btn sm sec" data-carry="${e.id}">${t('carryOver')}</button>`)).join('')}</div></details>` : '';
 
   const boughtCard = bought.length ? `<details class="card shop-history"><summary>✓ ${t('secBought')}<span class="pill in">${bought.length}</span></summary><div class="shop-history-body">
@@ -5849,6 +6029,36 @@ function sheetAdminStaff(employeeId){
   };
 }
 
+function zoAiBannerKey(){
+  const id=(state.user||state.child)?.id || '_';
+  return `paidia.zoai.banner:${id}`;
+}
+function zoAiBannerDismissed(){
+  try{ return localStorage.getItem(zoAiBannerKey())==='1'; }catch{ return false; }
+}
+function dismissZoAiBanner(){
+  try{ localStorage.setItem(zoAiBannerKey(),'1'); }catch{}
+}
+function zoAiBannerHtml(){
+  if(zoAiBannerDismissed()) return '';
+  const child=state.mode==='child';
+  const title=child?t('zoAiBannerTitleChild'):t('zoAiBannerTitle');
+  const hint=child?t('zoAiBannerHintChild'):t('zoAiBannerHint');
+  return `<button class="notification-card zoai-banner" id="zoAiBanner" type="button">
+    <span style="font-size:22px">✨</span>
+    <div class="grow"><b>${esc(title)}</b>
+      <div class="muted" style="font-size:12px;margin-top:2px">${esc(hint)}</div></div>
+    <span class="muted">${esc(t('zoAiBannerOpen'))} →</span>
+  </button>
+  <div class="row" style="justify-content:flex-end;margin:-4px 0 10px">
+    <button class="btn ghost sm" type="button" id="zoAiBannerDismiss">${t('zoAiBannerDismiss')}</button>
+  </div>`;
+}
+function notifyZoAiReady(){
+  toast(state.mode==='child'?t('zoAiReadyChild'):t('zoAiReady'),'info',5200);
+  try{ localStorage.removeItem(zoAiBannerKey()); }catch{}
+}
+
 function viewHome(){
   const today=iso(new Date()), user=state.user;
   const todayAssignments=user?dashboardAssignments(today,user.id):[];
@@ -5871,6 +6081,7 @@ function viewHome(){
         <div class="home-stat"><b>${upcoming.length}</b><span>${t('eventsSoon')}</span></div>
       </div>
     </div>
+    ${zoAiBannerHtml()}
     ${user?`<button class="notification-card" id="homeTalkOpen" type="button">
       <span style="font-size:22px">💬</span>
       <div class="grow"><b>${esc(t('staffTalkOpen'))}</b>
@@ -5961,6 +6172,7 @@ function renderChild(){
     <button class="${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>
   </div>`;
   const todayView = `
+    ${zoAiBannerHtml()}
     ${childUpcomingEvents.length?`<button class="notification-card" id="childEventNotice" type="button">
       <span style="font-size:24px">📣</span><span class="grow"><span class="strong">${t('childNotifications')}</span><br><span class="muted">${t('openEvents')}</span></span>
       <span class="notification-count">${childUpcomingEvents.length}</span></button>`:''}
@@ -5992,6 +6204,10 @@ function renderChild(){
   });
   const eventNotice=document.getElementById('view').querySelector('#childEventNotice');
   if(eventNotice) eventNotice.onclick=()=>{state.childView='events';render();};
+  const zoBan=document.getElementById('view').querySelector('#zoAiBanner');
+  if(zoBan) zoBan.onclick=()=>{ dismissZoAiBanner(); openChatPanel('ai'); };
+  const zoDismiss=document.getElementById('view').querySelector('#zoAiBannerDismiss');
+  if(zoDismiss) zoDismiss.onclick=e=>{ e.stopPropagation(); dismissZoAiBanner(); render(); };
   if(state.childView==='games') bindChildGames(document.getElementById('view'));
   scheduleMeasureChrome();
 }
@@ -6053,11 +6269,7 @@ function paintTopChrome(){
     bits.push(btn('events', t('topEvents'), state.scheduleView==='events'?'on':''));
     bits.push(btn('addEntry', t('topAdd'), 'primary'));
   }else if(state.tab==='stock'){
-    bits.push(btn('houseAll', t('topBoth'), state.house==='all'?'on':''));
-    DB.houses.forEach(h=>bits.push(btn('house:'+h.id, h.short, state.house===h.id?'on':'')));
     if(state.house!=='all'){
-      bits.push(btn('stockIn', t('topIn'), 'ok'));
-      bits.push(btn('stockOut', t('topOut'), 'danger'));
       bits.push(btn('stockBoard', t('topBoard'), 'primary'));
       bits.push(btn('stockFood', t('topFood')));
     }
@@ -6065,7 +6277,6 @@ function paintTopChrome(){
     bits.push(btn('shopAdd', t('addProduct')));
     bits.push(btn('shopScan', t('topScan')));
     bits.push(btn('shopHistory', t('topHistory')));
-    bits.push(btn('goStock', `📦 ${t('navStock')}`));
   }else if(state.tab==='book'){
     bits.push(btn('shiftFocus', `📒 ${t('topShift')}`, 'primary'));
     bits.push(btn('bookToday', t('today'), state.bookRange==='today'?'on':''));
@@ -6378,6 +6589,10 @@ function wire(){
   if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';state.scheduleView='events';render();};
   const homeTalkOpen=v.querySelector('#homeTalkOpen');
   if(homeTalkOpen) homeTalkOpen.onclick=()=>{ feedback('open'); sheetStaffTalk(); };
+  const zoAiBanner=v.querySelector('#zoAiBanner');
+  if(zoAiBanner) zoAiBanner.onclick=()=>{ dismissZoAiBanner(); openChatPanel('ai'); };
+  const zoAiBannerDismiss=v.querySelector('#zoAiBannerDismiss');
+  if(zoAiBannerDismiss) zoAiBannerDismiss.onclick=()=>{ dismissZoAiBanner(); render(); };
   v.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{
     const entryId=b.dataset.task,dateStr=b.dataset.taskDate,employeeId=b.dataset.taskEmployee;
     const idx=(DB.taskCompletions||[]).findIndex(x=>x.date===dateStr&&x.entryId===entryId&&x.employeeId===employeeId);
@@ -6612,7 +6827,9 @@ function wire(){
   if(stockDraftSave) stockDraftSave.onclick=()=>commitStockDraft();
   const stockCategories=[...v.querySelectorAll('[data-stock-category]')];
   if(stockCategories.length){
-    if(!Array.isArray(state.stockOpenCategories))state.stockOpenCategories=stockCategories.filter(d=>d.dataset.defaultOpen==='1').map(d=>d.dataset.stockCategory);
+    if(!Array.isArray(state.stockOpenCategories)){
+      state.stockOpenCategories=stockCategories.map(d=>d.dataset.stockCategory);
+    }
     stockCategories.forEach(d=>{
       d.open=!!state.stockQuery||state.stockOpenCategories.includes(d.dataset.stockCategory);
       d.ontoggle=()=>{
@@ -6707,33 +6924,6 @@ function wire(){
   if(br) br.onclick = sheetReceipt;
   const il = v.querySelector('#importList');
   if(il) il.onclick = () => sheetImportList();
-  const pickShot=v.querySelector('#pickListShot');
-  const shopShotFile=v.querySelector('#shopShotFile');
-  if(pickShot && shopShotFile){
-    pickShot.onclick=()=>{ shopShotFile.value=''; shopShotFile.click(); };
-    shopShotFile.onchange=()=>{
-      const file=shopShotFile.files?.[0];
-      if(file) sheetImportList({initialFile:file});
-      shopShotFile.value='';
-    };
-  }
-  const pasteShot=v.querySelector('#pasteListShot');
-  if(pasteShot) pasteShot.onclick=async ()=>{
-    try{
-      if(navigator.clipboard?.read){
-        const items=await navigator.clipboard.read();
-        for(const item of items){
-          const mime=item.types.find(x=>x.startsWith('image/'));
-          if(!mime) continue;
-          const blob=await item.getType(mime);
-          sheetImportList({initialFile:new File([blob],'clipboard.png',{type:blob.type||mime})});
-          return;
-        }
-      }
-    }catch(error){ /* fall through */ }
-    sheetImportList();
-    toast(t('screenshotMissing'),'info');
-  };
   const historyButton=v.querySelector('#shoppingHistory');
   if(historyButton)historyButton.onclick=sheetShoppingHistory;
 
@@ -7124,7 +7314,7 @@ function renderGatePin(who, mode = 'staff'){
       await authenticateProfile(mode,who,buf);
       succeeded=true;
       stopPinKeyboard();
-      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');
+      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');notifyZoAiReady();
     }catch(error){
       if(error.status===429){
         const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||900)/60));
@@ -7192,7 +7382,7 @@ function renderGatePin(who, mode = 'staff'){
     try{
       await loginWithPasskey(mode,who);
       stopPinKeyboard();
-      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');
+      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');notifyZoAiReady();
     }catch(error){
       errorEl.textContent=error.code==='no_passkey'?t('passkeySetupNeeded'):
         error.code==='passkey_unavailable'||error.code==='configuration'?t('passkeyConfig'):

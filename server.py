@@ -24,6 +24,42 @@ from http.cookies import SimpleCookie
 from pathlib import Path
 
 try:
+    import db as paidia_db
+except ImportError:  # pragma: no cover
+    paidia_db = None  # type: ignore
+
+
+def _db_get(key: str, default=None):
+    if paidia_db is None:
+        return default
+    try:
+        return paidia_db.get_json(key, default)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[paidia.db] get {key} failed: {exc}", flush=True)
+        return default
+
+
+def _db_set(key: str, value) -> bool:
+    if paidia_db is None:
+        return False
+    try:
+        paidia_db.set_json(key, value)
+        return True
+    except Exception as exc:  # noqa: BLE001
+        print(f"[paidia.db] set {key} failed: {exc}", flush=True)
+        return False
+
+
+def _db_has(key: str) -> bool:
+    if paidia_db is None:
+        return False
+    try:
+        return paidia_db.has_key(key)
+    except Exception:
+        return False
+
+
+try:
     from webauthn import (
         generate_authentication_options, generate_registration_options, options_to_json,
         verify_authentication_response, verify_registration_response,
@@ -88,7 +124,6 @@ PASSKEY_COOKIE = "paidia_pk"
 PASSKEY_COOKIE_TTL = 400 * 24 * 3600
 AUTH_OVERRIDE_COOKIE = "paidia_auth_ovr"
 AUTH_OVERRIDE_COOKIE_TTL = 400 * 24 * 3600
-AUTH_OVERRIDES_PATH = Path(os.environ.get("PAIDIA_AUTH_OVERRIDES_PATH", ".paidia-auth-overrides.json"))
 
 
 def env_int(name: str, default: int, minimum: int = 1) -> int:
@@ -111,6 +146,7 @@ PASSKEY_STORE_PATH = Path(os.environ.get("PAIDIA_PASSKEY_STORE_PATH", ".paidia-p
 ONBOARDING_STATE_PATH = Path(os.environ.get("PAIDIA_ONBOARDING_STATE_PATH", ".paidia-onboarding.json"))
 TALK_STATE_PATH = Path(os.environ.get("PAIDIA_TALK_STATE_PATH", ".paidia-talk.json"))
 OPS_STATE_PATH = Path(os.environ.get("PAIDIA_OPS_STATE_PATH", ".paidia-ops.json"))
+AUTH_OVERRIDES_PATH = Path(os.environ.get("PAIDIA_AUTH_OVERRIDES_PATH", ".paidia-auth-overrides.json"))
 
 # Vercel serverless FS is read-only except /tmp — always keep writable state there.
 if os.environ.get("VERCEL") == "1":
@@ -122,6 +158,7 @@ if os.environ.get("VERCEL") == "1":
     SECURITY_LOG_PATH = _tmp / "security-events.jsonl"
     TALK_STATE_PATH = _tmp / "talk.json"
     OPS_STATE_PATH = _tmp / "ops.json"
+    AUTH_OVERRIDES_PATH = _tmp / "auth-overrides.json"
 ONBOARDING_VERSION = 2
 TALK_MESSAGE_LIMIT = 200
 TALK_TOPIC_LIMIT = 120
@@ -194,25 +231,38 @@ TRUSTED_PROXY_NETWORKS = load_trusted_proxy_networks()
 
 
 def load_security_state() -> dict:
+    stored = _db_get(paidia_db.KEY_SECURITY if paidia_db else "security_state")
+    if isinstance(stored, dict) and isinstance(stored.get("known_ips"), dict) and stored.get("pepper"):
+        return stored
     try:
         state = json.loads(SECURITY_STATE_PATH.read_text(encoding="utf-8"))
         if isinstance(state, dict) and isinstance(state.get("known_ips"), dict) and state.get("pepper"):
+            _db_set(paidia_db.KEY_SECURITY if paidia_db else "security_state", state)
             return state
     except (OSError, json.JSONDecodeError):
         pass
-    return {"pepper": secrets.token_hex(32), "known_ips": {}}
+    state = {"pepper": secrets.token_hex(32), "known_ips": {}}
+    _db_set(paidia_db.KEY_SECURITY if paidia_db else "security_state", state)
+    return state
 
 
 SECURITY_STATE = load_security_state()
 
 
 def persist_security_state() -> None:
+    _db_set(paidia_db.KEY_SECURITY if paidia_db else "security_state", SECURITY_STATE)
     with SECURITY_FILE_LOCK:
-        SECURITY_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        temp_path = SECURITY_STATE_PATH.with_name(SECURITY_STATE_PATH.name + ".tmp")
-        temp_path.write_text(json.dumps(SECURITY_STATE, separators=(",", ":")), encoding="utf-8")
-        os.chmod(temp_path, 0o600)
-        os.replace(temp_path, SECURITY_STATE_PATH)
+        try:
+            SECURITY_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            temp_path = SECURITY_STATE_PATH.with_name(SECURITY_STATE_PATH.name + ".tmp")
+            temp_path.write_text(json.dumps(SECURITY_STATE, separators=(",", ":")), encoding="utf-8")
+            os.chmod(temp_path, 0o600)
+            os.replace(temp_path, SECURITY_STATE_PATH)
+        except OSError:
+            if os.environ.get("VERCEL") != "1" and not _db_has(
+                paidia_db.KEY_SECURITY if paidia_db else "security_state"
+            ):
+                raise
 
 
 def ip_fingerprint(ip: str) -> str:
@@ -247,6 +297,11 @@ def append_security_event(event: str, profile_id: str, ip: str, details: dict | 
         "ts": int(time.time()), "event": event, "profileId": profile_id,
         "ip": ip, "details": details or {},
     }
+    if paidia_db is not None:
+        try:
+            paidia_db.append_security_event(event, profile_id, ip, details or {})
+        except Exception as exc:  # noqa: BLE001
+            print(f"[paidia.db] security event failed: {exc}", flush=True)
     try:
         with SECURITY_FILE_LOCK:
             SECURITY_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -287,12 +342,7 @@ def pin_fingerprint(pin_hash: str) -> str:
     return hashlib.sha256((pin_hash or "").encode("utf-8")).hexdigest()[:16]
 
 
-def load_auth_users() -> dict[str, dict]:
-    """Auth profiles come only from PAIDIA_AUTH_USERS_JSON (local .env or Vercel env)."""
-    try:
-        raw = json.loads(os.environ.get("PAIDIA_AUTH_USERS_JSON", "{}") or "{}")
-    except json.JSONDecodeError:
-        return {}
+def _normalize_auth_users(raw: object) -> dict[str, dict]:
     users: dict[str, dict] = {}
     if not isinstance(raw, dict):
         return users
@@ -310,6 +360,23 @@ def load_auth_users() -> dict[str, dict]:
     return users
 
 
+def load_auth_users() -> dict[str, dict]:
+    """Prefer DB (survives deploys); fall back to PAIDIA_AUTH_USERS_JSON seed."""
+    key = paidia_db.KEY_AUTH_USERS if paidia_db else "auth_users"
+    stored = _db_get(key)
+    users = _normalize_auth_users(stored)
+    if users:
+        return users
+    try:
+        raw = json.loads(os.environ.get("PAIDIA_AUTH_USERS_JSON", "{}") or "{}")
+    except json.JSONDecodeError:
+        raw = {}
+    users = _normalize_auth_users(raw)
+    if users:
+        _db_set(key, users)
+    return users
+
+
 AUTH_USERS = load_auth_users()
 ADMIN_PROFILE_IDS = {
     value.strip() for value in os.environ.get("PAIDIA_ADMIN_PROFILE_IDS", "e3,e4,e8").split(",")
@@ -318,20 +385,25 @@ ADMIN_PROFILE_IDS = {
 
 
 def load_auth_overrides() -> dict[str, dict]:
-    """PIN/email overrides that survive Vercel cold starts via env + optional file + cookie."""
+    """PIN/email overrides — DB first, then env/file/cookie hydrate."""
     out: dict[str, dict] = {}
+    key = paidia_db.KEY_AUTH_OVERRIDES if paidia_db else "auth_overrides"
+    stored = _db_get(key)
+    blobs: list[object] = []
+    if isinstance(stored, dict):
+        blobs.append(stored)
     raw = os.environ.get("PAIDIA_AUTH_OVERRIDES_JSON", "").strip()
-    blobs: list[str] = []
     if raw:
-        blobs.append(raw)
-    try:
-        blobs.append(AUTH_OVERRIDES_PATH.read_text(encoding="utf-8"))
-    except OSError:
-        pass
-    for blob in blobs:
         try:
-            data = json.loads(blob)
+            blobs.append(json.loads(raw))
         except json.JSONDecodeError:
+            pass
+    try:
+        blobs.append(json.loads(AUTH_OVERRIDES_PATH.read_text(encoding="utf-8")))
+    except (OSError, json.JSONDecodeError):
+        pass
+    for data in blobs:
+        if not isinstance(data, dict):
             continue
         profiles = data.get("profiles", data) if isinstance(data, dict) else {}
         if not isinstance(profiles, dict):
@@ -348,6 +420,8 @@ def load_auth_overrides() -> dict[str, dict]:
                 "phone": str(record.get("phone", "")).strip(),
                 "updated_at": float(record.get("updated_at") or 0),
             }
+    if out and not _db_has(key):
+        _db_set(key, {"profiles": out})
     return out
 
 
@@ -449,6 +523,8 @@ def set_auth_override(profile_id: str, *, pin_hash: str, email: str = "", phone:
 
 def persist_auth_overrides() -> None:
     payload = {"profiles": AUTH_OVERRIDES}
+    key = paidia_db.KEY_AUTH_OVERRIDES if paidia_db else "auth_overrides"
+    db_ok = _db_set(key, payload)
     raw = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     os.environ["PAIDIA_AUTH_OVERRIDES_JSON"] = raw
     try:
@@ -458,8 +534,39 @@ def persist_auth_overrides() -> None:
         os.chmod(temp_path, 0o600)
         os.replace(temp_path, AUTH_OVERRIDES_PATH)
     except OSError:
-        if os.environ.get("VERCEL") != "1":
+        if os.environ.get("VERCEL") != "1" and not db_ok:
             raise
+
+
+def persist_auth_users(*, require_durable: bool = False) -> None:
+    key = paidia_db.KEY_AUTH_USERS if paidia_db else "auth_users"
+    db_ok = _db_set(key, AUTH_USERS)
+    value = json.dumps(AUTH_USERS, ensure_ascii=False, separators=(",", ":"))
+    os.environ["PAIDIA_AUTH_USERS_JSON"] = value
+    if require_durable and not db_ok and os.environ.get("VERCEL") == "1":
+        raise RuntimeError("Durable auth storage is not configured (set DATABASE_URL)")
+    # Local: also mirror into .env for easy backup. Vercel: DB is the source of truth.
+    if os.environ.get("VERCEL") == "1":
+        return
+    env_path = Path(os.environ.get("PAIDIA_ENV_PATH", ".env"))
+    try:
+        lines = env_path.read_text(encoding="utf-8").splitlines() if env_path.exists() else []
+        replacement = "PAIDIA_AUTH_USERS_JSON=" + value
+        found = False
+        for index, line in enumerate(lines):
+            if line.startswith("PAIDIA_AUTH_USERS_JSON="):
+                lines[index] = replacement
+                found = True
+                break
+        if not found:
+            lines.extend(["", "# Server-only profile emails, phones, and salted PIN hashes", replacement])
+        temp_path = env_path.with_name(env_path.name + ".tmp")
+        temp_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        os.chmod(temp_path, 0o600)
+        os.replace(temp_path, env_path)
+    except OSError as exc:
+        if not db_ok:
+            raise RuntimeError("Could not persist the new PIN") from exc
 
 
 def session_secret() -> bytes:
@@ -534,9 +641,14 @@ def decode_session_token(token: str) -> dict | None:
 
 
 def load_onboarding_state() -> dict:
+    key = paidia_db.KEY_ONBOARDING if paidia_db else "onboarding"
+    stored = _db_get(key)
+    if isinstance(stored, dict) and isinstance(stored.get("profiles"), dict):
+        return stored
     try:
         value = json.loads(ONBOARDING_STATE_PATH.read_text(encoding="utf-8"))
         if isinstance(value, dict) and isinstance(value.get("profiles"), dict):
+            _db_set(key, value)
             return value
     except (OSError, json.JSONDecodeError):
         pass
@@ -553,14 +665,20 @@ def onboarding_complete(profile_id: str, mode: str) -> bool:
 
 
 def persist_onboarding_state() -> None:
-    ONBOARDING_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = ONBOARDING_STATE_PATH.with_name(ONBOARDING_STATE_PATH.name + ".tmp")
-    temp_path.write_text(json.dumps(ONBOARDING_STATE, separators=(",", ":")), encoding="utf-8")
+    key = paidia_db.KEY_ONBOARDING if paidia_db else "onboarding"
+    db_ok = _db_set(key, ONBOARDING_STATE)
     try:
-        os.chmod(temp_path, 0o600)
+        ONBOARDING_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = ONBOARDING_STATE_PATH.with_name(ONBOARDING_STATE_PATH.name + ".tmp")
+        temp_path.write_text(json.dumps(ONBOARDING_STATE, separators=(",", ":")), encoding="utf-8")
+        try:
+            os.chmod(temp_path, 0o600)
+        except OSError:
+            pass
+        os.replace(temp_path, ONBOARDING_STATE_PATH)
     except OSError:
-        pass
-    os.replace(temp_path, ONBOARDING_STATE_PATH)
+        if os.environ.get("VERCEL") != "1" and not db_ok:
+            raise
 
 
 def default_video_room_url() -> str:
@@ -574,17 +692,33 @@ def default_video_room_url() -> str:
     return f"https://meet.jit.si/ArmoniaThassos-{safe}"
 
 
+def _normalize_talk_state(value: object) -> dict:
+    if not isinstance(value, dict):
+        return {"messages": [], "topics": [], "updatedAt": 0}
+    messages = value.get("messages") if isinstance(value.get("messages"), list) else []
+    topics = value.get("topics") if isinstance(value.get("topics"), list) else []
+    try:
+        updated_at = int(value.get("updatedAt") or 0)
+    except (TypeError, ValueError):
+        updated_at = 0
+    return {
+        "messages": messages[-TALK_MESSAGE_LIMIT:],
+        "topics": topics[-TALK_TOPIC_LIMIT:],
+        "updatedAt": updated_at,
+    }
+
+
 def load_talk_state() -> dict:
+    key = paidia_db.KEY_TALK if paidia_db else "talk"
+    stored = _db_get(key)
+    if isinstance(stored, dict):
+        return _normalize_talk_state(stored)
     try:
         value = json.loads(TALK_STATE_PATH.read_text(encoding="utf-8"))
-        if isinstance(value, dict):
-            messages = value.get("messages") if isinstance(value.get("messages"), list) else []
-            topics = value.get("topics") if isinstance(value.get("topics"), list) else []
-            return {
-                "messages": messages[-TALK_MESSAGE_LIMIT:],
-                "topics": topics[-TALK_TOPIC_LIMIT:],
-                "updatedAt": int(value.get("updatedAt") or 0),
-            }
+        normalized = _normalize_talk_state(value)
+        if normalized["messages"] or normalized["topics"]:
+            _db_set(key, normalized)
+        return normalized
     except (OSError, json.JSONDecodeError, TypeError, ValueError):
         pass
     return {"messages": [], "topics": [], "updatedAt": 0}
@@ -594,14 +728,20 @@ TALK_STATE = load_talk_state()
 
 
 def persist_talk_state() -> None:
-    TALK_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = TALK_STATE_PATH.with_name(TALK_STATE_PATH.name + ".tmp")
-    temp_path.write_text(json.dumps(TALK_STATE, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    key = paidia_db.KEY_TALK if paidia_db else "talk"
+    db_ok = _db_set(key, TALK_STATE)
     try:
-        os.chmod(temp_path, 0o600)
+        TALK_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = TALK_STATE_PATH.with_name(TALK_STATE_PATH.name + ".tmp")
+        temp_path.write_text(json.dumps(TALK_STATE, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+        try:
+            os.chmod(temp_path, 0o600)
+        except OSError:
+            pass
+        os.replace(temp_path, TALK_STATE_PATH)
     except OSError:
-        pass
-    os.replace(temp_path, TALK_STATE_PATH)
+        if os.environ.get("VERCEL") != "1" and not db_ok:
+            raise
 
 
 def talk_snapshot() -> dict:
@@ -723,15 +863,24 @@ def _normalize_ops_state(value: object) -> dict:
 
 
 def load_ops_state() -> dict:
-    # Env survives Vercel deploys when seeded; file covers local / warm /tmp.
+    """Prefer DB (survives deploys); fall back to env seed, then local/tmp file."""
+    key = paidia_db.KEY_OPS if paidia_db else "ops"
+    stored = _db_get(key)
+    if isinstance(stored, dict):
+        return _normalize_ops_state(stored)
     raw = os.environ.get("PAIDIA_OPS_JSON", "").strip()
     if raw:
         try:
-            return _normalize_ops_state(json.loads(raw))
+            normalized = _normalize_ops_state(json.loads(raw))
+            _db_set(key, normalized)
+            return normalized
         except json.JSONDecodeError:
             pass
     try:
-        return _normalize_ops_state(json.loads(OPS_STATE_PATH.read_text(encoding="utf-8")))
+        normalized = _normalize_ops_state(json.loads(OPS_STATE_PATH.read_text(encoding="utf-8")))
+        if int(normalized.get("revision") or 0) or any(normalized.get(k) for k in OPS_KEYS):
+            _db_set(key, normalized)
+        return normalized
     except (OSError, json.JSONDecodeError, TypeError, ValueError):
         return empty_ops_state()
 
@@ -740,6 +889,8 @@ OPS_STATE = load_ops_state()
 
 
 def persist_ops_state() -> None:
+    key = paidia_db.KEY_OPS if paidia_db else "ops"
+    db_ok = _db_set(key, OPS_STATE)
     raw = json.dumps(OPS_STATE, ensure_ascii=False, separators=(",", ":"))
     os.environ["PAIDIA_OPS_JSON"] = raw
     try:
@@ -752,12 +903,12 @@ def persist_ops_state() -> None:
             pass
         os.replace(temp_path, OPS_STATE_PATH)
     except OSError:
-        if os.environ.get("VERCEL") != "1":
+        if os.environ.get("VERCEL") != "1" and not db_ok:
             raise
 
 
 def refresh_ops_state_from_disk() -> None:
-    """Pick up /tmp or env writes from another warm request on the same instance."""
+    """Re-read shared store so concurrent/cold instances see latest ops writes."""
     loaded = load_ops_state()
     with OPS_LOCK:
         current_rev = int(OPS_STATE.get("revision") or 0)
@@ -910,18 +1061,24 @@ def _normalize_passkey_store(value: object) -> dict | None:
 
 
 def load_passkeys() -> dict:
-    # Env survives Vercel deploys; file covers local / warm /tmp instances.
+    key = paidia_db.KEY_PASSKEYS if paidia_db else "passkeys"
+    stored = _db_get(key)
+    normalized = _normalize_passkey_store(stored)
+    if normalized:
+        return normalized
     raw = os.environ.get("PAIDIA_PASSKEYS_JSON", "").strip()
     if raw:
         try:
             normalized = _normalize_passkey_store(json.loads(raw))
             if normalized:
+                _db_set(key, normalized)
                 return normalized
         except json.JSONDecodeError:
             pass
     try:
         normalized = _normalize_passkey_store(json.loads(PASSKEY_STORE_PATH.read_text(encoding="utf-8")))
         if normalized:
+            _db_set(key, normalized)
             return normalized
     except (OSError, json.JSONDecodeError):
         pass
@@ -932,6 +1089,8 @@ PASSKEYS = load_passkeys()
 
 
 def persist_passkeys() -> None:
+    key = paidia_db.KEY_PASSKEYS if paidia_db else "passkeys"
+    db_ok = _db_set(key, PASSKEYS)
     raw = json.dumps(PASSKEYS, separators=(",", ":"), ensure_ascii=False)
     os.environ["PAIDIA_PASSKEYS_JSON"] = raw
     try:
@@ -941,7 +1100,7 @@ def persist_passkeys() -> None:
         os.chmod(temp_path, 0o600)
         os.replace(temp_path, PASSKEY_STORE_PATH)
     except OSError:
-        if os.environ.get("VERCEL") != "1":
+        if os.environ.get("VERCEL") != "1" and not db_ok:
             raise
 
 
@@ -1114,35 +1273,6 @@ def security_alert_recipients() -> list[str]:
         if value.strip()
     )
     return list(dict.fromkeys(recipients))
-
-
-def persist_auth_users(*, require_durable: bool = False) -> None:
-    value = json.dumps(AUTH_USERS, ensure_ascii=False, separators=(",", ":"))
-    os.environ["PAIDIA_AUTH_USERS_JSON"] = value
-    # Vercel has a read-only filesystem — keep the in-process update so email/phone
-    # work for the lifetime of the instance (same as session cookies).
-    if os.environ.get("VERCEL") == "1":
-        if require_durable:
-            raise RuntimeError("Durable auth storage is not configured on Vercel")
-        return
-    env_path = Path(os.environ.get("PAIDIA_ENV_PATH", ".env"))
-    try:
-        lines = env_path.read_text(encoding="utf-8").splitlines() if env_path.exists() else []
-        replacement = "PAIDIA_AUTH_USERS_JSON=" + value
-        found = False
-        for index, line in enumerate(lines):
-            if line.startswith("PAIDIA_AUTH_USERS_JSON="):
-                lines[index] = replacement
-                found = True
-                break
-        if not found:
-            lines.extend(["", "# Server-only profile emails, phones, and salted PIN hashes", replacement])
-        temp_path = env_path.with_name(env_path.name + ".tmp")
-        temp_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-        os.chmod(temp_path, 0o600)
-        os.replace(temp_path, env_path)
-    except OSError as exc:
-        raise RuntimeError("Could not persist the new PIN") from exc
 
 
 def valid_phone(value: str) -> bool:
@@ -1707,12 +1837,12 @@ name, canonical_name, quantity, unit, category, brand, package_size, notes, conf
 (high, medium, or low), and ambiguous (boolean). Do not add other fields."""
 
 
-HELP_PROMPT_BASE = """You are the PAIDIA / Armonia Thassos in-app help assistant for a residential
-child-care operations app. Reply in the language used by the user (German, Greek, or English).
-Be concise, practical, and safety-aware. Never invent saved data, claim an action was already
-completed, reveal PINs or secrets, or make medical/legal decisions.
+HELP_PROMPT_BASE = """You are Zo-Ai, the friendly in-app personal assistant for PAIDIA / Armonia Thassos
+(a residential child-care operations app). Reply in the language used by the user (German, Greek, or English).
+Speak simply and clearly — many caregivers are not tech-experts. Be practical and safety-aware.
+Never invent saved data, claim an action was already completed, reveal PINs or secrets, or make medical/legal decisions.
 Always respect context.permissions — they are authoritative for this signed-in user.
-Address the user by context.profileName when helpful."""
+Address the user by context.profileName when helpful. Sign off mental model: you are Zo-Ai."""
 
 HELP_PROMPT_CHILD = HELP_PROMPT_BASE + """
 
@@ -1721,39 +1851,51 @@ You help this child understand THEIR own views only:
 - Today / Week: activities assigned to them (time, house, caregivers, other kids)
 - Events published for them (date, place, bring, companion)
 - Games tab (Memory, XO, fish catch) — local device games, no server save
-- Help (?), profile, Face ID/PIN, logout
+- Help / Zo-Ai, profile, Face ID/PIN, logout
 Do NOT explain staff tools (stock, shopping, audit, admin, shifts, supermarket import, team talk).
-Do NOT propose or invent stock/shopping changes. Never output a ```paidia-action``` block.
+Do NOT propose or invent stock/shopping/schedule changes. Never output a ```paidia-action``` block.
 If they ask to change food or the schedule, say a caregiver must do that.
 If they ask about another child's private schedule, refuse politely."""
 
 HELP_PROMPT_STAFF = HELP_PROMPT_BASE + """
 
 ROLE: STAFF (caregiver)
-You help with day-to-day operations they can use:
+You help with day-to-day operations:
 - Home tasks, schedule (day/week/house/matrix), events, shopping list, supermarket mode,
-  inventory/fridge, audit log, profile/PIN/passkey, staff talk, AI help
-FOOD / STOCK / SHOPPING MUTATIONS:
-When the user asks to change food stock or the shopping list, ALWAYS propose draft actions
-(do not only explain the UI). Match productQuery to names from context.inventory when possible.
-Use houseId from context.inventory.houses[].id — prefer activeHouse when no house is named.
-Examples:
-- "Milch +2 in Kalyvia" / "βάλε 2 γάλα Kalyvia" → stock_adjust IN
-- "Eier raus 6" / "βγάλε 6 αυγά" → stock_adjust OUT
+  inventory/fridge, audit log, profile/PIN/passkey, staff talk, Zo-Ai
+When the user asks to CHANGE data, ALWAYS propose draft actions (do not only explain the UI).
+Match productQuery / activityQuery to names from context when possible.
+Use houseId / employeeId from context — prefer activeHouse / activeDate when not named.
+
+FOOD / STOCK / SHOPPING:
+- "Milch +2 in Kalyvia" → stock_adjust IN
+- "Eier raus 6" → stock_adjust OUT
 - "Reis auf die Liste" → shop_add
 - "Tomaten von der Liste" → shop_remove
-Allowed action types:
+
+SCHEDULE (fills the plan tables for ONE day — not the permanent template):
+- "trag morgen Nachmittag Fußball für Maria ein" → schedule_add
+- "ändere den Eintrag …" → schedule_update (need entryId from context if known)
+- "streich heute Vormittag Schwimmen" → schedule_cancel
+Fields: date (YYYY-MM-DD), block (morning|afternoon|evening), houseId?, employeeId?,
+activityQuery or activityId, from?, to?, childIds?, note?
+
+Allowed action types for staff:
 - stock_adjust: {type, houseId, productQuery, dir:IN|OUT, qty:number, unit?, reason?}
 - shop_add: {type, houseId, productQuery|name, qty:number, unit?}
 - shop_remove: {type, houseId, productQuery|name}
+- schedule_add: {type, date, block, houseId?, employeeId?, activityQuery|activityId, from?, to?, childIds?, note?}
+- schedule_update: {type, entryId|activityQuery, date, block?, houseId?, employeeId?, activityQuery?, from?, to?, note?}
+- schedule_cancel: {type, entryId|activityQuery, date, block?}
+
 If you propose actions, end with exactly one fenced block:
 ```paidia-action
 {"actions":[...]}
 ```
-Changes need confirmation in the app (PIN). Never claim they are already saved.
+Changes need confirmation in the app (and PIN for schedule). Never claim they are already saved.
 ADMIN-ONLY (you cannot do these — say an admin must): permanent week template edits,
 shift template edits for others, editing another profile's contact, admin center overrides.
-If a feature is missing, say so clearly."""
+Max 8 actions per reply. If a feature is missing, say so clearly."""
 
 HELP_PROMPT_ADMIN = HELP_PROMPT_BASE + """
 
@@ -1761,16 +1903,127 @@ ROLE: ADMIN
 You help admins with full operational + management control:
 Everything staff can do, PLUS Admin Center, permanent schedule template, shift editing,
 managing events, audit corrections, other profiles' contact details, security overview.
-FOOD / STOCK / SHOPPING MUTATIONS: same rules as staff — propose draft actions with
+
+FOOD / STOCK / SHOPPING / DAY SCHEDULE: same staff action types.
+
+PERMANENT TEMPLATE (admin only):
+- schedule_template_add: {type, day:0-6 (Mon=0…Sun=6), block, houseId?, employeeId?, activityQuery|activityId, from?, to?, childIds?, note?}
+- schedule_template_update: {type, entryId, day?, block?, houseId?, employeeId?, activityQuery?, from?, to?, note?}
+
+When proposing actions, end with exactly one:
 ```paidia-action
 {"actions":[...]}
 ```
-when they ask to change stock or the shopping list. Confirmation still required in the app.
-Remind them that permanent plan changes are admin-only and stay in the audit log.
-Be precise about which button/path to use (Home → Admin Center, Dauerhaft/Μόνιμα, etc.)."""
+Confirmation + PIN still required in the app for schedule/template changes.
+Be precise about which button/path to use. Max 8 actions per reply.
+Remind them that permanent plan changes stay in the audit log."""
 
 
 CHAT_ACTION_RE = re.compile(r"```paidia-action\s*([\s\S]*?)```", re.IGNORECASE)
+
+CHAT_RATE_WINDOW = env_int("PAIDIA_CHAT_WINDOW_SECONDS", 600)
+CHAT_RATE_MAX = env_int("PAIDIA_CHAT_MAX_REQUESTS", 20)
+CHAT_RATE_HITS: dict[str, list[float]] = {}
+CHAT_RATE_LOCK = threading.Lock()
+
+STAFF_ACTION_TYPES = {
+    "stock_adjust", "shop_add", "shop_remove",
+    "schedule_add", "schedule_update", "schedule_cancel",
+}
+ADMIN_ACTION_TYPES = STAFF_ACTION_TYPES | {
+    "schedule_template_add", "schedule_template_update",
+}
+
+# --- Zo-Ai curated knowledge (docs/zoai/*.md) ---
+ZOAI_KNOWLEDGE_MAX_CHARS = env_int("PAIDIA_ZOAI_KNOWLEDGE_CHARS", 7500)
+_ZOAI_DOC_DIR = Path(__file__).resolve().parent / "docs" / "zoai"
+# Vercel: api/index.py may live under api/; also try repo-root docs/zoai
+_ZOAI_DOC_DIR_FALLBACKS = (
+    _ZOAI_DOC_DIR,
+    Path(__file__).resolve().parent.parent / "docs" / "zoai",
+)
+
+
+def _zoai_read_md(name: str) -> str:
+    for base in _ZOAI_DOC_DIR_FALLBACKS:
+        path = base / name
+        try:
+            if path.is_file():
+                return path.read_text(encoding="utf-8").strip()
+        except OSError:
+            continue
+    return ""
+
+
+def _zoai_truncate(text: str, limit: int) -> str:
+    text = (text or "").strip()
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 20)].rstrip() + "\n…[truncated]"
+
+
+def zoai_knowledge_for_role(role: str) -> str:
+    """Load role-scoped knowledge pack; empty string if docs missing."""
+    overview = _zoai_read_md("overview.md")
+    safety = _zoai_read_md("safety.md")
+    parts: list[str] = []
+    # Prefer a short overview slice for all roles
+    if overview:
+        parts.append(_zoai_truncate(overview, 1800))
+    if role == "child":
+        child = _zoai_read_md("child.md")
+        if child:
+            parts.append(child)
+    elif role == "staff":
+        staff = _zoai_read_md("staff.md")
+        actions = _zoai_read_md("actions.md")
+        if staff:
+            parts.append(staff)
+        if actions:
+            parts.append(actions)
+    elif role == "admin":
+        staff = _zoai_read_md("staff.md")
+        admin = _zoai_read_md("admin.md")
+        actions = _zoai_read_md("actions.md")
+        if staff:
+            parts.append(_zoai_truncate(staff, 2800))
+        if admin:
+            parts.append(admin)
+        if actions:
+            parts.append(actions)
+    else:
+        if safety:
+            parts.append(safety)
+        return _zoai_truncate("\n\n".join(parts), ZOAI_KNOWLEDGE_MAX_CHARS)
+    if safety:
+        parts.append(safety)
+    return _zoai_truncate("\n\n".join(p for p in parts if p), ZOAI_KNOWLEDGE_MAX_CHARS)
+
+
+# Preload once so Vercel cold starts pay once; still re-readable via zoai_knowledge_for_role
+ZOAI_KNOWLEDGE_CACHE = {
+    "child": zoai_knowledge_for_role("child"),
+    "staff": zoai_knowledge_for_role("staff"),
+    "admin": zoai_knowledge_for_role("admin"),
+}
+
+
+def chat_rate_allow(key: str) -> bool:
+    """Simple sliding-window rate limit for Zo-Ai chat."""
+    now = time.time()
+    with CHAT_RATE_LOCK:
+        hits = [ts for ts in CHAT_RATE_HITS.get(key, []) if now - ts < CHAT_RATE_WINDOW]
+        if len(hits) >= CHAT_RATE_MAX:
+            CHAT_RATE_HITS[key] = hits
+            return False
+        hits.append(now)
+        CHAT_RATE_HITS[key] = hits
+        return True
+
+
+def chat_rate_key(session: dict | None, ip: str | None = None) -> str:
+    profile = (session or {}).get("profile_id") or "anon"
+    return f"{profile}|{(ip or '').strip() or 'unknown'}"
 
 
 def chat_role_for_session(session: dict | None) -> str:
@@ -1785,12 +2038,17 @@ def chat_role_for_session(session: dict | None) -> str:
 
 def help_prompt_for_role(role: str) -> str:
     if role == "child":
-        return HELP_PROMPT_CHILD
-    if role == "admin":
-        return HELP_PROMPT_ADMIN
-    if role == "staff":
-        return HELP_PROMPT_STAFF
-    return HELP_PROMPT_BASE + "\n\nROLE: UNKNOWN — only explain general navigation; never mutate data."
+        base = HELP_PROMPT_CHILD
+    elif role == "admin":
+        base = HELP_PROMPT_ADMIN
+    elif role == "staff":
+        base = HELP_PROMPT_STAFF
+    else:
+        base = HELP_PROMPT_BASE + "\n\nROLE: UNKNOWN — only explain general navigation; never mutate data."
+    knowledge = ZOAI_KNOWLEDGE_CACHE.get(role) or zoai_knowledge_for_role(role)
+    if knowledge:
+        return base + "\n\n## Knowledge\n" + knowledge
+    return base
 
 
 def apply_session_chat_permissions(context: dict, session: dict | None) -> dict:
@@ -1812,6 +2070,8 @@ def apply_session_chat_permissions(context: dict, session: dict | None) -> dict:
         "role": role,
         "canMutateStock": can_mutate,
         "canMutateShopping": can_mutate,
+        "canMutateSchedule": can_mutate,
+        "canMutateScheduleTemplate": can_admin,
         "canEditOwnProfile": True,
         "canEditOtherProfiles": can_admin,
         "canEditPermanentSchedule": can_admin,
@@ -1828,10 +2088,16 @@ def apply_session_chat_permissions(context: dict, session: dict | None) -> dict:
     return cleaned
 
 
-def extract_chat_actions(text: str) -> tuple[str, list]:
-    """Split assistant reply into visible message + optional draft actions."""
+def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
+    """Split assistant reply into visible message + optional draft Zo-Ai actions."""
     if not isinstance(text, str) or not text.strip():
         return "", []
+    if role == "admin":
+        allowed = ADMIN_ACTION_TYPES
+    elif role == "staff":
+        allowed = STAFF_ACTION_TYPES
+    else:
+        allowed = set()
     actions: list = []
     cleaned = text
 
@@ -1845,17 +2111,25 @@ def extract_chat_actions(text: str) -> tuple[str, list]:
         rows = payload.get("actions") if isinstance(payload, dict) else payload
         if not isinstance(rows, list):
             return ""
-        for row in rows[:12]:
+        for row in rows[:8]:
             if not isinstance(row, dict):
                 continue
             kind = str(row.get("type", "")).strip()
-            if kind not in {"stock_adjust", "shop_add", "shop_remove"}:
+            if kind not in allowed:
                 continue
-            action = {"type": kind}
-            for key in ("houseId", "productQuery", "name", "dir", "unit", "reason"):
+            action: dict = {"type": kind}
+            for key in (
+                "houseId", "productQuery", "name", "dir", "unit", "reason",
+                "date", "block", "employeeId", "activityId", "activityQuery",
+                "entryId", "from", "to", "note",
+            ):
                 value = row.get(key)
                 if isinstance(value, str) and value.strip():
                     action[key] = value.strip()[:120]
+            if isinstance(row.get("childIds"), list):
+                action["childIds"] = [
+                    str(x).strip()[:40] for x in row["childIds"] if str(x).strip()
+                ][:12]
             qty = row.get("qty")
             try:
                 qty_num = float(qty)
@@ -1863,6 +2137,14 @@ def extract_chat_actions(text: str) -> tuple[str, list]:
                 qty_num = None
             if qty_num is not None and qty_num > 0:
                 action["qty"] = round(qty_num, 2)
+            day = row.get("day")
+            try:
+                day_num = int(day)
+            except (TypeError, ValueError):
+                day_num = None
+            if day_num is not None and 0 <= day_num <= 6:
+                action["day"] = day_num
+
             if kind == "stock_adjust":
                 direction = str(action.get("dir", "IN")).upper()
                 if direction not in {"IN", "OUT"}:
@@ -1870,9 +2152,40 @@ def extract_chat_actions(text: str) -> tuple[str, list]:
                 action["dir"] = direction
                 if "qty" not in action or not (action.get("productQuery") or action.get("name")):
                     continue
-            if kind == "shop_add" and ("qty" not in action or not (action.get("productQuery") or action.get("name"))):
-                continue
-            if kind == "shop_remove" and not (action.get("productQuery") or action.get("name")):
+            elif kind == "shop_add":
+                if "qty" not in action or not (action.get("productQuery") or action.get("name")):
+                    continue
+            elif kind == "shop_remove":
+                if not (action.get("productQuery") or action.get("name")):
+                    continue
+            elif kind == "schedule_add":
+                if not action.get("date") or not action.get("block"):
+                    continue
+                if not (action.get("activityId") or action.get("activityQuery")):
+                    continue
+                if action["block"] not in {"morning", "afternoon", "evening"}:
+                    continue
+            elif kind == "schedule_update":
+                if not action.get("date"):
+                    continue
+                if not (action.get("entryId") or action.get("activityQuery") or action.get("activityId")):
+                    continue
+            elif kind == "schedule_cancel":
+                if not action.get("date"):
+                    continue
+                if not (action.get("entryId") or action.get("activityQuery") or action.get("activityId")):
+                    continue
+            elif kind == "schedule_template_add":
+                if "day" not in action or not action.get("block"):
+                    continue
+                if not (action.get("activityId") or action.get("activityQuery")):
+                    continue
+                if action["block"] not in {"morning", "afternoon", "evening"}:
+                    continue
+            elif kind == "schedule_template_update":
+                if not action.get("entryId"):
+                    continue
+            else:
                 continue
             actions.append(action)
         return ""
@@ -1881,14 +2194,26 @@ def extract_chat_actions(text: str) -> tuple[str, list]:
     return cleaned, actions
 
 
-def run_chat(body: dict, api_key: str, session: dict | None = None) -> tuple[int, dict]:
-    """Shared chat handler for local server and Vercel Flask."""
+def run_chat(
+    body: dict,
+    api_key: str,
+    session: dict | None = None,
+    *,
+    client_ip: str | None = None,
+) -> tuple[int, dict]:
+    """Shared Zo-Ai chat handler for local server and Vercel Flask."""
     raw_messages = body.get("messages", [])
     context = body.get("context", {})
     if not isinstance(context, dict):
         context = {}
     if not isinstance(raw_messages, list) or not raw_messages:
         return 400, {"error": "messages are required"}
+    if not chat_rate_allow(chat_rate_key(session, client_ip)):
+        return 429, {
+            "error": "Zo-Ai rate limit — please wait a few minutes",
+            "code": "rate_limit",
+            "retryAfter": 60,
+        }
     context = apply_session_chat_permissions(context, session)
     role = context["role"]
     can_mutate = bool(context.get("canMutate"))
@@ -1909,14 +2234,13 @@ def run_chat(body: dict, api_key: str, session: dict | None = None) -> tuple[int
             "max_completion_tokens": 900,
         }, timeout=60)
         raw = completion_text(response)
-        message, actions = extract_chat_actions(raw)
+        message, actions = extract_chat_actions(raw, role=role if can_mutate else "child")
         if not can_mutate:
             actions = []
         if not message and actions:
-            message = "I prepared draft changes. Please confirm them in the app."
+            message = "Zo-Ai prepared draft changes. Please confirm them in the app."
         if not message and not actions:
             message = raw
-        # Strip any leaked action fences from the visible text if we dropped actions.
         if not can_mutate and message:
             message = CHAT_ACTION_RE.sub("", message).strip() or message
         return 200, {
@@ -1931,7 +2255,7 @@ def run_chat(body: dict, api_key: str, session: dict | None = None) -> tuple[int
         return provider_error(exc)
     except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
         code = "timeout" if isinstance(exc, TimeoutError) else "provider"
-        return (504 if code == "timeout" else 502), {"error": "Help chat failed", "code": code}
+        return (504 if code == "timeout" else 502), {"error": "Zo-Ai chat failed", "code": code}
 
 
 def groq_completion(api_key: str, request_body: dict, timeout: int = 90) -> dict:
@@ -2118,6 +2442,7 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         parsed = urllib.parse.urlsplit(self.path)
         if parsed.path == "/api/health":
+            db_info = paidia_db.health() if paidia_db else {"ok": False, "backend": "none"}
             self.json_response(200, {
                 "ok": True,
                 "aiConfigured": bool(os.environ.get("GROQ_API_KEY")),
@@ -2126,10 +2451,12 @@ class Handler(SimpleHTTPRequestHandler):
                 "whatsappConfigured": bool(whatsapp_config()["access_token"] and
                                              whatsapp_config()["phone_number_id"]),
                 "whatsappSendEnabled": whatsapp_config()["send_enabled"],
+                "database": db_info,
             })
             return
         if parsed.path == "/api/auth/health":
             delivery = email_delivery_status()
+            db_info = paidia_db.health() if paidia_db else {"ok": False, "backend": "none"}
             self.json_response(200, {
                 "ok": True,
                 "configuredProfiles": len(AUTH_USERS),
@@ -2148,6 +2475,8 @@ class Handler(SimpleHTTPRequestHandler):
                 "passkeyOrigin": WEBAUTHN_ORIGIN,
                 "passkeyRpId": WEBAUTHN_RP_ID,
                 "onboardingVersion": ONBOARDING_VERSION,
+                "database": db_info,
+                "durableStorage": bool(db_info.get("ok")),
             })
             return
         if parsed.path == "/api/auth/profiles":
@@ -3064,7 +3393,7 @@ class Handler(SimpleHTTPRequestHandler):
         if not session:
             self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
             return
-        status, payload = run_chat(body, api_key, session=session)
+        status, payload = run_chat(body, api_key, session=session, client_ip=self.client_ip())
         self.json_response(status, payload)
 
 
