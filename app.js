@@ -4056,7 +4056,10 @@ function measureChrome(){
 }
 
 function scheduleMeasureChrome(){
-  requestAnimationFrame(()=>requestAnimationFrame(measureChrome));
+  requestAnimationFrame(()=>{
+    measureChrome();
+    requestAnimationFrame(measureChrome);
+  });
 }
 
 function render(){
