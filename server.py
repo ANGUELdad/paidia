@@ -81,8 +81,11 @@ PROFILE_LOGIN_FAILURES: dict[str, list[float]] = {}
 LOGIN_LOCKS: dict[str, float] = {}
 SECURITY_ALERTS: dict[str, float] = {}
 RESET_REQUESTS: dict[str, float] = {}
-PASSKEY_CHALLENGES: dict[str, dict] = {}
+PASSKEY_CHALLENGES: dict[str, dict] = {}  # local-dev fallback only; Vercel uses signed ceremonies
+USED_PASSKEY_CEREMONIES: dict[str, float] = {}
 PASSKEY_CHALLENGE_TTL = 5 * 60
+PASSKEY_COOKIE = "paidia_pk"
+PASSKEY_COOKIE_TTL = 400 * 24 * 3600
 
 
 def env_int(name: str, default: int, minimum: int = 1) -> int:
@@ -128,10 +131,28 @@ OPS_KEYS = (
     "customProducts",
     "customCategories",
     "customReasons",
+    "profilePrefs",
 )
-WEBAUTHN_ORIGIN = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", os.environ.get(
-    "PAIDIA_PUBLIC_URL", f"http://localhost:{PORT}"
-)).rstrip("/")
+OPS_DICT_KEYS = {"stock", "profilePrefs"}
+def resolve_webauthn_origin() -> str:
+    explicit = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", "").strip()
+    if explicit:
+        return explicit.rstrip("/")
+    public = os.environ.get("PAIDIA_PUBLIC_URL", "").strip()
+    if public:
+        return public.rstrip("/")
+    if os.environ.get("VERCEL") == "1":
+        host = (
+            os.environ.get("VERCEL_PROJECT_PRODUCTION_URL")
+            or os.environ.get("VERCEL_URL")
+            or ""
+        ).strip().split("/")[0]
+        if host:
+            return f"https://{host}"
+    return f"http://localhost:{PORT}"
+
+
+WEBAUTHN_ORIGIN = resolve_webauthn_origin()
 WEBAUTHN_RP_ID = os.environ.get(
     "PAIDIA_WEBAUTHN_RP_ID", urllib.parse.urlsplit(WEBAUTHN_ORIGIN).hostname or "localhost"
 )
@@ -509,24 +530,38 @@ def empty_ops_state() -> dict:
         "customProducts": [],
         "customCategories": [],
         "customReasons": [],
+        "profilePrefs": {},
     }
 
 
-def load_ops_state() -> dict:
+def _normalize_ops_state(value: object) -> dict:
+    if not isinstance(value, dict):
+        return empty_ops_state()
+    out = empty_ops_state()
     try:
-        value = json.loads(OPS_STATE_PATH.read_text(encoding="utf-8"))
-        if not isinstance(value, dict):
-            return empty_ops_state()
-        out = empty_ops_state()
         out["revision"] = max(0, int(value.get("revision") or 0))
         out["updatedAt"] = int(value.get("updatedAt") or 0)
-        for key in OPS_KEYS:
-            raw = value.get(key)
-            if key == "stock":
-                out[key] = raw if isinstance(raw, dict) else {}
-            else:
-                out[key] = raw if isinstance(raw, list) else []
-        return out
+    except (TypeError, ValueError):
+        pass
+    for key in OPS_KEYS:
+        raw = value.get(key)
+        if key in OPS_DICT_KEYS:
+            out[key] = raw if isinstance(raw, dict) else {}
+        else:
+            out[key] = raw if isinstance(raw, list) else []
+    return out
+
+
+def load_ops_state() -> dict:
+    # Env survives Vercel deploys when seeded; file covers local / warm /tmp.
+    raw = os.environ.get("PAIDIA_OPS_JSON", "").strip()
+    if raw:
+        try:
+            return _normalize_ops_state(json.loads(raw))
+        except json.JSONDecodeError:
+            pass
+    try:
+        return _normalize_ops_state(json.loads(OPS_STATE_PATH.read_text(encoding="utf-8")))
     except (OSError, json.JSONDecodeError, TypeError, ValueError):
         return empty_ops_state()
 
@@ -535,14 +570,31 @@ OPS_STATE = load_ops_state()
 
 
 def persist_ops_state() -> None:
-    OPS_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = OPS_STATE_PATH.with_name(OPS_STATE_PATH.name + ".tmp")
-    temp_path.write_text(json.dumps(OPS_STATE, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    raw = json.dumps(OPS_STATE, ensure_ascii=False, separators=(",", ":"))
+    os.environ["PAIDIA_OPS_JSON"] = raw
     try:
-        os.chmod(temp_path, 0o600)
+        OPS_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = OPS_STATE_PATH.with_name(OPS_STATE_PATH.name + ".tmp")
+        temp_path.write_text(raw, encoding="utf-8")
+        try:
+            os.chmod(temp_path, 0o600)
+        except OSError:
+            pass
+        os.replace(temp_path, OPS_STATE_PATH)
     except OSError:
-        pass
-    os.replace(temp_path, OPS_STATE_PATH)
+        if os.environ.get("VERCEL") != "1":
+            raise
+
+
+def refresh_ops_state_from_disk() -> None:
+    """Pick up /tmp or env writes from another warm request on the same instance."""
+    loaded = load_ops_state()
+    with OPS_LOCK:
+        current_rev = int(OPS_STATE.get("revision") or 0)
+        loaded_rev = int(loaded.get("revision") or 0)
+        if loaded_rev >= current_rev:
+            OPS_STATE.clear()
+            OPS_STATE.update(loaded)
 
 
 def ops_snapshot(changed: bool = True) -> dict:
@@ -559,6 +611,7 @@ def ops_snapshot(changed: bool = True) -> dict:
 
 
 def get_ops(since: int = 0) -> dict:
+    refresh_ops_state_from_disk()
     with OPS_LOCK:
         revision = int(OPS_STATE.get("revision") or 0)
         if since and since >= revision:
@@ -582,6 +635,7 @@ def put_ops(body: dict, session: dict) -> tuple[int, dict]:
     except (TypeError, ValueError):
         return 400, {"error": "revision required", "code": "input"}
 
+    refresh_ops_state_from_disk()
     with OPS_LOCK:
         server_rev = int(OPS_STATE.get("revision") or 0)
         if client_rev != server_rev:
@@ -601,10 +655,9 @@ def put_ops(body: dict, session: dict) -> tuple[int, dict]:
         next_state["updatedAt"] = int(time.time() * 1000)
         for key in OPS_KEYS:
             raw = body.get(key, OPS_STATE.get(key))
-            if key == "stock":
+            if key in OPS_DICT_KEYS:
                 next_state[key] = raw if isinstance(raw, dict) else {}
             else:
-                # Cap growth — keep recent entries for lists/trips/customs.
                 rows = raw if isinstance(raw, list) else []
                 if key in {"listEntries", "shoppingTrips"}:
                     rows = rows[-4000:]
@@ -673,26 +726,53 @@ def run_shopping(body: dict, api_key: str) -> tuple[int, dict]:
         }
 
 
+def _empty_passkey_store() -> dict:
+    return {"credentials": {}, "user_handles": {}}
+
+
+def _normalize_passkey_store(value: object) -> dict | None:
+    if not isinstance(value, dict) or not isinstance(value.get("credentials"), dict):
+        return None
+    value.setdefault("user_handles", {})
+    if not isinstance(value["user_handles"], dict):
+        value["user_handles"] = {}
+    return value
+
+
 def load_passkeys() -> dict:
+    # Env survives Vercel deploys; file covers local / warm /tmp instances.
+    raw = os.environ.get("PAIDIA_PASSKEYS_JSON", "").strip()
+    if raw:
+        try:
+            normalized = _normalize_passkey_store(json.loads(raw))
+            if normalized:
+                return normalized
+        except json.JSONDecodeError:
+            pass
     try:
-        value = json.loads(PASSKEY_STORE_PATH.read_text(encoding="utf-8"))
-        if isinstance(value, dict) and isinstance(value.get("credentials"), dict):
-            value.setdefault("user_handles", {})
-            return value
+        normalized = _normalize_passkey_store(json.loads(PASSKEY_STORE_PATH.read_text(encoding="utf-8")))
+        if normalized:
+            return normalized
     except (OSError, json.JSONDecodeError):
         pass
-    return {"credentials": {}, "user_handles": {}}
+    return _empty_passkey_store()
 
 
 PASSKEYS = load_passkeys()
 
 
 def persist_passkeys() -> None:
-    PASSKEY_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = PASSKEY_STORE_PATH.with_name(PASSKEY_STORE_PATH.name + ".tmp")
-    temp_path.write_text(json.dumps(PASSKEYS, separators=(",", ":")), encoding="utf-8")
-    os.chmod(temp_path, 0o600)
-    os.replace(temp_path, PASSKEY_STORE_PATH)
+    raw = json.dumps(PASSKEYS, separators=(",", ":"), ensure_ascii=False)
+    os.environ["PAIDIA_PASSKEYS_JSON"] = raw
+    try:
+        PASSKEY_STORE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = PASSKEY_STORE_PATH.with_name(PASSKEY_STORE_PATH.name + ".tmp")
+        temp_path.write_text(raw, encoding="utf-8")
+        os.chmod(temp_path, 0o600)
+        os.replace(temp_path, PASSKEY_STORE_PATH)
+    except OSError:
+        if os.environ.get("VERCEL") != "1":
+            raise
 
 
 def b64url(value: bytes) -> str:
@@ -705,8 +785,106 @@ def unb64url(value: str) -> bytes:
     return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
 
 
-def profile_passkeys(profile_id: str, mode: str | None = None) -> list[dict]:
-    return [record for record in PASSKEYS["credentials"].values()
+def mint_passkey_ceremony(data: dict) -> str:
+    """Stateless WebAuthn ceremony — survives Vercel multi-instance / cold starts."""
+    import base64
+    payload = {
+        "kind": data["kind"],
+        "profile_id": data["profile_id"],
+        "mode": data["mode"],
+        "challenge": data["challenge"],
+        "exp": int(data.get("expires_at", time.time() + PASSKEY_CHALLENGE_TTL)),
+    }
+    if data.get("session_id"):
+        payload["session_id"] = data["session_id"]
+    if data.get("label"):
+        payload["label"] = data["label"]
+    raw = base64.urlsafe_b64encode(
+        json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    ).decode("ascii").rstrip("=")
+    sig = hmac.new(session_secret(), raw.encode("ascii"), hashlib.sha256).hexdigest()
+    return f"pk1.{raw}.{sig}"
+
+
+def parse_passkey_ceremony(token: str) -> dict | None:
+    import base64
+    if not token or not token.startswith("pk1.") or len(token) > 8000:
+        return None
+    try:
+        _, raw, sig = token.split(".", 2)
+        expect = hmac.new(session_secret(), raw.encode("ascii"), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expect, sig):
+            return None
+        padded = raw + "=" * (-len(raw) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(padded.encode("ascii")))
+        if not isinstance(payload, dict):
+            return None
+        if int(payload.get("exp", 0)) <= int(time.time()):
+            return None
+        kind = payload.get("kind")
+        if kind not in {"register", "login"}:
+            return None
+        challenge = str(payload.get("challenge") or "")
+        if not challenge:
+            return None
+        return {
+            "kind": kind,
+            "profile_id": str(payload.get("profile_id") or ""),
+            "mode": "child" if payload.get("mode") == "child" else "staff",
+            "challenge": challenge,
+            "session_id": str(payload.get("session_id") or ""),
+            "label": str(payload.get("label") or "This device")[:80] or "This device",
+            "expires_at": float(payload["exp"]),
+        }
+    except (ValueError, TypeError, json.JSONDecodeError, KeyError):
+        return None
+
+
+def encode_passkey_device_bundle(bundle: dict) -> str:
+    import base64
+    normalized = _normalize_passkey_store(bundle) or _empty_passkey_store()
+    raw = base64.urlsafe_b64encode(
+        json.dumps(normalized, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    ).decode("ascii").rstrip("=")
+    sig = hmac.new(session_secret(), raw.encode("ascii"), hashlib.sha256).hexdigest()
+    return f"pkd1.{raw}.{sig}"
+
+
+def decode_passkey_device_bundle(token: str) -> dict:
+    import base64
+    if not token or not token.startswith("pkd1.") or len(token) > 12000:
+        return _empty_passkey_store()
+    try:
+        _, raw, sig = token.split(".", 2)
+        expect = hmac.new(session_secret(), raw.encode("ascii"), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expect, sig):
+            return _empty_passkey_store()
+        padded = raw + "=" * (-len(raw) % 4)
+        normalized = _normalize_passkey_store(json.loads(base64.urlsafe_b64decode(padded.encode("ascii"))))
+        return normalized or _empty_passkey_store()
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return _empty_passkey_store()
+
+
+def merge_passkey_stores(*stores: dict) -> dict:
+    merged = _empty_passkey_store()
+    for store in stores:
+        if not store:
+            continue
+        for key, record in (store.get("credentials") or {}).items():
+            if isinstance(record, dict) and record.get("credential_id"):
+                existing = merged["credentials"].get(key)
+                if not existing or int(record.get("sign_count", 0)) >= int(existing.get("sign_count", 0)):
+                    merged["credentials"][key] = dict(record)
+        for profile_id, handle in (store.get("user_handles") or {}).items():
+            if profile_id and handle and profile_id not in merged["user_handles"]:
+                merged["user_handles"][profile_id] = handle
+    return merged
+
+
+def profile_passkeys(profile_id: str, mode: str | None = None, store: dict | None = None) -> list[dict]:
+    source = store or PASSKEYS
+    return [record for record in source["credentials"].values()
             if record.get("profile_id") == profile_id and (mode is None or record.get("mode") == mode)]
 
 
@@ -715,7 +893,10 @@ def passkey_user_handle(profile_id: str) -> bytes:
     if not encoded:
         encoded = b64url(secrets.token_bytes(32))
         PASSKEYS["user_handles"][profile_id] = encoded
-        persist_passkeys()
+        try:
+            persist_passkeys()
+        except OSError:
+            pass
     return unb64url(encoded)
 
 
@@ -724,6 +905,32 @@ def prune_passkey_challenges() -> None:
     for key, value in list(PASSKEY_CHALLENGES.items()):
         if value.get("expires_at", 0) <= now:
             PASSKEY_CHALLENGES.pop(key, None)
+    for key, expires_at in list(USED_PASSKEY_CEREMONIES.items()):
+        if expires_at <= now:
+            USED_PASSKEY_CEREMONIES.pop(key, None)
+
+
+def remember_passkey_challenge(ceremony_id: str, payload: dict) -> None:
+    """Best-effort local cache; signed ceremonyId is the source of truth on Vercel."""
+    with AUTH_LOCK:
+        prune_passkey_challenges()
+        PASSKEY_CHALLENGES[ceremony_id] = payload
+
+
+def take_passkey_challenge(ceremony_id: str) -> dict | None:
+    parsed = parse_passkey_ceremony(ceremony_id)
+    with AUTH_LOCK:
+        prune_passkey_challenges()
+        if ceremony_id in USED_PASSKEY_CEREMONIES:
+            return None
+        if parsed:
+            USED_PASSKEY_CEREMONIES[ceremony_id] = time.time() + PASSKEY_CHALLENGE_TTL
+            PASSKEY_CHALLENGES.pop(ceremony_id, None)
+            return parsed
+        challenge = PASSKEY_CHALLENGES.pop(ceremony_id, None)
+        if challenge:
+            USED_PASSKEY_CEREMONIES[ceremony_id] = time.time() + PASSKEY_CHALLENGE_TTL
+        return challenge
 
 
 def security_alert_recipients() -> list[str]:
@@ -1317,38 +1524,125 @@ name, canonical_name, quantity, unit, category, brand, package_size, notes, conf
 (high, medium, or low), and ambiguous (boolean). Do not add other fields."""
 
 
-HELP_PROMPT = """You are the PAIDIA in-app help assistant for a residential child-care
-operations prototype. Explain how to use the visible screen: schedules by day/week/house,
-events, shopping AI import, supermarket mode, inventory, audit, and profile/PIN behavior.
-Reply in the language used by the user (German, Greek, or English). Be concise, practical,
-and safety-aware. Never invent saved data, claim an action was already completed, reveal
-PINs, or make medical/legal decisions.
+HELP_PROMPT_BASE = """You are the PAIDIA / Armonia Thassos in-app help assistant for a residential
+child-care operations app. Reply in the language used by the user (German, Greek, or English).
+Be concise, practical, and safety-aware. Never invent saved data, claim an action was already
+completed, reveal PINs or secrets, or make medical/legal decisions.
+Always respect context.permissions — they are authoritative for this signed-in user.
+Address the user by context.profileName when helpful."""
 
-FOOD / STOCK / SHOPPING MUTATIONS (staff only):
-When context.canMutate is true and the user asks to change food stock or the shopping list,
-ALWAYS propose draft actions (do not only explain the UI). Match productQuery to names from
-context.inventory.productNames or lowStock when possible. Use houseId from context.inventory
-(houses[].id) — prefer context.inventory.activeHouse when the user does not name a house.
-Examples the user may say:
+HELP_PROMPT_CHILD = HELP_PROMPT_BASE + """
+
+ROLE: CHILD (read-only)
+You help this child understand THEIR own views only:
+- Today / Week: activities assigned to them (time, house, caregivers, other kids)
+- Events published for them (date, place, bring, companion)
+- Games tab (Memory, XO, fish catch) — local device games, no server save
+- Help (?), profile, Face ID/PIN, logout
+Do NOT explain staff tools (stock, shopping, audit, admin, shifts, supermarket import, team talk).
+Do NOT propose or invent stock/shopping changes. Never output a ```paidia-action``` block.
+If they ask to change food or the schedule, say a caregiver must do that.
+If they ask about another child's private schedule, refuse politely."""
+
+HELP_PROMPT_STAFF = HELP_PROMPT_BASE + """
+
+ROLE: STAFF (caregiver)
+You help with day-to-day operations they can use:
+- Home tasks, schedule (day/week/house/matrix), events, shopping list, supermarket mode,
+  inventory/fridge, audit log, profile/PIN/passkey, staff talk, AI help
+FOOD / STOCK / SHOPPING MUTATIONS:
+When the user asks to change food stock or the shopping list, ALWAYS propose draft actions
+(do not only explain the UI). Match productQuery to names from context.inventory when possible.
+Use houseId from context.inventory.houses[].id — prefer activeHouse when no house is named.
+Examples:
 - "Milch +2 in Kalyvia" / "βάλε 2 γάλα Kalyvia" → stock_adjust IN
-- "Eier raus 6 Limenaria" / "βγάλε 6 αυγά" → stock_adjust OUT
-- "Reis auf die Liste" / "βάλε ρύζι στη λίστα" → shop_add
+- "Eier raus 6" / "βγάλε 6 αυγά" → stock_adjust OUT
+- "Reis auf die Liste" → shop_add
 - "Tomaten von der Liste" → shop_remove
 Allowed action types:
 - stock_adjust: {type, houseId, productQuery, dir:IN|OUT, qty:number, unit?, reason?}
 - shop_add: {type, houseId, productQuery|name, qty:number, unit?}
 - shop_remove: {type, houseId, productQuery|name}
-If you propose actions, end your reply with exactly one fenced block:
-
+If you propose actions, end with exactly one fenced block:
 ```paidia-action
 {"actions":[...]}
 ```
-
-If context.canMutate is false (child mode), explain that only staff can change food data.
+Changes need confirmation in the app (PIN). Never claim they are already saved.
+ADMIN-ONLY (you cannot do these — say an admin must): permanent week template edits,
+shift template edits for others, editing another profile's contact, admin center overrides.
 If a feature is missing, say so clearly."""
+
+HELP_PROMPT_ADMIN = HELP_PROMPT_BASE + """
+
+ROLE: ADMIN
+You help admins with full operational + management control:
+Everything staff can do, PLUS Admin Center, permanent schedule template, shift editing,
+managing events, audit corrections, other profiles' contact details, security overview.
+FOOD / STOCK / SHOPPING MUTATIONS: same rules as staff — propose draft actions with
+```paidia-action
+{"actions":[...]}
+```
+when they ask to change stock or the shopping list. Confirmation still required in the app.
+Remind them that permanent plan changes are admin-only and stay in the audit log.
+Be precise about which button/path to use (Home → Admin Center, Dauerhaft/Μόνιμα, etc.)."""
 
 
 CHAT_ACTION_RE = re.compile(r"```paidia-action\s*([\s\S]*?)```", re.IGNORECASE)
+
+
+def chat_role_for_session(session: dict | None) -> str:
+    if not session:
+        return "anonymous"
+    if session.get("mode") == "child":
+        return "child"
+    if session.get("admin"):
+        return "admin"
+    return "staff"
+
+
+def help_prompt_for_role(role: str) -> str:
+    if role == "child":
+        return HELP_PROMPT_CHILD
+    if role == "admin":
+        return HELP_PROMPT_ADMIN
+    if role == "staff":
+        return HELP_PROMPT_STAFF
+    return HELP_PROMPT_BASE + "\n\nROLE: UNKNOWN — only explain general navigation; never mutate data."
+
+
+def apply_session_chat_permissions(context: dict, session: dict | None) -> dict:
+    """Force permission fields from the auth session; ignore client spoofing."""
+    role = chat_role_for_session(session)
+    can_mutate = role in {"staff", "admin"}
+    can_admin = role == "admin"
+    cleaned = {k: v for k, v in context.items() if k not in {
+        "canMutate", "admin", "role", "permissions", "profileId", "mode",
+    }}
+    if not can_mutate:
+        cleaned.pop("inventory", None)
+    elif not isinstance(cleaned.get("inventory"), dict):
+        cleaned.pop("inventory", None)
+    cleaned["role"] = role
+    cleaned["canMutate"] = can_mutate
+    cleaned["admin"] = can_admin
+    cleaned["permissions"] = {
+        "role": role,
+        "canMutateStock": can_mutate,
+        "canMutateShopping": can_mutate,
+        "canEditOwnProfile": True,
+        "canEditOtherProfiles": can_admin,
+        "canEditPermanentSchedule": can_admin,
+        "canEditShifts": can_admin,
+        "canUseAdminCenter": can_admin,
+        "canCorrectAudit": can_admin,
+        "canViewOwnChildSchedule": role == "child",
+        "canViewAllStaffTools": role in {"staff", "admin"},
+        "canPlayGames": role == "child",
+    }
+    if session:
+        cleaned["profileId"] = session.get("profile_id")
+        cleaned["mode"] = session.get("mode")
+    return cleaned
 
 
 def extract_chat_actions(text: str) -> tuple[str, list]:
@@ -1404,7 +1698,7 @@ def extract_chat_actions(text: str) -> tuple[str, list]:
     return cleaned, actions
 
 
-def run_chat(body: dict, api_key: str) -> tuple[int, dict]:
+def run_chat(body: dict, api_key: str, session: dict | None = None) -> tuple[int, dict]:
     """Shared chat handler for local server and Vercel Flask."""
     raw_messages = body.get("messages", [])
     context = body.get("context", {})
@@ -1412,13 +1706,11 @@ def run_chat(body: dict, api_key: str) -> tuple[int, dict]:
         context = {}
     if not isinstance(raw_messages, list) or not raw_messages:
         return 400, {"error": "messages are required"}
-    # Cap inventory blob so prompts stay bounded.
-    inventory = context.get("inventory")
-    if isinstance(inventory, dict):
-        context = {**context, "inventory": inventory}
-    else:
-        context = {k: v for k, v in context.items() if k != "inventory"}
-    messages = [{"role": "system", "content": HELP_PROMPT + "\nCurrent UI context: " +
+    context = apply_session_chat_permissions(context, session)
+    role = context["role"]
+    can_mutate = bool(context.get("canMutate"))
+    prompt = help_prompt_for_role(role)
+    messages = [{"role": "system", "content": prompt + "\nCurrent UI context: " +
                  json.dumps(context, ensure_ascii=False)[:12000]}]
     for message in raw_messages[-12]:
         if not isinstance(message, dict) or message.get("role") not in {"user", "assistant"}:
@@ -1435,11 +1727,20 @@ def run_chat(body: dict, api_key: str) -> tuple[int, dict]:
         }, timeout=60)
         raw = completion_text(response)
         message, actions = extract_chat_actions(raw)
+        if not can_mutate:
+            actions = []
         if not message and actions:
             message = "I prepared draft changes. Please confirm them in the app."
+        if not message and not actions:
+            message = raw
+        # Strip any leaked action fences from the visible text if we dropped actions.
+        if not can_mutate and message:
+            message = CHAT_ACTION_RE.sub("", message).strip() or message
         return 200, {
             "message": message or raw,
             "actions": actions,
+            "role": role,
+            "canMutate": can_mutate,
             "model": response.get("model", CHAT_MODEL),
             "responseId": response.get("id"),
         }
@@ -1522,7 +1823,11 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(raw)))
         self.send_header("Cache-Control", "no-store")
         for name, value in (headers or {}).items():
-            self.send_header(name, value)
+            if name == "Set-Cookie" and isinstance(value, (list, tuple)):
+                for item in value:
+                    self.send_header(name, item)
+            else:
+                self.send_header(name, value)
         self.end_headers()
         self.wfile.write(raw)
 
@@ -1530,6 +1835,30 @@ class Handler(SimpleHTTPRequestHandler):
         cookie = SimpleCookie(self.headers.get("Cookie", ""))
         morsel = cookie.get(AUTH_COOKIE)
         return morsel.value if morsel else ""
+
+    def passkey_device_cookie(self) -> str:
+        cookie = SimpleCookie(self.headers.get("Cookie", ""))
+        morsel = cookie.get(PASSKEY_COOKIE)
+        return morsel.value if morsel else ""
+
+    def passkey_store_for_request(self) -> dict:
+        return merge_passkey_stores(PASSKEYS, decode_passkey_device_bundle(self.passkey_device_cookie()))
+
+    def set_cookie_header(self, name: str, token: str, max_age: int) -> str:
+        secure = (
+            os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}
+            or os.environ.get("VERCEL", "") == "1"
+        )
+        parts = [f"{name}={token}", "Path=/", f"Max-Age={max_age}", "HttpOnly", "SameSite=Lax"]
+        if secure:
+            parts.append("Secure")
+        return "; ".join(parts)
+
+    def set_session_cookie(self, token: str, max_age: int = AUTH_SESSION_TTL) -> str:
+        return self.set_cookie_header(AUTH_COOKIE, token, max_age)
+
+    def set_passkey_cookie(self, token: str, max_age: int = PASSKEY_COOKIE_TTL) -> str:
+        return self.set_cookie_header(PASSKEY_COOKIE, token, max_age)
 
     def client_ip(self) -> str:
         ip = self.client_address[0]
@@ -1562,16 +1891,6 @@ class Handler(SimpleHTTPRequestHandler):
                 AUTH_SESSIONS.pop(token, None)
                 return None
             return dict(session)
-
-    def set_session_cookie(self, token: str, max_age: int = AUTH_SESSION_TTL) -> str:
-        secure = (
-            os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}
-            or os.environ.get("VERCEL", "") == "1"
-        )
-        parts = [f"{AUTH_COOKIE}={token}", "Path=/", f"Max-Age={max_age}", "HttpOnly", "SameSite=Lax"]
-        if secure:
-            parts.append("Secure")
-        return "; ".join(parts)
 
     def text_response(self, status: int, value: str) -> None:
         raw = value.encode("utf-8")
@@ -1874,7 +2193,8 @@ class Handler(SimpleHTTPRequestHandler):
             return
         self.json_response(404, {"error": "Not found"})
 
-    def finish_authentication(self, profile_id: str, mode: str, method: str = "pin") -> None:
+    def finish_authentication(self, profile_id: str, mode: str, method: str = "pin",
+                               extra_cookies: list[str] | None = None) -> None:
         client_ip = self.client_ip()
         token, payload = encode_session_token(profile_id, mode, method)
         with AUTH_LOCK:
@@ -1887,6 +2207,9 @@ class Handler(SimpleHTTPRequestHandler):
             elif new_ip and not first_ip:
                 queue_security_alert(profile_id, "new_ip_login", client_ip, {"attempts": 0})
         contact = profile_contact(profile_id)
+        cookies = [self.set_session_cookie(token)]
+        if extra_cookies:
+            cookies.extend(extra_cookies)
         self.json_response(200, {
             "authenticated": True, "profileId": profile_id, "mode": mode,
             "admin": bool(payload["admin"]),
@@ -1897,7 +2220,7 @@ class Handler(SimpleHTTPRequestHandler):
             "email": contact["email"],
             "phone": contact["phone"],
             "contactComplete": bool(contact["email"] and contact["phone"]),
-        }, {"Set-Cookie": self.set_session_cookie(token)})
+        }, {"Set-Cookie": cookies if len(cookies) > 1 else cookies[0]})
 
     def handle_onboarding_complete(self, body: dict) -> None:
         session = self.current_auth_session()
@@ -2013,27 +2336,29 @@ class Handler(SimpleHTTPRequestHandler):
             return
         profile_id, mode = session["profile_id"], session["mode"]
         display_name = str(body.get("displayName", profile_id)).strip()[:80] or profile_id
-        existing = profile_passkeys(profile_id, mode)
+        store = self.passkey_store_for_request()
+        existing = profile_passkeys(profile_id, mode, store=store)
         options = generate_registration_options(
             rp_id=WEBAUTHN_RP_ID, rp_name="Armonia Thassos", user_name=profile_id,
             user_id=passkey_user_handle(profile_id), user_display_name=display_name,
             authenticator_selection=AuthenticatorSelectionCriteria(
                 authenticator_attachment=AuthenticatorAttachment.PLATFORM,
-                resident_key=ResidentKeyRequirement.REQUIRED, require_resident_key=True,
+                resident_key=ResidentKeyRequirement.PREFERRED, require_resident_key=False,
                 user_verification=UserVerificationRequirement.REQUIRED,
             ),
             exclude_credentials=[PublicKeyCredentialDescriptor(id=unb64url(item["credential_id"]))
                                  for item in existing], timeout=60_000,
         )
-        ceremony_id = secrets.token_urlsafe(24)
-        with AUTH_LOCK:
-            prune_passkey_challenges()
-            PASSKEY_CHALLENGES[ceremony_id] = {
-                "kind": "register", "profile_id": profile_id, "mode": mode,
-                "challenge": options.challenge, "session_id": session["session_id"],
-                "label": str(body.get("label", "This device")).strip()[:80] or "This device",
-                "expires_at": time.time() + PASSKEY_CHALLENGE_TTL,
-            }
+        challenge_b64 = b64url(options.challenge if isinstance(options.challenge, (bytes, bytearray))
+                               else unb64url(str(options.challenge)))
+        ceremony_payload = {
+            "kind": "register", "profile_id": profile_id, "mode": mode,
+            "challenge": challenge_b64, "session_id": session["session_id"],
+            "label": str(body.get("label", "This device")).strip()[:80] or "This device",
+            "expires_at": time.time() + PASSKEY_CHALLENGE_TTL,
+        }
+        ceremony_id = mint_passkey_ceremony(ceremony_payload)
+        remember_passkey_challenge(ceremony_id, {**ceremony_payload, "challenge": challenge_b64})
         self.json_response(200, {"ceremonyId": ceremony_id, "publicKey": json.loads(options_to_json(options))})
 
     def handle_passkey_register_verify(self, body: dict) -> None:
@@ -2042,8 +2367,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         session = self.current_auth_session()
         ceremony_id = str(body.get("ceremonyId", ""))
-        with AUTH_LOCK:
-            challenge = PASSKEY_CHALLENGES.pop(ceremony_id, None)
+        challenge = take_passkey_challenge(ceremony_id)
         if (not session or not challenge or challenge.get("kind") != "register" or
                 challenge.get("expires_at", 0) <= time.time() or
                 challenge.get("session_id") != session.get("session_id")):
@@ -2055,7 +2379,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         try:
             verified = verify_registration_response(
-                credential=credential, expected_challenge=challenge["challenge"],
+                credential=credential, expected_challenge=unb64url(challenge["challenge"]),
                 expected_rp_id=WEBAUTHN_RP_ID, expected_origin=WEBAUTHN_ORIGIN,
                 require_user_verification=True,
             )
@@ -2070,15 +2394,22 @@ class Handler(SimpleHTTPRequestHandler):
             "backed_up": verified.credential_backed_up, "label": challenge["label"],
             "created_at": int(time.time()),
         }
+        device_bundle = decode_passkey_device_bundle(self.passkey_device_cookie())
         try:
             with AUTH_LOCK:
                 PASSKEYS["credentials"][credential_id] = record
                 persist_passkeys()
+            device_bundle["credentials"][credential_id] = record
+            if challenge["profile_id"] in PASSKEYS["user_handles"]:
+                device_bundle["user_handles"][challenge["profile_id"]] = PASSKEYS["user_handles"][challenge["profile_id"]]
         except OSError:
-            self.json_response(507, {"error": "The passkey could not be stored", "code": "storage"})
-            return
-        self.json_response(200, {"registered": True, "credentialId": credential_id,
-                                 "passkeys": len(profile_passkeys(challenge["profile_id"], challenge["mode"]))})
+            # Still keep the device cookie so Face ID works on this browser after cold starts.
+            device_bundle["credentials"][credential_id] = record
+        self.json_response(200, {
+            "registered": True, "credentialId": credential_id,
+            "passkeys": len(profile_passkeys(challenge["profile_id"], challenge["mode"],
+                                             store=merge_passkey_stores(PASSKEYS, device_bundle))),
+        }, {"Set-Cookie": self.set_passkey_cookie(encode_passkey_device_bundle(device_bundle))})
 
     def handle_passkey_login_options(self, body: dict) -> None:
         if not WEBAUTHN_AVAILABLE:
@@ -2087,7 +2418,8 @@ class Handler(SimpleHTTPRequestHandler):
         profile_id = str(body.get("profileId", "")).strip()[:64]
         mode = "child" if body.get("mode") == "child" else "staff"
         user = AUTH_USERS.get(profile_id)
-        credentials = profile_passkeys(profile_id, mode)
+        store = self.passkey_store_for_request()
+        credentials = profile_passkeys(profile_id, mode, store=store)
         if not user or user.get("mode") != mode or not credentials:
             self.json_response(404, {"error": "No passkey is configured for this profile", "code": "no_passkey"})
             return
@@ -2097,13 +2429,14 @@ class Handler(SimpleHTTPRequestHandler):
                                for item in credentials],
             user_verification=UserVerificationRequirement.REQUIRED, timeout=60_000,
         )
-        ceremony_id = secrets.token_urlsafe(24)
-        with AUTH_LOCK:
-            prune_passkey_challenges()
-            PASSKEY_CHALLENGES[ceremony_id] = {
-                "kind": "login", "profile_id": profile_id, "mode": mode,
-                "challenge": options.challenge, "expires_at": time.time() + PASSKEY_CHALLENGE_TTL,
-            }
+        challenge_b64 = b64url(options.challenge if isinstance(options.challenge, (bytes, bytearray))
+                               else unb64url(str(options.challenge)))
+        ceremony_payload = {
+            "kind": "login", "profile_id": profile_id, "mode": mode,
+            "challenge": challenge_b64, "expires_at": time.time() + PASSKEY_CHALLENGE_TTL,
+        }
+        ceremony_id = mint_passkey_ceremony(ceremony_payload)
+        remember_passkey_challenge(ceremony_id, ceremony_payload)
         self.json_response(200, {"ceremonyId": ceremony_id, "publicKey": json.loads(options_to_json(options))})
 
     def handle_passkey_login_verify(self, body: dict) -> None:
@@ -2112,21 +2445,21 @@ class Handler(SimpleHTTPRequestHandler):
             return
         ceremony_id = str(body.get("ceremonyId", ""))
         credential = body.get("credential")
-        with AUTH_LOCK:
-            challenge = PASSKEY_CHALLENGES.pop(ceremony_id, None)
+        challenge = take_passkey_challenge(ceremony_id)
         if (not challenge or challenge.get("kind") != "login" or
                 challenge.get("expires_at", 0) <= time.time() or not isinstance(credential, dict)):
             self.json_response(400, {"error": "Passkey request expired; try again", "code": "challenge_expired"})
             return
         credential_id = str(credential.get("id") or credential.get("rawId") or "")
-        stored = PASSKEYS["credentials"].get(credential_id)
+        store = self.passkey_store_for_request()
+        stored = store["credentials"].get(credential_id)
         if (not stored or stored.get("profile_id") != challenge["profile_id"] or
                 stored.get("mode") != challenge["mode"]):
             self.json_response(401, {"error": "Passkey does not belong to this profile", "code": "verification_failed"})
             return
         try:
             verified = verify_authentication_response(
-                credential=credential, expected_challenge=challenge["challenge"],
+                credential=credential, expected_challenge=unb64url(challenge["challenge"]),
                 expected_rp_id=WEBAUTHN_RP_ID, expected_origin=WEBAUTHN_ORIGIN,
                 credential_public_key=unb64url(stored["public_key"]),
                 credential_current_sign_count=int(stored.get("sign_count", 0)),
@@ -2135,16 +2468,22 @@ class Handler(SimpleHTTPRequestHandler):
         except (InvalidAuthenticationResponse, ValueError, TypeError):
             self.json_response(401, {"error": "Face ID / fingerprint verification failed", "code": "verification_failed"})
             return
+        stored = dict(stored)
+        stored["sign_count"] = verified.new_sign_count
+        stored["backed_up"] = verified.credential_backed_up
+        stored["last_used_at"] = int(time.time())
+        device_bundle = decode_passkey_device_bundle(self.passkey_device_cookie())
         try:
             with AUTH_LOCK:
-                stored["sign_count"] = verified.new_sign_count
-                stored["backed_up"] = verified.credential_backed_up
-                stored["last_used_at"] = int(time.time())
+                PASSKEYS["credentials"][credential_id] = stored
                 persist_passkeys()
         except OSError:
-            self.json_response(507, {"error": "Passkey state could not be saved", "code": "storage"})
-            return
-        self.finish_authentication(challenge["profile_id"], challenge["mode"], "passkey")
+            pass
+        device_bundle["credentials"][credential_id] = stored
+        self.finish_authentication(
+            challenge["profile_id"], challenge["mode"], "passkey",
+            extra_cookies=[self.set_passkey_cookie(encode_passkey_device_bundle(device_bundle))],
+        )
 
     def handle_passkey_remove(self, body: dict) -> None:
         del body
@@ -2153,17 +2492,22 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(401, {"error": "Sign in is required", "code": "reauth_required"})
             return
         profile_id, mode = session["profile_id"], session["mode"]
-        removed = [key for key, value in PASSKEYS["credentials"].items()
+        store = self.passkey_store_for_request()
+        removed = [key for key, value in store["credentials"].items()
                    if value.get("profile_id") == profile_id and value.get("mode") == mode]
+        device_bundle = decode_passkey_device_bundle(self.passkey_device_cookie())
         try:
             with AUTH_LOCK:
                 for key in removed:
                     PASSKEYS["credentials"].pop(key, None)
+                    device_bundle["credentials"].pop(key, None)
                 persist_passkeys()
         except OSError:
-            self.json_response(507, {"error": "Passkeys could not be removed", "code": "storage"})
-            return
-        self.json_response(200, {"removed": len(removed)})
+            for key in removed:
+                device_bundle["credentials"].pop(key, None)
+        self.json_response(200, {"removed": len(removed)}, {
+            "Set-Cookie": self.set_passkey_cookie(encode_passkey_device_bundle(device_bundle)),
+        })
 
     def handle_auth_logout(self) -> None:
         token = self.auth_cookie()
@@ -2461,7 +2805,11 @@ class Handler(SimpleHTTPRequestHandler):
         self.json_response(status, payload)
 
     def handle_chat(self, body: dict, api_key: str) -> None:
-        status, payload = run_chat(body, api_key)
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        status, payload = run_chat(body, api_key, session=session)
         self.json_response(status, payload)
 
 

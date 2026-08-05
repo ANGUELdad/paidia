@@ -20,11 +20,15 @@ import server as paidia  # noqa: E402
 app = Flask(__name__)
 
 
-def _json(status: int, payload: dict, cookie: str | None = None):
+def _json(status: int, payload: dict, cookie=None):
     response = make_response(jsonify(payload), status)
     response.headers["Cache-Control"] = "no-store"
     if cookie is not None:
-        response.headers["Set-Cookie"] = cookie
+        if isinstance(cookie, (list, tuple)):
+            for item in cookie:
+                response.headers.add("Set-Cookie", item)
+        else:
+            response.headers["Set-Cookie"] = cookie
     return response
 
 
@@ -34,12 +38,16 @@ def _body() -> dict:
 
 
 def _cookie_header(token: str, max_age: int = paidia.AUTH_SESSION_TTL) -> str:
+    return _cookie_header_named(paidia.AUTH_COOKIE, token, max_age=max_age)
+
+
+def _cookie_header_named(name: str, token: str, max_age: int) -> str:
     secure = (
         os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}
         or os.environ.get("VERCEL", "") == "1"
     )
     parts = [
-        f"{paidia.AUTH_COOKIE}={token}",
+        f"{name}={token}",
         "Path=/",
         f"Max-Age={max_age}",
         "HttpOnly",
@@ -111,6 +119,10 @@ def _auth_health():
         "runtime": "vercel-flask",
         "onboardingVersion": paidia.ONBOARDING_VERSION,
         "usersConfigured": bool(paidia.AUTH_USERS),
+        "passkeysAvailable": paidia.WEBAUTHN_AVAILABLE,
+        "passkeyCredentials": len(paidia.PASSKEYS.get("credentials", {})),
+        "passkeyOrigin": paidia.WEBAUTHN_ORIGIN,
+        "passkeyRpId": paidia.WEBAUTHN_RP_ID,
     })
 
 
@@ -134,7 +146,14 @@ def _auth_session():
         "contactComplete": bool(contact["email"] and contact["phone"]),
         "emailConfigured": paidia.email_delivery_status()["configured"],
         "emailProvider": paidia.email_delivery_status()["provider"],
-        "passkeys": len(paidia.profile_passkeys(session["profile_id"], session["mode"])),
+        "passkeys": len(paidia.profile_passkeys(
+            session["profile_id"],
+            session["mode"],
+            store=paidia.merge_passkey_stores(
+                paidia.PASSKEYS,
+                paidia.decode_passkey_device_bundle(request.cookies.get(paidia.PASSKEY_COOKIE, "")),
+            ),
+        )),
     })
 
 
@@ -222,23 +241,42 @@ class _FlaskHandlerBridge:
     def auth_cookie(self) -> str:
         return request.cookies.get(paidia.AUTH_COOKIE, "")
 
+    def passkey_device_cookie(self) -> str:
+        return request.cookies.get(paidia.PASSKEY_COOKIE, "")
+
+    def passkey_store_for_request(self) -> dict:
+        return paidia.merge_passkey_stores(
+            paidia.PASSKEYS,
+            paidia.decode_passkey_device_bundle(self.passkey_device_cookie()),
+        )
+
     def client_ip(self) -> str:
         return self.client_address[0]
 
     def current_auth_session(self):
         return _session_from_request()
 
+    def set_cookie_header(self, name: str, token: str, max_age: int) -> str:
+        return _cookie_header_named(name, token, max_age=max_age)
+
     def set_session_cookie(self, token: str, max_age: int = paidia.AUTH_SESSION_TTL) -> str:
         return _cookie_header(token, max_age=max_age)
+
+    def set_passkey_cookie(self, token: str, max_age: int = paidia.PASSKEY_COOKIE_TTL) -> str:
+        return _cookie_header_named(paidia.PASSKEY_COOKIE, token, max_age=max_age)
 
     def json_response(self, status: int, payload: dict, headers: dict | None = None) -> None:
         self._status = status
         self._payload = payload
         self._extra_headers = headers or {}
 
-    def finish_authentication(self, profile_id: str, mode: str, method: str = "pin") -> None:
+    def finish_authentication(self, profile_id: str, mode: str, method: str = "pin",
+                               extra_cookies: list | None = None) -> None:
         token, payload = paidia.encode_session_token(profile_id, mode, method)
         contact = paidia.profile_contact(profile_id)
+        cookies = [self.set_session_cookie(token)]
+        if extra_cookies:
+            cookies.extend(extra_cookies)
         self.json_response(200, {
             "authenticated": True,
             "profileId": profile_id,
@@ -252,7 +290,7 @@ class _FlaskHandlerBridge:
             "email": contact["email"],
             "phone": contact["phone"],
             "contactComplete": bool(contact["email"] and contact["phone"]),
-        }, {"Set-Cookie": self.set_session_cookie(token)})
+        }, {"Set-Cookie": cookies if len(cookies) > 1 else cookies[0]})
 
     def editable_profile(self, body: dict):
         return paidia.Handler.editable_profile(self, body)
@@ -344,6 +382,9 @@ def entry(flask_path: str = ""):
             "path": path,
             "flask_path": flask_path,
             "request_path": request.path,
+            "aiConfigured": bool(os.environ.get("GROQ_API_KEY", "").strip()),
+            "chatModel": paidia.CHAT_MODEL,
+            "ocrModel": paidia.OCR_MODEL,
         })
     if request.method == "GET" and api in {"/auth/health", "/api/auth/health"}:
         return _auth_health()
@@ -449,12 +490,7 @@ def entry(flask_path: str = ""):
                 "setup": "Set GROQ_API_KEY in Vercel env",
             })
         body = _body()
-        # Children may ask questions but must not receive mutate proposals.
-        context = body.get("context") if isinstance(body.get("context"), dict) else {}
-        if session.get("mode") == "child":
-            context = {**context, "canMutate": False}
-            body = {**body, "context": context}
-        status, payload = paidia.run_chat(body, api_key)
+        status, payload = paidia.run_chat(body, api_key, session=session)
         return _json(status, payload)
 
     if request.method in {"GET", "HEAD"}:

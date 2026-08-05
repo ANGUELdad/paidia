@@ -105,7 +105,12 @@ const T = {
     useBiometrics:'Mit Geräte-Sperre anmelden', passkey:'Passkey', passkeySetup:'Face ID / Touch ID einrichten',
     passkeyHint:'Dein Gerät entscheidet: Face ID, Touch ID, Fingerabdruck oder Windows Hello. Biometriedaten verlassen das Gerät nie.',
     passkeyAdded:'Passkey wurde sicher hinzugefügt.', passkeyRemoved:'Passkeys wurden entfernt.', removePasskeys:'Passkeys entfernen',
-    passkeyNone:'Auf diesem Profil ist noch kein Passkey eingerichtet.', passkeyCount:n=>`${n} Passkey${n===1?'':'s'} eingerichtet`,
+    passkeyNone:'Auf diesem Profil ist noch kein Passkey eingerichtet. Melde dich mit PIN an und tippe unter Profil auf „Face ID / Touch ID einrichten“.',
+    passkeySetupNeeded:'Zuerst mit PIN anmelden, dann unter Profil den Passkey einrichten.',
+    passkeyConfig:'Passkey-Server ist nicht konfiguriert (Origin/RP ID). Prüfe PAIDIA_WEBAUTHN_ORIGIN auf Vercel.',
+    emailNotFound:'E-Mail-Profil wurde nicht gefunden. Speichere zuerst Kontaktdaten oder prüfe, ob du angemeldet bist.',
+    profileCustomize:'Profil anpassen', profileNickname:'Anzeigename', profileColor:'Farbe', profileEmoji:'Emoji',
+    profileSaved:'Profil gespeichert', passkeyCount:n=>`${n} Passkey${n===1?'':'s'} eingerichtet`,
     passkeyUnavailable:'Passkeys brauchen ein unterstütztes Gerät und HTTPS.', passkeyCancelled:'Anmeldung wurde abgebrochen.',
     securityAccess:'Anmeldung & Sicherheit', signOut:'Abmelden', pinFallback:'Oder PIN verwenden', thisDevice:'Dieses Gerät',
     profileDetails:'Profildaten', manageProfiles:'Profile verwalten', recoveryEmail:'E-Mail für PIN-Wiederherstellung',
@@ -175,6 +180,11 @@ const T = {
     stockBoard:'Kühlschrank & Lager', dropHere:'Antippen oder in ein Feld ziehen',
     itemsPicked:'ausgewählt', pickSomething:'Tippe Produkte an oder zieh sie in das Feld oben',
     bookN:n=>`${n} ${n===1?'Position':'Positionen'} buchen`,
+    stockDraftSave:'Änderungen speichern',
+    stockDraftClear:'Verwerfen',
+    stockDraftNeedReason:'Für Ausgang einen Grund wählen.',
+    stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
+    stockDraftPending:'Ausstehend',
     reason:'Grund', newReason:'Neuer Grund', reasonNamePh:'z. B. Spende, Reparatur oder Teamküche',
     saveReason:'Grund hinzufügen', reasonRequired:'Schreibe zuerst einen Namen für den Grund.',
     reasonExists:'Dieser Grund existiert bereits und wurde ausgewählt.', reasonAdded:n=>`„${n}“ wurde gespeichert und ausgewählt.`, reasonRemoved:'Eigener Grund entfernt.',
@@ -241,10 +251,26 @@ const T = {
     whoDidWhat:'Wer hat was gemacht', today:'Heute', last7:'Letzte 7 Tage',
     actions:n=>n===1?'Buchung':'Buchungen', noActionsToday:'Heute noch nichts gebucht',
     visibleToAll:'Für alle sichtbar',
-    close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche',
+    close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele',
+    gamesTitle:'Spiele', gamesHint:'Kleine Spiele für zwischendurch',
+    gameMemory:'Memory', gameMemoryHint:'Finde die Paare',
+    gameTac:'XO', gameTacHint:'3 in einer Reihe',
+    gameCatch:'Fische fangen', gameCatchHint:'Tippe die Fische',
+    gameBack:'Alle Spiele', gamePlay:'Spielen', gameAgain:'Nochmal',
+    gameMoves:'Züge', gamePairs:'Paare', gameScore:'Punkte', gameTime:'Zeit',
+    gameWin:'Geschafft!', gameLose:'Schade — nochmal?', gameDraw:'Unentschieden',
+    gameYourTurn:'Du bist dran', gameCpuTurn:'Computer denkt…', gameYou:'Du', gameCpu:'PC',
     eventOfWeek:'Event der Woche', eventToday:'Heute', eventTomorrow:'Morgen', upcomingEvents:'Demnächst',
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
     helpChat:'Hilfe', helpWelcome:'Hallo! Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauchen deine Bestätigung. Du kannst auch das Mikrofon nutzen.',
+    helpWelcomeChild:'Hallo! Ich helfe dir bei deinem Tag, Events und Spielen. Frag z. B. „Was habe ich heute?“ oder „Wie spiele ich Memory?“',
+    helpWelcomeStaff:'Hallo! Ich helfe bei Plan, Events, Kühlschrank und Einkaufsliste. Sag z. B. „2 Milch nach Kalyvia“ — Änderungen brauchst du danach zu bestätigen.',
+    helpWelcomeAdmin:'Hallo! Du hast Admin-Rechte. Ich helfe bei Betrieb, Admin-Zentrale, Dauerplan und Lager. Sag z. B. „2 Milch nach Kalyvia“ oder frag, wie du den Dauerplan änderst.',
+    helpRoleChild:'Kind', helpRoleStaff:'Betreuung', helpRoleAdmin:'Admin',
+    helpQuickChild:'Schnell fragen', helpQuickAdmin:'Schnell: Lager / Admin',
+    helpChildHint:'Du siehst nur deine Termine und Spiele. Essensänderungen macht die Betreuung.',
+    helpAdminHint:'Als Admin kannst du Dauerplan, Dienste und die Admin-Zentrale steuern. Lager-Änderungen brauchen trotzdem Bestätigung.',
+    helpMutateHint:'Als angemeldetes Personal kannst du z.B. sagen: „Milch +2 Kalyvia“ oder „Reis auf die Liste“. Dann bestätigen.',
     helpVoice:'Spracheingabe', helpVoiceListening:'Höre zu… tippe erneut zum Stoppen',
     helpVoiceUnsupported:'Spracheingabe wird auf diesem Gerät nicht unterstützt.',
     helpVoiceError:'Spracheingabe fehlgeschlagen. Tippe die Frage stattdessen.',
@@ -255,7 +281,6 @@ const T = {
     helpQuickFood:'Schnell: Lager / Liste',
     helpConfirmInline:'Jetzt speichern',
     helpDiscardInline:'Verwerfen',
-    helpMutateHint:'Als angemeldetes Personal kannst du z.B. sagen: „Milch +2 Kalyvia“ oder „Reis auf die Liste“. Dann bestätigen.',
     helpProposeTitle:'Vorgeschlagene Änderungen', helpProposeHint:'Noch nicht gespeichert. Prüfe und bestätige.',
     helpProposeConfirm:'Änderungen speichern', helpProposeCancel:'Verwerfen',
     helpProposeDone:n=>`${n} ${n===1?'Änderung':'Änderungen'} gespeichert`,
@@ -266,6 +291,8 @@ const T = {
     helpActionShopRemove:(name,house)=>`🛒 entfernen: ${name} @ ${house}`,
     helpPlaceholder:'Frage zur aktuellen Ansicht…', helpSend:'Senden',
     helpThinking:'Ich prüfe das…', helpUnavailable:'Die Hilfe ist gerade nicht erreichbar.',
+    helpAuthExpired:'Sitzung abgelaufen. Bitte erneut anmelden und nochmal fragen.',
+    helpConfigBanner:'Hilfe-AI ist nicht eingerichtet. In Vercel → Environment Variables GROQ_API_KEY setzen und neu deployen.',
     viewEvents:'Events', eventsPanel:'Events & Ankündigungen', newEvent:'Neues Event', editEvent:'Event bearbeiten',
     eventTitle:'Titel', eventDescription:'Beschreibung', eventLocation:'Ort', eventBring:'Mitbringen',
     eventEmoji:'Symbol', announceEvent:'Als Event ankündigen', announceHint:'Wird sofort im Events-Tab der ausgewählten Kinder veröffentlicht.',
@@ -297,7 +324,7 @@ const T = {
     errNetwork:'Keine Verbindung zum AI-Dienst. Prüfe Internet und Server und versuche es erneut.',
     errTimeout:'Die AI-Antwort hat zu lange gedauert. Bitte versuche es erneut.',
     errRate:'Die AI ist gerade ausgelastet. Warte kurz und versuche es erneut.',
-    errConfig:'AI ist nicht eingerichtet. Prüfe GROQ_API_KEY in .env und starte server.py neu.',
+    errConfig:'AI ist nicht eingerichtet. Lokal: GROQ_API_KEY in .env. Live: denselben Key in Vercel → Environment Variables setzen und neu deployen.',
     errImage:'Das Bild konnte nicht gelesen werden. Verwende JPG, PNG oder WebP mit gut sichtbarem Text.',
     errServer:'Die AI konnte die Anfrage nicht verarbeiten. Bitte versuche es erneut.',
     errFile:'Diese Datei konnte nicht geöffnet werden. Wähle ein anderes Bild.',
@@ -415,7 +442,12 @@ const T = {
     useBiometrics:'Σύνδεση με κλείδωμα συσκευής', passkey:'Passkey', passkeySetup:'Ρύθμιση Face ID / Touch ID',
     passkeyHint:'Η συσκευή αποφασίζει: Face ID, Touch ID, δακτυλικό αποτύπωμα ή Windows Hello. Τα βιομετρικά δεν φεύγουν ποτέ από τη συσκευή.',
     passkeyAdded:'Το passkey προστέθηκε με ασφάλεια.', passkeyRemoved:'Τα passkeys αφαιρέθηκαν.', removePasskeys:'Αφαίρεση passkeys',
-    passkeyNone:'Δεν έχει ρυθμιστεί ακόμη passkey για αυτό το προφίλ.', passkeyCount:n=>`${n} ${n===1?'passkey':'passkeys'} ενεργά`,
+    passkeyNone:'Δεν έχει ρυθμιστεί ακόμη passkey για αυτό το προφίλ. Μπες με PIN και στο Προφίλ πάτα «Ρύθμιση Face ID / Touch ID».',
+    passkeySetupNeeded:'Πρώτα σύνδεση με PIN, μετά ρύθμιση passkey από το Προφίλ.',
+    passkeyConfig:'Το Passkey server δεν είναι ρυθμισμένο (Origin/RP ID). Έλεγξε PAIDIA_WEBAUTHN_ORIGIN στο Vercel.',
+    emailNotFound:'Το email προφίλ δεν βρέθηκε. Αποθήκευσε πρώτα στοιχεία επικοινωνίας ή έλεγξε αν είσαι συνδεδεμένος.',
+    profileCustomize:'Προσαρμογή προφίλ', profileNickname:'Εμφανιζόμενο όνομα', profileColor:'Χρώμα', profileEmoji:'Emoji',
+    profileSaved:'Το προφίλ αποθηκεύτηκε', passkeyCount:n=>`${n} ${n===1?'passkey':'passkeys'} ενεργά`,
     passkeyUnavailable:'Τα passkeys χρειάζονται συμβατή συσκευή και HTTPS.', passkeyCancelled:'Η σύνδεση ακυρώθηκε.',
     securityAccess:'Σύνδεση & ασφάλεια', signOut:'Αποσύνδεση', pinFallback:'Ή χρησιμοποίησε PIN', thisDevice:'Αυτή η συσκευή',
     profileDetails:'Στοιχεία προφίλ', manageProfiles:'Διαχείριση προφίλ', recoveryEmail:'Email ανάκτησης PIN',
@@ -485,6 +517,11 @@ const T = {
     stockBoard:'Ψυγείο & αποθήκη', dropHere:'Πάτα ή σύρε σε μία ζώνη',
     itemsPicked:'επιλεγμένα', pickSomething:'Πάτα προϊόντα ή σύρ’ τα στο πλαίσιο πάνω',
     bookN:n=>`Καταχώρηση ${n} ${n===1?'είδους':'ειδών'}`,
+    stockDraftSave:'Αποθήκευση αλλαγών',
+    stockDraftClear:'Ακύρωση',
+    stockDraftNeedReason:'Για έξοδο διάλεξε λόγο.',
+    stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
+    stockDraftPending:'Εκκρεμεί',
     reason:'Λόγος', newReason:'Νέος λόγος', reasonNamePh:'π.χ. δωρεά, επισκευή ή κουζίνα ομάδας',
     saveReason:'Προσθήκη λόγου', reasonRequired:'Γράψε πρώτα ένα όνομα για τον λόγο.',
     reasonExists:'Αυτός ο λόγος υπάρχει ήδη και επιλέχθηκε.', reasonAdded:n=>`Το «${n}» αποθηκεύτηκε και επιλέχθηκε.`, reasonRemoved:'Ο προσαρμοσμένος λόγος αφαιρέθηκε.',
@@ -551,10 +588,25 @@ const T = {
     whoDidWhat:'Ποιος έκανε τι', today:'Σήμερα', last7:'Τελευταίες 7 ημέρες',
     actions:n=>n===1?'κίνηση':'κινήσεις', noActionsToday:'Καμία κίνηση σήμερα',
     visibleToAll:'Ορατό σε όλους',
-    close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα',
+    close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια',
+    gamesTitle:'Παιχνίδια', gamesHint:'Μικρά παιχνίδια για διάλειμμα',
+    gameMemory:'Μνήμη', gameMemoryHint:'Βρες τα ζευγάρια',
+    gameTac:'XO', gameTacHint:'3 στη σειρά',
+    gameCatch:'Ψάρεμα', gameCatchHint:'Πάτα τα ψάρια',
+    gameBack:'Όλα τα παιχνίδια', gamePlay:'Παίξε', gameAgain:'Ξανά',
+    gameMoves:'Κινήσεις', gamePairs:'Ζευγάρια', gameScore:'Πόντοι', gameTime:'Χρόνος',
+    gameWin:'Μπράβο!', gameLose:'Κρίμα — ξανά;', gameDraw:'Ισοπαλία',
+    gameYourTurn:'Η σειρά σου', gameCpuTurn:'Σκέφτεται ο υπολογιστής…', gameYou:'Εσύ', gameCpu:'PC',
     eventOfWeek:'Event της εβδομάδας', eventToday:'Σήμερα', eventTomorrow:'Αύριο', upcomingEvents:'Επόμενα events',
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
     helpChat:'Βοήθεια', helpWelcome:'Γεια! Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση. Μπορείς και μικρόφωνο.',
+    helpWelcomeChild:'Γεια! Σε βοηθάω με τη μέρα σου, τα events και τα παιχνίδια. Ρώτα π.χ. «Τι έχω σήμερα;» ή «Πώς παίζω Μνήμη;»',
+    helpWelcomeStaff:'Γεια! Σε βοηθάω με πρόγραμμα, events, ψυγείο και λίστα. Πες π.χ. «2 γάλα στο Kalyvia» — οι αλλαγές χρειάζονται επιβεβαίωση.',
+    helpWelcomeAdmin:'Γεια! Έχεις δικαιώματα admin. Σε βοηθάω με λειτουργία, Κέντρο διαχείρισης, μόνιμο πρόγραμμα και απόθεμα. Πες π.χ. «2 γάλα Kalyvia» ή ρώτα πώς αλλάζει το μόνιμο πρόγραμμα.',
+    helpRoleChild:'Παιδί', helpRoleStaff:'Φροντιστής', helpRoleAdmin:'Admin',
+    helpQuickChild:'Γρήγορες ερωτήσεις', helpQuickAdmin:'Γρήγορα: ψυγείο / admin',
+    helpChildHint:'Βλέπεις μόνο τα δικά σου και τα παιχνίδια. Αλλαγές φαγητού τις κάνει ο φροντιστής.',
+    helpAdminHint:'Ως admin μπορείς να αλλάξεις μόνιμο πρόγραμμα, βάρδιες και το Κέντρο διαχείρισης. Οι αλλαγές ψυγείου χρειάζονται επιβεβαίωση.',
     helpVoice:'Φωνητική εισαγωγή', helpVoiceListening:'Ακούω… πάτα ξανά για stop',
     helpVoiceUnsupported:'Η φωνητική εισαγωγή δεν υποστηρίζεται σε αυτή τη συσκευή.',
     helpVoiceError:'Η φωνητική εισαγωγή απέτυχε. Γράψε την ερώτηση.',
@@ -576,6 +628,8 @@ const T = {
     helpActionShopRemove:(name,house)=>`🛒 αφαίρεση: ${name} @ ${house}`,
     helpPlaceholder:'Ρώτησε για την τρέχουσα οθόνη…', helpSend:'Αποστολή',
     helpThinking:'Το ελέγχω…', helpUnavailable:'Η βοήθεια δεν είναι διαθέσιμη αυτή τη στιγμή.',
+    helpAuthExpired:'Η συνεδρία έληξε. Ξανασυνδέσου και ρώτα ξανά.',
+    helpConfigBanner:'Το AI βοήθειας δεν είναι ρυθμισμένο. Στο Vercel → Environment Variables βάλε GROQ_API_KEY και κάνε νέο deploy.',
     viewEvents:'Events', eventsPanel:'Events & ανακοινώσεις', newEvent:'Νέο event', editEvent:'Επεξεργασία event',
     eventTitle:'Τίτλος', eventDescription:'Περιγραφή', eventLocation:'Τοποθεσία', eventBring:'Τι να φέρουν',
     eventEmoji:'Σύμβολο', announceEvent:'Ανακοίνωση ως event', announceHint:'Δημοσιεύεται αμέσως στο Events tab των επιλεγμένων παιδιών.',
@@ -607,7 +661,7 @@ const T = {
     errNetwork:'Δεν υπάρχει σύνδεση με το AI. Έλεγξε internet και server και δοκίμασε ξανά.',
     errTimeout:'Το AI άργησε να απαντήσει. Δοκίμασε ξανά.',
     errRate:'Το AI έχει προσωρινά μεγάλο φόρτο. Περίμενε λίγο και δοκίμασε ξανά.',
-    errConfig:'Το AI δεν έχει ρυθμιστεί. Έλεγξε το GROQ_API_KEY στο .env και επανεκκίνησε το server.py.',
+    errConfig:'Το AI δεν έχει ρυθμιστεί. Τοπικά: GROQ_API_KEY στο .env. Live: βάλε το ίδιο κλειδί στο Vercel → Environment Variables και κάνε νέο deploy.',
     errImage:'Η εικόνα δεν διαβάστηκε. Χρησιμοποίησε JPG, PNG ή WebP με καθαρό κείμενο.',
     errServer:'Το AI δεν μπόρεσε να επεξεργαστεί το αίτημα. Δοκίμασε ξανά.',
     errFile:'Το αρχείο δεν άνοιξε. Διάλεξε άλλη εικόνα.',
@@ -828,6 +882,7 @@ const SEED = {
   ],
   customProducts: [],
   customCategories: [],
+  profilePrefs: {},
 
   /* Το εβδομαδιαίο πρότυπο, μεταγραμμένο από τη φωτογραφία (20.7.–26.7.2026).
      day: 0=Δευ … 6=Κυρ · employeeId null = «wer?» */
@@ -942,7 +997,7 @@ const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories',
-                 'customActivities', 'customReasons'];
+                 'customActivities', 'customReasons', 'profilePrefs'];
 
 let DB = load();
 function load(){
@@ -958,6 +1013,7 @@ function load(){
   ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','log']
     .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
+  if(!db.profilePrefs || typeof db.profilePrefs !== 'object') db.profilePrefs = {};
   if(!db.weeks || typeof db.weeks !== 'object') db.weeks = {};
   // Σπίτια χωρίς planning flag από παλιότερα saves δεν μπαίνουν στο πρόγραμμα.
   db.houses = SEED.houses.map(h => ({...h}));
@@ -965,7 +1021,8 @@ function load(){
 }
 
 /** Shared across all staff devices — lists, stock, custom catalogue. */
-const SHARED_KEYS = ['listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons'];
+const SHARED_KEYS = ['listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons','profilePrefs'];
+const SHARED_DICT_KEYS = new Set(['stock','profilePrefs']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
 let sharedPushTimer = null;
 let sharedPollTimer = null;
@@ -989,7 +1046,7 @@ function applySharedPayload(data){
   let changed = false;
   SHARED_KEYS.forEach(k=>{
     if(data[k] === undefined) return;
-    DB[k] = k === 'stock'
+    DB[k] = SHARED_DICT_KEYS.has(k)
       ? (data[k] && typeof data[k] === 'object' ? data[k] : {})
       : (Array.isArray(data[k]) ? data[k] : []);
     changed = true;
@@ -1104,7 +1161,7 @@ function startSharedSync(){
     if(!['shop','stock','home','book'].includes(state.tab)) return;
     const changed = await pullShared();
     if(changed && !sheetEl.classList.contains('on')) render();
-  }, 3000);
+  }, 1500);
 }
 
 function stopSharedSync(){
@@ -1124,6 +1181,19 @@ window.addEventListener('visibilitychange', ()=>{
 const uid = () => Math.random().toString(36).slice(2,10);
 const emp = id => DB.employees.find(e=>e.id===id);
 const kid = id => DB.children.find(c=>c.id===id);
+const profilePref = id => (DB.profilePrefs && DB.profilePrefs[id]) || {};
+const profileName = person => {
+  if(!person) return '';
+  const nick = profilePref(person.id).nickname;
+  return (nick && String(nick).trim()) || person.name;
+};
+const profileColor = person => profilePref(person?.id).color || person?.color || '#94a3b8';
+const profileEmoji = person => profilePref(person?.id).emoji || '';
+const profileLabel = person => {
+  const emoji = profileEmoji(person);
+  const name = profileName(person);
+  return emoji ? `${emoji} ${name}` : name;
+};
 /** Προκαθορισμένες + όσες πρόσθεσε το προσωπικό μέσα από την εφαρμογή. */
 const ACTS = () => [...DB.activities, ...DB.customActivities];
 const act = id => ACTS().find(a=>a.id===id);
@@ -1137,7 +1207,7 @@ const L = o => o ? (o[state.lang] ?? o.de ?? o.el ?? '') : '';
 const childResidence = child => child?.residenceType==='external' ? t('externalHome') : child?.homeHouseId ? house(child.homeHouseId)?.short||'' : '';
 const childChoiceLabel = child => `${child?.name||''}${childResidence(child)?` · 🏡 ${childResidence(child)}`:''}`;
 const actLabel = id => { const a = act(id); return a ? L(a) : '—'; };
-const empName = id => { const e = emp(id); return e ? e.name : t('unassigned'); };
+const empName = id => { const e = emp(id); return e ? profileName(e) : t('unassigned'); };
 const entryEmployeeIds = e => [...new Set((e?.employeeIds?.length ? e.employeeIds : e?.employeeId ? [e.employeeId] : []).filter(Boolean))];
 const entryHouseIds = e => [...new Set((e?.houseIds?.length ? e.houseIds : e?.houseId ? [e.houseId] : []).filter(Boolean))];
 const employeeNames = e => entryEmployeeIds(e).map(id=>emp(id)?.name).filter(Boolean).join(', ') || t('unassigned');
@@ -1174,32 +1244,97 @@ function setStatus(el, message='', type='info'){
   el.setAttribute('aria-live', 'polite');
 }
 
-/* ── Haptics + solfège SFX (Desktop AudioFiles → /sfx) ── */
-const SFX = {
-  tap:'sfx/Re.wav', select:'sfx/Mi.wav', open:'sfx/Do.wav',
-  success:'sfx/Sol.wav', save:'sfx/DoHigh.wav', toggle:'sfx/La.wav',
-  error:'sfx/Si.wav', warn:'sfx/Fa.wav',
+/* ── Subtle UI clicks (filtered noise ticks — not musical beeps) ── */
+let _audioCtx = null;
+let _lastSfxAt = 0;
+const SFX_MASTER = 0.22; // keep everything quiet
+/** Interaction sounds are soft ticks; save/error get a tiny tonal cue. */
+const SFX_KIND = {
+  tap:     { mode:'tick', freq:2100, dur:0.018, gain:0.045 },
+  select:  { mode:'tick', freq:2400, dur:0.02,  gain:0.05 },
+  open:    { mode:'tick', freq:1600, dur:0.024, gain:0.055 },
+  toggle:  { mode:'tick', freq:1900, dur:0.02,  gain:0.045 },
+  success: { mode:'chime', freqs:[660, 880], dur:0.07, gap:0.04, gain:0.04 },
+  save:    { mode:'chime', freqs:[620, 820], dur:0.08, gap:0.045, gain:0.045 },
+  warn:    { mode:'tick', freq:900,  dur:0.04,  gain:0.06 },
+  error:   { mode:'thud', freq:140,  dur:0.09,  gain:0.07 },
 };
-const _sfxCache = Object.create(null);
-let _sfxUnlocked = false;
 function unlockAudio(){
-  if(_sfxUnlocked) return;
-  _sfxUnlocked = true;
   try{
-    const ctx = window.AudioContext || window.webkitAudioContext;
-    if(ctx){ const a=new ctx(); if(a.state==='suspended') a.resume(); a.close?.(); }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    if(!_audioCtx) _audioCtx = new AC();
+    if(_audioCtx.state === 'suspended') _audioCtx.resume();
   }catch{}
 }
 ['pointerdown','keydown','touchstart'].forEach(ev=>
   window.addEventListener(ev, unlockAudio, {once:true, capture:true}));
+
+function playNoiseTick(ctx, {freq=2000, dur=0.02, gain=0.05, t0}){
+  const n = Math.max(32, Math.floor(ctx.sampleRate * dur));
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for(let i=0;i<n;i++){
+    const env = Math.exp(-i / (n * 0.18));
+    data[i] = (Math.random() * 2 - 1) * env;
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const bp = ctx.createBiquadFilter();
+  bp.type = 'bandpass';
+  bp.frequency.value = freq;
+  bp.Q.value = 0.9;
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 3200;
+  const g = ctx.createGain();
+  const peak = Math.max(0.004, gain * SFX_MASTER);
+  g.gain.setValueAtTime(peak, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(bp); bp.connect(lp); lp.connect(g); g.connect(ctx.destination);
+  src.start(t0); src.stop(t0 + dur + 0.01);
+}
+
+function playSoftTone(ctx, {freq, dur, gain, type='sine', t0}){
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  const lp = ctx.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 1800;
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t0);
+  const peak = Math.max(0.004, gain * SFX_MASTER);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(peak, t0 + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(lp); lp.connect(g); g.connect(ctx.destination);
+  osc.start(t0); osc.stop(t0 + dur + 0.02);
+}
+
 function playSfx(name){
-  const src = SFX[name] || SFX.tap;
+  const spec = SFX_KIND[name] || SFX_KIND.tap;
+  const nowMs = performance.now();
+  if(nowMs - _lastSfxAt < 40) return;
+  _lastSfxAt = nowMs;
   try{
-    let audio = _sfxCache[src];
-    if(!audio){ audio = new Audio(src); audio.preload='auto'; _sfxCache[src]=audio; }
-    const node = audio.cloneNode();
-    node.volume = name==='error'||name==='warn' ? 0.55 : 0.42;
-    node.play().catch(()=>{});
+    unlockAudio();
+    const ctx = _audioCtx;
+    if(!ctx) return;
+    const t0 = ctx.currentTime + 0.001;
+    if(spec.mode === 'tick'){
+      playNoiseTick(ctx, {freq:spec.freq, dur:spec.dur, gain:spec.gain, t0});
+      return;
+    }
+    if(spec.mode === 'thud'){
+      playSoftTone(ctx, {freq:spec.freq, dur:spec.dur, gain:spec.gain, type:'sine', t0});
+      return;
+    }
+    (spec.freqs||[]).forEach((freq, i)=>{
+      playSoftTone(ctx, {
+        freq, dur:spec.dur, gain:spec.gain * (1 - i * 0.15), type:'sine',
+        t0: t0 + i * (spec.gap || 0.04),
+      });
+    });
   }catch{}
 }
 function haptic(kind='light'){
@@ -1246,9 +1381,10 @@ function groupChipHtml(g, on){
 function friendlyAiError(error){
   const status=Number(error?.status||0), code=String(error?.code||'').toLowerCase();
   const detail=String(error?.detail||error?.message||'').toLowerCase();
-  if(status===503 || detail.includes('not configured') || detail.includes('groq_api_key')) return t('errConfig');
-  if(status===429 || detail.includes('rate limit')) return t('errRate');
-  if(status===408 || code==='aborterror' || detail.includes('timed out') || detail.includes('timeout')) return t('errTimeout');
+  if(status===401 || code==='auth_required') return t('helpAuthExpired');
+  if(status===503 || code==='configuration' || detail.includes('not configured') || detail.includes('configuration') || detail.includes('groq_api_key')) return t('errConfig');
+  if(status===429 || code==='rate_limit' || detail.includes('rate limit')) return t('errRate');
+  if(status===408 || status===504 || code==='aborterror' || code==='timeout' || detail.includes('timed out') || detail.includes('timeout')) return t('errTimeout');
   if(status===413 || detail.includes('too large') || detail.includes('image')) return t('errImage');
   if(!navigator.onLine || status===0 || detail.includes('failed to fetch') || detail.includes('network')) return t('errNetwork');
   return t('errServer');
@@ -1338,6 +1474,8 @@ const state = {
   tab: 'home',
   scheduleView: 'day',
   childView: 'today',
+  gameId: null,
+  game: null,
   mode: 'staff',
   user: null,
   child: null,
@@ -1346,14 +1484,18 @@ const state = {
   stockFilter: 'attention',
   stockQuery: '',
   stockOpenCategories: null,
+  stockDraft: {},
+  stockDraftReason: null,
   shopQuery: '',
   storeShowDone: false,
   houseFilter: '',
   date: iso(new Date()),
   bookRange: 'today',
   bookFilter: {employeeId:'', type:''},
-  helpMessages: [],          // session-only; never persisted with operational data
+  helpMessages: [],          // active user's transcript (session-only)
+  helpByUser: {},            // per-profile chat history while the tab stays open
   pendingHelpActions: [],
+  helpChatUserKey: null,
   onboardingComplete: false,
   onboardingVersion: 2,
   profileEmail: '',
@@ -1361,6 +1503,38 @@ const state = {
   contactComplete: false,
 };
 const isAdminUser = () => !!(state.mode==='staff' && state.user?.admin);
+const helpChatRole = () => state.mode==='child' ? 'child' : (isAdminUser() ? 'admin' : (state.user ? 'staff' : 'anonymous'));
+const helpChatStorageKey = () => {
+  const id = currentProfileId();
+  return id ? `${state.mode}:${id}` : null;
+};
+function persistHelpTranscript(){
+  const key = state.helpChatUserKey;
+  if(!key) return;
+  state.helpByUser[key] = state.helpMessages.slice(-12);
+}
+function loadHelpTranscriptForCurrentUser(){
+  const key = helpChatStorageKey();
+  if(state.helpChatUserKey && state.helpChatUserKey !== key) persistHelpTranscript();
+  state.helpChatUserKey = key;
+  state.helpMessages = key ? (state.helpByUser[key] || []).slice() : [];
+  state.pendingHelpActions = [];
+}
+function helpWelcomeMessage(){
+  const role = helpChatRole();
+  const who = state.user || state.child;
+  const greet = who?.name
+    ? (state.lang==='el' ? `Γεια ${who.name}!` : `Hallo ${who.name}!`)
+    : (state.lang==='el' ? 'Γεια!' : 'Hallo!');
+  if(role==='child') return `${greet} ${t('helpWelcomeChild').replace(/^Hallo!|^Γεια!/, '').trim()}\n\n${t('helpChildHint')}`;
+  if(role==='admin') return `${greet} ${t('helpWelcomeAdmin').replace(/^Hallo!|^Γεια!/, '').trim()}\n\n${t('helpAdminHint')}`;
+  if(role==='staff') return `${greet} ${t('helpWelcomeStaff').replace(/^Hallo!|^Γεια!/, '').trim()}\n\n${t('helpMutateHint')}`;
+  return t('helpWelcome');
+}
+function helpRoleLabel(){
+  const role = helpChatRole();
+  return role==='child' ? t('helpRoleChild') : role==='admin' ? t('helpRoleAdmin') : t('helpRoleStaff');
+}
 const currentProfileId = () => state.mode==='child' ? state.child?.id : state.user?.id;
 
 function onboardingStorageKey(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
@@ -1451,6 +1625,7 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   if(!serverDone && localDone){
     syncOnboardingComplete(state.onboardingVersion).catch(()=>{ /* keep local completion; retry next login */ });
   }
+  loadHelpTranscriptForCurrentUser();
   return true;
 }
 
@@ -1519,13 +1694,7 @@ async function loginWithPasskey(mode,who){
   if(!passkeyCapable()){const error=new Error(t('passkeyUnavailable'));error.code='unsupported';throw error;}
   const options=await passkeyApi('/api/auth/passkey/login/options',{mode,profileId:who.id});
   const publicKey=decodePublicKeyOptions(options.publicKey);
-  const getOptions={publicKey};
-  // Conditional UI / autofill mediation when the browser supports it (Chrome/Android/Safari).
-  if(window.PublicKeyCredential?.isConditionalMediationAvailable){
-    const conditional=await PublicKeyCredential.isConditionalMediationAvailable().catch(()=>false);
-    if(conditional) getOptions.mediation='optional';
-  }
-  const credential=await navigator.credentials.get(getOptions);
+  const credential=await navigator.credentials.get({publicKey});
   const data=await passkeyApi('/api/auth/passkey/login/verify',{ceremonyId:options.ceremonyId,credential:publicKeyCredentialJSON(credential)});
   if(!applyAuthenticatedProfile(data,{logLogin:true}))throw new Error('Unknown profile');
   return data;
@@ -1561,7 +1730,9 @@ async function restoreServerSession(){
 async function logoutServerSession(){
   try{await fetch('/api/auth/logout',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:'{}'});}catch(error){}
   stopSharedSync();
+  persistHelpTranscript();
   state.user=null;state.child=null;state.mode='staff';session.sessionId=null;
+  state.helpMessages=[]; state.helpChatUserKey=null; state.pendingHelpActions=[];
   document.body.classList.add('auth-pending');
   document.getElementById('app').hidden=true;
   openGate();
@@ -1628,6 +1799,7 @@ function onboardingSteps(){
     step('🏠','Heute öffnen','Άνοιγμα σημερινής ημέρας','Oben → ☀️ Heute','Επάνω → ☀️ Σήμερα',['Tippe auf „Heute“.','Tippe oben auf den gewünschten Wochentag.','Lies bei jeder Karte Aktivität, Uhrzeit, Haus, Betreuer und die anderen Kinder.'],['Πάτησε «Σήμερα».','Πάτησε επάνω την ημέρα της εβδομάδας που θέλεις.','Διάβασε σε κάθε κάρτα δραστηριότητα, ώρα, σπίτι, φροντιστή και τα άλλα παιδιά.'],'Du siehst nur Termine, denen dein eigenes Profil zugeteilt ist.','Βλέπεις μόνο όσα έχουν ανατεθεί στο δικό σου προφίλ.'),
     step('📅','Die ganze Woche ansehen','Προβολή όλης της εβδομάδας','Oben → 📅 Woche','Επάνω → 📅 Εβδομάδα',['Tippe auf „Woche“.','Scrolle nach unten durch Montag bis Sonntag.','Tippe danach wieder auf „Heute“, um zur Tagesansicht zurückzugehen.'],['Πάτησε «Εβδομάδα».','Κάνε κύλιση από Δευτέρα έως Κυριακή.','Πάτησε ξανά «Σήμερα» για επιστροφή στην ημερήσια προβολή.'],'Tage ohne Eintrag bleiben leer; es werden keine Daten anderer Kinder gezeigt.','Οι ημέρες χωρίς εγγραφή μένουν κενές και δεν εμφανίζονται στοιχεία άλλων παιδιών.'),
     step('🎉','Ein Event vollständig lesen','Πλήρης ανάγνωση event','Oben → 🎉 Events','Επάνω → 🎉 Events',['Tippe auf „Events“; die Zahl am Tab zeigt neue/kommende Events.','Öffne die große Event-Karte.','Prüfe Datum, Uhrzeit, Ort, Begleitung und „Mitbringen“.'],['Πάτησε «Events»· ο αριθμός δείχνει νέα/επόμενα events.','Άνοιξε τη μεγάλη κάρτα του event.','Έλεγξε ημερομηνία, ώρα, μέρος, συνοδό και «Τι να φέρεις».'],'Wenn etwas unklar ist, frage einen Betreuer; ändere keine Angaben selbst.','Αν κάτι δεν είναι σαφές, ρώτησε έναν φροντιστή· μην αλλάξεις στοιχεία.'),
+    step('🎮','Ein Spiel starten','Έναρξη παιχνιδιού','Oben → 🎮 Spiele','Επάνω → 🎮 Παιχνίδια',['Tippe auf „Spiele“.','Wähle Memory, XO oder Fische fangen.','Spiele eine Runde und tippe „Nochmal“, wenn du magst.'],['Πάτησε «Παιχνίδια».','Διάλεξε Μνήμη, XO ή Ψάρεμα.','Παίξε μια γύρα και πάτησε «Ξανά» αν θες.'],'Die Spiele bleiben auf dem Gerät und speichern keine Daten auf dem Server.','Τα παιχνίδια μένουν στη συσκευή και δεν αποθηκεύουν δεδομένα στον server.'),
     step('❓','Tutorial oder AI-Hilfe öffnen','Άνοιγμα tutorial ή βοήθειας AI','Blaues ? unten rechts','Μπλε ? κάτω δεξιά',['Tippe auf das blaue „?“.','Wähle „Geführtes App-Tutorial“, um diese Schritte neu zu starten.','Wähle „AI-Hilfe fragen“, tippe eine konkrete Frage und drücke „Senden“.'],['Πάτησε το μπλε «?».','Διάλεξε «Καθοδηγούμενο tutorial εφαρμογής» για επανεκκίνηση.','Διάλεξε «Ερώτηση στη βοήθεια AI», γράψε συγκεκριμένη ερώτηση και πάτησε «Αποστολή».'],'Die Hilfe kennt die aktuelle Ansicht, führt aber keine Buchung für dich aus.','Η βοήθεια γνωρίζει την τρέχουσα οθόνη αλλά δεν κάνει καταχωρήσεις για εσένα.'),
     step('🔐','Profil sicher verlassen','Ασφαλής έξοδος από το προφίλ','Oben rechts → Profil / Abmelden','Επάνω δεξιά → Προφίλ / Αποσύνδεση',['Tippe oben rechts auf dein Profil.','Nutze nur dein eigenes Profil und teile deine PIN nicht.','Tippe „Abmelden“, wenn du das Gerät nicht mehr benutzt.'],['Πάτησε επάνω δεξιά το προφίλ σου.','Χρησιμοποίησε μόνο το δικό σου προφίλ και μη δίνεις το PIN.','Πάτησε «Αποσύνδεση» όταν τελειώσεις.'],'Nach dem Abmelden erscheint wieder die Profilauswahl.','Μετά την αποσύνδεση εμφανίζεται ξανά η επιλογή προφίλ.'),
   ];
@@ -1802,7 +1974,6 @@ function helpInventoryContext(){
   const openShop=DB.listEntries.filter(e=>['open','pending'].includes(e.status)).slice(0,40).map(e=>({
     name:e.name,qty:e.qty,unit:e.unit,houseId:e.houseId,status:e.status,
   }));
-  // Cap names for the model but keep active-house stock for the most useful foods.
   const focusProducts=products
     .slice()
     .sort((a,b)=>((b.activeStock>0)-(a.activeStock>0)) || a.name.localeCompare(b.name))
@@ -1821,6 +1992,43 @@ function helpInventoryContext(){
       ? ['πρόσθεσε 2 γάλα στο Kalyvia','βγάλε 1 βούτυρο','βάλε ρύζι στη λίστα']
       : ['2 Milch nach Kalyvia','1 Butter raus','Reis auf die Liste'],
   };
+}
+
+function helpUiContext(){
+  const role = helpChatRole();
+  const who = state.user || state.child;
+  const base = {
+    role,
+    profileName: who?.name || '',
+    profileId: who?.id || '',
+    mode: state.mode,
+    lang: state.lang,
+    tab: state.mode==='child' ? state.childView : state.tab,
+    scheduleView: state.scheduleView,
+    houseFilter: state.houseFilter,
+    canMutate: role==='staff' || role==='admin',
+    admin: role==='admin',
+    permissions: {
+      role,
+      canMutateStock: role==='staff' || role==='admin',
+      canMutateShopping: role==='staff' || role==='admin',
+      canEditPermanentSchedule: role==='admin',
+      canEditShifts: role==='admin',
+      canUseAdminCenter: role==='admin',
+      canPlayGames: role==='child',
+    },
+  };
+  if(role==='child' && state.child){
+    const today = state.date || iso(new Date());
+    base.childView = state.childView;
+    base.myTodayCount = childEntriesFor(today, state.child.id).length;
+    base.myEventsCount = childEventsFor(state.child.id).length;
+    base.availableGames = CHILD_GAMES.map(g=>t(g.titleKey));
+  }
+  if(role==='staff' || role==='admin'){
+    base.inventory = helpInventoryContext();
+  }
+  return base;
 }
 
 function bindVoiceInput({input, mic, statusEl, onTranscript}={}){
@@ -1864,23 +2072,25 @@ function bindVoiceInput({input, mic, statusEl, onTranscript}={}){
     onTranscript?.(text);
   };
   const ensureMicPermission=async()=>{
-    if(!window.isSecureContext && location.hostname!=='localhost' && location.hostname!=='127.0.0.1'){
-      const err=new Error('insecure'); err.code='insecure'; throw err;
-    }
-    if(!navigator.mediaDevices?.getUserMedia) return;
-    mediaStream=await navigator.mediaDevices.getUserMedia({audio:true});
-    // Keep the stream briefly so recognition can attach; stop after start.
+    // Intentionally unused on iOS — getUserMedia before start() breaks Safari speech.
   };
-  if(mic) mic.onclick=async()=>{
+  if(mic){
+    if(!SpeechRecognition || (!window.isSecureContext && location.hostname!=='localhost' && location.hostname!=='127.0.0.1')){
+      mic.disabled = !SpeechRecognition;
+      mic.title = t(!SpeechRecognition ? 'helpVoiceUnsupported' : 'helpVoiceSecure');
+    }
+    mic.onclick=()=>{
     if(starting) return;
     if(!SpeechRecognition){ toast(t('helpVoiceUnsupported'),'error'); return; }
+    if(!window.isSecureContext && location.hostname!=='localhost' && location.hostname!=='127.0.0.1'){
+      toast(t('helpVoiceSecure'),'error',5200); return;
+    }
     if(listening){ stop(); return; }
     unlockAudio();
     starting=true;
-    if(mic) mic.disabled=true;
     setStatus(t('helpVoiceStart'), true);
     try{
-      await ensureMicPermission();
+      // Must start inside the user gesture — do not await getUserMedia first.
       recognition=new SpeechRecognition();
       recognition.lang=state.lang==='el'?'el-GR':'de-DE';
       recognition.interimResults=true;
@@ -1889,23 +2099,17 @@ function bindVoiceInput({input, mic, statusEl, onTranscript}={}){
       let gotFinal=false;
       recognition.onstart=()=>{
         starting=false;
-        if(mic) mic.disabled=false;
         setListening(true);
         feedback('tap');
-        // Mic stream only needed for permission prompt.
-        releaseMic();
       };
       recognition.onend=()=>{
         starting=false;
-        if(mic) mic.disabled=false;
         setListening(false);
         recognition=null;
       };
       recognition.onerror=event=>{
         starting=false;
-        if(mic) mic.disabled=false;
         setListening(false);
-        releaseMic();
         const code=event?.error||'';
         if(code==='aborted' || code==='no-speech') return;
         if(code==='not-allowed' || code==='service-not-allowed'){
@@ -1924,7 +2128,6 @@ function bindVoiceInput({input, mic, statusEl, onTranscript}={}){
         if(interim && !final){ setStatus(`${interim.trim()}…`, true); return; }
         const transcript=(final||interim).trim();
         if(!transcript) return;
-        // Prefer finals; if continuous=false some browsers only deliver one result.
         const last=event.results[event.results.length-1];
         if(last && !last.isFinal && !final) return;
         if(gotFinal) return;
@@ -1933,12 +2136,9 @@ function bindVoiceInput({input, mic, statusEl, onTranscript}={}){
         try{ recognition.stop(); }catch{}
       };
       recognition.start();
-      // Safety: if start never fires (some WebViews), unlock the button.
-      setTimeout(()=>{ if(starting){ starting=false; if(mic) mic.disabled=false; } }, 2500);
+      setTimeout(()=>{ if(starting){ starting=false; } }, 2500);
     }catch(error){
       starting=false;
-      if(mic) mic.disabled=false;
-      releaseMic();
       setListening(false);
       if(error?.code==='insecure' || error?.name==='SecurityError'){
         toast(t('helpVoiceSecure'),'error',5200); setStatus(t('helpVoiceSecure'), true);
@@ -1949,6 +2149,7 @@ function bindVoiceInput({input, mic, statusEl, onTranscript}={}){
       }
     }
   };
+  }
   return {stop, isListening:()=>listening};
 }
 
@@ -2067,27 +2268,43 @@ function sheetHelpProposals(actions, {inline=false, onDone=null}={}){
 }
 
 function sheetHelp(){
+  loadHelpTranscriptForCurrentUser();
   if(!state.helpMessages.length){
-    const welcome=t('helpWelcome')+(state.mode==='staff'&&state.user?`\n\n${t('helpMutateHint')}`:'');
-    state.helpMessages.push({role:'assistant', content:welcome});
+    state.helpMessages.push({role:'assistant', content:helpWelcomeMessage()});
+    persistHelpTranscript();
   }
   let voice=null;
+  const role = helpChatRole();
+  const canMutate = role==='staff' || role==='admin';
   const paint = () => {
     const log = sheetEl.querySelector('#helpLog');
     if(!log) return;
     log.innerHTML = state.helpMessages.map(m =>
       `<div class="chat-msg ${m.role==='user'?'user':'assistant'}">${esc(m.content)}</div>`).join('');
     log.scrollTop = log.scrollHeight;
+    persistHelpTranscript();
   };
-  const canMutate=state.mode==='staff'&&!!state.user;
-  const quick=canMutate?`<div class="chips help-quick" id="helpQuick" style="margin:0 0 10px">
-      <span class="muted" style="width:100%;font-size:11px">${esc(t('helpQuickFood'))}</span>
-      ${(state.lang==='el'
-        ? ['πρόσθεσε 2 γάλα στο Kalyvia','βγάλε 1 βούτυρο Limenaria','βάλε ρύζι στη λίστα']
-        : ['2 Milch nach Kalyvia','1 Butter raus Limenaria','Reis auf die Liste']
-      ).map(q=>`<button class="chip" type="button" data-q="${esc(q)}">🎤 ${esc(q)}</button>`).join('')}
-    </div>`:'';
-  openSheet(`<h3>✨ ${t('helpChat')}</h3>
+  const quickPrompts = role==='child'
+    ? (state.lang==='el'
+        ? ['Τι έχω σήμερα;','Πού είναι το επόμενο event;','Πώς παίζω Μνήμη;']
+        : ['Was habe ich heute?','Wann ist mein nächstes Event?','Wie spiele ich Memory?'])
+    : role==='admin'
+      ? (state.lang==='el'
+          ? ['πρόσθεσε 2 γάλα στο Kalyvia','πώς αλλάζω το μόνιμο πρόγραμμα;','άνοιξε το κέντρο διαχείρισης']
+          : ['2 Milch nach Kalyvia','Wie ändere ich den Dauerplan?','Wo ist die Admin-Zentrale?'])
+      : (state.lang==='el'
+          ? ['πρόσθεσε 2 γάλα στο Kalyvia','βγάλε 1 βούτυρο Limenaria','βάλε ρύζι στη λίστα']
+          : ['2 Milch nach Kalyvia','1 Butter raus Limenaria','Reis auf die Liste']);
+  const quickLabel = role==='child' ? t('helpQuickChild') : role==='admin' ? t('helpQuickAdmin') : t('helpQuickFood');
+  const quick=`<div class="chips help-quick" id="helpQuick" style="margin:0 0 10px">
+      <span class="muted" style="width:100%;font-size:11px">${esc(quickLabel)}</span>
+      ${quickPrompts.map(q=>`<button class="chip" type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('')}
+    </div>`;
+  openSheet(`<div class="row between" style="align-items:flex-start;gap:10px;margin-bottom:8px">
+      <h3 style="margin:0">✨ ${t('helpChat')}</h3>
+      <span class="help-role-pill ${esc(role)}">${esc(helpRoleLabel())}</span>
+    </div>
+    <div class="status error" id="helpConfigStatus" hidden style="margin:0 0 10px"></div>
     ${quick}
     <div class="chat-log" id="helpLog" aria-live="polite"></div>
     <div id="helpProposeBox" class="help-propose-box" hidden></div>
@@ -2098,7 +2315,13 @@ function sheetHelp(){
     </div>
     <div class="chat-voice-status" id="helpVoiceStatus" hidden></div>`);
   paint();
-  if(state.pendingHelpActions?.length){
+  fetch('/api/health',{credentials:'same-origin'}).then(r=>r.json()).then(health=>{
+    const banner=sheetEl.querySelector('#helpConfigStatus');
+    if(!banner || health?.aiConfigured!==false) return;
+    banner.hidden=false;
+    banner.textContent=t('helpConfigBanner');
+  }).catch(()=>{});
+  if(canMutate && state.pendingHelpActions?.length){
     sheetHelpProposals(state.pendingHelpActions,{inline:true,onDone:()=>paint()});
   }
   const input = sheetEl.querySelector('#helpInput');
@@ -2112,6 +2335,7 @@ function sheetHelp(){
     voice?.stop();
     state.helpMessages.push({role:'user', content});
     state.helpMessages = state.helpMessages.slice(-12);
+    persistHelpTranscript();
     input.value = ''; send.disabled = true;
     const mic=sheetEl.querySelector('#helpMic'); if(mic) mic.disabled=true;
     paint();
@@ -2124,24 +2348,27 @@ function sheetHelp(){
         method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
         body:JSON.stringify({
           messages:state.helpMessages.filter(m=>m.role==='user'||m.role==='assistant'),
-          context:{
-            mode:state.mode, tab:state.mode==='child'?state.childView:state.tab,
-            scheduleView:state.scheduleView, houseFilter:state.houseFilter, lang:state.lang,
-            canMutate:state.mode==='staff'&&!!state.user,
-            inventory:helpInventoryContext(),
-          },
+          context:helpUiContext(),
         }),
       });
       const data = await response.json().catch(()=>({}));
-      if(!response.ok) throw new Error(data.detail || data.error || String(response.status));
+      if(!response.ok){
+        const error=new Error(data.detail || data.setup || data.error || String(response.status));
+        error.status=response.status;
+        error.code=data.code;
+        error.detail=data.detail||data.setup||data.error;
+        throw error;
+      }
       state.helpMessages.push({role:'assistant', content:data.message || t('helpUnavailable')});
       state.helpMessages = state.helpMessages.slice(-12);
+      persistHelpTranscript();
       paint();
-      if(Array.isArray(data.actions) && data.actions.length){
+      if(canMutate && Array.isArray(data.actions) && data.actions.length){
         sheetHelpProposals(data.actions,{inline:true,onDone:()=>paint()});
       }
     }catch(error){
-      state.helpMessages.push({role:'assistant', content:t('helpUnavailable')});
+      state.helpMessages.push({role:'assistant', content:friendlyAiError(error)});
+      persistHelpTranscript();
       paint();
     }finally{
       send.disabled = false;
@@ -3290,14 +3517,17 @@ function viewStock(){
     }
     const qty=DB.stock[stockKey(hid,p.id)]??0;
     const step=stepFor(p);
-    return `<div class="stock-product ${st} has-stepper">
+    const delta=state.stockDraft[p.id]||0;
+    const preview=roundStock(qty+delta);
+    const pending=delta?`<span class="stock-pending ${delta>0?'in':'out'}">${delta>0?'+':''}${delta}</span>`:'';
+    return `<div class="stock-product ${st} has-stepper ${delta?'drafting':''}">
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
-        <div class="stock-product-name">${esc(L(p))}</div>
+        <div class="stock-product-name">${esc(L(p))}${pending}</div>
         <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div>
       </button>
       <div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
-        <button class="stock-step out" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${qty<=0?'disabled':''}>−</button>
-        <div class="stock-qty">${qty}<small>${esc(p.unit)}</small></div>
+        <button class="stock-step out" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${preview<=0&&delta<=0?'disabled':''}>−</button>
+        <div class="stock-qty ${delta>0?'draft-in':delta<0?'draft-out':''}">${preview}<small>${esc(p.unit)}</small></div>
         <button class="stock-step in" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">＋</button>
       </div>
     </div>`;
@@ -3321,10 +3551,39 @@ function viewStock(){
         <button type="button" class="stock-chip ok ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b>${t('stockAll')}</button>
       </div></section>
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
-    <div class="stock-toolbar"><label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label></div>
+    <div class="stock-toolbar">
+      <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
+      ${hid!=='all'?`<div class="stock-toolbar-actions">
+        <button class="btn sec sm" type="button" id="stockQuickFood">${t('stockAddFood')}</button>
+        <button class="btn sec sm" type="button" id="stockQuickCat">${t('stockAddCat')}</button>
+        <button class="btn sec sm" type="button" id="stockOpenBoard">${t('stockBoard')}</button>
+      </div>`:''}
+    </div>
     <div class="stock-categories">${categoryHtml||`<div class="card empty">${t('noStockResults')}</div>`}</div>
     ${moves.length?`<details class="card stock-moves"><summary>${t('lastMoves')} · ${moves.length}</summary><div style="margin-top:9px">${moves.map(l=>`<div class="kv"><div class="grow truncate">${esc(l.text)}</div><div class="muted" style="flex:0 0 auto;margin-left:8px">${fmtDT(l.ts)}</div></div>`).join('')}</div></details>`:''}
-    ${hid!=='all'?`<div class="stock-footer-actions" aria-label="${t('stockBoard')}"><button class="btn in" data-stock-action="IN">${t('stockIn')}</button><button class="btn out" data-stock-action="OUT">${t('stockOut')}</button></div>`:''}`;
+    ${hid!=='all'?(()=>{
+      const draft=stockDraftEntries();
+      if(!draft.length){
+        return `<div class="stock-footer-actions" aria-label="${t('stockBoard')}"><button class="btn in" data-stock-action="IN">${t('stockIn')}</button><button class="btn out" data-stock-action="OUT">${t('stockOut')}</button></div>`;
+      }
+      const ins=draft.filter(([,d])=>d>0).length;
+      const outs=draft.filter(([,d])=>d<0).length;
+      const reasons=outs?`<div class="stock-draft-reasons" id="stockDraftReasons">
+        <div class="muted" style="font-size:11px;margin-bottom:6px">${t('reason')}</div>
+        <div class="chips">${REASONS().map(r=>`<button class="chip ${r.id===state.stockDraftReason?'on':''}" type="button" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}</div>
+      </div>`:'';
+      return `<div class="stock-footer-actions stock-draft-dock" aria-label="${t('stockDraftPending')}">
+        <div class="stock-draft-head">
+          <b>${T[state.lang].stockDraftSummary(draft.length,ins,outs)}</b>
+          <span class="muted">${t('stockDraftPending')}</span>
+        </div>
+        ${reasons}
+        <div class="stock-draft-actions">
+          <button class="btn sec" type="button" id="stockDraftClear">${t('stockDraftClear')}</button>
+          <button class="btn" type="button" id="stockDraftSave">💾 ${t('stockDraftSave')}</button>
+        </div>
+      </div>`;
+    })():''}`;
 }
 
 function sheetStockDetail(pid,hid=state.house){
@@ -3380,6 +3639,62 @@ function stepFor(p){
 /** «Λίγο» σημαίνει άλλο πράγμα στα γραμμάρια απ' ό,τι στα τεμάχια. */
 function lowThreshold(p){
   return p.unit === 'g' ? 200 : p.unit === 'kg' ? 1 : 1;
+}
+const roundStock = n => Math.round(n * 100) / 100;
+
+function stockDraftEntries(){
+  return Object.entries(state.stockDraft||{}).filter(([,delta])=>delta);
+}
+function clearStockDraft(){
+  state.stockDraft = {};
+  state.stockDraftReason = null;
+}
+function adjustStockDraft(pid, dir){
+  const hid = state.house;
+  if(hid==='all'){ toast(t('selectHouse'),'info'); return; }
+  const p = prod(pid); if(!p) return;
+  const step = stepFor(p);
+  const base = DB.stock[stockKey(hid, pid)] ?? 0;
+  let delta = roundStock((state.stockDraft[pid] || 0) + (dir==='IN' ? step : -step));
+  if(base + delta < -0.0001) delta = roundStock(-base);
+  if(Math.abs(delta) < 0.0001) delete state.stockDraft[pid];
+  else state.stockDraft[pid] = delta;
+  if(!stockDraftEntries().some(([,d])=>d<0)) state.stockDraftReason = null;
+  feedback('tap');
+  render();
+}
+function commitStockDraft(){
+  const hid = state.house;
+  if(hid==='all'){ toast(t('selectHouse'),'info'); return; }
+  const entries = stockDraftEntries();
+  if(!entries.length){ toast(t('pickSomething')); return; }
+  const outs = entries.filter(([,d])=>d<0);
+  const reasonId = state.stockDraftReason;
+  const reason = reasonId ? L(REASONS().find(r=>r.id===reasonId)) : '';
+  if(outs.length && !reason){ toast(t('stockDraftNeedReason'),'error'); return; }
+  askPin(T[state.lang].bookN(entries.length), who=>{
+    state.user = who;
+    const label = ([pid, delta]) => `${Math.abs(delta)} ${prod(pid).unit} ${L(prod(pid))}`;
+    const ins = entries.filter(([,d])=>d>0);
+    const outList = entries.filter(([,d])=>d<0);
+    [[ 'IN', ins ], [ 'OUT', outList ]].forEach(([d, list])=>{
+      if(!list.length) return;
+      list.forEach(([pid, delta])=>{
+        const k = stockKey(hid, pid);
+        DB.stock[k] = Math.max(0, roundStock((DB.stock[k] ?? 0) + delta));
+      });
+      logEntry(d,
+        `${d==='IN'?t('typeIN'):t('typeOUT')} @ ${house(hid).short}` +
+        `${d==='OUT' && reason ? ' · ' + reason : ''}: ${list.map(label).join(', ')}`,
+        {houseId:hid, reason: d==='OUT' ? reason : '',
+         items: list.map(([pid, delta])=>({pid, qty: Math.abs(delta)}))});
+    });
+    clearStockDraft();
+    if(!save()) return;
+    render();
+    feedback('save');
+    toast(t('saved'),'success');
+  });
 }
 
 function sheetStockBoard(dir,initialPid=null){
@@ -3780,22 +4095,38 @@ function sheetStockBoard(dir,initialPid=null){
     };
   });
 
-  /** Σύρσιμο + παρατεταμένο πάτημα — οι ζώνες μένουν στο κάτω dock. */
+  /** Σύρσιμο + παρατεταμένο πάτημα — ζώνες στο κάτω dock + πλευρικές ράγες στην οθόνη. */
   function attachDrag(tile){
     let ghost = null, dragging = false, held = false, active = false;
     let startX = 0, startY = 0, holdTimer = null;
-    const HOLD_MS = 450, MOVE_PX = 10;
+    const HOLD_MS = 380, MOVE_PX = 8;
+    let sideRails = null;
 
-    const zones = () => [...sheetEl.querySelectorAll('[data-dz]')];
+    const zones = () => [...sheetEl.querySelectorAll('[data-dz]'), ...(sideRails?sideRails.querySelectorAll('[data-dz]'):[])];
+    const ensureRails = () => {
+      if(sideRails) return;
+      sideRails = document.createElement('div');
+      sideRails.className = 'stock-side-rails';
+      sideRails.innerHTML = `<div class="stock-side-rail zin" data-dz="IN">${t('stockIn')}</div>
+        <div class="stock-side-rail zout" data-dz="OUT">${t('stockOut')}</div>`;
+      document.body.appendChild(sideRails);
+    };
+    const clearRails = () => {
+      if(sideRails){ sideRails.remove(); sideRails=null; }
+    };
     const zoneAt = ev => {
       const hit = document.elementFromPoint(ev.clientX, ev.clientY);
       const fromPoint = hit?.closest?.('[data-dz]');
-      if(fromPoint && sheetEl.contains(fromPoint)) return fromPoint.dataset.dz;
+      if(fromPoint) return fromPoint.dataset.dz;
+      const pad = 48;
       for(const z of zones()){
         const r = z.getBoundingClientRect();
-        if(ev.clientX >= r.left && ev.clientX <= r.right
-        && ev.clientY >= r.top  && ev.clientY <= r.bottom) return z.dataset.dz;
+        if(ev.clientX >= r.left - pad && ev.clientX <= r.right + pad
+        && ev.clientY >= r.top - pad && ev.clientY <= r.bottom + pad) return z.dataset.dz;
       }
+      // Edge of screen = IN (left) / OUT (right) while dragging.
+      if(ev.clientX < 56) return 'IN';
+      if(ev.clientX > window.innerWidth - 56) return 'OUT';
       return null;
     };
     const clearHold = () => { if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; } };
@@ -3804,6 +4135,7 @@ function sheetStockBoard(dir,initialPid=null){
       if(ghost){ ghost.remove(); ghost = null; }
       dragging = false; held = false; active = false;
       zones().forEach(z => z.classList.remove('over'));
+      clearRails();
       document.querySelectorAll('.ghost').forEach(el => el.remove());
     };
 
@@ -3828,6 +4160,7 @@ function sheetStockBoard(dir,initialPid=null){
       clearHold();
       if(!dragging){
         dragging = true;
+        ensureRails();
         ghost = document.createElement('div');
         ghost.className = 'ghost';
         ghost.textContent = L(prod(tile.dataset.p));
@@ -4357,7 +4690,8 @@ function decorateImportRow(r, hid){
 }
 
 function unitFromPackageSize(size){
-  const m = String(size||'').match(/(\d+(?:[.,]\d+)?)\s*(kg|g|l|ml|liter|λίτρ[οα]?)\b/i);
+  const text = String(size||'');
+  const m = text.match(/(\d+(?:[.,]\d+)?)\s*(kg|g|gr|gramm?e?|l|lt|ltr|ml|liter|litre|λίτρ[οα]?|κιλ[αο]?|γραμμ\.?)/i);
   if(!m) return null;
   return {qty: parseFloat(m[1].replace(',','.')), unit: normalizeUnit(m[2])};
 }
@@ -4368,21 +4702,30 @@ function rowsFromAi(result, hid){
     const p = matchProduct(item.canonical_name || item.name);
     let qty = Number(item.quantity) > 0 ? Number(item.quantity) : 1;
     let unit = normalizeUnit(item.unit, '');
-    // Αν το μοντέλο έδωσε Stk αλλά το package_size έχει βάρος/όγκο, κράτα τη σωστή μονάδα.
-    const fromPkg = unitFromPackageSize(item.package_size);
-    if((!unit || unit==='Stk') && fromPkg && (fromPkg.unit==='kg'||fromPkg.unit==='g'||fromPkg.unit==='L'||fromPkg.unit==='ml')){
-      // π.χ. qty=2, package_size="1.5 L" → 2 Stk à 1.5 L (κρατάμε Stk + σημείωση)
-      // αλλά αν qty μοιάζει με το βάρος (500 + package 500g) → βάρος
-      if(!item.unit || norm(String(item.unit))==='' || /stk|stuck|τεμ/i.test(String(item.unit||''))){
-        if(Math.abs(qty - fromPkg.qty) < 0.001 || !item.quantity){
+    const noteBlob = [item.brand, item.package_size, item.notes, item.name, item.canonical_name].filter(Boolean).join(' ');
+    const fromPkg = unitFromPackageSize(item.package_size) || unitFromPackageSize(noteBlob);
+    // Prefer explicit weight/volume from the line over a lazy Stk default.
+    if(fromPkg && (fromPkg.unit==='kg'||fromPkg.unit==='g'||fromPkg.unit==='L'||fromPkg.unit==='ml')){
+      if(!unit || unit==='Stk' || /stk|stuck|τεμ/i.test(String(item.unit||''))){
+        if(!item.quantity || Math.abs(qty - fromPkg.qty) < 0.001 || qty === 1){
           qty = fromPkg.qty;
           unit = fromPkg.unit;
+        } else {
+          // Keep piece count but remember size in note; unit stays Stk only if clearly counted.
+          unit = unit || 'Stk';
         }
       }
     }
     if(!unit) unit = p?.unit || 'Stk';
-    // Αν το AI έδωσε βάρος/όγκο, μην το αντικαταστήσεις με catalogue Stk.
     unit = normalizeUnit(unit, p?.unit || 'Stk');
+    // Catalogue Stk must not overwrite a measured unit from OCR.
+    if(p?.unit==='Stk' && (unit==='kg'||unit==='g'||unit==='L'||unit==='ml')){
+      /* keep measured unit */
+    } else if(p?.unit && unit==='Stk' && (p.unit==='kg'||p.unit==='L'||p.unit==='g'||p.unit==='ml')){
+      // Model said Stk but catalogue is measured — trust package/OCR if present, else catalogue.
+      if(fromPkg){ qty = fromPkg.qty; unit = fromPkg.unit; }
+      else unit = p.unit;
+    }
     const row = decorateImportRow({
       name:p ? L(p) : (item.canonical_name || item.name),
       canonicalName:item.canonical_name || item.name,
@@ -4939,6 +5282,209 @@ function childEventsView(cid){
     <div class="block-h"><span class="t">${title}</span></div>${list.map(childEventCard).join('')}`).join('')}`;
 }
 
+const CHILD_GAMES = [
+  {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e'},
+  {id:'tac', emoji:'⭕', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#b45309'},
+  {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1'},
+];
+const MEMORY_EMOJIS = ['🌊','☀️','🐚','🐙','🐟','⭐','🍋','⛵'];
+
+function stopChildGameTimers(){
+  if(state.game?._timer){ clearInterval(state.game._timer); state.game._timer=null; }
+  if(state.game?._cpu){ clearTimeout(state.game._cpu); state.game._cpu=null; }
+}
+
+function startChildGame(id){
+  stopChildGameTimers();
+  state.gameId = id;
+  if(id==='memory'){
+    const deck = MEMORY_EMOJIS.flatMap((emoji,i)=>[{id:`a${i}`,emoji,pair:i},{id:`b${i}`,emoji,pair:i}])
+      .sort(()=>Math.random()-0.5)
+      .map((card,i)=>({...card, key:i, open:false, done:false}));
+    state.game = {moves:0, pairs:0, open:[], lock:false, deck};
+  }else if(id==='tac'){
+    state.game = {board:Array(9).fill(''), turn:'x', status:'play', winner:null};
+  }else if(id==='catch'){
+    state.game = {score:0, left:30, hit:false, x:50, y:50, _timer:null};
+  }else state.game = null;
+  render();
+}
+
+function leaveChildGame(){
+  stopChildGameTimers();
+  state.gameId = null;
+  state.game = null;
+  render();
+}
+
+function childGamesLobby(){
+  return `<div class="games-hero">
+      <div class="brand-kicker">Armonia</div>
+      <h2>${t('gamesTitle')}</h2>
+      <p>${t('gamesHint')}</p>
+    </div>
+    <div class="games-grid">${CHILD_GAMES.map(g=>`
+      <button class="game-card" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
+        <span class="game-emoji">${g.emoji}</span>
+        <span class="game-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span></span>
+        <span class="game-go">${t('gamePlay')}</span>
+      </button>`).join('')}</div>`;
+}
+
+function childMemoryView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const done=g.pairs>=MEMORY_EMOJIS.length;
+  return `<div class="game-shell memory">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats"><span>${t('gameMoves')}: <b>${g.moves}</b></span><span>${t('gamePairs')}: <b>${g.pairs}/${MEMORY_EMOJIS.length}</b></span></div></div>
+    ${done?`<div class="game-banner win">${t('gameWin')} <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
+    <div class="memory-grid">${g.deck.map((card,i)=>`
+      <button class="memory-card ${card.open||card.done?'open':''} ${card.done?'done':''}" type="button" data-i="${i}" ${card.done||g.lock?'disabled':''}>
+        <span class="memory-face back">🌊</span><span class="memory-face front">${card.emoji}</span>
+      </button>`).join('')}</div>
+  </div>`;
+}
+
+function childTacView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const status = g.status==='win' ? (g.winner==='x'?t('gameWin'):t('gameLose'))
+    : g.status==='draw' ? t('gameDraw')
+    : g.turn==='x' ? t('gameYourTurn') : t('gameCpuTurn');
+  return `<div class="game-shell tac">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats"><span>${t('gameYou')}: ❌</span><span>${t('gameCpu')}: ⭕</span></div></div>
+    <div class="game-banner ${g.status==='win'?(g.winner==='x'?'win':'lose'):g.status==='draw'?'draw':''}">${esc(status)}
+      ${g.status!=='play'?`<button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button>`:''}</div>
+    <div class="tac-grid">${g.board.map((cell,i)=>`
+      <button class="tac-cell" type="button" data-i="${i}" ${cell||g.status!=='play'||g.turn!=='x'?'disabled':''}>${cell==='x'?'❌':cell==='o'?'⭕':''}</button>`).join('')}</div>
+  </div>`;
+}
+
+function tacWinner(board){
+  for(const [a,b,c] of [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]){
+    if(board[a] && board[a]===board[b] && board[a]===board[c]) return board[a];
+  }
+  return board.every(Boolean) ? 'draw' : null;
+}
+
+function tacCpuMove(){
+  const g=state.game; if(!g || g.status!=='play' || g.turn!=='o') return;
+  const empties=g.board.map((v,i)=>v?'':i).filter(v=>v!=='');
+  if(!empties.length) return;
+  let pick=null;
+  for(const i of empties){
+    const trial=g.board.slice(); trial[i]='o';
+    if(tacWinner(trial)==='o'){ pick=i; break; }
+  }
+  if(pick==null){
+    for(const i of empties){
+      const trial=g.board.slice(); trial[i]='x';
+      if(tacWinner(trial)==='x'){ pick=i; break; }
+    }
+  }
+  if(pick==null) pick = empties.includes(4) ? 4 : empties[Math.floor(Math.random()*empties.length)];
+  g.board[pick]='o';
+  const result=tacWinner(g.board);
+  if(result==='o'){ g.status='win'; g.winner='o'; }
+  else if(result==='draw'){ g.status='draw'; }
+  else g.turn='x';
+  render();
+}
+
+function childCatchView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const over=g.left<=0;
+  return `<div class="game-shell catch">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats"><span>${t('gameScore')}: <b>${g.score}</b></span><span>${t('gameTime')}: <b>${g.left}s</b></span></div></div>
+    ${over?`<div class="game-banner win">${t('gameWin')} · ${g.score} <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
+    <div class="catch-sea" id="catchSea">
+      ${over?'':`<button class="catch-fish ${g.hit?'hit':''}" type="button" id="catchFish" style="left:${g.x}%;top:${g.y}%">🐟</button>`}
+    </div>
+  </div>`;
+}
+
+function childGamesView(){
+  if(state.gameId==='memory') return childMemoryView();
+  if(state.gameId==='tac') return childTacView();
+  if(state.gameId==='catch') return childCatchView();
+  return childGamesLobby();
+}
+
+function bindChildGames(root){
+  root.querySelectorAll('[data-game]').forEach(btn=>{
+    btn.onclick=()=>{ feedback('select'); startChildGame(btn.dataset.game); };
+  });
+  const back=root.querySelector('#gameBack');
+  if(back) back.onclick=()=>{ feedback('select'); leaveChildGame(); };
+  const again=root.querySelector('#gameAgain');
+  if(again) again.onclick=()=>{ feedback('save'); startChildGame(state.gameId); };
+
+  if(state.gameId==='memory'){
+    root.querySelectorAll('.memory-card[data-i]').forEach(btn=>{
+      btn.onclick=()=>{
+        const g=state.game; if(!g||g.lock) return;
+        const i=Number(btn.dataset.i), card=g.deck[i];
+        if(!card || card.open || card.done) return;
+        card.open=true; g.open.push(i); feedback('select');
+        if(g.open.length<2){ render(); return; }
+        g.moves += 1; g.lock=true;
+        const [a,b]=g.open, ca=g.deck[a], cb=g.deck[b];
+        if(ca.pair===cb.pair){
+          ca.done=cb.done=true; g.pairs += 1; g.open=[]; g.lock=false; feedback('save');
+          render();
+        }else{
+          render();
+          setTimeout(()=>{
+            if(!state.game || state.gameId!=='memory') return;
+            ca.open=cb.open=false; state.game.open=[]; state.game.lock=false; render();
+          }, 650);
+        }
+      };
+    });
+  }
+
+  if(state.gameId==='tac'){
+    root.querySelectorAll('.tac-cell[data-i]').forEach(btn=>{
+      btn.onclick=()=>{
+        const g=state.game; if(!g||g.status!=='play'||g.turn!=='x') return;
+        const i=Number(btn.dataset.i); if(g.board[i]) return;
+        g.board[i]='x'; feedback('select');
+        const result=tacWinner(g.board);
+        if(result==='x'){ g.status='win'; g.winner='x'; feedback('save'); render(); return; }
+        if(result==='draw'){ g.status='draw'; render(); return; }
+        g.turn='o'; render();
+        g._cpu=setTimeout(tacCpuMove, 420);
+      };
+    });
+  }
+
+  if(state.gameId==='catch'){
+    const g=state.game;
+    const fish=root.querySelector('#catchFish');
+    if(fish && g && g.left>0){
+      fish.onclick=()=>{
+        g.score += 1; g.hit=true; feedback('save');
+        g.x = 12 + Math.random()*76; g.y = 12 + Math.random()*70;
+        render();
+        setTimeout(()=>{ if(state.game) state.game.hit=false; }, 120);
+      };
+      if(!g._timer){
+        g._timer=setInterval(()=>{
+          if(!state.game || state.gameId!=='catch'){ stopChildGameTimers(); return; }
+          state.game.left -= 1;
+          if(state.game.left<=0){ stopChildGameTimers(); state.game.left=0; }
+          else {
+            state.game.x = 12 + Math.random()*76;
+            state.game.y = 12 + Math.random()*70;
+          }
+          render();
+        }, 1000);
+      }
+    }
+  }
+}
+
 function staffEventsView(){
   const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
   const published=events.filter(e=>e.status==='published').length, drafts=events.length-published;
@@ -5322,13 +5868,14 @@ function renderChild(){
 
   const profile = `<div class="card" style="text-align:center;border:0;background:none;padding:4px 0 10px">
       <div class="pa avatar" style="width:64px;height:64px;border-radius:50%;margin:0 auto 8px;
-        background:${c.color};font-size:20px">${initials(c.name)}</div>
-      <div class="strong" style="font-size:18px">${esc(c.name)}</div>
+        background:${profileColor(c)};font-size:20px">${esc(profileEmoji(c)||initials(profileName(c)))}</div>
+      <div class="strong" style="font-size:18px">${esc(profileLabel(c))}</div>
     </div>`;
   const tabs = `<div class="seg child-tabs" id="childTabs">
     <button class="${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('childToday')}</button>
     <button class="${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('childEvents')}${childUpcomingEvents.length?` <span class="nav-badge">${childUpcomingEvents.length}</span>`:''}</button>
     <button class="${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('childWeek')}</button>
+    <button class="${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>
   </div>`;
   const todayView = `
     ${childUpcomingEvents.length?`<button class="notification-card" id="childEventNotice" type="button">
@@ -5340,19 +5887,29 @@ function renderChild(){
       : `<div class="empty">${t('nothingToday')}</div>`}
     ${childEventsFor(c.id).filter(e=>e.date===state.date).map(childEventCard).join('')}`;
   const weekView = `<div class="card"><h2>${t('myWeek')}</h2>${weekList}</div>`;
+  const viewBody = state.childView==='today' ? todayView
+    : state.childView==='events' ? childEventsView(c.id)
+    : state.childView==='games' ? childGamesView()
+    : weekView;
 
   document.getElementById('view').innerHTML = `
     ${profile}${tabs}
-    ${state.childView==='today' ? todayView : state.childView==='events' ? childEventsView(c.id) : weekView}`;
+    ${viewBody}`;
 
   document.getElementById('view').querySelectorAll('.day').forEach(d=>{
     d.onclick = () => { state.date = d.dataset.date; render(); };
   });
   document.getElementById('view').querySelectorAll('[data-child-view]').forEach(b=>{
-    b.onclick = () => { state.childView = b.dataset.childView; render(); };
+    b.onclick = () => {
+      const next = b.dataset.childView;
+      if(next !== 'games'){ stopChildGameTimers(); state.gameId=null; state.game=null; }
+      state.childView = next;
+      render();
+    };
   });
   const eventNotice=document.getElementById('view').querySelector('#childEventNotice');
   if(eventNotice) eventNotice.onclick=()=>{state.childView='events';render();};
+  if(state.childView==='games') bindChildGames(document.getElementById('view'));
   scheduleMeasureChrome();
 }
 
@@ -5400,7 +5957,7 @@ function render(){
   document.getElementById('title').textContent =
     t(state.tab==='home'?'titleHome':state.tab==='schedule'?'titleSchedule':state.tab==='stock'?'titleStock':state.tab==='shop'?'titleShop':'titleBook');
   document.getElementById('who').textContent = state.user
-    ? state.user.name + ' · ' + L(state.user.role) : t('noUser');
+    ? profileLabel(state.user) + ' · ' + L(state.user.role) : t('noUser');
   if(isAdminUser()) document.getElementById('who').innerHTML += ' <span class="admin-badge">ADMIN</span>';
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   document.getElementById('btnUser').textContent = t('logout');
@@ -5417,6 +5974,7 @@ function render(){
   document.body.classList.toggle('has-stock-dock', stockDock);
   document.body.classList.toggle('has-store-dock', storeDock);
   document.body.classList.toggle('store-fullscreen', storeDock);
+  document.body.classList.toggle('has-stock-draft', stockDock && stockDraftEntries().length>0);
 
   document.getElementById('view').innerHTML =
       state.tab==='home'     ? viewHome()
@@ -5490,7 +6048,11 @@ function wire(){
     b.onclick = () => { state.houseFilter = b.dataset.h; render(); };
   });
   v.querySelectorAll('#sHouse button, #shHouse button').forEach(b=>{
-    b.onclick = () => { state.house = b.dataset.h; render(); };
+    b.onclick = () => {
+      if(b.dataset.h!==state.house) clearStockDraft();
+      state.house = b.dataset.h;
+      render();
+    };
   });
   v.querySelectorAll('.day').forEach(d=>{
     d.onclick = () => { state.date = d.dataset.date; render(); };
@@ -5601,16 +6163,81 @@ function wire(){
   };
 
   v.querySelectorAll('[data-stock-action]').forEach(b=>b.onclick=()=>sheetStockBoard(b.dataset.stockAction));
-  v.querySelectorAll('[data-stock-product]').forEach(b=>b.onclick=()=>sheetStockDetail(b.dataset.stockProduct,state.house));
+  v.querySelectorAll('[data-stock-product]').forEach(b=>{
+    b.onclick=()=>sheetStockDetail(b.dataset.stockProduct,state.house);
+    // Long-press options on fridge rows (IN / OUT / shop / board).
+    let holdTimer=null, moved=false, sx=0, sy=0;
+    const clear=()=>{ if(holdTimer){ clearTimeout(holdTimer); holdTimer=null; } };
+    b.onpointerdown=ev=>{
+      if(state.house==='all') return;
+      moved=false; sx=ev.clientX; sy=ev.clientY;
+      clear();
+      holdTimer=setTimeout(()=>{
+        holdTimer=null;
+        if(moved) return;
+        ev.preventDefault?.();
+        const pid=b.dataset.stockProduct; if(!pid) return;
+        const p=prod(pid); if(!p) return;
+        document.querySelectorAll('.stock-hold-menu').forEach(el=>el.remove());
+        const menu=document.createElement('div');
+        menu.className='stock-hold-menu';
+        menu.innerHTML=`<div class="stock-hold-kicker">${esc(L(p))}</div>
+          <button type="button" class="hold-in" data-act="in">${t('stockHoldIn')}</button>
+          <button type="button" class="hold-out" data-act="out">${t('stockHoldOut')}</button>
+          <button type="button" data-act="shop">${t('stockHoldShop')}</button>
+          <button type="button" data-act="board">${t('stockBoard')}</button>
+          <button type="button" data-act="detail">${t('stockHoldDetail')}</button>`;
+        document.body.appendChild(menu);
+        const place=()=>{
+          const w=menu.offsetWidth, h=menu.offsetHeight;
+          menu.style.left=Math.min(window.innerWidth-w-8, Math.max(8, sx-w/2))+'px';
+          menu.style.top=Math.min(window.innerHeight-h-8, Math.max(8, sy-20))+'px';
+        };
+        place();
+        feedback('select');
+        menu.querySelectorAll('button').forEach(btn=>{
+          btn.onclick=()=>{
+            menu.remove();
+            const act=btn.dataset.act;
+            if(act==='in'){ adjustStockDraft(pid,'IN'); render(); }
+            else if(act==='out'){ adjustStockDraft(pid,'OUT'); render(); }
+            else if(act==='shop'){
+              const friday=state.shopFriday||fridayFor();
+              if(fridayEntries(state.house,friday).some(e=>e.status==='open'&&e.productId===pid)){ toast(t('alreadyPlanned')); return; }
+              DB.listEntries.push({id:uid(),productId:pid,name:L(p),qty:stepFor(p),unit:p.unit,houseId:state.house,fridayDate:friday,by:state.user?.id||null,status:'open'});
+              if(save()) toast(t('addedToShopping'),'success');
+            }else if(act==='board') sheetStockBoard('IN', pid);
+            else sheetStockDetail(pid, state.house);
+          };
+        });
+        const dismiss=e=>{ if(menu.contains(e.target)) return; menu.remove(); document.removeEventListener('pointerdown', dismiss, true); };
+        setTimeout(()=>document.addEventListener('pointerdown', dismiss, true), 0);
+      }, 420);
+    };
+    b.onpointermove=ev=>{ if(Math.hypot(ev.clientX-sx, ev.clientY-sy)>10){ moved=true; clear(); } };
+    b.onpointerup=clear; b.onpointercancel=clear;
+  });
+  const stockOpenBoard=v.querySelector('#stockOpenBoard');
+  if(stockOpenBoard) stockOpenBoard.onclick=()=>sheetStockBoard('IN');
+  const stockQuickFood=v.querySelector('#stockQuickFood');
+  if(stockQuickFood) stockQuickFood.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddFood')?.click(), 80); };
+  const stockQuickCat=v.querySelector('#stockQuickCat');
+  if(stockQuickCat) stockQuickCat.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddCat')?.click(), 80); };
   v.querySelectorAll('[data-stock-step]').forEach(b=>b.onclick=event=>{
     event.preventDefault();
     event.stopPropagation();
     if(state.house==='all'){ toast(t('selectHouse'),'info'); return; }
     const pid=b.dataset.pid, dir=b.dataset.stockStep;
     if(!pid || !dir) return;
-    feedback('tap');
-    sheetStockBoard(dir, pid);
+    adjustStockDraft(pid, dir);
   });
+  v.querySelectorAll('[data-draft-reason]').forEach(b=>{
+    b.onclick=()=>{ state.stockDraftReason=b.dataset.draftReason; feedback('select'); render(); };
+  });
+  const stockDraftClear=v.querySelector('#stockDraftClear');
+  if(stockDraftClear) stockDraftClear.onclick=()=>{ clearStockDraft(); feedback('toggle'); render(); };
+  const stockDraftSave=v.querySelector('#stockDraftSave');
+  if(stockDraftSave) stockDraftSave.onclick=()=>commitStockDraft();
   const stockCategories=[...v.querySelectorAll('[data-stock-category]')];
   if(stockCategories.length){
     if(!Array.isArray(state.stockOpenCategories))state.stockOpenCategories=stockCategories.filter(d=>d.dataset.defaultOpen==='1').map(d=>d.dataset.stockCategory);
@@ -5755,7 +6382,11 @@ function wire(){
 }
 
 document.querySelectorAll('nav button').forEach(b=>{
-  b.onclick = () => { state.tab = b.dataset.tab; render(); };
+  b.onclick = () => {
+    if(b.dataset.tab!=='stock' && state.tab==='stock') clearStockDraft();
+    state.tab = b.dataset.tab;
+    render();
+  };
 });
 document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
 document.getElementById('btnLang').onclick = () => setLang(state.lang === 'de' ? 'el' : 'de');
@@ -5784,11 +6415,38 @@ async function sheetSecurityAccess(){
       </div>
     </div>
     <div class="security-passkey-card email-card" id="securityProfile"><div class="muted">${t('reading')}</div></div>
+    <div class="security-passkey-card" id="securityCustomize"></div>
     <div class="security-passkey-card" id="securityPasskey"><div class="muted">${t('reading')}</div></div>
     <button class="btn sec" id="securityTutorial">📘 ${t('tutorialOpen')}</button>
     <button class="btn sec" id="securitySwitch">↔ ${t('switchProfile')}</button>
     <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
   const profileCard=sheetEl.querySelector('#securityProfile'),card=sheetEl.querySelector('#securityPasskey');
+  const customizeCard=sheetEl.querySelector('#securityCustomize');
+  const pref=profilePref(who.id);
+  if(customizeCard){
+    customizeCard.innerHTML=`<div class="row between" style="align-items:center;gap:10px;margin-bottom:8px">
+        <div><b>${t('profileCustomize')}</b><div class="muted" style="font-size:11px;margin-top:3px">${esc(who.name)}</div></div>
+        <div class="pa avatar" style="width:44px;height:44px;border-radius:50%;background:${esc(profileColor(who))};display:grid;place-items:center;font-weight:800">${esc(profileEmoji(who)||initials(profileName(who)))}</div>
+      </div>
+      <label class="f"><span>${t('profileNickname')}</span><input id="profileNick" value="${esc(pref.nickname||'')}" placeholder="${esc(who.name)}" maxlength="40"></label>
+      <label class="f"><span>${t('profileEmoji')}</span><input id="profileEmoji" value="${esc(pref.emoji||'')}" placeholder="🙂" maxlength="4"></label>
+      <label class="f"><span>${t('profileColor')}</span><input id="profileColor" type="color" value="${esc(profileColor(who))}"></label>
+      <button class="btn" id="saveProfileLook" type="button">${t('saveContact')}</button>
+      <div id="profileLookStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`;
+    customizeCard.querySelector('#saveProfileLook').onclick=()=>{
+      const nickname=customizeCard.querySelector('#profileNick').value.trim().slice(0,40);
+      const emoji=customizeCard.querySelector('#profileEmoji').value.trim().slice(0,4);
+      const color=customizeCard.querySelector('#profileColor').value || who.color;
+      DB.profilePrefs = DB.profilePrefs || {};
+      DB.profilePrefs[who.id] = {nickname, emoji, color, updatedAt:Date.now()};
+      if(save()){
+        feedback('save');
+        const st=customizeCard.querySelector('#profileLookStatus');
+        st.style.display='block'; setStatus(st,t('profileSaved'),'success');
+        render();
+      }
+    };
+  }
   let count=0;
   try{
     const [response,profilesResponse]=await Promise.all([
@@ -5797,7 +6455,10 @@ async function sheetSecurityAccess(){
     if(!response.ok||!data.authenticated)throw new Error(t('authUnavailable'));
     if(!profilesResponse.ok||!Array.isArray(profilesData.profiles))throw new Error(t('authUnavailable'));
     const profiles=profilesData.profiles;
-    const displayName=p=>{const person=p.mode==='child'?kid(p.profileId):emp(p.profileId);return person?.name||p.profileId;};
+    const displayName=p=>{
+      const person=p.mode==='child'?kid(p.profileId):emp(p.profileId);
+      return person?profileName(person):p.profileId;
+    };
     const paintProfile=selectedId=>{
       const selected=profiles.find(p=>p.profileId===selectedId)||profiles[0];if(!selected)return;
       const ready=!!profilesData.emailConfigured;
@@ -5851,7 +6512,11 @@ async function sheetSecurityAccess(){
           feedback('save');setStatus(status,t('contactSaved'),'success');
           const test=profileCard.querySelector('#testProfileEmail');
           if(test) test.disabled=!saved.email||!(saved.emailConfigured??ready);
-        }catch(error){feedback('error');setStatus(status,error.code==='invalid_email'?t('emailInvalid'):error.code==='invalid_phone'?t('phoneInvalid'):error.message||t('authUnavailable'),'error');}
+        }catch(error){feedback('error');setStatus(status,
+          error.code==='invalid_email'?t('emailInvalid'):
+          error.code==='invalid_phone'?t('phoneInvalid'):
+          error.code==='profile_not_found'||/not found/i.test(String(error.message||''))?t('emailNotFound'):
+          error.message||t('authUnavailable'),'error');}
         finally{button.disabled=false;}
       };
       profileCard.querySelector('#testProfileEmail').onclick=async event=>{
@@ -6119,9 +6784,12 @@ function renderGatePin(who, mode = 'staff'){
       stopPinKeyboard();
       closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');
     }catch(error){
-      errorEl.textContent=error.code==='no_passkey'?t('passkeyNone'):
+      errorEl.textContent=error.code==='no_passkey'?t('passkeySetupNeeded'):
+        error.code==='passkey_unavailable'||error.code==='configuration'?t('passkeyConfig'):
         error.code==='unsupported'?t('passkeyUnavailable'):
-        error.name==='NotAllowedError'?t('passkeyCancelled'):error.message||t('authUnavailable');
+        error.name==='NotAllowedError'?t('passkeyCancelled'):
+        /not found/i.test(String(error.message||''))?t('passkeySetupNeeded'):
+        error.message||t('authUnavailable');
     }finally{busy=false;button.disabled=false;}
   };
 }
