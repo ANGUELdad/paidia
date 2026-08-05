@@ -1,5 +1,5 @@
 // Network-first PWA worker — never serve a stale login shell.
-const CACHE = 'paidia-v7';
+const CACHE = 'paidia-v11';
 const ASSETS = ['./manifest.webmanifest'];
 
 self.addEventListener('install', e => {
@@ -26,7 +26,17 @@ self.addEventListener('fetch', e => {
     url.pathname.endsWith('/sw.js');
   if (isShell) {
     e.respondWith(
-      fetch(e.request, { cache: 'no-store' }).catch(() => caches.match('./index.html'))
+      fetch(e.request, { cache: 'no-store' })
+        .then(res => {
+          // Keep one copy purely as an offline fallback. The network is always
+          // tried first, so this can never serve a stale login shell online.
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then(c => c.put('./index.html', copy)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => caches.match('./index.html').then(hit => hit || Response.error()))
     );
     return;
   }

@@ -267,14 +267,35 @@ const T = {
     actions:n=>n===1?'Buchung':'Buchungen', noActionsToday:'Heute noch nichts gebucht',
     visibleToAll:'Für alle sichtbar',
     close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele',
-    gamesTitle:'Spiele', gamesHint:'Kleine Spiele für zwischendurch',
-    gameMemory:'Memory', gameMemoryHint:'Finde die Paare',
-    gameTac:'XO', gameTacHint:'3 in einer Reihe',
-    gameCatch:'Fische fangen', gameCatchHint:'Tippe die Fische',
+    gamesTitle:'Spiele', gamesHint:'Tippe ein Spiel — bunte Runden für zwischendurch',
+    gameMemory:'Memory', gameMemoryHint:'Finde die Paare · so wenig Züge wie möglich',
+    gameTac:'XO', gameTacHint:'Hol 3 in einer Reihe gegen den PC',
+    gameCatch:'Fische fangen', gameCatchHint:'Tippe schwimmende Fische · Kombo!',
+    gameReact:'Reaktion', gameReactHint:'Tippe wenn es GRÜN wird',
+    gameRps:'Schere Stein Papier', gameRpsHint:'Spiele gegen den Computer',
+    gameDice:'Würfel', gameDiceHint:'Würfle · wer ist dran?',
+    gameSimon:'Simon', gameSimonHint:'Merk dir die Farben · tippe die Reihe',
+    gameColors:'Farbtreffer', gameColorsHint:'Tippe die richtige Farbe · Tempo!',
     gameBack:'Alle Spiele', gamePlay:'Spielen', gameAgain:'Nochmal',
     gameMoves:'Züge', gamePairs:'Paare', gameScore:'Punkte', gameTime:'Zeit',
+    gameBest:'Best', gameCombo:'Kombo', gameStreak:'Serie', gameLevel:'Stufe',
     gameWin:'Geschafft!', gameLose:'Schade — nochmal?', gameDraw:'Unentschieden',
     gameYourTurn:'Du bist dran', gameCpuTurn:'Computer denkt…', gameYou:'Du', gameCpu:'PC',
+    gameCatchOver:'Zeit vorbei!', gameCatchHintPlay:'Tippe die Fische bevor sie wegschwimmen',
+    gameMemoryHintPlay:'Zwei gleiche Karten finden',
+    gameTacHintPlay:'Du = ❌ · Computer = ⭕',
+    gameStars:(n)=>n===3?'★★★':n===2?'★★☆':'★☆☆',
+    gameReactWait:'Warten…', gameReactGo:'JETZT!', gameReactEarly:'Zu früh!', gameReactMs:ms=>`${ms} ms`,
+    gameReactHintPlay:'Warte auf Grün, dann tippe so schnell du kannst',
+    gameRpsRock:'Stein', gameRpsPaper:'Papier', gameRpsScissors:'Schere',
+    gameRpsHintPlay:'Wähle Stein, Papier oder Schere',
+    gameDiceRoll:'Würfeln', gameDiceHintPlay:'Tippe Würfeln — für Spiele oder wer dran ist',
+    gameDiceYou:'Du würfelst', gameDiceResult:'Ergebnis',
+    gameSimonWatch:'Schau zu…', gameSimonGo:'Du bist dran!', gameSimonFail:'Ups — daneben',
+    gameSimonHintPlay:'Die leuchtende Reihe merken und nachtippen',
+    gameColorsTap:'Tippe:', gameColorsHintPlay:'Welche Farbe steht da? Tippe schnell',
+    gameColorRed:'Rot', gameColorGreen:'Grün', gameColorBlue:'Blau', gameColorYellow:'Gelb',
+    gameFishCatch:'Fisch tippen',
     eventOfWeek:'Event der Woche', eventToday:'Heute', eventTomorrow:'Morgen', upcomingEvents:'Demnächst',
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
     helpChat:'Zo-Ai', helpWelcome:'Hallo! Ich bin Zo-Ai. Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauche ich danach deine Bestätigung.',
@@ -355,7 +376,7 @@ const T = {
     errRate:'Die AI ist gerade ausgelastet. Warte kurz und versuche es erneut.',
     errConfig:'AI ist nicht eingerichtet. Lokal: GROQ_API_KEY in .env. Live: denselben Key in Vercel → Environment Variables setzen und neu deployen.',
     errImage:'Das Bild konnte nicht gelesen werden. Verwende JPG, PNG oder WebP mit gut sichtbarem Text.',
-    errServer:'Die AI konnte die Anfrage nicht verarbeiten. Bitte versuche es erneut.',
+    errServer:'Zo-Ai konnte die Anfrage nicht verarbeiten. Bitte versuche es erneut.',
     errFile:'Diese Datei konnte nicht geöffnet werden. Wähle ein anderes Bild.',
     errStorage:'Speichern fehlgeschlagen. Der Gerätespeicher ist möglicherweise voll.',
     aiReady:'AI-OCR ist bereit. Füge Text ein oder lade einen Screenshot hoch.',
@@ -633,14 +654,35 @@ const T = {
     actions:n=>n===1?'κίνηση':'κινήσεις', noActionsToday:'Καμία κίνηση σήμερα',
     visibleToAll:'Ορατό σε όλους',
     close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια',
-    gamesTitle:'Παιχνίδια', gamesHint:'Μικρά παιχνίδια για διάλειμμα',
-    gameMemory:'Μνήμη', gameMemoryHint:'Βρες τα ζευγάρια',
-    gameTac:'XO', gameTacHint:'3 στη σειρά',
-    gameCatch:'Ψάρεμα', gameCatchHint:'Πάτα τα ψάρια',
+    gamesTitle:'Παιχνίδια', gamesHint:'Διάλεξε παιχνίδι — ζωηρές γύρες για διάλειμμα',
+    gameMemory:'Μνήμη', gameMemoryHint:'Βρες τα ζευγάρια · όσο λιγότερες κινήσεις',
+    gameTac:'XO', gameTacHint:'Κάνε 3 στη σειρά κόντρα στον PC',
+    gameCatch:'Ψάρεμα', gameCatchHint:'Πάτα τα ψάρια που κολυμπάνε · κομπο!',
+    gameReact:'Αντίδραση', gameReactHint:'Πάτα όταν γίνει ΠΡΑΣΙΝΟ',
+    gameRps:'Πέτρα Ψαλίδι Χαρτί', gameRpsHint:'Παίξε κόντρα στον υπολογιστή',
+    gameDice:'Ζάρι', gameDiceHint:'Ρίξε · ποιος είναι σειρά;',
+    gameSimon:'Simon', gameSimonHint:'Θυμήσου τα χρώματα · πάτα τη σειρά',
+    gameColors:'Χρώματα', gameColorsHint:'Πάτα το σωστό χρώμα · γρήγορα!',
     gameBack:'Όλα τα παιχνίδια', gamePlay:'Παίξε', gameAgain:'Ξανά',
     gameMoves:'Κινήσεις', gamePairs:'Ζευγάρια', gameScore:'Πόντοι', gameTime:'Χρόνος',
+    gameBest:'Ρεκόρ', gameCombo:'Κομπο', gameStreak:'Σειρά', gameLevel:'Επίπεδο',
     gameWin:'Μπράβο!', gameLose:'Κρίμα — ξανά;', gameDraw:'Ισοπαλία',
     gameYourTurn:'Η σειρά σου', gameCpuTurn:'Σκέφτεται ο υπολογιστής…', gameYou:'Εσύ', gameCpu:'PC',
+    gameCatchOver:'Τέλος χρόνου!', gameCatchHintPlay:'Πάτα τα ψάρια πριν φύγουν',
+    gameMemoryHintPlay:'Βρες δύο ίδιες κάρτες',
+    gameTacHintPlay:'Εσύ = ❌ · Υπολογιστής = ⭕',
+    gameStars:(n)=>n===3?'★★★':n===2?'★★☆':'★☆☆',
+    gameReactWait:'Περίμενε…', gameReactGo:'ΤΩΡΑ!', gameReactEarly:'Πολύ νωρίς!', gameReactMs:ms=>`${ms} ms`,
+    gameReactHintPlay:'Περίμενε το πράσινο και πάτα όσο πιο γρήγορα μπορείς',
+    gameRpsRock:'Πέτρα', gameRpsPaper:'Χαρτί', gameRpsScissors:'Ψαλίδι',
+    gameRpsHintPlay:'Διάλεξε πέτρα, χαρτί ή ψαλίδι',
+    gameDiceRoll:'Ρίξε', gameDiceHintPlay:'Πάτα Ρίξε — για παιχνίδια ή ποιος παίζει',
+    gameDiceYou:'Ρίχνεις', gameDiceResult:'Αποτέλεσμα',
+    gameSimonWatch:'Κοίτα…', gameSimonGo:'Η σειρά σου!', gameSimonFail:'Ωχ — λάθος',
+    gameSimonHintPlay:'Θυμήσου τη φωτεινή σειρά και πάτα την',
+    gameColorsTap:'Πάτα:', gameColorsHintPlay:'Ποιο χρώμα λέει; Πάτα γρήγορα',
+    gameColorRed:'Κόκκινο', gameColorGreen:'Πράσινο', gameColorBlue:'Μπλε', gameColorYellow:'Κίτρινο',
+    gameFishCatch:'Πάτα το ψάρι',
     eventOfWeek:'Event της εβδομάδας', eventToday:'Σήμερα', eventTomorrow:'Αύριο', upcomingEvents:'Επόμενα events',
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
     helpChat:'Zo-Ai', helpWelcome:'Γεια! Είμαι η Zo-Ai. Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση.',
@@ -721,7 +763,7 @@ const T = {
     errRate:'Το AI έχει προσωρινά μεγάλο φόρτο. Περίμενε λίγο και δοκίμασε ξανά.',
     errConfig:'Το AI δεν έχει ρυθμιστεί. Τοπικά: GROQ_API_KEY στο .env. Live: βάλε το ίδιο κλειδί στο Vercel → Environment Variables και κάνε νέο deploy.',
     errImage:'Η εικόνα δεν διαβάστηκε. Χρησιμοποίησε JPG, PNG ή WebP με καθαρό κείμενο.',
-    errServer:'Το AI δεν μπόρεσε να επεξεργαστεί το αίτημα. Δοκίμασε ξανά.',
+    errServer:'Η Zo-Ai δεν μπόρεσε να επεξεργαστεί το αίτημα. Δοκίμασε ξανά.',
     errFile:'Το αρχείο δεν άνοιξε. Διάλεξε άλλη εικόνα.',
     errStorage:'Η αποθήκευση απέτυχε. Ο χώρος της συσκευής μπορεί να είναι γεμάτος.',
     aiReady:'Το AI OCR είναι έτοιμο. Βάλε κείμενο ή ανέβασε screenshot.',
@@ -1339,6 +1381,7 @@ function friendlyAiError(error){
   if(status===408 || status===504 || code==='aborterror' || code==='timeout' || detail.includes('timed out') || detail.includes('timeout')) return t('errTimeout');
   if(status===413 || detail.includes('too large') || detail.includes('image')) return t('errImage');
   if(!navigator.onLine || status===0 || detail.includes('failed to fetch') || detail.includes('network')) return t('errNetwork');
+  if(status===502 || code==='provider') return t('helpUnavailable');
   return t('errServer');
 }
 
@@ -1757,8 +1800,8 @@ function onboardingSteps(){
     step('🏠','Heute öffnen','Άνοιγμα σημερινής ημέρας','Oben → ☀️ Heute','Επάνω → ☀️ Σήμερα',['Tippe auf „Heute“.','Tippe oben auf den gewünschten Wochentag.','Lies bei jeder Karte Aktivität, Uhrzeit, Haus, Betreuer und die anderen Kinder.'],['Πάτησε «Σήμερα».','Πάτησε επάνω την ημέρα της εβδομάδας που θέλεις.','Διάβασε σε κάθε κάρτα δραστηριότητα, ώρα, σπίτι, φροντιστή και τα άλλα παιδιά.'],'Du siehst nur Termine, denen dein eigenes Profil zugeteilt ist.','Βλέπεις μόνο όσα έχουν ανατεθεί στο δικό σου προφίλ.'),
     step('📅','Die ganze Woche ansehen','Προβολή όλης της εβδομάδας','Oben → 📅 Woche','Επάνω → 📅 Εβδομάδα',['Tippe auf „Woche“.','Scrolle nach unten durch Montag bis Sonntag.','Tippe danach wieder auf „Heute“, um zur Tagesansicht zurückzugehen.'],['Πάτησε «Εβδομάδα».','Κάνε κύλιση από Δευτέρα έως Κυριακή.','Πάτησε ξανά «Σήμερα» για επιστροφή στην ημερήσια προβολή.'],'Tage ohne Eintrag bleiben leer; es werden keine Daten anderer Kinder gezeigt.','Οι ημέρες χωρίς εγγραφή μένουν κενές και δεν εμφανίζονται στοιχεία άλλων παιδιών.'),
     step('🎉','Ein Event vollständig lesen','Πλήρης ανάγνωση event','Oben → 🎉 Events','Επάνω → 🎉 Events',['Tippe auf „Events“; die Zahl am Tab zeigt neue/kommende Events.','Öffne die große Event-Karte.','Prüfe Datum, Uhrzeit, Ort, Begleitung und „Mitbringen“.'],['Πάτησε «Events»· ο αριθμός δείχνει νέα/επόμενα events.','Άνοιξε τη μεγάλη κάρτα του event.','Έλεγξε ημερομηνία, ώρα, μέρος, συνοδό και «Τι να φέρεις».'],'Wenn etwas unklar ist, frage einen Betreuer; ändere keine Angaben selbst.','Αν κάτι δεν είναι σαφές, ρώτησε έναν φροντιστή· μην αλλάξεις στοιχεία.'),
-    step('🎮','Ein Spiel starten','Έναρξη παιχνιδιού','Oben → 🎮 Spiele','Επάνω → 🎮 Παιχνίδια',['Tippe auf „Spiele“.','Wähle Memory, XO oder Fische fangen.','Spiele eine Runde und tippe „Nochmal“, wenn du magst.'],['Πάτησε «Παιχνίδια».','Διάλεξε Μνήμη, XO ή Ψάρεμα.','Παίξε μια γύρα και πάτησε «Ξανά» αν θες.'],'Die Spiele bleiben auf dem Gerät und speichern keine Daten auf dem Server.','Τα παιχνίδια μένουν στη συσκευή και δεν αποθηκεύουν δεδομένα στον server.'),
-    step('❓','Tutorial oder AI-Hilfe öffnen','Άνοιγμα tutorial ή βοήθειας AI','Blaues ? unten rechts','Μπλε ? κάτω δεξιά',['Tippe auf das blaue „?“.','Wähle „Geführtes App-Tutorial“, um diese Schritte neu zu starten.','Wähle „AI-Hilfe fragen“, tippe eine konkrete Frage und drücke „Senden“.'],['Πάτησε το μπλε «?».','Διάλεξε «Καθοδηγούμενο tutorial εφαρμογής» για επανεκκίνηση.','Διάλεξε «Ερώτηση στη βοήθεια AI», γράψε συγκεκριμένη ερώτηση και πάτησε «Αποστολή».'],'Die Hilfe kennt die aktuelle Ansicht, führt aber keine Buchung für dich aus.','Η βοήθεια γνωρίζει την τρέχουσα οθόνη αλλά δεν κάνει καταχωρήσεις για εσένα.'),
+    step('🎮','Ein Spiel starten','Έναρξη παιχνιδιού','Oben → 🎮 Spiele','Επάνω → 🎮 Παιχνίδια',['Tippe auf „Spiele“.','Wähle z. B. Memory, Fische, Simon oder Farben.','Spiele eine Runde und tippe „Nochmal“, wenn du magst.'],['Πάτησε «Παιχνίδια».','Διάλεξε π.χ. Μνήμη, Ψάρεμα, Simon ή Χρώματα.','Παίξε μια γύρα και πάτησε «Ξανά» αν θες.'],'Die Spiele bleiben auf dem Gerät und speichern keine Daten auf dem Server.','Τα παιχνίδια μένουν στη συσκευή και δεν αποθηκεύουν δεδομένα στον server.'),
+    step('✨','Zo-Ai fragen','Ρώτα τη Zo-Ai','✨ Zo-Ai oben oder FAB unten rechts','✨ Zo-Ai επάνω ή FAB κάτω δεξιά',['Tippe oben auf „Zo-Ai“ oder den FAB unten rechts.','Stelle eine Frage zu deinem Tag, Events oder Spielen.','Zo-Ai ändert nichts ohne Erwachsene.'],['Πάτησε επάνω «Zo-Ai» ή το FAB κάτω δεξιά.','Ρώτα για τη μέρα σου, events ή παιχνίδια.','Η Zo-Ai δεν αλλάζει τίποτα χωρίς ενήλικα.'],'Zo-Ai hilft dir zu verstehen — Speichern machen nur Betreuer.','Η Zo-Ai σε βοηθάει να καταλάβεις — αποθήκευση κάνουν μόνο οι φροντιστές.'),
     step('🔐','Profil sicher verlassen','Ασφαλής έξοδος από το προφίλ','Oben rechts → Profil / Abmelden','Επάνω δεξιά → Προφίλ / Αποσύνδεση',['Tippe oben rechts auf dein Profil.','Nutze nur dein eigenes Profil und teile deine PIN nicht.','Tippe „Abmelden“, wenn du das Gerät nicht mehr benutzt.'],['Πάτησε επάνω δεξιά το προφίλ σου.','Χρησιμοποίησε μόνο το δικό σου προφίλ και μη δίνεις το PIN.','Πάτησε «Αποσύνδεση» όταν τελειώσεις.'],'Nach dem Abmelden erscheint wieder die Profilauswahl.','Μετά την αποσύνδεση εμφανίζεται ξανά η επιλογή προφίλ.'),
   ];
   const steps=[
@@ -2537,9 +2580,6 @@ function sheetHelp(){
   }
   const input = sheetEl.querySelector('#helpInput');
   const send = sheetEl.querySelector('#helpSend');
-  sheetEl.querySelectorAll('#helpQuick [data-q]').forEach(b=>{
-    b.onclick=()=>{ input.value=b.dataset.q; feedback('select'); input.focus(); };
-  });
   const submit = async () => {
     const content = input.value.trim();
     if(!content || send.disabled) return;
@@ -2588,6 +2628,9 @@ function sheetHelp(){
     }
   };
   send.onclick = submit;
+  sheetEl.querySelectorAll('#helpQuick [data-q]').forEach(b=>{
+    b.onclick=()=>{ input.value=b.dataset.q; feedback('select'); submit(); };
+  });
   input.onkeydown = e => {
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); }
   };
@@ -2906,10 +2949,11 @@ function entriesFor(dateStr){
 
 /** Ώρα εγγραφής: οι δικές της ώρες αν διαφέρουν, αλλιώς όλο το μπλοκ. */
 function entryTime(e){
-  const b = blockDef(e.block);
-  if(e.from && e.to) return `${e.from}–${e.to}`;
-  if(e.time) return e.time;              // παλιές εγγραφές με ελεύθερο κείμενο
-  return `${b.from}–${b.to}`;
+  const b = blockDef(e?.block) || {from:'', to:''};
+  if(e?.from && e?.to) return `${e.from}–${e.to}`;
+  if(e?.time) return String(e.time);
+  if(b.from && b.to) return `${b.from}–${b.to}`;
+  return '';
 }
 
 /* ── Βάρδιες ─────────────────────────────────────────────────── */
@@ -3278,12 +3322,13 @@ function cellItems(list, showWho = true, dateStr=state.date){
   return list.map(e=>{
     const who = entryEmployeeIds(e).length ? esc(employeeNames(e)) : t('unassigned');
     const kids = kidNames(e.childIds);
+    const when = entryTime(e);
     const sub = [showWho ? who : '', e.note].filter(Boolean).join(' · ');
     return `<div class="cellitem" data-open-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" role="button" tabindex="0">
       <button type="button" class="cellitem-x" data-remove-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" aria-label="${esc(t('removeFromTable'))}" title="${esc(t('removeFromTable'))}">×</button>
       <div class="cellitem-body"><b>${esc(actLabel(e.activityId))}</b>${eventForEntry(e,dateStr)?' <span class="event-flag">📣</span>':''}${
-      kids ? ` <span class="c">${esc(kids)}</span>` : ''}
-      <div class="cellitem-time">${esc(entryTime(e))}</div>${
+      kids ? ` <span class="c">${esc(kids)}</span>` : ''}${
+      when ? `<div class="cellitem-time">${esc(when)}</div>` : ''}${
       sub ? `<div class="cellitem-sub">${esc(sub)}</div>` : ''}</div></div>`;
   }).join('');
 }
@@ -5533,28 +5578,89 @@ function childEventsView(cid){
 
 const CHILD_GAMES = [
   {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e'},
-  {id:'tac', emoji:'⭕', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#b45309'},
+  {id:'tac', emoji:'❌', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#c2410c'},
   {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1'},
+  {id:'react', emoji:'⚡', titleKey:'gameReact', hintKey:'gameReactHint', tint:'#7c3aed'},
+  {id:'rps', emoji:'✊', titleKey:'gameRps', hintKey:'gameRpsHint', tint:'#be185d'},
+  {id:'dice', emoji:'🎲', titleKey:'gameDice', hintKey:'gameDiceHint', tint:'#0f766e'},
+  {id:'simon', emoji:'🎵', titleKey:'gameSimon', hintKey:'gameSimonHint', tint:'#b45309'},
+  {id:'colors', emoji:'🎨', titleKey:'gameColors', hintKey:'gameColorsHint', tint:'#1d4ed8'},
 ];
 const MEMORY_EMOJIS = ['🌊','☀️','🐚','🐙','🐟','⭐','🍋','⛵'];
+const CATCH_FISH = [
+  {emoji:'🐟', pts:1, speed:1, size:1},
+  {emoji:'🐠', pts:2, speed:1.25, size:.92},
+  {emoji:'🐡', pts:3, speed:.75, size:1.15},
+  {emoji:'🦈', pts:5, speed:1.55, size:1.2},
+];
+const SIMON_PADS = [
+  {id:'r', cls:'r', labelKey:'gameColorRed'},
+  {id:'g', cls:'g', labelKey:'gameColorGreen'},
+  {id:'b', cls:'b', labelKey:'gameColorBlue'},
+  {id:'y', cls:'y', labelKey:'gameColorYellow'},
+];
+const COLOR_OPTS = [
+  {id:'red', hex:'#e11d48', labelKey:'gameColorRed'},
+  {id:'green', hex:'#16a34a', labelKey:'gameColorGreen'},
+  {id:'blue', hex:'#2563eb', labelKey:'gameColorBlue'},
+  {id:'yellow', hex:'#ca8a04', labelKey:'gameColorYellow'},
+];
+
+function shuffleInPlace(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function gameBestKey(id){ return `paidia.game.best.${id}`; }
+function readGameBest(id){
+  try{ return Number(localStorage.getItem(gameBestKey(id)))||0; }catch{ return 0; }
+}
+function writeGameBest(id, score){
+  const prev=readGameBest(id);
+  if(score>prev){
+    try{ localStorage.setItem(gameBestKey(id), String(score)); }catch{}
+    return score;
+  }
+  return prev;
+}
 
 function stopChildGameTimers(){
   if(state.game?._timer){ clearInterval(state.game._timer); state.game._timer=null; }
   if(state.game?._cpu){ clearTimeout(state.game._cpu); state.game._cpu=null; }
+  if(state.game?._raf){ cancelAnimationFrame(state.game._raf); state.game._raf=null; }
 }
 
 function startChildGame(id){
   stopChildGameTimers();
   state.gameId = id;
   if(id==='memory'){
-    const deck = MEMORY_EMOJIS.flatMap((emoji,i)=>[{id:`a${i}`,emoji,pair:i},{id:`b${i}`,emoji,pair:i}])
-      .sort(()=>Math.random()-0.5)
-      .map((card,i)=>({...card, key:i, open:false, done:false}));
-    state.game = {moves:0, pairs:0, open:[], lock:false, deck};
+    const deck = MEMORY_EMOJIS.flatMap((emoji,i)=>[
+      {id:`a${i}`,emoji,pair:i,open:false,done:false,justMatched:false},
+      {id:`b${i}`,emoji,pair:i,open:false,done:false,justMatched:false},
+    ]);
+    shuffleInPlace(deck);
+    state.game = {moves:0, pairs:0, open:[], lock:false, deck, streak:0, finished:false};
   }else if(id==='tac'){
-    state.game = {board:Array(9).fill(''), turn:'x', status:'play', winner:null};
+    state.game = {board:Array(9).fill(''), turn:'x', status:'play', winner:null, line:null};
   }else if(id==='catch'){
-    state.game = {score:0, left:30, hit:false, x:50, y:50, _timer:null};
+    state.game = {
+      score:0, left:35, combo:0, bestCombo:0, finished:false,
+      fish:[], splashes:[], _timer:null, _raf:null, _last:0, _spawn:0,
+    };
+  }else if(id==='react'){
+    state.game = {phase:'idle', ms:null, best:readGameBest('react')||null, early:false, _cpu:null, startedAt:0};
+  }else if(id==='rps'){
+    state.game = {you:null, cpu:null, result:null, wins:0, losses:0, draws:0};
+  }else if(id==='dice'){
+    state.game = {value:null, rolling:false, history:[]};
+  }else if(id==='simon'){
+    state.game = {seq:[], input:[], phase:'idle', level:0, lit:null, finished:false};
+  }else if(id==='colors'){
+    state.game = {score:0, left:30, finished:false, target:null, choices:[], _timer:null};
+    nextColorRound(state.game);
   }else state.game = null;
   render();
 }
@@ -5568,30 +5674,112 @@ function leaveChildGame(){
 
 function childGamesLobby(){
   return `<div class="games-hero">
-      <div class="brand-kicker">Armonia</div>
+      <div class="brand-kicker">Armonia Play</div>
       <h2>${t('gamesTitle')}</h2>
       <p>${t('gamesHint')}</p>
     </div>
-    <div class="games-grid">${CHILD_GAMES.map(g=>`
-      <button class="game-card" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
+    <div class="games-grid">${CHILD_GAMES.map(g=>{
+      const best=readGameBest(g.id);
+      return `<button class="game-card" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
         <span class="game-emoji">${g.emoji}</span>
-        <span class="game-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span></span>
-        <span class="game-go">${t('gamePlay')}</span>
-      </button>`).join('')}</div>`;
+        <span class="game-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span>
+          ${best?`<small class="game-best-chip">${esc(t('gameBest'))}: ${g.id==='react'?t('gameReactMs')(best):best}</small>`:''}</span>
+        <span class="game-go">${t('gamePlay')} →</span>
+      </button>`;
+    }).join('')}</div>`;
+}
+
+function memoryStars(moves){
+  if(moves<=14) return 3;
+  if(moves<=22) return 2;
+  return 1;
 }
 
 function childMemoryView(){
   const g=state.game; if(!g) return childGamesLobby();
   const done=g.pairs>=MEMORY_EMOJIS.length;
+  const stars=done?memoryStars(g.moves):0;
+  if(done && !g.finished){
+    g.finished=true;
+    writeGameBest('memory', Math.max(0, 100-g.moves*2+g.pairs*5));
+  }
   return `<div class="game-shell memory">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
-      <div class="game-stats"><span>${t('gameMoves')}: <b>${g.moves}</b></span><span>${t('gamePairs')}: <b>${g.pairs}/${MEMORY_EMOJIS.length}</b></span></div></div>
-    ${done?`<div class="game-banner win">${t('gameWin')} <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
-    <div class="memory-grid">${g.deck.map((card,i)=>`
-      <button class="memory-card ${card.open||card.done?'open':''} ${card.done?'done':''}" type="button" data-i="${i}" ${card.done||g.lock?'disabled':''}>
+      <div class="game-stats">
+        <span>${t('gameMoves')}: <b id="memMoves">${g.moves}</b></span>
+        <span>${t('gamePairs')}: <b id="memPairs">${g.pairs}/${MEMORY_EMOJIS.length}</b></span>
+        <span>${t('gameStreak')}: <b id="memStreak">${g.streak||0}</b></span>
+      </div></div>
+    <p class="game-play-hint">${esc(t('gameMemoryHintPlay'))}</p>
+    ${done?`<div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameWin')} · ${g.moves} ${t('gameMoves')}</div>
+      <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
+    <div class="memory-grid" id="memoryGrid">${g.deck.map((card,i)=>`
+      <button class="memory-card ${card.open||card.done?'open':''} ${card.done?'done':''} ${card.justMatched?'matched':''}" type="button" data-i="${i}" ${card.done||g.lock?'disabled':''} aria-label="${card.open||card.done?card.emoji:'card'}">
         <span class="memory-face back">🌊</span><span class="memory-face front">${card.emoji}</span>
       </button>`).join('')}</div>
   </div>`;
+}
+
+function tacWinnerLine(board){
+  for(const line of [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]){
+    const [a,b,c]=line;
+    if(board[a] && board[a]===board[b] && board[a]===board[c]) return {winner:board[a], line};
+  }
+  return board.every(Boolean) ? {winner:'draw', line:null} : null;
+}
+function tacWinner(board){
+  const hit=tacWinnerLine(board);
+  return hit ? hit.winner : null;
+}
+
+function tacBestMove(board, mark){
+  const opp=mark==='o'?'x':'o';
+  let best=-Infinity, pick=-1;
+  const empties=board.map((v,i)=>v?'':i).filter(v=>v!=='');
+  for(const i of empties){
+    const next=board.slice(); next[i]=mark;
+    const result=tacWinner(next);
+    let score;
+    if(result===mark) score=10;
+    else if(result===opp) score=-10;
+    else if(result==='draw') score=0;
+    else{
+      // Opponent plays optimally (one-ply look for kids' medium difficulty).
+      let worst=Infinity;
+      for(const j of next.map((v,idx)=>v?'':idx).filter(v=>v!=='')){
+        const trial=next.slice(); trial[j]=opp;
+        const r2=tacWinner(trial);
+        let s2=0;
+        if(r2===opp) s2=-10;
+        else if(r2===mark) s2=10;
+        else if(r2==='draw') s2=0;
+        worst=Math.min(worst,s2);
+      }
+      score=worst===Infinity?0:worst;
+    }
+    if(score>best){ best=score; pick=i; }
+  }
+  return {pick: pick<0?empties[0]:pick, score:best};
+}
+
+function tacCpuMove(){
+  const g=state.game; if(!g || g.status!=='play' || g.turn!=='o') return;
+  const empties=g.board.map((v,i)=>v?'':i).filter(v=>v!=='');
+  if(!empties.length) return;
+  // Medium: usually optimal, sometimes random so kids can win
+  let pick;
+  if(Math.random()<0.72){
+    pick=tacBestMove(g.board,'o').pick;
+  }else{
+    pick=empties[Math.floor(Math.random()*empties.length)];
+  }
+  if(pick<0) pick=empties[0];
+  g.board[pick]='o';
+  const hit=tacWinnerLine(g.board);
+  if(hit?.winner==='o'){ g.status='win'; g.winner='o'; g.line=hit.line; writeGameBest('tac',1); }
+  else if(hit?.winner==='draw'){ g.status='draw'; }
+  else g.turn='x';
+  render();
 }
 
 function childTacView(){
@@ -5599,65 +5787,298 @@ function childTacView(){
   const status = g.status==='win' ? (g.winner==='x'?t('gameWin'):t('gameLose'))
     : g.status==='draw' ? t('gameDraw')
     : g.turn==='x' ? t('gameYourTurn') : t('gameCpuTurn');
+  const line=new Set(g.line||[]);
   return `<div class="game-shell tac">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
-      <div class="game-stats"><span>${t('gameYou')}: ❌</span><span>${t('gameCpu')}: ⭕</span></div></div>
-    <div class="game-banner ${g.status==='win'?(g.winner==='x'?'win':'lose'):g.status==='draw'?'draw':''}">${esc(status)}
+      <div class="game-stats"><span class="tac-chip you">${t('gameYou')} ❌</span><span class="tac-chip cpu">${t('gameCpu')} ⭕</span></div></div>
+    <p class="game-play-hint">${esc(t('gameTacHintPlay'))}</p>
+    <div class="game-banner ${g.status==='win'?(g.winner==='x'?'win':'lose'):g.status==='draw'?'draw':g.turn==='o'?'thinking':''} ${g.status!=='play'?'pop-in':''}">${esc(status)}
       ${g.status!=='play'?`<button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button>`:''}</div>
     <div class="tac-grid">${g.board.map((cell,i)=>`
-      <button class="tac-cell" type="button" data-i="${i}" ${cell||g.status!=='play'||g.turn!=='x'?'disabled':''}>${cell==='x'?'❌':cell==='o'?'⭕':''}</button>`).join('')}</div>
+      <button class="tac-cell ${line.has(i)?'win-cell':''} ${cell?'filled':''}" type="button" data-i="${i}" ${cell||g.status!=='play'||g.turn!=='x'?'disabled':''}>
+        <span class="tac-mark ${cell||''}">${cell==='x'?'❌':cell==='o'?'⭕':''}</span>
+      </button>`).join('')}</div>
   </div>`;
 }
 
-function tacWinner(board){
-  for(const [a,b,c] of [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]){
-    if(board[a] && board[a]===board[b] && board[a]===board[c]) return board[a];
-  }
-  return board.every(Boolean) ? 'draw' : null;
+function catchStars(score){
+  if(score>=40) return 3;
+  if(score>=22) return 2;
+  return 1;
 }
 
-function tacCpuMove(){
-  const g=state.game; if(!g || g.status!=='play' || g.turn!=='o') return;
-  const empties=g.board.map((v,i)=>v?'':i).filter(v=>v!=='');
-  if(!empties.length) return;
-  let pick=null;
-  for(const i of empties){
-    const trial=g.board.slice(); trial[i]='o';
-    if(tacWinner(trial)==='o'){ pick=i; break; }
-  }
-  if(pick==null){
-    for(const i of empties){
-      const trial=g.board.slice(); trial[i]='x';
-      if(tacWinner(trial)==='x'){ pick=i; break; }
-    }
-  }
-  if(pick==null) pick = empties.includes(4) ? 4 : empties[Math.floor(Math.random()*empties.length)];
-  g.board[pick]='o';
-  const result=tacWinner(g.board);
-  if(result==='o'){ g.status='win'; g.winner='o'; }
-  else if(result==='draw'){ g.status='draw'; }
-  else g.turn='x';
-  render();
+function spawnCatchFish(g){
+  const kind=CATCH_FISH[Math.floor(Math.random()*CATCH_FISH.length)];
+  const fromLeft=Math.random()>0.5;
+  g.fish.push({
+    id:'f'+Math.random().toString(36).slice(2,8),
+    ...kind,
+    x: fromLeft ? -12 : 112,
+    y: 12 + Math.random()*70,
+    vx: (fromLeft?1:-1) * (28 + Math.random()*34) * kind.speed,
+    wobble: Math.random()*Math.PI*2,
+    life: 0,
+  });
 }
 
 function childCatchView(){
   const g=state.game; if(!g) return childGamesLobby();
-  const over=g.left<=0;
+  const over=g.finished || g.left<=0;
+  const stars=over?catchStars(g.score):0;
+  const best=readGameBest('catch');
   return `<div class="game-shell catch">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
-      <div class="game-stats"><span>${t('gameScore')}: <b>${g.score}</b></span><span>${t('gameTime')}: <b>${g.left}s</b></span></div></div>
-    ${over?`<div class="game-banner win">${t('gameWin')} · ${g.score} <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
-    <div class="catch-sea" id="catchSea">
-      ${over?'':`<button class="catch-fish ${g.hit?'hit':''}" type="button" id="catchFish" style="left:${g.x}%;top:${g.y}%">🐟</button>`}
+      <div class="game-stats">
+        <span>${t('gameScore')}: <b id="catchScore">${g.score}</b></span>
+        <span>${t('gameCombo')}: <b id="catchCombo">×${Math.max(1,g.combo)}</b></span>
+        <span>${t('gameTime')}: <b id="catchTime">${Math.max(0,g.left)}s</b></span>
+      </div></div>
+    <p class="game-play-hint">${esc(t('gameCatchHintPlay'))}${best?` · ${esc(t('gameBest'))}: ${best}`:''}</p>
+    ${over?`<div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameCatchOver')} · ${g.score} ${t('gameScore')}</div>
+      <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
+    <div class="catch-sea" id="catchSea" aria-label="sea">
+      <div class="catch-wave w1"></div><div class="catch-wave w2"></div><div class="catch-bubbles" aria-hidden="true"></div>
+      <div id="catchFishLayer"></div>
+      <div id="catchSplashLayer"></div>
     </div>
   </div>`;
+}
+
+function paintCatchFishLayer(){
+  const g=state.game; if(!g || state.gameId!=='catch') return;
+  const layer=document.getElementById('catchFishLayer');
+  if(!layer) return;
+  const ids=g.fish.map(f=>f.id).join(',');
+  if(layer.dataset.ids!==ids){
+    layer.dataset.ids=ids;
+    layer.innerHTML=g.fish.map(f=>`
+      <button class="catch-fish swim" type="button" data-fid="${f.id}" aria-label="${esc(t('gameFishCatch'))}"
+        style="left:${f.x}%;top:${f.y}%;--sz:${f.size};transform:scaleX(${f.vx<0?-1:1}) scale(var(--sz))">${f.emoji}</button>`).join('');
+  }else{
+    g.fish.forEach(f=>{
+      const el=layer.querySelector(`[data-fid="${f.id}"]`);
+      if(!el) return;
+      el.style.left=`${f.x}%`;
+      el.style.top=`${f.y}%`;
+      el.style.transform=`scaleX(${f.vx<0?-1:1}) scale(var(--sz))`;
+    });
+  }
+  if(!layer.dataset.bound){
+    layer.dataset.bound='1';
+    layer.addEventListener('click', (ev)=>{
+      const btn=ev.target.closest('[data-fid]');
+      if(!btn || !state.game || state.gameId!=='catch') return;
+      const gg=state.game;
+      const fish=gg.fish.find(x=>x.id===btn.dataset.fid);
+      if(!fish || gg.finished) return;
+      gg.combo=Math.min(8,(gg.combo||0)+1);
+      gg.bestCombo=Math.max(gg.bestCombo,gg.combo);
+      const gained=fish.pts*Math.max(1,gg.combo);
+      gg.score+=gained;
+      gg.splashes.push({id:fish.id,x:fish.x,y:fish.y,pts:`+${gained}`,t:0});
+      gg.fish=gg.fish.filter(x=>x.id!==fish.id);
+      feedback('save');
+      const scoreEl=document.getElementById('catchScore');
+      const comboEl=document.getElementById('catchCombo');
+      if(scoreEl) scoreEl.textContent=String(gg.score);
+      if(comboEl) comboEl.textContent=`×${Math.max(1,gg.combo)}`;
+      paintCatchFishLayer();
+      paintCatchSplashes();
+    });
+  }
+}
+
+function paintCatchSplashes(){
+  const g=state.game; if(!g) return;
+  const layer=document.getElementById('catchSplashLayer');
+  if(!layer) return;
+  layer.innerHTML=g.splashes.map(s=>`
+    <div class="catch-splash" style="left:${s.x}%;top:${s.y}%"><span>${esc(s.pts)}</span></div>`).join('');
+}
+
+function tickCatch(ts){
+  const g=state.game;
+  if(!g || state.gameId!=='catch' || g.finished){ stopChildGameTimers(); return; }
+  if(!g._last) g._last=ts;
+  const dt=Math.min(0.05,(ts-g._last)/1000);
+  g._last=ts;
+  g._spawn=(g._spawn||0)+dt;
+  if(g.fish.length<4 && g._spawn>0.55){
+    spawnCatchFish(g);
+    g._spawn=0;
+    paintCatchFishLayer();
+  }
+  let moved=false;
+  g.fish.forEach(f=>{
+    f.life+=dt;
+    f.wobble+=dt*4;
+    f.x += f.vx*dt;
+    f.y += Math.sin(f.wobble)*18*dt;
+    f.y=Math.max(8,Math.min(88,f.y));
+    moved=true;
+  });
+  const before=g.fish.length;
+  g.fish=g.fish.filter(f=>f.x>-18 && f.x<118);
+  if(g.fish.length!==before){
+    g.combo=0;
+    const comboEl=document.getElementById('catchCombo');
+    if(comboEl) comboEl.textContent='×1';
+  }
+  if(moved) paintCatchFishLayer();
+  g.splashes=g.splashes.filter(s=>{ s.t+=dt; return s.t<0.7; });
+  paintCatchSplashes();
+  g._raf=requestAnimationFrame(tickCatch);
 }
 
 function childGamesView(){
   if(state.gameId==='memory') return childMemoryView();
   if(state.gameId==='tac') return childTacView();
   if(state.gameId==='catch') return childCatchView();
+  if(state.gameId==='react') return childReactView();
+  if(state.gameId==='rps') return childRpsView();
+  if(state.gameId==='dice') return childDiceView();
+  if(state.gameId==='simon') return childSimonView();
+  if(state.gameId==='colors') return childColorsView();
   return childGamesLobby();
+}
+
+function childReactView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const phase=g.phase;
+  const label = phase==='wait' ? t('gameReactWait')
+    : phase==='go' ? t('gameReactGo')
+    : phase==='early' ? t('gameReactEarly')
+    : phase==='done' ? t('gameReactMs')(g.ms)
+    : t('gamePlay');
+  const best=g.best!=null?g.best:readGameBest('react');
+  return `<div class="game-shell react">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats"><span>${t('gameBest')}: <b>${best?t('gameReactMs')(best):'—'}</b></span></div></div>
+    <p class="game-play-hint">${esc(t('gameReactHintPlay'))}</p>
+    <button class="react-pad ${phase}" type="button" id="reactPad">${esc(label)}</button>
+    ${phase==='done'||phase==='early'?`<div class="row" style="margin-top:12px;gap:8px">
+      <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
+    ${phase==='idle'?`<button class="btn" type="button" id="reactStart" style="margin-top:12px">${t('gamePlay')}</button>`:''}
+  </div>`;
+}
+
+function childRpsView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const picks=[['rock','✊',t('gameRpsRock')],['paper','✋',t('gameRpsPaper')],['scissors','✌️',t('gameRpsScissors')]];
+  const resultLabel = g.result==='win'?t('gameWin'):g.result==='lose'?t('gameLose'):g.result==='draw'?t('gameDraw'):'';
+  return `<div class="game-shell rps">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats"><span>🏆 ${g.wins}</span><span>🤝 ${g.draws}</span><span>💥 ${g.losses}</span></div></div>
+    <p class="game-play-hint">${esc(t('gameRpsHintPlay'))}</p>
+    <div class="rps-arena">
+      <div class="rps-side"><div class="muted">${t('gameYou')}</div><div class="rps-emoji">${g.you?picks.find(p=>p[0]===g.you)[1]:'❔'}</div></div>
+      <div class="rps-vs">VS</div>
+      <div class="rps-side"><div class="muted">${t('gameCpu')}</div><div class="rps-emoji">${g.cpu?picks.find(p=>p[0]===g.cpu)[1]:'❔'}</div></div>
+    </div>
+    ${g.result?`<div class="game-banner ${g.result==='win'?'win':g.result==='lose'?'lose':'draw'} pop-in">${esc(resultLabel)}</div>`:''}
+    <div class="rps-picks">${picks.map(([id,emoji,label])=>`
+      <button class="rps-pick" type="button" data-rps="${id}"><span>${emoji}</span><b>${esc(label)}</b></button>`).join('')}</div>
+  </div>`;
+}
+
+function childDiceView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+  return `<div class="game-shell dice">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats"><span>${t('gameDiceYou')}</span></div></div>
+    <p class="game-play-hint">${esc(t('gameDiceHintPlay'))}</p>
+    <div class="dice-face ${g.rolling?'rolling':''}" id="diceFace">${g.value?faces[g.value-1]:'🎲'}</div>
+    <div class="dice-num">${g.value?`${t('gameDiceResult')}: ${g.value}`:'—'}</div>
+    <button class="btn" type="button" id="diceRoll" ${g.rolling?'disabled':''}>${t('gameDiceRoll')}</button>
+    ${g.history.length?`<div class="dice-hist muted">${g.history.slice(0,6).join(' · ')}</div>`:''}
+  </div>`;
+}
+
+function nextColorRound(g){
+  const pool=[...COLOR_OPTS];
+  shuffleInPlace(pool);
+  g.target=pool[0];
+  g.choices=shuffleInPlace(pool.slice(0,4));
+}
+
+function childSimonView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const banner = g.phase==='show' ? t('gameSimonWatch')
+    : g.phase==='input' ? t('gameSimonGo')
+    : g.phase==='fail' ? t('gameSimonFail')
+    : g.phase==='idle' ? t('gameSimonHintPlay')
+    : '';
+  const best=readGameBest('simon');
+  return `<div class="game-shell simon">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats">
+        <span>${t('gameLevel')}: <b>${g.level||0}</b></span>
+        <span>${t('gameBest')}: <b>${best||0}</b></span>
+      </div></div>
+    <p class="game-play-hint">${esc(banner)}</p>
+    <div class="simon-grid">${SIMON_PADS.map(p=>`
+      <button class="simon-pad ${p.cls}${g.lit===p.id?' lit':''}" type="button" data-simon="${p.id}"
+        aria-label="${esc(t(p.labelKey))}" ${g.phase!=='input'?'disabled':''}></button>`).join('')}</div>
+    ${g.phase==='idle'||g.phase==='fail'?`<button class="btn" type="button" id="simonStart">${g.phase==='fail'?t('gameAgain'):t('gamePlay')}</button>`:''}
+  </div>`;
+}
+
+function childColorsView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  if(g.finished){
+    return `<div class="game-shell colors">
+      <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button></div>
+      <div class="game-banner win pop-in">${t('gameCatchOver')} · ${t('gameScore')}: ${g.score}</div>
+      <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button>
+    </div>`;
+  }
+  const target=g.target;
+  return `<div class="game-shell colors">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats">
+        <span>${t('gameScore')}: <b id="colorScore">${g.score}</b></span>
+        <span>${t('gameTime')}: <b id="colorTime">${g.left}s</b></span>
+      </div></div>
+    <p class="game-play-hint">${esc(t('gameColorsHintPlay'))}</p>
+    <div class="color-prompt">${esc(t('gameColorsTap'))} ${esc(t(target.labelKey))}
+      <small>${esc(t('gameBest'))}: ${readGameBest('colors')||0}</small></div>
+    <div class="color-grid">${g.choices.map(c=>`
+      <button class="color-btn" type="button" data-color="${c.id}" style="background:${c.hex}">${esc(t(c.labelKey))}</button>`).join('')}</div>
+  </div>`;
+}
+
+function playSimonSequence(){
+  const g=state.game; if(!g || state.gameId!=='simon') return;
+  stopChildGameTimers();
+  g.phase='show'; g.input=[]; g.lit=null;
+  render();
+  let i=0;
+  const step=()=>{
+    if(!state.game || state.gameId!=='simon') return;
+    if(i>=g.seq.length){
+      g.phase='input'; g.lit=null; render(); return;
+    }
+    g.lit=g.seq[i];
+    render();
+    g._cpu=setTimeout(()=>{
+      if(!state.game || state.gameId!=='simon') return;
+      state.game.lit=null;
+      render();
+      i += 1;
+      g._cpu=setTimeout(step, 220);
+    }, 480);
+  };
+  g._cpu=setTimeout(step, 350);
+}
+
+function simonAdvance(){
+  const g=state.game; if(!g) return;
+  const next=SIMON_PADS[Math.floor(Math.random()*SIMON_PADS.length)].id;
+  g.seq=[...g.seq, next];
+  g.level=g.seq.length;
+  writeGameBest('simon', g.level);
+  playSimonSequence();
 }
 
 function bindChildGames(root){
@@ -5672,7 +6093,7 @@ function bindChildGames(root){
   if(state.gameId==='memory'){
     root.querySelectorAll('.memory-card[data-i]').forEach(btn=>{
       btn.onclick=()=>{
-        const g=state.game; if(!g||g.lock) return;
+        const g=state.game; if(!g||g.lock||g.finished) return;
         const i=Number(btn.dataset.i), card=g.deck[i];
         if(!card || card.open || card.done) return;
         card.open=true; g.open.push(i); feedback('select');
@@ -5680,14 +6101,21 @@ function bindChildGames(root){
         g.moves += 1; g.lock=true;
         const [a,b]=g.open, ca=g.deck[a], cb=g.deck[b];
         if(ca.pair===cb.pair){
-          ca.done=cb.done=true; g.pairs += 1; g.open=[]; g.lock=false; feedback('save');
+          ca.done=cb.done=true; ca.justMatched=cb.justMatched=true;
+          g.pairs += 1; g.streak=(g.streak||0)+1; g.open=[]; g.lock=false; feedback('save');
           render();
+          setTimeout(()=>{
+            if(!state.game || state.gameId!=='memory') return;
+            state.game.deck.forEach(c=>c.justMatched=false);
+            render();
+          }, 420);
         }else{
+          g.streak=0;
           render();
           setTimeout(()=>{
             if(!state.game || state.gameId!=='memory') return;
             ca.open=cb.open=false; state.game.open=[]; state.game.lock=false; render();
-          }, 650);
+          }, 700);
         }
       };
     });
@@ -5699,38 +6127,181 @@ function bindChildGames(root){
         const g=state.game; if(!g||g.status!=='play'||g.turn!=='x') return;
         const i=Number(btn.dataset.i); if(g.board[i]) return;
         g.board[i]='x'; feedback('select');
-        const result=tacWinner(g.board);
-        if(result==='x'){ g.status='win'; g.winner='x'; feedback('save'); render(); return; }
-        if(result==='draw'){ g.status='draw'; render(); return; }
+        const hit=tacWinnerLine(g.board);
+        if(hit?.winner==='x'){ g.status='win'; g.winner='x'; g.line=hit.line; writeGameBest('tac', readGameBest('tac')+1); feedback('save'); render(); return; }
+        if(hit?.winner==='draw'){ g.status='draw'; render(); return; }
         g.turn='o'; render();
-        g._cpu=setTimeout(tacCpuMove, 420);
+        g._cpu=setTimeout(tacCpuMove, 380);
       };
     });
   }
 
   if(state.gameId==='catch'){
     const g=state.game;
-    const fish=root.querySelector('#catchFish');
-    if(fish && g && g.left>0){
-      fish.onclick=()=>{
-        g.score += 1; g.hit=true; feedback('save');
-        g.x = 12 + Math.random()*76; g.y = 12 + Math.random()*70;
-        render();
-        setTimeout(()=>{ if(state.game) state.game.hit=false; }, 120);
-      };
+    if(g && !g.finished && g.left>0){
+      if(!g.fish.length){ spawnCatchFish(g); spawnCatchFish(g); }
+      paintCatchFishLayer();
       if(!g._timer){
         g._timer=setInterval(()=>{
           if(!state.game || state.gameId!=='catch'){ stopChildGameTimers(); return; }
           state.game.left -= 1;
-          if(state.game.left<=0){ stopChildGameTimers(); state.game.left=0; }
-          else {
-            state.game.x = 12 + Math.random()*76;
-            state.game.y = 12 + Math.random()*70;
+          const timeEl=document.getElementById('catchTime');
+          if(timeEl) timeEl.textContent=`${Math.max(0,state.game.left)}s`;
+          if(state.game.left<=0){
+            stopChildGameTimers();
+            state.game.left=0;
+            state.game.finished=true;
+            writeGameBest('catch', state.game.score);
+            render();
           }
-          render();
         }, 1000);
       }
+      if(!g._raf){
+        g._last=0;
+        g._raf=requestAnimationFrame(tickCatch);
+      }
     }
+  }
+
+  if(state.gameId==='react'){
+    const g=state.game;
+    const start=()=>{
+      if(!g) return;
+      stopChildGameTimers();
+      g.phase='wait'; g.ms=null; g.early=false; g.startedAt=0;
+      render();
+      const delay=1200+Math.random()*2200;
+      g._cpu=setTimeout(()=>{
+        if(!state.game || state.gameId!=='react') return;
+        state.game.phase='go';
+        state.game.startedAt=performance.now();
+        render();
+      }, delay);
+    };
+    root.querySelector('#reactStart')?.addEventListener('click',()=>{ feedback('select'); start(); });
+    root.querySelector('#reactPad')?.addEventListener('click',()=>{
+      if(!g) return;
+      if(g.phase==='idle'){ feedback('select'); start(); return; }
+      if(g.phase==='wait'){
+        stopChildGameTimers();
+        g.phase='early'; g.early=true; feedback('error'); render(); return;
+      }
+      if(g.phase==='go'){
+        const ms=Math.round(performance.now()-g.startedAt);
+        g.ms=ms; g.phase='done';
+        const prev=readGameBest('react');
+        // Lower ms is better — store inverted score helper: best = min ms
+        if(!prev || ms<prev){
+          try{ localStorage.setItem(gameBestKey('react'), String(ms)); }catch{}
+          g.best=ms;
+        }else g.best=prev;
+        feedback('save'); render();
+      }
+    });
+  }
+
+  if(state.gameId==='rps'){
+    const beats={rock:'scissors', paper:'rock', scissors:'paper'};
+    root.querySelectorAll('[data-rps]').forEach(btn=>{
+      btn.onclick=()=>{
+        const g=state.game; if(!g) return;
+        const you=btn.dataset.rps;
+        const opts=['rock','paper','scissors'];
+        const cpu=opts[Math.floor(Math.random()*3)];
+        g.you=you; g.cpu=cpu;
+        if(you===cpu){ g.result='draw'; g.draws++; }
+        else if(beats[you]===cpu){ g.result='win'; g.wins++; writeGameBest('rps', g.wins); feedback('save'); }
+        else { g.result='lose'; g.losses++; }
+        feedback('select'); render();
+      };
+    });
+  }
+
+  if(state.gameId==='dice'){
+    root.querySelector('#diceRoll')?.addEventListener('click',()=>{
+      const g=state.game; if(!g || g.rolling) return;
+      g.rolling=true; render();
+      feedback('select');
+      let ticks=0;
+      const spin=setInterval(()=>{
+        if(!state.game || state.gameId!=='dice'){ clearInterval(spin); return; }
+        state.game.value=1+Math.floor(Math.random()*6);
+        const face=document.getElementById('diceFace');
+        if(face) face.textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][state.game.value-1];
+        ticks++;
+        if(ticks>=10){
+          clearInterval(spin);
+          state.game.rolling=false;
+          state.game.history=[state.game.value, ...state.game.history].slice(0,8);
+          writeGameBest('dice', Math.max(readGameBest('dice'), state.game.value));
+          feedback('save');
+          render();
+        }
+      }, 70);
+    });
+  }
+
+  if(state.gameId==='simon'){
+    const g=state.game;
+    root.querySelector('#simonStart')?.addEventListener('click',()=>{
+      if(!g) return;
+      feedback('select');
+      g.seq=[]; g.input=[]; g.level=0; g.finished=false; g.phase='idle';
+      simonAdvance();
+    });
+    root.querySelectorAll('[data-simon]').forEach(btn=>{
+      btn.onclick=()=>{
+        if(!g || g.phase!=='input') return;
+        const id=btn.dataset.simon;
+        g.lit=id; feedback('select'); render();
+        setTimeout(()=>{
+          if(!state.game || state.gameId!=='simon') return;
+          state.game.lit=null; render();
+        }, 160);
+        g.input.push(id);
+        const idx=g.input.length-1;
+        if(g.input[idx]!==g.seq[idx]){
+          g.phase='fail'; g.finished=true; feedback('error'); render(); return;
+        }
+        if(g.input.length===g.seq.length){
+          feedback('save');
+          setTimeout(()=>{
+            if(!state.game || state.gameId!=='simon') return;
+            simonAdvance();
+          }, 420);
+        }
+      };
+    });
+  }
+
+  if(state.gameId==='colors'){
+    const g=state.game;
+    if(g && !g.finished && g.left>0 && !g._timer){
+      g._timer=setInterval(()=>{
+        if(!state.game || state.gameId!=='colors'){ stopChildGameTimers(); return; }
+        state.game.left -= 1;
+        const timeEl=document.getElementById('colorTime');
+        if(timeEl) timeEl.textContent=`${Math.max(0,state.game.left)}s`;
+        if(state.game.left<=0){
+          stopChildGameTimers();
+          state.game.left=0;
+          state.game.finished=true;
+          writeGameBest('colors', state.game.score);
+          render();
+        }
+      }, 1000);
+    }
+    root.querySelectorAll('[data-color]').forEach(btn=>{
+      btn.onclick=()=>{
+        if(!g || g.finished) return;
+        if(btn.dataset.color===g.target.id){
+          g.score += 1; feedback('save');
+          nextColorRound(g); render();
+        }else{
+          g.score=Math.max(0,g.score-1); feedback('error'); render();
+        }
+      };
+    });
   }
 }
 
@@ -6128,20 +6699,25 @@ function renderChild(){
       `<button type="button" class="topbtn ${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('myToday')}</button>`,
       `<button type="button" class="topbtn ${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('myWeek')}</button>`,
       `<button type="button" class="topbtn ${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('weekEvents')}</button>`,
-      `<button type="button" class="topbtn ${state.childView==='games'?'on':''}" data-child-view="games">🎮</button>`,
-      `<button type="button" class="topbtn" data-child-chat="1">💬 ${t('topChat')}</button>`,
+      `<button type="button" class="topbtn ${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>`,
+      `<button type="button" class="topbtn" data-child-chat="1">✨ ${t('helpChat')}</button>`,
     ].join('');
     tools.querySelectorAll('[data-child-view]').forEach(b=>b.onclick=()=>{state.childView=b.dataset.childView;renderChild();});
-    tools.querySelector('[data-child-chat]')?.addEventListener('click',()=>openChatPanel('ai'));
+    tools.querySelector('[data-child-chat]')?.addEventListener('click',()=>openZoAi());
   }
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='none';
   document.querySelector('nav').style.display = 'none';
   document.body.classList.add('mode-child');
-  document.body.classList.remove('has-stock-dock','has-store-dock');
-  document.getElementById('helpFab').setAttribute('aria-label', t('helpCenter'));
-  document.getElementById('helpFab').title = t('helpCenter');
-
+  document.body.classList.remove('has-stock-dock','has-store-dock','chat-open');
+  state.chatOpen=false;
+  const fab=document.getElementById('helpFab');
+  if(fab){
+    fab.hidden=false;
+    fab.textContent='✨';
+    fab.setAttribute('aria-label', t('helpChat'));
+    fab.title = t('helpChat');
+  }
   const days = week.map(ds=>{
     const d = new Date(ds+'T12:00:00');
     return `<div class="day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}">
@@ -6205,7 +6781,7 @@ function renderChild(){
   const eventNotice=document.getElementById('view').querySelector('#childEventNotice');
   if(eventNotice) eventNotice.onclick=()=>{state.childView='events';render();};
   const zoBan=document.getElementById('view').querySelector('#zoAiBanner');
-  if(zoBan) zoBan.onclick=()=>{ dismissZoAiBanner(); openChatPanel('ai'); };
+  if(zoBan) zoBan.onclick=()=>{ dismissZoAiBanner(); openZoAi(); };
   const zoDismiss=document.getElementById('view').querySelector('#zoAiBannerDismiss');
   if(zoDismiss) zoDismiss.onclick=e=>{ e.stopPropagation(); dismissZoAiBanner(); render(); };
   if(state.childView==='games') bindChildGames(document.getElementById('view'));
@@ -6289,7 +6865,10 @@ function paintTopChrome(){
   });
   const chatLabel=document.querySelector('[data-nav-chat]');
   if(chatLabel) chatLabel.textContent = t('navChat');
-  document.getElementById('navChat')?.classList.toggle('on', !!state.chatOpen);
+  const navChatBtn=document.getElementById('navChat');
+  navChatBtn?.classList.toggle('on', !!state.chatOpen);
+  navChatBtn?.setAttribute('aria-label', t('navChat'));
+  document.getElementById('chatClose')?.setAttribute('aria-label', t('close'));
 }
 
 function onTopAction(id){
@@ -6335,11 +6914,39 @@ function toggleChatPanel(){
   else openChatPanel(state.chatMode||'ai');
 }
 
+/** Child mode has no bottom chat dock — Zo-Ai opens as a sheet instead. */
+function openZoAi(){
+  closeChatPanel();
+  sheetHelp();
+}
+
 function openChatPanel(mode='ai'){
-  state.chatMode=mode;
+  if(state.mode==='child'){
+    if(mode==='talk'){ toast(t('staffTalkNeedStaff')||t('helpChildHint')); return; }
+    openZoAi();
+    return;
+  }
+  state.chatMode=mode==='talk' && !state.user ? 'ai' : mode;
   state.chatOpen=true;
   document.body.classList.add('chat-open');
-  document.querySelectorAll('#chatModeSeg button').forEach(b=>b.classList.toggle('on', b.dataset.cm===mode));
+  const bottom=document.getElementById('bottomPanel');
+  if(bottom) bottom.style.display='';
+  document.querySelectorAll('#chatModeSeg button').forEach(b=>{
+    const cm=b.dataset.cm;
+    if(cm==='talk'){
+      b.hidden=!state.user;
+      b.textContent=`💬 ${t('topTalk')}`;
+    }else if(cm==='ai'){
+      b.hidden=false;
+      b.textContent=`✨ ${t('helpChat')}`;
+    }else if(cm==='help'){
+      b.hidden=false;
+      b.textContent=`? ${t('helpCenter').split(' ')[0]||'?'}`;
+    }
+    b.classList.toggle('on', b.dataset.cm===state.chatMode);
+  });
+  const closeBtn=document.getElementById('chatClose');
+  if(closeBtn) closeBtn.setAttribute('aria-label', t('close'));
   paintTopChrome();
   paintChatPanel();
   scheduleMeasureChrome();
@@ -6431,13 +7038,10 @@ function mountHelpChat(root){
     banner.textContent=t('helpConfigBanner');
   }).catch(()=>{});
   if(canMutate && state.pendingHelpActions?.length){
-    // proposals still use sheet helper when needed
+    sheetHelpProposals(state.pendingHelpActions,{inline:true,onDone:()=>paint()});
   }
   const input = root.querySelector('#helpInput');
   const send = root.querySelector('#helpSend');
-  root.querySelectorAll('#helpQuick [data-q]').forEach(b=>{
-    b.onclick=()=>{ input.value=b.dataset.q; feedback('select'); input.focus(); };
-  });
   const submit = async () => {
     const content = input.value.trim();
     if(!content || send.disabled) return;
@@ -6486,6 +7090,9 @@ function mountHelpChat(root){
     }
   };
   send.onclick = submit;
+  root.querySelectorAll('#helpQuick [data-q]').forEach(b=>{
+    b.onclick=()=>{ input.value=b.dataset.q; feedback('select'); submit(); };
+  });
   input.onkeydown = e => {
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); }
   };
@@ -6543,6 +7150,7 @@ function render(){
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='';
   document.querySelector('nav').style.display = '';
+  document.getElementById('helpFab').textContent='?';
   document.getElementById('helpFab').setAttribute('aria-label', t('helpCenter'));
   document.getElementById('helpFab').title = t('helpCenter');
   paintTopChrome();
@@ -7480,7 +8088,10 @@ function renderResetForm(token){
 }
 
 document.documentElement.lang = state.lang;
-document.getElementById('helpFab').onclick = () => openChatPanel('help');
+document.getElementById('helpFab').onclick = () => {
+  if(state.mode==='child') openZoAi();
+  else openChatPanel('help');
+};
 window.addEventListener('keydown', event=>{
   if(event.key==='Escape' && document.body.classList.contains('matrix-fullscreen')){
     event.preventDefault();

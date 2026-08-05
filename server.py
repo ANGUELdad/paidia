@@ -95,7 +95,7 @@ load_env()
 HOST = os.environ.get("PAIDIA_HOST", "127.0.0.1")
 PORT = int(os.environ.get("PAIDIA_PORT", "5173"))
 OCR_MODEL = os.environ.get("GROQ_OCR_MODEL", "qwen/qwen3.6-27b")
-CHAT_MODEL = os.environ.get("GROQ_CHAT_MODEL", "llama-3.3-70b-versatile")
+CHAT_MODEL = os.environ.get("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 MAX_BODY = 12 * 1024 * 1024
 WHATSAPP_GRAPH_VERSION = os.environ.get("WHATSAPP_GRAPH_VERSION", "v23.0")
@@ -2220,7 +2220,7 @@ def run_chat(
     prompt = help_prompt_for_role(role)
     messages = [{"role": "system", "content": prompt + "\nCurrent UI context: " +
                  json.dumps(context, ensure_ascii=False)[:12000]}]
-    for message in raw_messages[-12]:
+    for message in raw_messages[-12:]:
         if not isinstance(message, dict) or message.get("role") not in {"user", "assistant"}:
             continue
         content = message.get("content")
@@ -2256,6 +2256,9 @@ def run_chat(
     except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
         code = "timeout" if isinstance(exc, TimeoutError) else "provider"
         return (504 if code == "timeout" else 502), {"error": "Zo-Ai chat failed", "code": code}
+    except Exception as exc:  # noqa: BLE001 — never 500 opaque HTML to the app
+        print(f"[zoai] chat failed: {type(exc).__name__}: {exc}", flush=True)
+        return 502, {"error": "Zo-Ai chat failed", "code": "provider"}
 
 
 def groq_completion(api_key: str, request_body: dict, timeout: int = 90) -> dict:
