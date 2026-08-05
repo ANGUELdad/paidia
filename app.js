@@ -1183,7 +1183,8 @@ let sheetLocked = false;
 function openSheet(html, {dismissable = true} = {}){
   sheetLocked = !dismissable;
   document.getElementById('app').inert = sheetLocked;
-  document.getElementById('helpFab').inert = sheetLocked;
+  document.getElementById('helpFab').inert = true;
+  document.getElementById('helpFab').hidden = true;
   sheetEl.setAttribute('role','dialog');
   sheetEl.setAttribute('aria-modal','true');
   sheetEl.innerHTML = (dismissable
@@ -1197,11 +1198,13 @@ function closeSheet(){
   sheetLocked = false;
   document.getElementById('app').inert = false;
   document.getElementById('helpFab').inert = false;
+  document.getElementById('helpFab').hidden = false;
   sheetEl.removeAttribute('role');sheetEl.removeAttribute('aria-modal');
   sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
   stopCamera();
   sheetEl.replaceChildren();
+  scheduleMeasureChrome();
 }
 
 function onboardingSteps(){
@@ -4028,6 +4031,32 @@ function renderChild(){
   });
   const eventNotice=document.getElementById('view').querySelector('#childEventNotice');
   if(eventNotice) eventNotice.onclick=()=>{state.childView='events';render();};
+  scheduleMeasureChrome();
+}
+
+function measureChrome(){
+  const root=document.documentElement;
+  const nav=document.querySelector('nav');
+  const childMode=document.body.classList.contains('mode-child');
+  const navHidden=childMode || !nav || nav.style.display==='none';
+  const navH=navHidden?0:Math.ceil(nav.getBoundingClientRect().height);
+  const dockEl=document.querySelector('.stock-footer-actions, .store-finish.bottom-dock');
+  let dockH=0;
+  if(dockEl){
+    const style=getComputedStyle(dockEl);
+    if(style.display!=='none' && style.visibility!=='hidden'){
+      dockH=Math.ceil(dockEl.getBoundingClientRect().height);
+    }
+  }
+  // Set on both html and body so class-based body vars cannot override measured values.
+  [root, document.body].forEach(el=>{
+    el.style.setProperty('--nav-total', `${navH}px`);
+    el.style.setProperty('--dock-h', `${dockH}px`);
+  });
+}
+
+function scheduleMeasureChrome(){
+  requestAnimationFrame(()=>requestAnimationFrame(measureChrome));
 }
 
 function render(){
@@ -4060,6 +4089,7 @@ function render(){
     : state.tab==='shop'     ? viewShop()
     : viewBook();
   wire();
+  scheduleMeasureChrome();
 }
 
 function wire(){
@@ -4697,6 +4727,9 @@ function renderResetForm(token){
 
 document.documentElement.lang = state.lang;
 document.getElementById('helpFab').onclick = sheetHelpCenter;
+window.addEventListener('resize', scheduleMeasureChrome);
+window.visualViewport?.addEventListener('resize', scheduleMeasureChrome);
+window.visualViewport?.addEventListener('scroll', scheduleMeasureChrome);
 window.addEventListener('unhandledrejection', event=>{
   console.error('unhandled async error',event.reason);
   toast(t('unexpectedError'),'error');

@@ -78,7 +78,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=17';
+    script.src = 'app.js?v=18';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
