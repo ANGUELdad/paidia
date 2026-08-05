@@ -103,6 +103,8 @@ SECURITY_STATE_PATH = Path(os.environ.get("PAIDIA_SECURITY_STATE_PATH", ".paidia
 SECURITY_LOG_PATH = Path(os.environ.get("PAIDIA_SECURITY_LOG_PATH", ".paidia-security-events.jsonl"))
 PASSKEY_STORE_PATH = Path(os.environ.get("PAIDIA_PASSKEY_STORE_PATH", ".paidia-passkeys.json"))
 ONBOARDING_STATE_PATH = Path(os.environ.get("PAIDIA_ONBOARDING_STATE_PATH", ".paidia-onboarding.json"))
+TALK_STATE_PATH = Path(os.environ.get("PAIDIA_TALK_STATE_PATH", ".paidia-talk.json"))
+OPS_STATE_PATH = Path(os.environ.get("PAIDIA_OPS_STATE_PATH", ".paidia-ops.json"))
 
 # Vercel serverless FS is read-only except /tmp — always keep writable state there.
 if os.environ.get("VERCEL") == "1":
@@ -112,7 +114,21 @@ if os.environ.get("VERCEL") == "1":
     PASSKEY_STORE_PATH = _tmp / "passkeys.json"
     SECURITY_STATE_PATH = _tmp / "security-state.json"
     SECURITY_LOG_PATH = _tmp / "security-events.jsonl"
+    TALK_STATE_PATH = _tmp / "talk.json"
+    OPS_STATE_PATH = _tmp / "ops.json"
 ONBOARDING_VERSION = 2
+TALK_MESSAGE_LIMIT = 200
+TALK_TOPIC_LIMIT = 120
+TALK_LOCK = threading.Lock()
+OPS_LOCK = threading.Lock()
+OPS_KEYS = (
+    "listEntries",
+    "shoppingTrips",
+    "stock",
+    "customProducts",
+    "customCategories",
+    "customReasons",
+)
 WEBAUTHN_ORIGIN = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", os.environ.get(
     "PAIDIA_PUBLIC_URL", f"http://localhost:{PORT}"
 )).rstrip("/")
@@ -250,9 +266,12 @@ def load_auth_users() -> dict[str, dict]:
             continue
         mode = "child" if record.get("mode") == "child" else "staff"
         email = str(record.get("email", "")).strip().lower()
+        phone = str(record.get("phone", "")).strip()
         pin_hash = str(record.get("pin_hash", "")).strip()
         if pin_hash:
-            users[str(profile_id)] = {"mode": mode, "email": email, "pin_hash": pin_hash}
+            users[str(profile_id)] = {
+                "mode": mode, "email": email, "phone": phone, "pin_hash": pin_hash,
+            }
     return users
 
 
@@ -353,6 +372,307 @@ def persist_onboarding_state() -> None:
     os.replace(temp_path, ONBOARDING_STATE_PATH)
 
 
+def default_video_room_url() -> str:
+    configured = os.environ.get("PAIDIA_VIDEO_ROOM_URL", "").strip()
+    if configured:
+        return configured
+    host = urllib.parse.urlsplit(WEBAUTHN_ORIGIN).hostname or "armonia-thassos"
+    if host in {"localhost", "127.0.0.1", "::1"}:
+        host = "armonia-thassos"
+    safe = re.sub(r"[^a-zA-Z0-9-]", "-", host).strip("-") or "armonia-thassos"
+    return f"https://meet.jit.si/ArmoniaThassos-{safe}"
+
+
+def load_talk_state() -> dict:
+    try:
+        value = json.loads(TALK_STATE_PATH.read_text(encoding="utf-8"))
+        if isinstance(value, dict):
+            messages = value.get("messages") if isinstance(value.get("messages"), list) else []
+            topics = value.get("topics") if isinstance(value.get("topics"), list) else []
+            return {
+                "messages": messages[-TALK_MESSAGE_LIMIT:],
+                "topics": topics[-TALK_TOPIC_LIMIT:],
+                "updatedAt": int(value.get("updatedAt") or 0),
+            }
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        pass
+    return {"messages": [], "topics": [], "updatedAt": 0}
+
+
+TALK_STATE = load_talk_state()
+
+
+def persist_talk_state() -> None:
+    TALK_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = TALK_STATE_PATH.with_name(TALK_STATE_PATH.name + ".tmp")
+    temp_path.write_text(json.dumps(TALK_STATE, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    try:
+        os.chmod(temp_path, 0o600)
+    except OSError:
+        pass
+    os.replace(temp_path, TALK_STATE_PATH)
+
+
+def talk_snapshot() -> dict:
+    with TALK_LOCK:
+        return {
+            "messages": list(TALK_STATE.get("messages") or []),
+            "topics": list(TALK_STATE.get("topics") or []),
+            "updatedAt": int(TALK_STATE.get("updatedAt") or 0),
+            "videoUrl": default_video_room_url(),
+            "videoProvider": "jitsi",
+        }
+
+
+def mutate_talk(action: str, body: dict, session: dict) -> tuple[int, dict]:
+    """Staff team talk: chat messages + meeting topics. Returns (status, payload)."""
+    profile_id = str(session.get("profile_id") or "")
+    if session.get("mode") != "staff" or not profile_id:
+        return 403, {"error": "Staff only", "code": "staff_required"}
+
+    by_name = str(body.get("byName") or profile_id).strip()[:80] or profile_id
+    now_ms = int(time.time() * 1000)
+
+    with TALK_LOCK:
+        messages = list(TALK_STATE.get("messages") or [])
+        topics = list(TALK_STATE.get("topics") or [])
+
+        if action == "send":
+            text = str(body.get("text") or "").strip()[:1200]
+            if not text:
+                return 400, {"error": "Message required", "code": "input"}
+            messages.append({
+                "id": "tm-" + secrets.token_urlsafe(8),
+                "text": text,
+                "by": profile_id,
+                "byName": by_name,
+                "at": now_ms,
+                "kind": "chat",
+            })
+            messages = messages[-TALK_MESSAGE_LIMIT:]
+        elif action == "add_topic":
+            text = str(body.get("text") or "").strip()[:400]
+            if not text:
+                return 400, {"error": "Topic required", "code": "input"}
+            date = str(body.get("date") or "").strip()[:12]
+            source = str(body.get("source") or "manual").strip()[:40] or "manual"
+            # Avoid near-duplicate open topics for the same day.
+            exists = next(
+                (t for t in topics
+                 if not t.get("done") and t.get("date") == date and t.get("text", "").lower() == text.lower()),
+                None,
+            )
+            if not exists:
+                topics.append({
+                    "id": "tt-" + secrets.token_urlsafe(8),
+                    "text": text,
+                    "by": profile_id,
+                    "byName": by_name,
+                    "date": date,
+                    "done": False,
+                    "source": source,
+                    "createdAt": now_ms,
+                })
+                topics = topics[-TALK_TOPIC_LIMIT:]
+        elif action == "toggle_topic":
+            topic_id = str(body.get("topicId") or "").strip()
+            topic = next((t for t in topics if t.get("id") == topic_id), None)
+            if not topic:
+                return 404, {"error": "Topic not found", "code": "not_found"}
+            topic["done"] = not bool(topic.get("done"))
+            topic["doneAt"] = now_ms if topic["done"] else None
+            topic["doneBy"] = profile_id if topic["done"] else None
+        elif action == "clear_done":
+            date = str(body.get("date") or "").strip()[:12]
+            topics = [t for t in topics if not (t.get("done") and (not date or t.get("date") == date))]
+        else:
+            return 400, {"error": "Unknown action", "code": "input"}
+
+        TALK_STATE["messages"] = messages
+        TALK_STATE["topics"] = topics
+        TALK_STATE["updatedAt"] = now_ms
+        try:
+            persist_talk_state()
+        except OSError:
+            return 507, {"error": "Talk state could not be saved", "code": "storage"}
+
+    return 200, talk_snapshot()
+
+
+def empty_ops_state() -> dict:
+    return {
+        "revision": 0,
+        "updatedAt": 0,
+        "listEntries": [],
+        "shoppingTrips": [],
+        "stock": {},
+        "customProducts": [],
+        "customCategories": [],
+        "customReasons": [],
+    }
+
+
+def load_ops_state() -> dict:
+    try:
+        value = json.loads(OPS_STATE_PATH.read_text(encoding="utf-8"))
+        if not isinstance(value, dict):
+            return empty_ops_state()
+        out = empty_ops_state()
+        out["revision"] = max(0, int(value.get("revision") or 0))
+        out["updatedAt"] = int(value.get("updatedAt") or 0)
+        for key in OPS_KEYS:
+            raw = value.get(key)
+            if key == "stock":
+                out[key] = raw if isinstance(raw, dict) else {}
+            else:
+                out[key] = raw if isinstance(raw, list) else []
+        return out
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return empty_ops_state()
+
+
+OPS_STATE = load_ops_state()
+
+
+def persist_ops_state() -> None:
+    OPS_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    temp_path = OPS_STATE_PATH.with_name(OPS_STATE_PATH.name + ".tmp")
+    temp_path.write_text(json.dumps(OPS_STATE, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    try:
+        os.chmod(temp_path, 0o600)
+    except OSError:
+        pass
+    os.replace(temp_path, OPS_STATE_PATH)
+
+
+def ops_snapshot(changed: bool = True) -> dict:
+    with OPS_LOCK:
+        payload = {
+            "revision": int(OPS_STATE.get("revision") or 0),
+            "updatedAt": int(OPS_STATE.get("updatedAt") or 0),
+            "changed": bool(changed),
+        }
+        if changed:
+            for key in OPS_KEYS:
+                payload[key] = OPS_STATE.get(key)
+        return payload
+
+
+def get_ops(since: int = 0) -> dict:
+    with OPS_LOCK:
+        revision = int(OPS_STATE.get("revision") or 0)
+        if since and since >= revision:
+            return {
+                "revision": revision,
+                "updatedAt": int(OPS_STATE.get("updatedAt") or 0),
+                "changed": False,
+            }
+    return ops_snapshot(True)
+
+
+def put_ops(body: dict, session: dict) -> tuple[int, dict]:
+    """Replace shared shopping/stock ops data. Staff only. Optimistic concurrency via revision."""
+    if session.get("mode") != "staff":
+        return 403, {"error": "Staff only", "code": "staff_required"}
+    if not isinstance(body, dict):
+        return 400, {"error": "JSON object required", "code": "input"}
+
+    try:
+        client_rev = int(body.get("revision") or 0)
+    except (TypeError, ValueError):
+        return 400, {"error": "revision required", "code": "input"}
+
+    with OPS_LOCK:
+        server_rev = int(OPS_STATE.get("revision") or 0)
+        if client_rev != server_rev:
+            payload = {
+                "error": "Revision conflict",
+                "code": "conflict",
+                "revision": server_rev,
+                "updatedAt": int(OPS_STATE.get("updatedAt") or 0),
+                "changed": True,
+            }
+            for key in OPS_KEYS:
+                payload[key] = OPS_STATE.get(key)
+            return 409, payload
+
+        next_state = empty_ops_state()
+        next_state["revision"] = server_rev + 1
+        next_state["updatedAt"] = int(time.time() * 1000)
+        for key in OPS_KEYS:
+            raw = body.get(key, OPS_STATE.get(key))
+            if key == "stock":
+                next_state[key] = raw if isinstance(raw, dict) else {}
+            else:
+                # Cap growth — keep recent entries for lists/trips/customs.
+                rows = raw if isinstance(raw, list) else []
+                if key in {"listEntries", "shoppingTrips"}:
+                    rows = rows[-4000:]
+                elif key.startswith("custom"):
+                    rows = rows[-500:]
+                next_state[key] = rows
+
+        OPS_STATE.clear()
+        OPS_STATE.update(next_state)
+        try:
+            persist_ops_state()
+        except OSError:
+            return 507, {"error": "Ops state could not be saved", "code": "storage"}
+
+    return 200, ops_snapshot(True)
+
+
+def run_shopping(body: dict, api_key: str) -> tuple[int, dict]:
+    """Shared shopping OCR/AI handler for local server and Vercel Flask."""
+    source_type = body.get("sourceType")
+    purpose = body.get("purpose", "list")
+    content = body.get("content", "")
+    if source_type not in {"text", "image"} or not isinstance(content, str) or not content:
+        return 400, {"error": "sourceType and content are required"}
+
+    purpose_prompt = ("\nThe image is a supermarket receipt: extract purchased product lines, "
+                      "ignore totals, tax, payment, store metadata, and discount-only lines."
+                      if purpose == "receipt" else "")
+    user_content = [{"type": "text", "text": PROMPT + purpose_prompt}]
+    if source_type == "image":
+        if not content.startswith("data:image/"):
+            return 400, {"error": "Image must be a data URL"}
+        user_content.append({"type": "image_url", "image_url": {"url": content}})
+    else:
+        user_content.append({"type": "text", "text": "SOURCE LIST:\n" + content[:50000]})
+
+    shopping_model = OCR_MODEL if source_type == "image" else CHAT_MODEL
+    request_body = {
+        "model": shopping_model,
+        "messages": [{"role": "user", "content": user_content}],
+        "temperature": 0.1,
+        "max_completion_tokens": 2000 if source_type == "image" else 1600,
+        "response_format": {"type": "json_object"},
+    }
+    if source_type == "image":
+        request_body.update({
+            "reasoning_effort": "none",
+            "reasoning_format": "hidden",
+        })
+    try:
+        response = groq_completion(api_key, request_body)
+        parsed = parse_json_output(completion_text(response))
+        return 200, {
+            **parsed,
+            "model": response.get("model", shopping_model),
+            "responseId": response.get("id"),
+        }
+    except urllib.error.HTTPError as exc:
+        status, payload = provider_error(exc)
+        return status, payload
+    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
+        code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+        return (504 if code == "timeout" else 502), {
+            "error": "AI extraction failed",
+            "code": code,
+        }
+
+
 def load_passkeys() -> dict:
     try:
         value = json.loads(PASSKEY_STORE_PATH.read_text(encoding="utf-8"))
@@ -422,6 +742,10 @@ def security_alert_recipients() -> list[str]:
 def persist_auth_users() -> None:
     value = json.dumps(AUTH_USERS, ensure_ascii=False, separators=(",", ":"))
     os.environ["PAIDIA_AUTH_USERS_JSON"] = value
+    # Vercel has a read-only filesystem — keep the in-process update so email/phone
+    # work for the lifetime of the instance (same as session cookies).
+    if os.environ.get("VERCEL") == "1":
+        return
     env_path = Path(os.environ.get("PAIDIA_ENV_PATH", ".env"))
     try:
         lines = env_path.read_text(encoding="utf-8").splitlines() if env_path.exists() else []
@@ -433,13 +757,22 @@ def persist_auth_users() -> None:
                 found = True
                 break
         if not found:
-            lines.extend(["", "# Server-only profile emails and salted PIN hashes", replacement])
+            lines.extend(["", "# Server-only profile emails, phones, and salted PIN hashes", replacement])
         temp_path = env_path.with_name(env_path.name + ".tmp")
         temp_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
         os.chmod(temp_path, 0o600)
         os.replace(temp_path, env_path)
     except OSError as exc:
         raise RuntimeError("Could not persist the new PIN") from exc
+
+
+def valid_phone(value: str) -> bool:
+    cleaned = re.sub(r"[\s\-().]", "", value or "")
+    return bool(re.fullmatch(r"\+?\d{8,16}", cleaned))
+
+
+def normalize_phone(value: str) -> str:
+    return re.sub(r"[\s\-().]", "", (value or "").strip())[:24]
 
 
 def smtp_config() -> dict:
@@ -462,6 +795,14 @@ def resend_config() -> dict:
     }
 
 
+def profile_contact(profile_id: str) -> dict:
+    user = AUTH_USERS.get(profile_id) or {}
+    return {
+        "email": str(user.get("email", "") or ""),
+        "phone": str(user.get("phone", "") or ""),
+    }
+
+
 def valid_email(value: str) -> bool:
     _, address = parseaddr(value)
     return address == value and len(value) <= 320 and bool(re.fullmatch(
@@ -470,15 +811,78 @@ def valid_email(value: str) -> bool:
     ))
 
 
-def email_delivery_status() -> dict:
+def email_providers() -> list[str]:
+    """Ordered delivery backends. On Vercel prefer Resend — outbound SMTP is often blocked."""
     smtp = smtp_config()
     resend = resend_config()
-    # Prefer plain SMTP (Gmail/MailPlus/etc.) — no Resend account or custom domain required.
-    if smtp["host"] and smtp["sender"]:
-        return {"configured": True, "provider": "smtp"}
-    if resend["api_key"] and resend["sender"]:
-        return {"configured": True, "provider": "resend"}
-    return {"configured": False, "provider": "none"}
+    have_smtp = bool(smtp["host"] and smtp["sender"])
+    have_resend = bool(resend["api_key"] and resend["sender"])
+    on_vercel = os.environ.get("VERCEL") == "1"
+    if on_vercel:
+        ordered = (["resend"] if have_resend else []) + (["smtp"] if have_smtp else [])
+    else:
+        ordered = (["smtp"] if have_smtp else []) + (["resend"] if have_resend else [])
+    return ordered
+
+
+def email_delivery_status() -> dict:
+    providers = email_providers()
+    if not providers:
+        return {"configured": False, "provider": "none", "providers": []}
+    return {"configured": True, "provider": providers[0], "providers": providers}
+
+
+def public_base_url(headers=None) -> str:
+    """Public site origin for reset links — never leak localhost when Host is production."""
+    configured = (os.environ.get("PAIDIA_PUBLIC_URL") or "").rstrip("/")
+    host = ""
+    scheme = "https"
+    if headers is not None:
+        host = (headers.get("X-Forwarded-Host") or headers.get("Host") or "").split(",", 1)[0].strip()
+        scheme = (headers.get("X-Forwarded-Proto") or "https").split(",", 1)[0].strip() or "https"
+    localish = any(x in configured for x in ("127.0.0.1", "localhost", "0.0.0.0")) if configured else True
+    if configured and not localish:
+        return configured
+    if host and not any(x in host for x in ("127.0.0.1", "localhost", "0.0.0.0")):
+        return f"{scheme}://{host}".rstrip("/")
+    if configured:
+        return configured
+    return f"http://{HOST}:{PORT}"
+
+
+def pin_fingerprint(pin_hash: str) -> str:
+    return hashlib.sha256((pin_hash or "").encode("utf-8")).hexdigest()[:16]
+
+
+def mint_reset_token(profile_id: str, pin_hash: str) -> str:
+    """Stateless signed reset token — survives Vercel cold starts / multi-instance."""
+    import base64
+    exp = int(time.time()) + RESET_TOKEN_TTL
+    payload = f"{profile_id}.{exp}.{pin_fingerprint(pin_hash)}"
+    sig = hmac.new(session_secret(), payload.encode("utf-8"), hashlib.sha256).hexdigest()
+    raw = f"{payload}.{sig}"
+    return base64.urlsafe_b64encode(raw.encode("utf-8")).decode("ascii").rstrip("=")
+
+
+def parse_reset_token(token: str) -> tuple[str, str] | None:
+    """Return (profile_id, pin_fingerprint) if the token is valid and unexpired."""
+    import base64
+    if not token or len(token) > 512:
+        return None
+    try:
+        padded = token + "=" * (-len(token) % 4)
+        raw = base64.urlsafe_b64decode(padded.encode("ascii")).decode("utf-8")
+        profile_id, exp_s, fingerprint, sig = raw.rsplit(".", 3)
+        exp = int(exp_s)
+    except (ValueError, UnicodeError, OSError):
+        return None
+    if exp <= int(time.time()):
+        return None
+    payload = f"{profile_id}.{exp_s}.{fingerprint}"
+    expect = hmac.new(session_secret(), payload.encode("utf-8"), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(expect, sig):
+        return None
+    return profile_id, fingerprint
 
 
 class EmailDeliveryError(RuntimeError):
@@ -571,13 +975,26 @@ def send_via_resend(recipient: str, subject: str, text_body: str, html_body: str
 
 
 def send_email(recipient: str, subject: str, text_body: str, html_body: str | None = None) -> None:
-    status = email_delivery_status()
-    if status["provider"] == "smtp":
-        send_via_smtp(recipient, subject, text_body, html_body)
-        return
-    if status["provider"] == "resend":
-        send_via_resend(recipient, subject, text_body, html_body)
-        return
+    providers = email_providers()
+    if not providers:
+        raise EmailDeliveryError("Email delivery is not configured", "email_not_configured")
+    last_error: EmailDeliveryError | None = None
+    for provider in providers:
+        try:
+            if provider == "smtp":
+                send_via_smtp(recipient, subject, text_body, html_body)
+                return
+            if provider == "resend":
+                send_via_resend(recipient, subject, text_body, html_body)
+                return
+        except EmailDeliveryError as exc:
+            last_error = exc
+            # Try the next provider on network / auth / generic delivery failures.
+            if exc.code not in {"email_network", "email_auth_failed", "delivery_failed"}:
+                raise
+            continue
+    if last_error:
+        raise last_error
     raise EmailDeliveryError("Email delivery is not configured", "email_not_configured")
 
 
@@ -688,7 +1105,7 @@ def send_test_profile_email(recipient: str) -> None:
             "<p style=\"margin:0;color:#475569\">PIN-Reset-Links und Sicherheitsmeldungen "
             "können jetzt an diese Adresse gesendet werden.</p>"
             "<div style=\"margin:20px 0 0;padding:14px 16px;border-radius:14px;background:#ecfeff;border:1px solid #99f6e4;color:#0f766e;font-weight:700\">"
-            "✓ SMTP bereit · Kein eigenes Domain nötig</div>"
+            "✓ E-Mail bereit · PIN-Links & Sicherheitsmeldungen</div>"
         ),
     )
     send_email(recipient, "Armonia Thassos – E-Mail funktioniert", text_body, html_body)
@@ -881,8 +1298,19 @@ variant, package size, house/event instructions, and crossed-out/uncertain meani
 notes. Interpret ranges conservatively: use the upper bound and mention the range.
 Do not merge different brands, sizes, or variants. Merge only clear duplicates and sum
 their quantities. A missing quantity is 1 and must be medium or low confidence.
-Use short canonical product names. Use practical supermarket units such as Stk, kg, g,
-L, ml, Pkg. Mark unclear handwriting, 1/7, 0/6, kg/g, and pack-vs-item ambiguity low.
+Use short canonical product names.
+
+UNITS — every item MUST use exactly one of: Stk, kg, g, L, ml, Pkg.
+Choose the unit that matches what is written on the list:
+- Weight written (500g, 1,5 kg, 200 γραμμάρια) → qty=500 unit=g OR qty=1.5 unit=kg (never Stk).
+- Volume written (2L, 1,5 Liter, 500ml, 2 λίτρα) → qty=2 unit=L OR qty=500 unit=ml (never Stk).
+- Count / pieces / bottles / packs counted as items / τεμ / Stück → unit=Stk.
+- Explicit pack count with no weight/volume → unit=Pkg only when the source says Pack/Pkg/Packung;
+  otherwise prefer Stk.
+Map synonyms: Stück/Stk/pcs/τεμ → Stk; liter/λίτρο/lt → L; κιλά/kilo → kg; γραμμ/gramm → g.
+Put package size text in package_size (example: "1.5 L bottle"), NOT as a fake unit.
+Never default to Stk when a weight or volume unit is visible on the line.
+Mark unclear handwriting, 1/7, 0/6, kg/g, and pack-vs-item ambiguity low.
 This is a draft only; never claim that items were purchased or approved.
 Return only a JSON object with extracted_text, language, and items. Every item must have:
 name, canonical_name, quantity, unit, category, brand, package_size, notes, confidence
@@ -896,12 +1324,20 @@ Reply in the language used by the user (German, Greek, or English). Be concise, 
 and safety-aware. Never invent saved data, claim an action was already completed, reveal
 PINs, or make medical/legal decisions.
 
-When the user asks to change food stock or the shopping list AND context.canMutate is true,
-you MAY propose draft actions. Never claim they are applied yet — the app will ask the user
-to confirm. Prefer products and house ids from context.inventory. Allowed action types:
+FOOD / STOCK / SHOPPING MUTATIONS (staff only):
+When context.canMutate is true and the user asks to change food stock or the shopping list,
+ALWAYS propose draft actions (do not only explain the UI). Match productQuery to names from
+context.inventory.productNames or lowStock when possible. Use houseId from context.inventory
+(houses[].id) — prefer context.inventory.activeHouse when the user does not name a house.
+Examples the user may say:
+- "Milch +2 in Kalyvia" / "βάλε 2 γάλα Kalyvia" → stock_adjust IN
+- "Eier raus 6 Limenaria" / "βγάλε 6 αυγά" → stock_adjust OUT
+- "Reis auf die Liste" / "βάλε ρύζι στη λίστα" → shop_add
+- "Tomaten von der Liste" → shop_remove
+Allowed action types:
 - stock_adjust: {type, houseId, productQuery, dir:IN|OUT, qty:number, unit?, reason?}
 - shop_add: {type, houseId, productQuery|name, qty:number, unit?}
-- shop_remove: {type, houseId, productQuery|name}  (removes open shopping rows that match)
+- shop_remove: {type, houseId, productQuery|name}
 If you propose actions, end your reply with exactly one fenced block:
 
 ```paidia-action
@@ -1213,7 +1649,8 @@ class Handler(SimpleHTTPRequestHandler):
                 "profiles": [{
                     "profileId": profile_id,
                     "mode": AUTH_USERS[profile_id]["mode"],
-                    "email": AUTH_USERS[profile_id]["email"],
+                    "email": AUTH_USERS[profile_id].get("email", ""),
+                    "phone": AUTH_USERS[profile_id].get("phone", ""),
                 } for profile_id in profile_ids],
                 "canManageAll": bool(session.get("admin")),
                 "emailConfigured": email_delivery_status()["configured"],
@@ -1225,6 +1662,7 @@ class Handler(SimpleHTTPRequestHandler):
             if not session:
                 self.json_response(200, {"authenticated": False})
             else:
+                contact = profile_contact(session["profile_id"])
                 self.json_response(200, {
                     "authenticated": True,
                     "profileId": session["profile_id"],
@@ -1235,10 +1673,36 @@ class Handler(SimpleHTTPRequestHandler):
                     "passkeys": len(profile_passkeys(session["profile_id"], session["mode"])),
                     "onboardingComplete": onboarding_complete(session["profile_id"], session["mode"]),
                     "onboardingVersion": ONBOARDING_VERSION,
-                    "email": AUTH_USERS.get(session["profile_id"], {}).get("email", ""),
+                    "email": contact["email"],
+                    "phone": contact["phone"],
+                    "contactComplete": bool(contact["email"] and contact["phone"]),
                     "emailConfigured": email_delivery_status()["configured"],
                     "emailProvider": email_delivery_status()["provider"],
                 })
+            return
+        if parsed.path == "/api/talk":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            if session.get("mode") != "staff":
+                self.json_response(403, {"error": "Staff only", "code": "staff_required"})
+                return
+            self.json_response(200, talk_snapshot())
+            return
+        if parsed.path == "/api/ops":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            if session.get("mode") != "staff":
+                self.json_response(403, {"error": "Staff only", "code": "staff_required"})
+                return
+            try:
+                since = int(urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get("since", ["0"])[0])
+            except (TypeError, ValueError):
+                since = 0
+            self.json_response(200, get_ops(since))
             return
         if parsed.path == "/api/whatsapp/health":
             config = whatsapp_config()
@@ -1300,7 +1764,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(200, {"received": True})
             return
         if path not in {
-            "/api/ai-shopping", "/api/chat", "/api/whatsapp/test", "/api/whatsapp/event",
+            "/api/ai-shopping", "/api/chat", "/api/talk", "/api/ops", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/notify/event-email",
             "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
             "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
@@ -1363,6 +1827,22 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/auth/profile/email/test":
             self.handle_profile_email_test(body)
             return
+        if path == "/api/talk":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = mutate_talk(str(body.get("action") or "").strip(), body, session)
+            self.json_response(status, payload)
+            return
+        if path == "/api/ops":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = put_ops(body, session)
+            self.json_response(status, payload)
+            return
 
         if path == "/api/whatsapp/test":
             self.handle_whatsapp_test(body)
@@ -1388,7 +1868,11 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             self.handle_chat(body, api_key)
             return
-        self.handle_shopping(body, api_key)
+        if path == "/api/ai-shopping":
+            status, payload = run_shopping(body, api_key)
+            self.json_response(status, payload)
+            return
+        self.json_response(404, {"error": "Not found"})
 
     def finish_authentication(self, profile_id: str, mode: str, method: str = "pin") -> None:
         client_ip = self.client_ip()
@@ -1402,6 +1886,7 @@ class Handler(SimpleHTTPRequestHandler):
                 queue_security_alert(profile_id, "untrusted_ip_login", client_ip, {"attempts": 0})
             elif new_ip and not first_ip:
                 queue_security_alert(profile_id, "new_ip_login", client_ip, {"attempts": 0})
+        contact = profile_contact(profile_id)
         self.json_response(200, {
             "authenticated": True, "profileId": profile_id, "mode": mode,
             "admin": bool(payload["admin"]),
@@ -1409,6 +1894,9 @@ class Handler(SimpleHTTPRequestHandler):
             "authenticationMethod": method,
             "onboardingComplete": onboarding_complete(profile_id, mode),
             "onboardingVersion": ONBOARDING_VERSION,
+            "email": contact["email"],
+            "phone": contact["phone"],
+            "contactComplete": bool(contact["email"] and contact["phone"]),
         }, {"Set-Cookie": self.set_session_cookie(token)})
 
     def handle_onboarding_complete(self, body: dict) -> None:
@@ -1705,19 +2193,27 @@ class Handler(SimpleHTTPRequestHandler):
         if not user:
             return
         email = str(body.get("email", "")).strip().lower()[:320]
+        phone_raw = body.get("phone", user.get("phone", ""))
+        phone = normalize_phone(str(phone_raw if phone_raw is not None else ""))
         if email and not valid_email(email):
             self.json_response(400, {"error": "Enter a valid email address", "code": "invalid_email"})
             return
-        previous = user["email"]
+        if phone and not valid_phone(phone):
+            self.json_response(400, {"error": "Enter a valid phone number", "code": "invalid_phone"})
+            return
+        previous = {"email": user.get("email", ""), "phone": user.get("phone", "")}
         user["email"] = email
+        user["phone"] = phone
         try:
             persist_auth_users()
         except RuntimeError:
-            user["email"] = previous
-            self.json_response(507, {"error": "The email address could not be saved", "code": "storage"})
+            user["email"] = previous["email"]
+            user["phone"] = previous["phone"]
+            self.json_response(507, {"error": "Contact details could not be saved", "code": "storage"})
             return
         self.json_response(200, {
-            "saved": True, "profileId": profile_id, "email": email,
+            "saved": True, "profileId": profile_id, "email": email, "phone": phone,
+            "contactComplete": bool(email and phone),
             "emailConfigured": email_delivery_status()["configured"],
             "emailProvider": email_delivery_status()["provider"],
         })
@@ -1767,23 +2263,16 @@ class Handler(SimpleHTTPRequestHandler):
         if not user or not email or not user["email"] or not hmac.compare_digest(email, user["email"]):
             self.json_response(200, generic)
             return
-        raw_token = secrets.token_urlsafe(32)
-        token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
-        public_url = os.environ.get("PAIDIA_PUBLIC_URL", "").rstrip("/")
-        if not public_url:
-            scheme = self.headers.get("X-Forwarded-Proto", "http").split(",", 1)[0].strip()
-            public_url = f"{scheme}://{self.headers.get('Host', f'{HOST}:{PORT}')}"
+        if not email_delivery_status()["configured"]:
+            self.json_response(200, generic)
+            return
+        raw_token = mint_reset_token(profile_id, user.get("pin_hash", ""))
+        public_url = public_base_url(self.headers)
         reset_url = f"{public_url}/?reset={urllib.parse.quote(raw_token)}"
-        with AUTH_LOCK:
-            RESET_TOKENS[token_hash] = {
-                "profile_id": profile_id,
-                "expires_at": now + RESET_TOKEN_TTL,
-            }
         try:
             send_pin_reset_email(email, reset_url)
-        except (RuntimeError, OSError, smtplib.SMTPException):
-            with AUTH_LOCK:
-                RESET_TOKENS.pop(token_hash, None)
+        except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
+            append_security_event("pin_reset_email_failed", profile_id, self.client_ip(), {})
         self.json_response(200, generic)
 
     def handle_auth_reset(self, body: dict) -> None:
@@ -1793,18 +2282,13 @@ class Handler(SimpleHTTPRequestHandler):
         if pin != confirm or not re.fullmatch(r"\d{4,6}", pin):
             self.json_response(400, {"error": "PINs must match and contain 4 to 6 digits", "code": "invalid_pin"})
             return
-        token_hash = hashlib.sha256(token.encode()).hexdigest()
-        now = time.time()
-        with AUTH_LOCK:
-            reset = RESET_TOKENS.get(token_hash)
-        if not reset or reset["expires_at"] <= now:
-            with AUTH_LOCK:
-                RESET_TOKENS.pop(token_hash, None)
+        parsed = parse_reset_token(token)
+        if not parsed:
             self.json_response(400, {"error": "Reset link is invalid or expired", "code": "invalid_token"})
             return
-        profile_id = reset["profile_id"]
+        profile_id, fingerprint = parsed
         user = AUTH_USERS.get(profile_id)
-        if not user:
+        if not user or pin_fingerprint(user.get("pin_hash", "")) != fingerprint:
             self.json_response(400, {"error": "Reset link is invalid or expired", "code": "invalid_token"})
             return
         old_hash = user["pin_hash"]
@@ -1816,7 +2300,6 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(507, {"error": "The new PIN could not be saved", "code": "storage"})
             return
         with AUTH_LOCK:
-            RESET_TOKENS.pop(token_hash, None)
             for session_token, session in list(AUTH_SESSIONS.items()):
                 if session["profile_id"] == profile_id:
                     AUTH_SESSIONS.pop(session_token, None)
@@ -1827,7 +2310,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "e5": "Claudio", "e6": "Löhri", "e7": "Amalia", "e8": "Zoi",
                 "k1": "Simon", "k2": "Kai", "k3": "Vincent", "k4": "Julian klein",
                 "k5": "Julian groß", "k6": "Lea", "k7": "Valeria", "k8": "Jule",
-                "k9": "Samantha", "k10": "Lilly", "k11": "Daniel", "k12": "Leonie",
+                "k9": "Samantha", "k10": "Lilly", "k11": "Zoitsa", "k12": "Leonie",
             }.get(profile_id, profile_id)
             try:
                 send_pin_changed_email(recipient, profile_name)
@@ -1940,7 +2423,7 @@ class Handler(SimpleHTTPRequestHandler):
         child_names = {
             "k1": "Simon", "k2": "Kai", "k3": "Vincent", "k4": "Julian klein",
             "k5": "Julian groß", "k6": "Lea", "k7": "Valeria", "k8": "Jule",
-            "k9": "Samantha", "k10": "Lilly", "k11": "Daniel", "k12": "Leonie",
+            "k9": "Samantha", "k10": "Lilly", "k11": "Zoitsa", "k12": "Leonie",
         }
         children = ", ".join(child_names.get(str(cid), str(cid)) for cid in child_ids if cid)
         # Notify every staff profile with a recovery email, plus any child profiles that have one.
@@ -1974,57 +2457,8 @@ class Handler(SimpleHTTPRequestHandler):
         })
 
     def handle_shopping(self, body: dict, api_key: str) -> None:
-        source_type = body.get("sourceType")
-        purpose = body.get("purpose", "list")
-        content = body.get("content", "")
-        if source_type not in {"text", "image"} or not isinstance(content, str) or not content:
-            self.json_response(400, {"error": "sourceType and content are required"})
-            return
-
-        purpose_prompt = ("\nThe image is a supermarket receipt: extract purchased product lines, "
-                          "ignore totals, tax, payment, store metadata, and discount-only lines."
-                          if purpose == "receipt" else "")
-        user_content = [{"type": "text", "text": PROMPT + purpose_prompt}]
-        if source_type == "image":
-            if not content.startswith("data:image/"):
-                self.json_response(400, {"error": "Image must be a data URL"})
-                return
-            user_content.append({"type": "image_url", "image_url": {"url": content}})
-        else:
-            user_content.append({"type": "text", "text": "SOURCE LIST:\n" + content[:50000]})
-
-        shopping_model = OCR_MODEL if source_type == "image" else CHAT_MODEL
-        request_body = {
-            "model": shopping_model,
-            "messages": [{"role": "user", "content": user_content}],
-            "temperature": 0.1,
-            "max_completion_tokens": 2000 if source_type == "image" else 1600,
-        }
-        if source_type == "text":
-            request_body["response_format"] = {"type": "json_object"}
-        else:
-            request_body.update({
-                "response_format": {"type": "json_object"},
-                "reasoning_effort": "none",
-                "reasoning_format": "hidden",
-                "temperature": 0.7,
-                "top_p": 0.8,
-            })
-        try:
-            response = groq_completion(api_key, request_body)
-            parsed = parse_json_output(completion_text(response))
-            self.json_response(200, {
-                **parsed,
-                "model": response.get("model", shopping_model),
-                "responseId": response.get("id"),
-            })
-        except urllib.error.HTTPError as exc:
-            status, payload = provider_error(exc)
-            self.json_response(status, payload)
-        except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
-            code = "timeout" if isinstance(exc, TimeoutError) else "provider"
-            self.json_response(504 if code == "timeout" else 502,
-                               {"error": "AI extraction failed", "code": code})
+        status, payload = run_shopping(body, api_key)
+        self.json_response(status, payload)
 
     def handle_chat(self, body: dict, api_key: str) -> None:
         status, payload = run_chat(body, api_key)

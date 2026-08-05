@@ -21,6 +21,8 @@ __pycache__/
 .paidia-security-*
 .paidia-passkeys.json
 .paidia-onboarding.json
+.paidia-talk.json
+.paidia-ops.json
 .paidia-pin-hash-backup.json
 .coverage
 coverage/

@@ -21,7 +21,7 @@
     { id: 'k8', name: 'Jule', color: '#f5d0fe' },
     { id: 'k9', name: 'Samantha', color: '#99f6e4' },
     { id: 'k10', name: 'Lilly', color: '#99f6e4' },
-    { id: 'k11', name: 'Daniel', color: '#fecaca' },
+    { id: 'k11', name: 'Zoitsa', color: '#fecaca' },
     { id: 'k12', name: 'Leonie', color: '#e9d5ff' },
   ];
 
@@ -48,6 +48,18 @@
       attempts: (n) => `Noch ${n} Versuche`,
       unavailable: 'Anmeldung nicht möglich',
       hint: 'PIN tippen oder die 6 Ziffern antippen.',
+      forgot: 'PIN vergessen?',
+      resetTitle: 'PIN per E-Mail ändern',
+      resetSub: 'Wir senden einen einmaligen Link an deine hinterlegte Adresse.',
+      email: 'E-Mail-Adresse',
+      sendLink: 'Link senden',
+      linkSent: 'Wenn die E-Mail zu diesem Profil gehört, wurde ein Link gesendet. Prüfe auch Spam.',
+      newPin: 'Neue PIN (4–6 Ziffern)',
+      confirmPin: 'PIN bestätigen',
+      changePin: 'PIN speichern',
+      pinChanged: 'PIN geändert — bitte neu anmelden.',
+      invalidReset: 'Link ungültig oder PINs stimmen nicht.',
+      needEmail: 'Bitte E-Mail eingeben.',
     },
     el: {
       brand: 'Μαζί μέσα στην ημέρα',
@@ -66,6 +78,18 @@
       attempts: (n) => `Ακόμη ${n} προσπάθειες`,
       unavailable: 'Η είσοδος δεν είναι διαθέσιμη',
       hint: 'Πληκτρολόγησε ή πάτα τα 6 ψηφία.',
+      forgot: 'Ξέχασες το PIN;',
+      resetTitle: 'Αλλαγή PIN με email',
+      resetSub: 'Στέλνουμε μοναδικό σύνδεσμο στο email του προφίλ.',
+      email: 'Διεύθυνση email',
+      sendLink: 'Αποστολή συνδέσμου',
+      linkSent: 'Αν το email ανήκει σε αυτό το προφίλ, στάλθηκε σύνδεσμος. Έλεγξε και τα ανεπιθύμητα.',
+      newPin: 'Νέο PIN (4–6 ψηφία)',
+      confirmPin: 'Επιβεβαίωση PIN',
+      changePin: 'Αποθήκευση PIN',
+      pinChanged: 'Το PIN άλλαξε — συνδέσου ξανά.',
+      invalidReset: 'Άκυρος σύνδεσμος ή τα PIN δεν ταιριάζουν.',
+      needEmail: 'Βάλε το email.',
     },
   };
   const t = (key) => copy[lang][key];
@@ -78,7 +102,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=18';
+    script.src = 'app.js?v=33';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -173,6 +197,7 @@
           <button type="button" data-k="clr" aria-label="Clear">C</button>
         </div>
         <button class="btn" id="gLogin" type="button" style="margin-top:12px">${t('login')}</button>
+        <button class="gate-forgot" id="gForgot" type="button">${t('forgot')}</button>
         <div class="muted" style="margin-top:10px;font-size:11.5px">${t('hint')}</div>
         <button class="gate-back" type="button" id="gBack">${t('back')}</button>
       </div>`;
@@ -255,6 +280,7 @@
     };
 
     body.querySelector('#gBack').onclick = () => renderProfiles(mode);
+    body.querySelector('#gForgot').onclick = () => renderResetRequest(who, mode);
     body.querySelector('#gPinpad').onclick = (event) => {
       const button = event.target.closest('button[data-k]');
       if (!button) return;
@@ -277,13 +303,118 @@
     setTimeout(() => input.focus(), 30);
   }
 
+  function setGateStatus(el, message, kind) {
+    if (!el) return;
+    el.className = 'gate-status' + (kind ? ' ' + kind : '');
+    el.textContent = message || '';
+  }
+
+  function renderResetRequest(who, mode) {
+    body.innerHTML = `
+      <div class="gate-pin gate-reset">
+        <div class="gate-mail-hero" aria-hidden="true">
+          <div class="gate-mail-mark">A</div>
+          <div class="gate-mail-eyebrow">Armonia Thassos</div>
+          <h3>${t('resetTitle')}</h3>
+          <p>${t('resetSub')}</p>
+        </div>
+        <div class="pa" style="background:${who.color};margin:14px auto 0">${initials(who.name)}</div>
+        <div class="sub" style="margin-top:8px">${esc(who.name)}</div>
+        <label class="gate-field"><span>${t('email')}</span>
+          <input type="email" id="resetEmail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>
+        <div class="gate-status" id="resetStatus" role="status" aria-live="polite"></div>
+        <button class="btn" id="resetSend" type="button">${t('sendLink')}</button>
+        <button class="gate-back" type="button" id="resetBack">${t('back')}</button>
+      </div>`;
+    body.querySelector('#resetBack').onclick = () => renderPin(who, mode);
+    body.querySelector('#resetSend').onclick = async () => {
+      const email = body.querySelector('#resetEmail').value.trim();
+      const status = body.querySelector('#resetStatus');
+      const button = body.querySelector('#resetSend');
+      if (!email) { setGateStatus(status, t('needEmail'), 'error'); return; }
+      button.disabled = true;
+      setGateStatus(status, lang === 'el' ? 'Αποστολή…' : 'Senden…', '');
+      try {
+        const response = await fetch('/api/auth/request-reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ profileId: who.id, email }),
+        });
+        if (!response.ok) throw new Error(String(response.status));
+        setGateStatus(status, t('linkSent'), 'success');
+      } catch (error) {
+        setGateStatus(status, t('unavailable'), 'error');
+      } finally {
+        button.disabled = false;
+      }
+    };
+    setTimeout(() => body.querySelector('#resetEmail')?.focus(), 40);
+  }
+
+  function renderResetForm(token) {
+    body.innerHTML = `
+      <div class="gate-pin gate-reset">
+        <div class="gate-mail-hero" aria-hidden="true">
+          <div class="gate-mail-mark">A</div>
+          <div class="gate-mail-eyebrow">Armonia Thassos · PIN</div>
+          <h3>${t('resetTitle')}</h3>
+          <p>${lang === 'el' ? 'Ο σύνδεσμος ισχύει 30 λεπτά.' : 'Der Link gilt 30 Minuten.'}</p>
+        </div>
+        <label class="gate-field"><span>${t('newPin')}</span>
+          <input type="password" id="newPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password"></label>
+        <label class="gate-field"><span>${t('confirmPin')}</span>
+          <input type="password" id="confirmPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password"></label>
+        <div class="gate-status" id="changeStatus" role="status" aria-live="polite"></div>
+        <button class="btn" id="changePin" type="button">${t('changePin')}</button>
+        <button class="gate-back" type="button" id="resetHome">${t('back')}</button>
+      </div>`;
+    body.querySelector('#resetHome').onclick = () => {
+      history.replaceState({}, '', location.pathname);
+      renderEntrance();
+    };
+    body.querySelector('#changePin').onclick = async () => {
+      const pin = body.querySelector('#newPin').value;
+      const confirmPin = body.querySelector('#confirmPin').value;
+      const status = body.querySelector('#changeStatus');
+      const button = body.querySelector('#changePin');
+      if (!/^\d{4,6}$/.test(pin) || pin !== confirmPin) {
+        setGateStatus(status, t('invalidReset'), 'error');
+        return;
+      }
+      button.disabled = true;
+      try {
+        const response = await fetch('/api/auth/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ token, pin, confirmPin }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.code || String(response.status));
+        history.replaceState({}, '', location.pathname);
+        setGateStatus(status, t('pinChanged'), 'success');
+        setTimeout(() => renderEntrance(), 900);
+      } catch (error) {
+        setGateStatus(status, t('invalidReset'), 'error');
+      } finally {
+        button.disabled = false;
+      }
+    };
+  }
+
   async function start() {
     document.documentElement.lang = lang;
     gate.classList.add('on');
     document.body.classList.add('auth-pending');
+    const resetToken = new URLSearchParams(location.search).get('reset');
+    if (resetToken) {
+      renderResetForm(resetToken);
+      return;
+    }
     // Never hang on "Laden…" if the session probe is slow/broken.
     const bootTimer = setTimeout(() => {
-      if (!body.querySelector('[data-mode]')) renderEntrance();
+      if (!body.querySelector('[data-mode]') && !body.querySelector('.gate-reset')) renderEntrance();
     }, 2500);
     try {
       const controller = new AbortController();
@@ -309,6 +440,6 @@
     renderEntrance();
   }
 
-  window.PaidiaGate = { start, loadApp };
+  window.PaidiaGate = { start, loadApp, renderResetForm, renderResetRequest };
   start();
 })();

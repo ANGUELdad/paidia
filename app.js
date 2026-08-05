@@ -8,6 +8,7 @@ const T = {
     titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Kühlschrank / Lager', titleShop:'Listen & Einkauf', titleBook:'Protokoll',
     logout:'Profil', noUser:'Nicht angemeldet',
     viewDay:'Tag', viewWeek:'Woche', filterView:'Ansicht', filterHouse:'Haus',
+    tableFullscreen:'Vollbild', tableExitFullscreen:'Schließen',
     allHouses:'Kombiniert',
     morning:'Vormittagsprogramm', afternoon:'Nachmittagsbetreuung', evening:'Abendprogramm',
     add:'+ Eintrag', edit:'Eintrag', newEntry:'Neuer Eintrag',
@@ -19,7 +20,12 @@ const T = {
     scopeTodayHint:'Der feste Wochenplan bleibt unverändert.',
     scopeTemplateHint:day=>`Ändert die Vorlage für jeden ${day}.`,
     saveWithPin:'Speichern', cancelToday:'Eintrag für heute streichen',
+    removeFromTable:'Aus dem Plan entfernen', removedFromPlan:'Aus dem Plan entfernt',
     cancelled:'gestrichen', override:'Änderung',
+    adminActions:'Aktionen', adminShiftToday:'Dienst heute', adminOpenDay:'Tagesplan',
+    adminOpenWeek:'Wochenplan', adminOpenStock:'Lager', adminOpenShop:'Einkauf',
+    adminContact:'Kontakt / E-Mail', adminAssignToday:'Heute zuweisen',
+    adminShiftsWeek:'Dienste der Woche', adminMarkDone:'Erledigt', adminRemoveAssign:'Aufgabe streichen',
     noEntries:'Keine Einträge',
     weekNotes:'Hinweise der Woche', besprechung:'Besprechung: Mo 13:30',
     hintAfternoon:'Hinweise / Besonderheiten für Nachmittag',
@@ -40,9 +46,29 @@ const T = {
     noStockResults:'Keine passenden Produkte gefunden.', openShopping:'Zur Einkaufsliste', missingFromShop:n=>`${n} Fehlmenge${n===1?'':'n'} aus dem Einkauf`,
     inTitle:'Eingang Kühlschrank', outTitle:'Ausgang Kühlschrank',
     product:'Produkt', qty:'Menge',
-    photoLabel:'Foto — Pflicht, nur Live-Aufnahme',
+    photoLabel:'Foto — optional, nur Live-Aufnahme',
     takePhoto:'📷 Foto aufnehmen', photoTaken:'Foto wurde jetzt in der App aufgenommen.',
-    noCam:'Kamera nicht verfügbar', needPhoto:'Ohne Foto keine Buchung',
+    noCam:'Kamera nicht verfügbar', needPhoto:'Foto optional — Buchung geht auch ohne',
+    photoOptional:'Foto optional',
+    skipPhoto:'Ohne Foto buchen',
+    stockHoldHint:'Gedrückt halten für Optionen · Ziehen zu Ein/Aus unten',
+    stockHoldIn:'＋ Eingang',
+    stockHoldOut:'− Ausgang',
+    stockHoldShop:'Zur Einkaufsliste',
+    stockHoldDetail:'Details / Menge',
+    stockHoldClear:'Aus Auswahl entfernen',
+    stockAddFood:'＋ Lebensmittel',
+    stockAddCat:'＋ Kategorie',
+    stockAddFoodTitle:'Neues Lebensmittel',
+    stockAddCatTitle:'Neue Kategorie',
+    stockFoodName:'Name',
+    stockFoodUnit:'Einheit',
+    stockFoodCat:'Kategorie',
+    stockCatName:'Kategoriename',
+    stockAdded:n=>`${n} hinzugefügt`,
+    stockCatAdded:n=>`Kategorie „${n}“ angelegt`,
+    stockDragDock:'Ziehe Produkte hierher — bleibt immer sichtbar',
+    stockEmptyCat:'Noch leer — tippe „＋ Lebensmittel“',
     bookWith:'Buchen', needQty:'Menge eingeben',
     shopTitle:'Einkaufsliste', addProduct:'+ Produkt', emptyList:'Liste ist leer',
     byWhom:'von', scanReceipt:'🧾 Beleg scannen (Freitag)',
@@ -85,13 +111,27 @@ const T = {
     profileDetails:'Profildaten', manageProfiles:'Profile verwalten', recoveryEmail:'E-Mail für PIN-Wiederherstellung',
     recoveryEmailHint:'An diese Adresse gehen einmalige PIN-Links und wichtige Sicherheitsmeldungen.',
     saveEmail:'E-Mail speichern', emailSaved:'E-Mail wurde gespeichert.', emailInvalid:'Gib eine gültige E-Mail-Adresse ein.',
-    emailProvider:'E-Mail-Versand', emailReady:'bereit', emailNotReady:'SMTP ist noch nicht konfiguriert',
-    sendTestEmail:'Test-E-Mail senden', testEmailSent:'Test-E-Mail wurde gesendet.', testEmailFailed:'Die Test-E-Mail konnte nicht gesendet werden.',
-    testEmailAuthFailed:'SMTP-Anmeldung abgelehnt. Prüfe SMTP_USER / SMTP_PASSWORD (z. B. Gmail-App-Passwort) und starte den Server neu.',
-    testEmailSenderFailed:'Absender ungültig. SMTP_FROM muss eine echte Adresse sein, z. B. Armonia Thassos <deinename@gmail.com>.',
-    testEmailRecipientRestricted:'Der Empfänger wurde vom Mailserver abgelehnt. Prüfe die Zieladresse.',
-    testEmailRateLimited:'Zu viele E-Mails. Warte kurz und versuche es erneut.', testEmailNetwork:'Der Mailserver ist nicht erreichbar. Prüfe SMTP_HOST, Internet und Server.',
-    switchProfile:'Anderes Profil öffnen', adminsManageEmails:'Als Admin kannst du die E-Mail jedes Profils verwalten.',
+    phoneLabel:'Telefon', phoneHint:'Mobilnummer für kurze Absprachen im Team.',
+    phoneInvalid:'Gib eine gültige Telefonnummer ein (mind. 8 Ziffern).',
+    phoneSaved:'Telefonnummer wurde gespeichert.',
+    contactTitle:'Kontaktdaten', contactKicker:'Erster Login',
+    contactIntro:'Bitte hinterlege E-Mail und Telefon — einmalig, damit PIN-Reset und Team-Kontakt funktionieren.',
+    contactSave:'Speichern & weiter', contactRequired:'E-Mail und Telefon sind erforderlich.',
+    saveContact:'Kontaktdaten speichern', contactSaved:'Kontaktdaten gespeichert.',
+    emailProvider:'E-Mail-Versand', emailReady:'bereit', emailNotReady:'E-Mail ist noch nicht konfiguriert',
+    emailReadyHint:'PIN-Links, Tests und Event-Mails können zugestellt werden.',
+    emailOfflineHint:'Auf dem Server fehlen SMTP oder Resend. Ohne Versand kein PIN-Link.',
+    sendTestEmail:'Test-E-Mail senden', testEmailSent:'Test-E-Mail wurde gesendet — prüfe Posteingang & Spam.', testEmailFailed:'Die Test-E-Mail konnte nicht gesendet werden.',
+    testEmailAuthFailed:'Anmeldung beim Mailversand abgelehnt. Prüfe SMTP-Passwort oder Resend-API-Key und starte neu.',
+    testEmailSenderFailed:'Absender ungültig. SMTP_FROM / RESEND_FROM muss eine echte Adresse sein.',
+    testEmailRecipientRestricted:'Empfänger abgelehnt (z. B. Resend-Testmodus nur an die Konto-Adresse).',
+    testEmailRateLimited:'Zu viele E-Mails. Warte kurz und versuche es erneut.', testEmailNetwork:'Mailserver nicht erreichbar. Auf Vercel Resend nutzen; lokal SMTP prüfen.',
+    emailSaveFirst:'Zuerst E-Mail speichern, dann Test senden.',
+    emailPreviewTitle:'So sieht die Mail aus',
+    emailPreviewBody:'PIN-Reset und Sicherheitsmeldungen kommen im Armonia-Design.',
+    contactCardTitle:'Kontakt & Wiederherstellung',
+    switchProfile:'Anderes Profil öffnen', profilesBack:'Profile',
+    adminsManageEmails:'Als Admin kannst du die E-Mail jedes Profils verwalten.',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
     device:'Gerät', welcome:n=>'Willkommen, '+n,
     tutorialRequired:'Login-Tutorial · erforderlich', tutorialStep:(n,total)=>`Schritt ${n} von ${total}`,
@@ -101,9 +141,27 @@ const T = {
     tutorialTip:'Du musst alle Schritte ansehen. Diese Einführung kann nicht übersprungen oder geschlossen werden.',
     tutorialOpen:'App-Tutorial öffnen', tutorialReplay:'Funktions-Tutorial', tutorialClose:'Tutorial beenden',
     tutorialReplayTip:'Du kannst dieses Tutorial jederzeit über Hilfe (?) oder Profil erneut öffnen.',
-    helpCenter:'Hilfe & Tutorial', helpCenterHint:'Tutorial einmal nach dem Login — danach jederzeit über ?. Die AI kann mit Bestätigung Lager und Liste ändern.',
+    helpCenter:'Hilfe & Tutorial', helpCenterHint:'Tutorial, Team-Gespräch und AI-Hilfe. Die AI kann mit Bestätigung Lager und Liste ändern.',
     startTutorial:'Geführtes App-Tutorial', startTutorialHint:'Alle Funktionen passend zu deinem Profil – jederzeit wiederholbar über ?.',
     askAiHelp:'AI-Hilfe fragen', askAiHelpHint:'Fragen stellen, per Sprache diktieren, oder Lager/Liste mit Bestätigung ändern.',
+    staffTalk:'Team sprechen', staffTalkHint:'Chat mit Mikrofon, Besprechungsthemen und gemeinsamer Videoanruf.',
+    staffTalkTitle:'Team-Gespräch', staffTalkIntro:'Schreibt oder sprecht per Mikrofon. Themen merken wir für die Besprechung. Video geht über einen gemeinsamen Jitsi-Raum.',
+    staffTalkEmpty:'Noch keine Nachrichten. Schreibt die erste.',
+    staffTalkPlaceholder:'Nachricht an das Team…',
+    staffTalkSend:'Senden',
+    staffTalkTopics:'Darüber sprechen',
+    staffTalkTopicsHint:'Themen für heute / die Besprechung. Abhaken, wenn besprochen.',
+    staffTalkTopicPh:'z.B. Handover Limenaria, Einkauf Freitag…',
+    staffTalkAddTopic:'Thema merken',
+    staffTalkClearDone:'Erledigte ausblenden',
+    staffTalkSuggest:'Vorschläge aus heute',
+    staffTalkVideo:'Video / Audio anrufen',
+    staffTalkVideoHint:'Öffnet den gemeinsamen Jitsi-Raum (Kamera & Mikrofon). Alle im Team nutzen denselben Link.',
+    staffTalkVideoOpen:'Raum öffnen',
+    staffTalkNeedStaff:'Nur für Personal verfügbar.',
+    staffTalkLoadError:'Team-Gespräch konnte nicht geladen werden.',
+    staffTalkOpen:'Team-Gespräch öffnen',
+    staffTalkOpenTopics:n=>`${n} offene Besprechungsthemen`,
     pickChild:'Mindestens ein Kind wählen', pickActivity:'Aktivität wählen',
     loginEntry:'Anmeldung in der App',
     notesSaved:'Hinweise gespeichert', materialsMoved:n=>`${n} Positionen in die Einkaufsliste übernommen`,
@@ -122,9 +180,11 @@ const T = {
     reasonExists:'Dieser Grund existiert bereits und wurde ausgewählt.', reasonAdded:n=>`„${n}“ wurde gespeichert und ausgewählt.`, reasonRemoved:'Eigener Grund entfernt.',
     storeMode:'Im Supermarkt', other:'Sonstiges',
     storeFocus:'Einkaufsmodus', storeFocusHint:'Entscheide jede Position eindeutig. Nichts wird automatisch als fehlend markiert.',
-    storeSearch:'In dieser Einkaufsliste suchen…', storeRemaining:'Noch zu entscheiden', storeComplete:'Alles entschieden',
-    markBought:'Gekauft', markMissing:'Nicht verfügbar', undoDecision:'Zurücksetzen',
+    storeSearch:'Suchen…', storeRemaining:'Noch offen', storeComplete:'Fertig',
+    markBought:'Gekauft', markMissing:'Fehlt', undoDecision:'Zurücksetzen',
     decideAll:'Entscheide zuerst alle Positionen.', shoppingProgress:'Einkaufsfortschritt',
+    storeShowDone:'Erledigte zeigen', storeHideDone:'Erledigte ausblenden',
+    storeLeft:n=>`${n} offen`, storeTapHint:'Tippe ✓ oder × — Liste bleibt kompakt',
     listPlanned:'Liste geplant', listShopping:'Im Einkauf', listFinished:'Abgeschlossen',
     tapToTick:'Tippen: gekauft → nicht da → offen',
     gotIt:'✓ gekauft', notThere:'✕ nicht da',
@@ -185,8 +245,17 @@ const T = {
     eventOfWeek:'Event der Woche', eventToday:'Heute', eventTomorrow:'Morgen', upcomingEvents:'Demnächst',
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
     helpChat:'Hilfe', helpWelcome:'Hallo! Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauchen deine Bestätigung. Du kannst auch das Mikrofon nutzen.',
-    helpVoice:'Spracheingabe', helpVoiceListening:'Höre zu…', helpVoiceUnsupported:'Spracheingabe wird auf diesem Gerät nicht unterstützt.',
+    helpVoice:'Spracheingabe', helpVoiceListening:'Höre zu… tippe erneut zum Stoppen',
+    helpVoiceUnsupported:'Spracheingabe wird auf diesem Gerät nicht unterstützt.',
     helpVoiceError:'Spracheingabe fehlgeschlagen. Tippe die Frage stattdessen.',
+    helpVoiceReady:'Sprache erkannt — prüfe und sende.',
+    helpVoiceDenied:'Mikrofon-Zugriff verweigert. Erlaube das Mikrofon in den Einstellungen.',
+    helpVoiceSecure:'Spracheingabe braucht HTTPS oder localhost.',
+    helpVoiceStart:'Mikrofon wird vorbereitet…',
+    helpQuickFood:'Schnell: Lager / Liste',
+    helpConfirmInline:'Jetzt speichern',
+    helpDiscardInline:'Verwerfen',
+    helpMutateHint:'Als angemeldetes Personal kannst du z.B. sagen: „Milch +2 Kalyvia“ oder „Reis auf die Liste“. Dann bestätigen.',
     helpProposeTitle:'Vorgeschlagene Änderungen', helpProposeHint:'Noch nicht gespeichert. Prüfe und bestätige.',
     helpProposeConfirm:'Änderungen speichern', helpProposeCancel:'Verwerfen',
     helpProposeDone:n=>`${n} ${n===1?'Änderung':'Änderungen'} gespeichert`,
@@ -242,12 +311,14 @@ const T = {
     chooseMany:'Mehrfachauswahl möglich', selectHouse:'Wähle mindestens ein Haus.',
     screenshotDrop:'Screenshot hier ablegen oder auswählen', screenshotPaste:'Oder Screenshot kopieren und hier ⌘V / Strg+V drücken',
     screenshotReady:'Screenshot bereit – OCR startet…', screenshotMissing:'Die Zwischenablage enthält keinen Screenshot.',
+    pasteScreenshot:'Screenshot einfügen', pickScreenshot:'Screenshot / Foto wählen',
   },
   el: {
     appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Ψυγείο', navShop:'Λίστα', navBook:'Καταγραφές',
     titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Ψυγείο / Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Καταγραφές',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
     viewDay:'Ημέρα', viewWeek:'Εβδομάδα', filterView:'Προβολή', filterHouse:'Σπίτι',
+    tableFullscreen:'Πλήρης οθόνη', tableExitFullscreen:'Κλείσιμο',
     allHouses:'Συνδυαστικά',
     morning:'Πρωινό πρόγραμμα', afternoon:'Απογευματινή φροντίδα', evening:'Βραδινό πρόγραμμα',
     add:'+ Εγγραφή', edit:'Εγγραφή', newEntry:'Νέα εγγραφή',
@@ -259,7 +330,12 @@ const T = {
     scopeTodayHint:'Το μόνιμο εβδομαδιαίο πρότυπο δεν αλλάζει.',
     scopeTemplateHint:day=>`Αλλάζει το πρότυπο για κάθε ${day}.`,
     saveWithPin:'Αποθήκευση', cancelToday:'Ακύρωση εγγραφής για σήμερα',
+    removeFromTable:'Αφαίρεση από το πρόγραμμα', removedFromPlan:'Αφαιρέθηκε από το πρόγραμμα',
     cancelled:'ακυρώθηκε', override:'έκτακτο',
+    adminActions:'Ενέργειες', adminShiftToday:'Βάρδια σήμερα', adminOpenDay:'Ημερήσιο',
+    adminOpenWeek:'Εβδομαδιαίο', adminOpenStock:'Ψυγείο', adminOpenShop:'Ψώνια',
+    adminContact:'Επικοινωνία / Email', adminAssignToday:'Ανάθεση σήμερα',
+    adminShiftsWeek:'Βάρδιες εβδομάδας', adminMarkDone:'Ολοκληρώθηκε', adminRemoveAssign:'Ακύρωση εργασίας',
     noEntries:'Καμία εγγραφή',
     weekNotes:'Σημειώσεις εβδομάδας', besprechung:'Σύσκεψη: Δευτέρα 13:30',
     hintAfternoon:'Σημειώσεις / ιδιαιτερότητες για το απόγευμα',
@@ -280,9 +356,29 @@ const T = {
     noStockResults:'Δεν βρέθηκαν προϊόντα.', openShopping:'Στη λίστα αγορών', missingFromShop:n=>`${n} ${n===1?'έλλειψη':'ελλείψεις'} από τα ψώνια`,
     inTitle:'Είσοδος στο ψυγείο', outTitle:'Έξοδος από το ψυγείο',
     product:'Προϊόν', qty:'Ποσότητα',
-    photoLabel:'Φωτογραφία — υποχρεωτική, μόνο ζωντανή λήψη',
+    photoLabel:'Φωτογραφία — προαιρετική, μόνο ζωντανή λήψη',
     takePhoto:'📷 Λήψη φωτογραφίας', photoTaken:'Η φωτογραφία τραβήχτηκε τώρα, μέσα στην εφαρμογή.',
-    noCam:'Η κάμερα δεν είναι διαθέσιμη', needPhoto:'Χωρίς φωτογραφία δεν γίνεται καταγραφή',
+    noCam:'Η κάμερα δεν είναι διαθέσιμη', needPhoto:'Η φωτογραφία είναι προαιρετική',
+    photoOptional:'Φωτογραφία προαιρετική',
+    skipPhoto:'Καταγραφή χωρίς φωτογραφία',
+    stockHoldHint:'Κράτα πατημένο για επιλογές · Σύρε σε Είσοδο/Έξοδο κάτω',
+    stockHoldIn:'＋ Είσοδος',
+    stockHoldOut:'− Έξοδος',
+    stockHoldShop:'Στη λίστα αγορών',
+    stockHoldDetail:'Λεπτομέρειες / ποσότητα',
+    stockHoldClear:'Αφαίρεση από επιλογή',
+    stockAddFood:'＋ Τρόφιμο',
+    stockAddCat:'＋ Κατηγορία',
+    stockAddFoodTitle:'Νέο τρόφιμο',
+    stockAddCatTitle:'Νέα κατηγορία',
+    stockFoodName:'Όνομα',
+    stockFoodUnit:'Μονάδα',
+    stockFoodCat:'Κατηγορία',
+    stockCatName:'Όνομα κατηγορίας',
+    stockAdded:n=>`Προστέθηκε: ${n}`,
+    stockCatAdded:n=>`Κατηγορία «${n}» δημιουργήθηκε`,
+    stockDragDock:'Σύρε προϊόντα εδώ — μένει πάντα ορατό',
+    stockEmptyCat:'Ακόμα άδεια — πάτα «＋ Τρόφιμο»',
     bookWith:'Καταχώρηση', needQty:'Βάλε ποσότητα',
     shopTitle:'Λίστα αγορών', addProduct:'+ Προϊόν', emptyList:'Η λίστα είναι άδεια',
     byWhom:'από', scanReceipt:'🧾 Σάρωση απόδειξης (Παρασκευή)',
@@ -325,13 +421,27 @@ const T = {
     profileDetails:'Στοιχεία προφίλ', manageProfiles:'Διαχείριση προφίλ', recoveryEmail:'Email ανάκτησης PIN',
     recoveryEmailHint:'Σε αυτή τη διεύθυνση στέλνονται σύνδεσμοι PIN και σημαντικές ειδοποιήσεις ασφαλείας.',
     saveEmail:'Αποθήκευση email', emailSaved:'Το email αποθηκεύτηκε.', emailInvalid:'Βάλε έγκυρη διεύθυνση email.',
-    emailProvider:'Αποστολή email', emailReady:'έτοιμη', emailNotReady:'Το SMTP δεν έχει ρυθμιστεί ακόμη',
-    sendTestEmail:'Αποστολή δοκιμαστικού email', testEmailSent:'Το δοκιμαστικό email στάλθηκε.', testEmailFailed:'Το δοκιμαστικό email δεν στάλθηκε.',
-    testEmailAuthFailed:'Η είσοδος SMTP απορρίφθηκε. Έλεγξε SMTP_USER / SMTP_PASSWORD (π.χ. Gmail App Password) και επανεκκίνησε τον server.',
-    testEmailSenderFailed:'Μη έγκυρος αποστολέας. Το SMTP_FROM πρέπει να είναι πραγματικό email, π.χ. Armonia Thassos <you@gmail.com>.',
-    testEmailRecipientRestricted:'Ο παραλήπτης απορρίφθηκε από τον mail server. Έλεγξε τη διεύθυνση.',
-    testEmailRateLimited:'Στάλθηκαν πολλά email. Περίμενε λίγο και δοκίμασε ξανά.', testEmailNetwork:'Ο mail server δεν είναι προσβάσιμος. Έλεγξε SMTP_HOST, internet και server.',
-    switchProfile:'Άνοιγμα άλλου προφίλ', adminsManageEmails:'Ως admin μπορείς να διαχειριστείς το email κάθε προφίλ.',
+    phoneLabel:'Τηλέφωνο', phoneHint:'Κινητό για σύντομη επικοινωνία στην ομάδα.',
+    phoneInvalid:'Βάλε έγκυρο τηλέφωνο (τουλάχιστον 8 ψηφία).',
+    phoneSaved:'Το τηλέφωνο αποθηκεύτηκε.',
+    contactTitle:'Στοιχεία επικοινωνίας', contactKicker:'Πρώτη είσοδος',
+    contactIntro:'Βάλε email και τηλέφωνο — μία φορά, για επαναφορά PIN και επικοινωνία ομάδας.',
+    contactSave:'Αποθήκευση & συνέχεια', contactRequired:'Το email και το τηλέφωνο είναι υποχρεωτικά.',
+    saveContact:'Αποθήκευση στοιχείων', contactSaved:'Τα στοιχεία αποθηκεύτηκαν.',
+    emailProvider:'Αποστολή email', emailReady:'έτοιμη', emailNotReady:'Το email δεν έχει ρυθμιστεί ακόμη',
+    emailReadyHint:'Σύνδεσμοι PIN, δοκιμές και emails events μπορούν να σταλούν.',
+    emailOfflineHint:'Στον server λείπουν SMTP ή Resend. Χωρίς αποστολή δεν υπάρχει σύνδεσμος PIN.',
+    sendTestEmail:'Αποστολή δοκιμαστικού email', testEmailSent:'Το δοκιμαστικό email στάλθηκε — έλεγξε εισερχόμενα & ανεπιθύμητα.', testEmailFailed:'Το δοκιμαστικό email δεν στάλθηκε.',
+    testEmailAuthFailed:'Η είσοδος στο mail απορρίφθηκε. Έλεγξε κωδικό SMTP ή Resend API key.',
+    testEmailSenderFailed:'Μη έγκυρος αποστολέας. SMTP_FROM / RESEND_FROM πρέπει να είναι πραγματικό email.',
+    testEmailRecipientRestricted:'Ο παραλήπτης απορρίφθηκε (π.χ. Resend test mode μόνο στο email του λογαριασμού).',
+    testEmailRateLimited:'Στάλθηκαν πολλά email. Περίμενε λίγο και δοκίμασε ξανά.', testEmailNetwork:'Ο mail server δεν είναι προσβάσιμος. Στο Vercel βάλε Resend· τοπικά έλεγξε SMTP.',
+    emailSaveFirst:'Αποθήκευσε πρώτα το email και μετά στείλε δοκιμή.',
+    emailPreviewTitle:'Έτσι φαίνεται το email',
+    emailPreviewBody:'PIN reset και ειδοποιήσεις ασφαλείας στο design της Armonia.',
+    contactCardTitle:'Επικοινωνία & ανάκτηση',
+    switchProfile:'Άνοιγμα άλλου προφίλ', profilesBack:'Προφίλ',
+    adminsManageEmails:'Ως admin μπορείς να διαχειριστείς το email κάθε προφίλ.',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
     device:'Συσκευή', welcome:n=>'Καλώς ήρθες, '+n,
     tutorialRequired:'Tutorial σύνδεσης · υποχρεωτικό', tutorialStep:(n,total)=>`Βήμα ${n} από ${total}`,
@@ -341,9 +451,27 @@ const T = {
     tutorialTip:'Πρέπει να δεις όλα τα βήματα. Η ξενάγηση δεν παραλείπεται και δεν κλείνει.',
     tutorialOpen:'Άνοιγμα tutorial εφαρμογής', tutorialReplay:'Tutorial λειτουργιών', tutorialClose:'Τέλος tutorial',
     tutorialReplayTip:'Μπορείς να ανοίξεις ξανά αυτό το tutorial οποιαδήποτε στιγμή από το ? ή το Προφίλ.',
-    helpCenter:'Βοήθεια & Tutorial', helpCenterHint:'Tutorial μία φορά μετά τη σύνδεση — μετά από ?. Η AI μπορεί με επιβεβαίωση να αλλάξει ψυγείο και λίστα.',
+    helpCenter:'Βοήθεια & Tutorial', helpCenterHint:'Tutorial, συνομιλία ομάδας και βοήθεια AI. Η AI μπορεί με επιβεβαίωση να αλλάξει ψυγείο και λίστα.',
     startTutorial:'Καθοδηγούμενο tutorial εφαρμογής', startTutorialHint:'Όλες οι λειτουργίες για το προφίλ σου – επαναλαμβάνεται από το ?.',
     askAiHelp:'Ερώτηση στη βοήθεια AI', askAiHelpHint:'Κάνε ερώτηση, υπαγόρευσε με μικρόφωνο, ή άλλαξε ψυγείο/λίστα με επιβεβαίωση.',
+    staffTalk:'Ομάδα — συνομιλία', staffTalkHint:'Chat με μικρόφωνο, θέματα σύσκεψης και κοινό βιντεοκλήση.',
+    staffTalkTitle:'Συνομιλία ομάδας', staffTalkIntro:'Γράψτε ή μιλήστε με μικρόφωνο. Τα θέματα μένουν για τη σύσκεψη. Το βίντεο είναι κοινό δωμάτιο Jitsi.',
+    staffTalkEmpty:'Δεν υπάρχουν ακόμη μηνύματα. Γράψτε το πρώτο.',
+    staffTalkPlaceholder:'Μήνυμα στην ομάδα…',
+    staffTalkSend:'Αποστολή',
+    staffTalkTopics:'Να συζητήσουμε',
+    staffTalkTopicsHint:'Θέματα για σήμερα / τη σύσκεψη. Τσεκάρετε όταν τελειώσετε.',
+    staffTalkTopicPh:'π.χ. handover Limenaria, ψώνια Παρασκευής…',
+    staffTalkAddTopic:'Αποθήκευση θέματος',
+    staffTalkClearDone:'Απόκρυψη ολοκληρωμένων',
+    staffTalkSuggest:'Προτάσεις από σήμερα',
+    staffTalkVideo:'Βιντεο / ήχος κλήση',
+    staffTalkVideoHint:'Ανοίγει το κοινό δωμάτιο Jitsi (κάμερα & μικρόφωνο). Όλη η ομάδα χρησιμοποιεί τον ίδιο σύνδεσμο.',
+    staffTalkVideoOpen:'Άνοιγμα δωματίου',
+    staffTalkNeedStaff:'Μόνο για προσωπικό.',
+    staffTalkLoadError:'Η συνομιλία δεν φορτώθηκε.',
+    staffTalkOpen:'Άνοιγμα συνομιλίας ομάδας',
+    staffTalkOpenTopics:n=>`${n} ανοιχτά θέματα σύσκεψης`,
     pickChild:'Διάλεξε τουλάχιστον ένα παιδί', pickActivity:'Διάλεξε δραστηριότητα',
     loginEntry:'Είσοδος στην εφαρμογή',
     notesSaved:'Οι σημειώσεις αποθηκεύτηκαν', materialsMoved:n=>`${n} είδη πέρασαν στη λίστα αγορών`,
@@ -362,9 +490,11 @@ const T = {
     reasonExists:'Αυτός ο λόγος υπάρχει ήδη και επιλέχθηκε.', reasonAdded:n=>`Το «${n}» αποθηκεύτηκε και επιλέχθηκε.`, reasonRemoved:'Ο προσαρμοσμένος λόγος αφαιρέθηκε.',
     storeMode:'Στο σουπερμάρκετ', other:'Άλλα',
     storeFocus:'Λειτουργία αγορών', storeFocusHint:'Αποφάσισε καθαρά για κάθε είδος. Τίποτα δεν σημειώνεται αυτόματα ως έλλειψη.',
-    storeSearch:'Αναζήτηση σε αυτή τη λίστα…', storeRemaining:'Μένουν για απόφαση', storeComplete:'Όλα αποφασίστηκαν',
-    markBought:'Αγοράστηκε', markMissing:'Δεν ήταν διαθέσιμο', undoDecision:'Επαναφορά',
+    storeSearch:'Αναζήτηση…', storeRemaining:'Ακόμα ανοιχτά', storeComplete:'Ολοκληρώθηκε',
+    markBought:'Αγοράστηκε', markMissing:'Λείπει', undoDecision:'Επαναφορά',
     decideAll:'Αποφάσισε πρώτα για όλα τα είδη.', shoppingProgress:'Πρόοδος αγορών',
+    storeShowDone:'Εμφάνιση ολοκληρωμένων', storeHideDone:'Απόκρυψη ολοκληρωμένων',
+    storeLeft:n=>`${n} ανοιχτά`, storeTapHint:'Πάτα ✓ ή × — συμπτυγμένη λίστα',
     listPlanned:'Σχεδιασμένη λίστα', listShopping:'Στα ψώνια', listFinished:'Ολοκληρώθηκε',
     tapToTick:'Πάτα: αγοράστηκε → δεν υπήρχε → ανοιχτό',
     gotIt:'✓ αγοράστηκε', notThere:'✕ δεν υπήρχε',
@@ -425,8 +555,17 @@ const T = {
     eventOfWeek:'Event της εβδομάδας', eventToday:'Σήμερα', eventTomorrow:'Αύριο', upcomingEvents:'Επόμενα events',
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
     helpChat:'Βοήθεια', helpWelcome:'Γεια! Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση. Μπορείς και μικρόφωνο.',
-    helpVoice:'Φωνητική εισαγωγή', helpVoiceListening:'Ακούω…', helpVoiceUnsupported:'Η φωνητική εισαγωγή δεν υποστηρίζεται σε αυτή τη συσκευή.',
+    helpVoice:'Φωνητική εισαγωγή', helpVoiceListening:'Ακούω… πάτα ξανά για stop',
+    helpVoiceUnsupported:'Η φωνητική εισαγωγή δεν υποστηρίζεται σε αυτή τη συσκευή.',
     helpVoiceError:'Η φωνητική εισαγωγή απέτυχε. Γράψε την ερώτηση.',
+    helpVoiceReady:'Αναγνωρίστηκε ομιλία — έλεγξε και στείλε.',
+    helpVoiceDenied:'Δεν δόθηκε πρόσβαση στο μικρόφωνο. Επίτρεψέ το στις ρυθμίσεις.',
+    helpVoiceSecure:'Η φωνή χρειάζεται HTTPS ή localhost.',
+    helpVoiceStart:'Προετοιμασία μικροφώνου…',
+    helpQuickFood:'Γρήγορα: ψυγείο / λίστα',
+    helpConfirmInline:'Αποθήκευση τώρα',
+    helpDiscardInline:'Απόρριψη',
+    helpMutateHint:'Ως συνδεδεμένο προσωπικό μπορείς π.χ. να πεις: «γάλα +2 Kalyvia» ή «ρύζι στη λίστα». Μετά επιβεβαίωσε.',
     helpProposeTitle:'Προτεινόμενες αλλαγές', helpProposeHint:'Δεν αποθηκεύτηκαν ακόμη. Έλεγξε και επιβεβαίωσε.',
     helpProposeConfirm:'Αποθήκευση αλλαγών', helpProposeCancel:'Απόρριψη',
     helpProposeDone:n=>`${n} ${n===1?'αλλαγή':'αλλαγές'} αποθηκεύτηκαν`,
@@ -482,6 +621,7 @@ const T = {
     chooseMany:'Μπορείς να επιλέξεις πολλά', selectHouse:'Διάλεξε τουλάχιστον ένα σπίτι.',
     screenshotDrop:'Άφησε ή επίλεξε screenshot εδώ', screenshotPaste:'Ή αντέγραψε screenshot και πάτησε εδώ ⌘V / Ctrl+V',
     screenshotReady:'Το screenshot είναι έτοιμο – ξεκινά το OCR…', screenshotMissing:'Το πρόχειρο δεν περιέχει screenshot.',
+    pasteScreenshot:'Επικόλληση screenshot', pickScreenshot:'Επιλογή screenshot / φωτο',
   },
 };
 
@@ -546,7 +686,7 @@ const SEED = {
     {id:'k8',  name:'Jule',         color:'#f5d0fe'},
     {id:'k9',  name:'Samantha',     color:'#99f6e4'},
     {id:'k10', name:'Lilly',        color:'#99f6e4'},
-    {id:'k11', name:'Daniel',       color:'#fecaca'},
+    {id:'k11', name:'Zoitsa',       color:'#fecaca'},
     {id:'k12', name:'Leonie',       color:'#e9d5ff', temporary:true},
   ],
   /* Saved groups — μόνο όσες προκύπτουν από τα έγγραφα (§5.3, Nachmittagsbetreuung). */
@@ -687,6 +827,7 @@ const SEED = {
     {id:'p88', cat:'household', de:'Besen',         el:'Σκούπα',          unit:'Stk'},
   ],
   customProducts: [],
+  customCategories: [],
 
   /* Το εβδομαδιαίο πρότυπο, μεταγραμμένο από τη φωτογραφία (20.7.–26.7.2026).
      day: 0=Δευ … 6=Κυρ · employeeId null = «wer?» */
@@ -800,7 +941,7 @@ const SEED = {
 const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
-                 'customProducts',
+                 'customProducts', 'customCategories',
                  'customActivities', 'customReasons'];
 
 let DB = load();
@@ -814,7 +955,7 @@ function load(){
     }
   }catch(e){ console.warn('load failed', e); }
   // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
-  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customActivities','customReasons','log']
+  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','log']
     .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
   if(!db.weeks || typeof db.weeks !== 'object') db.weeks = {};
@@ -822,7 +963,15 @@ function load(){
   db.houses = SEED.houses.map(h => ({...h}));
   return db;
 }
-function save(){
+
+/** Shared across all staff devices — lists, stock, custom catalogue. */
+const SHARED_KEYS = ['listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons'];
+let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
+let sharedPushTimer = null;
+let sharedPollTimer = null;
+let sharedBusy = false;
+
+function saveLocal(){
   try{
     const out = {};
     MUTABLE.forEach(k => { out[k] = DB[k]; });
@@ -835,6 +984,142 @@ function save(){
   }
 }
 
+function applySharedPayload(data){
+  if(!data || typeof data !== 'object') return false;
+  let changed = false;
+  SHARED_KEYS.forEach(k=>{
+    if(data[k] === undefined) return;
+    DB[k] = k === 'stock'
+      ? (data[k] && typeof data[k] === 'object' ? data[k] : {})
+      : (Array.isArray(data[k]) ? data[k] : []);
+    changed = true;
+  });
+  if(typeof data.revision === 'number'){
+    sharedRevision = data.revision;
+    localStorage.setItem('paidia.sharedRev', String(sharedRevision));
+  }
+  if(changed) saveLocal();
+  return changed;
+}
+
+async function pullShared({force=false}={}){
+  if(state.mode !== 'staff' || !(state.user||state.child)) return false;
+  if(sharedBusy && !force) return false;
+  sharedBusy = true;
+  try{
+    const response = await fetch(`/api/ops?since=${force?0:sharedRevision}`, {credentials:'same-origin'});
+    if(response.status === 401 || response.status === 403) return false;
+    const data = await response.json().catch(()=>null);
+    if(!response.ok || !data) return false;
+    if(!data.changed && !force){
+      if(typeof data.revision === 'number') sharedRevision = data.revision;
+      return false;
+    }
+    const serverRev = Number(data.revision)||0;
+    const serverEmpty = serverRev === 0
+      && !(data.listEntries||[]).length
+      && !(data.shoppingTrips||[]).length
+      && !Object.keys(data.stock||{}).length;
+    const localHas = (DB.listEntries||[]).length
+      || (DB.shoppingTrips||[]).length
+      || Object.keys(DB.stock||{}).length
+      || (DB.customProducts||[]).length;
+    // First device seeds the server — never wipe local with an empty cloud.
+    if(serverEmpty && localHas){
+      sharedRevision = 0;
+      localStorage.setItem('paidia.sharedRev', '0');
+      return false;
+    }
+    const changed = applySharedPayload(data);
+    return changed;
+  }catch(error){
+    console.warn('shared pull failed', error);
+    return false;
+  }finally{ sharedBusy = false; }
+}
+
+async function pushShared(retry=false){
+  if(state.mode !== 'staff' || !state.user) return false;
+  if(sharedBusy) return false;
+  sharedBusy = true;
+  try{
+    const payload = {revision: sharedRevision};
+    SHARED_KEYS.forEach(k => { payload[k] = DB[k]; });
+    const response = await fetch('/api/ops', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),
+    });
+    const data = await response.json().catch(()=>null);
+    if(response.status === 409 && data){
+      const intended = {};
+      SHARED_KEYS.forEach(k => { intended[k] = payload[k]; });
+      applySharedPayload(data);
+      SHARED_KEYS.forEach(k => { DB[k] = intended[k]; });
+      saveLocal();
+      sharedBusy = false;
+      if(!retry) return pushShared(true);
+      return false;
+    }
+    if(!response.ok){
+      console.warn('shared push failed', data);
+      return false;
+    }
+    if(data){
+      if(typeof data.revision === 'number'){
+        sharedRevision = data.revision;
+        localStorage.setItem('paidia.sharedRev', String(sharedRevision));
+      }
+    }
+    return true;
+  }catch(error){
+    console.warn('shared push failed', error);
+    return false;
+  }finally{ sharedBusy = false; }
+}
+
+function schedulePushShared(){
+  clearTimeout(sharedPushTimer);
+  sharedPushTimer = setTimeout(()=>{ pushShared(); }, 280);
+}
+
+function save(){
+  const ok = saveLocal();
+  if(ok) schedulePushShared();
+  return ok;
+}
+
+function startSharedSync(){
+  stopSharedSync();
+  if(state.mode !== 'staff') return;
+  pullShared({force:true}).then(changed=>{
+    if(changed && !document.body.classList.contains('auth-pending')) render();
+    // Seed empty server from this device's local list/stock once.
+    if(sharedRevision === 0) pushShared();
+  });
+  sharedPollTimer = setInterval(async()=>{
+    if(document.body.classList.contains('auth-pending')) return;
+    if(document.hidden) return;
+    // Keep lists/fridge live while staff use the app.
+    if(!['shop','stock','home','book'].includes(state.tab)) return;
+    const changed = await pullShared();
+    if(changed && !sheetEl.classList.contains('on')) render();
+  }, 3000);
+}
+
+function stopSharedSync(){
+  clearInterval(sharedPollTimer);
+  sharedPollTimer = null;
+  clearTimeout(sharedPushTimer);
+  sharedPushTimer = null;
+}
+
+window.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden && state.mode==='staff' && (state.user||state.child)){
+    pullShared().then(changed=>{ if(changed && !sheetEl.classList.contains('on')) render(); });
+  }
+});
+
 /* Βοηθητικά */
 const uid = () => Math.random().toString(36).slice(2,10);
 const emp = id => DB.employees.find(e=>e.id===id);
@@ -843,6 +1128,7 @@ const kid = id => DB.children.find(c=>c.id===id);
 const ACTS = () => [...DB.activities, ...DB.customActivities];
 const act = id => ACTS().find(a=>a.id===id);
 const PRODUCTS = () => [...DB.products, ...(DB.customProducts||[])];
+const CATS = () => [...DB.categories, ...(DB.customCategories||[])];
 const prod = id => PRODUCTS().find(p=>p.id===id);
 const house = id => DB.houses.find(h=>h.id===id);
 const planningHouses = () => DB.houses.filter(h=>h.planning!==false);
@@ -886,6 +1172,75 @@ function setStatus(el, message='', type='info'){
   el.className = message ? `status-box ${type}` : 'muted';
   el.setAttribute('role', type==='error' ? 'alert' : 'status');
   el.setAttribute('aria-live', 'polite');
+}
+
+/* ── Haptics + solfège SFX (Desktop AudioFiles → /sfx) ── */
+const SFX = {
+  tap:'sfx/Re.wav', select:'sfx/Mi.wav', open:'sfx/Do.wav',
+  success:'sfx/Sol.wav', save:'sfx/DoHigh.wav', toggle:'sfx/La.wav',
+  error:'sfx/Si.wav', warn:'sfx/Fa.wav',
+};
+const _sfxCache = Object.create(null);
+let _sfxUnlocked = false;
+function unlockAudio(){
+  if(_sfxUnlocked) return;
+  _sfxUnlocked = true;
+  try{
+    const ctx = window.AudioContext || window.webkitAudioContext;
+    if(ctx){ const a=new ctx(); if(a.state==='suspended') a.resume(); a.close?.(); }
+  }catch{}
+}
+['pointerdown','keydown','touchstart'].forEach(ev=>
+  window.addEventListener(ev, unlockAudio, {once:true, capture:true}));
+function playSfx(name){
+  const src = SFX[name] || SFX.tap;
+  try{
+    let audio = _sfxCache[src];
+    if(!audio){ audio = new Audio(src); audio.preload='auto'; _sfxCache[src]=audio; }
+    const node = audio.cloneNode();
+    node.volume = name==='error'||name==='warn' ? 0.55 : 0.42;
+    node.play().catch(()=>{});
+  }catch{}
+}
+function haptic(kind='light'){
+  if(typeof navigator==='undefined' || !navigator.vibrate) return;
+  const pattern = ({
+    light:8, medium:16, heavy:28, select:10,
+    success:[8,36,12], error:[28,40,28], toggle:12,
+  })[kind] ?? 8;
+  try{ navigator.vibrate(pattern); }catch{}
+}
+function feedback(kind='select'){
+  const map = {
+    select:['select','select'], tap:['tap','light'], open:['open','medium'],
+    success:['success','success'], save:['save','success'],
+    toggle:['toggle','toggle'], error:['error','error'], warn:['warn','medium'],
+  };
+  const [sfx, hap] = map[kind] || map.select;
+  haptic(hap); playSfx(sfx);
+}
+
+function entrySec(icon, label, hint=''){
+  return `<div class="entry-sec"><span class="sec-ico" aria-hidden="true">${icon}</span><span>${esc(label)}</span>${hint?`<span class="sec-hint">${esc(hint)}</span>`:''}</div>`;
+}
+function houseOptionHtml(h, checked){
+  return `<label class="check-option"><input type="checkbox" value="${h.id}" ${checked?'checked':''}>
+    <span class="opt-ico" aria-hidden="true">🏠</span>
+    <span class="opt-label"><span>${esc(h.name)}</span></span></label>`;
+}
+function personOptionHtml(p, checked){
+  return `<label class="check-option"><input type="checkbox" value="${p.id}" ${checked?'checked':''}>
+    <span class="opt-ava" style="background:${esc(p.color)}" aria-hidden="true">${esc(initials(p.name))}</span>
+    <span class="opt-label"><span>${esc(p.name)}</span>${p.role?`<small>${esc(L(p.role))}</small>`:''}</span></label>`;
+}
+function kidChipHtml(c, on){
+  return `<button class="chip kid-chip ${on?'on':''}" data-c="${c.id}" type="button">
+    <span class="chip-ava" style="background:${esc(c.color)}" aria-hidden="true">${esc(initials(c.name))}</span>
+    <span class="chip-mark" aria-hidden="true">${on?'☑':'☐'}</span>
+    <span>${esc(childChoiceLabel(c))}</span></button>`;
+}
+function groupChipHtml(g, on){
+  return `<button class="chip ${on?'on':''}" data-g="${g.id}" type="button">👥 ${esc(L(g))}</button>`;
 }
 
 function friendlyAiError(error){
@@ -992,13 +1347,18 @@ const state = {
   stockQuery: '',
   stockOpenCategories: null,
   shopQuery: '',
+  storeShowDone: false,
   houseFilter: '',
   date: iso(new Date()),
   bookRange: 'today',
   bookFilter: {employeeId:'', type:''},
   helpMessages: [],          // session-only; never persisted with operational data
+  pendingHelpActions: [],
   onboardingComplete: false,
   onboardingVersion: 2,
+  profileEmail: '',
+  profilePhone: '',
+  contactComplete: false,
 };
 const isAdminUser = () => !!(state.mode==='staff' && state.user?.admin);
 const currentProfileId = () => state.mode==='child' ? state.child?.id : state.user?.id;
@@ -1010,8 +1370,42 @@ function readOnboardingLocal(profileId=currentProfileId(), mode=state.mode, vers
   try{ return localStorage.getItem(onboardingStorageKey(profileId, mode, version))==='1'; }
   catch{ return false; }
 }
+/** True if this profile already finished any known tutorial version (avoids re-trap loops). */
+function readOnboardingDone(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
+  const ver=Number(version)||0;
+  if(readOnboardingLocal(profileId, mode, ver)) return true;
+  for(let v=1; v<=Math.max(ver, 2); v++){
+    if(v!==ver && readOnboardingLocal(profileId, mode, v)) return true;
+  }
+  // Legacy key without version (older builds).
+  try{ return localStorage.getItem(`paidia-onboarding:${profileId||'_'}:${mode}`)==='1'; }
+  catch{ return false; }
+}
 function writeOnboardingLocal(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
   try{ localStorage.setItem(onboardingStorageKey(profileId, mode, version), '1'); }catch{}
+}
+function contactStorageKey(profileId=currentProfileId(), mode=state.mode){
+  return `paidia-contact:${profileId||'_'}:${mode}`;
+}
+function readContactLocal(profileId=currentProfileId(), mode=state.mode){
+  try{
+    const raw=localStorage.getItem(contactStorageKey(profileId, mode));
+    if(!raw) return false;
+    const data=JSON.parse(raw);
+    return !!(data?.email && data?.phone);
+  }catch{ return false; }
+}
+function writeContactLocal(email, phone, profileId=currentProfileId(), mode=state.mode){
+  try{
+    localStorage.setItem(contactStorageKey(profileId, mode), JSON.stringify({
+      email:String(email||'').trim().toLowerCase(),
+      phone:String(phone||'').replace(/[\s\-().]/g,''),
+      at:Date.now(),
+    }));
+  }catch{}
+}
+function validPhoneClient(value){
+  return /^\+?\d{8,16}$/.test(String(value||'').replace(/[\s\-().]/g,''));
 }
 async function syncOnboardingComplete(version=state.onboardingVersion){
   const response=await fetch('/api/auth/onboarding/complete',{
@@ -1042,8 +1436,16 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   state.user=mode==='staff'?authenticatedWho:null;
   state.onboardingVersion=Number(data.onboardingVersion)||1;
   const serverDone=data.onboardingComplete===true;
-  const localDone=readOnboardingLocal(data.profileId, mode, state.onboardingVersion);
+  const localDone=readOnboardingDone(data.profileId, mode, state.onboardingVersion);
   state.onboardingComplete=serverDone || localDone;
+  if(localDone && !serverDone){
+    writeOnboardingLocal(data.profileId, mode, state.onboardingVersion);
+  }
+  state.profileEmail=String(data.email||'').trim();
+  state.profilePhone=String(data.phone||'').trim();
+  state.contactComplete=data.contactComplete===true
+    || !!(state.profileEmail && state.profilePhone)
+    || readContactLocal(data.profileId, mode);
   session.sessionId=data.sessionId||session.sessionId;
   if(logLogin && mode==='staff') logEntry('LOGIN',t('loginEntry'));
   if(!serverDone && localDone){
@@ -1147,7 +1549,9 @@ async function restoreServerSession(){
     const response=await fetch('/api/auth/session',{credentials:'same-origin'});
     const data=await response.json();
     if(response.ok && data.authenticated && applyAuthenticatedProfile(data)){
-      closeGate();revealApp();render();await ensureOnboarding();return true;
+      closeGate();revealApp();render();
+      startSharedSync();
+      await ensureOnboarding();await ensureContactDetails();return true;
     }
   }catch(error){ console.error('session restore failed',error); }
   openGate();
@@ -1156,6 +1560,7 @@ async function restoreServerSession(){
 
 async function logoutServerSession(){
   try{await fetch('/api/auth/logout',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:'{}'});}catch(error){}
+  stopSharedSync();
   state.user=null;state.child=null;state.mode='staff';session.sessionId=null;
   document.body.classList.add('auth-pending');
   document.getElementById('app').hidden=true;
@@ -1179,8 +1584,10 @@ function setLang(l){
 const sheetEl = document.getElementById('sheet');
 const sheetBg = document.getElementById('sheetBg');
 let sheetLocked = false;
+let stockBoardUiAbort = null;
 
 function openSheet(html, {dismissable = true} = {}){
+  exitMatrixFullscreen();
   sheetLocked = !dismissable;
   document.getElementById('app').inert = sheetLocked;
   document.getElementById('helpFab').inert = true;
@@ -1196,6 +1603,8 @@ function openSheet(html, {dismissable = true} = {}){
 }
 function closeSheet(){
   sheetLocked = false;
+  stockBoardUiAbort?.abort();
+  stockBoardUiAbort = null;
   document.getElementById('app').inert = false;
   document.getElementById('helpFab').inert = false;
   document.getElementById('helpFab').hidden = false;
@@ -1203,6 +1612,7 @@ function closeSheet(){
   sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
   stopCamera();
+  document.querySelectorAll('.stock-hold-menu,.ghost').forEach(el=>el.remove());
   sheetEl.replaceChildren();
   scheduleMeasureChrome();
 }
@@ -1226,13 +1636,13 @@ function onboardingSteps(){
     step('📅','Plan richtig filtern','Σωστό φιλτράρισμα προγράμματος','Unteres Menü → 📅 Plan → Ansicht / Haus','Κάτω μενού → 📅 Πρόγραμμα → Προβολή / Σπίτι',['Tippe „Tag“ für das tägliche Meeting oder „Woche“ für alle sieben Tage.','Wähle „Kalyvia“, „Limenaria“ oder „Kombiniert“. Die drei Einkaufshäuser erscheinen bewusst nicht im Plan.','Nutze „Dienste“ für Schichten und „Events“ für besondere Termine.'],['Πάτησε «Ημέρα» για το καθημερινό meeting ή «Εβδομάδα» για επτά ημέρες.','Διάλεξε «Kalyvia», «Limenaria» ή «Συνδυαστικά». Τα τρία σπίτια αγορών δεν εμφανίζονται σκόπιμα στο πρόγραμμα.','Χρησιμοποίησε «Βάρδιες» για ωράρια και «Events» για ειδικά γεγονότα.'],'Der Filter ändert nur die Ansicht; er löscht oder verschiebt keine Einträge.','Το φίλτρο αλλάζει μόνο την προβολή· δεν διαγράφει ούτε μετακινεί εγγραφές.'),
     step('✍️','Einen Planeintrag speichern','Αποθήκευση εγγραφής προγράμματος','Plan → gewünschte Zelle / „+ Eintrag“','Πρόγραμμα → επιθυμητό κελί / «+ Εγγραφή»',['Tippe die Zelle des richtigen Tages und Zeitblocks.','Setze Häkchen bei einem oder mehreren Häusern und Personen.','Wähle Kinder einzeln oder über eine Gruppe, danach Aktivität und Uhrzeit.','Wähle „Nur heute“ oder – als Admin – „Dauerhaft“ und tippe „Speichern“.'],['Πάτησε το κελί της σωστής ημέρας και ζώνης ώρας.','Τσέκαρε ένα ή περισσότερα σπίτια και άτομα.','Διάλεξε παιδιά μεμονωμένα ή μέσω ομάδας και μετά δραστηριότητα και ώρα.','Διάλεξε «Μόνο σήμερα» ή – ως admin – «Μόνιμα» και πάτησε «Αποθήκευση».'],'Nach dem Speichern erscheint die Karte in genau diesem Tag und Block.','Μετά την αποθήκευση η κάρτα εμφανίζεται στη σωστή ημέρα και ζώνη.'),
     step('🎊','Planeintrag als Event veröffentlichen','Δημοσίευση εγγραφής ως event','Plan → Zelle öffnen → 📣 Event','Πρόγραμμα → άνοιγμα κελιού → 📣 Event',['Aktiviere oben „Event“.','Trage Eventtitel, Ort und „Mitbringen“ ein und kontrolliere Start/Ende.','Prüfe die ausgewählten Kinder; nur diese Profile erhalten die Ankündigung.','Tippe „Speichern“.'],['Ενεργοποίησε επάνω το «Event».','Συμπλήρωσε τίτλο, μέρος και «Τι να φέρουν» και έλεγξε ώρα αρχής/τέλους.','Έλεγξε τα επιλεγμένα παιδιά· μόνο αυτά θα λάβουν την ανακοίνωση.','Πάτησε «Αποθήκευση».'],'Das Event erscheint im Events-Tab der ausgewählten Kinder; WhatsApp wird nur bei vorhandener Konfiguration versucht.','Το event εμφανίζεται στο tab Events των επιλεγμένων παιδιών· WhatsApp επιχειρείται μόνο αν είναι ρυθμισμένο.'),
-    step('🧊','Bestand ein- oder ausbuchen','Καταχώρηση εισόδου ή εξόδου αποθέματος','Unteres Menü → 🧊 Lager','Κάτω μενού → 🧊 Ψυγείο',['Wähle zuerst das richtige Haus; wische die Hausleiste seitlich, falls es nicht sichtbar ist.','Suche ein Produkt oder filtere „Braucht Aufmerksamkeit“, „Nur leer“ oder „Alle“.','Öffne das Produkt und tippe „Eingang“ oder „Ausgang“.','Bei Ausgang: Wähle einen Grund oder tippe „+ Neuer Grund“, schreibe ihn ins Feld und speichere ihn.','Setze Menge und Foto; bestätige die Buchung.'],['Διάλεξε πρώτα το σωστό σπίτι· σύρε τη σειρά σπιτιών στο πλάι αν δεν φαίνεται.','Αναζήτησε προϊόν ή βάλε φίλτρο «Χρειάζεται προσοχή», «Μόνο άδεια» ή «Όλα».','Άνοιξε το προϊόν και πάτησε «Είσοδος» ή «Έξοδος».','Στην έξοδο: διάλεξε λόγο ή πάτησε «+ Νέος λόγος», γράψ’ τον στο πεδίο και αποθήκευσέ τον.','Βάλε ποσότητα και φωτογραφία· επιβεβαίωσε.'],'Die Menge ändert sich nur im zuvor gewählten Haus und die Bewegung steht im Protokoll.','Η ποσότητα αλλάζει μόνο στο επιλεγμένο σπίτι και η κίνηση γράφεται στις καταγραφές.'),
+    step('🧊','Bestand ein- oder ausbuchen','Καταχώρηση εισόδου ή εξόδου αποθέματος','Unteres Menü → 🧊 Lager','Κάτω μενού → 🧊 Ψυγείο',['Wähle zuerst das richtige Haus; wische die Hausleiste seitlich, falls es nicht sichtbar ist.','Suche ein Produkt oder filtere „Braucht Aufmerksamkeit“, „Nur leer“ oder „Alle“.','Öffne das Produkt und tippe „Eingang“ oder „Ausgang“.','Bei Ausgang: Wähle einen Grund oder tippe „+ Neuer Grund“, schreibe ihn ins Feld und speichere ihn.','Setze die Menge; Foto ist optional. Bestätige die Buchung.'],['Διάλεξε πρώτα το σωστό σπίτι· σύρε τη σειρά σπιτιών στο πλάι αν δεν φαίνεται.','Αναζήτησε προϊόν ή βάλε φίλτρο «Χρειάζεται προσοχή», «Μόνο άδεια» ή «Όλα».','Άνοιξε το προϊόν και πάτησε «Είσοδος» ή «Έξοδος».','Στην έξοδο: διάλεξε λόγο ή πάτησε «+ Νέος λόγος», γράψ’ τον στο πεδίο και αποθήκευσέ τον.','Βάλε ποσότητα· η φωτογραφία είναι προαιρετική. Επιβεβαίωσε.'],'Die Menge ändert sich nur im zuvor gewählten Haus und die Bewegung steht im Protokoll.','Η ποσότητα αλλάζει μόνο στο επιλεγμένο σπίτι και η κίνηση γράφεται στις καταγραφές.'),
     step('🛒','Warenkorb für den richtigen Freitag bauen','Δημιουργία καλαθιού για τη σωστή Παρασκευή','Unteres Menü → 🛒 Liste','Κάτω μενού → 🛒 Λίστα',['Wähle oben das Haus.','Stelle mit den Pfeilen oder dem Datumsfeld den tatsächlichen Freitag ein.','Tippe einen Namen in „Produkt schnell hinzufügen“ oder nutze „Liste hinzufügen“.','Ändere Mengen mit +/−; entferne eine falsche Zeile mit ×.'],['Διάλεξε επάνω το σπίτι.','Με τα βέλη ή το πεδίο ημερομηνίας διάλεξε την πραγματική Παρασκευή.','Γράψε όνομα στη «Γρήγορη προσθήκη» ή χρησιμοποίησε «Προσθήκη λίστας».','Άλλαξε ποσότητες με +/− και αφαίρεσε λάθος γραμμή με ×.'],'Haus und Freitag stehen immer über der Liste; prüfe beides vor dem Einkauf.','Σπίτι και Παρασκευή φαίνονται πάντα πάνω από τη λίστα· έλεγξέ τα πριν τα ψώνια.'),
     step('🧠','Text oder Screenshot mit OCR einlesen','Εισαγωγή κειμένου ή screenshot με OCR','Liste → „Liste hinzufügen“','Λίστα → «Προσθήκη λίστας»',['Wähle „Text“ und füge die komplette Liste ein – oder „Screenshot/Foto“ und lade das Bild hoch bzw. füge es ein.','Tippe „Analysieren/Einlesen“ und warte auf den Entwurf.','Korrigiere Produktname, Menge und Einheit in jeder unsicheren Zeile.','Wähle „Intelligent zusammenführen“, „Neue Zeilen“ oder „Freitag ersetzen“ und speichere.'],['Διάλεξε «Κείμενο» και επικόλλησε όλη τη λίστα – ή «Screenshot/φωτογραφία» και ανέβασε/επικόλλησε εικόνα.','Πάτησε «Ανάλυση/Ανάγνωση» και περίμενε το πρόχειρο.','Διόρθωσε όνομα, ποσότητα και μονάδα σε κάθε αβέβαιη γραμμή.','Διάλεξε «Έξυπνη συγχώνευση», «Νέες γραμμές» ή «Αντικατάσταση Παρασκευής» και αποθήκευσε.'],'OCR speichert nie automatisch: Erst deine Bestätigung schreibt die Zeilen in den Warenkorb.','Το OCR δεν αποθηκεύει αυτόματα· μόνο η δική σου επιβεβαίωση γράφει τις γραμμές στο καλάθι.'),
     step('🛍️','Im Supermarkt eindeutig abhaken','Σαφής επιλογή στο σουπερμάρκετ','Liste → „Einkauf starten“','Λίστα → «Έναρξη αγορών»',['Tippe „Einkauf starten“.','Tippe bei jedem Produkt entweder „Gekauft“ oder „Nicht verfügbar“.','Bei einem Fehler tippe „Zurücksetzen“; mit „Zurück zum Warenkorb“ kannst du die Liste weiter bearbeiten.','Wenn nichts mehr offen ist, tippe „Charge bestätigen“.'],['Πάτησε «Έναρξη αγορών».','Για κάθε προϊόν πάτησε «Αγοράστηκε» ή «Δεν ήταν διαθέσιμο».','Σε λάθος πάτησε «Επαναφορά»· με «Πίσω στο καλάθι» μπορείς να διορθώσεις τη λίστα.','Όταν δεν μένει τίποτα ανοιχτό, πάτησε «Επιβεβαίωση παρτίδας».'],'Gekauftes erhöht automatisch den Bestand des gewählten Hauses; fehlende Produkte bleiben als Fehlmenge sichtbar.','Τα αγορασμένα αυξάνουν αυτόματα το απόθεμα του επιλεγμένου σπιτιού· όσα λείπουν μένουν ως έλλειψη.'),
     step('🧾','Einen alten Einkauf prüfen','Έλεγχος παλιότερης αγοράς','Liste → 🧾 Einkaufsverlauf','Λίστα → 🧾 Ιστορικό αγορών',['Tippe „Einkaufsverlauf“.','Wähle das Haus; wische die Hausleiste seitlich für weitere Häuser.','Öffne den gewünschten Freitag.','Vergleiche links „Gekauft“ und rechts „Nicht gekauft“ sowie Person und Abschlusszeit.'],['Πάτησε «Ιστορικό αγορών».','Διάλεξε σπίτι· σύρε τη σειρά στο πλάι για τα υπόλοιπα σπίτια.','Άνοιξε την Παρασκευή που θέλεις.','Σύγκρινε «Αγοράστηκαν» και «Δεν αγοράστηκαν», μαζί με άτομο και ώρα ολοκλήρωσης.'],'Der Verlauf ist ein Snapshot; ein späteres Carry-over verändert den alten Einkauf nicht.','Το ιστορικό είναι snapshot· μεταφορά σε επόμενη λίστα δεν αλλάζει την παλιά αγορά.'),
     step('📖','Protokoll suchen und korrigieren','Αναζήτηση και διόρθωση καταγραφών','Unteres Menü → 📖 Protokoll','Κάτω μενού → 📖 Καταγραφές',['Wähle Zeitraum: Heute, 7 Tage oder benutzerdefiniert.','Filtere bei Bedarf nach Person und Aktionstyp.','Öffne „Korrektur“, beschreibe den Fehler und speichere die neue Korrektur.','Lösche keine alte Buchung: Sie bleibt als Nachweis erhalten.'],['Διάλεξε περίοδο: Σήμερα, 7 ημέρες ή προσαρμοσμένη.','Φίλτραρε αν χρειάζεται ανά άτομο και τύπο ενέργειας.','Άνοιξε «Διόρθωση», περιέγραψε το λάθος και αποθήκευσε νέα διόρθωση.','Μη διαγράψεις την παλιά κίνηση· παραμένει ως αποδεικτικό.'],'Die Korrektur erscheint als neue append-only Zeile mit Benutzer, Zeit, Gerät und IP.','Η διόρθωση εμφανίζεται ως νέα append-only γραμμή με χρήστη, ώρα, συσκευή και IP.'),
-    step('🔐','E-Mail, Passkey und Abmeldung','Email, passkey και αποσύνδεση','Oben rechts → Profil','Επάνω δεξιά → Προφίλ',['Öffne „Profil“.','Trage die Recovery-E-Mail ein und tippe „E-Mail speichern“; nutze danach „Test-E-Mail senden“.','Tippe „Passkey einrichten“ für Face ID, Touch ID, Fingerabdruck oder Windows Hello, wenn verfügbar.','Nutze „Anderes Profil“ oder „Abmelden“, wenn du fertig bist.'],['Άνοιξε «Προφίλ».','Βάλε email ανάκτησης και πάτησε «Αποθήκευση email»· μετά «Αποστολή δοκιμαστικού email».','Πάτησε «Ρύθμιση passkey» για Face ID, Touch ID, δακτυλικό αποτύπωμα ή Windows Hello, αν υποστηρίζεται.','Χρησιμοποίησε «Άλλο προφίλ» ή «Αποσύνδεση» όταν τελειώσεις.'],'E-Mail-Versand funktioniert über SMTP (z. B. Gmail App-Passwort), ohne eigene Domain.','Η αποστολή email γίνεται με SMTP (π.χ. Gmail App Password), χωρίς δικό σου domain.'),
+    step('🔐','E-Mail, Telefon, Passkey und Abmeldung','Email, τηλέφωνο, passkey και αποσύνδεση','Oben rechts → Profil','Επάνω δεξιά → Προφίλ',['Öffne „Profil“.','Trage E-Mail und Telefon ein und tippe „Kontaktdaten speichern“; nutze danach „Test-E-Mail senden“.','Tippe „Passkey einrichten“ für Face ID, Touch ID, Fingerabdruck oder Windows Hello, wenn verfügbar.','Nutze „Anderes Profil“ oder „Abmelden“, wenn du fertig bist.'],['Άνοιξε «Προφίλ».','Βάλε email και τηλέφωνο και πάτησε «Αποθήκευση στοιχείων»· μετά «Αποστολή δοκιμαστικού email».','Πάτησε «Ρύθμιση passkey» για Face ID, Touch ID, δακτυλικό αποτύπωμα ή Windows Hello, αν υποστηρίζεται.','Χρησιμοποίησε «Άλλο προφίλ» ή «Αποσύνδεση» όταν τελειώσεις.'],'Beim ersten Login fragt die App nach E-Mail und Telefon. Versand läuft über SMTP (z. B. Gmail App-Passwort).','Στην πρώτη είσοδο η εφαρμογή ζητά email και τηλέφωνο. Η αποστολή γίνεται με SMTP (π.χ. Gmail App Password).'),
     step('❓','Gezielt Hilfe bekommen','Λήψη συγκεκριμένης βοήθειας','Blaues ? unten rechts','Μπλε ? κάτω δεξιά',['Tippe auf das blaue „?“.','Starte unter „Geführtes App-Tutorial“ diese Anleitung neu.','Oder öffne „AI-Hilfe“, beschreibe Ziel und aktuelle Fehlermeldung und tippe „Senden“.'],['Πάτησε το μπλε «?».','Από το «Καθοδηγούμενο tutorial» ξεκίνα ξανά αυτές τις οδηγίες.','Ή άνοιξε «Βοήθεια AI», γράψε στόχο και τρέχον μήνυμα λάθους και πάτησε «Αποστολή».'],'Die AI erklärt den nächsten Schritt, führt aber keine kritische Buchung ohne Bestätigung aus.','Η AI εξηγεί το επόμενο βήμα αλλά δεν κάνει κρίσιμη καταχώρηση χωρίς επιβεβαίωση.'),
   ];
   if(isAdminUser()) steps.push(step('🛡️','Admin-Zentrale benutzen','Χρήση Κέντρου Διαχείρισης','Home → 👑 Admin-Zentrale','Αρχική → 👑 Κέντρο Διαχείρισης',['Öffne Home und lies Teamkarten, Warnungen und letzte Aktivitäten.','Tippe „Wochenplan bearbeiten“, „Dienste bearbeiten“, „Events verwalten“ oder „Protokoll öffnen“.','Öffne eine Teamkarte, um heutige und kommende Aufgaben dieser Person zu prüfen.','Ändere Profil-E-Mails über Profil; dauerhafte Planänderungen speicherst du mit „Dauerhaft“.'],['Άνοιξε την Αρχική και διάβασε κάρτες ομάδας, προειδοποιήσεις και τελευταίες ενέργειες.','Πάτησε «Επεξεργασία εβδομάδας», «Βαρδιών», «Events» ή «Άνοιγμα καταγραφών».','Άνοιξε κάρτα μέλους για σημερινές και επόμενες εργασίες.','Άλλαξε email προφίλ από το Προφίλ· μόνιμες αλλαγές προγράμματος με «Μόνιμα».'],'Nur Admins sehen diese Kontrollen; jede Änderung bleibt im Protokoll nachvollziehbar.','Μόνο οι admins βλέπουν αυτά τα εργαλεία και κάθε αλλαγή καταγράφεται.'));
@@ -1241,90 +1651,305 @@ function onboardingSteps(){
 
 function openTutorial({required=false}={}){
   const steps=onboardingSteps();let current=0,saving=false;
-  openSheet('<div class="tutorial-shell" id="tutorialRoot"></div>',{dismissable:!required});
-  const paint=()=>{
-    const root=sheetEl.querySelector('#tutorialRoot');if(!root)return;
-    const step=steps[current];
-    root.innerHTML=`<div class="tutorial-top"><span class="tutorial-lock">${required?'🔒 '+t('tutorialRequired'):'📘 '+t('tutorialReplay')}</span><span class="tutorial-count">${T[state.lang].tutorialStep(current+1,steps.length)}</span></div>
-      <div class="tutorial-progress" style="--steps:${steps.length}" aria-hidden="true">${steps.map((_,i)=>`<i class="${i<=current?'on':''}"></i>`).join('')}</div>
-      <section class="tutorial-card"><div class="tutorial-icon">${step.icon}</div><div class="tutorial-kicker">Armonia Thassos</div>
-        <h2>${esc(step.title)}</h2>${step.path?`<div class="tutorial-path"><span>📍</span><span>${esc(step.path)}</span></div>`:''}<p style="margin-top:11px">${esc(step.body)}</p>${step.features?.length?`<ol class="tutorial-features">${step.features.map(feature=>`<li>${esc(feature)}</li>`).join('')}</ol>`:''}
-        ${step.result?`<div class="tutorial-result"><b>${state.lang==='de'?'Ergebnis:':'Αποτέλεσμα:'}</b> ${esc(step.result)}</div>`:''}
-        <div class="tutorial-tip"><span>ℹ️</span><span>${t(required?'tutorialTip':'tutorialReplayTip')}</span></div></section>
-      <div class="tutorial-actions"><button class="tutorial-back" id="tutorialBack" ${current===0?'disabled':''}>${t('tutorialBack')}</button>
-        <button class="btn" id="tutorialNext">${current===steps.length-1?t(required?'tutorialFinish':'tutorialClose'):t('tutorialNext')+' →'}</button></div>
-      <div class="tutorial-status" id="tutorialStatus" role="status" aria-live="polite"></div>`;
-    root.querySelector('#tutorialBack').onclick=()=>{if(!saving&&current>0){current--;paint();}};
-    root.querySelector('#tutorialNext').onclick=async()=>{
-      if(saving)return;
-      if(current<steps.length-1){current++;paint();return;}
-      if(!required){closeSheet();return;}
-      saving=true;const button=root.querySelector('#tutorialNext'),status=root.querySelector('#tutorialStatus');
-      button.disabled=true;status.textContent=t('tutorialSaving');status.className='tutorial-status busy';
-      let lastError=null;
-      for(let attempt=0;attempt<3;attempt++){
-        try{
-          await syncOnboardingComplete(state.onboardingVersion);
-          closeSheet();toast(t('tutorialDone'),'success',4200);return;
-        }catch(error){
-          lastError=error;
-          if(error.code==='onboarding_version'){
-            status.className='tutorial-status';status.textContent=t('tutorialSaveError');
-            saving=false;button.disabled=false;return;
+  return new Promise(resolve=>{
+    let settled=false;
+    const finish=()=>{ if(settled) return; settled=true; resolve(); };
+    openSheet('<div class="tutorial-shell" id="tutorialRoot"></div>',{dismissable:!required});
+    const paint=()=>{
+      const root=sheetEl.querySelector('#tutorialRoot');if(!root)return;
+      const step=steps[current];
+      root.innerHTML=`<div class="tutorial-top"><span class="tutorial-lock">${required?'🔒 '+t('tutorialRequired'):'📘 '+t('tutorialReplay')}</span><span class="tutorial-count">${T[state.lang].tutorialStep(current+1,steps.length)}</span></div>
+        <div class="tutorial-progress" style="--steps:${steps.length}" aria-hidden="true">${steps.map((_,i)=>`<i class="${i<=current?'on':''}"></i>`).join('')}</div>
+        <section class="tutorial-card"><div class="tutorial-icon">${step.icon}</div><div class="tutorial-kicker">Armonia Thassos</div>
+          <h2>${esc(step.title)}</h2>${step.path?`<div class="tutorial-path"><span>📍</span><span>${esc(step.path)}</span></div>`:''}<p style="margin-top:11px">${esc(step.body)}</p>${step.features?.length?`<ol class="tutorial-features">${step.features.map(feature=>`<li>${esc(feature)}</li>`).join('')}</ol>`:''}
+          ${step.result?`<div class="tutorial-result"><b>${state.lang==='de'?'Ergebnis:':'Αποτέλεσμα:'}</b> ${esc(step.result)}</div>`:''}
+          <div class="tutorial-tip"><span>ℹ️</span><span>${t(required?'tutorialTip':'tutorialReplayTip')}</span></div></section>
+        <div class="tutorial-actions"><button class="tutorial-back" id="tutorialBack" ${current===0?'disabled':''}>${t('tutorialBack')}</button>
+          <button class="btn" id="tutorialNext">${current===steps.length-1?t(required?'tutorialFinish':'tutorialClose'):t('tutorialNext')+' →'}</button></div>
+        <div class="tutorial-status" id="tutorialStatus" role="status" aria-live="polite"></div>`;
+      root.querySelector('#tutorialBack').onclick=()=>{if(!saving&&current>0){current--;paint();}};
+      root.querySelector('#tutorialNext').onclick=async()=>{
+        if(saving)return;
+        if(current<steps.length-1){current++;feedback('select');paint();return;}
+        if(!required){closeSheet();finish();return;}
+        saving=true;const button=root.querySelector('#tutorialNext'),status=root.querySelector('#tutorialStatus');
+        button.disabled=true;status.textContent=t('tutorialSaving');status.className='tutorial-status busy';
+        // Persist locally first so a flaky server never re-opens the mandatory tour.
+        writeOnboardingLocal();
+        state.onboardingComplete=true;
+        let lastError=null;
+        for(let attempt=0;attempt<3;attempt++){
+          try{
+            await syncOnboardingComplete(state.onboardingVersion);
+            closeSheet();toast(t('tutorialDone'),'success',4200);finish();return;
+          }catch(error){
+            lastError=error;
+            if(error.code==='onboarding_version'){
+              // Force current version key so we still unlock the user.
+              writeOnboardingLocal();
+              status.className='tutorial-status';status.textContent=t('tutorialSaveError');
+              saving=false;button.disabled=false;
+              closeSheet();finish();return;
+            }
+            await new Promise(r=>setTimeout(r,350*(attempt+1)));
           }
-          await new Promise(resolve=>setTimeout(resolve,350*(attempt+1)));
         }
-      }
-      // Durable client fallback so the mandatory tour does not trap the user on flaky /tmp.
-      writeOnboardingLocal();
-      state.onboardingComplete=true;
-      saving=false;button.disabled=false;
-      closeSheet();
-      toast(t('tutorialDone'),'success',4200);
-      console.warn('onboarding sync failed; kept local completion', lastError);
+        saving=false;button.disabled=false;
+        closeSheet();
+        toast(t('tutorialDone'),'success',4200);
+        console.warn('onboarding sync failed; kept local completion', lastError);
+        finish();
+      };
     };
-  };
-  paint();
+    paint();
+  });
 }
 
-function openMandatoryTutorial(){openTutorial({required:true});}
-function openAppTutorial(){openTutorial({required:false});}
+function openMandatoryTutorial(){return openTutorial({required:true});}
+function openAppTutorial(){return openTutorial({required:false});}
 
 async function ensureOnboarding({afterLogin=false}={}){
   if(state.onboardingComplete) return;
-  if(readOnboardingLocal()){
+  if(readOnboardingDone()){
     state.onboardingComplete=true;
+    writeOnboardingLocal();
     syncOnboardingComplete(state.onboardingVersion).catch(()=>{});
     return;
   }
-  openMandatoryTutorial();
+  await openMandatoryTutorial();
+}
+
+async function ensureContactDetails(){
+  if(state.mode!=='staff' || !state.user) return;
+  if(state.contactComplete || (state.profileEmail && state.profilePhone) || readContactLocal()){
+    state.contactComplete=true;
+    return;
+  }
+  feedback('open');
+  await new Promise(resolve=>{
+    openSheet(`
+      <div class="security-hero" style="margin-bottom:14px"><div class="row" style="gap:12px">
+        <div class="security-icon">📇</div>
+        <div><div class="import-kicker">${esc(t('contactKicker'))}</div>
+          <h2 style="margin:3px 0">${esc(t('contactTitle'))}</h2>
+          <div class="muted" style="font-size:12.5px;line-height:1.45">${esc(t('contactIntro'))}</div>
+        </div></div></div>
+      <label class="f"><span>✉️ ${esc(t('recoveryEmail'))}</span>
+        <input type="email" id="contactEmail" value="${esc(state.profileEmail||'')}" autocomplete="email" placeholder="name@example.com" required></label>
+      <label class="f"><span>📱 ${esc(t('phoneLabel'))}</span>
+        <input type="tel" id="contactPhone" value="${esc(state.profilePhone||'')}" autocomplete="tel" inputmode="tel" placeholder="+30 … / +49 …" required></label>
+      <p class="muted" style="font-size:11.5px;line-height:1.5;margin-top:-4px">${esc(t('phoneHint'))}</p>
+      <div id="contactStatus" class="status-box" style="display:none" role="status"></div>
+      <button class="btn" id="contactSave">✓ ${esc(t('contactSave'))}</button>
+    `, {dismissable:false});
+    const status=sheetEl.querySelector('#contactStatus');
+    const emailEl=sheetEl.querySelector('#contactEmail');
+    const phoneEl=sheetEl.querySelector('#contactPhone');
+    sheetEl.querySelector('#contactSave').onclick=async event=>{
+      const email=emailEl.value.trim();
+      const phone=phoneEl.value.trim().replace(/[\s\-().]/g,'');
+      const button=event.currentTarget;
+      status.style.display='block';
+      if(!email || !emailEl.validity.valid){ feedback('error'); setStatus(status,t('emailInvalid'),'error'); return; }
+      if(!validPhoneClient(phone)){ feedback('error'); setStatus(status,t('phoneInvalid'),'error'); return; }
+      button.disabled=true;
+      try{
+        const saved=await passkeyApi('/api/auth/profile/email',{
+          profileId:state.user.id, email, phone,
+        });
+        state.profileEmail=saved.email||email;
+        state.profilePhone=saved.phone||phone;
+        state.contactComplete=true;
+        writeContactLocal(state.profileEmail, state.profilePhone);
+        feedback('save');
+        toast(t('contactSaved'),'success');
+        closeSheet();
+        resolve();
+      }catch(error){
+        // Server may be ephemeral on Vercel — still unlock with local backup.
+        if(error.code==='storage' || error.status===507){
+          writeContactLocal(email, phone);
+          state.profileEmail=email; state.profilePhone=phone; state.contactComplete=true;
+          feedback('save'); toast(t('contactSaved'),'success'); closeSheet(); resolve();
+          return;
+        }
+        feedback('error');
+        setStatus(status, error.code==='invalid_email'?t('emailInvalid')
+          :error.code==='invalid_phone'?t('phoneInvalid')
+          :error.message||t('authUnavailable'),'error');
+        button.disabled=false;
+      }
+    };
+  });
 }
 
 function helpInventoryContext(){
   const canMutate=state.mode==='staff' && !!state.user;
   if(!canMutate) return {canMutate:false};
-  const houses=DB.houses.map(h=>({id:h.id,name:h.short||L(h)||h.id}));
+  const houses=DB.houses.map(h=>({id:h.id,name:h.short||L(h)||h.id, full:h.name}));
+  const active=state.house;
   const products=PRODUCTS().map(p=>{
     const stock={};
     DB.houses.forEach(h=>{stock[h.id]=DB.stock[stockKey(h.id,p.id)]??0;});
-    return {id:p.id,name:L(p),unit:p.unit,stock};
+    return {
+      id:p.id, name:L(p), unit:p.unit, aliases:[p.de,p.el,p.en,...(p.alias||[])].filter(Boolean),
+      stock, activeStock:stock[active]??0,
+    };
   });
   const low=products.filter(p=>DB.houses.some(h=>(p.stock[h.id]??0)<=lowThreshold(prod(p.id)||{unit:p.unit})))
-    .slice(0,40)
+    .slice(0,50)
     .map(p=>({id:p.id,name:p.name,unit:p.unit,stock:p.stock}));
   const openShop=DB.listEntries.filter(e=>['open','pending'].includes(e.status)).slice(0,40).map(e=>({
     name:e.name,qty:e.qty,unit:e.unit,houseId:e.houseId,status:e.status,
   }));
+  // Cap names for the model but keep active-house stock for the most useful foods.
+  const focusProducts=products
+    .slice()
+    .sort((a,b)=>((b.activeStock>0)-(a.activeStock>0)) || a.name.localeCompare(b.name))
+    .slice(0,120)
+    .map(p=>`${p.name} [${p.id}] unit=${p.unit} ${active}=${p.activeStock}`);
   return {
     canMutate:true,
     admin:isAdminUser(),
     houses,
-    productNames:products.slice(0,160).map(p=>`${p.name} (${p.unit})`),
+    productNames:focusProducts,
     lowStock:low,
     openShopping:openShop,
-    activeHouse:state.house,
+    activeHouse:active,
     shopFriday:state.shopFriday||fridayFor(),
+    examples: state.lang==='el'
+      ? ['πρόσθεσε 2 γάλα στο Kalyvia','βγάλε 1 βούτυρο','βάλε ρύζι στη λίστα']
+      : ['2 Milch nach Kalyvia','1 Butter raus','Reis auf die Liste'],
   };
+}
+
+function bindVoiceInput({input, mic, statusEl, onTranscript}={}){
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let recognition=null, listening=false, starting=false, mediaStream=null;
+  const setStatus=(text, show=true)=>{
+    if(!statusEl) return;
+    statusEl.hidden=!show;
+    statusEl.textContent=text||'';
+  };
+  const setListening=on=>{
+    listening=on;
+    if(mic) mic.classList.toggle('on', on);
+    if(on) setStatus(t('helpVoiceListening'), true);
+  };
+  const releaseMic=()=>{
+    if(mediaStream){
+      try{ mediaStream.getTracks().forEach(track=>track.stop()); }catch{}
+      mediaStream=null;
+    }
+  };
+  const stop=()=>{
+    starting=false;
+    if(recognition){
+      try{ recognition.onresult=null; recognition.onerror=null; recognition.onend=null; recognition.stop(); }catch{}
+      recognition=null;
+    }
+    releaseMic();
+    setListening(false);
+  };
+  const applyTranscript=transcript=>{
+    const text=String(transcript||'').trim();
+    if(!text) return;
+    if(input){
+      input.value=(input.value?`${input.value.trim()} `:'')+text;
+      try{ input.focus({preventScroll:true}); }catch{ input.focus(); }
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+    setStatus(t('helpVoiceReady'), true);
+    feedback('select');
+    onTranscript?.(text);
+  };
+  const ensureMicPermission=async()=>{
+    if(!window.isSecureContext && location.hostname!=='localhost' && location.hostname!=='127.0.0.1'){
+      const err=new Error('insecure'); err.code='insecure'; throw err;
+    }
+    if(!navigator.mediaDevices?.getUserMedia) return;
+    mediaStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    // Keep the stream briefly so recognition can attach; stop after start.
+  };
+  if(mic) mic.onclick=async()=>{
+    if(starting) return;
+    if(!SpeechRecognition){ toast(t('helpVoiceUnsupported'),'error'); return; }
+    if(listening){ stop(); return; }
+    unlockAudio();
+    starting=true;
+    if(mic) mic.disabled=true;
+    setStatus(t('helpVoiceStart'), true);
+    try{
+      await ensureMicPermission();
+      recognition=new SpeechRecognition();
+      recognition.lang=state.lang==='el'?'el-GR':'de-DE';
+      recognition.interimResults=true;
+      recognition.continuous=false;
+      recognition.maxAlternatives=1;
+      let gotFinal=false;
+      recognition.onstart=()=>{
+        starting=false;
+        if(mic) mic.disabled=false;
+        setListening(true);
+        feedback('tap');
+        // Mic stream only needed for permission prompt.
+        releaseMic();
+      };
+      recognition.onend=()=>{
+        starting=false;
+        if(mic) mic.disabled=false;
+        setListening(false);
+        recognition=null;
+      };
+      recognition.onerror=event=>{
+        starting=false;
+        if(mic) mic.disabled=false;
+        setListening(false);
+        releaseMic();
+        const code=event?.error||'';
+        if(code==='aborted' || code==='no-speech') return;
+        if(code==='not-allowed' || code==='service-not-allowed'){
+          toast(t('helpVoiceDenied'),'error',5200); setStatus(t('helpVoiceDenied'), true); return;
+        }
+        if(code==='network'){ toast(t('errNetwork'),'error'); return; }
+        toast(t('helpVoiceError'),'error');
+      };
+      recognition.onresult=event=>{
+        let interim='', final='';
+        for(let i=event.resultIndex;i<event.results.length;i++){
+          const piece=event.results[i][0]?.transcript||'';
+          if(event.results[i].isFinal) final+=piece;
+          else interim+=piece;
+        }
+        if(interim && !final){ setStatus(`${interim.trim()}…`, true); return; }
+        const transcript=(final||interim).trim();
+        if(!transcript) return;
+        // Prefer finals; if continuous=false some browsers only deliver one result.
+        const last=event.results[event.results.length-1];
+        if(last && !last.isFinal && !final) return;
+        if(gotFinal) return;
+        gotFinal=true;
+        applyTranscript(transcript);
+        try{ recognition.stop(); }catch{}
+      };
+      recognition.start();
+      // Safety: if start never fires (some WebViews), unlock the button.
+      setTimeout(()=>{ if(starting){ starting=false; if(mic) mic.disabled=false; } }, 2500);
+    }catch(error){
+      starting=false;
+      if(mic) mic.disabled=false;
+      releaseMic();
+      setListening(false);
+      if(error?.code==='insecure' || error?.name==='SecurityError'){
+        toast(t('helpVoiceSecure'),'error',5200); setStatus(t('helpVoiceSecure'), true);
+      }else if(error?.name==='NotAllowedError' || error?.name==='PermissionDeniedError'){
+        toast(t('helpVoiceDenied'),'error',5200); setStatus(t('helpVoiceDenied'), true);
+      }else{
+        toast(t('helpVoiceError'),'error');
+      }
+    }
+  };
+  return {stop, isListening:()=>listening};
 }
 
 function describeHelpAction(action){
@@ -1394,38 +2019,59 @@ function applyHelpActions(actions){
   return applied;
 }
 
-function sheetHelpProposals(actions){
+function sheetHelpProposals(actions, {inline=false, onDone=null}={}){
   if(!actions?.length){ toast(t('helpProposeEmpty')); return; }
   if(state.mode!=='staff' || !state.user){ toast(t('helpProposeDenied'),'error'); return; }
+  state.pendingHelpActions=[...actions];
+  const confirm=()=>{
+    askPin(t('helpProposeConfirm'), who=>{
+      state.user=who;
+      const n=applyHelpActions(state.pendingHelpActions);
+      state.pendingHelpActions=[];
+      if(n){
+        feedback('save');
+        state.helpMessages.push({role:'assistant', content:T[state.lang].helpProposeDone(n)});
+        state.helpMessages=state.helpMessages.slice(-12);
+        render();
+        toast(T[state.lang].helpProposeDone(n),'success');
+      }else toast(t('helpProposeEmpty'));
+      onDone?.(n);
+    });
+  };
+  const discard=()=>{
+    state.pendingHelpActions=[];
+    feedback('toggle');
+    onDone?.(0);
+  };
+  if(inline){
+    const box=sheetEl.querySelector('#helpProposeBox');
+    if(!box){ confirm(); return; }
+    box.hidden=false;
+    box.innerHTML=`<div class="help-propose-inline"><div class="strong">${esc(t('helpProposeTitle'))}</div>
+      <div class="muted" style="font-size:11.5px;margin:4px 0 8px">${esc(t('helpProposeHint'))}</div>
+      <div class="help-propose-list">${actions.map((action,i)=>`<div class="help-propose-row"><b>${i+1}.</b><span>${esc(describeHelpAction(action))}</span></div>`).join('')}</div>
+      <div class="row" style="gap:8px;margin-top:10px">
+        <button class="btn sec" id="helpProposeCancel" type="button">${t('helpDiscardInline')}</button>
+        <button class="btn" id="helpProposeConfirm" type="button">✓ ${t('helpConfirmInline')}</button>
+      </div></div>`;
+    box.querySelector('#helpProposeCancel').onclick=()=>{ box.hidden=true; discard(); };
+    box.querySelector('#helpProposeConfirm').onclick=()=>{ box.hidden=true; confirm(); };
+    return;
+  }
   openSheet(`<div class="help-center-hero"><div class="import-kicker">AI</div><h2>${t('helpProposeTitle')}</h2><p>${t('helpProposeHint')}</p></div>
     <div class="help-propose-list">${actions.map((action,i)=>`<div class="help-propose-row"><b>${i+1}.</b><span>${esc(describeHelpAction(action))}</span></div>`).join('')}</div>
     <div class="row" style="gap:8px;margin-top:14px"><button class="btn sec" id="helpProposeCancel" type="button">${t('helpProposeCancel')}</button>
       <button class="btn" id="helpProposeConfirm" type="button">${t('helpProposeConfirm')}</button></div>`);
-  sheetEl.querySelector('#helpProposeCancel').onclick=()=>closeSheet();
-  sheetEl.querySelector('#helpProposeConfirm').onclick=()=>{
-    askPin(t('helpProposeConfirm'), who=>{
-      state.user=who;
-      const n=applyHelpActions(actions);
-      closeSheet();
-      if(n){ render(); toast(T[state.lang].helpProposeDone(n),'success'); }
-      else toast(t('helpProposeEmpty'));
-    });
-  };
-}
-
-function sheetHelpCenter(){
-  openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia Thassos</div><h2>${t('helpCenter')}</h2><p>${t('helpCenterHint')}</p></div>
-    <div class="help-center-grid"><button class="help-center-card" id="helpTutorial"><span class="icon">📘</span><b>${t('startTutorial')}</b><span>${t('startTutorialHint')}</span></button>
-      <button class="help-center-card" id="helpAi"><span class="icon">✨</span><b>${t('askAiHelp')}</b><span>${t('askAiHelpHint')}</span></button></div>`);
-  sheetEl.querySelector('#helpTutorial').onclick=openAppTutorial;
-  sheetEl.querySelector('#helpAi').onclick=sheetHelp;
+  sheetEl.querySelector('#helpProposeCancel').onclick=()=>{ discard(); closeSheet(); };
+  sheetEl.querySelector('#helpProposeConfirm').onclick=()=>{ confirm(); closeSheet(); };
 }
 
 function sheetHelp(){
   if(!state.helpMessages.length){
-    state.helpMessages.push({role:'assistant', content:t('helpWelcome')});
+    const welcome=t('helpWelcome')+(state.mode==='staff'&&state.user?`\n\n${t('helpMutateHint')}`:'');
+    state.helpMessages.push({role:'assistant', content:welcome});
   }
-  let recognition=null, listening=false;
+  let voice=null;
   const paint = () => {
     const log = sheetEl.querySelector('#helpLog');
     if(!log) return;
@@ -1433,9 +2079,18 @@ function sheetHelp(){
       `<div class="chat-msg ${m.role==='user'?'user':'assistant'}">${esc(m.content)}</div>`).join('');
     log.scrollTop = log.scrollHeight;
   };
-  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const canMutate=state.mode==='staff'&&!!state.user;
+  const quick=canMutate?`<div class="chips help-quick" id="helpQuick" style="margin:0 0 10px">
+      <span class="muted" style="width:100%;font-size:11px">${esc(t('helpQuickFood'))}</span>
+      ${(state.lang==='el'
+        ? ['πρόσθεσε 2 γάλα στο Kalyvia','βγάλε 1 βούτυρο Limenaria','βάλε ρύζι στη λίστα']
+        : ['2 Milch nach Kalyvia','1 Butter raus Limenaria','Reis auf die Liste']
+      ).map(q=>`<button class="chip" type="button" data-q="${esc(q)}">🎤 ${esc(q)}</button>`).join('')}
+    </div>`:'';
   openSheet(`<h3>✨ ${t('helpChat')}</h3>
+    ${quick}
     <div class="chat-log" id="helpLog" aria-live="polite"></div>
+    <div id="helpProposeBox" class="help-propose-box" hidden></div>
     <div class="chat-compose">
       <textarea id="helpInput" rows="1" placeholder="${esc(t('helpPlaceholder'))}"></textarea>
       <button class="chat-mic" id="helpMic" type="button" aria-label="${esc(t('helpVoice'))}" title="${esc(t('helpVoice'))}">🎤</button>
@@ -1443,21 +2098,23 @@ function sheetHelp(){
     </div>
     <div class="chat-voice-status" id="helpVoiceStatus" hidden></div>`);
   paint();
+  if(state.pendingHelpActions?.length){
+    sheetHelpProposals(state.pendingHelpActions,{inline:true,onDone:()=>paint()});
+  }
   const input = sheetEl.querySelector('#helpInput');
   const send = sheetEl.querySelector('#helpSend');
-  const mic = sheetEl.querySelector('#helpMic');
-  const voiceStatus = sheetEl.querySelector('#helpVoiceStatus');
-  const setListening=(on)=>{
-    listening=on; mic.classList.toggle('on', on);
-    voiceStatus.hidden=!on; voiceStatus.textContent=on?t('helpVoiceListening'):'';
-  };
+  sheetEl.querySelectorAll('#helpQuick [data-q]').forEach(b=>{
+    b.onclick=()=>{ input.value=b.dataset.q; feedback('select'); input.focus(); };
+  });
   const submit = async () => {
     const content = input.value.trim();
     if(!content || send.disabled) return;
-    if(recognition && listening){ try{recognition.stop();}catch{} setListening(false); }
+    voice?.stop();
     state.helpMessages.push({role:'user', content});
     state.helpMessages = state.helpMessages.slice(-12);
-    input.value = ''; send.disabled = true; mic.disabled=true; paint();
+    input.value = ''; send.disabled = true;
+    const mic=sheetEl.querySelector('#helpMic'); if(mic) mic.disabled=true;
+    paint();
     const thinking = document.createElement('div');
     thinking.className = 'chat-msg assistant'; thinking.id = 'helpThinking';
     thinking.textContent = t('helpThinking');
@@ -1480,38 +2137,261 @@ function sheetHelp(){
       state.helpMessages.push({role:'assistant', content:data.message || t('helpUnavailable')});
       state.helpMessages = state.helpMessages.slice(-12);
       paint();
-      if(Array.isArray(data.actions) && data.actions.length) sheetHelpProposals(data.actions);
+      if(Array.isArray(data.actions) && data.actions.length){
+        sheetHelpProposals(data.actions,{inline:true,onDone:()=>paint()});
+      }
     }catch(error){
       state.helpMessages.push({role:'assistant', content:t('helpUnavailable')});
       paint();
     }finally{
-      send.disabled = false; mic.disabled=false; input.focus();
+      send.disabled = false;
+      if(mic) mic.disabled=false;
+      input.focus();
     }
   };
   send.onclick = submit;
   input.onkeydown = e => {
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); }
   };
-  mic.onclick=()=>{
-    if(!SpeechRecognition){ toast(t('helpVoiceUnsupported')); return; }
-    if(listening && recognition){ try{recognition.stop();}catch{} setListening(false); return; }
-    recognition=new SpeechRecognition();
-    recognition.lang=state.lang==='el'?'el-GR':'de-DE';
-    recognition.interimResults=false;
-    recognition.maxAlternatives=1;
-    recognition.onstart=()=>setListening(true);
-    recognition.onend=()=>setListening(false);
-    recognition.onerror=()=>{ setListening(false); toast(t('helpVoiceError'),'error'); };
-    recognition.onresult=event=>{
-      const transcript=event.results?.[0]?.[0]?.transcript?.trim();
-      if(!transcript) return;
-      input.value=(input.value?input.value+' ':'')+transcript;
-      input.focus();
-    };
-    try{ recognition.start(); }catch{ toast(t('helpVoiceError'),'error'); }
-  };
-  input.focus();
+  voice=bindVoiceInput({
+    input,
+    mic:sheetEl.querySelector('#helpMic'),
+    statusEl:sheetEl.querySelector('#helpVoiceStatus'),
+  });
 }
+
+function sheetHelpCenter(){
+  const staff = state.mode==='staff' && !!state.user;
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia Thassos</div><h2>${t('helpCenter')}</h2><p>${t('helpCenterHint')}</p></div>
+    <div class="help-center-grid ${staff?'three':''}">
+      <button class="help-center-card" id="helpTutorial" type="button"><span class="icon">📘</span><b>${t('startTutorial')}</b><span>${t('startTutorialHint')}</span></button>
+      ${staff?`<button class="help-center-card talk" id="helpTalk" type="button"><span class="icon">💬</span><b>${t('staffTalk')}</b><span>${t('staffTalkHint')}</span></button>`:''}
+      <button class="help-center-card" id="helpAi" type="button"><span class="icon">✨</span><b>${t('askAiHelp')}</b><span>${t('askAiHelpHint')}</span></button>
+    </div>`);
+  sheetEl.querySelector('#helpTutorial').onclick=openAppTutorial;
+  sheetEl.querySelector('#helpAi').onclick=sheetHelp;
+  const talkBtn=sheetEl.querySelector('#helpTalk');
+  if(talkBtn) talkBtn.onclick=()=>{ feedback('open'); sheetStaffTalk(); };
+}
+
+async function talkApi(action=null, extra={}){
+  if(action){
+    const response=await fetch('/api/talk',{
+      method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
+      body:JSON.stringify({action, byName:state.user?.name||'', ...extra}),
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok){ const err=new Error(data.error||String(response.status)); err.code=data.code; throw err; }
+    return data;
+  }
+  const response=await fetch('/api/talk',{credentials:'same-origin'});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok){ const err=new Error(data.error||String(response.status)); err.code=data.code; throw err; }
+  return data;
+}
+
+function talkSuggestTopics(){
+  const today=iso(new Date());
+  const suggestions=[];
+  const push=(text, source)=>{
+    const clean=String(text||'').trim();
+    if(!clean) return;
+    if(suggestions.some(s=>s.text.toLowerCase()===clean.toLowerCase())) return;
+    suggestions.push({text:clean.slice(0,400), source});
+  };
+  if(state.user){
+    dashboardAssignments(today, state.user.id)
+      .filter(e=>!completionFor(today,e.id,state.user.id))
+      .slice(0,6)
+      .forEach(e=>push(`${actLabel(e.activityId)} · ${entryTime(e)}`, 'task'));
+  }
+  DB.events.filter(e=>e.status==='published' && e.date>=today)
+    .slice(0,5)
+    .forEach(e=>push(`${L(e)} (${e.date} ${e.from})`, 'event'));
+  const wk=DB.weeks[weekKey(today)]||{};
+  [wk.remarks, wk.projects, wk.hintAfternoon, wk.materials].filter(Boolean).forEach(text=>{
+    String(text).split(/\n+/).map(s=>s.trim()).filter(Boolean).slice(0,3).forEach(line=>push(line,'week'));
+  });
+  push(t('besprechung'), 'meeting');
+  return suggestions.slice(0,10);
+}
+
+function sheetStaffTalk(){
+  if(state.mode!=='staff' || !state.user){ toast(t('staffTalkNeedStaff'),'error'); return; }
+  let talk={messages:[], topics:[], videoUrl:'', updatedAt:0};
+  let pollTimer=null, busy=false, voice=null;
+
+  const stopPoll=()=>{ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } };
+  const fmtTalkTime=ts=>{
+    try{ return new Date(ts).toLocaleTimeString(state.lang==='el'?'el-GR':'de-DE',{hour:'2-digit',minute:'2-digit'}); }
+    catch{ return ''; }
+  };
+  const openTopics=()=>(talk.topics||[]).filter(x=>!x.done && (!x.date || x.date===iso(new Date())));
+  const paint=()=>{
+    if(!sheetEl.classList.contains('on') || !sheetEl.querySelector('#talkRoot')){ stopPoll(); return; }
+    const log=sheetEl.querySelector('#talkLog');
+    const topicsEl=sheetEl.querySelector('#talkTopics');
+    const videoUrl=talk.videoUrl||'';
+    const videoBtn=sheetEl.querySelector('#talkVideoOpen');
+    if(videoBtn){ videoBtn.disabled=!videoUrl; videoBtn.dataset.url=videoUrl; }
+    if(log){
+      const msgs=talk.messages||[];
+      log.innerHTML = msgs.length
+        ? msgs.map(m=>{
+            const mine=m.by===state.user.id;
+            return `<div class="chat-msg ${mine?'talk-user':'assistant'}">
+              <span class="talk-who">${esc(m.byName||m.by)} · ${esc(fmtTalkTime(m.at))}</span>${esc(m.text)}</div>`;
+          }).join('')
+        : `<div class="chat-msg talk-meta">${esc(t('staffTalkEmpty'))}</div>`;
+      log.scrollTop=log.scrollHeight;
+    }
+    if(topicsEl){
+      const today=iso(new Date());
+      const list=[...(talk.topics||[])]
+        .filter(x=>!x.date || x.date===today || !x.done)
+        .sort((a,b)=>(Number(a.done)-Number(b.done)) || (b.createdAt||0)-(a.createdAt||0))
+        .slice(0,40);
+      topicsEl.innerHTML = list.length
+        ? list.map(topic=>`<button class="talk-topic ${topic.done?'on':''}" type="button" data-topic="${esc(topic.id)}">
+            <span class="mark" aria-hidden="true">✓</span>
+            <span class="body"><b>${esc(topic.text)}</b>
+              <small>${esc(topic.byName||'')} · ${topic.done?(state.lang==='el'?'συζητήθηκε':'besprochen'):(topic.source||'manual')}</small>
+            </span></button>`).join('')
+        : `<div class="muted" style="font-size:12px">${esc(t('staffTalkTopicsHint'))}</div>`;
+      topicsEl.querySelectorAll('[data-topic]').forEach(btn=>{
+        btn.onclick=async()=>{
+          if(busy) return;
+          busy=true; feedback('select');
+          try{ talk=await talkApi('toggle_topic',{topicId:btn.dataset.topic}); paint(); }
+          catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
+          finally{ busy=false; }
+        };
+      });
+    }
+  };
+
+  openSheet(`<div id="talkRoot">
+      <div class="security-hero" style="margin-bottom:12px"><div class="row" style="gap:12px">
+        <div class="security-icon">💬</div>
+        <div><div class="import-kicker">Armonia Thassos</div>
+          <h2 style="margin:3px 0">${esc(t('staffTalkTitle'))}</h2>
+          <div class="muted" style="font-size:12.5px;line-height:1.45">${esc(t('staffTalkIntro'))}</div>
+        </div></div></div>
+      <div class="talk-video-card">
+        <div><b>📹 ${esc(t('staffTalkVideo'))}</b><div class="muted">${esc(t('staffTalkVideoHint'))}</div></div>
+        <button class="btn" id="talkVideoOpen" type="button">${esc(t('staffTalkVideoOpen'))}</button>
+      </div>
+      <div class="talk-topics">
+        <div class="talk-topics-head">
+          <div><h4>📌 ${esc(t('staffTalkTopics'))}</h4>
+            <div class="muted" style="font-size:11.5px;margin-top:2px">${esc(t('staffTalkTopicsHint'))}</div></div>
+        </div>
+        <div class="talk-topic-list" id="talkTopics"></div>
+        <div class="talk-compose-row">
+          <input id="talkTopicInput" maxlength="400" placeholder="${esc(t('staffTalkTopicPh'))}">
+          <button class="btn sm" id="talkTopicAdd" type="button">＋</button>
+        </div>
+        <div class="talk-actions">
+          <button class="btn sm sec" id="talkSuggest" type="button">💡 ${esc(t('staffTalkSuggest'))}</button>
+          <button class="btn sm sec" id="talkClearDone" type="button">${esc(t('staffTalkClearDone'))}</button>
+        </div>
+      </div>
+      <div class="chat-log" id="talkLog" aria-live="polite"></div>
+      <div class="chat-compose">
+        <textarea id="talkInput" rows="1" placeholder="${esc(t('staffTalkPlaceholder'))}"></textarea>
+        <button class="chat-mic" id="talkMic" type="button" aria-label="${esc(t('helpVoice'))}" title="${esc(t('helpVoice'))}">🎤</button>
+        <button class="btn" id="talkSend" type="button">${esc(t('staffTalkSend'))}</button>
+      </div>
+      <div class="chat-voice-status" id="talkVoiceStatus" hidden></div>
+    </div>`);
+
+  const input=sheetEl.querySelector('#talkInput');
+  const send=sheetEl.querySelector('#talkSend');
+  const mic=sheetEl.querySelector('#talkMic');
+
+  sheetEl.querySelector('#talkVideoOpen').onclick=()=>{
+    const url=sheetEl.querySelector('#talkVideoOpen').dataset.url;
+    if(!url) return;
+    feedback('open');
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+  sheetEl.querySelector('#talkTopicAdd').onclick=async()=>{
+    const text=sheetEl.querySelector('#talkTopicInput').value.trim();
+    if(!text || busy) return;
+    busy=true;
+    try{
+      talk=await talkApi('add_topic',{text, date:iso(new Date()), source:'manual'});
+      sheetEl.querySelector('#talkTopicInput').value='';
+      feedback('success'); paint();
+    }catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
+    finally{ busy=false; }
+  };
+  sheetEl.querySelector('#talkClearDone').onclick=async()=>{
+    if(busy) return; busy=true;
+    try{ talk=await talkApi('clear_done',{date:iso(new Date())}); feedback('toggle'); paint(); }
+    catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
+    finally{ busy=false; }
+  };
+  sheetEl.querySelector('#talkSuggest').onclick=async()=>{
+    if(busy) return; busy=true;
+    const ideas=talkSuggestTopics();
+    try{
+      for(const idea of ideas){
+        talk=await talkApi('add_topic',{text:idea.text, date:iso(new Date()), source:idea.source});
+      }
+      feedback('success'); paint();
+      toast(T[state.lang].staffTalkOpenTopics(openTopics().length),'success');
+    }catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
+    finally{ busy=false; }
+  };
+
+  const submit=async()=>{
+    const content=input.value.trim();
+    if(!content || busy || send.disabled) return;
+    voice?.stop();
+    busy=true; send.disabled=true; if(mic) mic.disabled=true;
+    try{
+      talk=await talkApi('send',{text:content});
+      input.value='';
+      feedback('select'); paint();
+    }catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
+    finally{ busy=false; send.disabled=false; if(mic) mic.disabled=false; input.focus(); }
+  };
+  send.onclick=submit;
+  input.onkeydown=e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); } };
+  voice=bindVoiceInput({
+    input,
+    mic,
+    statusEl:sheetEl.querySelector('#talkVoiceStatus'),
+  });
+
+  // Keep polling while this sheet is open.
+  (async()=>{
+    try{
+      talk=await talkApi();
+      paint();
+      pollTimer=setInterval(async()=>{
+        if(!sheetEl.classList.contains('on') || !sheetEl.querySelector('#talkRoot') || busy) return;
+        try{
+          const next=await talkApi();
+          if(next.updatedAt!==talk.updatedAt){ talk=next; paint(); }
+        }catch{}
+      }, 4000);
+    }catch(error){
+      toast(error.message||t('staffTalkLoadError'),'error');
+      closeSheet();
+    }
+  })();
+
+  // Stop poll when sheet closes.
+  const observer=new MutationObserver(()=>{
+    if(!sheetEl.classList.contains('on') || !sheetEl.querySelector('#talkRoot')){
+      stopPoll(); observer.disconnect();
+    }
+  });
+  observer.observe(sheetEl,{attributes:true, childList:true, attributeFilter:['class']});
+}
+
 sheetBg.onclick = () => { if(!sheetLocked) closeSheet(); };
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape' && sheetEl.classList.contains('on') && !sheetLocked) closeSheet();
@@ -1704,6 +2584,33 @@ function eventForEntry(e, dateStr){
   return DB.events.find(x=>x.scheduleEntryId===e.id && x.scheduleDate===dateStr && x.status==='published');
 }
 
+/** Ακύρωση / αφαίρεση εγγραφής από τον πίνακα (πρότυπο → override cancelled · έκτακτο → διαγραφή). */
+function applyCancelScheduleEntry(e, dateStr){
+  if(e.source==='template'){
+    const ex = DB.overrides.find(o=>o.date===dateStr && o.templateId===e.id);
+    if(ex) ex.cancelled = true;
+    else DB.overrides.push({id:uid(), date:dateStr, templateId:e.id, cancelled:true});
+  }else{
+    DB.overrides = DB.overrides.filter(o=>o.id!==e.id);
+  }
+  const linked=DB.events.find(x=>x.scheduleEntryId===e.id && x.scheduleDate===dateStr);
+  if(linked) linked.status='draft';
+  logEntry('SCHEDULE', `${dateStr} · ${t('cancelled')}: ${actLabel(e.activityId)}${
+    entryEmployeeIds(e).length?' · '+employeeNames(e):''}`);
+}
+
+function cancelScheduleEntry(e, dateStr, {onDone}={}){
+  if(!e || e.cancelled) return;
+  askPin(t('cancelToday'), who => {
+    state.user = who;
+    applyCancelScheduleEntry(e, dateStr);
+    if(!save()) return;
+    onDone?.();
+    feedback('warn');
+    toast(t('removedFromPlan'),'success');
+  });
+}
+
 function entryLine(e, dateStr=state.date){
   const a = act(e.activityId);
   const announced = eventForEntry(e,dateStr);
@@ -1711,24 +2618,27 @@ function entryLine(e, dateStr=state.date){
   const person = people.length ? esc(employeeNames(e)) : `<span class="pill open">${t('unassigned')}</span>`;
   const kids = (e.childIds||[]).map(id=>`<span class="pill kid">${esc(kid(id)?.name||'')}</span>`).join('');
   const who = emp(people[0]);
-  return `<button class="entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-src="${e.source}">
-    <div class="top">
-      ${who ? `<div class="avatar" style="background:${who.color}">${initials(who.name)}</div>`
-            : `<span class="emoji">${a?a.emoji:'📝'}</span>`}
-      <div class="grow">
-        <div class="act">${who ? esc(a?a.emoji+' ':'') : ''}${esc(actLabel(e.activityId))}
-          ${announced ? `<span class="event-flag">📣 ${t('published')}</span>` : ''}</div>
-        <div class="meta">${who ? esc(employeeNames(e)) : person} · ${esc(entryTime(e))}${
-          entryHouseIds(e).length ? ' · 🏠 ' + esc(houseNames(e)) : ''}</div>
-        ${e.note ? `<div class="meta">${esc(e.note)}</div>` : ''}
+  return `<div class="entry-wrap">
+    <button class="entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-src="${e.source}" type="button">
+      <div class="top">
+        ${who ? `<div class="avatar" style="background:${who.color}">${initials(who.name)}</div>`
+              : `<span class="emoji">${a?a.emoji:'📝'}</span>`}
+        <div class="grow">
+          <div class="act">${who ? esc(a?a.emoji+' ':'') : ''}${esc(actLabel(e.activityId))}
+            ${announced ? `<span class="event-flag">📣 ${t('published')}</span>` : ''}</div>
+          <div class="meta">${who ? esc(employeeNames(e)) : person} · ${esc(entryTime(e))}${
+            entryHouseIds(e).length ? ' · 🏠 ' + esc(houseNames(e)) : ''}</div>
+          ${e.note ? `<div class="meta">${esc(e.note)}</div>` : ''}
+        </div>
+        <div style="flex:0 0 auto">
+          ${e.cancelled ? `<span class="pill gray">${t('cancelled')}</span>`
+            : e.overridden ? `<span class="pill ovr">${t('override')}</span>` : ''}
+        </div>
       </div>
-      <div style="flex:0 0 auto">
-        ${e.cancelled ? `<span class="pill gray">${t('cancelled')}</span>`
-          : e.overridden ? `<span class="pill ovr">${t('override')}</span>` : ''}
-      </div>
-    </div>
-    ${kids ? `<div class="kids">${kids}</div>` : ''}
-  </button>`;
+      ${kids ? `<div class="kids">${kids}</div>` : ''}
+    </button>
+    ${!e.cancelled?`<button type="button" class="mini-x entry-x" data-remove-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" aria-label="${esc(t('removeFromTable'))}" title="${esc(t('removeFromTable'))}">×</button>`:''}
+  </div>`;
 }
 
 function viewScheduleDay(){
@@ -1788,14 +2698,14 @@ function viewScheduleDay(){
 }
 
 /** Κοινό responsive table system για πρόγραμμα, βάρδιες και μελλοντικά datasets. */
-function matrixView(headers, rows, {label = '', interactive = false} = {}){
+function matrixView(headers, rows, {label = '', interactive = false, title = ''} = {}){
   const desktopMin=140 + headers.length*150;
   const mobileMin=108 + headers.length*144;
   const head = `<div class="matrix-row" role="row">
     <div class="matrix-cell matrix-head matrix-label" role="columnheader">${esc(label)}</div>
     ${headers.map(h=>`<div class="matrix-cell matrix-head" role="columnheader">${esc(h)}</div>`).join('')}
   </div>`;
-  return `<div class="matrix" role="table" style="--cols:${headers.length};--matrix-min:${desktopMin}px;--matrix-min-mobile:${mobileMin}px" tabindex="0">
+  const table = `<div class="matrix" role="table" style="--cols:${headers.length};--matrix-min:${desktopMin}px;--matrix-min-mobile:${mobileMin}px" tabindex="0">
     ${head}${rows.map(r=>`<div class="matrix-row" role="row">
       <div class="matrix-cell matrix-label" role="rowheader">${r.label}</div>
       ${r.cells.map(c=>`<div class="matrix-cell ${c.action?'matrix-action':''}" role="cell"
@@ -1804,6 +2714,40 @@ function matrixView(headers, rows, {label = '', interactive = false} = {}){
       </div>`).join('')}
     </div>`).join('')}
   </div>`;
+  return `<div class="matrix-shell">
+    <div class="matrix-toolbar">
+      <div class="matrix-toolbar-title">${esc(title || label || t('viewWeek'))}</div>
+      <button class="matrix-fs-btn" type="button" data-matrix-fs aria-label="${esc(t('tableFullscreen'))}" title="${esc(t('tableFullscreen'))}">⛶ ${t('tableFullscreen')}</button>
+      <button class="matrix-fs-close" type="button" data-matrix-fs-close hidden aria-label="${esc(t('tableExitFullscreen'))}">✕ ${t('tableExitFullscreen')}</button>
+    </div>
+    ${table}
+  </div>`;
+}
+
+function exitMatrixFullscreen(){
+  document.querySelectorAll('.matrix-shell.is-fullscreen').forEach(shell=>{
+    shell.classList.remove('is-fullscreen');
+    const open=shell.querySelector('[data-matrix-fs]');
+    const close=shell.querySelector('[data-matrix-fs-close]');
+    if(open) open.hidden=false;
+    if(close) close.hidden=true;
+  });
+  document.body.classList.remove('matrix-fullscreen');
+  scheduleMeasureChrome();
+}
+
+function enterMatrixFullscreen(shell){
+  if(!shell) return;
+  exitMatrixFullscreen();
+  shell.classList.add('is-fullscreen');
+  document.body.classList.add('matrix-fullscreen');
+  const open=shell.querySelector('[data-matrix-fs]');
+  const close=shell.querySelector('[data-matrix-fs-close]');
+  if(open) open.hidden=true;
+  if(close) close.hidden=false;
+  scheduleMeasureChrome();
+  const matrix=shell.querySelector('.matrix');
+  if(matrix) try{ matrix.focus({preventScroll:true}); }catch{ matrix.focus(); }
 }
 
 /** Πρόγραμμα βαρδιών — προσωπικό × ημέρα, με τις 24ωρες ως ενιαίο μπλοκ (§6.2). */
@@ -1830,7 +2774,7 @@ function viewShifts(){
     })),
   }));
   return `
-    ${matrixView(dn, rows, {label:state.lang==='de'?'Person':'Άτομο'})}
+    ${matrixView(dn, rows, {label:state.lang==='de'?'Person':'Άτομο', title:t('viewShift')})}
     <div class="muted" style="margin-bottom:12px">${t('tenMinRule')}</div>
     ${validationCard(state.date)}`;
 }
@@ -1893,10 +2837,12 @@ function cellItems(list, showWho = true, dateStr=state.date){
     const who = entryEmployeeIds(e).length ? esc(employeeNames(e)) : t('unassigned');
     const kids = kidNames(e.childIds);
     const sub = [showWho ? who : '', e.note].filter(Boolean).join(' · ');
-    return `<div class="cellitem"><b>${esc(actLabel(e.activityId))}</b>${eventForEntry(e,dateStr)?' <span class="event-flag">📣</span>':''}${
+    return `<div class="cellitem" data-open-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" role="button" tabindex="0">
+      <button type="button" class="cellitem-x" data-remove-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" aria-label="${esc(t('removeFromTable'))}" title="${esc(t('removeFromTable'))}">×</button>
+      <div class="cellitem-body"><b>${esc(actLabel(e.activityId))}</b>${eventForEntry(e,dateStr)?' <span class="event-flag">📣</span>':''}${
       kids ? ` <span class="c">${esc(kids)}</span>` : ''}${
       (e.from || e.time) ? ` <span class="c">${esc(entryTime(e))}</span>` : ''}${
-      sub ? `<br><span style="color:#64748b">${esc(sub)}</span>` : ''}</div>`;
+      sub ? `<br><span style="color:#64748b">${esc(sub)}</span>` : ''}</div></div>`;
   }).join('');
 }
 
@@ -1915,7 +2861,7 @@ function viewScheduleWeek(){
       return {html:cellItems(list,true,ds), action:`${ds}|${blockId}|${h.id}|`,
         aria:`${DAY_LONG[state.lang][i]} · ${h.name} · ${t(blockId)}`};
     }),
-  })), {label:state.lang==='de'?'Tag':'Ημέρα', interactive:true});
+  })), {label:state.lang==='de'?'Tag':'Ημέρα', interactive:true, title:t(blockId)});
 
   const personTable = matrixView(dn, DB.employees.map(p=>({
     label:esc(p.name),
@@ -1924,7 +2870,7 @@ function viewScheduleWeek(){
       return {html:cellItems(list,false,ds), action:`${ds}|afternoon||${p.id}`,
         aria:`${p.name} · ${DAY_LONG[state.lang][i]} · ${t('afternoon')}`};
     }),
-  })), {label:state.lang==='de'?'Person':'Άτομο', interactive:true});
+  })), {label:state.lang==='de'?'Person':'Άτομο', interactive:true, title:t('afternoon')});
 
   const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   return `
@@ -2006,53 +2952,66 @@ function sheetEntry(e, dateStr, presets = {}){
   let scope = 'override';
 
   const dayIdx = dowIdx(new Date(dateStr+'T12:00:00'));
+  feedback('open');
 
   openSheet(`
-    <div class="row between" style="align-items:flex-start;margin-bottom:12px">
-      <h3 style="margin:0">${isNew ? t('newEntry') : t('edit')} · ${t(blockId)} <span class="muted">${def.from}–${def.to}</span></h3>
+    <div class="entry-sheet-head">
+      <h3>${isNew ? t('newEntry') : t('edit')}</h3>
+      <div class="entry-sheet-meta">
+        <span class="block-pill">🕐 ${esc(t(blockId))} · ${def.from}–${def.to}</span>
+      </div>
       <button class="event-toggle ${linkedEvent?.status==='published'?'on':''}" id="fEventToggle" type="button"
-        aria-pressed="${linkedEvent?.status==='published'?'true':'false'}">📣 ${linkedEvent?.status==='published'?t('eventButtonOn'):t('eventButton')}</button>
+        aria-pressed="${linkedEvent?.status==='published'?'true':'false'}">
+        <span><span class="ev-ico" aria-hidden="true">📣</span>
+          <b id="fEventToggleLabel">${linkedEvent?.status==='published'?t('eventButtonOn'):t('eventButton')}</b>
+          <span class="ev-sub">${t('announceHint')}</span>
+        </span>
+        <span aria-hidden="true">${linkedEvent?.status==='published'?'✓':'○'}</span>
+      </button>
       <input type="checkbox" id="fAnnounce" hidden ${linkedEvent?.status==='published'?'checked':''}>
     </div>
 
-    <label class="f"><span>${t('house')} · ${t('chooseMany')}</span></label>
+    ${entrySec('🏠', t('house'), t('chooseMany'))}
     <div class="check-grid" id="fHouses">
-      ${planningHouses().map(h=>`<label class="check-option"><input type="checkbox" value="${h.id}" ${pickedHouses.includes(h.id)?'checked':''}><span>🏠 ${esc(h.name)}</span></label>`).join('')}
+      ${planningHouses().map(h=>houseOptionHtml(h, pickedHouses.includes(h.id))).join('')}
     </div>
 
-    <label class="f"><span>${t('person')} · ${t('chooseMany')}</span></label>
+    ${entrySec('👤', t('person'), t('chooseMany'))}
     <div class="check-grid" id="fPeople">
-      ${DB.employees.map(p=>`<label class="check-option"><input type="checkbox" value="${p.id}" ${pickedPeople.includes(p.id)?'checked':''}><span>${esc(p.name)}</span></label>`).join('')}
+      ${DB.employees.map(p=>personOptionHtml(p, pickedPeople.includes(p.id))).join('')}
     </div>
 
-    <label class="f"><span>${t('children')}</span></label>
+    ${entrySec('👶', t('children'))}
     <div class="chips" id="fGroups" style="margin:-4px 0 8px">
-      ${DB.groups.map(g=>`<button class="chip" data-g="${g.id}">👥 ${esc(L(g))}</button>`).join('')}
+      ${DB.groups.map(g=>{
+        const on=g.childIds.every(id=>pickedKids.includes(id));
+        return groupChipHtml(g, on);
+      }).join('')}
     </div>
     <div class="chips" id="fKids" style="margin:0 0 12px">
-      ${DB.children.map(c=>`<button class="chip ${pickedKids.includes(c.id)?'on':''}" data-c="${c.id}">${pickedKids.includes(c.id)?'☑':'☐'} ${esc(childChoiceLabel(c))}</button>`).join('')}
+      ${DB.children.map(c=>kidChipHtml(c, pickedKids.includes(c.id))).join('')}
     </div>
 
-    <label class="f"><span>${t('activity')}</span></label>
+    ${entrySec('🎯', t('activity'))}
     <div class="chips" id="fActs" style="margin:-4px 0 12px">
-      ${ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}">${a.emoji} ${esc(L(a))}</button>`).join('')}
-      <button class="chip" id="fNewAct" style="border-style:dashed">＋ ${t('newActivity')}</button>
+      ${ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}" type="button">${a.emoji} ${esc(L(a))}</button>`).join('')}
+      <button class="chip" id="fNewAct" style="border-style:dashed" type="button">＋ ${t('newActivity')}</button>
     </div>
 
-    <label class="f"><span>${t('time')}</span></label>
+    ${entrySec('⏱', t('time'))}
     <div class="chips" id="fTimePresets" style="margin:-4px 0 8px">
-      <button class="chip" data-tp="full">${t('fullBlock')} ${def.from}–${def.to}</button>
+      <button class="chip" data-tp="full" type="button">🗓 ${t('fullBlock')} ${def.from}–${def.to}</button>
       ${['15:00','16:00','17:00','18:00','19:00','20:00']
         .filter(x => x >= def.from && x < def.to)
-        .map(x=>`<button class="chip" data-tp="${x}">${t('fromTime')} ${x}</button>`).join('')}
+        .map(x=>`<button class="chip" data-tp="${x}" type="button">⏰ ${t('fromTime')} ${x}</button>`).join('')}
     </div>
     <div class="row" style="gap:10px">
-      <label class="f grow"><span>${t('timeFrom')}</span>
+      <label class="f grow"><span>▶️ ${t('timeFrom')}</span>
         <input type="time" id="fFrom" value="${esc(e.from || def.from)}"></label>
-      <label class="f grow"><span>${t('timeTo')}</span>
+      <label class="f grow"><span>⏹ ${t('timeTo')}</span>
         <input type="time" id="fTo" value="${esc(e.to || def.to)}"></label>
     </div>
-    <label class="f"><span>${t('note')}</span>
+    <label class="f"><span>📝 ${t('note')}</span>
       <textarea id="fNote" rows="2" placeholder="${t('notePh')}">${esc(e.note||'')}</textarea></label>
 
     <div id="fEventFields" style="display:${linkedEvent?.status==='published'?'block':'none'}">
@@ -2060,40 +3019,46 @@ function sheetEntry(e, dateStr, presets = {}){
         <div class="strong">📣 ${t('announceEvent')}</div>
         <div class="muted" id="fEventAudience">${T[state.lang].kidsNotified(pickedKids.length)} ${t('announceHint')}</div>
       </div>
-      <label class="f"><span>${t('eventTitle')}</span><input id="fEventTitle" value="${esc(linkedEvent?L(linkedEvent):actLabel(e.activityId))}"></label>
+      <label class="f"><span>🏷 ${t('eventTitle')}</span><input id="fEventTitle" value="${esc(linkedEvent?L(linkedEvent):actLabel(e.activityId))}"></label>
       <div class="row" style="gap:10px">
-        <label class="f grow"><span>${t('eventLocation')}</span><input id="fEventLocation" value="${esc(linkedEvent?.location||entryHouseIds(e).map(id=>house(id)?.name).filter(Boolean).join(', '))}"></label>
-        <label class="f grow"><span>${t('eventBring')}</span><input id="fEventBring" value="${esc(linkedEvent?L(linkedEvent.bring):'')}"></label>
+        <label class="f grow"><span>📍 ${t('eventLocation')}</span><input id="fEventLocation" value="${esc(linkedEvent?.location||entryHouseIds(e).map(id=>house(id)?.name).filter(Boolean).join(', '))}"></label>
+        <label class="f grow"><span>🎒 ${t('eventBring')}</span><input id="fEventBring" value="${esc(linkedEvent?L(linkedEvent.bring):'')}"></label>
       </div>
     </div>
 
     ${e.source==='template' ? `
       <div class="seg" id="fScope">
-        <button class="on" data-s="override">${t('scopeToday')}</button>
-        <button data-s="template">${t('scopeTemplate')}</button>
+        <button class="on" data-s="override" type="button">${t('scopeToday')}</button>
+        <button data-s="template" type="button">${t('scopeTemplate')}</button>
       </div>
       <div class="muted" id="scopeHint" style="margin:-6px 0 12px">${t('scopeTodayHint')}</div>
       <div class="muted" style="margin:-6px 0 12px">${t('adminOnly')}</div>` : ''}
 
-    <button class="btn" id="fSave">${t('saveWithPin')}</button>
-    ${!isNew && !e.cancelled ? `<button class="btn sec" id="fCancel" style="margin-top:8px">${t('cancelToday')}</button>` : ''}
+    <button class="btn" id="fSave">💾 ${t('saveWithPin')}</button>
+    ${!isNew && !e.cancelled ? `<button class="btn sec" id="fCancel" style="margin-top:8px">🗑 ${t('cancelToday')}</button>` : ''}
   `);
 
   /** Ξαναχτίζει τα chips δραστηριοτήτων — ώστε μια νέα να εμφανίζεται αμέσως. */
   function paintActs(){
     const box = sheetEl.querySelector('#fActs');
     box.innerHTML =
-      ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}">${a.emoji} ${esc(L(a))}</button>`).join('') +
-      `<button class="chip" id="fNewAct" style="border-style:dashed">＋ ${t('newActivity')}</button>`;
+      ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}" type="button">${a.emoji} ${esc(L(a))}</button>`).join('') +
+      `<button class="chip" id="fNewAct" style="border-style:dashed" type="button">＋ ${t('newActivity')}</button>`;
     box.querySelectorAll('.chip[data-a]').forEach(b=>{
-      b.onclick = () => { pickedAct = b.dataset.a; paintActs(); };
+      b.onclick = () => { pickedAct = b.dataset.a; feedback('select'); paintActs(); };
     });
     box.querySelector('#fNewAct').onclick = openNewActivity;
   }
   const paintKids = () => {
-    sheetEl.querySelectorAll('#fKids .chip').forEach(x=>{
-      const on=pickedKids.includes(x.dataset.c), child=kid(x.dataset.c);
-      x.classList.toggle('on',on); x.textContent=`${on?'☑':'☐'} ${childChoiceLabel(child)}`;
+    const kidsBox=sheetEl.querySelector('#fKids');
+    if(kidsBox) kidsBox.innerHTML=DB.children.map(c=>kidChipHtml(c, pickedKids.includes(c.id))).join('');
+    sheetEl.querySelectorAll('#fKids .chip').forEach(b=>{
+      b.onclick = () => {
+        const id = b.dataset.c;
+        pickedKids = pickedKids.includes(id) ? pickedKids.filter(x=>x!==id) : [...pickedKids, id];
+        feedback('select');
+        paintKids();
+      };
     });
     sheetEl.querySelectorAll('#fGroups .chip').forEach(x=>{
       const g=DB.groups.find(g=>g.id===x.dataset.g);
@@ -2103,12 +3068,8 @@ function sheetEntry(e, dateStr, presets = {}){
     if(audience) audience.textContent=`${T[state.lang].kidsNotified(pickedKids.length)} ${t('announceHint')}`;
   };
 
-  sheetEl.querySelectorAll('#fKids .chip').forEach(b=>{
-    b.onclick = () => {
-      const id = b.dataset.c;
-      pickedKids = pickedKids.includes(id) ? pickedKids.filter(x=>x!==id) : [...pickedKids, id];
-      paintKids();
-    };
+  sheetEl.querySelectorAll('#fHouses .check-option, #fPeople .check-option').forEach(label=>{
+    label.addEventListener('change', ()=>feedback('select'));
   });
 
   // Ομάδα: βάζει/βγάζει όλα τα παιδιά της με ένα πάτημα
@@ -2119,6 +3080,7 @@ function sheetEntry(e, dateStr, presets = {}){
       pickedKids = allIn
         ? pickedKids.filter(id=>!g.childIds.includes(id))
         : [...new Set([...pickedKids, ...g.childIds])];
+      feedback('toggle');
       paintKids();
     };
   });
@@ -2126,6 +3088,7 @@ function sheetEntry(e, dateStr, presets = {}){
   /** Νέα δραστηριότητα χωρίς να βγεις από τη φόρμα — μένει για πάντα στη λίστα. */
   function openNewActivity(){
     if(sheetEl.querySelector('#naWrap')) return;
+    feedback('tap');
     const wrap = document.createElement('div');
     wrap.id = 'naWrap';
     wrap.style.cssText = 'margin:-6px 0 12px;display:flex;gap:8px';
@@ -2138,13 +3101,14 @@ function sheetEntry(e, dateStr, presets = {}){
     wrap.querySelector('#naName').focus();
     wrap.querySelector('#naAdd').onclick = () => {
       const label = wrap.querySelector('#naName').value.trim();
-      if(!label){ toast(t('activityName')); return; }
+      if(!label){ feedback('error'); toast(t('activityName')); return; }
       const a = {id:'c'+uid(), emoji: wrap.querySelector('#naEmoji').value.trim() || '📝',
                  de:label, el:label, custom:true};
       DB.customActivities.push(a); save();
       pickedAct = a.id;
       wrap.remove();
       paintActs();
+      feedback('success');
       toast(t('saved'));
     };
     wrap.querySelector('#naClose').onclick = () => wrap.remove();
@@ -2157,12 +3121,17 @@ function sheetEntry(e, dateStr, presets = {}){
     sheetEl.querySelector('#fEventFields').style.display=input.checked?'block':'none';
     button.classList.toggle('on',input.checked);
     button.setAttribute('aria-pressed',String(input.checked));
-    button.textContent=`📣 ${input.checked?t('eventButtonOn'):t('eventButton')}`;
+    const label=sheetEl.querySelector('#fEventToggleLabel');
+    if(label) label.textContent=input.checked?t('eventButtonOn'):t('eventButton');
+    const mark=button.querySelector(':scope > span:last-child');
+    if(mark) mark.textContent=input.checked?'✓':'○';
     if(input.checked && !sheetEl.querySelector('#fEventTitle').value.trim())
       sheetEl.querySelector('#fEventTitle').value=actLabel(pickedAct);
   };
   sheetEl.querySelector('#fEventToggle').onclick=()=>{
-    const input=sheetEl.querySelector('#fAnnounce'); input.checked=!input.checked; paintEventToggle();
+    const input=sheetEl.querySelector('#fAnnounce'); input.checked=!input.checked;
+    feedback('toggle');
+    paintEventToggle();
   };
   paintEventToggle();
 
@@ -2170,6 +3139,7 @@ function sheetEntry(e, dateStr, presets = {}){
   if(segEl) segEl.querySelectorAll('button').forEach(b=>{
     b.onclick = () => {
       scope = b.dataset.s;
+      feedback('select');
       segEl.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x.dataset.s===scope));
       sheetEl.querySelector('#scopeHint').textContent = scope==='template'
         ? T[state.lang].scopeTemplateHint(DAY_LONG[state.lang][dayIdx])
@@ -2183,6 +3153,7 @@ function sheetEntry(e, dateStr, presets = {}){
       const v = b.dataset.tp;
       sheetEl.querySelector('#fFrom').value = v === 'full' ? def.from : v;
       sheetEl.querySelector('#fTo').value = def.to;
+      feedback('select');
       sheetEl.querySelectorAll('#fTimePresets .chip').forEach(x=>x.classList.toggle('on', x===b));
     };
   });
@@ -2234,17 +3205,17 @@ function sheetEntry(e, dateStr, presets = {}){
   sheetEl.querySelector('#fSave').onclick = () => {
     const f = readForm();
     const announce=!!sheetEl.querySelector('#fAnnounce')?.checked;
-    if(blockDef(blockId).by === 'house' && !f.houseIds.length){ toast(t('selectHouse'),'error'); return; }
+    if(blockDef(blockId).by === 'house' && !f.houseIds.length){ feedback('error'); toast(t('selectHouse'),'error'); return; }
     if(announce &&
       (!sheetEl.querySelector('#fEventTitle').value.trim() || !f.childIds.length)){
-      toast(t('eventRequired'),'error'); return;
+      feedback('error'); toast(t('eventRequired'),'error'); return;
     }
     askPin(t('saveWithPin'), who => {
       state.user = who;
       let savedEntryId=e.id;
       // Μόνιμη αλλαγή προτύπου: μόνο Zoi, Angelos, Dimitris
       if(e.source === 'template' && scope === 'template' && !who.admin){
-        toast(t('adminOnly')); return;
+        feedback('warn'); toast(t('adminOnly')); return;
       }
       if(e.source === 'template' && scope === 'template'){
         const row=DB.template.find(x=>x.id===e.id);
@@ -2265,28 +3236,14 @@ function sheetEntry(e, dateStr, presets = {}){
       }
       const eventToNotify=syncLinkedEvent(savedEntryId,f);
       if(!save()) return;
-      closeSheet(); render(); toast(announce?t('eventPublished'):t('changesSaved'),'success');
+      closeSheet(); render(); feedback('save'); toast(announce?t('eventPublished'):t('changesSaved'),'success');
       if(eventToNotify) sendEventWhatsapp(eventToNotify);
     });
   };
 
   const cancelBtn = sheetEl.querySelector('#fCancel');
   if(cancelBtn) cancelBtn.onclick = () => {
-    askPin(t('cancelToday'), who => {
-      state.user = who;
-      if(e.source==='template'){
-        const ex = DB.overrides.find(o=>o.date===dateStr && o.templateId===e.id);
-        if(ex) ex.cancelled = true;
-        else DB.overrides.push({id:uid(), date:dateStr, templateId:e.id, cancelled:true});
-      }else{
-        const ex = DB.overrides.find(o=>o.id===e.id);
-        if(ex) ex.cancelled = true;
-      }
-      const linked=DB.events.find(x=>x.scheduleEntryId===e.id && x.scheduleDate===dateStr);
-      if(linked) linked.status='draft';
-      logEntry('SCHEDULE', `${dateStr} · ${t('cancelled')}: ${describe(e)}`);
-      save(); closeSheet(); render(); toast(t('saved'));
-    });
+    cancelScheduleEntry(e, dateStr, {onDone:()=>{ closeSheet(); render(); }});
   };
 }
 
@@ -2325,12 +3282,27 @@ function viewStock(){
   const catIcon={fridge:'🧀',produce:'🥬',dry:'🥫',drinks:'🥤',household:'🧻',custom:'📦'};
   const productCard=p=>{
     const st=productState(p);
-    const quantities=houses.map(h=>`<div class="stock-qty">${hid==='all'?`<span class="stock-state">${esc(h.short)}</span>`:''}${DB.stock[stockKey(h.id,p.id)]??0}<small>${esc(p.unit)}</small></div>`).join('');
-    return `<button class="stock-product ${st} ${hid==='all'?'multi-house':''}" data-stock-product="${p.id}" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div class="stock-product-main"><div class="stock-product-name">${esc(L(p))}</div>
-      <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div></div>
-      <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div></button>`;
+    if(hid==='all'){
+      const quantities=houses.map(h=>`<div class="stock-qty"><span class="stock-state">${esc(h.short)}</span>${DB.stock[stockKey(h.id,p.id)]??0}<small>${esc(p.unit)}</small></div>`).join('');
+      return `<button class="stock-product ${st} multi-house" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div class="stock-product-main"><div class="stock-product-name">${esc(L(p))}</div>
+        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div></div>
+        <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div></button>`;
+    }
+    const qty=DB.stock[stockKey(hid,p.id)]??0;
+    const step=stepFor(p);
+    return `<div class="stock-product ${st} has-stepper">
+      <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
+        <div class="stock-product-name">${esc(L(p))}</div>
+        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div>
+      </button>
+      <div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
+        <button class="stock-step out" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${qty<=0?'disabled':''}>−</button>
+        <div class="stock-qty">${qty}<small>${esc(p.unit)}</small></div>
+        <button class="stock-step in" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">＋</button>
+      </div>
+    </div>`;
   };
-  const categoryHtml=DB.categories.map(c=>{
+  const categoryHtml=CATS().map(c=>{
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
     const shouldOpen=!!query||state.stockFilter==='empty'||products.some(p=>productState(p)==='empty');
     return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"><summary><span>${catIcon[c.id]||'📦'}</span><span>${esc(L(c))}</span>
@@ -2358,7 +3330,7 @@ function viewStock(){
 function sheetStockDetail(pid,hid=state.house){
   const p=prod(pid);if(!p)return;
   const houses=hid==='all'?DB.houses:[house(hid)];
-  const cat=DB.categories.find(c=>c.id===p.cat),icon={fridge:'🧀',produce:'🥬',dry:'🥫',drinks:'🥤',household:'🧻'}[p.cat]||'📦';
+  const cat=CATS().find(c=>c.id===p.cat),icon={fridge:'🧀',produce:'🥬',dry:'🥫',drinks:'🥤',household:'🧻'}[p.cat]||'📦';
   const isPlanned=houseId=>fridayEntries(houseId).some(e=>['open','pending'].includes(e.status)&&e.productId===pid);
   openSheet(`<div class="stock-detail-head"><div class="stock-detail-icon">${icon}</div><div><div class="import-kicker">${t('productDetail')}</div>
       <h2 style="margin:3px 0">${esc(L(p))}</h2><div class="muted">${esc(cat?L(cat):'')}</div></div></div>
@@ -2448,47 +3420,178 @@ function sheetStockBoard(dir,initialPid=null){
   /* Ο σκελετός χτίζεται ΜΙΑ φορά. Το βίντεο δεν ξαναδημιουργείται ποτέ,
      αλλιώς κάθε πάτημα θα ζητούσε ξανά την κάμερα. */
   openSheet(`
-    <h3>${t('stockBoard')} · ${esc(house(hid).short)}</h3>
-    <div class="muted" style="margin-bottom:6px">${t('tapDoes')}</div>
-    <div class="seg" id="sbDir">
-      <button class="${tapDir==='IN'?'on':''}" data-d="IN">${t('stockIn')}</button>
-      <button class="${tapDir==='OUT'?'on':''}" data-d="OUT">${t('stockOut')}</button>
-    </div>
-    <div class="drops">
-      <div class="dropzone zin"  id="sbDropIN"  data-dz="IN">${t('stockIn')}</div>
-      <div class="dropzone zout" id="sbDropOUT" data-dz="OUT">${t('stockOut')}</div>
-    </div>
-    <div class="muted" style="text-align:center;margin:-4px 0 12px" id="sbSummary"></div>
-    <div id="sbTiles">
-      ${DB.categories.filter(c=>PRODUCTS().some(p=>p.cat===c.id)).map(c=>`
-        <div class="house-h">${esc(L(c))}</div>
-        <div class="tiles">
-          ${PRODUCTS().filter(p=>p.cat===c.id).map(p=>`
-            <div class="tile" data-p="${p.id}">
-              <span class="badge" style="display:none"></span>
-              <span class="nm">${esc(L(p))}</span>
-              <span class="st" data-st="${p.id}"></span>
-            </div>`).join('')}
-        </div>`).join('')}
-    </div>
-    <div id="sbBasket"></div>
-    <div id="sbReasonWrap" style="display:none">
-      <label class="f"><span>${t('reason')}</span></label>
-      <div class="chips" id="sbReasons" style="margin:-4px 0 12px"></div>
-      <div id="sbReasonCreateHost"></div>
-      <div id="sbReasonStatus" class="status-box" style="display:none" role="status" aria-live="polite"></div>
-    </div>
-    <div id="sbCam" style="display:none">
-      <label class="f"><span>${t('photoLabel')}</span></label>
-      <video id="sbVid" playsinline muted></video>
-      <div class="muted" id="sbStatus" style="margin:6px 0 10px"></div>
-      <button class="btn sec" id="sbSnap">${t('takePhoto')}</button>
-      <img class="thumb" id="sbThumb" style="display:none">
-      <button class="btn" id="sbSave" style="margin-top:12px" disabled></button>
+    <div class="stock-board">
+      <div class="stock-board-scroll">
+        <h3>${t('stockBoard')} · ${esc(house(hid).short)}</h3>
+        <div class="muted" style="margin-bottom:8px">${t('stockHoldHint')}</div>
+        <div class="stock-quickbar">
+          <button class="btn sec" id="sbAddFood" type="button">${t('stockAddFood')}</button>
+          <button class="btn sec" id="sbAddCat" type="button">${t('stockAddCat')}</button>
+        </div>
+        <div id="sbQuickForm" hidden style="margin-bottom:12px"></div>
+        <div class="seg" id="sbDir">
+          <button class="${tapDir==='IN'?'on':''}" data-d="IN">${t('stockIn')}</button>
+          <button class="${tapDir==='OUT'?'on':''}" data-d="OUT">${t('stockOut')}</button>
+        </div>
+        <div class="muted" style="text-align:center;margin:0 0 10px" id="sbSummary"></div>
+        <div id="sbTiles"></div>
+        <div id="sbBasket"></div>
+        <div id="sbReasonWrap" style="display:none">
+          <label class="f"><span>${t('reason')}</span></label>
+          <div class="chips" id="sbReasons" style="margin:-4px 0 12px"></div>
+          <div id="sbReasonCreateHost"></div>
+          <div id="sbReasonStatus" class="status-box" style="display:none" role="status" aria-live="polite"></div>
+        </div>
+        <div id="sbCam" style="display:none">
+          <label class="f"><span>${t('photoLabel')}</span></label>
+          <div class="muted" style="font-size:11.5px;margin:-2px 0 8px">${esc(t('photoOptional'))}</div>
+          <video id="sbVid" playsinline muted></video>
+          <div class="muted" id="sbStatus" style="margin:6px 0 10px"></div>
+          <button class="btn sec" id="sbSnap">${t('takePhoto')}</button>
+          <img class="thumb" id="sbThumb" style="display:none">
+          <button class="btn" id="sbSave" style="margin-top:12px"></button>
+        </div>
+      </div>
+      <div class="stock-drops-dock" aria-label="${esc(t('stockDragDock'))}">
+        <div class="muted" style="text-align:center;font-size:11px;margin-bottom:7px">${esc(t('stockDragDock'))}</div>
+        <div class="drops">
+          <div class="dropzone zin"  id="sbDropIN"  data-dz="IN">${t('stockIn')}</div>
+          <div class="dropzone zout" id="sbDropOUT" data-dz="OUT">${t('stockOut')}</div>
+        </div>
+      </div>
     </div>`);
 
   const $ = s => sheetEl.querySelector(s);
   const reasonStatus=$('#sbReasonStatus');
+  let holdMenuEl=null;
+  const closeHoldMenu=()=>{ if(holdMenuEl){ holdMenuEl.remove(); holdMenuEl=null; } };
+
+  const tilesHtml=()=>CATS().filter(c=>c.custom || PRODUCTS().some(p=>p.cat===c.id)).map(c=>{
+    const items=PRODUCTS().filter(p=>p.cat===c.id);
+    return `<div class="house-h">${esc(L(c))}</div>
+      <div class="tiles">
+        ${items.length?items.map(p=>`
+          <div class="tile" data-p="${p.id}">
+            <span class="badge" style="display:none"></span>
+            <span class="nm">${esc(L(p))}</span>
+            <span class="st" data-st="${p.id}"></span>
+          </div>`).join(''):`<div class="muted" style="padding:8px 4px;font-size:12px">${esc(t('stockEmptyCat'))}</div>`}
+      </div>`;
+  }).join('');
+
+  const rebuildTiles=()=>{
+    const box=$('#sbTiles');
+    if(!box) return;
+    box.innerHTML=tilesHtml();
+    box.querySelectorAll('.tile').forEach(tile=>attachDrag(tile));
+    paint();
+  };
+
+  const addToShopList=pid=>{
+    const p=prod(pid); if(!p) return;
+    const friday=state.shopFriday||fridayFor();
+    const existing=fridayEntries(hid,friday).find(e=>e.status==='open'&&e.productId===pid);
+    if(existing){ toast(t('alreadyPlanned')); return; }
+    DB.listEntries.push({id:uid(),productId:pid,name:L(p),qty:stepFor(p),unit:p.unit,houseId:hid,fridayDate:friday,by:state.user?.id||null,status:'open'});
+    if(save()) toast(t('addedToShopping'),'success');
+  };
+
+  const showHoldMenu=(pid, x, y)=>{
+    closeHoldMenu();
+    const p=prod(pid); if(!p) return;
+    const menu=document.createElement('div');
+    menu.className='stock-hold-menu';
+    menu.innerHTML=`<div class="stock-hold-kicker">${esc(L(p))} · ${stockOf(pid)} ${esc(p.unit)}</div>
+      <button type="button" class="hold-in" data-act="in">${t('stockHoldIn')}</button>
+      <button type="button" class="hold-out" data-act="out">${t('stockHoldOut')}</button>
+      <button type="button" data-act="shop">${t('stockHoldShop')}</button>
+      <button type="button" data-act="detail">${t('stockHoldDetail')}</button>
+      ${basket[pid]?`<button type="button" data-act="clear">${t('stockHoldClear')}</button>`:''}`;
+    document.body.appendChild(menu);
+    const pad=10, rect=menu.getBoundingClientRect();
+    const left=Math.min(Math.max(pad, x-rect.width/2), window.innerWidth-rect.width-pad);
+    const top=Math.min(Math.max(pad, y-20), window.innerHeight-rect.height-pad);
+    menu.style.left=`${left}px`; menu.style.top=`${top}px`;
+    holdMenuEl=menu;
+    menu.querySelectorAll('button').forEach(btn=>{
+      btn.onclick=()=>{
+        const act=btn.dataset.act;
+        closeHoldMenu();
+        feedback('select');
+        if(act==='in') add(pid,'IN');
+        else if(act==='out') add(pid,'OUT');
+        else if(act==='shop') addToShopList(pid);
+        else if(act==='detail'){ closeSheet(); setTimeout(()=>sheetStockDetail(pid,hid),180); }
+        else if(act==='clear'){ delete basket[pid]; paint(); }
+      };
+    });
+  };
+
+  const openQuickFood=()=>{
+    const host=$('#sbQuickForm');
+    host.hidden=false;
+    host.innerHTML=`<div class="card" style="margin:0">
+      <div class="strong" style="margin-bottom:8px">${esc(t('stockAddFoodTitle'))}</div>
+      <label class="f"><span>${t('stockFoodName')}</span><input id="qfName" placeholder="Milch / Γάλα" autocomplete="off"></label>
+      <div class="row" style="gap:8px">
+        <label class="f grow"><span>${t('stockFoodUnit')}</span>
+          <select id="qfUnit"><option>Stk</option><option>L</option><option>g</option><option>kg</option></select></label>
+        <label class="f grow"><span>${t('stockFoodCat')}</span>
+          <select id="qfCat">${CATS().map(c=>`<option value="${esc(c.id)}">${esc(L(c))}</option>`).join('')}</select></label>
+      </div>
+      <div class="row" style="gap:8px;margin-top:4px">
+        <button class="btn sec" type="button" id="qfCancel">${t('helpDiscardInline')}</button>
+        <button class="btn" type="button" id="qfSave">${t('addBtn')}</button>
+      </div></div>`;
+    host.querySelector('#qfCancel').onclick=()=>{ host.hidden=true; host.replaceChildren(); };
+    host.querySelector('#qfSave').onclick=()=>{
+      const name=host.querySelector('#qfName').value.trim();
+      const unit=host.querySelector('#qfUnit').value;
+      const cat=host.querySelector('#qfCat').value||'custom';
+      if(!name){ toast(t('stockFoodName'),'error'); return; }
+      DB.customProducts ||= [];
+      const created={id:'cp-'+uid(),cat,de:name,el:name,unit,alias:[],custom:true};
+      DB.customProducts.push(created);
+      if(!save()){ DB.customProducts=DB.customProducts.filter(p=>p.id!==created.id); return; }
+      feedback('save'); toast(T[state.lang].stockAdded(name),'success');
+      host.hidden=true; host.replaceChildren();
+      rebuildTiles();
+      add(created.id, tapDir);
+    };
+    host.querySelector('#qfName').focus();
+  };
+
+  const openQuickCat=()=>{
+    const host=$('#sbQuickForm');
+    host.hidden=false;
+    host.innerHTML=`<div class="card" style="margin:0">
+      <div class="strong" style="margin-bottom:8px">${esc(t('stockAddCatTitle'))}</div>
+      <label class="f"><span>${t('stockCatName')}</span><input id="qcName" placeholder="Snacks / Σνακ" autocomplete="off"></label>
+      <div class="row" style="gap:8px;margin-top:4px">
+        <button class="btn sec" type="button" id="qcCancel">${t('helpDiscardInline')}</button>
+        <button class="btn" type="button" id="qcSave">${t('addBtn')}</button>
+      </div></div>`;
+    host.querySelector('#qcCancel').onclick=()=>{ host.hidden=true; host.replaceChildren(); };
+    host.querySelector('#qcSave').onclick=()=>{
+      const name=host.querySelector('#qcName').value.trim();
+      if(!name){ toast(t('stockCatName'),'error'); return; }
+      DB.customCategories ||= [];
+      const id='cc-'+uid();
+      const created={id,de:name,el:name,custom:true};
+      if(CATS().some(c=>norm(L(c))===norm(name))){ toast(t('reasonExists'),'info'); return; }
+      DB.customCategories.push(created);
+      if(!save()){ DB.customCategories=DB.customCategories.filter(c=>c.id!==id); return; }
+      feedback('save'); toast(T[state.lang].stockCatAdded(name),'success');
+      host.hidden=true; host.replaceChildren();
+      rebuildTiles();
+      openQuickFood();
+      const catSel=$('#qfCat'); if(catSel) catSel.value=id;
+    };
+    host.querySelector('#qcName').focus();
+  };
+
+  $('#sbAddFood').onclick=()=>{ feedback('tap'); openQuickFood(); };
+  $('#sbAddCat').onclick=()=>{ feedback('tap'); openQuickCat(); };
 
   const hideReasonCreate=()=>{
     creatingReason=false;
@@ -2642,8 +3745,10 @@ function sheetStockBoard(dir,initialPid=null){
     $('#sbCam').style.display = picked.length ? '' : 'none';
     const saveBtn = $('#sbSave');
     saveBtn.className = 'btn' + (nOut && !nIn ? ' out' : nIn && !nOut ? ' in' : '');
-    saveBtn.textContent = T[state.lang].bookN(picked.length);
-    saveBtn.disabled = !photo;
+    saveBtn.textContent = photo
+      ? T[state.lang].bookN(picked.length)
+      : `${T[state.lang].bookN(picked.length)} · ${t('skipPhoto')}`;
+    saveBtn.disabled = !picked.length;
     if(picked.length) ensureCamera();
   }
 
@@ -2659,12 +3764,13 @@ function sheetStockBoard(dir,initialPid=null){
   }
 
   $('#sbSnap').onclick = () => {
-    if(!camOk){ toast(t('needPhoto')); return; }
+    if(!camOk){ toast(t('noCam'),'error'); return; }
     photo = snap($('#sbVid'));
+    if(!photo){ toast(t('noCam'),'error'); return; }
     const thumb = $('#sbThumb');
     thumb.src = photo; thumb.style.display = 'block';
     $('#sbStatus').textContent = t('photoTaken');
-    $('#sbSave').disabled = false;
+    paint();
   };
   $('#sbSave').onclick = () => commit();
   sheetEl.querySelectorAll('#sbDir button').forEach(b=>{
@@ -2673,15 +3779,18 @@ function sheetStockBoard(dir,initialPid=null){
       sheetEl.querySelectorAll('#sbDir button').forEach(x=>x.classList.toggle('on', x===b));
     };
   });
-  sheetEl.querySelectorAll('.tile').forEach(tile => attachDrag(tile));
 
-  /** Σύρσιμο με pointer events — δουλεύει και με δάχτυλο, όχι μόνο ποντίκι. */
+  /** Σύρσιμο + παρατεταμένο πάτημα — οι ζώνες μένουν στο κάτω dock. */
   function attachDrag(tile){
-    let ghost = null, dragging = false, startX = 0, startY = 0;
+    let ghost = null, dragging = false, held = false, active = false;
+    let startX = 0, startY = 0, holdTimer = null;
+    const HOLD_MS = 450, MOVE_PX = 10;
 
     const zones = () => [...sheetEl.querySelectorAll('[data-dz]')];
-    /** Πάνω από ποια ζώνη βρίσκεται το δάχτυλο — IN, OUT ή καμία. */
     const zoneAt = ev => {
+      const hit = document.elementFromPoint(ev.clientX, ev.clientY);
+      const fromPoint = hit?.closest?.('[data-dz]');
+      if(fromPoint && sheetEl.contains(fromPoint)) return fromPoint.dataset.dz;
       for(const z of zones()){
         const r = z.getBoundingClientRect();
         if(ev.clientX >= r.left && ev.clientX <= r.right
@@ -2689,22 +3798,34 @@ function sheetStockBoard(dir,initialPid=null){
       }
       return null;
     };
-    /** Καθαρίζει πάντα — αλλιώς το «φάντασμα» μένει κολλημένο στην οθόνη. */
+    const clearHold = () => { if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; } };
     const cleanup = () => {
+      clearHold();
       if(ghost){ ghost.remove(); ghost = null; }
-      dragging = false;
+      dragging = false; held = false; active = false;
       zones().forEach(z => z.classList.remove('over'));
       document.querySelectorAll('.ghost').forEach(el => el.remove());
     };
 
     tile.onpointerdown = ev => {
       if(ev.button === 1 || ev.button === 2) return;
-      dragging = false; startX = ev.clientX; startY = ev.clientY;
+      closeHoldMenu();
+      dragging = false; held = false; active = true;
+      startX = ev.clientX; startY = ev.clientY;
       try{ tile.setPointerCapture(ev.pointerId); }catch(e){}
+      clearHold();
+      holdTimer = setTimeout(() => {
+        holdTimer = null;
+        if(!active || dragging) return;
+        held = true;
+        feedback('select');
+        showHoldMenu(tile.dataset.p, startX, startY);
+      }, HOLD_MS);
     };
     tile.onpointermove = ev => {
-      if(!startX && !startY) return;
-      if(!dragging && Math.hypot(ev.clientX-startX, ev.clientY-startY) < 8) return;
+      if(!active || held) return;
+      if(!dragging && Math.hypot(ev.clientX-startX, ev.clientY-startY) < MOVE_PX) return;
+      clearHold();
       if(!dragging){
         dragging = true;
         ghost = document.createElement('div');
@@ -2718,20 +3839,30 @@ function sheetStockBoard(dir,initialPid=null){
       zones().forEach(el => el.classList.toggle('over', el.dataset.dz === z));
     };
     tile.onpointerup = ev => {
-      const wasDragging = dragging, zone = wasDragging ? zoneAt(ev) : null;
+      const wasDragging = dragging, wasHeld = held, zone = wasDragging ? zoneAt(ev) : null;
+      const pid = tile.dataset.p;
       cleanup();
-      if(!wasDragging) add(tile.dataset.p, tapDir);   // απλό πάτημα → προεπιλογή
-      else if(zone)    add(tile.dataset.p, zone);     // σύρσιμο → η ζώνη αποφασίζει
+      if(wasHeld) return;
+      if(!wasDragging) add(pid, tapDir);
+      else if(zone) add(pid, zone);
     };
-    // Το δάχτυλο μπορεί να φύγει από το πλακίδιο ή να διακοπεί η χειρονομία
     tile.onpointercancel = cleanup;
-    tile.onlostpointercapture = () => { if(!dragging) cleanup(); };
+    tile.onlostpointercapture = () => { if(!dragging && !held) cleanup(); };
   }
+
+  stockBoardUiAbort?.abort();
+  stockBoardUiAbort = new AbortController();
+  document.addEventListener('pointerdown', ev=>{
+    if(!holdMenuEl) return;
+    if(holdMenuEl.contains(ev.target)) return;
+    closeHoldMenu();
+  }, {capture:true, signal:stockBoardUiAbort.signal});
+
+  rebuildTiles();
 
   function commit(){
     const picked = Object.keys(basket);
     if(!picked.length){ toast(t('pickSomething')); return; }
-    if(!photo){ toast(t('needPhoto')); return; }
     const reason = reasonId ? L(REASONS().find(r=>r.id===reasonId)) : '';
     if(outs().length && !reason){ toast(t('reason')); return; }
 
@@ -2824,7 +3955,7 @@ function viewShop(){
   const open = of('open'), pending = of('pending'), bought = of('bought'), missing = of('missing');
   const inStore = pending.length > 0;
 
-  const seg = `<div class="seg inventory-scope house-selector shop-scope" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
+  const seg = inStore ? '' : `<div class="seg inventory-scope house-selector shop-scope" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
         ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
       </div>`;
 
@@ -2840,46 +3971,79 @@ function viewShop(){
       <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
     </div></section>`;
 
-  // ── Store mode: μεγάλες γραμμές, ένα tap, ομαδοποίηση κατά διάδρομο ──
+  // ── Store mode: full-page compact aisle list ──
   const done = pending.filter(e => e.decision).length;
   const remaining=pending.length-done,progress=pending.length?Math.round(done/pending.length*100):0;
   const shopQuery=norm(state.shopQuery||'');
-  const pendingVisible=pending.filter(e=>!shopQuery||norm(`${e.name} ${e.note||''}`).includes(shopQuery));
+  const showDone=!!state.storeShowDone;
+  const pendingVisible=pending.filter(e=>{
+    if(!showDone && e.decision) return false;
+    if(!shopQuery) return true;
+    return norm(`${e.name} ${e.note||''}`).includes(shopQuery);
+  });
   const byCat = {};
   pendingVisible.forEach(e => {
     const c = e.productId ? (prod(e.productId)?.cat || 'other') : 'other';
     (byCat[c] ||= []).push(e);
   });
-  const catOrder = [...DB.categories.map(c=>c.id), 'other'];
+  const catOrder = [...CATS().map(c=>c.id), 'other'];
 
   const storeRow = e => {
     const st = e.decision;
-    return `<div class="store-choice ${st||''}"><div class="store-choice-main"><div class="store-choice-name">${esc(e.name)}</div>
-        <div class="store-choice-qty">${e.qty} ${esc(e.unit)}${e.note?' · '+esc(e.note):''}</div></div>
-      <div class="store-choice-actions"><button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}">✓ ${t('markBought')}</button>
-        <button class="store-decision no ${st==='missing'?'on':''}" data-decision="missing" data-entry="${e.id}">× ${t('markMissing')}</button>
-        ${st?`<button class="store-decision undo" data-decision="undo" data-entry="${e.id}" aria-label="${t('undoDecision')}">↶</button>`:''}</div></div>`;
+    return `<div class="store-choice ${st||''}" data-entry-row="${e.id}">
+      <div class="store-choice-main">
+        <div class="store-choice-name">${esc(e.name)}</div>
+        <div class="store-choice-qty"><b>${e.qty} ${esc(e.unit)}</b>${e.note?' · '+esc(e.note):''}</div>
+      </div>
+      <div class="store-choice-actions">
+        <button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}" type="button" aria-label="${t('markBought')}">✓</button>
+        <button class="store-decision no ${st==='missing'?'on':''}" data-decision="missing" data-entry="${e.id}" type="button" aria-label="${t('markMissing')}">×</button>
+        ${st?`<button class="store-decision undo" data-decision="undo" data-entry="${e.id}" type="button" aria-label="${t('undoDecision')}">↶</button>`:''}
+      </div>
+    </div>`;
   };
 
   const pendingCard = pending.length ? `
-    <section class="store-cockpit"><div class="store-cockpit-head">
-        <div class="store-cockpit-title"><b>${done===pending.length?'✓ '+t('storeComplete'):t('storeMode')}</b>
-          <span>${done}/${pending.length} · ${esc(house(hid).short)}</span></div>
-        <div class="store-progress"><i style="width:${progress}%"></i></div></div>
-      <div class="store-search"><input id="storeSearch" value="${esc(state.shopQuery)}" placeholder="${t('storeSearch')}" aria-label="${t('storeSearch')}"></div>
-      ${catOrder.filter(c=>byCat[c]).map(c=>{
-        const cat = DB.categories.find(x=>x.id===c);
-        return `<div class="store-category"><div class="house-h">${cat?esc(L(cat)):t('other')}</div>${byCat[c].map(storeRow).join('')}</div>`;
-      }).join('')}
-      ${!pendingVisible.length?`<div class="shop-empty"><div class="big">⌕</div><h3>${t('noStockResults')}</h3></div>`:''}
-      <div class="store-finish bottom-dock"><div class="row"><button class="btn sec sm" id="cancelFriday">← ${t('backToCart')}</button><button class="btn sec sm" id="btnReceipt">${t('scanReceipt')}</button>
-        <button class="btn" id="confirmBatch" ${remaining?'disabled':''}>${remaining?`${remaining} · ${t('storeRemaining')}`:t('confirmBatch')}</button></div>
-        ${remaining?`<div class="muted" style="margin-top:7px;text-align:center;font-size:10.5px">${t('decideAll')}</div>`:''}</div></section>` : '';
+    <section class="store-page" aria-label="${esc(t('storeMode'))}">
+      <div class="store-top">
+        <div class="store-top-row">
+          <button class="store-back" id="cancelFriday" type="button" aria-label="${t('backToCart')}">←</button>
+          <div class="store-top-meta">
+            <b>${done===pending.length?'✓ '+t('storeComplete'):t('storeMode')}</b>
+            <span>🏠 ${esc(house(hid).short)} · ${T[state.lang].storeLeft(remaining)}</span>
+          </div>
+          <button class="store-done-toggle ${showDone?'on':''}" id="storeShowDone" type="button">${showDone?t('storeHideDone'):t('storeShowDone')}</button>
+        </div>
+        <div class="store-progress"><i style="width:${progress}%"></i></div>
+        <div class="store-search"><input id="storeSearch" value="${esc(state.shopQuery)}" placeholder="${t('storeSearch')}" aria-label="${t('storeSearch')}" autocomplete="off" enterkeyhint="search"></div>
+        <div class="store-hint">${esc(t('storeTapHint'))}</div>
+      </div>
+      <div class="store-scroll">
+        ${catOrder.filter(c=>byCat[c]).map(c=>{
+          const cat = CATS().find(x=>x.id===c);
+          const rows=byCat[c];
+          return `<div class="store-category"><div class="store-cat-h">${cat?esc(L(cat)):t('other')}<span>${rows.length}</span></div>${rows.map(storeRow).join('')}</div>`;
+        }).join('')}
+        ${!pendingVisible.length?`<div class="shop-empty compact"><div class="big">⌕</div><h3>${t('noStockResults')}</h3></div>`:''}
+      </div>
+      <div class="store-finish bottom-dock">
+        <div class="row">
+          <button class="btn sec sm" id="btnReceipt" type="button">${t('scanReceipt')}</button>
+          <button class="btn" id="confirmBatch" type="button" ${remaining?'disabled':''}>${remaining?`${remaining} · ${t('storeRemaining')}`:t('confirmBatch')}</button>
+        </div>
+        ${remaining?`<div class="muted" style="margin-top:6px;text-align:center;font-size:10.5px">${t('decideAll')}</div>`:''}
+      </div>
+    </section>` : '';
 
   const openCard = pending.length?'':`<div class="card shop-list-card">
     <div class="shop-list-head"><div><h2>${t('secOpen')}</h2><div class="muted" style="font-size:11px">${open.length} · ${esc(house(hid).short)}</div></div>
       <button class="btn ghost sm" id="importList" type="button">${t('importList')}</button></div>
     <div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}"><button class="btn sm" id="cartQuickAdd">＋ ${t('addToCart')}</button></div>
+    <div class="shop-shot-row">
+      <button class="btn sec" id="pickListShot" type="button">🖼️ ${t('pickScreenshot')}</button>
+      <button class="btn sec" id="pasteListShot" type="button">📋 ${t('pasteScreenshot')}</button>
+      <input class="file-input-hidden" id="shopShotFile" type="file" accept="image/*,.heic,.heif,image/heic,image/heif">
+    </div>
     ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${esc(e.name)}</div>
       <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)}</div></div><div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
       `<div class="shop-empty compact"><div class="big">🧺</div><h3>${t('noFridayItems')}</h3><p>${t('noFridayItemsHint')}</p></div>`}
@@ -2960,7 +4124,22 @@ function confirmFridayBatch(){
    Για pasted text υπάρχει ασφαλές local fallback· για εικόνα δεν επινοείται αποτέλεσμα. */
 
 const UNITS = ['kg','g','l','ml','stk','stück','stueck','pkg','pack','packung','flasche','fl',
-               'dose','glas','bottle','τεμ','κιλ','λιτ','πακ'];
+               'dose','glas','bottle','τεμ','κιλ','λιτ','πακ','liter','λίτρο','λίτρα','γραμμ'];
+
+/** Κανονικοποίηση μονάδας σε Stk / kg / g / L / ml / Pkg — όπως στο παλιό καλό OCR. */
+function normalizeUnit(raw, fallback='Stk'){
+  const n = String(raw ?? '').trim().toLowerCase()
+    .replace(/ä/g,'a').replace(/ö/g,'o').replace(/ü/g,'u').replace(/ß/g,'ss');
+  if(!n) return fallback;
+  if(/^(stk|stuck|stueck|st\.?|pcs?|pieces?|τεμ\.?|τεμαχιο|τεμαχια|τεμάχιο|τεμάχια)$/.test(n)) return 'Stk';
+  if(/^(kg|kilo|kilos|kilogramm?e?|κιλ[αο]?|κιλά)$/.test(n)) return 'kg';
+  if(/^(g|gr|gramm?e?|γραμμ\.?|γραμμάρια|γραμμαρια)$/.test(n)) return 'g';
+  if(/^(l|lt|ltr|liter|litre|liters|litres|λίτρ[οα]?|λιτρα|λιτρο)$/.test(n)) return 'L';
+  if(/^(ml|milliliter|millilitre)$/.test(n)) return 'ml';
+  if(/^(pkg|pack|packung|packs|πακ\.?|πακετο|πακέτο)$/.test(n)) return 'Pkg';
+  if(/^(flasche|fl|bottle|dose|glas)$/.test(n)) return 'Stk';
+  return fallback;
+}
 
 /** Κανονικοποίηση για ταίριασμα: πεζά, χωρίς umlaut/τόνους, μόνο γράμματα. */
 function norm(s){
@@ -3134,8 +4313,8 @@ function parseListText(text){
         // Χωρίς δηλωμένη ποσότητα, «Käse» σημαίνει ένα τεμάχιο — όχι 1 γραμμάριο
         // «4x 100g Käse» = 4 συσκευασίες των 100 g → μονάδα τεμάχιο, μέγεθος στη σημείωση
         unit: size ? 'Stk'
-            : unit ? unit.replace(/^(stück|stueck)$/i,'Stk')
-            : (qty !== null && p) ? p.unit : 'Stk',
+            : unit ? normalizeUnit(unit)
+            : (qty !== null && p) ? (p.unit || 'Stk') : 'Stk',
         size,
         note: [size && `à ${size}`, extra, note].filter(Boolean).join(' · '),
         productId: p ? p.id : null,
@@ -3169,6 +4348,7 @@ function categoryFromAi(value){
 function decorateImportRow(r, hid){
   const p = r.productId ? prod(r.productId) : matchProduct(r.canonicalName || r.name);
   if(p){ r.productId=p.id; r.name=L(p); r.cat=p.cat; }
+  r.unit = normalizeUnit(r.unit, p?.unit || 'Stk');
   r.confidence = r.confidence || (r.unknown ? 'low' : r.uncertain ? 'medium' : 'high');
   r.dupe = !!existingOpen(r.name, hid);
   r.stockQty = p ? (DB.stock[stockKey(hid,p.id)] ?? 0) : null;
@@ -3176,16 +4356,38 @@ function decorateImportRow(r, hid){
   return r;
 }
 
+function unitFromPackageSize(size){
+  const m = String(size||'').match(/(\d+(?:[.,]\d+)?)\s*(kg|g|l|ml|liter|λίτρ[οα]?)\b/i);
+  if(!m) return null;
+  return {qty: parseFloat(m[1].replace(',','.')), unit: normalizeUnit(m[2])};
+}
+
 function rowsFromAi(result, hid){
   const seen = new Map();
   return (result.items||[]).map(item=>{
     const p = matchProduct(item.canonical_name || item.name);
+    let qty = Number(item.quantity) > 0 ? Number(item.quantity) : 1;
+    let unit = normalizeUnit(item.unit, '');
+    // Αν το μοντέλο έδωσε Stk αλλά το package_size έχει βάρος/όγκο, κράτα τη σωστή μονάδα.
+    const fromPkg = unitFromPackageSize(item.package_size);
+    if((!unit || unit==='Stk') && fromPkg && (fromPkg.unit==='kg'||fromPkg.unit==='g'||fromPkg.unit==='L'||fromPkg.unit==='ml')){
+      // π.χ. qty=2, package_size="1.5 L" → 2 Stk à 1.5 L (κρατάμε Stk + σημείωση)
+      // αλλά αν qty μοιάζει με το βάρος (500 + package 500g) → βάρος
+      if(!item.unit || norm(String(item.unit))==='' || /stk|stuck|τεμ/i.test(String(item.unit||''))){
+        if(Math.abs(qty - fromPkg.qty) < 0.001 || !item.quantity){
+          qty = fromPkg.qty;
+          unit = fromPkg.unit;
+        }
+      }
+    }
+    if(!unit) unit = p?.unit || 'Stk';
+    // Αν το AI έδωσε βάρος/όγκο, μην το αντικαταστήσεις με catalogue Stk.
+    unit = normalizeUnit(unit, p?.unit || 'Stk');
     const row = decorateImportRow({
       name:p ? L(p) : (item.canonical_name || item.name),
       canonicalName:item.canonical_name || item.name,
       raw:item.name,
-      qty:Number(item.quantity) > 0 ? Number(item.quantity) : 1,
-      unit:item.unit || 'Stk', productId:p?.id||null,
+      qty, unit, productId:p?.id||null,
       cat:p?.cat || categoryFromAi(item.category),
       note:[item.brand, item.package_size, item.notes].filter(Boolean).join(' · '),
       confidence:item.confidence || 'low', uncertain:item.ambiguous, unknown:!p,
@@ -3205,7 +4407,7 @@ async function aiExtractShopping(sourceType, content, purpose='list'){
   const timer = setTimeout(()=>ctl.abort(), 90000);
   try{
     const response = await fetch('/api/ai-shopping', {
-      method:'POST', signal:ctl.signal,
+      method:'POST', signal:ctl.signal, credentials:'same-origin',
       headers:{'Content-Type':'application/json','Idempotency-Key':idempotencyKey},
       body:JSON.stringify({sourceType,content,locale:state.lang,purpose}),
     });
@@ -3236,7 +4438,7 @@ function imageFileData(file){
   });
 }
 
-function sheetImportList(){
+function sheetImportList(opts={}){
   const hid = shopHouse();
   const friday=state.shopFriday||fridayFor();
   const existing=fridayEntries(hid,friday).filter(e=>['open','pending'].includes(e.status));
@@ -3319,8 +4521,14 @@ function sheetImportList(){
       <section class="import-source"><h3>✍️ ${t('sourceTextTitle')}</h3><p>${t('sourceTextHint')}</p>
         <textarea id="imTxt" placeholder="${t('pastePh')}"></textarea><div class="import-action-row"><button class="btn" id="imParse">✨ ${t('analyzeText')}</button></div></section>
       <section class="import-source"><h3>🖼️ ${t('sourceImageTitle')}</h3><p>${t('sourceImageHint')}</p>
-        <label class="screenshot-drop" id="imDrop" tabindex="0"><span class="big">＋</span><strong>${t('uploadImage')}</strong>
-          <div class="muted">${t('screenshotPaste')}</div><input type="file" id="imFile" accept="image/png,image/jpeg,image/webp" style="display:none"></label>
+        <div class="screenshot-drop" id="imDrop" role="button" tabindex="0" aria-label="${esc(t('pickScreenshot'))}">
+          <span class="big">＋</span><strong>${t('screenshotDrop')}</strong>
+          <div class="muted">${t('screenshotPaste')}</div></div>
+        <input class="file-input-hidden" id="imFile" type="file" accept="image/*,.heic,.heif,image/heic,image/heif">
+        <div class="import-pick-row">
+          <button class="btn" type="button" id="imPick">${t('pickScreenshot')}</button>
+          <button class="btn sec" type="button" id="imPasteClip">${t('pasteScreenshot')}</button>
+        </div>
         <div class="import-preview-card" id="imPreviewCard"><img id="imPreview" alt=""><div><b>✓ ${t('imagePreview')}</b><p>${t('imagePreviewHint')}</p>
           <div class="import-preview-actions"><button type="button" id="imChangeImage">↻ ${t('changeImage')}</button><button type="button" id="imRemoveImage">× ${t('removeImage')}</button></div></div></div>
         <div class="import-action-row"><button class="btn sec" id="imCamera">📷 ${t('useCamera')}</button></div></section></div>
@@ -3332,6 +4540,7 @@ function sheetImportList(){
     <div id="imStatus" class="status-box"></div><div id="imRows"></div></div>`);
 
   const dropZone = sheetEl.querySelector('#imDrop');
+  const fileInput = sheetEl.querySelector('#imFile');
   let camStarted = false;
 
   (async()=>{
@@ -3347,7 +4556,7 @@ function sheetImportList(){
 
   const setBusy = on => {
     busy=on;
-    sheetEl.querySelectorAll('#imParse,#imSnap,#imCamera').forEach(b=>b.disabled=on);
+    sheetEl.querySelectorAll('#imParse,#imSnap,#imCamera,#imPick,#imPasteClip,#imChangeImage').forEach(b=>b.disabled=on);
   };
   const analyse = async (sourceType, content) => {
     const status=sheetEl.querySelector('#imStatus');
@@ -3394,15 +4603,20 @@ function sheetImportList(){
     photo=null;imageSource=null;extractedText='';aiMeta=null;initialRows=null;rows=null;draw();
     const preview=sheetEl.querySelector('#imPreview');preview.removeAttribute('src');
     sheetEl.querySelector('#imPreviewCard').classList.remove('on');dropZone.style.display='grid';
-    sheetEl.querySelector('#imFile').value='';setStatus(sheetEl.querySelector('#imStatus'),t('aiReady'),'success');
+    fileInput.value='';setStatus(sheetEl.querySelector('#imStatus'),t('aiReady'),'success');
   };
-  sheetEl.querySelector('#imChangeImage').onclick=()=>sheetEl.querySelector('#imFile').click();
-  sheetEl.querySelector('#imRemoveImage').onclick=clearImagePreview;
+  const openFilePicker = () => { fileInput.value=''; fileInput.click(); };
+  sheetEl.querySelector('#imPick').onclick = openFilePicker;
+  sheetEl.querySelector('#imChangeImage').onclick = openFilePicker;
+  sheetEl.querySelector('#imRemoveImage').onclick = clearImagePreview;
 
   const readScreenshot = async file => {
     if(!file) return;
     if(busy){ toast(t('aiReading')); return; }
-    if(!file.type.startsWith('image/') || file.size>10*1024*1024){
+    const type=(file.type||'').toLowerCase();
+    const name=(file.name||'').toLowerCase();
+    const looksImage=type.startsWith('image/') || /\.(png|jpe?g|webp|heic|heif|gif)$/.test(name);
+    if(!looksImage || file.size>10*1024*1024){
       setStatus(sheetEl.querySelector('#imStatus'),t('errImage'),'error'); return;
     }
     try{
@@ -3413,9 +4627,31 @@ function sheetImportList(){
       await analyse('image',photo);
     }catch(error){ setStatus(sheetEl.querySelector('#imStatus'),t('errFile'),'error'); }
   };
-  sheetEl.querySelector('#imFile').onchange = e => { const file=e.target.files?.[0];e.target.value='';readScreenshot(file); };
+
+  const pasteFromClipboard = async () => {
+    if(busy){ toast(t('aiReading')); return; }
+    try{
+      if(navigator.clipboard?.read){
+        const items=await navigator.clipboard.read();
+        for(const item of items){
+          const mime=item.types.find(x=>x.startsWith('image/'));
+          if(!mime) continue;
+          const blob=await item.getType(mime);
+          await readScreenshot(new File([blob], 'clipboard.png', {type: blob.type||mime}));
+          return;
+        }
+      }
+    }catch(error){ /* fall through to hint */ }
+    toast(t('screenshotMissing'),'info');
+    setStatus(sheetEl.querySelector('#imStatus'),t('screenshotPaste'),'info');
+    dropZone.focus();
+  };
+  sheetEl.querySelector('#imPasteClip').onclick = pasteFromClipboard;
+
+  fileInput.onchange = e => { readScreenshot(e.target.files?.[0]); };
+  dropZone.onclick = openFilePicker;
   dropZone.onkeydown = e => {
-    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); sheetEl.querySelector('#imFile').click(); }
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openFilePicker(); }
   };
   dropZone.ondragenter = dropZone.ondragover = e => { e.preventDefault(); dropZone.classList.add('drag'); };
   dropZone.ondragleave = () => dropZone.classList.remove('drag');
@@ -3445,6 +4681,9 @@ function sheetImportList(){
     showImagePreview(photo);
     await analyse('image',photo);
   };
+
+  if(opts.initialFile) readScreenshot(opts.initialFile);
+  else if(opts.autoPick) setTimeout(openFilePicker, 60);
 }
 
 function sheetReceipt(){
@@ -3764,21 +5003,27 @@ function sheetEvent(existing=null, presets={}){
     </div>
     <label class="f"><span>${t('eventLocation')}</span><input id="evLocation" value="${esc(e.location||'')}"></label>
     <label class="f"><span>${t('eventBring')}</span><input id="evBring" value="${esc(L(e.bring))}"></label>
-    <label class="f"><span>${t('person')} · ${t('chooseMany')}</span></label>
+    ${entrySec('👤', t('person'), t('chooseMany'))}
     <div class="check-grid" id="evPeople">
-      ${DB.employees.map(p=>`<label class="check-option"><input type="checkbox" value="${p.id}" ${entryEmployeeIds(e).includes(p.id)?'checked':''}><span>${esc(p.name)}</span></label>`).join('')}
+      ${DB.employees.map(p=>personOptionHtml(p, entryEmployeeIds(e).includes(p.id))).join('')}
     </div>
-    <label class="f"><span>${t('children')}</span></label>
+    ${entrySec('👶', t('children'))}
     <div class="chips" id="evKids" style="margin:-4px 0 12px">
-      ${DB.children.map(c=>`<button class="chip ${pickedKids.includes(c.id)?'on':''}" data-c="${c.id}" type="button">${pickedKids.includes(c.id)?'☑':'☐'} ${esc(childChoiceLabel(c))}</button>`).join('')}
+      ${DB.children.map(c=>kidChipHtml(c, pickedKids.includes(c.id))).join('')}
     </div>
     <label class="row card event-publish-card"><input type="checkbox" id="evPublish" style="width:auto" ${e.status==='published'?'checked':''}>
-      <div><div class="strong">${t('publishEvent')}</div><div class="muted">${t('announceHint')}</div></div></label>
-    <div id="evStatus"></div><button class="btn" id="evSave">${t('saveWithPin')}</button>`);
-  sheetEl.querySelectorAll('#evKids .chip').forEach(b=>b.onclick=()=>{
-    const id=b.dataset.c; pickedKids=pickedKids.includes(id)?pickedKids.filter(x=>x!==id):[...pickedKids,id];
-    const on=pickedKids.includes(id); b.classList.toggle('on',on); b.textContent=`${on?'☑':'☐'} ${childChoiceLabel(kid(id))}`;
-  });
+      <div><div class="strong">📣 ${t('publishEvent')}</div><div class="muted">${t('announceHint')}</div></div></label>
+    <div id="evStatus"></div><button class="btn" id="evSave">💾 ${t('saveWithPin')}</button>`);
+  const paintEvKids=()=>{
+    const box=sheetEl.querySelector('#evKids');
+    box.innerHTML=DB.children.map(c=>kidChipHtml(c, pickedKids.includes(c.id))).join('');
+    box.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
+      const id=b.dataset.c; pickedKids=pickedKids.includes(id)?pickedKids.filter(x=>x!==id):[...pickedKids,id];
+      feedback('select'); paintEvKids();
+    });
+  };
+  paintEvKids();
+  sheetEl.querySelectorAll('#evPeople .check-option').forEach(label=>label.addEventListener('change',()=>feedback('select')));
   sheetEl.querySelector('#evSave').onclick=()=>{
     const title=sheetEl.querySelector('#evTitle').value.trim();
     const date=sheetEl.querySelector('#evDate').value, from=sheetEl.querySelector('#evFrom').value, to=sheetEl.querySelector('#evTo').value;
@@ -3789,8 +5034,8 @@ function sheetEvent(existing=null, presets={}){
     const emoji=sheetEl.querySelector('#evEmoji').value.trim()||'🎉';
     const publish=!!sheetEl.querySelector('#evPublish').checked;
     const employeeIds=[...sheetEl.querySelectorAll('#evPeople input:checked')].map(x=>x.value);
-    if(!title || !date || !from || !to || !pickedKids.length){ setStatus(statusEl,t('eventRequired'),'error'); return; }
-    if(to<=from){ setStatus(statusEl,t('invalidTime'),'error'); return; }
+    if(!title || !date || !from || !to || !pickedKids.length){ feedback('error'); setStatus(statusEl,t('eventRequired'),'error'); return; }
+    if(to<=from){ feedback('error'); setStatus(statusEl,t('invalidTime'),'error'); return; }
     askPin(t('saveWithPin'),who=>{
       const value={...e,id:e.id||'ev'+uid(),de:title,el:title,
         description:{de:description,el:description},
@@ -3899,26 +5144,94 @@ function sheetAdminStaff(employeeId){
   const todayItems=assignments.filter(x=>x.dateStr===today);
   const completed=todayItems.filter(x=>completionFor(today,x.e.id,employeeId)).length;
   const activity=[...DB.log].reverse().filter(x=>x.employeeId===employeeId).slice(0,8);
+  const todayDow=dowIdx(new Date(today+'T12:00:00'));
+  const go=(tab,view)=>{
+    closeSheet();
+    state.tab=tab;
+    if(view) state.scheduleView=view;
+    if(tab==='schedule') state.date=today;
+    render();
+  };
   openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:${person.color}">${initials(person.name)}</div>
       <div class="grow"><div class="muted">${t('adminDetails')}</div><h3 style="margin:1px 0">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</h3>
         <div class="muted">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div></div>
     <div class="admin-detail-stats"><div class="admin-detail-stat"><b>${todayItems.length}</b>${t('adminToday')}</div>
       <div class="admin-detail-stat"><b>${assignments.length}</b>${t('adminNext7')}</div><div class="admin-detail-stat"><b>${completed}</b>${t('adminDone')}</div></div>
-    <div class="row" style="gap:7px;margin-bottom:14px"><button class="btn sm" id="adminAddAssignment">＋ ${t('newEntry')}</button>
-      <button class="btn sm sec" id="adminPersonShifts">🕒 ${t('adminEditShifts')}</button>
-      <button class="btn sm sec" id="adminPersonAudit">📖 ${t('adminOpenAudit')}</button></div>
+    <div class="block-h"><span class="t">${t('adminActions')}</span></div>
+    <div class="admin-action-grid">
+      <button class="btn sm" type="button" id="adminAddAssignment">＋ ${t('newEntry')}</button>
+      <button class="btn sm sec" type="button" id="adminAssignToday">📌 ${t('adminAssignToday')}</button>
+      <button class="btn sm sec" type="button" id="adminShiftToday">🕒 ${t('adminShiftToday')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonShifts">🗓 ${t('adminEditShifts')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonDay">☀️ ${t('adminOpenDay')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonWeek">📅 ${t('adminOpenWeek')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonEvents">🎉 ${t('adminManageEvents')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonStock">🧊 ${t('adminOpenStock')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonShop">🛒 ${t('adminOpenShop')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonAudit">📖 ${t('adminOpenAudit')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonContact">✉️ ${t('adminContact')}</button>
+    </div>
+    <div class="block-h" style="margin-top:14px"><span class="t">🕒 ${t('adminShiftsWeek')}</span></div>
+    <div class="chips" id="adminShiftDays" style="margin:0 0 12px">
+      ${DAY_NAMES[state.lang].map((label,day)=>`<button class="chip ${day===todayDow?'on':''}" type="button" data-admin-shift-day="${day}">${esc(label)}</button>`).join('')}
+    </div>
     <div class="block-h"><span class="t">📅 ${t('adminNext7')}</span></div>
-    <div class="admin-timeline">${assignments.length?assignments.map(({e,dateStr})=>`<button class="admin-timeline-row" data-admin-entry="${esc(e.id)}" data-admin-date="${dateStr}" type="button">
-      <span>${esc(act(e.activityId)?.emoji||'📝')}</span><span class="grow" style="text-align:left"><b>${esc(actLabel(e.activityId))}</b><br><span class="muted">${esc(eventDayLabel(dateStr))} · ${esc(entryTime(e))} · ${esc(houseNames(e)||'—')}</span></span></button>`).join(''):`<div class="empty">${t('noTasks')}</div>`}</div>
+    <div class="admin-timeline">${assignments.length?assignments.map(({e,dateStr})=>{
+      const done=!!completionFor(dateStr,e.id,employeeId);
+      return `<div class="admin-timeline-row admin-timeline-item">
+      <button class="admin-timeline-main" data-admin-entry="${esc(e.id)}" data-admin-date="${dateStr}" type="button">
+        <span>${esc(act(e.activityId)?.emoji||'📝')}</span>
+        <span class="grow" style="text-align:left"><b>${esc(actLabel(e.activityId))}</b>${done?' · ✓':''}<br>
+          <span class="muted">${esc(eventDayLabel(dateStr))} · ${esc(entryTime(e))} · ${esc(houseNames(e)||'—')}</span></span>
+      </button>
+      <button class="btn sm sec admin-tl-act" type="button" data-admin-done="${esc(e.id)}" data-admin-date="${dateStr}" title="${esc(done?t('markOpen'):t('adminMarkDone'))}">${done?'↺':'✓'}</button>
+      <button class="mini-x" type="button" data-admin-remove="${esc(e.id)}" data-admin-date="${dateStr}" aria-label="${esc(t('adminRemoveAssign'))}" title="${esc(t('adminRemoveAssign'))}">×</button>
+    </div>`;}).join(''):`<div class="empty">${t('noTasks')}</div>`}</div>
     <div class="block-h" style="margin-top:15px"><span class="t">🕘 ${t('adminLastAction')}</span></div>
     <div class="admin-timeline">${activity.length?activity.map(x=>`<div class="admin-timeline-row"><span>${esc(typeIcon(x.type))}</span><span class="grow"><b>${esc(typeLabel(x.type))}</b><br>${esc(x.text)}<br><span class="muted">${fmtDT(x.ts)}</span></span></div>`).join(''):`<div class="empty">${t('adminNoActivity')}</div>`}</div>`);
+
   sheetEl.querySelectorAll('[data-admin-entry]').forEach(button=>button.onclick=()=>{
     const dateStr=button.dataset.adminDate,e=entriesFor(dateStr).find(x=>x.id===button.dataset.adminEntry);
     if(!e)return;closeSheet();setTimeout(()=>sheetEntry(e,dateStr),180);
   });
+  sheetEl.querySelectorAll('[data-admin-remove]').forEach(button=>button.onclick=()=>{
+    const dateStr=button.dataset.adminDate,e=entriesFor(dateStr).find(x=>x.id===button.dataset.adminRemove);
+    if(!e)return;
+    cancelScheduleEntry(e, dateStr, {onDone:()=>{ closeSheet(); setTimeout(()=>sheetAdminStaff(employeeId),160); }});
+  });
+  sheetEl.querySelectorAll('[data-admin-done]').forEach(button=>button.onclick=()=>{
+    const entryId=button.dataset.adminDone, dateStr=button.dataset.adminDate;
+    const idx=(DB.taskCompletions||[]).findIndex(x=>x.date===dateStr&&x.entryId===entryId&&x.employeeId===employeeId);
+    const reopening=idx>=0;
+    if(reopening) DB.taskCompletions.splice(idx,1);
+    else DB.taskCompletions.push({id:'tc'+uid(),date:dateStr,entryId,employeeId,completedAt:Date.now(),completedBy:state.user?.id||employeeId});
+    logEntry('SCHEDULE',`${reopening?t('taskReopened'):t('taskDone')}: ${person.name} · ${dateStr}`);
+    if(!save()) return;
+    feedback('toggle');
+    toast(reopening?t('taskReopened'):t('taskDone'),'success');
+    closeSheet(); setTimeout(()=>sheetAdminStaff(employeeId),160);
+  });
+  sheetEl.querySelectorAll('[data-admin-shift-day]').forEach(button=>button.onclick=()=>{
+    closeSheet(); setTimeout(()=>sheetShiftDay(employeeId, Number(button.dataset.adminShiftDay)),180);
+  });
   sheetEl.querySelector('#adminAddAssignment').onclick=()=>{closeSheet();setTimeout(()=>sheetEntry(null,today,{employeeId}),180);};
-  sheetEl.querySelector('#adminPersonShifts').onclick=()=>{closeSheet();state.tab='schedule';state.scheduleView='shift';render();};
-  sheetEl.querySelector('#adminPersonAudit').onclick=()=>{closeSheet();state.tab='book';state.bookFilter.employeeId=employeeId;render();};
+  sheetEl.querySelector('#adminAssignToday').onclick=()=>{
+    closeSheet();
+    setTimeout(()=>sheetEntry(null,today,{employeeId, block:'afternoon'}),180);
+  };
+  sheetEl.querySelector('#adminShiftToday').onclick=()=>{closeSheet();setTimeout(()=>sheetShiftDay(employeeId,todayDow),180);};
+  sheetEl.querySelector('#adminPersonShifts').onclick=()=>go('schedule','shift');
+  sheetEl.querySelector('#adminPersonDay').onclick=()=>go('schedule','day');
+  sheetEl.querySelector('#adminPersonWeek').onclick=()=>go('schedule','week');
+  sheetEl.querySelector('#adminPersonEvents').onclick=()=>go('schedule','events');
+  sheetEl.querySelector('#adminPersonStock').onclick=()=>go('stock');
+  sheetEl.querySelector('#adminPersonShop').onclick=()=>go('shop');
+  sheetEl.querySelector('#adminPersonAudit').onclick=()=>{
+    closeSheet(); state.tab='book'; state.bookFilter.employeeId=employeeId; render();
+  };
+  sheetEl.querySelector('#adminPersonContact').onclick=()=>{
+    closeSheet(); setTimeout(()=>sheetSecurityAccess(),180);
+  };
 }
 
 function viewHome(){
@@ -3943,6 +5256,12 @@ function viewHome(){
         <div class="home-stat"><b>${upcoming.length}</b><span>${t('eventsSoon')}</span></div>
       </div>
     </div>
+    ${user?`<button class="notification-card" id="homeTalkOpen" type="button">
+      <span style="font-size:22px">💬</span>
+      <div class="grow"><b>${esc(t('staffTalkOpen'))}</b>
+        <div class="muted" style="font-size:12px;margin-top:2px">${esc(t('staffTalkHint'))}</div></div>
+      <span class="muted">→</span>
+    </button>`:''}
     <div class="dashboard-grid">
       ${adminTeamPanel(today)}
       <section class="card"><div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
@@ -3974,6 +5293,9 @@ function renderChild(){
   document.getElementById('who').textContent = t('myWeek');
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   document.getElementById('btnUser').textContent = t('childBye');
+  document.getElementById('btnProfiles').textContent = '↔';
+  document.getElementById('btnProfiles').title = t('profilesBack');
+  document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
   document.querySelector('nav').style.display = 'none';
   document.body.classList.add('mode-child');
   document.body.classList.remove('has-stock-dock','has-store-dock');
@@ -4038,7 +5360,9 @@ function measureChrome(){
   const root=document.documentElement;
   const nav=document.querySelector('nav');
   const childMode=document.body.classList.contains('mode-child');
-  const navHidden=childMode || !nav || nav.style.display==='none';
+  const storeFs=document.body.classList.contains('store-fullscreen');
+  const matrixFs=document.body.classList.contains('matrix-fullscreen');
+  const navHidden=childMode || storeFs || matrixFs || !nav || nav.style.display==='none';
   const navH=navHidden?0:Math.ceil(nav.getBoundingClientRect().height);
   const dockEl=document.querySelector('.stock-footer-actions, .store-finish.bottom-dock');
   let dockH=0;
@@ -4064,7 +5388,12 @@ function scheduleMeasureChrome(){
 
 function render(){
   if(state.mode === 'child' && state.child) return renderChild();
+  const restoreMatrixFs = document.body.classList.contains('matrix-fullscreen')
+    ? (document.querySelector('.matrix-shell.is-fullscreen .matrix-toolbar-title')?.textContent || '')
+    : '';
   document.body.classList.remove('mode-child');
+  document.body.classList.remove('store-fullscreen');
+  document.body.classList.remove('matrix-fullscreen');
   document.querySelector('nav').style.display = '';
   document.getElementById('helpFab').setAttribute('aria-label', t('helpCenter'));
   document.getElementById('helpFab').title = t('helpCenter');
@@ -4075,6 +5404,9 @@ function render(){
   if(isAdminUser()) document.getElementById('who').innerHTML += ' <span class="admin-badge">ADMIN</span>';
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   document.getElementById('btnUser').textContent = t('logout');
+  document.getElementById('btnProfiles').textContent = '↔';
+  document.getElementById('btnProfiles').title = t('profilesBack');
+  document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   document.querySelectorAll('[data-nav]').forEach(s=>{
     s.textContent = t('nav' + s.dataset.nav[0].toUpperCase() + s.dataset.nav.slice(1));
@@ -4084,6 +5416,7 @@ function render(){
   const storeDock=state.tab==='shop' && fridayEntries(shopHouse()).some(e=>e.status==='pending');
   document.body.classList.toggle('has-stock-dock', stockDock);
   document.body.classList.toggle('has-store-dock', storeDock);
+  document.body.classList.toggle('store-fullscreen', storeDock);
 
   document.getElementById('view').innerHTML =
       state.tab==='home'     ? viewHome()
@@ -4092,6 +5425,11 @@ function render(){
     : state.tab==='shop'     ? viewShop()
     : viewBook();
   wire();
+  if(restoreMatrixFs && state.tab==='schedule'){
+    const shell=[...document.querySelectorAll('.matrix-shell')].find(s=>
+      (s.querySelector('.matrix-toolbar-title')?.textContent||'')===restoreMatrixFs);
+    if(shell) enterMatrixFullscreen(shell);
+  }
   scheduleMeasureChrome();
 }
 
@@ -4108,6 +5446,8 @@ function wire(){
 
   const homeAllEvents=v.querySelector('#homeAllEvents');
   if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';state.scheduleView='events';render();};
+  const homeTalkOpen=v.querySelector('#homeTalkOpen');
+  if(homeTalkOpen) homeTalkOpen.onclick=()=>{ feedback('open'); sheetStaffTalk(); };
   v.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{
     const entryId=b.dataset.task,dateStr=b.dataset.taskDate,employeeId=b.dataset.taskEmployee;
     const idx=(DB.taskCompletions||[]).findIndex(x=>x.date===dateStr&&x.entryId===entryId&&x.employeeId===employeeId);
@@ -4133,7 +5473,18 @@ function wire(){
   });
 
   v.querySelectorAll('#schView button').forEach(b=>{
-    b.onclick = () => { state.scheduleView = b.dataset.v; render(); };
+    b.onclick = () => { exitMatrixFullscreen(); state.scheduleView = b.dataset.v; render(); };
+  });
+  v.querySelectorAll('[data-matrix-fs]').forEach(btn=>{
+    btn.onclick=()=>{
+      const shell=btn.closest('.matrix-shell');
+      if(!shell) return;
+      feedback('open');
+      enterMatrixFullscreen(shell);
+    };
+  });
+  v.querySelectorAll('[data-matrix-fs-close]').forEach(btn=>{
+    btn.onclick=()=>{ feedback('tap'); exitMatrixFullscreen(); };
   });
   v.querySelectorAll('#hFilter button').forEach(b=>{
     b.onclick = () => { state.houseFilter = b.dataset.h; render(); };
@@ -4155,6 +5506,38 @@ function wire(){
     el.onclick = () => {
       const e = entriesFor(state.date).find(x=>x.id===el.dataset.open);
       if(e) sheetEntry(e, state.date);
+    };
+  });
+  v.querySelectorAll('[data-remove-entry]').forEach(btn=>{
+    btn.onclick = ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const dateStr=btn.dataset.entryDate||state.date;
+      const e=entriesFor(dateStr).find(x=>x.id===btn.dataset.removeEntry);
+      if(e) cancelScheduleEntry(e, dateStr, {onDone:()=>render()});
+    };
+  });
+  v.querySelectorAll('[data-open-entry]').forEach(el=>{
+    const open=()=>{
+      const dateStr=el.dataset.entryDate||state.date;
+      const e=entriesFor(dateStr).find(x=>x.id===el.dataset.openEntry);
+      if(!e) return;
+      state.date=dateStr;
+      sheetEntry(e, dateStr);
+    };
+    el.onclick=ev=>{
+      if(ev.target.closest('[data-remove-entry]')) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      open();
+    };
+    el.onkeydown=ev=>{
+      if(ev.key==='Enter'||ev.key===' '){
+        if(ev.target.closest('[data-remove-entry]')) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        open();
+      }
     };
   });
   v.querySelectorAll('[data-add]').forEach(b=>{
@@ -4219,6 +5602,15 @@ function wire(){
 
   v.querySelectorAll('[data-stock-action]').forEach(b=>b.onclick=()=>sheetStockBoard(b.dataset.stockAction));
   v.querySelectorAll('[data-stock-product]').forEach(b=>b.onclick=()=>sheetStockDetail(b.dataset.stockProduct,state.house));
+  v.querySelectorAll('[data-stock-step]').forEach(b=>b.onclick=event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    if(state.house==='all'){ toast(t('selectHouse'),'info'); return; }
+    const pid=b.dataset.pid, dir=b.dataset.stockStep;
+    if(!pid || !dir) return;
+    feedback('tap');
+    sheetStockBoard(dir, pid);
+  });
   const stockCategories=[...v.querySelectorAll('[data-stock-category]')];
   if(stockCategories.length){
     if(!Array.isArray(state.stockOpenCategories))state.stockOpenCategories=stockCategories.filter(d=>d.dataset.defaultOpen==='1').map(d=>d.dataset.stockCategory);
@@ -4267,6 +5659,8 @@ function wire(){
     state.shopQuery=storeSearch.value;render();
     const next=document.querySelector('#storeSearch');if(next){next.focus();next.setSelectionRange(next.value.length,next.value.length);}
   };
+  const storeShowDone=v.querySelector('#storeShowDone');
+  if(storeShowDone) storeShowDone.onclick=()=>{ state.storeShowDone=!state.storeShowDone; render(); };
   v.querySelectorAll('[data-carry]').forEach(b=>{
     b.onclick = () => {
       const e = DB.listEntries.find(x=>x.id===b.dataset.carry);
@@ -4313,7 +5707,34 @@ function wire(){
   const br = v.querySelector('#btnReceipt');
   if(br) br.onclick = sheetReceipt;
   const il = v.querySelector('#importList');
-  if(il) il.onclick = sheetImportList;
+  if(il) il.onclick = () => sheetImportList();
+  const pickShot=v.querySelector('#pickListShot');
+  const shopShotFile=v.querySelector('#shopShotFile');
+  if(pickShot && shopShotFile){
+    pickShot.onclick=()=>{ shopShotFile.value=''; shopShotFile.click(); };
+    shopShotFile.onchange=()=>{
+      const file=shopShotFile.files?.[0];
+      if(file) sheetImportList({initialFile:file});
+      shopShotFile.value='';
+    };
+  }
+  const pasteShot=v.querySelector('#pasteListShot');
+  if(pasteShot) pasteShot.onclick=async ()=>{
+    try{
+      if(navigator.clipboard?.read){
+        const items=await navigator.clipboard.read();
+        for(const item of items){
+          const mime=item.types.find(x=>x.startsWith('image/'));
+          if(!mime) continue;
+          const blob=await item.getType(mime);
+          sheetImportList({initialFile:new File([blob],'clipboard.png',{type:blob.type||mime})});
+          return;
+        }
+      }
+    }catch(error){ /* fall through */ }
+    sheetImportList();
+    toast(t('screenshotMissing'),'info');
+  };
   const historyButton=v.querySelector('#shoppingHistory');
   if(historyButton)historyButton.onclick=sheetShoppingHistory;
 
@@ -4338,6 +5759,11 @@ document.querySelectorAll('nav button').forEach(b=>{
 });
 document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
 document.getElementById('btnLang').onclick = () => setLang(state.lang === 'de' ? 'el' : 'de');
+document.getElementById('btnProfiles').onclick = () => {
+  feedback('tap');
+  if(state.user||state.child) logoutServerSession();
+  else openGate();
+};
 
 /* ════════════════════════════════════════════════════════════════
    Login panel: προφίλ → γρήγορο PIN
@@ -4347,9 +5773,17 @@ const gateBody = document.getElementById('gateBody');
 
 async function sheetSecurityAccess(){
   const who=state.user||state.child;if(!who){openGate();return;}
-  openSheet(`<div class="security-hero"><div class="row" style="gap:12px"><div class="security-icon">🔐</div><div>
-      <div class="import-kicker">Armonia Thassos</div><h2 style="margin:3px 0">${t('securityAccess')}</h2><div class="muted">${esc(who.name)}</div></div></div></div>
-    <div class="security-passkey-card" id="securityProfile"><div class="muted">${t('reading')}</div></div>
+  openSheet(`<div class="security-hero mail-hero">
+      <div class="row" style="gap:12px;align-items:center">
+        <div class="security-icon mail-icon">✉️</div>
+        <div class="grow">
+          <div class="import-kicker">Armonia Thassos</div>
+          <h2 style="margin:3px 0">${t('securityAccess')}</h2>
+          <div class="muted">${esc(who.name)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="security-passkey-card email-card" id="securityProfile"><div class="muted">${t('reading')}</div></div>
     <div class="security-passkey-card" id="securityPasskey"><div class="muted">${t('reading')}</div></div>
     <button class="btn sec" id="securityTutorial">📘 ${t('tutorialOpen')}</button>
     <button class="btn sec" id="securitySwitch">↔ ${t('switchProfile')}</button>
@@ -4366,48 +5800,71 @@ async function sheetSecurityAccess(){
     const displayName=p=>{const person=p.mode==='child'?kid(p.profileId):emp(p.profileId);return person?.name||p.profileId;};
     const paintProfile=selectedId=>{
       const selected=profiles.find(p=>p.profileId===selectedId)||profiles[0];if(!selected)return;
+      const ready=!!profilesData.emailConfigured;
       const providerLabel=profilesData.emailProvider==='smtp'?'Gmail / SMTP'
         :profilesData.emailProvider==='resend'?'Resend':t('emailNotReady');
-      const previewLine=state.lang==='el'
-        ? 'Έτσι φαίνονται τα email PIN & ειδοποιήσεων.'
-        : 'So sehen PIN- und Sicherheitsmails aus.';
+      const previewTitle=state.lang==='el'?'Email λειτουργεί':'E-Mail funktioniert';
       profileCard.innerHTML=`<div class="email-panel">
-        <div class="email-panel-top"><div>
-          <div class="email-panel-kicker">${t('emailProvider')}</div>
-          <h3>${t(profilesData.canManageAll?'manageProfiles':'profileDetails')}</h3>
-          <div class="muted" style="font-size:11.5px;margin-top:4px">${profilesData.canManageAll?t('adminsManageEmails'):esc(displayName(selected))}</div>
-        </div><span class="status-pill ${profilesData.emailConfigured?'ok':'warn'}">${esc(providerLabel)}</span></div>
-        <div class="email-preview" aria-hidden="true"><div class="mark">A</div>
-          <div class="eyebrow">Armonia Thassos</div><b>${state.lang==='el'?'Email λειτουργεί':'E-Mail funktioniert'}</b>
-          <p>${esc(previewLine)}</p></div>
+        <div class="email-panel-top">
+          <div>
+            <div class="email-panel-kicker">${t('emailProvider')}</div>
+            <h3>${t('contactCardTitle')}</h3>
+            <div class="muted" style="font-size:11.5px;margin-top:4px">${profilesData.canManageAll?t('adminsManageEmails'):esc(displayName(selected))}</div>
+          </div>
+          <span class="status-pill ${ready?'ok':'warn'}">${ready?`✓ ${esc(providerLabel)}`:`! ${esc(providerLabel)}`}</span>
+        </div>
+        <div class="email-preview" aria-hidden="true">
+          <div class="mark">A</div>
+          <div class="eyebrow">Armonia Thassos · Mail</div>
+          <b>${esc(t('emailPreviewTitle'))}</b>
+          <p>${esc(t('emailPreviewBody'))}</p>
+          <div class="email-preview-chip">${ready?`✓ ${esc(previewTitle)}`:`! ${esc(t('emailNotReady'))}`}</div>
+        </div>
+        <div class="email-hint ${ready?'ok':'warn'}">${esc(ready?t('emailReadyHint'):t('emailOfflineHint'))}</div>
         ${profiles.length>1?`<label class="f"><span>${t('profileDetails')}</span><select id="profileEmailPicker">${profiles.map(p=>`<option value="${esc(p.profileId)}" ${p.profileId===selected.profileId?'selected':''}>${esc(displayName(p))} · ${p.mode==='child'?t('entryChild'):t('entryStaff')}</option>`).join('')}</select></label>`:''}
-        <label class="f"><span>${t('recoveryEmail')}</span><input type="email" id="profileEmail" value="${esc(selected.email||'')}" autocomplete="email" placeholder="name@example.com"></label>
-        <p class="muted" style="font-size:11.5px;line-height:1.5">${t('recoveryEmailHint')}</p>
+        <label class="f"><span>✉️ ${t('recoveryEmail')}</span><input type="email" id="profileEmail" value="${esc(selected.email||'')}" autocomplete="email" placeholder="name@example.com"></label>
+        <label class="f"><span>📱 ${t('phoneLabel')}</span><input type="tel" id="profilePhone" value="${esc(selected.phone||'')}" autocomplete="tel" inputmode="tel" placeholder="+30 … / +49 …"></label>
+        <p class="muted" style="font-size:11.5px;line-height:1.5">${t('recoveryEmailHint')} ${t('phoneHint')}</p>
         <div id="profileEmailStatus" class="status-box" style="display:none" role="status" aria-live="polite"></div>
-        <div class="email-actions"><button class="btn" id="saveProfileEmail">${t('saveEmail')}</button>
-          <button class="btn sec" id="testProfileEmail" ${!profilesData.emailConfigured||!selected.email?'disabled':''}>${t('sendTestEmail')}</button></div>
+        <div class="email-actions">
+          <button class="btn" id="saveProfileEmail" type="button">${t('saveContact')}</button>
+          <button class="btn sec" id="testProfileEmail" type="button" ${!ready||!selected.email?'disabled':''}>${t('sendTestEmail')}</button>
+        </div>
       </div>`;
       const picker=profileCard.querySelector('#profileEmailPicker');if(picker)picker.onchange=()=>paintProfile(picker.value);
-      const input=profileCard.querySelector('#profileEmail'),status=profileCard.querySelector('#profileEmailStatus');
+      const input=profileCard.querySelector('#profileEmail');
+      const phoneInput=profileCard.querySelector('#profilePhone');
+      const status=profileCard.querySelector('#profileEmailStatus');
       profileCard.querySelector('#saveProfileEmail').onclick=async event=>{
-        const email=input.value.trim(),button=event.currentTarget;
-        if(email&&!input.validity.valid){status.style.display='block';setStatus(status,t('emailInvalid'),'error');return;}
+        const email=input.value.trim(), phone=phoneInput.value.trim().replace(/[\s\-().]/g,''), button=event.currentTarget;
+        if(email&&!input.validity.valid){status.style.display='block';feedback('error');setStatus(status,t('emailInvalid'),'error');return;}
+        if(phone&&!validPhoneClient(phone)){status.style.display='block';feedback('error');setStatus(status,t('phoneInvalid'),'error');return;}
         button.disabled=true;status.style.display='block';
         try{
-          const saved=await passkeyApi('/api/auth/profile/email',{profileId:selected.profileId,email});
-          selected.email=saved.email;setStatus(status,t('emailSaved'),'success');
-          const test=profileCard.querySelector('#testProfileEmail');if(test)test.disabled=!saved.email||!saved.emailConfigured;
-        }catch(error){setStatus(status,error.code==='invalid_email'?t('emailInvalid'):error.message||t('authUnavailable'),'error');}
+          const saved=await passkeyApi('/api/auth/profile/email',{profileId:selected.profileId,email,phone});
+          selected.email=saved.email;selected.phone=saved.phone||phone;
+          if(selected.profileId===currentProfileId()){
+            state.profileEmail=selected.email;state.profilePhone=selected.phone;
+            state.contactComplete=!!(selected.email&&selected.phone);
+            if(state.contactComplete) writeContactLocal(selected.email, selected.phone);
+          }
+          feedback('save');setStatus(status,t('contactSaved'),'success');
+          const test=profileCard.querySelector('#testProfileEmail');
+          if(test) test.disabled=!saved.email||!(saved.emailConfigured??ready);
+        }catch(error){feedback('error');setStatus(status,error.code==='invalid_email'?t('emailInvalid'):error.code==='invalid_phone'?t('phoneInvalid'):error.message||t('authUnavailable'),'error');}
         finally{button.disabled=false;}
       };
       profileCard.querySelector('#testProfileEmail').onclick=async event=>{
         const button=event.currentTarget;button.disabled=true;status.style.display='block';
-        try{await passkeyApi('/api/auth/profile/email/test',{profileId:selected.profileId});setStatus(status,t('testEmailSent'),'success');}
+        if(!input.value.trim()&&!selected.email){setStatus(status,t('emailSaveFirst'),'error');button.disabled=false;return;}
+        try{await passkeyApi('/api/auth/profile/email/test',{profileId:selected.profileId});feedback('save');setStatus(status,t('testEmailSent'),'success');}
         catch(error){
-          const feedback={email_not_configured:'emailNotReady',email_auth_failed:'testEmailAuthFailed',
+          feedback('error');
+          const map={email_not_configured:'emailNotReady',email_auth_failed:'testEmailAuthFailed',
             email_sender_unverified:'testEmailSenderFailed',email_recipient_restricted:'testEmailRecipientRestricted',
-            email_rate_limited:'testEmailRateLimited',rate_limited:'testEmailRateLimited',email_network:'testEmailNetwork'};
-          setStatus(status,t(feedback[error.code]||'testEmailFailed'),'error');
+            email_rate_limited:'testEmailRateLimited',rate_limited:'testEmailRateLimited',email_network:'testEmailNetwork',
+            email_missing:'emailSaveFirst'};
+          setStatus(status,t(map[error.code]||'testEmailFailed'),'error');
         }
         finally{button.disabled=false;}
       };
@@ -4432,7 +5889,10 @@ async function sheetSecurityAccess(){
       try{await passkeyApi('/api/auth/passkey/remove',{});toast(t('passkeyRemoved'),'success');closeSheet();sheetSecurityAccess();}
       catch(error){toast(error.message||t('authUnavailable'),'error');remove.disabled=false;}
     };}
-  }catch(error){card.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;}
+  }catch(error){
+    profileCard.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;
+    card.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;
+  }
   sheetEl.querySelector('#securityTutorial').onclick=openAppTutorial;
   sheetEl.querySelector('#securitySwitch').onclick=()=>{closeSheet();logoutServerSession();};
   sheetEl.querySelector('#securityLogout').onclick=()=>{closeSheet();logoutServerSession();};
@@ -4591,7 +6051,7 @@ function renderGatePin(who, mode = 'staff'){
     try{
       await authenticateProfile(mode,who,buf);
       stopPinKeyboard();
-      closeGate();revealApp();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name),'success');
+      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');
     }catch(error){
       if(error.status===429){
         const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||900)/60));
@@ -4657,7 +6117,7 @@ function renderGatePin(who, mode = 'staff'){
     try{
       await loginWithPasskey(mode,who);
       stopPinKeyboard();
-      closeGate();revealApp();render();await ensureOnboarding({afterLogin:true});toast(T[state.lang].welcome(who.name),'success');
+      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');
     }catch(error){
       errorEl.textContent=error.code==='no_passkey'?t('passkeyNone'):
         error.code==='unsupported'?t('passkeyUnavailable'):
@@ -4696,9 +6156,14 @@ function renderResetRequest(who,mode){
 }
 
 function renderResetForm(token){
+  if(window.PaidiaGate?.renderResetForm){
+    openGate();
+    window.PaidiaGate.renderResetForm(token);
+    return;
+  }
   gateEl.classList.add('on');
   gateBody.innerHTML=`
-    <div class="gate-pin">
+    <div class="gate-pin gate-reset">
       <div class="pa" style="background:#c4b5fd">🔐</div>
       <h3>${t('resetPinTitle')}</h3>
       <label class="f" style="text-align:left;margin-top:18px"><span>${t('newPin')}</span>
@@ -4730,6 +6195,12 @@ function renderResetForm(token){
 
 document.documentElement.lang = state.lang;
 document.getElementById('helpFab').onclick = sheetHelpCenter;
+window.addEventListener('keydown', event=>{
+  if(event.key==='Escape' && document.body.classList.contains('matrix-fullscreen')){
+    event.preventDefault();
+    exitMatrixFullscreen();
+  }
+});
 window.addEventListener('resize', scheduleMeasureChrome);
 window.visualViewport?.addEventListener('resize', scheduleMeasureChrome);
 window.visualViewport?.addEventListener('scroll', scheduleMeasureChrome);

@@ -118,6 +118,7 @@ def _auth_session():
     session = _session_from_request()
     if not session:
         return _json(200, {"authenticated": False})
+    contact = paidia.profile_contact(session["profile_id"])
     return _json(200, {
         "authenticated": True,
         "profileId": session["profile_id"],
@@ -128,7 +129,9 @@ def _auth_session():
         "authenticationMethod": session.get("method", "pin"),
         "onboardingComplete": paidia.onboarding_complete(session["profile_id"], session["mode"]),
         "onboardingVersion": paidia.ONBOARDING_VERSION,
-        "email": paidia.AUTH_USERS.get(session["profile_id"], {}).get("email", ""),
+        "email": contact["email"],
+        "phone": contact["phone"],
+        "contactComplete": bool(contact["email"] and contact["phone"]),
         "emailConfigured": paidia.email_delivery_status()["configured"],
         "emailProvider": paidia.email_delivery_status()["provider"],
         "passkeys": len(paidia.profile_passkeys(session["profile_id"], session["mode"])),
@@ -145,7 +148,8 @@ def _auth_profiles():
         "profiles": [{
             "profileId": profile_id,
             "mode": paidia.AUTH_USERS[profile_id]["mode"],
-            "email": paidia.AUTH_USERS[profile_id]["email"],
+            "email": paidia.AUTH_USERS[profile_id].get("email", ""),
+            "phone": paidia.AUTH_USERS[profile_id].get("phone", ""),
         } for profile_id in profile_ids if profile_id in paidia.AUTH_USERS],
         "canManageAll": bool(session.get("admin")),
         "emailConfigured": delivery["configured"],
@@ -177,6 +181,7 @@ def _auth_login():
             "attemptsRemaining": 4,
         })
     token, payload = paidia.encode_session_token(profile_id, mode, "pin")
+    contact = paidia.profile_contact(profile_id)
     return _json(200, {
         "authenticated": True,
         "profileId": profile_id,
@@ -187,11 +192,84 @@ def _auth_login():
         "authenticationMethod": "pin",
         "onboardingComplete": paidia.onboarding_complete(profile_id, mode),
         "onboardingVersion": paidia.ONBOARDING_VERSION,
+        "email": contact["email"],
+        "phone": contact["phone"],
+        "contactComplete": bool(contact["email"] and contact["phone"]),
     }, cookie=_cookie_header(token))
 
 
 def _auth_logout():
     return _json(200, {"loggedOut": True}, cookie=_cookie_header("", max_age=0))
+
+
+class _FlaskHandlerBridge:
+    """Adapt Flask request/response so we can reuse paidia.Handler auth methods."""
+
+    def __init__(self):
+        self._status = 200
+        self._payload = {"error": "Empty response"}
+        self._extra_headers = {}
+
+    @property
+    def headers(self):
+        return request.headers
+
+    @property
+    def client_address(self):
+        forwarded = (request.headers.get("X-Forwarded-For") or "").split(",", 1)[0].strip()
+        return (forwarded or request.remote_addr or "0.0.0.0", 0)
+
+    def auth_cookie(self) -> str:
+        return request.cookies.get(paidia.AUTH_COOKIE, "")
+
+    def client_ip(self) -> str:
+        return self.client_address[0]
+
+    def current_auth_session(self):
+        return _session_from_request()
+
+    def set_session_cookie(self, token: str, max_age: int = paidia.AUTH_SESSION_TTL) -> str:
+        return _cookie_header(token, max_age=max_age)
+
+    def json_response(self, status: int, payload: dict, headers: dict | None = None) -> None:
+        self._status = status
+        self._payload = payload
+        self._extra_headers = headers or {}
+
+    def finish_authentication(self, profile_id: str, mode: str, method: str = "pin") -> None:
+        token, payload = paidia.encode_session_token(profile_id, mode, method)
+        contact = paidia.profile_contact(profile_id)
+        self.json_response(200, {
+            "authenticated": True,
+            "profileId": profile_id,
+            "mode": mode,
+            "admin": bool(payload["admin"]),
+            "sessionId": payload["session_id"],
+            "expiresAt": int(payload["expires_at"] * 1000),
+            "authenticationMethod": method,
+            "onboardingComplete": paidia.onboarding_complete(profile_id, mode),
+            "onboardingVersion": paidia.ONBOARDING_VERSION,
+            "email": contact["email"],
+            "phone": contact["phone"],
+            "contactComplete": bool(contact["email"] and contact["phone"]),
+        }, {"Set-Cookie": self.set_session_cookie(token)})
+
+    def editable_profile(self, body: dict):
+        return paidia.Handler.editable_profile(self, body)
+
+    def as_response(self):
+        cookie = self._extra_headers.get("Set-Cookie")
+        return _json(self._status, self._payload, cookie=cookie)
+
+
+def _call_handler(method_name: str, body: dict | None = None):
+    bridge = _FlaskHandlerBridge()
+    method = getattr(paidia.Handler, method_name)
+    if body is None:
+        method(bridge)
+    else:
+        method(bridge, body)
+    return bridge.as_response()
 
 
 def _auth_onboarding_complete():
@@ -282,6 +360,82 @@ def entry(flask_path: str = ""):
         "/api/auth/onboarding/complete",
     }:
         return _auth_onboarding_complete()
+
+    handler_routes = {
+        "/auth/profile/email": ("handle_profile_email", True),
+        "/api/auth/profile/email": ("handle_profile_email", True),
+        "/auth/profile/email/test": ("handle_profile_email_test", True),
+        "/api/auth/profile/email/test": ("handle_profile_email_test", True),
+        "/auth/passkey/register/options": ("handle_passkey_register_options", True),
+        "/api/auth/passkey/register/options": ("handle_passkey_register_options", True),
+        "/auth/passkey/register/verify": ("handle_passkey_register_verify", True),
+        "/api/auth/passkey/register/verify": ("handle_passkey_register_verify", True),
+        "/auth/passkey/login/options": ("handle_passkey_login_options", True),
+        "/api/auth/passkey/login/options": ("handle_passkey_login_options", True),
+        "/auth/passkey/login/verify": ("handle_passkey_login_verify", True),
+        "/api/auth/passkey/login/verify": ("handle_passkey_login_verify", True),
+        "/auth/passkey/remove": ("handle_passkey_remove", True),
+        "/api/auth/passkey/remove": ("handle_passkey_remove", True),
+        "/auth/request-reset": ("handle_auth_request_reset", True),
+        "/api/auth/request-reset": ("handle_auth_request_reset", True),
+        "/auth/reset": ("handle_auth_reset", True),
+        "/api/auth/reset": ("handle_auth_reset", True),
+        "/notify/event-email": ("handle_event_email", True),
+        "/api/notify/event-email": ("handle_event_email", True),
+        "/whatsapp/event": ("handle_whatsapp_event", True),
+        "/api/whatsapp/event": ("handle_whatsapp_event", True),
+        "/whatsapp/test": ("handle_whatsapp_test", True),
+        "/api/whatsapp/test": ("handle_whatsapp_test", True),
+    }
+    if request.method == "POST" and api in handler_routes:
+        method_name, needs_body = handler_routes[api]
+        return _call_handler(method_name, _body() if needs_body else None)
+
+    if request.method == "GET" and api in {"/talk", "/api/talk"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        if session.get("mode") != "staff":
+            return _json(403, {"error": "Staff only", "code": "staff_required"})
+        return _json(200, paidia.talk_snapshot())
+
+    if request.method == "POST" and api in {"/talk", "/api/talk"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        body = _body()
+        status, payload = paidia.mutate_talk(str(body.get("action") or "").strip(), body, session)
+        return _json(status, payload)
+
+    if request.method == "GET" and api in {"/ops", "/api/ops"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        if session.get("mode") != "staff":
+            return _json(403, {"error": "Staff only", "code": "staff_required"})
+        try:
+            since = int(request.args.get("since") or 0)
+        except (TypeError, ValueError):
+            since = 0
+        return _json(200, paidia.get_ops(since))
+
+    if request.method == "POST" and api in {"/ops", "/api/ops"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        status, payload = paidia.put_ops(_body(), session)
+        return _json(status, payload)
+
+    if request.method == "POST" and api in {"/ai-shopping", "/api/ai-shopping"}:
+        api_key = os.environ.get("GROQ_API_KEY", "").strip()
+        if not api_key:
+            return _json(503, {
+                "error": "Groq is not configured",
+                "code": "configuration",
+                "setup": "Set GROQ_API_KEY in Vercel env",
+            })
+        status, payload = paidia.run_shopping(_body(), api_key)
+        return _json(status, payload)
 
     if request.method == "POST" and api in {"/chat", "/api/chat"}:
         session = _session_from_request()

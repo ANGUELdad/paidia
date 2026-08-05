@@ -20,7 +20,7 @@ PROFILE_NAMES = {
     "e5": "Claudio", "e6": "Löhri", "e7": "Amalia", "e8": "Zoi",
     "k1": "Simon", "k2": "Kai", "k3": "Vincent", "k4": "Julian klein",
     "k5": "Julian groß", "k6": "Lea", "k7": "Valeria", "k8": "Jule",
-    "k9": "Samantha", "k10": "Lilly", "k11": "Daniel", "k12": "Leonie",
+    "k9": "Samantha", "k10": "Lilly", "k11": "Zoitsa", "k12": "Leonie",
 }
 
 
