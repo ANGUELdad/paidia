@@ -35,7 +35,7 @@ const T = {
     tapProduct:'Produkt öffnen', productDetail:'Produktdetails', addToShopping:'Zur Einkaufsliste hinzufügen',
     addedToShopping:'Zur Einkaufsliste hinzugefügt', alreadyPlanned:'Bereits auf der Einkaufsliste',
     listItemRemoved:'Position aus der Liste entfernt.',
-    stockSearch:'Produkt suchen…', stockAttention:'Braucht Aufmerksamkeit', stockAll:'Alle Produkte', stockEmpty:'Nur leer',
+    stockSearch:'Produkt suchen…', stockAttention:'Achtung', stockAll:'Alle', stockEmpty:'Leer',
     stockHealthy:'Gut versorgt', stockLow:'Wenig', stockOutState:'Leer', productTypes:'Produkte',
     noStockResults:'Keine passenden Produkte gefunden.', openShopping:'Zur Einkaufsliste', missingFromShop:n=>`${n} Fehlmenge${n===1?'':'n'} aus dem Einkauf`,
     inTitle:'Eingang Kühlschrank', outTitle:'Ausgang Kühlschrank',
@@ -265,7 +265,7 @@ const T = {
     tapProduct:'Άνοιγμα προϊόντος', productDetail:'Στοιχεία προϊόντος', addToShopping:'Προσθήκη στη λίστα αγορών',
     addedToShopping:'Προστέθηκε στη λίστα αγορών', alreadyPlanned:'Υπάρχει ήδη στη λίστα αγορών',
     listItemRemoved:'Το είδος αφαιρέθηκε από τη λίστα.',
-    stockSearch:'Αναζήτηση προϊόντος…', stockAttention:'Χρειάζεται προσοχή', stockAll:'Όλα τα προϊόντα', stockEmpty:'Μόνο άδεια',
+    stockSearch:'Αναζήτηση προϊόντος…', stockAttention:'Προσοχή', stockAll:'Όλα', stockEmpty:'Άδεια',
     stockHealthy:'Επαρκές', stockLow:'Λίγο', stockOutState:'Άδειο', productTypes:'Προϊόντα',
     noStockResults:'Δεν βρέθηκαν προϊόντα.', openShopping:'Στη λίστα αγορών', missingFromShop:n=>`${n} ${n===1?'έλλειψη':'ελλείψεις'} από τα ψώνια`,
     inTitle:'Είσοδος στο ψυγείο', outTitle:'Έξοδος από το ψυγείο',
@@ -2644,7 +2644,7 @@ function viewShop(){
         return `<div class="store-category"><div class="house-h">${cat?esc(L(cat)):t('other')}</div>${byCat[c].map(storeRow).join('')}</div>`;
       }).join('')}
       ${!pendingVisible.length?`<div class="shop-empty"><div class="big">⌕</div><h3>${t('noStockResults')}</h3></div>`:''}
-      <div class="store-finish"><div class="row"><button class="btn sec sm" id="cancelFriday">← ${t('backToCart')}</button><button class="btn sec sm" id="btnReceipt">${t('scanReceipt')}</button>
+      <div class="store-finish bottom-dock"><div class="row"><button class="btn sec sm" id="cancelFriday">← ${t('backToCart')}</button><button class="btn sec sm" id="btnReceipt">${t('scanReceipt')}</button>
         <button class="btn" id="confirmBatch" ${remaining?'disabled':''}>${remaining?`${remaining} · ${t('storeRemaining')}`:t('confirmBatch')}</button></div>
         ${remaining?`<div class="muted" style="margin-top:7px;text-align:center;font-size:10.5px">${t('decideAll')}</div>`:''}</div></section>` : '';
 
@@ -3747,6 +3747,8 @@ function renderChild(){
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   document.getElementById('btnUser').textContent = t('childBye');
   document.querySelector('nav').style.display = 'none';
+  document.body.classList.add('mode-child');
+  document.body.classList.remove('has-stock-dock','has-store-dock');
   document.getElementById('helpFab').setAttribute('aria-label', t('helpCenter'));
   document.getElementById('helpFab').title = t('helpCenter');
 
@@ -3805,6 +3807,7 @@ function renderChild(){
 
 function render(){
   if(state.mode === 'child' && state.child) return renderChild();
+  document.body.classList.remove('mode-child');
   document.querySelector('nav').style.display = '';
   document.getElementById('helpFab').setAttribute('aria-label', t('helpCenter'));
   document.getElementById('helpFab').title = t('helpCenter');
@@ -3819,6 +3822,11 @@ function render(){
   document.querySelectorAll('[data-nav]').forEach(s=>{
     s.textContent = t('nav' + s.dataset.nav[0].toUpperCase() + s.dataset.nav.slice(1));
   });
+
+  const stockDock=state.tab==='stock' && state.house!=='all';
+  const storeDock=state.tab==='shop' && fridayEntries(shopHouse()).some(e=>e.status==='pending');
+  document.body.classList.toggle('has-stock-dock', stockDock);
+  document.body.classList.toggle('has-store-dock', storeDock);
 
   document.getElementById('view').innerHTML =
       state.tab==='home'     ? viewHome()
