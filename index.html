@@ -14,9 +14,11 @@
     --brand:#2563eb; --in:#059669; --out:#dc2626; --warn:#d97706;
     --safe-b: env(safe-area-inset-bottom, 0px);
     --header-h: 58px;
+    --topbar-tools-h: 0px;
     --nav-h: 58px;
     --nav-total: calc(var(--nav-h) + var(--safe-b));
     --dock-h: 0px;
+    --chat-h: 0px;
     --fab-size: 44px;
     --side-gutter: max(12px, calc((100vw - 1180px) / 2 + 12px));
   }
@@ -38,11 +40,28 @@
   body.auth-pending #app[hidden]{display:none!important}
   body.auth-pending #gate::before,
   body.auth-pending #gate::after{content:none!important;display:none!important;animation:none!important}
-  #app{max-width:1180px; margin:0 auto; min-height:100vh; padding-bottom:calc(var(--nav-total) + var(--dock-h) + 20px)}
-  header{position:sticky; top:0; z-index:20; background:#0f172a; color:#fff;
-    padding:13px 14px 11px; display:flex; align-items:center; gap:10px; min-height:var(--header-h)}
-  header h1{font-size:16.5px; margin:0; font-weight:650; letter-spacing:-.01em}
-  header .who{font-size:11.5px; opacity:.75}
+  #app{max-width:1180px; margin:0 auto; min-height:100vh; padding-bottom:calc(var(--nav-total) + var(--dock-h) + var(--chat-h) + 20px)}
+  header{position:sticky; top:0; z-index:20; background:linear-gradient(180deg,#0b1220 0%,#0f172a 70%,#111827 100%);
+    color:#fff; padding:10px 10px 8px; display:flex; flex-direction:column; gap:8px;
+    min-height:var(--header-h); border-bottom:1px solid rgba(148,163,184,.22);
+    box-shadow:0 10px 28px rgba(2,6,23,.28)}
+  .topbar-row{display:flex; align-items:center; gap:8px; min-width:0}
+  .topbar-brand{flex:1; min-width:0}
+  header h1{font-size:15.5px; margin:0; font-weight:700; letter-spacing:-.015em; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis}
+  header .who{font-size:11px; opacity:.78; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .topbar-core,.topbar-tools{display:flex; gap:5px; align-items:center; flex-wrap:nowrap;
+    overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; padding-bottom:1px}
+  .topbar-core::-webkit-scrollbar,.topbar-tools::-webkit-scrollbar{display:none}
+  .topbar-tools{width:100%; padding-top:1px; border-top:1px solid rgba(148,163,184,.18)}
+  .topbtn{flex:0 0 auto; border:1px solid #334155; background:#1e293b; color:#e2e8f0;
+    border-radius:9px; padding:7px 9px; font-size:11px; font-weight:700; cursor:pointer;
+    min-height:34px; white-space:nowrap; line-height:1.1}
+  .topbtn:active{transform:scale(.97)}
+  .topbtn.on,.topbtn.primary{background:#2563eb; border-color:#2563eb; color:#fff}
+  .topbtn.danger{background:#7f1d1d; border-color:#991b1b; color:#fecaca}
+  .topbtn.ok{background:#065f46; border-color:#047857; color:#d1fae5}
+  .topbtn.ghost{background:transparent; border-color:#475569; color:#cbd5e1}
   main{padding:13px 13px 20px}
   .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px; margin-bottom:11px}
   .card h2{font-size:13.5px; margin:0 0 9px; font-weight:650}
@@ -78,8 +97,23 @@
   .pill.gray{background:#eef2f6; color:#475569}
   .pill.kid{background:#e0f2fe; color:#075985}
   .pill.open{background:#fee2e2; color:#991b1b}
-  nav{position:fixed; left:0; right:0; bottom:0; z-index:50; background:#fff; border-top:1px solid var(--line);
-    display:flex; min-height:var(--nav-h); padding-bottom:var(--safe-b); max-width:1180px; margin:0 auto;
+  .bottom-panel{position:fixed; left:0; right:0; bottom:0; z-index:50; max-width:1180px; margin:0 auto;
+    display:flex; flex-direction:column; pointer-events:none}
+  .bottom-panel > *{pointer-events:auto}
+  .chat-panel{display:none; flex-direction:column; max-height:min(52dvh,420px); background:#fff;
+    border:1px solid var(--line); border-bottom:0; border-radius:18px 18px 0 0;
+    box-shadow:0 -14px 36px rgba(15,23,42,.16); overflow:hidden}
+  body.chat-open .chat-panel{display:flex}
+  .chat-panel-head{display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--line);
+    background:#f8fafc; flex:0 0 auto}
+  .chat-panel-head .seg{margin:0; flex:1}
+  .chat-panel-close{width:36px; height:36px; border-radius:10px; border:1px solid var(--line);
+    background:#fff; font-size:18px; font-weight:700; cursor:pointer; flex:0 0 auto}
+  .chat-panel-body{flex:1 1 auto; min-height:0; overflow:auto; padding:10px 12px; -webkit-overflow-scrolling:touch}
+  .chat-panel-body .chat-log{max-height:none; height:min(28dvh,220px)}
+  .chat-panel-body .chat-compose{position:sticky; bottom:0; background:#fff; padding-top:8px}
+  nav{background:#fff; border-top:1px solid var(--line);
+    display:flex; min-height:var(--nav-h); padding-bottom:var(--safe-b);
     box-shadow:0 -4px 18px rgba(15,23,42,.06)}
   nav button{flex:1; border:0; background:none; padding:8px 2px 7px; color:var(--muted);
     font-size:10.5px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer;
@@ -156,7 +190,7 @@
   .dropzone.zout.over{border-color:var(--out); background:#fef2f2; color:var(--out)}
   .dropzone.zin.filled{border-style:solid; border-color:#6ee7b7; color:var(--in)}
   .dropzone.zout.filled{border-style:solid; border-color:#fca5a5; color:var(--out)}
-  /* Fridge board: scrollable list + IN/OUT dock pinned to sheet bottom forever */
+  /* Stock move board: scrollable catalogue + IN/OUT dock pinned to sheet bottom */
   #sheet:has(.stock-board){display:flex;flex-direction:column;padding:12px 0 0;overflow:hidden;
     height:min(94dvh,100%);max-height:min(94dvh,100%)}
   #sheet:has(.stock-board)>.sheet-close{right:12px;top:10px;float:none;position:absolute;z-index:6;
@@ -302,7 +336,7 @@
   .matrix-shell.is-fullscreen .matrix-toolbar-title{color:#e2e8f0}
   .matrix-shell.is-fullscreen .matrix{flex:1 1 auto;min-height:0;max-height:none;height:auto;margin:0;
     border:0;border-radius:0;box-shadow:none}
-  body.matrix-fullscreen header,body.matrix-fullscreen nav,body.matrix-fullscreen .help-fab{display:none!important}
+  body.matrix-fullscreen header,body.matrix-fullscreen .bottom-panel,body.matrix-fullscreen .help-fab{display:none!important}
   body.matrix-fullscreen #app{max-width:none}
 
   .sheet-close{position:sticky; top:0; z-index:5; float:right; width:38px; height:38px;
@@ -540,7 +574,7 @@
   video{width:100%; border-radius:12px; background:#000; display:block}
   .kv{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line); font-size:14px}
   .kv:last-child{border-bottom:0}
-  .toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(var(--nav-total) + var(--dock-h) + 14px);
+  .toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(var(--nav-total) + var(--dock-h) + var(--chat-h) + 14px);
     background:#0f172a; color:#fff; padding:11px 16px; border-radius:11px; font-size:13.5px; z-index:55;
     opacity:0; pointer-events:none; transition:opacity .2s; max-width:min(88%,420px)}
   .toast.on{opacity:1}
@@ -638,7 +672,7 @@
   .store-finish .row{gap:8px;display:grid;grid-template-columns:auto minmax(0,1fr)}
   .store-finish .btn{margin:0;min-height:44px}.store-finish .btn.sec{width:auto;padding:0 14px}
   .store-finish .btn:disabled{opacity:.45;cursor:not-allowed}
-  body.store-fullscreen header,body.store-fullscreen nav,body.store-fullscreen .help-fab{display:none!important}
+  body.store-fullscreen header,body.store-fullscreen .bottom-panel,body.store-fullscreen .help-fab{display:none!important}
   body.store-fullscreen #app{max-width:none;padding:0;min-height:100dvh}
   body.store-fullscreen main{padding:0}
   body.has-store-dock .store-cockpit{padding-bottom:4px}
@@ -696,7 +730,7 @@
   .stock-draft-reasons .chips{max-height:72px;overflow:auto;margin:0}
   .stock-draft-actions{display:grid;grid-template-columns:.85fr 1.15fr;gap:8px}
   .stock-draft-actions .btn{margin:0;min-height:44px}
-  body.has-stock-draft .help-fab{bottom:calc(var(--nav-total) + var(--dock-h) + 18px)}
+  body.has-stock-draft .help-fab{bottom:calc(var(--nav-total) + var(--dock-h) + var(--chat-h) + 18px)}
   .stock-house-quantities{display:flex;gap:8px}
   .stock-product.multi-house{grid-template-columns:1fr;align-items:start}
   .stock-product.multi-house .stock-product-side{justify-content:space-between;align-items:flex-end}
@@ -713,7 +747,7 @@
   .stock-notice{display:flex;align-items:center;gap:10px;margin:10px 0;padding:11px 12px;border:1px solid #fecaca;border-radius:13px;background:#fff7f7;color:#991b1b}
   .stock-notice .btn{width:auto;margin-left:auto}.stock-moves{margin-top:10px}.stock-moves summary{cursor:pointer;font-weight:760}
   /* --nav-total / --dock-h are set by measureChrome(); body flags only position the FAB */
-  .stock-footer-actions{position:fixed;left:var(--side-gutter);right:var(--side-gutter);bottom:calc(var(--nav-total) + 8px);
+  .stock-footer-actions{position:fixed;left:var(--side-gutter);right:var(--side-gutter);bottom:calc(var(--nav-total) + var(--chat-h) + 8px);
     z-index:40;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0;padding:8px;
     border:1px solid rgba(203,213,225,.95);border-radius:14px;background:rgba(255,255,255,.97);
     box-shadow:0 -8px 28px rgba(15,23,42,.14);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
@@ -851,12 +885,12 @@
     .tutorial-card{padding:14px}.tutorial-card h2{font-size:18px}.tutorial-icon{width:48px;height:48px;font-size:24px;margin-bottom:10px}
     .tutorial-features li{padding:7px 8px;font-size:11px}.tutorial-tip{margin-top:10px;padding:8px 9px}
   }
-  .help-fab{position:fixed;right:var(--side-gutter);bottom:calc(var(--nav-total) + var(--dock-h) + 12px);
+  .help-fab{position:fixed;right:var(--side-gutter);bottom:calc(var(--nav-total) + var(--dock-h) + var(--chat-h) + 12px);
     z-index:45;width:var(--fab-size);height:var(--fab-size);border:0;border-radius:50%;
     background:var(--brand);color:#fff;font-size:20px;font-weight:750;cursor:pointer;
-    box-shadow:0 8px 24px rgba(37,99,235,.34);touch-action:manipulation}
+    box-shadow:0 8px 24px rgba(37,99,235,.34);touch-action:manipulation;display:none}
   body.has-stock-dock .help-fab,body.has-store-dock .help-fab{right:auto;left:var(--side-gutter)}
-  body.mode-child .help-fab{bottom:calc(16px + var(--safe-b));right:var(--side-gutter);left:auto}
+  body.mode-child .help-fab{bottom:calc(16px + var(--safe-b));right:var(--side-gutter);left:auto;display:grid;place-items:center}
   @media(max-height:520px){
     .help-fab{width:40px;height:40px;font-size:18px}
     .stock-strip{margin:4px 0 6px;padding:6px 8px}
@@ -1009,22 +1043,41 @@
 <body class="auth-pending">
 <div id="app" hidden>
   <header>
-    <div class="grow">
-      <h1 id="title"></h1>
-      <div class="who" id="who"></div>
+    <div class="topbar-row">
+      <div class="topbar-brand grow">
+        <h1 id="title"></h1>
+        <div class="who" id="who"></div>
+      </div>
+      <div class="topbar-core" id="topCore" aria-label="Core actions">
+        <button class="topbtn" id="btnProfiles" type="button" title="Profiles">↔</button>
+        <button class="topbtn" id="btnLang" type="button"></button>
+        <button class="topbtn" id="btnUser" type="button"></button>
+      </div>
     </div>
-    <button class="lang" id="btnProfiles" type="button" title="Profiles">↔</button>
-    <button class="lang" id="btnLang"></button>
-    <button class="lang" id="btnUser"></button>
+    <div class="topbar-tools" id="topTools" aria-label="Tab actions"></div>
   </header>
   <main id="view"></main>
-  <nav>
-    <button data-tab="home"><span class="i">🏠</span><span data-nav="home"></span></button>
-    <button data-tab="schedule" class="on"><span class="i">📅</span><span data-nav="schedule"></span></button>
-    <button data-tab="stock"><span class="i">🧊</span><span data-nav="stock"></span></button>
-    <button data-tab="shop"><span class="i">🛒</span><span data-nav="shop"></span></button>
-    <button data-tab="book"><span class="i">📖</span><span data-nav="book"></span></button>
-  </nav>
+  <div class="bottom-panel" id="bottomPanel">
+    <div class="chat-panel" id="chatPanel" aria-label="Chat">
+      <div class="chat-panel-head">
+        <div class="seg" id="chatModeSeg">
+          <button type="button" data-cm="ai" class="on">✨ AI</button>
+          <button type="button" data-cm="talk">💬 Team</button>
+          <button type="button" data-cm="help">?</button>
+        </div>
+        <button class="chat-panel-close" id="chatClose" type="button" aria-label="Close">×</button>
+      </div>
+      <div class="chat-panel-body" id="chatBody"></div>
+    </div>
+    <nav>
+      <button data-tab="home"><span class="i">🏠</span><span data-nav="home"></span></button>
+      <button data-tab="schedule" class="on"><span class="i">📅</span><span data-nav="schedule"></span></button>
+      <button data-tab="stock"><span class="i">📦</span><span data-nav="stock"></span></button>
+      <button data-tab="shop"><span class="i">🛒</span><span data-nav="shop"></span></button>
+      <button data-tab="book"><span class="i">📖</span><span data-nav="book"></span></button>
+      <button type="button" id="navChat" data-chat="1"><span class="i">💬</span><span data-nav-chat>Chat</span></button>
+    </nav>
+  </div>
 </div>
 <div id="gate" class="on"><div class="gate-wrap" id="gateBody">
   <div class="gate-head">
@@ -1054,6 +1107,6 @@
   } catch (e) {}
 })();
 </script>
-<script src="gate.js?v=41"></script>
+<script src="gate.js?v=42"></script>
 </body>
 </html>

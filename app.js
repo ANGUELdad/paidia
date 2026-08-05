@@ -4,9 +4,21 @@
    ════════════════════════════════════════════════════════════════ */
 const T = {
   de: {
-    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Protokoll',
-    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Kühlschrank / Lager', titleShop:'Listen & Einkauf', titleBook:'Protokoll',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch',
+    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch',
     logout:'Profil', noUser:'Nicht angemeldet',
+    navChat:'Chat', topChat:'Chat', topHelp:'Hilfe', topTalk:'Team', topTutorial:'Tutorial',
+    topAdd:'＋ Eintrag', topIn:'＋ Ein', topOut:'− Aus', topBoard:'Bewegung', topFood:'＋ Ware',
+    topShop:'Liste', topScan:'Scan', topHistory:'Verlauf', topShift:'Schicht', topFix:'Korrektur',
+    topDay:'Tag', topWeek:'Woche', topEvents:'Events', topBoth:'Beide Häuser',
+    headerHome:'Armonia · Home', headerScheduleDay:'Plan · Tag', headerScheduleWeek:'Plan · Woche',
+    headerScheduleEvents:'Plan · Events', headerStock:'Lager', headerStockAll:'Lager · beide Häuser',
+    headerShop:'Einkauf', headerBook:'Buch & Schicht',
+    shiftDiary:'Meine Schichtnotiz', shiftDiaryHint:'Was ist in deiner Schicht passiert? Nur dein Profil schreibt hier.',
+    shiftDiaryPh:'z.B. Übergabe erledigt, Lager nachgefüllt, Kind X früher abgeholt…',
+    shiftDiarySave:'Schichtnotiz speichern', shiftDiarySaved:'Schichtnotiz gespeichert',
+    shiftDiaryEmpty:'Noch keine Schichtnotiz für heute.', shiftDiaryTeam:'Schichtnotizen der Gruppe',
+    shiftDiaryMine:'Meine Notiz', typeSHIFT:'Schicht',
     viewDay:'Tag', viewWeek:'Woche', filterView:'Ansicht', filterHouse:'Haus',
     tableFullscreen:'Vollbild', tableExitFullscreen:'Schließen',
     allHouses:'Kombiniert',
@@ -44,7 +56,7 @@ const T = {
     stockSearch:'Produkt suchen…', stockAttention:'Achtung', stockAll:'Alle', stockEmpty:'Leer',
     stockHealthy:'Gut versorgt', stockLow:'Wenig', stockOutState:'Leer', productTypes:'Produkte',
     noStockResults:'Keine passenden Produkte gefunden.', openShopping:'Zur Einkaufsliste', missingFromShop:n=>`${n} Fehlmenge${n===1?'':'n'} aus dem Einkauf`,
-    inTitle:'Eingang Kühlschrank', outTitle:'Ausgang Kühlschrank',
+    inTitle:'Eingang Lager', outTitle:'Ausgang Lager',
     product:'Produkt', qty:'Menge',
     photoLabel:'Foto — optional, nur Live-Aufnahme',
     takePhoto:'📷 Foto aufnehmen', photoTaken:'Foto wurde jetzt in der App aufgenommen.',
@@ -177,7 +189,7 @@ const T = {
     startFriday:'🧾 Freitag-Einkauf starten', inSupermarket:'Im Supermarkt abhaken:',
     tapDoes:'Antippen bucht als:', dragToZone:'Zum Umschalten auf + oder − tippen',
     switchDir:'Richtung wechseln',
-    stockBoard:'Kühlschrank & Lager', dropHere:'Antippen oder in ein Feld ziehen',
+    stockBoard:'Bestandsbewegung', dropHere:'Antippen oder in ein Feld ziehen',
     itemsPicked:'ausgewählt', pickSomething:'Tippe Produkte an oder zieh sie in das Feld oben',
     bookN:n=>`${n} ${n===1?'Position':'Positionen'} buchen`,
     stockDraftSave:'Änderungen speichern',
@@ -200,7 +212,7 @@ const T = {
     gotIt:'✓ gekauft', notThere:'✕ nicht da',
     confirmBatch:'Charge bestätigen', batchHint:'Alle Positionen werden gemeinsam gebucht.',
     carryOver:'↩︎ Zurück auf die Liste', nothingPending:'Keine offene Charge',
-    whereIsWhat:'Was ist wo', inFridge:'Im Kühlschrank', lastPurchase:'Letzter Einkauf',
+    whereIsWhat:'Was ist wo', inFridge:'Im Lager', lastPurchase:'Letzter Einkauf',
     bothHouses:'Alle Häuser', shortage:'Fehlmenge',
     boughtNotOnList:'gekauft, war nicht auf der Liste',
     batchBooked:n=>`${n} Positionen gebucht`, nothingToStart:'Die Liste ist leer',
@@ -264,7 +276,7 @@ const T = {
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
     helpChat:'Hilfe', helpWelcome:'Hallo! Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauchen deine Bestätigung. Du kannst auch das Mikrofon nutzen.',
     helpWelcomeChild:'Hallo! Ich helfe dir bei deinem Tag, Events und Spielen. Frag z. B. „Was habe ich heute?“ oder „Wie spiele ich Memory?“',
-    helpWelcomeStaff:'Hallo! Ich helfe bei Plan, Events, Kühlschrank und Einkaufsliste. Sag z. B. „2 Milch nach Kalyvia“ — Änderungen brauchst du danach zu bestätigen.',
+    helpWelcomeStaff:'Hallo! Ich helfe bei Plan, Events, Lager und Einkaufsliste. Sag z. B. „2 Milch nach Kalyvia“ — Änderungen brauchst du danach zu bestätigen.',
     helpWelcomeAdmin:'Hallo! Du hast Admin-Rechte. Ich helfe bei Betrieb, Admin-Zentrale, Dauerplan und Lager. Sag z. B. „2 Milch nach Kalyvia“ oder frag, wie du den Dauerplan änderst.',
     helpRoleChild:'Kind', helpRoleStaff:'Betreuung', helpRoleAdmin:'Admin',
     helpQuickChild:'Schnell fragen', helpQuickAdmin:'Schnell: Lager / Admin',
@@ -341,9 +353,21 @@ const T = {
     pasteScreenshot:'Screenshot einfügen', pickScreenshot:'Screenshot / Foto wählen',
   },
   el: {
-    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Ψυγείο', navShop:'Λίστα', navBook:'Καταγραφές',
-    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Ψυγείο / Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Καταγραφές',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο',
+    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
+    navChat:'Chat', topChat:'Chat', topHelp:'Βοήθεια', topTalk:'Ομάδα', topTutorial:'Tutorial',
+    topAdd:'＋ Εγγραφή', topIn:'＋ Εισ', topOut:'− Έξ', topBoard:'Κίνηση', topFood:'＋ Είδος',
+    topShop:'Λίστα', topScan:'Σάρωση', topHistory:'Ιστορικό', topShift:'Βάρδια', topFix:'Διόρθωση',
+    topDay:'Ημέρα', topWeek:'Εβδομάδα', topEvents:'Events', topBoth:'Και τα δύο',
+    headerHome:'Armonia · Αρχική', headerScheduleDay:'Πρόγραμμα · Ημέρα', headerScheduleWeek:'Πρόγραμμα · Εβδομάδα',
+    headerScheduleEvents:'Πρόγραμμα · Events', headerStock:'Αποθήκη', headerStockAll:'Αποθήκη · όλα',
+    headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια',
+    shiftDiary:'Σημείωση βάρδιας μου', shiftDiaryHint:'Τι έγινε στη βάρδιά σου; Μόνο το προφίλ σου γράφει εδώ.',
+    shiftDiaryPh:'π.χ. παράδοση ολοκληρώθηκε, αναπλήρωση αποθέματος, παιδί Χ έφυγε νωρίς…',
+    shiftDiarySave:'Αποθήκευση σημείωσης βάρδιας', shiftDiarySaved:'Η σημείωση βάρδιας αποθηκεύτηκε',
+    shiftDiaryEmpty:'Καμία σημείωση βάρδιας για σήμερα.', shiftDiaryTeam:'Σημειώσεις βάρδιας ομάδας',
+    shiftDiaryMine:'Η σημείωσή μου', typeSHIFT:'Βάρδια',
     viewDay:'Ημέρα', viewWeek:'Εβδομάδα', filterView:'Προβολή', filterHouse:'Σπίτι',
     tableFullscreen:'Πλήρης οθόνη', tableExitFullscreen:'Κλείσιμο',
     allHouses:'Συνδυαστικά',
@@ -360,7 +384,7 @@ const T = {
     removeFromTable:'Αφαίρεση από το πρόγραμμα', removedFromPlan:'Αφαιρέθηκε από το πρόγραμμα',
     cancelled:'ακυρώθηκε', override:'έκτακτο',
     adminActions:'Ενέργειες', adminShiftToday:'Βάρδια σήμερα', adminOpenDay:'Ημερήσιο',
-    adminOpenWeek:'Εβδομαδιαίο', adminOpenStock:'Ψυγείο', adminOpenShop:'Ψώνια',
+    adminOpenWeek:'Εβδομαδιαίο', adminOpenStock:'Αποθήκη', adminOpenShop:'Ψώνια',
     adminContact:'Επικοινωνία / Email', adminAssignToday:'Ανάθεση σήμερα',
     adminShiftsWeek:'Βάρδιες εβδομάδας', adminMarkDone:'Ολοκληρώθηκε', adminRemoveAssign:'Ακύρωση εργασίας',
     noEntries:'Καμία εγγραφή',
@@ -381,7 +405,7 @@ const T = {
     stockSearch:'Αναζήτηση προϊόντος…', stockAttention:'Προσοχή', stockAll:'Όλα', stockEmpty:'Άδεια',
     stockHealthy:'Επαρκές', stockLow:'Λίγο', stockOutState:'Άδειο', productTypes:'Προϊόντα',
     noStockResults:'Δεν βρέθηκαν προϊόντα.', openShopping:'Στη λίστα αγορών', missingFromShop:n=>`${n} ${n===1?'έλλειψη':'ελλείψεις'} από τα ψώνια`,
-    inTitle:'Είσοδος στο ψυγείο', outTitle:'Έξοδος από το ψυγείο',
+    inTitle:'Είσοδος αποθήκης', outTitle:'Έξοδος αποθήκης',
     product:'Προϊόν', qty:'Ποσότητα',
     photoLabel:'Φωτογραφία — προαιρετική, μόνο ζωντανή λήψη',
     takePhoto:'📷 Λήψη φωτογραφίας', photoTaken:'Η φωτογραφία τραβήχτηκε τώρα, μέσα στην εφαρμογή.',
@@ -483,7 +507,7 @@ const T = {
     tutorialTip:'Πρέπει να δεις όλα τα βήματα. Η ξενάγηση δεν παραλείπεται και δεν κλείνει.',
     tutorialOpen:'Άνοιγμα tutorial εφαρμογής', tutorialReplay:'Tutorial λειτουργιών', tutorialClose:'Τέλος tutorial',
     tutorialReplayTip:'Μπορείς να ανοίξεις ξανά αυτό το tutorial οποιαδήποτε στιγμή από το ? ή το Προφίλ.',
-    helpCenter:'Βοήθεια & Tutorial', helpCenterHint:'Tutorial, συνομιλία ομάδας και βοήθεια AI. Η AI μπορεί με επιβεβαίωση να αλλάξει ψυγείο και λίστα.',
+    helpCenter:'Βοήθεια & Tutorial', helpCenterHint:'Tutorial, συνομιλία ομάδας και βοήθεια AI. Η AI μπορεί με επιβεβαίωση να αλλάξει αποθήκη και λίστα.',
     startTutorial:'Καθοδηγούμενο tutorial εφαρμογής', startTutorialHint:'Όλες οι λειτουργίες για το προφίλ σου – επαναλαμβάνεται από το ?.',
     askAiHelp:'Ερώτηση στη βοήθεια AI', askAiHelpHint:'Κάνε ερώτηση, υπαγόρευσε με μικρόφωνο, ή άλλαξε ψυγείο/λίστα με επιβεβαίωση.',
     staffTalk:'Ομάδα — συνομιλία', staffTalkHint:'Chat με μικρόφωνο, θέματα σύσκεψης και κοινό βιντεοκλήση.',
@@ -514,7 +538,7 @@ const T = {
     startFriday:'🧾 Έναρξη ψωνιών Παρασκευής', inSupermarket:'Στο σουπερμάρκετ, τσέκαρε:',
     tapDoes:'Το πάτημα καταχωρεί ως:', dragToZone:'Πάτα το + ή το − για αλλαγή φοράς',
     switchDir:'Αλλαγή φοράς',
-    stockBoard:'Ψυγείο & αποθήκη', dropHere:'Πάτα ή σύρε σε μία ζώνη',
+    stockBoard:'Κίνηση αποθέματος', dropHere:'Πάτα ή σύρε σε μία ζώνη',
     itemsPicked:'επιλεγμένα', pickSomething:'Πάτα προϊόντα ή σύρ’ τα στο πλαίσιο πάνω',
     bookN:n=>`Καταχώρηση ${n} ${n===1?'είδους':'ειδών'}`,
     stockDraftSave:'Αποθήκευση αλλαγών',
@@ -537,7 +561,7 @@ const T = {
     gotIt:'✓ αγοράστηκε', notThere:'✕ δεν υπήρχε',
     confirmBatch:'Επιβεβαίωση παρτίδας', batchHint:'Όλα τα είδη καταχωρούνται μαζί.',
     carryOver:'↩︎ Πίσω στη λίστα', nothingPending:'Καμία ανοιχτή παρτίδα',
-    whereIsWhat:'Τι είναι πού', inFridge:'Στο ψυγείο', lastPurchase:'Τελευταία αγορά',
+    whereIsWhat:'Τι είναι πού', inFridge:'Στην αποθήκη', lastPurchase:'Τελευταία αγορά',
     bothHouses:'Όλα τα σπίτια', shortage:'Έλλειψη',
     boughtNotOnList:'αγοράστηκε, δεν ήταν στη λίστα',
     batchBooked:n=>`${n} είδη καταχωρήθηκαν`, nothingToStart:'Η λίστα είναι άδεια',
@@ -601,7 +625,7 @@ const T = {
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
     helpChat:'Βοήθεια', helpWelcome:'Γεια! Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση. Μπορείς και μικρόφωνο.',
     helpWelcomeChild:'Γεια! Σε βοηθάω με τη μέρα σου, τα events και τα παιχνίδια. Ρώτα π.χ. «Τι έχω σήμερα;» ή «Πώς παίζω Μνήμη;»',
-    helpWelcomeStaff:'Γεια! Σε βοηθάω με πρόγραμμα, events, ψυγείο και λίστα. Πες π.χ. «2 γάλα στο Kalyvia» — οι αλλαγές χρειάζονται επιβεβαίωση.',
+    helpWelcomeStaff:'Γεια! Σε βοηθάω με πρόγραμμα, events, αποθήκη και λίστα. Πες π.χ. «2 γάλα στο Kalyvia» — οι αλλαγές χρειάζονται επιβεβαίωση.',
     helpWelcomeAdmin:'Γεια! Έχεις δικαιώματα admin. Σε βοηθάω με λειτουργία, Κέντρο διαχείρισης, μόνιμο πρόγραμμα και απόθεμα. Πες π.χ. «2 γάλα Kalyvia» ή ρώτα πώς αλλάζει το μόνιμο πρόγραμμα.',
     helpRoleChild:'Παιδί', helpRoleStaff:'Φροντιστής', helpRoleAdmin:'Admin',
     helpQuickChild:'Γρήγορες ερωτήσεις', helpQuickAdmin:'Γρήγορα: ψυγείο / admin',
@@ -990,6 +1014,7 @@ const SEED = {
   shoppingTrips: [],
   stock: {},
   log: [],
+  shiftNotes: {},
 };
 
 /* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
@@ -997,7 +1022,7 @@ const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories',
-                 'customActivities', 'customReasons', 'profilePrefs'];
+                 'customActivities', 'customReasons', 'profilePrefs', 'shiftNotes'];
 
 let DB = load();
 function load(){
@@ -1015,6 +1040,7 @@ function load(){
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
   if(!db.profilePrefs || typeof db.profilePrefs !== 'object') db.profilePrefs = {};
   if(!db.weeks || typeof db.weeks !== 'object') db.weeks = {};
+  if(!db.shiftNotes || typeof db.shiftNotes !== 'object') db.shiftNotes = {};
   // Σπίτια χωρίς planning flag από παλιότερα saves δεν μπαίνουν στο πρόγραμμα.
   db.houses = SEED.houses.map(h => ({...h}));
   return db;
@@ -1492,6 +1518,9 @@ const state = {
   date: iso(new Date()),
   bookRange: 'today',
   bookFilter: {employeeId:'', type:''},
+  bookPane: 'shift', // shift | log
+  chatOpen: false,
+  chatMode: 'ai', // ai | talk | help
   helpMessages: [],          // active user's transcript (session-only)
   helpByUser: {},            // per-profile chat history while the tab stays open
   pendingHelpActions: [],
@@ -1759,10 +1788,11 @@ let stockBoardUiAbort = null;
 
 function openSheet(html, {dismissable = true} = {}){
   exitMatrixFullscreen();
+  if(state.chatOpen) closeChatPanel();
   sheetLocked = !dismissable;
   document.getElementById('app').inert = sheetLocked;
-  document.getElementById('helpFab').inert = true;
-  document.getElementById('helpFab').hidden = true;
+  const fab=document.getElementById('helpFab');
+  if(fab){ fab.inert = true; fab.hidden = true; }
   sheetEl.setAttribute('role','dialog');
   sheetEl.setAttribute('aria-modal','true');
   sheetEl.innerHTML = (dismissable
@@ -1777,8 +1807,8 @@ function closeSheet(){
   stockBoardUiAbort?.abort();
   stockBoardUiAbort = null;
   document.getElementById('app').inert = false;
-  document.getElementById('helpFab').inert = false;
-  document.getElementById('helpFab').hidden = false;
+  const fab=document.getElementById('helpFab');
+  if(fab){ fab.inert = false; fab.hidden = false; }
   sheetEl.removeAttribute('role');sheetEl.removeAttribute('aria-modal');
   sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
@@ -4095,25 +4125,13 @@ function sheetStockBoard(dir,initialPid=null){
     };
   });
 
-  /** Σύρσιμο + παρατεταμένο πάτημα — ζώνες στο κάτω dock + πλευρικές ράγες στην οθόνη. */
+  /** Σύρσιμο + παρατεταμένο πάτημα — ζώνες μόνο στο κάτω dock (χωρίς πλευρικές ράγες). */
   function attachDrag(tile){
     let ghost = null, dragging = false, held = false, active = false;
     let startX = 0, startY = 0, holdTimer = null;
     const HOLD_MS = 380, MOVE_PX = 8;
-    let sideRails = null;
 
-    const zones = () => [...sheetEl.querySelectorAll('[data-dz]'), ...(sideRails?sideRails.querySelectorAll('[data-dz]'):[])];
-    const ensureRails = () => {
-      if(sideRails) return;
-      sideRails = document.createElement('div');
-      sideRails.className = 'stock-side-rails';
-      sideRails.innerHTML = `<div class="stock-side-rail zin" data-dz="IN">${t('stockIn')}</div>
-        <div class="stock-side-rail zout" data-dz="OUT">${t('stockOut')}</div>`;
-      document.body.appendChild(sideRails);
-    };
-    const clearRails = () => {
-      if(sideRails){ sideRails.remove(); sideRails=null; }
-    };
+    const zones = () => [...sheetEl.querySelectorAll('[data-dz]')];
     const zoneAt = ev => {
       const hit = document.elementFromPoint(ev.clientX, ev.clientY);
       const fromPoint = hit?.closest?.('[data-dz]');
@@ -4124,9 +4142,6 @@ function sheetStockBoard(dir,initialPid=null){
         if(ev.clientX >= r.left - pad && ev.clientX <= r.right + pad
         && ev.clientY >= r.top - pad && ev.clientY <= r.bottom + pad) return z.dataset.dz;
       }
-      // Edge of screen = IN (left) / OUT (right) while dragging.
-      if(ev.clientX < 56) return 'IN';
-      if(ev.clientX > window.innerWidth - 56) return 'OUT';
       return null;
     };
     const clearHold = () => { if(holdTimer){ clearTimeout(holdTimer); holdTimer = null; } };
@@ -4135,8 +4150,7 @@ function sheetStockBoard(dir,initialPid=null){
       if(ghost){ ghost.remove(); ghost = null; }
       dragging = false; held = false; active = false;
       zones().forEach(z => z.classList.remove('over'));
-      clearRails();
-      document.querySelectorAll('.ghost').forEach(el => el.remove());
+      document.querySelectorAll('.ghost,.stock-side-rails').forEach(el => el.remove());
     };
 
     tile.onpointerdown = ev => {
@@ -4160,7 +4174,6 @@ function sheetStockBoard(dir,initialPid=null){
       clearHold();
       if(!dragging){
         dragging = true;
-        ensureRails();
         ghost = document.createElement('div');
         ghost.className = 'ghost';
         ghost.textContent = L(prod(tile.dataset.p));
@@ -5095,9 +5108,9 @@ function sheetReceipt(){
 /* ════════════════════════════════════════════════════════════════
    Το Βιβλίο
    ════════════════════════════════════════════════════════════════ */
-const LOG_TYPES = ['IN','OUT','SHOP','SCHEDULE','EVENT','NOTES','CORRECTION','LOGIN'];
+const LOG_TYPES = ['IN','OUT','SHOP','SCHEDULE','EVENT','NOTES','SHIFT','CORRECTION','LOGIN'];
 const typeLabel = ty => t('type'+ty);
-const typeIcon = ty => ({IN:'➕',OUT:'➖',SHOP:'🛒',SCHEDULE:'📅',EVENT:'🎉',NOTES:'📝',CORRECTION:'✍️',LOGIN:'🔐'}[ty]||'•');
+const typeIcon = ty => ({IN:'➕',OUT:'➖',SHOP:'🛒',SCHEDULE:'📅',EVENT:'🎉',NOTES:'📝',SHIFT:'📒',CORRECTION:'✍️',LOGIN:'🔐'}[ty]||'•');
 
 /**
  * «Ποιος έκανε τι» — σύνοψη ανά άτομο, ορατή σε όλους.
@@ -5121,11 +5134,7 @@ function whoDidWhatCard(){
   return `<div class="card">
     <div class="row between" style="margin-bottom:9px">
       <h2 style="margin:0">${t('whoDidWhat')}</h2>
-      <span class="pill gray">${t('visibleToAll')}</span>
-    </div>
-    <div class="seg" id="bRange">
-      <button class="${state.bookRange==='today'?'on':''}" data-r="today">${t('today')}</button>
-      <button class="${state.bookRange==='week'?'on':''}" data-r="week">${t('last7')}</button>
+      <span class="pill gray">${t('visibleToAll')} · ${state.bookRange==='today'?t('today'):t('last7')}</span>
     </div>
     ${per.length ? per.map(p=>`
       <button class="entry" data-who="${p.e.id}">
@@ -5143,12 +5152,64 @@ function whoDidWhatCard(){
   </div>`;
 }
 
+function shiftNoteKey(employeeId, dateStr=iso(new Date())){
+  return `${employeeId}:${dateStr}`;
+}
+function shiftNoteFor(employeeId, dateStr=iso(new Date())){
+  return (DB.shiftNotes && DB.shiftNotes[shiftNoteKey(employeeId, dateStr)]) || null;
+}
+function shiftDiaryCard(){
+  if(!state.user) return '';
+  const today=iso(new Date());
+  const mine=shiftNoteFor(state.user.id, today);
+  const from = state.bookRange === 'today'
+    ? new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()).getTime()
+    : Date.now() - 7*24*3600*1000;
+  const team = Object.values(DB.shiftNotes||{})
+    .filter(n => n && n.ts >= from)
+    .sort((a,b)=>b.ts-a.ts);
+  return `<div class="card shift-diary">
+    <div class="row between" style="margin-bottom:8px">
+      <h2 style="margin:0">📒 ${t('shiftDiary')}</h2>
+      <span class="pill gray">${esc(state.user.name)}</span>
+    </div>
+    <div class="muted" style="margin-bottom:8px">${t('shiftDiaryHint')}</div>
+    <label class="f"><span>${t('shiftDiaryMine')} · ${esc(today)}</span>
+      <textarea id="shiftNoteText" rows="4" placeholder="${esc(t('shiftDiaryPh'))}">${esc(mine?.text||'')}</textarea>
+    </label>
+    <button class="btn" id="shiftNoteSave" type="button">${t('shiftDiarySave')}</button>
+    <div style="margin-top:14px">
+      <div class="row between" style="margin-bottom:8px">
+        <h2 style="margin:0;font-size:13px">${t('shiftDiaryTeam')}</h2>
+        <div class="seg" id="bRange" style="margin:0;min-width:150px">
+          <button class="${state.bookRange==='today'?'on':''}" data-r="today">${t('today')}</button>
+          <button class="${state.bookRange==='week'?'on':''}" data-r="week">${t('last7')}</button>
+        </div>
+      </div>
+      ${team.length ? team.map(n=>{
+        const e=emp(n.employeeId);
+        return `<div class="entry" style="cursor:default;margin-bottom:7px">
+          <div class="top">
+            <div class="avatar" style="background:${e?.color||'#94a3b8'}">${esc(e?initials(e.name):'?')}</div>
+            <div class="grow">
+              <div class="act">${esc(e?.name||'—')} <span class="muted">· ${esc(n.date)}</span></div>
+              <div class="meta" style="white-space:pre-wrap">${esc(n.text)}</div>
+            </div>
+            <div class="muted" style="flex:0 0 auto">${fmtDT(n.ts)}</div>
+          </div>
+        </div>`;
+      }).join('') : `<div class="empty">${t('shiftDiaryEmpty')}</div>`}
+    </div>
+  </div>`;
+}
+
 function viewBook(){
   const f = state.bookFilter;
   const rows = DB.log
     .filter(l => (!f.employeeId || l.employeeId===f.employeeId) && (!f.type || l.type===f.type))
     .slice().reverse();
   return `
+    ${shiftDiaryCard()}
     ${whoDidWhatCard()}
     <div class="card">
       <div class="row" style="gap:9px">
@@ -5842,6 +5903,20 @@ function renderChild(){
   document.getElementById('btnProfiles').textContent = '↔';
   document.getElementById('btnProfiles').title = t('profilesBack');
   document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
+  const tools=document.getElementById('topTools');
+  if(tools){
+    tools.innerHTML = [
+      `<button type="button" class="topbtn ${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('myToday')}</button>`,
+      `<button type="button" class="topbtn ${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('myWeek')}</button>`,
+      `<button type="button" class="topbtn ${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('weekEvents')}</button>`,
+      `<button type="button" class="topbtn ${state.childView==='games'?'on':''}" data-child-view="games">🎮</button>`,
+      `<button type="button" class="topbtn" data-child-chat="1">💬 ${t('topChat')}</button>`,
+    ].join('');
+    tools.querySelectorAll('[data-child-view]').forEach(b=>b.onclick=()=>{state.childView=b.dataset.childView;renderChild();});
+    tools.querySelector('[data-child-chat]')?.addEventListener('click',()=>openChatPanel('ai'));
+  }
+  const bottom=document.getElementById('bottomPanel');
+  if(bottom) bottom.style.display='none';
   document.querySelector('nav').style.display = 'none';
   document.body.classList.add('mode-child');
   document.body.classList.remove('has-stock-dock','has-store-dock');
@@ -5913,9 +5988,299 @@ function renderChild(){
   scheduleMeasureChrome();
 }
 
+function dynamicHeaderTitle(){
+  if(state.tab==='home') return t('headerHome');
+  if(state.tab==='schedule'){
+    if(state.scheduleView==='week') return t('headerScheduleWeek');
+    if(state.scheduleView==='events') return t('headerScheduleEvents');
+    return t('headerScheduleDay');
+  }
+  if(state.tab==='stock'){
+    if(state.house==='all') return t('headerStockAll');
+    const h=house(state.house);
+    return `${t('headerStock')} · ${h?h.short:''}`;
+  }
+  if(state.tab==='shop'){
+    const h=house(shopHouse?.() || state.house);
+    return `${t('headerShop')}${h?` · ${h.short}`:''}`;
+  }
+  return t('headerBook');
+}
+
+function paintTopChrome(){
+  const titleEl=document.getElementById('title');
+  const whoEl=document.getElementById('who');
+  if(titleEl) titleEl.textContent = dynamicHeaderTitle();
+  if(whoEl){
+    whoEl.textContent = state.user
+      ? profileLabel(state.user) + ' · ' + L(state.user.role) : t('noUser');
+    if(isAdminUser()) whoEl.innerHTML += ' <span class="admin-badge">ADMIN</span>';
+  }
+  const lang=document.getElementById('btnLang');
+  const user=document.getElementById('btnUser');
+  const profiles=document.getElementById('btnProfiles');
+  if(lang) lang.textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
+  if(user) user.textContent = t('logout');
+  if(profiles){
+    profiles.textContent = '↔';
+    profiles.title = t('profilesBack');
+    profiles.setAttribute('aria-label', t('switchProfile'));
+  }
+  const tools=document.getElementById('topTools');
+  if(!tools) return;
+  const btn=(id,label,cls='')=>`<button type="button" class="topbtn ${cls}" data-top="${id}">${label}</button>`;
+  const bits=[];
+  bits.push(btn('chat', `💬 ${t('topChat')}`, state.chatOpen?'on':''));
+  bits.push(btn('help', `? ${t('topHelp')}`));
+  bits.push(btn('tutorial', `📘 ${t('topTutorial')}`));
+  if(state.user) bits.push(btn('talk', `👥 ${t('topTalk')}`));
+  if(state.tab==='home'){
+    bits.push(btn('goSchedule', `📅 ${t('topDay')}`));
+    bits.push(btn('goStock', `📦 ${t('navStock')}`));
+    bits.push(btn('goShop', `🛒 ${t('topShop')}`));
+    bits.push(btn('goBook', `📒 ${t('topShift')}`));
+  }else if(state.tab==='schedule'){
+    bits.push(btn('day', t('topDay'), state.scheduleView==='day'?'on':''));
+    bits.push(btn('week', t('topWeek'), state.scheduleView==='week'?'on':''));
+    bits.push(btn('events', t('topEvents'), state.scheduleView==='events'?'on':''));
+    bits.push(btn('addEntry', t('topAdd'), 'primary'));
+  }else if(state.tab==='stock'){
+    bits.push(btn('houseAll', t('topBoth'), state.house==='all'?'on':''));
+    DB.houses.forEach(h=>bits.push(btn('house:'+h.id, h.short, state.house===h.id?'on':'')));
+    if(state.house!=='all'){
+      bits.push(btn('stockIn', t('topIn'), 'ok'));
+      bits.push(btn('stockOut', t('topOut'), 'danger'));
+      bits.push(btn('stockBoard', t('topBoard'), 'primary'));
+      bits.push(btn('stockFood', t('topFood')));
+    }
+  }else if(state.tab==='shop'){
+    bits.push(btn('shopAdd', t('addProduct')));
+    bits.push(btn('shopScan', t('topScan')));
+    bits.push(btn('shopHistory', t('topHistory')));
+    bits.push(btn('goStock', `📦 ${t('navStock')}`));
+  }else if(state.tab==='book'){
+    bits.push(btn('shiftFocus', `📒 ${t('topShift')}`, 'primary'));
+    bits.push(btn('bookToday', t('today'), state.bookRange==='today'?'on':''));
+    bits.push(btn('bookWeek', t('last7'), state.bookRange==='week'?'on':''));
+    bits.push(btn('bookFix', t('topFix')));
+  }
+  tools.innerHTML = bits.join('');
+  tools.querySelectorAll('[data-top]').forEach(b=>{
+    b.onclick=()=>onTopAction(b.dataset.top);
+  });
+  const chatLabel=document.querySelector('[data-nav-chat]');
+  if(chatLabel) chatLabel.textContent = t('navChat');
+  document.getElementById('navChat')?.classList.toggle('on', !!state.chatOpen);
+}
+
+function onTopAction(id){
+  feedback('tap');
+  if(id==='chat'){ toggleChatPanel(); return; }
+  if(id==='help'){ openChatPanel('help'); return; }
+  if(id==='tutorial'){ openAppTutorial(); return; }
+  if(id==='talk'){ openChatPanel('talk'); return; }
+  if(id==='goSchedule'){ state.tab='schedule'; state.scheduleView='day'; render(); return; }
+  if(id==='goStock'){ state.tab='stock'; render(); return; }
+  if(id==='goShop'){ state.tab='shop'; render(); return; }
+  if(id==='goBook'){ state.tab='book'; render(); setTimeout(()=>document.getElementById('shiftNoteText')?.scrollIntoView({behavior:'smooth',block:'start'}),40); return; }
+  if(id==='day'){ state.scheduleView='day'; render(); return; }
+  if(id==='week'){ state.scheduleView='week'; render(); return; }
+  if(id==='events'){ state.scheduleView='events'; render(); return; }
+  if(id==='addEntry'){ sheetEntry(null, state.date); return; }
+  if(id==='houseAll'){ state.house='all'; clearStockDraft(); render(); return; }
+  if(id.startsWith('house:')){ state.house=id.slice(6); clearStockDraft(); render(); return; }
+  if(id==='stockIn'){ sheetStockBoard('IN'); return; }
+  if(id==='stockOut'){ sheetStockBoard('OUT'); return; }
+  if(id==='stockBoard'){ sheetStockBoard('IN'); return; }
+  if(id==='stockFood'){ sheetStockBoard('IN'); setTimeout(()=>document.getElementById('sbAddFood')?.click(),200); return; }
+  if(id==='shopAdd'){ document.getElementById('cartQuickName')?.focus(); return; }
+  if(id==='shopScan'){ document.getElementById('btnReceipt')?.click() || sheetImportList(); return; }
+  if(id==='shopHistory'){ sheetShoppingHistory(); return; }
+  if(id==='shiftFocus'){ document.getElementById('shiftNoteText')?.focus(); document.getElementById('shiftNoteText')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  if(id==='bookToday'){ state.bookRange='today'; render(); return; }
+  if(id==='bookWeek'){ state.bookRange='week'; render(); return; }
+  if(id==='bookFix'){ sheetCorrection(); return; }
+}
+
+function closeChatPanel(){
+  state.chatOpen=false;
+  document.body.classList.remove('chat-open');
+  const body=document.getElementById('chatBody');
+  if(body) body.replaceChildren();
+  scheduleMeasureChrome();
+  paintTopChrome();
+}
+
+function toggleChatPanel(){
+  if(state.chatOpen) closeChatPanel();
+  else openChatPanel(state.chatMode||'ai');
+}
+
+function openChatPanel(mode='ai'){
+  state.chatMode=mode;
+  state.chatOpen=true;
+  document.body.classList.add('chat-open');
+  document.querySelectorAll('#chatModeSeg button').forEach(b=>b.classList.toggle('on', b.dataset.cm===mode));
+  paintTopChrome();
+  paintChatPanel();
+  scheduleMeasureChrome();
+}
+
+function paintChatPanel(){
+  const body=document.getElementById('chatBody');
+  if(!body || !state.chatOpen) return;
+  if(state.chatMode==='talk'){
+    if(state.mode!=='staff' || !state.user){
+      body.innerHTML=`<div class="empty">${esc(t('staffTalkNeedStaff'))}</div>`;
+      return;
+    }
+    // Reuse sheet UI by embedding a lightweight launcher + opening full talk in sheet for reliability
+    body.innerHTML=`<div class="card" style="margin:0">
+      <b>💬 ${esc(t('staffTalk'))}</b>
+      <div class="muted" style="margin:6px 0 10px">${esc(t('staffTalkHint')||t('staffTalkOpen'))}</div>
+      <button class="btn" type="button" id="chatOpenTalk">${esc(t('staffTalkOpen'))}</button>
+    </div>`;
+    body.querySelector('#chatOpenTalk').onclick=()=>{ feedback('open'); sheetStaffTalk(); };
+    return;
+  }
+  if(state.chatMode==='help'){
+    body.innerHTML=`<div class="help-center-grid" style="margin:0">
+      <button class="help-center-card" id="chatTutorial" type="button"><span class="icon">📘</span><b>${t('startTutorial')}</b><span>${t('startTutorialHint')}</span></button>
+      <button class="help-center-card" id="chatAi" type="button"><span class="icon">✨</span><b>${t('askAiHelp')}</b><span>${t('askAiHelpHint')}</span></button>
+      ${state.user?`<button class="help-center-card talk" id="chatTalk" type="button"><span class="icon">💬</span><b>${t('staffTalk')}</b><span>${t('staffTalkHint')}</span></button>`:''}
+    </div>`;
+    body.querySelector('#chatTutorial').onclick=openAppTutorial;
+    body.querySelector('#chatAi').onclick=()=>openChatPanel('ai');
+    body.querySelector('#chatTalk')?.addEventListener('click',()=>openChatPanel('talk'));
+    return;
+  }
+  // AI chat inline
+  mountHelpChat(body);
+}
+
+function mountHelpChat(root){
+  loadHelpTranscriptForCurrentUser();
+  if(!state.helpMessages.length){
+    state.helpMessages.push({role:'assistant', content:helpWelcomeMessage()});
+    persistHelpTranscript();
+  }
+  let voice=null;
+  const role = helpChatRole();
+  const canMutate = role==='staff' || role==='admin';
+  const paint = () => {
+    const log = root.querySelector('#helpLog');
+    if(!log) return;
+    log.innerHTML = state.helpMessages.map(m =>
+      `<div class="chat-msg ${m.role==='user'?'user':'assistant'}">${esc(m.content)}</div>`).join('');
+    log.scrollTop = log.scrollHeight;
+    persistHelpTranscript();
+  };
+  const quickPrompts = role==='child'
+    ? (state.lang==='el'
+        ? ['Τι έχω σήμερα;','Πού είναι το επόμενο event;','Πώς παίζω Μνήμη;']
+        : ['Was habe ich heute?','Wann ist mein nächstes Event?','Wie spiele ich Memory?'])
+    : role==='admin'
+      ? (state.lang==='el'
+          ? ['πρόσθεσε 2 γάλα στο Kalyvia','πώς αλλάζω το μόνιμο πρόγραμμα;','άνοιξε το κέντρο διαχείρισης']
+          : ['2 Milch nach Kalyvia','Wie ändere ich den Dauerplan?','Wo ist die Admin-Zentrale?'])
+      : (state.lang==='el'
+          ? ['πρόσθεσε 2 γάλα στο Kalyvia','βγάλε 1 βούτυρο Limenaria','βάλε ρύζι στη λίστα']
+          : ['2 Milch nach Kalyvia','1 Butter raus Limenaria','Reis auf die Liste']);
+  const quickLabel = role==='child' ? t('helpQuickChild') : role==='admin' ? t('helpQuickAdmin') : t('helpQuickFood');
+  root.innerHTML=`<div class="row between" style="align-items:flex-start;gap:10px;margin-bottom:8px">
+      <div class="strong">✨ ${t('helpChat')}</div>
+      <span class="help-role-pill ${esc(role)}">${esc(helpRoleLabel())}</span>
+    </div>
+    <div class="status error" id="helpConfigStatus" hidden style="margin:0 0 10px"></div>
+    <div class="chips help-quick" id="helpQuick" style="margin:0 0 10px">
+      <span class="muted" style="width:100%;font-size:11px">${esc(quickLabel)}</span>
+      ${quickPrompts.map(q=>`<button class="chip" type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('')}
+    </div>
+    <div class="chat-log" id="helpLog" aria-live="polite"></div>
+    <div id="helpProposeBox" class="help-propose-box" hidden></div>
+    <div class="chat-compose">
+      <textarea id="helpInput" rows="1" placeholder="${esc(t('helpPlaceholder'))}"></textarea>
+      <button class="chat-mic" id="helpMic" type="button" aria-label="${esc(t('helpVoice'))}" title="${esc(t('helpVoice'))}">🎤</button>
+      <button class="btn" id="helpSend" type="button">${t('helpSend')}</button>
+    </div>
+    <div class="chat-voice-status" id="helpVoiceStatus" hidden></div>`;
+  paint();
+  fetch('/api/health',{credentials:'same-origin'}).then(r=>r.json()).then(health=>{
+    const banner=root.querySelector('#helpConfigStatus');
+    if(!banner || health?.aiConfigured!==false) return;
+    banner.hidden=false;
+    banner.textContent=t('helpConfigBanner');
+  }).catch(()=>{});
+  if(canMutate && state.pendingHelpActions?.length){
+    // proposals still use sheet helper when needed
+  }
+  const input = root.querySelector('#helpInput');
+  const send = root.querySelector('#helpSend');
+  root.querySelectorAll('#helpQuick [data-q]').forEach(b=>{
+    b.onclick=()=>{ input.value=b.dataset.q; feedback('select'); input.focus(); };
+  });
+  const submit = async () => {
+    const content = input.value.trim();
+    if(!content || send.disabled) return;
+    voice?.stop();
+    state.helpMessages.push({role:'user', content});
+    state.helpMessages = state.helpMessages.slice(-12);
+    persistHelpTranscript();
+    input.value = ''; send.disabled = true;
+    const mic=root.querySelector('#helpMic'); if(mic) mic.disabled=true;
+    paint();
+    const thinking = document.createElement('div');
+    thinking.className = 'chat-msg assistant'; thinking.id = 'helpThinking';
+    thinking.textContent = t('helpThinking');
+    root.querySelector('#helpLog').appendChild(thinking);
+    try{
+      const response = await fetch('/api/chat', {
+        method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
+        body:JSON.stringify({
+          messages:state.helpMessages.filter(m=>m.role==='user'||m.role==='assistant'),
+          context:helpUiContext(),
+        }),
+      });
+      const data = await response.json().catch(()=>({}));
+      if(!response.ok){
+        const error=new Error(data.detail || data.setup || data.error || String(response.status));
+        error.status=response.status;
+        error.code=data.code;
+        error.detail=data.detail||data.setup||data.error;
+        throw error;
+      }
+      state.helpMessages.push({role:'assistant', content:data.message || t('helpUnavailable')});
+      state.helpMessages = state.helpMessages.slice(-12);
+      persistHelpTranscript();
+      paint();
+      if(canMutate && Array.isArray(data.actions) && data.actions.length){
+        sheetHelpProposals(data.actions,{inline:true,onDone:()=>paint()});
+      }
+    }catch(error){
+      state.helpMessages.push({role:'assistant', content:friendlyAiError(error)});
+      persistHelpTranscript();
+      paint();
+    }finally{
+      send.disabled = false;
+      if(mic) mic.disabled=false;
+      input.focus();
+    }
+  };
+  send.onclick = submit;
+  input.onkeydown = e => {
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); }
+  };
+  voice=bindVoiceInput({
+    input,
+    mic:root.querySelector('#helpMic'),
+    statusEl:root.querySelector('#helpVoiceStatus'),
+  });
+}
+
 function measureChrome(){
   const root=document.documentElement;
   const nav=document.querySelector('nav');
+  const chatPanel=document.getElementById('chatPanel');
   const childMode=document.body.classList.contains('mode-child');
   const storeFs=document.body.classList.contains('store-fullscreen');
   const matrixFs=document.body.classList.contains('matrix-fullscreen');
@@ -5929,10 +6294,15 @@ function measureChrome(){
       dockH=Math.ceil(dockEl.getBoundingClientRect().height);
     }
   }
+  let chatH=0;
+  if(state.chatOpen && chatPanel && !navHidden){
+    chatH=Math.ceil(chatPanel.getBoundingClientRect().height);
+  }
   // Set on both html and body so class-based body vars cannot override measured values.
   [root, document.body].forEach(el=>{
     el.style.setProperty('--nav-total', `${navH}px`);
     el.style.setProperty('--dock-h', `${dockH}px`);
+    el.style.setProperty('--chat-h', `${chatH}px`);
   });
 }
 
@@ -5951,20 +6321,13 @@ function render(){
   document.body.classList.remove('mode-child');
   document.body.classList.remove('store-fullscreen');
   document.body.classList.remove('matrix-fullscreen');
+  const bottom=document.getElementById('bottomPanel');
+  if(bottom) bottom.style.display='';
   document.querySelector('nav').style.display = '';
   document.getElementById('helpFab').setAttribute('aria-label', t('helpCenter'));
   document.getElementById('helpFab').title = t('helpCenter');
-  document.getElementById('title').textContent =
-    t(state.tab==='home'?'titleHome':state.tab==='schedule'?'titleSchedule':state.tab==='stock'?'titleStock':state.tab==='shop'?'titleShop':'titleBook');
-  document.getElementById('who').textContent = state.user
-    ? profileLabel(state.user) + ' · ' + L(state.user.role) : t('noUser');
-  if(isAdminUser()) document.getElementById('who').innerHTML += ' <span class="admin-badge">ADMIN</span>';
-  document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
-  document.getElementById('btnUser').textContent = t('logout');
-  document.getElementById('btnProfiles').textContent = '↔';
-  document.getElementById('btnProfiles').title = t('profilesBack');
-  document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
-  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
+  paintTopChrome();
+  document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   document.querySelectorAll('[data-nav]').forEach(s=>{
     s.textContent = t('nav' + s.dataset.nav[0].toUpperCase() + s.dataset.nav.slice(1));
   });
@@ -5975,6 +6338,7 @@ function render(){
   document.body.classList.toggle('has-store-dock', storeDock);
   document.body.classList.toggle('store-fullscreen', storeDock);
   document.body.classList.toggle('has-stock-draft', stockDock && stockDraftEntries().length>0);
+  document.body.classList.toggle('chat-open', !!state.chatOpen);
 
   document.getElementById('view').innerHTML =
       state.tab==='home'     ? viewHome()
@@ -6379,13 +6743,45 @@ function wire(){
   if(be) be.onchange = () => { state.bookFilter.employeeId = be.value; render(); };
   if(bt) bt.onchange = () => { state.bookFilter.type = bt.value; render(); };
   if(bf) bf.onclick = sheetCorrection;
+  const shiftSave=v.querySelector('#shiftNoteSave');
+  if(shiftSave) shiftSave.onclick=()=>{
+    if(!state.user){ toast(t('noUser'),'error'); return; }
+    const text=(v.querySelector('#shiftNoteText')?.value||'').trim();
+    if(!text){ toast(t('shiftDiaryPh'),'error'); return; }
+    askPin(t('shiftDiary'), who=>{
+      state.user=who;
+      const dateStr=iso(new Date());
+      const key=shiftNoteKey(who.id, dateStr);
+      DB.shiftNotes=DB.shiftNotes||{};
+      DB.shiftNotes[key]={id:key, employeeId:who.id, date:dateStr, text, ts:Date.now()};
+      logEntry('SHIFT', `${t('typeSHIFT')}: ${text.slice(0,180)}`, {date:dateStr});
+      if(!save()) return;
+      render();
+      feedback('save');
+      toast(t('shiftDiarySaved'),'success');
+    });
+  };
 }
 
-document.querySelectorAll('nav button').forEach(b=>{
+document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   b.onclick = () => {
     if(b.dataset.tab!=='stock' && state.tab==='stock') clearStockDraft();
     state.tab = b.dataset.tab;
     render();
+  };
+});
+document.getElementById('navChat')?.addEventListener('click', ()=>{
+  feedback('tap');
+  toggleChatPanel();
+});
+document.getElementById('chatClose')?.addEventListener('click', ()=>{
+  feedback('tap');
+  closeChatPanel();
+});
+document.querySelectorAll('#chatModeSeg button').forEach(b=>{
+  b.onclick=()=>{
+    feedback('select');
+    openChatPanel(b.dataset.cm);
   };
 });
 document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
@@ -6862,11 +7258,15 @@ function renderResetForm(token){
 }
 
 document.documentElement.lang = state.lang;
-document.getElementById('helpFab').onclick = sheetHelpCenter;
+document.getElementById('helpFab').onclick = () => openChatPanel('help');
 window.addEventListener('keydown', event=>{
   if(event.key==='Escape' && document.body.classList.contains('matrix-fullscreen')){
     event.preventDefault();
     exitMatrixFullscreen();
+  }
+  if(event.key==='Escape' && state.chatOpen){
+    event.preventDefault();
+    closeChatPanel();
   }
 });
 window.addEventListener('resize', scheduleMeasureChrome);
