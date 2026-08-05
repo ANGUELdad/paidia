@@ -59,6 +59,7 @@ def _cookie_header_named(name: str, token: str, max_age: int) -> str:
 
 
 def _session_from_request() -> dict | None:
+    paidia.hydrate_auth_from_cookie(request.cookies.get(paidia.AUTH_OVERRIDE_COOKIE, ""))
     token = request.cookies.get(paidia.AUTH_COOKIE, "")
     if not token:
         return None
@@ -110,10 +111,13 @@ def _api_path(path: str) -> str:
 
 def _auth_health():
     delivery = paidia.email_delivery_status()
+    reset = paidia.pin_reset_status()
     payload = {
         "ok": True,
         "configuredProfiles": len(paidia.AUTH_USERS),
         "emailConfigured": delivery["configured"],
+        "pinResetReady": reset["ready"],
+        "publicUrlConfigured": reset["publicUrlConfigured"],
         "runtime": "vercel-flask",
         "onboardingVersion": paidia.ONBOARDING_VERSION,
         "usersConfigured": bool(paidia.AUTH_USERS),
@@ -228,6 +232,9 @@ class _FlaskHandlerBridge:
     def passkey_device_cookie(self) -> str:
         return request.cookies.get(paidia.PASSKEY_COOKIE, "")
 
+    def auth_override_cookie(self) -> str:
+        return request.cookies.get(paidia.AUTH_OVERRIDE_COOKIE, "")
+
     def passkey_store_for_request(self) -> dict:
         return paidia.merge_passkey_stores(
             paidia.PASSKEYS,
@@ -238,6 +245,7 @@ class _FlaskHandlerBridge:
         return self.client_address[0]
 
     def current_auth_session(self):
+        paidia.hydrate_auth_from_cookie(self.auth_override_cookie())
         return _session_from_request()
 
     def set_cookie_header(self, name: str, token: str, max_age: int) -> str:
@@ -248,6 +256,9 @@ class _FlaskHandlerBridge:
 
     def set_passkey_cookie(self, token: str, max_age: int = paidia.PASSKEY_COOKIE_TTL) -> str:
         return _cookie_header_named(paidia.PASSKEY_COOKIE, token, max_age=max_age)
+
+    def set_auth_override_cookie(self, token: str, max_age: int = paidia.AUTH_OVERRIDE_COOKIE_TTL) -> str:
+        return _cookie_header_named(paidia.AUTH_OVERRIDE_COOKIE, token, max_age=max_age)
 
     def json_response(self, status: int, payload: dict, headers: dict | None = None) -> None:
         self._status = status
@@ -268,6 +279,7 @@ class _FlaskHandlerBridge:
 
 
 def _call_handler(method_name: str, body: dict | None = None):
+    paidia.hydrate_auth_from_cookie(request.cookies.get(paidia.AUTH_OVERRIDE_COOKIE, ""))
     bridge = _FlaskHandlerBridge()
     method = getattr(paidia.Handler, method_name)
     if body is None:

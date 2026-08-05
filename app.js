@@ -149,6 +149,9 @@ const T = {
     contactCardTitle:'Kontakt & Wiederherstellung',
     switchProfile:'Anderes Profil öffnen', profilesBack:'Profile',
     adminsManageEmails:'Als Admin kannst du die E-Mail jedes Profils verwalten.',
+    resetUnavailable:'E-Mail-Reset ist gerade nicht verfügbar. Bitte Admin fragen.',
+    resetNeedProfileEmail:'Nutze die E-Mail, die für dieses Profil gespeichert ist. Fehlt sie, speichere sie zuerst nach dem Login unter Profil.',
+    resetBackPin:'← Zurück zur PIN',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
     device:'Gerät', welcome:n=>'Willkommen, '+n,
     tutorialRequired:'Login-Tutorial · erforderlich', tutorialStep:(n,total)=>`Schritt ${n} von ${total}`,
@@ -498,6 +501,9 @@ const T = {
     contactCardTitle:'Επικοινωνία & ανάκτηση',
     switchProfile:'Άνοιγμα άλλου προφίλ', profilesBack:'Προφίλ',
     adminsManageEmails:'Ως admin μπορείς να διαχειριστείς το email κάθε προφίλ.',
+    resetUnavailable:'Η αλλαγή PIN με email δεν είναι διαθέσιμη τώρα. Ρώτα τον admin.',
+    resetNeedProfileEmail:'Χρησιμοποίησε το email που είναι αποθηκευμένο σε αυτό το προφίλ. Αν λείπει, αποθήκευσέ το μετά τη σύνδεση στο Προφίλ.',
+    resetBackPin:'← Πίσω στο PIN',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
     device:'Συσκευή', welcome:n=>'Καλώς ήρθες, '+n,
     tutorialRequired:'Tutorial σύνδεσης · υποχρεωτικό', tutorialStep:(n,total)=>`Βήμα ${n} από ${total}`,
@@ -6962,9 +6968,8 @@ async function sheetSecurityAccess(){
 }
 
 function gateMeta(){
-  return `<div class="gate-meta" id="gateMeta">
-    ${t('device')} <b>${esc(session.deviceId)}</b> · IP <b>${esc(session.ip || '…')}</b><br>
-    ${t('gateTrace')}</div>`;
+  // Keep audit text off the login/reset screens — it looks like a leak and blocks trust.
+  return '';
 }
 function refreshGateMeta(){
   const el = document.getElementById('gateMeta');
@@ -7201,30 +7206,48 @@ function renderGatePin(who, mode = 'staff'){
 
 function renderResetRequest(who,mode){
   stopPinKeyboard();
+  const pinColor = /^#[0-9a-fA-F]{3,8}$/.test(String(who.color||''))?who.color:'#94a3b8';
   gateBody.innerHTML=`
-    <div class="gate-pin">
-      <div class="pa" style="background:${/^#[0-9a-fA-F]{3,8}$/.test(String(who.color||''))?esc(who.color):'#94a3b8'}">${initials(who.name)}</div>
-      <h3>${t('resetPinTitle')}</h3>
-      <div class="sub">${esc(who.name)}</div>
-      <label class="f" style="text-align:left;margin-top:18px"><span>${t('emailLabel')}</span>
-        <input type="email" id="resetEmail" autocomplete="email" inputmode="email"></label>
-      <div id="resetStatus" style="min-height:36px;font-size:12.5px"></div>
+    <div class="gate-pin gate-reset">
+      <div class="gate-mail-hero" aria-hidden="true">
+        <div class="gate-mail-mark">A</div>
+        <div class="gate-mail-eyebrow">Armonia Thassos</div>
+        <h3>${t('resetPinTitle')}</h3>
+        <p>${t('resetNeedProfileEmail')}</p>
+      </div>
+      <div class="pa" style="background:${esc(pinColor)};margin:14px auto 0">${initials(who.name)}</div>
+      <div class="sub" style="margin-top:8px">${esc(who.name)}</div>
+      <label class="f" style="text-align:left;margin-top:14px"><span>${t('emailLabel')}</span>
+        <input type="email" id="resetEmail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>
+      <div id="resetStatus" class="status-box" style="min-height:36px;font-size:12.5px;display:none" role="status" aria-live="polite"></div>
       <button class="btn" id="resetSend">${t('sendResetLink')}</button>
-      <button class="gate-back" id="resetBack">${t('gateBack')}</button>
-    </div>${gateMeta()}`;
+      <button class="gate-back" id="resetBack" type="button">${t('resetBackPin')}</button>
+    </div>`;
+  const status=gateBody.querySelector('#resetStatus');
+  const button=gateBody.querySelector('#resetSend');
   gateBody.querySelector('#resetBack').onclick=()=>renderGatePin(who,mode);
-  gateBody.querySelector('#resetSend').onclick=async()=>{
+  fetch('/api/auth/health',{credentials:'same-origin'}).then(r=>r.json()).then(health=>{
+    if(health?.pinResetReady===false || health?.emailConfigured===false){
+      status.style.display='block';
+      setStatus(status,t('resetUnavailable'),'error');
+      button.disabled=true;
+    }
+  }).catch(()=>{});
+  button.onclick=async()=>{
     const email=gateBody.querySelector('#resetEmail').value.trim();
-    const status=gateBody.querySelector('#resetStatus'),button=gateBody.querySelector('#resetSend');
-    if(!email){setStatus(status,t('emailLabel'),'error');return;}
+    if(!email || !gateBody.querySelector('#resetEmail').validity.valid){
+      status.style.display='block'; setStatus(status,t('emailLabel'),'error'); return;
+    }
     button.disabled=true;
+    status.style.display='block';
+    setStatus(status, state.lang==='el'?'Αποστολή…':'Senden…','');
     try{
       const response=await fetch('/api/auth/request-reset',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({profileId:who.id,email})});
+        credentials:'same-origin', body:JSON.stringify({profileId:who.id,email})});
       if(!response.ok) throw new Error(String(response.status));
       setStatus(status,t('resetLinkSent'),'success');
     }catch(error){setStatus(status,t('authUnavailable'),'error');}
-    finally{button.disabled=false;}
+    finally{ if(!button.dataset.locked) button.disabled=false; }
   };
 }
 

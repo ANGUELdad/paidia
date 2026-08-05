@@ -63,6 +63,9 @@
       invalidReset: 'Link ungültig oder PINs stimmen nicht.',
       needEmail: 'Bitte E-Mail eingeben.',
       storageFail: 'PIN konnte nicht gespeichert werden. Bitte Admin informieren.',
+      resetUnavailable: 'E-Mail-Reset ist gerade nicht verfügbar. Bitte Admin fragen.',
+      resetNeedProfileEmail: 'Nutze die E-Mail, die für dieses Profil gespeichert ist.',
+      resetBackPin: '← Zurück zur PIN',
     },
     el: {
       brand: 'Μαζί μέσα στην ημέρα',
@@ -95,6 +98,9 @@
       invalidReset: 'Άκυρος σύνδεσμος ή τα PIN δεν ταιριάζουν.',
       needEmail: 'Βάλε το email.',
       storageFail: 'Το PIN δεν αποθηκεύτηκε. Ενημέρωσε τον admin.',
+      resetUnavailable: 'Η αλλαγή PIN με email δεν είναι διαθέσιμη τώρα. Ρώτα τον admin.',
+      resetNeedProfileEmail: 'Χρησιμοποίησε το email που είναι αποθηκευμένο σε αυτό το προφίλ.',
+      resetBackPin: '← Πίσω στο PIN',
     },
   };
   const t = (key) => copy[lang][key];
@@ -108,7 +114,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=43';
+    script.src = 'app.js?v=44';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -333,7 +339,7 @@
           <div class="gate-mail-mark">A</div>
           <div class="gate-mail-eyebrow">Armonia Thassos</div>
           <h3>${t('resetTitle')}</h3>
-          <p>${t('resetSub')}</p>
+          <p>${t('resetNeedProfileEmail')}</p>
         </div>
         <div class="pa" style="background:${safeColor(who.color)};margin:14px auto 0">${initials(who.name)}</div>
         <div class="sub" style="margin-top:8px">${esc(who.name)}</div>
@@ -341,13 +347,20 @@
           <input type="email" id="resetEmail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>
         <div class="gate-status" id="resetStatus" role="status" aria-live="polite"></div>
         <button class="btn" id="resetSend" type="button">${t('sendLink')}</button>
-        <button class="gate-back" type="button" id="resetBack">${t('back')}</button>
+        <button class="gate-back" type="button" id="resetBack">${t('resetBackPin')}</button>
       </div>`;
+    const status = body.querySelector('#resetStatus');
+    const button = body.querySelector('#resetSend');
     body.querySelector('#resetBack').onclick = () => renderPin(who, mode);
-    body.querySelector('#resetSend').onclick = async () => {
+    fetch('/api/auth/health', { credentials: 'same-origin' }).then((r) => r.json()).then((health) => {
+      if (health?.pinResetReady === false || health?.emailConfigured === false) {
+        setGateStatus(status, t('resetUnavailable'), 'error');
+        button.disabled = true;
+        button.dataset.locked = '1';
+      }
+    }).catch(() => {});
+    button.onclick = async () => {
       const email = body.querySelector('#resetEmail').value.trim();
-      const status = body.querySelector('#resetStatus');
-      const button = body.querySelector('#resetSend');
       if (!email) { setGateStatus(status, t('needEmail'), 'error'); return; }
       button.disabled = true;
       setGateStatus(status, lang === 'el' ? 'Αποστολή…' : 'Senden…', '');
@@ -363,7 +376,7 @@
       } catch (error) {
         setGateStatus(status, t('unavailable'), 'error');
       } finally {
-        button.disabled = false;
+        if (!button.dataset.locked) button.disabled = false;
       }
     };
     setTimeout(() => body.querySelector('#resetEmail')?.focus(), 40);

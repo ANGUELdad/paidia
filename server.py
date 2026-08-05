@@ -86,6 +86,9 @@ USED_PASSKEY_CEREMONIES: dict[str, float] = {}
 PASSKEY_CHALLENGE_TTL = 5 * 60
 PASSKEY_COOKIE = "paidia_pk"
 PASSKEY_COOKIE_TTL = 400 * 24 * 3600
+AUTH_OVERRIDE_COOKIE = "paidia_auth_ovr"
+AUTH_OVERRIDE_COOKIE_TTL = 400 * 24 * 3600
+AUTH_OVERRIDES_PATH = Path(os.environ.get("PAIDIA_AUTH_OVERRIDES_PATH", ".paidia-auth-overrides.json"))
 
 
 def env_int(name: str, default: int, minimum: int = 1) -> int:
@@ -312,6 +315,151 @@ ADMIN_PROFILE_IDS = {
     value.strip() for value in os.environ.get("PAIDIA_ADMIN_PROFILE_IDS", "e3,e4,e8").split(",")
     if value.strip()
 }
+
+
+def load_auth_overrides() -> dict[str, dict]:
+    """PIN/email overrides that survive Vercel cold starts via env + optional file + cookie."""
+    out: dict[str, dict] = {}
+    raw = os.environ.get("PAIDIA_AUTH_OVERRIDES_JSON", "").strip()
+    blobs: list[str] = []
+    if raw:
+        blobs.append(raw)
+    try:
+        blobs.append(AUTH_OVERRIDES_PATH.read_text(encoding="utf-8"))
+    except OSError:
+        pass
+    for blob in blobs:
+        try:
+            data = json.loads(blob)
+        except json.JSONDecodeError:
+            continue
+        profiles = data.get("profiles", data) if isinstance(data, dict) else {}
+        if not isinstance(profiles, dict):
+            continue
+        for profile_id, record in profiles.items():
+            if not isinstance(record, dict):
+                continue
+            pin_hash = str(record.get("pin_hash", "")).strip()
+            if not pin_hash:
+                continue
+            out[str(profile_id)] = {
+                "pin_hash": pin_hash,
+                "email": str(record.get("email", "")).strip().lower(),
+                "phone": str(record.get("phone", "")).strip(),
+                "updated_at": float(record.get("updated_at") or 0),
+            }
+    return out
+
+
+def apply_auth_overrides(overrides: dict[str, dict] | None = None) -> None:
+    for profile_id, record in (overrides or {}).items():
+        user = AUTH_USERS.get(profile_id)
+        if not user or not isinstance(record, dict):
+            continue
+        if record.get("pin_hash"):
+            user["pin_hash"] = str(record["pin_hash"])
+        if record.get("email") is not None and str(record.get("email", "")).strip() != "":
+            user["email"] = str(record["email"]).strip().lower()
+        if record.get("phone") is not None and str(record.get("phone", "")).strip() != "":
+            user["phone"] = str(record["phone"]).strip()
+
+
+AUTH_OVERRIDES = load_auth_overrides()
+apply_auth_overrides(AUTH_OVERRIDES)
+
+
+def encode_auth_override_cookie(overrides: dict[str, dict]) -> str:
+    import base64
+    payload = {
+        "profiles": {
+            pid: {
+                "pin_hash": rec.get("pin_hash", ""),
+                "email": rec.get("email", ""),
+                "phone": rec.get("phone", ""),
+                "updated_at": float(rec.get("updated_at") or 0),
+            }
+            for pid, rec in overrides.items()
+            if rec.get("pin_hash")
+        },
+        "exp": int(time.time()) + AUTH_OVERRIDE_COOKIE_TTL,
+    }
+    raw = base64.urlsafe_b64encode(
+        json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    ).decode("ascii").rstrip("=")
+    sig = hmac.new(session_secret(), raw.encode("ascii"), hashlib.sha256).hexdigest()
+    return f"v1.{raw}.{sig}"
+
+
+def decode_auth_override_cookie(token: str) -> dict[str, dict]:
+    import base64
+    if not token or len(token) > 8000:
+        return {}
+    try:
+        version, raw, sig = token.split(".", 2)
+        if version != "v1":
+            return {}
+        expected = hmac.new(session_secret(), raw.encode("ascii"), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expected, sig):
+            return {}
+        padded = raw + "=" * (-len(raw) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(padded.encode("ascii")))
+        if float(payload.get("exp", 0)) <= time.time():
+            return {}
+        profiles = payload.get("profiles") or {}
+        if not isinstance(profiles, dict):
+            return {}
+        out: dict[str, dict] = {}
+        for profile_id, record in profiles.items():
+            if not isinstance(record, dict) or not record.get("pin_hash"):
+                continue
+            out[str(profile_id)] = {
+                "pin_hash": str(record["pin_hash"]),
+                "email": str(record.get("email", "")).strip().lower(),
+                "phone": str(record.get("phone", "")).strip(),
+                "updated_at": float(record.get("updated_at") or 0),
+            }
+        return out
+    except (ValueError, TypeError, json.JSONDecodeError, RuntimeError):
+        return {}
+
+
+def hydrate_auth_from_cookie(token: str) -> None:
+    cookie_overrides = decode_auth_override_cookie(token)
+    if not cookie_overrides:
+        return
+    with AUTH_LOCK:
+        for profile_id, record in cookie_overrides.items():
+            current = AUTH_OVERRIDES.get(profile_id) or {}
+            if float(record.get("updated_at") or 0) < float(current.get("updated_at") or 0):
+                continue
+            AUTH_OVERRIDES[profile_id] = record
+            apply_auth_overrides({profile_id: record})
+
+
+def set_auth_override(profile_id: str, *, pin_hash: str, email: str = "", phone: str = "") -> None:
+    with AUTH_LOCK:
+        AUTH_OVERRIDES[profile_id] = {
+            "pin_hash": pin_hash,
+            "email": (email or "").strip().lower(),
+            "phone": (phone or "").strip(),
+            "updated_at": time.time(),
+        }
+        apply_auth_overrides({profile_id: AUTH_OVERRIDES[profile_id]})
+
+
+def persist_auth_overrides() -> None:
+    payload = {"profiles": AUTH_OVERRIDES}
+    raw = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+    os.environ["PAIDIA_AUTH_OVERRIDES_JSON"] = raw
+    try:
+        AUTH_OVERRIDES_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = AUTH_OVERRIDES_PATH.with_name(AUTH_OVERRIDES_PATH.name + ".tmp")
+        temp_path.write_text(raw + "\n", encoding="utf-8")
+        os.chmod(temp_path, 0o600)
+        os.replace(temp_path, AUTH_OVERRIDES_PATH)
+    except OSError:
+        if os.environ.get("VERCEL") != "1":
+            raise
 
 
 def session_secret() -> bytes:
@@ -1061,6 +1209,21 @@ def email_delivery_status() -> dict:
     if not providers:
         return {"configured": False, "provider": "none", "providers": []}
     return {"configured": True, "provider": providers[0], "providers": providers}
+
+
+def pin_reset_status() -> dict:
+    delivery = email_delivery_status()
+    configured = (os.environ.get("PAIDIA_PUBLIC_URL") or "").rstrip("/")
+    localish = any(x in configured for x in ("127.0.0.1", "localhost", "0.0.0.0")) if configured else True
+    if os.environ.get("VERCEL") == "1":
+        public_ok = bool(configured and not localish)
+    else:
+        public_ok = True
+    return {
+        "ready": bool(delivery["configured"] and public_ok),
+        "emailConfigured": bool(delivery["configured"]),
+        "publicUrlConfigured": public_ok,
+    }
 
 
 def public_base_url(headers=None) -> str:
@@ -1861,6 +2024,11 @@ class Handler(SimpleHTTPRequestHandler):
         morsel = cookie.get(PASSKEY_COOKIE)
         return morsel.value if morsel else ""
 
+    def auth_override_cookie(self) -> str:
+        cookie = SimpleCookie(self.headers.get("Cookie", ""))
+        morsel = cookie.get(AUTH_OVERRIDE_COOKIE)
+        return morsel.value if morsel else ""
+
     def passkey_store_for_request(self) -> dict:
         return merge_passkey_stores(PASSKEYS, decode_passkey_device_bundle(self.passkey_device_cookie()))
 
@@ -1879,6 +2047,9 @@ class Handler(SimpleHTTPRequestHandler):
 
     def set_passkey_cookie(self, token: str, max_age: int = PASSKEY_COOKIE_TTL) -> str:
         return self.set_cookie_header(PASSKEY_COOKIE, token, max_age)
+
+    def set_auth_override_cookie(self, token: str, max_age: int = AUTH_OVERRIDE_COOKIE_TTL) -> str:
+        return self.set_cookie_header(AUTH_OVERRIDE_COOKIE, token, max_age)
 
     def client_ip(self) -> str:
         ip = self.client_address[0]
@@ -1899,6 +2070,7 @@ class Handler(SimpleHTTPRequestHandler):
         return ip
 
     def current_auth_session(self) -> dict | None:
+        hydrate_auth_from_cookie(self.auth_override_cookie())
         token = self.auth_cookie()
         if not token:
             return None
@@ -2288,6 +2460,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.json_response(200, {"completed": True, "version": ONBOARDING_VERSION})
 
     def handle_auth_login(self, body: dict) -> None:
+        hydrate_auth_from_cookie(self.auth_override_cookie())
         profile_id = str(body.get("profileId", "")).strip()[:64]
         mode = "child" if body.get("mode") == "child" else "staff"
         pin = str(body.get("pin", ""))[:12]
@@ -2580,17 +2753,30 @@ class Handler(SimpleHTTPRequestHandler):
         user["phone"] = phone
         try:
             persist_auth_users()
+            if user.get("pin_hash"):
+                set_auth_override(
+                    profile_id,
+                    pin_hash=str(user["pin_hash"]),
+                    email=email,
+                    phone=phone,
+                )
+                persist_auth_overrides()
         except RuntimeError:
             user["email"] = previous["email"]
             user["phone"] = previous["phone"]
             self.json_response(507, {"error": "Contact details could not be saved", "code": "storage"})
             return
+        cookies = []
+        try:
+            cookies.append(self.set_auth_override_cookie(encode_auth_override_cookie(AUTH_OVERRIDES)))
+        except RuntimeError:
+            pass
         self.json_response(200, {
             "saved": True, "profileId": profile_id, "email": email, "phone": phone,
             "contactComplete": bool(email and phone),
             "emailConfigured": email_delivery_status()["configured"],
             "emailProvider": email_delivery_status()["provider"],
-        })
+        }, {"Set-Cookie": cookies[0]} if cookies else None)
 
     def handle_profile_email_test(self, body: dict) -> None:
         user, profile_id = self.editable_profile(body)
@@ -2679,8 +2865,14 @@ class Handler(SimpleHTTPRequestHandler):
         old_hash = user["pin_hash"]
         user["pin_hash"] = hash_pin(pin)
         try:
-            # PIN changes must survive deploys — refuse silent no-ops on Vercel.
-            persist_auth_users(require_durable=True)
+            persist_auth_users(require_durable=False)
+            set_auth_override(
+                profile_id,
+                pin_hash=user["pin_hash"],
+                email=str(user.get("email") or ""),
+                phone=str(user.get("phone") or ""),
+            )
+            persist_auth_overrides()
         except RuntimeError:
             user["pin_hash"] = old_hash
             self.json_response(507, {"error": "The new PIN could not be saved", "code": "storage"})
@@ -2702,8 +2894,15 @@ class Handler(SimpleHTTPRequestHandler):
                 send_pin_changed_email(recipient, profile_name)
             except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
                 append_security_event("pin_changed_email_failed", profile_id, self.client_ip(), {})
+        try:
+            override_cookie = encode_auth_override_cookie(AUTH_OVERRIDES)
+        except RuntimeError:
+            override_cookie = ""
+        cookies = [self.set_session_cookie("", max_age=0)]
+        if override_cookie:
+            cookies.append(self.set_auth_override_cookie(override_cookie))
         self.json_response(200, {"changed": True}, {
-            "Set-Cookie": self.set_session_cookie("", max_age=0),
+            "Set-Cookie": cookies if len(cookies) > 1 else cookies[0],
         })
 
     def handle_whatsapp_test(self, body: dict) -> None:
