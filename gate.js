@@ -30,6 +30,7 @@
   if (!gate || !body) return;
 
   let lang = localStorage.getItem('paidia.lang') || 'de';
+  let bootSettled = false;
   const copy = {
     de: {
       brand: 'Gemeinsam durch den Tag',
@@ -47,6 +48,7 @@
       locked: (m) => `Gesperrt · noch ${m} Min.`,
       attempts: (n) => `Noch ${n} Versuche`,
       unavailable: 'Anmeldung nicht möglich',
+      loading: 'Anmelden…',
       hint: 'PIN tippen oder die 6 Ziffern antippen.',
       forgot: 'PIN vergessen?',
       resetTitle: 'PIN per E-Mail ändern',
@@ -60,6 +62,7 @@
       pinChanged: 'PIN geändert — bitte neu anmelden.',
       invalidReset: 'Link ungültig oder PINs stimmen nicht.',
       needEmail: 'Bitte E-Mail eingeben.',
+      storageFail: 'PIN konnte nicht gespeichert werden. Bitte Admin informieren.',
     },
     el: {
       brand: 'Μαζί μέσα στην ημέρα',
@@ -77,6 +80,7 @@
       locked: (m) => `Κλείδωμα · ακόμη ${m} λεπτά`,
       attempts: (n) => `Ακόμη ${n} προσπάθειες`,
       unavailable: 'Η είσοδος δεν είναι διαθέσιμη',
+      loading: 'Σύνδεση…',
       hint: 'Πληκτρολόγησε ή πάτα τα 6 ψηφία.',
       forgot: 'Ξέχασες το PIN;',
       resetTitle: 'Αλλαγή PIN με email',
@@ -90,19 +94,21 @@
       pinChanged: 'Το PIN άλλαξε — συνδέσου ξανά.',
       invalidReset: 'Άκυρος σύνδεσμος ή τα PIN δεν ταιριάζουν.',
       needEmail: 'Βάλε το email.',
+      storageFail: 'Το PIN δεν αποθηκεύτηκε. Ενημέρωσε τον admin.',
     },
   };
   const t = (key) => copy[lang][key];
   const esc = (value) => String(value ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+  const safeColor = (value) => /^#[0-9a-fA-F]{3,8}$/.test(String(value || '')) ? String(value) : '#94a3b8';
   const initials = (name) => String(name || '?').split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
 
   function loadApp() {
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=42';
+    script.src = 'app.js?v=43';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -164,7 +170,7 @@
       <div class="profiles">
         ${people.map((person) => `
           <button class="profile" type="button" data-p="${person.id}">
-            <div class="pa" style="background:${person.color}">${initials(person.name)}</div>
+            <div class="pa" style="background:${safeColor(person.color)}">${initials(person.name)}</div>
             <div class="pn">${esc(person.name)}</div>
             <div class="pr">${esc(person.role || '')}</div>
           </button>`).join('')}
@@ -181,13 +187,14 @@
   function renderPin(who, mode) {
     let buf = '';
     let busy = false;
+    let succeeded = false;
     body.innerHTML = `
       <div class="gate-pin">
-        <div class="pa" style="background:${who.color}">${initials(who.name)}</div>
+        <div class="pa" style="background:${safeColor(who.color)}">${initials(who.name)}</div>
         <h3>${esc(who.name)}</h3>
         <div class="sub">${who.role ? esc(who.role) + ' · ' : ''}${t('pin')}</div>
         <div class="pindots" id="gpd"></div>
-        <input class="pin-field" id="gPinInput" type="tel" inputmode="numeric" pattern="[0-9]*"
+        <input class="pin-field" id="gPinInput" type="password" inputmode="numeric" pattern="[0-9]*"
           maxlength="6" autocomplete="one-time-code" enterkeyhint="done" aria-label="PIN" value="">
         <div id="gpErr" style="min-height:18px;color:#f87171;font-size:12.5px" role="alert"></div>
         <div class="pinpad" id="gPinpad" role="group" aria-label="PIN">
@@ -196,7 +203,9 @@
           <button type="button" data-k="0">0</button>
           <button type="button" data-k="clr" aria-label="Clear">C</button>
         </div>
-        <button class="btn" id="gLogin" type="button" style="margin-top:12px">${t('login')}</button>
+        <div class="gate-sticky-actions">
+          <button class="btn" id="gLogin" type="button">${t('login')}</button>
+        </div>
         <button class="gate-forgot" id="gForgot" type="button">${t('forgot')}</button>
         <div class="muted" style="margin-top:10px;font-size:11.5px">${t('hint')}</div>
         <button class="gate-back" type="button" id="gBack">${t('back')}</button>
@@ -205,23 +214,31 @@
     const input = body.querySelector('#gPinInput');
     const errorEl = body.querySelector('#gpErr');
     const loginBtn = body.querySelector('#gLogin');
+    const pad = body.querySelector('#gPinpad');
     const draw = () => {
       body.querySelector('#gpd').innerHTML = [0, 1, 2, 3, 4, 5]
-        .map((i) => `<i class="${i < buf.length ? 'f' : ''}"></i>`).join('');
+        .map((i) => `<i class="${i < buf.length ? 'f' : ''}${busy && i < buf.length ? ' busy' : ''}"></i>`).join('');
       if (input.value !== buf) input.value = buf;
     };
     draw();
 
+    const setControlsEnabled = (enabled) => {
+      loginBtn.disabled = !enabled;
+      input.disabled = !enabled;
+      pad.querySelectorAll('button').forEach((b) => { b.disabled = !enabled; });
+    };
+
     const finish = async () => {
-      if (busy) return;
+      if (busy || succeeded) return;
       if (buf.length < 4) {
         errorEl.textContent = t('wrong');
         return;
       }
       busy = true;
-      loginBtn.disabled = true;
-      input.disabled = true;
+      setControlsEnabled(false);
+      loginBtn.textContent = t('loading');
       errorEl.textContent = '';
+      draw();
       try {
         const response = await fetch('/api/auth/login', {
           method: 'POST',
@@ -232,9 +249,7 @@
         const raw = await response.text();
         let data = {};
         try { data = JSON.parse(raw); } catch (error) {
-          errorEl.textContent = lang === 'el'
-            ? 'Ο server δεν απαντά. Άνοιξε μέσω python3 server.py ή Vercel API.'
-            : 'Server antwortet nicht. Starte python3 server.py oder Vercel-API.';
+          errorEl.textContent = t('unavailable');
           buf = '';
           return;
         }
@@ -250,7 +265,7 @@
           buf = '';
           return;
         }
-        // Cookie is set — hydrate app; fall back to hard reload if script load fails.
+        succeeded = true;
         window.__paidiaAuthed = true;
         try {
           loadApp();
@@ -262,16 +277,18 @@
         errorEl.textContent = t('unavailable');
         buf = '';
       } finally {
-        busy = false;
-        loginBtn.disabled = false;
-        input.disabled = false;
-        draw();
-        try { input.focus(); } catch (error) {}
+        if (!succeeded) {
+          busy = false;
+          loginBtn.textContent = t('login');
+          setControlsEnabled(true);
+          draw();
+          try { input.focus(); } catch (error) {}
+        }
       }
     };
 
     const push = (key) => {
-      if (busy) return;
+      if (busy || succeeded) return;
       if (key === 'del') buf = buf.slice(0, -1);
       else if (key === 'clr') buf = '';
       else if (/^\d$/.test(key) && buf.length < 6) buf += key;
@@ -281,15 +298,15 @@
 
     body.querySelector('#gBack').onclick = () => renderProfiles(mode);
     body.querySelector('#gForgot').onclick = () => renderResetRequest(who, mode);
-    body.querySelector('#gPinpad').onclick = (event) => {
+    pad.onclick = (event) => {
       const button = event.target.closest('button[data-k]');
-      if (!button) return;
+      if (!button || button.disabled) return;
       event.preventDefault();
       push(button.dataset.k);
     };
     loginBtn.onclick = finish;
     input.addEventListener('input', () => {
-      if (busy) return;
+      if (busy || succeeded) return;
       buf = String(input.value || '').replace(/\D/g, '').slice(0, 6);
       draw();
       if (buf.length === 6) finish();
@@ -318,7 +335,7 @@
           <h3>${t('resetTitle')}</h3>
           <p>${t('resetSub')}</p>
         </div>
-        <div class="pa" style="background:${who.color};margin:14px auto 0">${initials(who.name)}</div>
+        <div class="pa" style="background:${safeColor(who.color)};margin:14px auto 0">${initials(who.name)}</div>
         <div class="sub" style="margin-top:8px">${esc(who.name)}</div>
         <label class="gate-field"><span>${t('email')}</span>
           <input type="email" id="resetEmail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>
@@ -353,6 +370,8 @@
   }
 
   function renderResetForm(token) {
+    // Strip token from URL immediately so it does not linger in history/referrers.
+    try { history.replaceState({}, '', location.pathname + location.hash); } catch (error) {}
     body.innerHTML = `
       <div class="gate-pin gate-reset">
         <div class="gate-mail-hero" aria-hidden="true">
@@ -369,10 +388,7 @@
         <button class="btn" id="changePin" type="button">${t('changePin')}</button>
         <button class="gate-back" type="button" id="resetHome">${t('back')}</button>
       </div>`;
-    body.querySelector('#resetHome').onclick = () => {
-      history.replaceState({}, '', location.pathname);
-      renderEntrance();
-    };
+    body.querySelector('#resetHome').onclick = () => renderEntrance();
     body.querySelector('#changePin').onclick = async () => {
       const pin = body.querySelector('#newPin').value;
       const confirmPin = body.querySelector('#confirmPin').value;
@@ -391,8 +407,13 @@
           body: JSON.stringify({ token, pin, confirmPin }),
         });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(data.code || String(response.status));
-        history.replaceState({}, '', location.pathname);
+        if (!response.ok) {
+          if (response.status === 507 || data.code === 'storage') {
+            setGateStatus(status, t('storageFail'), 'error');
+            return;
+          }
+          throw new Error(data.code || String(response.status));
+        }
         setGateStatus(status, t('pinChanged'), 'success');
         setTimeout(() => renderEntrance(), 900);
       } catch (error) {
@@ -409,13 +430,17 @@
     document.body.classList.add('auth-pending');
     const resetToken = new URLSearchParams(location.search).get('reset');
     if (resetToken) {
+      bootSettled = true;
       renderResetForm(resetToken);
       return;
     }
-    // Never hang on "Laden…" if the session probe is slow/broken.
+    // Only fall back to entrance after the session probe finishes (or hard timeout).
     const bootTimer = setTimeout(() => {
-      if (!body.querySelector('[data-mode]') && !body.querySelector('.gate-reset')) renderEntrance();
-    }, 2500);
+      if (!bootSettled) {
+        bootSettled = true;
+        renderEntrance();
+      }
+    }, 4500);
     try {
       const controller = new AbortController();
       const kill = setTimeout(() => controller.abort(), 4000);
@@ -429,6 +454,7 @@
       let data = {};
       try { data = JSON.parse(raw); } catch (error) { data = {}; }
       if (response.ok && data.authenticated) {
+        bootSettled = true;
         clearTimeout(bootTimer);
         loadApp();
         return;
@@ -436,8 +462,11 @@
     } catch (error) {
       /* fall through to login */
     }
-    clearTimeout(bootTimer);
-    renderEntrance();
+    if (!bootSettled) {
+      bootSettled = true;
+      clearTimeout(bootTimer);
+      renderEntrance();
+    }
   }
 
   window.PaidiaGate = { start, loadApp, renderResetForm, renderResetRequest };

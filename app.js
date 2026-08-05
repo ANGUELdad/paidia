@@ -1752,7 +1752,9 @@ async function restoreServerSession(){
       await ensureOnboarding();await ensureContactDetails();return true;
     }
   }catch(error){ console.error('session restore failed',error); }
-  openGate();
+  // Keep "Laden…" until we know restore failed — then show the gate.
+  if(!gateEl.classList.contains('on')) openGate();
+  else if(!gateBody.querySelector('[data-mode]') && !gateBody.querySelector('.gate-pin')) renderEntrance();
   return false;
 }
 
@@ -7037,7 +7039,7 @@ function renderProfiles(mode = 'staff'){
     <div class="profiles">
       ${people.map(p=>`
         <button class="profile" data-p="${p.id}">
-          <div class="pa" style="background:${p.color}">${initials(p.name)}</div>
+          <div class="pa" style="background:${/^#[0-9a-fA-F]{3,8}$/.test(String(p.color||''))?esc(p.color):'#94a3b8'}">${initials(p.name)}</div>
           <div class="pn">${esc(p.name)}</div>
           <div class="pr">${esc(p.sub)}</div>
         </button>`).join('')}
@@ -7062,22 +7064,26 @@ function renderGatePin(who, mode = 'staff'){
   }
   let buf = '';
   let busy = false;
+  let succeeded = false;
+  const pinColor = /^#[0-9a-fA-F]{3,8}$/.test(String(who.color||''))?who.color:'#94a3b8';
   gateBody.innerHTML = `
     <div class="gate-pin">
-      <div class="pa" style="background:${who.color}">${initials(who.name)}</div>
+      <div class="pa" style="background:${esc(pinColor)}">${initials(who.name)}</div>
       <h3>${esc(who.name)}</h3>
       <div class="sub">${mode==='child' ? '' : esc(L(who.role)) + ' · '}${t('gatePin')}</div>
       <button class="passkey-btn" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricName())}</b><span class="pk-sub">${esc(biometricHint())}</span></span></button>
       <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
       <div class="pindots" id="gpd" aria-live="polite"></div>
-      <input class="pin-field" id="gPinInput" type="tel" inputmode="numeric" pattern="[0-9]*" maxlength="6"
+      <input class="pin-field" id="gPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6"
         autocomplete="one-time-code" enterkeyhint="done" aria-label="PIN" value="">
       <div id="gpErr" style="min-height:18px;color:#f87171;font-size:12.5px" role="alert"></div>
       <div class="pinpad" id="gPinpad" role="group" aria-label="PIN">
         ${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join('')}
         <button type="button" data-k="del" aria-label="Backspace">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="clr" aria-label="Clear">C</button>
       </div>
-      <button class="btn" id="gLogin" type="button" style="margin-top:12px">${t('loginEntry')}</button>
+      <div class="gate-sticky-actions">
+        <button class="btn" id="gLogin" type="button">${t('loginEntry')}</button>
+      </div>
       <div class="muted" style="margin-top:10px;font-size:11.5px">${state.lang==='el'?'Πληκτρολόγησε ή πάτα τα 6 ψηφία.':'PIN tippen oder die 6 Ziffern antippen.'}</div>
       <button class="gate-back" id="gForgot" type="button" style="display:block;margin:2px auto">${t('forgotPin')}</button>
       <button class="gate-back" id="gBack" type="button">${t('gateBack')}</button>
@@ -7105,12 +7111,13 @@ function renderGatePin(who, mode = 'staff'){
   gateBody.querySelector('#gForgot').onclick = () => renderResetRequest(who,mode);
 
   const finishLogin=async()=>{
-    if(busy) return;
+    if(busy || succeeded) return;
     const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gLogin');
     if(buf.length<4){errorEl.textContent=t('wrongPin');return;}
     busy=true;button.classList.add('logging');button.disabled=true;if(pinInput)pinInput.disabled=true;errorEl.textContent='';draw();
     try{
       await authenticateProfile(mode,who,buf);
+      succeeded=true;
       stopPinKeyboard();
       closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');
     }catch(error){
@@ -7122,14 +7129,16 @@ function renderGatePin(who, mode = 'staff'){
       }else errorEl.textContent=error.status===401?t('wrongPin'):t('authUnavailable');
       buf='';
     }finally{
-      busy=false;button.classList.remove('logging');button.disabled=false;
-      if(pinInput){pinInput.disabled=false;pinInput.focus({preventScroll:true});}
-      draw();
+      if(!succeeded){
+        busy=false;button.classList.remove('logging');button.disabled=false;
+        if(pinInput){pinInput.disabled=false;pinInput.focus({preventScroll:true});}
+        draw();
+      }
     }
   };
 
   const pushKey=k=>{
-    if(busy) return;
+    if(busy || succeeded) return;
     if(k==='del') buf = buf.slice(0,-1);
     else if(k==='clr') buf = '';
     else if(/^\d$/.test(k) && buf.length<6) buf += k;
@@ -7140,14 +7149,14 @@ function renderGatePin(who, mode = 'staff'){
   // Event delegation — survives re-draws and is more reliable on touch devices.
   gateBody.querySelector('#gPinpad').addEventListener('click', event=>{
     const button=event.target.closest('button[data-k]');
-    if(!button) return;
+    if(!button || button.disabled) return;
     event.preventDefault();
     pushKey(button.dataset.k);
   });
   gateBody.querySelector('#gLogin').onclick=finishLogin;
 
   pinInput.addEventListener('input', ()=>{
-    if(busy) return;
+    if(busy || succeeded) return;
     buf = String(pinInput.value||'').replace(/\D/g,'').slice(0,6);
     draw();
     if(buf.length===6) finishLogin();
@@ -7185,7 +7194,7 @@ function renderGatePin(who, mode = 'staff'){
         error.code==='unsupported'?t('passkeyUnavailable'):
         error.name==='NotAllowedError'?t('passkeyCancelled'):
         /not found/i.test(String(error.message||''))?t('passkeySetupNeeded'):
-        error.message||t('authUnavailable');
+        t('authUnavailable');
     }finally{busy=false;button.disabled=false;}
   };
 }
@@ -7194,7 +7203,7 @@ function renderResetRequest(who,mode){
   stopPinKeyboard();
   gateBody.innerHTML=`
     <div class="gate-pin">
-      <div class="pa" style="background:${who.color}">${initials(who.name)}</div>
+      <div class="pa" style="background:${/^#[0-9a-fA-F]{3,8}$/.test(String(who.color||''))?esc(who.color):'#94a3b8'}">${initials(who.name)}</div>
       <h3>${t('resetPinTitle')}</h3>
       <div class="sub">${esc(who.name)}</div>
       <label class="f" style="text-align:left;margin-top:18px"><span>${t('emailLabel')}</span>
@@ -7252,7 +7261,7 @@ function renderResetForm(token){
       document.body.classList.add('auth-pending');
       document.getElementById('app').hidden=true;
       renderEntrance();toast(t('pinChanged'),'success',5200);
-    }catch(error){setStatus(status,error.message==='storage'?t('errStorage'):t('invalidReset'),'error');}
+    }catch(error){setStatus(status,(error.message==='storage'||error.message==='507')?t('errStorage'):t('invalidReset'),'error');}
     finally{button.disabled=false;}
   };
 }
@@ -7290,7 +7299,7 @@ if(resetToken){
   // Instant gate.js already authenticated — hydrate the app without redrawing login.
   restoreServerSession();
 }else{
-  openGate();
+  // Do not paint entrance until session restore fails — avoids login flash.
   restoreServerSession();
 }
 resolveIp().then(refreshGateMeta);

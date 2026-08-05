@@ -110,20 +110,26 @@ def _api_path(path: str) -> str:
 
 def _auth_health():
     delivery = paidia.email_delivery_status()
-    return _json(200, {
+    payload = {
         "ok": True,
         "configuredProfiles": len(paidia.AUTH_USERS),
-        "profilesWithEmail": sum(1 for user in paidia.AUTH_USERS.values() if user["email"]),
         "emailConfigured": delivery["configured"],
-        "emailProvider": delivery["provider"],
         "runtime": "vercel-flask",
         "onboardingVersion": paidia.ONBOARDING_VERSION,
         "usersConfigured": bool(paidia.AUTH_USERS),
         "passkeysAvailable": paidia.WEBAUTHN_AVAILABLE,
-        "passkeyCredentials": len(paidia.PASSKEYS.get("credentials", {})),
-        "passkeyOrigin": paidia.WEBAUTHN_ORIGIN,
-        "passkeyRpId": paidia.WEBAUTHN_RP_ID,
-    })
+    }
+    # Detailed origin/RP IDs only when authenticated as admin.
+    session = _session_from_request()
+    if session and session.get("admin"):
+        payload.update({
+            "profilesWithEmail": sum(1 for user in paidia.AUTH_USERS.values() if user["email"]),
+            "emailProvider": delivery["provider"],
+            "passkeyCredentials": len(paidia.PASSKEYS.get("credentials", {})),
+            "passkeyOrigin": paidia.WEBAUTHN_ORIGIN,
+            "passkeyRpId": paidia.WEBAUTHN_RP_ID,
+        })
+    return _json(200, payload)
 
 
 def _auth_session():
@@ -182,39 +188,8 @@ def _auth_login():
             "error": "Set PAIDIA_AUTH_USERS_JSON in environment",
             "code": "auth_not_configured",
         })
-    body = _body()
-    profile_id = str(body.get("profileId", "")).strip()[:64]
-    mode = "child" if body.get("mode") == "child" else "staff"
-    pin = str(body.get("pin", ""))[:12]
-    user = paidia.AUTH_USERS.get(profile_id)
-    valid = bool(
-        user
-        and user["mode"] == mode
-        and re.fullmatch(r"\d{4,6}", pin)
-        and paidia.verify_pin(pin, user["pin_hash"])
-    )
-    if not valid:
-        return _json(401, {
-            "error": "Invalid profile or PIN",
-            "code": "invalid_pin",
-            "attemptsRemaining": 4,
-        })
-    token, payload = paidia.encode_session_token(profile_id, mode, "pin")
-    contact = paidia.profile_contact(profile_id)
-    return _json(200, {
-        "authenticated": True,
-        "profileId": profile_id,
-        "mode": mode,
-        "admin": bool(payload["admin"]),
-        "sessionId": payload["session_id"],
-        "expiresAt": int(payload["expires_at"] * 1000),
-        "authenticationMethod": "pin",
-        "onboardingComplete": paidia.onboarding_complete(profile_id, mode),
-        "onboardingVersion": paidia.ONBOARDING_VERSION,
-        "email": contact["email"],
-        "phone": contact["phone"],
-        "contactComplete": bool(contact["email"] and contact["phone"]),
-    }, cookie=_cookie_header(token))
+    # Reuse Handler.handle_auth_login — lockouts, alerts, session minting.
+    return _call_handler("handle_auth_login", _body())
 
 
 def _auth_logout():
@@ -235,8 +210,17 @@ class _FlaskHandlerBridge:
 
     @property
     def client_address(self):
-        forwarded = (request.headers.get("X-Forwarded-For") or "").split(",", 1)[0].strip()
-        return (forwarded or request.remote_addr or "0.0.0.0", 0)
+        # On Vercel the edge sets X-Forwarded-For; elsewhere do not trust client-supplied XFF.
+        if os.environ.get("VERCEL") == "1":
+            forwarded = (request.headers.get("X-Forwarded-For") or "").split(",", 1)[0].strip()
+            if forwarded:
+                try:
+                    import ipaddress
+                    ipaddress.ip_address(forwarded)
+                    return (forwarded, 0)
+                except ValueError:
+                    pass
+        return (request.remote_addr or "0.0.0.0", 0)
 
     def auth_cookie(self) -> str:
         return request.cookies.get(paidia.AUTH_COOKIE, "")
@@ -272,25 +256,8 @@ class _FlaskHandlerBridge:
 
     def finish_authentication(self, profile_id: str, mode: str, method: str = "pin",
                                extra_cookies: list | None = None) -> None:
-        token, payload = paidia.encode_session_token(profile_id, mode, method)
-        contact = paidia.profile_contact(profile_id)
-        cookies = [self.set_session_cookie(token)]
-        if extra_cookies:
-            cookies.extend(extra_cookies)
-        self.json_response(200, {
-            "authenticated": True,
-            "profileId": profile_id,
-            "mode": mode,
-            "admin": bool(payload["admin"]),
-            "sessionId": payload["session_id"],
-            "expiresAt": int(payload["expires_at"] * 1000),
-            "authenticationMethod": method,
-            "onboardingComplete": paidia.onboarding_complete(profile_id, mode),
-            "onboardingVersion": paidia.ONBOARDING_VERSION,
-            "email": contact["email"],
-            "phone": contact["phone"],
-            "contactComplete": bool(contact["email"] and contact["phone"]),
-        }, {"Set-Cookie": cookies if len(cookies) > 1 else cookies[0]})
+        # Reuse Handler alerts (new IP / untrusted IP) + cookie minting.
+        paidia.Handler.finish_authentication(self, profile_id, mode, method, extra_cookies)
 
     def editable_profile(self, body: dict):
         return paidia.Handler.editable_profile(self, body)
@@ -365,9 +332,13 @@ def _serve_static(rel: str):
 @app.route("/<path:flask_path>", methods=["GET", "POST", "OPTIONS", "HEAD"])
 def entry(flask_path: str = ""):
     if request.method == "OPTIONS":
+        origin = request.headers.get("Origin", "")
+        allowed = (os.environ.get("PAIDIA_PUBLIC_URL") or "").rstrip("/")
         response = make_response("", 204)
-        response.headers["Access-Control-Allow-Origin"] = request.headers.get("Origin", "*")
-        response.headers["Access-Control-Allow-Credentials"] = "true"
+        if origin and allowed and origin.rstrip("/") == allowed:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Vary"] = "Origin"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type"
         response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
         return response
@@ -468,6 +439,9 @@ def entry(flask_path: str = ""):
         return _json(status, payload)
 
     if request.method == "POST" and api in {"/ai-shopping", "/api/ai-shopping"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
         api_key = os.environ.get("GROQ_API_KEY", "").strip()
         if not api_key:
             return _json(503, {

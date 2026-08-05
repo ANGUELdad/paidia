@@ -273,6 +273,17 @@ def verify_pin(pin: str, encoded: str) -> bool:
         return False
 
 
+# Constant-cost dummy hash so missing profiles still burn PBKDF2 time.
+_DUMMY_PIN_HASH = (
+    f"pbkdf2_sha256${PIN_ITERATIONS}$"
+    f"{'00' * 16}${'00' * 32}"
+)
+
+
+def pin_fingerprint(pin_hash: str) -> str:
+    return hashlib.sha256((pin_hash or "").encode("utf-8")).hexdigest()[:16]
+
+
 def load_auth_users() -> dict[str, dict]:
     """Auth profiles come only from PAIDIA_AUTH_USERS_JSON (local .env or Vercel env)."""
     try:
@@ -306,6 +317,9 @@ ADMIN_PROFILE_IDS = {
 def session_secret() -> bytes:
     raw = os.environ.get("PAIDIA_SESSION_SECRET", "").strip()
     if not raw:
+        if os.environ.get("VERCEL") == "1":
+            # Refuse a weak derived secret in production — sessions would be forgeable across deploys.
+            raise RuntimeError("PAIDIA_SESSION_SECRET must be set on Vercel")
         # Local/dev fallback — set PAIDIA_SESSION_SECRET in production (Vercel).
         raw = "paidia-dev:" + os.environ.get("PAIDIA_AUTH_USERS_JSON", " unpaid")[:96]
     return hashlib.sha256(raw.encode("utf-8")).digest()
@@ -316,6 +330,7 @@ def encode_session_token(profile_id: str, mode: str, method: str = "pin") -> tup
     now = time.time()
     expires_at = now + AUTH_SESSION_TTL
     session_id = "ses-" + secrets.token_urlsafe(12)
+    user = AUTH_USERS.get(profile_id) or {}
     payload = {
         "session_id": session_id,
         "profile_id": profile_id,
@@ -323,6 +338,8 @@ def encode_session_token(profile_id: str, mode: str, method: str = "pin") -> tup
         "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
         "expires_at": expires_at,
         "method": method,
+        # Bound to current PIN hash — changing PIN invalidates all signed cookies.
+        "pin_ver": pin_fingerprint(str(user.get("pin_hash", ""))),
     }
     raw = base64.urlsafe_b64encode(
         json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
@@ -348,17 +365,22 @@ def decode_session_token(token: str) -> dict | None:
             return None
         profile_id = str(payload.get("profile_id", ""))
         mode = "child" if payload.get("mode") == "child" else "staff"
-        if profile_id not in AUTH_USERS or AUTH_USERS[profile_id]["mode"] != mode:
+        user = AUTH_USERS.get(profile_id)
+        if not user or user["mode"] != mode:
+            return None
+        expected_ver = pin_fingerprint(str(user.get("pin_hash", "")))
+        if str(payload.get("pin_ver", "")) != expected_ver:
             return None
         return {
             "session_id": str(payload.get("session_id", "")),
             "profile_id": profile_id,
             "mode": mode,
-            "admin": bool(payload.get("admin")),
+            # Resolve admin live from env so demotions take effect immediately.
+            "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
             "expires_at": float(payload["expires_at"]),
             "method": str(payload.get("method", "pin")),
         }
-    except (ValueError, TypeError, json.JSONDecodeError, KeyError):
+    except (ValueError, TypeError, json.JSONDecodeError, KeyError, RuntimeError):
         return None
 
 
@@ -946,12 +968,14 @@ def security_alert_recipients() -> list[str]:
     return list(dict.fromkeys(recipients))
 
 
-def persist_auth_users() -> None:
+def persist_auth_users(*, require_durable: bool = False) -> None:
     value = json.dumps(AUTH_USERS, ensure_ascii=False, separators=(",", ":"))
     os.environ["PAIDIA_AUTH_USERS_JSON"] = value
     # Vercel has a read-only filesystem — keep the in-process update so email/phone
     # work for the lifetime of the instance (same as session cookies).
     if os.environ.get("VERCEL") == "1":
+        if require_durable:
+            raise RuntimeError("Durable auth storage is not configured on Vercel")
         return
     env_path = Path(os.environ.get("PAIDIA_ENV_PATH", ".env"))
     try:
@@ -1055,10 +1079,6 @@ def public_base_url(headers=None) -> str:
     if configured:
         return configured
     return f"http://{HOST}:{PORT}"
-
-
-def pin_fingerprint(pin_hash: str) -> str:
-    return hashlib.sha256((pin_hash or "").encode("utf-8")).hexdigest()[:16]
 
 
 def mint_reset_token(profile_id: str, pin_hash: str) -> str:
@@ -2188,6 +2208,9 @@ class Handler(SimpleHTTPRequestHandler):
             self.handle_chat(body, api_key)
             return
         if path == "/api/ai-shopping":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
             status, payload = run_shopping(body, api_key)
             self.json_response(status, payload)
             return
@@ -2196,7 +2219,14 @@ class Handler(SimpleHTTPRequestHandler):
     def finish_authentication(self, profile_id: str, mode: str, method: str = "pin",
                                extra_cookies: list[str] | None = None) -> None:
         client_ip = self.client_ip()
-        token, payload = encode_session_token(profile_id, mode, method)
+        try:
+            token, payload = encode_session_token(profile_id, mode, method)
+        except RuntimeError:
+            self.json_response(503, {
+                "error": "Server authentication is misconfigured",
+                "code": "auth_config",
+            })
+            return
         with AUTH_LOCK:
             AUTH_SESSIONS.pop(self.auth_cookie(), None)
             new_ip, first_ip = remember_profile_ip(profile_id, client_ip)
@@ -2285,12 +2315,12 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
                                      "retryAfter": max(1, int(lock_until - now))})
             return
-        valid = bool(
-            user
-            and user["mode"] == mode
-            and re.fullmatch(r"\d{4,6}", pin)
-            and verify_pin(pin, user["pin_hash"])
-        )
+        if not (user and user["mode"] == mode and re.fullmatch(r"\d{4,6}", pin)):
+            # Burn the same PBKDF2 cost when the profile is missing / wrong mode.
+            verify_pin(pin or "0000", user["pin_hash"] if user else _DUMMY_PIN_HASH)
+            valid = False
+        else:
+            valid = verify_pin(pin, user["pin_hash"])
         if not valid:
             with AUTH_LOCK:
                 LOGIN_FAILURES.setdefault(attempt_key, []).append(now)
@@ -2611,7 +2641,18 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(200, generic)
             return
         raw_token = mint_reset_token(profile_id, user.get("pin_hash", ""))
-        public_url = public_base_url(self.headers)
+        configured = (os.environ.get("PAIDIA_PUBLIC_URL") or "").rstrip("/")
+        localish = any(x in configured for x in ("127.0.0.1", "localhost", "0.0.0.0")) if configured else True
+        # Never build reset links from untrusted Host headers in production.
+        if os.environ.get("VERCEL") == "1" and (not configured or localish):
+            append_security_event("pin_reset_public_url_missing", profile_id, self.client_ip(), {})
+            self.json_response(200, generic)
+            return
+        public_url = configured if (configured and not localish) else public_base_url(self.headers)
+        if any(x in public_url for x in ("127.0.0.1", "localhost", "0.0.0.0")) and os.environ.get("VERCEL") == "1":
+            append_security_event("pin_reset_public_url_local", profile_id, self.client_ip(), {})
+            self.json_response(200, generic)
+            return
         reset_url = f"{public_url}/?reset={urllib.parse.quote(raw_token)}"
         try:
             send_pin_reset_email(email, reset_url)
@@ -2638,7 +2679,8 @@ class Handler(SimpleHTTPRequestHandler):
         old_hash = user["pin_hash"]
         user["pin_hash"] = hash_pin(pin)
         try:
-            persist_auth_users()
+            # PIN changes must survive deploys — refuse silent no-ops on Vercel.
+            persist_auth_users(require_durable=True)
         except RuntimeError:
             user["pin_hash"] = old_hash
             self.json_response(507, {"error": "The new PIN could not be saved", "code": "storage"})
@@ -2666,6 +2708,13 @@ class Handler(SimpleHTTPRequestHandler):
 
     def handle_whatsapp_test(self, body: dict) -> None:
         del body
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        if session.get("mode") != "staff":
+            self.json_response(403, {"error": "Staff only", "code": "staff_required"})
+            return
         config = whatsapp_config()
         recipient = re.sub(r"\D", "", config["test_recipient"])
         if not recipient:
@@ -2701,6 +2750,13 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(504, {"error": "WhatsApp request timed out", "code": "timeout"})
 
     def handle_whatsapp_event(self, body: dict) -> None:
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        if session.get("mode") != "staff":
+            self.json_response(403, {"error": "Staff only", "code": "staff_required"})
+            return
         title = str(body.get("title", "")).strip()[:200]
         event_id = str(body.get("eventId", "")).strip()[:100]
         date = str(body.get("date", "")).strip()[:20]
