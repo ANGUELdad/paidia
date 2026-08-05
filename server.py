@@ -103,6 +103,19 @@ SECURITY_STATE_PATH = Path(os.environ.get("PAIDIA_SECURITY_STATE_PATH", ".paidia
 SECURITY_LOG_PATH = Path(os.environ.get("PAIDIA_SECURITY_LOG_PATH", ".paidia-security-events.jsonl"))
 PASSKEY_STORE_PATH = Path(os.environ.get("PAIDIA_PASSKEY_STORE_PATH", ".paidia-passkeys.json"))
 ONBOARDING_STATE_PATH = Path(os.environ.get("PAIDIA_ONBOARDING_STATE_PATH", ".paidia-onboarding.json"))
+
+# Vercel serverless FS is read-only except /tmp — keep writable state there.
+if os.environ.get("VERCEL") == "1":
+    _tmp = Path("/tmp/paidia")
+    _tmp.mkdir(parents=True, exist_ok=True)
+    if not os.environ.get("PAIDIA_ONBOARDING_STATE_PATH"):
+        ONBOARDING_STATE_PATH = _tmp / "onboarding.json"
+    if not os.environ.get("PAIDIA_PASSKEY_STORE_PATH"):
+        PASSKEY_STORE_PATH = _tmp / "passkeys.json"
+    if not os.environ.get("PAIDIA_SECURITY_STATE_PATH"):
+        SECURITY_STATE_PATH = _tmp / "security-state.json"
+    if not os.environ.get("PAIDIA_SECURITY_LOG_PATH"):
+        SECURITY_LOG_PATH = _tmp / "security-events.jsonl"
 ONBOARDING_VERSION = 2
 WEBAUTHN_ORIGIN = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", os.environ.get(
     "PAIDIA_PUBLIC_URL", f"http://localhost:{PORT}"
@@ -337,7 +350,10 @@ def persist_onboarding_state() -> None:
     ONBOARDING_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     temp_path = ONBOARDING_STATE_PATH.with_name(ONBOARDING_STATE_PATH.name + ".tmp")
     temp_path.write_text(json.dumps(ONBOARDING_STATE, separators=(",", ":")), encoding="utf-8")
-    os.chmod(temp_path, 0o600)
+    try:
+        os.chmod(temp_path, 0o600)
+    except OSError:
+        pass
     os.replace(temp_path, ONBOARDING_STATE_PATH)
 
 
@@ -1302,15 +1318,17 @@ class Handler(SimpleHTTPRequestHandler):
             try:
                 persist_onboarding_state()
             except OSError:
-                if previous is None:
-                    ONBOARDING_STATE["profiles"].pop(session["profile_id"], None)
-                else:
-                    ONBOARDING_STATE["profiles"][session["profile_id"]] = previous
-                self.json_response(500, {
-                    "error": "Tutorial progress could not be saved.",
-                    "code": "onboarding_storage",
-                })
-                return
+                # On Vercel, keep the in-memory completion even if disk write fails.
+                if os.environ.get("VERCEL") != "1":
+                    if previous is None:
+                        ONBOARDING_STATE["profiles"].pop(session["profile_id"], None)
+                    else:
+                        ONBOARDING_STATE["profiles"][session["profile_id"]] = previous
+                    self.json_response(500, {
+                        "error": "Tutorial progress could not be saved.",
+                        "code": "onboarding_storage",
+                    })
+                    return
         self.json_response(200, {"completed": True, "version": ONBOARDING_VERSION})
 
     def handle_auth_login(self, body: dict) -> None:

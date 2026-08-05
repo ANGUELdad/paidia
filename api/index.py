@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import re
 import sys
+import time
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -80,12 +81,23 @@ def _incoming_path() -> str:
     # Asset rewrite: /api/_asset/gate.js or /_asset/gate.js → /gate.js
     for prefix in ("/api/_asset/", "/_asset/"):
         if path.startswith(prefix):
-            rest = path[len(prefix) :]
+            rest = path[len(prefix):]
             return "/" + rest if rest else "/"
-    # Bare mount points
+    # Catch-all may expose /auth/... without the /api prefix.
+    if path.startswith("/auth/") or path == "/auth":
+        return "/api" + path
     if path in {"/api", "/api/", "/", ""}:
         return "/"
     return path
+
+
+def _api_path(path: str) -> str:
+    api = path
+    if api.startswith("/api/"):
+        api = api[4:]
+    if not api.startswith("/"):
+        api = "/" + api
+    return api
 
 
 def _auth_health():
@@ -120,6 +132,24 @@ def _auth_session():
         "emailConfigured": paidia.email_delivery_status()["configured"],
         "emailProvider": paidia.email_delivery_status()["provider"],
         "passkeys": len(paidia.profile_passkeys(session["profile_id"], session["mode"])),
+    })
+
+
+def _auth_profiles():
+    session = _session_from_request()
+    if not session:
+        return _json(401, {"error": "Authentication required", "code": "auth_required"})
+    profile_ids = list(paidia.AUTH_USERS) if session.get("admin") else [session["profile_id"]]
+    delivery = paidia.email_delivery_status()
+    return _json(200, {
+        "profiles": [{
+            "profileId": profile_id,
+            "mode": paidia.AUTH_USERS[profile_id]["mode"],
+            "email": paidia.AUTH_USERS[profile_id]["email"],
+        } for profile_id in profile_ids if profile_id in paidia.AUTH_USERS],
+        "canManageAll": bool(session.get("admin")),
+        "emailConfigured": delivery["configured"],
+        "emailProvider": delivery["provider"],
     })
 
 
@@ -164,6 +194,39 @@ def _auth_logout():
     return _json(200, {"loggedOut": True}, cookie=_cookie_header("", max_age=0))
 
 
+def _auth_onboarding_complete():
+    session = _session_from_request()
+    if not session:
+        return _json(401, {"error": "Authentication required", "code": "auth_required"})
+    body = _body()
+    if body.get("version") != paidia.ONBOARDING_VERSION:
+        return _json(409, {
+            "error": "Tutorial version changed. Please restart the tutorial.",
+            "code": "onboarding_version",
+            "version": paidia.ONBOARDING_VERSION,
+        })
+    with paidia.ONBOARDING_LOCK:
+        previous = paidia.ONBOARDING_STATE["profiles"].get(session["profile_id"])
+        paidia.ONBOARDING_STATE["profiles"][session["profile_id"]] = {
+            "version": paidia.ONBOARDING_VERSION,
+            "mode": session["mode"],
+            "completed_at": int(time.time()),
+        }
+        try:
+            paidia.persist_onboarding_state()
+        except OSError:
+            if os.environ.get("VERCEL") != "1":
+                if previous is None:
+                    paidia.ONBOARDING_STATE["profiles"].pop(session["profile_id"], None)
+                else:
+                    paidia.ONBOARDING_STATE["profiles"][session["profile_id"]] = previous
+                return _json(500, {
+                    "error": "Tutorial progress could not be saved.",
+                    "code": "onboarding_storage",
+                })
+    return _json(200, {"completed": True, "version": paidia.ONBOARDING_VERSION})
+
+
 def _serve_static(rel: str):
     rel = (rel or "index.html").lstrip("/")
     if not rel or rel.endswith("/"):
@@ -194,12 +257,7 @@ def entry(flask_path: str = ""):
         return response
 
     path = _incoming_path()
-    # Normalize API aliases (/api/auth/login, /auth/login)
-    api = path
-    if api.startswith("/api/"):
-        api = api[4:]
-    if not api.startswith("/"):
-        api = "/" + api
+    api = _api_path(path)
 
     if request.method == "GET" and api in {"/health", "/api/health"}:
         return _json(200, {
@@ -213,14 +271,22 @@ def entry(flask_path: str = ""):
         return _auth_health()
     if request.method == "GET" and api in {"/auth/session", "/api/auth/session"}:
         return _auth_session()
+    if request.method == "GET" and api in {"/auth/profiles", "/api/auth/profiles"}:
+        return _auth_profiles()
     if request.method == "POST" and api in {"/auth/login", "/api/auth/login"}:
         return _auth_login()
     if request.method == "POST" and api in {"/auth/logout", "/api/auth/logout"}:
         return _auth_logout()
+    if request.method == "POST" and api in {
+        "/auth/onboarding/complete",
+        "/api/auth/onboarding/complete",
+    }:
+        return _auth_onboarding_complete()
 
     if request.method in {"GET", "HEAD"}:
-        # Prefer real static files for /, gate.js, app.js, etc.
         static_rel = path.lstrip("/") or "index.html"
+        if static_rel.startswith("api/"):
+            return _json(404, {"error": "Not found", "path": path})
         return _serve_static(static_rel)
 
     return _json(404, {
@@ -228,5 +294,5 @@ def entry(flask_path: str = ""):
         "path": path,
         "flask_path": flask_path,
         "request_path": request.path,
-        "args": dict(request.args),
+        "api": api,
     })
