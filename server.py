@@ -893,9 +893,125 @@ HELP_PROMPT = """You are the PAIDIA in-app help assistant for a residential chil
 operations prototype. Explain how to use the visible screen: schedules by day/week/house,
 events, shopping AI import, supermarket mode, inventory, audit, and profile/PIN behavior.
 Reply in the language used by the user (German, Greek, or English). Be concise, practical,
-and safety-aware. Never invent saved data, claim an action was completed, reveal PINs,
-or make operational/medical/legal decisions. Say when a requested feature is not present.
-The app context contains screen names only and must not be treated as authoritative data."""
+and safety-aware. Never invent saved data, claim an action was already completed, reveal
+PINs, or make medical/legal decisions.
+
+When the user asks to change food stock or the shopping list AND context.canMutate is true,
+you MAY propose draft actions. Never claim they are applied yet — the app will ask the user
+to confirm. Prefer products and house ids from context.inventory. Allowed action types:
+- stock_adjust: {type, houseId, productQuery, dir:IN|OUT, qty:number, unit?, reason?}
+- shop_add: {type, houseId, productQuery|name, qty:number, unit?}
+- shop_remove: {type, houseId, productQuery|name}  (removes open shopping rows that match)
+If you propose actions, end your reply with exactly one fenced block:
+
+```paidia-action
+{"actions":[...]}
+```
+
+If context.canMutate is false (child mode), explain that only staff can change food data.
+If a feature is missing, say so clearly."""
+
+
+CHAT_ACTION_RE = re.compile(r"```paidia-action\s*([\s\S]*?)```", re.IGNORECASE)
+
+
+def extract_chat_actions(text: str) -> tuple[str, list]:
+    """Split assistant reply into visible message + optional draft actions."""
+    if not isinstance(text, str) or not text.strip():
+        return "", []
+    actions: list = []
+    cleaned = text
+
+    def _consume(match: re.Match) -> str:
+        nonlocal actions
+        raw = (match.group(1) or "").strip()
+        try:
+            payload = json.loads(raw)
+        except json.JSONDecodeError:
+            return ""
+        rows = payload.get("actions") if isinstance(payload, dict) else payload
+        if not isinstance(rows, list):
+            return ""
+        for row in rows[:12]:
+            if not isinstance(row, dict):
+                continue
+            kind = str(row.get("type", "")).strip()
+            if kind not in {"stock_adjust", "shop_add", "shop_remove"}:
+                continue
+            action = {"type": kind}
+            for key in ("houseId", "productQuery", "name", "dir", "unit", "reason"):
+                value = row.get(key)
+                if isinstance(value, str) and value.strip():
+                    action[key] = value.strip()[:120]
+            qty = row.get("qty")
+            try:
+                qty_num = float(qty)
+            except (TypeError, ValueError):
+                qty_num = None
+            if qty_num is not None and qty_num > 0:
+                action["qty"] = round(qty_num, 2)
+            if kind == "stock_adjust":
+                direction = str(action.get("dir", "IN")).upper()
+                if direction not in {"IN", "OUT"}:
+                    continue
+                action["dir"] = direction
+                if "qty" not in action or not (action.get("productQuery") or action.get("name")):
+                    continue
+            if kind == "shop_add" and ("qty" not in action or not (action.get("productQuery") or action.get("name"))):
+                continue
+            if kind == "shop_remove" and not (action.get("productQuery") or action.get("name")):
+                continue
+            actions.append(action)
+        return ""
+
+    cleaned = CHAT_ACTION_RE.sub(_consume, cleaned).strip()
+    return cleaned, actions
+
+
+def run_chat(body: dict, api_key: str) -> tuple[int, dict]:
+    """Shared chat handler for local server and Vercel Flask."""
+    raw_messages = body.get("messages", [])
+    context = body.get("context", {})
+    if not isinstance(context, dict):
+        context = {}
+    if not isinstance(raw_messages, list) or not raw_messages:
+        return 400, {"error": "messages are required"}
+    # Cap inventory blob so prompts stay bounded.
+    inventory = context.get("inventory")
+    if isinstance(inventory, dict):
+        context = {**context, "inventory": inventory}
+    else:
+        context = {k: v for k, v in context.items() if k != "inventory"}
+    messages = [{"role": "system", "content": HELP_PROMPT + "\nCurrent UI context: " +
+                 json.dumps(context, ensure_ascii=False)[:12000]}]
+    for message in raw_messages[-12]:
+        if not isinstance(message, dict) or message.get("role") not in {"user", "assistant"}:
+            continue
+        content = message.get("content")
+        if isinstance(content, str) and content.strip():
+            messages.append({"role": message["role"], "content": content[:4000]})
+    if len(messages) == 1:
+        return 400, {"error": "No valid messages"}
+    try:
+        response = groq_completion(api_key, {
+            "model": CHAT_MODEL, "messages": messages, "temperature": 0.3,
+            "max_completion_tokens": 900,
+        }, timeout=60)
+        raw = completion_text(response)
+        message, actions = extract_chat_actions(raw)
+        if not message and actions:
+            message = "I prepared draft changes. Please confirm them in the app."
+        return 200, {
+            "message": message or raw,
+            "actions": actions,
+            "model": response.get("model", CHAT_MODEL),
+            "responseId": response.get("id"),
+        }
+    except urllib.error.HTTPError as exc:
+        return provider_error(exc)
+    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
+        code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+        return (504 if code == "timeout" else 502), {"error": "Help chat failed", "code": code}
 
 
 def groq_completion(api_key: str, request_body: dict, timeout: int = 90) -> dict:
@@ -1267,6 +1383,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
 
         if path == "/api/chat":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
             self.handle_chat(body, api_key)
             return
         self.handle_shopping(body, api_key)
@@ -1908,40 +2027,8 @@ class Handler(SimpleHTTPRequestHandler):
                                {"error": "AI extraction failed", "code": code})
 
     def handle_chat(self, body: dict, api_key: str) -> None:
-        raw_messages = body.get("messages", [])
-        context = body.get("context", {})
-        if not isinstance(context, dict):
-            context = {}
-        if not isinstance(raw_messages, list) or not raw_messages:
-            self.json_response(400, {"error": "messages are required"})
-            return
-        messages = [{"role": "system", "content": HELP_PROMPT + "\nCurrent UI context: " +
-                     json.dumps(context, ensure_ascii=False)[:1000]}]
-        for message in raw_messages[-12:]:
-            if not isinstance(message, dict) or message.get("role") not in {"user", "assistant"}:
-                continue
-            content = message.get("content")
-            if isinstance(content, str) and content.strip():
-                messages.append({"role": message["role"], "content": content[:4000]})
-        if len(messages) == 1:
-            self.json_response(400, {"error": "No valid messages"})
-            return
-        try:
-            response = groq_completion(api_key, {
-                "model": CHAT_MODEL, "messages": messages, "temperature": 0.3,
-                "max_completion_tokens": 700,
-            }, timeout=60)
-            self.json_response(200, {
-                "message": completion_text(response), "model": response.get("model", CHAT_MODEL),
-                "responseId": response.get("id"),
-            })
-        except urllib.error.HTTPError as exc:
-            status, payload = provider_error(exc)
-            self.json_response(status, payload)
-        except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
-            code = "timeout" if isinstance(exc, TimeoutError) else "provider"
-            self.json_response(504 if code == "timeout" else 502,
-                               {"error": "Help chat failed", "code": code})
+        status, payload = run_chat(body, api_key)
+        self.json_response(status, payload)
 
 
 if __name__ == "__main__":

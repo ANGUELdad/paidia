@@ -283,6 +283,26 @@ def entry(flask_path: str = ""):
     }:
         return _auth_onboarding_complete()
 
+    if request.method == "POST" and api in {"/chat", "/api/chat"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        api_key = os.environ.get("GROQ_API_KEY", "").strip()
+        if not api_key:
+            return _json(503, {
+                "error": "Groq is not configured",
+                "code": "configuration",
+                "setup": "Set GROQ_API_KEY in Vercel env",
+            })
+        body = _body()
+        # Children may ask questions but must not receive mutate proposals.
+        context = body.get("context") if isinstance(body.get("context"), dict) else {}
+        if session.get("mode") == "child":
+            context = {**context, "canMutate": False}
+            body = {**body, "context": context}
+        status, payload = paidia.run_chat(body, api_key)
+        return _json(status, payload)
+
     if request.method in {"GET", "HEAD"}:
         static_rel = path.lstrip("/") or "index.html"
         if static_rel.startswith("api/"):

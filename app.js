@@ -100,10 +100,10 @@ const T = {
     tutorialSaveError:'Die Einführung konnte nicht gespeichert werden. Prüfe die Verbindung und versuche es erneut.',
     tutorialTip:'Du musst alle Schritte ansehen. Diese Einführung kann nicht übersprungen oder geschlossen werden.',
     tutorialOpen:'App-Tutorial öffnen', tutorialReplay:'Funktions-Tutorial', tutorialClose:'Tutorial beenden',
-    tutorialReplayTip:'Du kannst dieses Tutorial jederzeit über Hilfe oder Profil erneut öffnen.',
-    helpCenter:'Hilfe & Tutorial', helpCenterHint:'Lerne die App Schritt für Schritt oder frage die AI-Hilfe.',
-    startTutorial:'Geführtes App-Tutorial', startTutorialHint:'Alle Funktionen passend zu deinem Profil – jederzeit wiederholbar.',
-    askAiHelp:'AI-Hilfe fragen', askAiHelpHint:'Stelle eine konkrete Frage zur aktuellen Ansicht oder einem Arbeitsablauf.',
+    tutorialReplayTip:'Du kannst dieses Tutorial jederzeit über Hilfe (?) oder Profil erneut öffnen.',
+    helpCenter:'Hilfe & Tutorial', helpCenterHint:'Tutorial einmal nach dem Login — danach jederzeit über ?. Die AI kann mit Bestätigung Lager und Liste ändern.',
+    startTutorial:'Geführtes App-Tutorial', startTutorialHint:'Alle Funktionen passend zu deinem Profil – jederzeit wiederholbar über ?.',
+    askAiHelp:'AI-Hilfe fragen', askAiHelpHint:'Fragen stellen, per Sprache diktieren, oder Lager/Liste mit Bestätigung ändern.',
     pickChild:'Mindestens ein Kind wählen', pickActivity:'Aktivität wählen',
     loginEntry:'Anmeldung in der App',
     notesSaved:'Hinweise gespeichert', materialsMoved:n=>`${n} Positionen in die Einkaufsliste übernommen`,
@@ -184,7 +184,17 @@ const T = {
     close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche',
     eventOfWeek:'Event der Woche', eventToday:'Heute', eventTomorrow:'Morgen', upcomingEvents:'Demnächst',
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
-    helpChat:'Hilfe', helpWelcome:'Hallo! Was möchtest du in PAIDIA erledigen?',
+    helpChat:'Hilfe', helpWelcome:'Hallo! Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauchen deine Bestätigung. Du kannst auch das Mikrofon nutzen.',
+    helpVoice:'Spracheingabe', helpVoiceListening:'Höre zu…', helpVoiceUnsupported:'Spracheingabe wird auf diesem Gerät nicht unterstützt.',
+    helpVoiceError:'Spracheingabe fehlgeschlagen. Tippe die Frage stattdessen.',
+    helpProposeTitle:'Vorgeschlagene Änderungen', helpProposeHint:'Noch nicht gespeichert. Prüfe und bestätige.',
+    helpProposeConfirm:'Änderungen speichern', helpProposeCancel:'Verwerfen',
+    helpProposeDone:n=>`${n} ${n===1?'Änderung':'Änderungen'} gespeichert`,
+    helpProposeDenied:'Nur angemeldete Betreuer können Lager und Liste ändern.',
+    helpProposeEmpty:'Keine gültigen Änderungen erkannt.',
+    helpActionStock:(dir,qty,unit,name,house)=>`${dir==='IN'?'+':'−'} ${qty} ${unit} ${name} @ ${house}`,
+    helpActionShopAdd:(qty,unit,name,house)=>`🛒 + ${qty} ${unit} ${name} → Liste ${house}`,
+    helpActionShopRemove:(name,house)=>`🛒 entfernen: ${name} @ ${house}`,
     helpPlaceholder:'Frage zur aktuellen Ansicht…', helpSend:'Senden',
     helpThinking:'Ich prüfe das…', helpUnavailable:'Die Hilfe ist gerade nicht erreichbar.',
     viewEvents:'Events', eventsPanel:'Events & Ankündigungen', newEvent:'Neues Event', editEvent:'Event bearbeiten',
@@ -330,10 +340,10 @@ const T = {
     tutorialSaveError:'Η ξενάγηση δεν αποθηκεύτηκε. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
     tutorialTip:'Πρέπει να δεις όλα τα βήματα. Η ξενάγηση δεν παραλείπεται και δεν κλείνει.',
     tutorialOpen:'Άνοιγμα tutorial εφαρμογής', tutorialReplay:'Tutorial λειτουργιών', tutorialClose:'Τέλος tutorial',
-    tutorialReplayTip:'Μπορείς να ανοίξεις ξανά αυτό το tutorial οποιαδήποτε στιγμή από τη Βοήθεια ή το Προφίλ.',
-    helpCenter:'Βοήθεια & Tutorial', helpCenterHint:'Μάθε την εφαρμογή βήμα-βήμα ή ρώτησε τη βοήθεια AI.',
-    startTutorial:'Καθοδηγούμενο tutorial εφαρμογής', startTutorialHint:'Όλες οι λειτουργίες για το προφίλ σου – διαθέσιμο πάντα.',
-    askAiHelp:'Ερώτηση στη βοήθεια AI', askAiHelpHint:'Κάνε συγκεκριμένη ερώτηση για την τρέχουσα οθόνη ή διαδικασία.',
+    tutorialReplayTip:'Μπορείς να ανοίξεις ξανά αυτό το tutorial οποιαδήποτε στιγμή από το ? ή το Προφίλ.',
+    helpCenter:'Βοήθεια & Tutorial', helpCenterHint:'Tutorial μία φορά μετά τη σύνδεση — μετά από ?. Η AI μπορεί με επιβεβαίωση να αλλάξει ψυγείο και λίστα.',
+    startTutorial:'Καθοδηγούμενο tutorial εφαρμογής', startTutorialHint:'Όλες οι λειτουργίες για το προφίλ σου – επαναλαμβάνεται από το ?.',
+    askAiHelp:'Ερώτηση στη βοήθεια AI', askAiHelpHint:'Κάνε ερώτηση, υπαγόρευσε με μικρόφωνο, ή άλλαξε ψυγείο/λίστα με επιβεβαίωση.',
     pickChild:'Διάλεξε τουλάχιστον ένα παιδί', pickActivity:'Διάλεξε δραστηριότητα',
     loginEntry:'Είσοδος στην εφαρμογή',
     notesSaved:'Οι σημειώσεις αποθηκεύτηκαν', materialsMoved:n=>`${n} είδη πέρασαν στη λίστα αγορών`,
@@ -414,7 +424,17 @@ const T = {
     close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα',
     eventOfWeek:'Event της εβδομάδας', eventToday:'Σήμερα', eventTomorrow:'Αύριο', upcomingEvents:'Επόμενα events',
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
-    helpChat:'Βοήθεια', helpWelcome:'Γεια! Τι θέλεις να κάνεις στο PAIDIA;',
+    helpChat:'Βοήθεια', helpWelcome:'Γεια! Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση. Μπορείς και μικρόφωνο.',
+    helpVoice:'Φωνητική εισαγωγή', helpVoiceListening:'Ακούω…', helpVoiceUnsupported:'Η φωνητική εισαγωγή δεν υποστηρίζεται σε αυτή τη συσκευή.',
+    helpVoiceError:'Η φωνητική εισαγωγή απέτυχε. Γράψε την ερώτηση.',
+    helpProposeTitle:'Προτεινόμενες αλλαγές', helpProposeHint:'Δεν αποθηκεύτηκαν ακόμη. Έλεγξε και επιβεβαίωσε.',
+    helpProposeConfirm:'Αποθήκευση αλλαγών', helpProposeCancel:'Απόρριψη',
+    helpProposeDone:n=>`${n} ${n===1?'αλλαγή':'αλλαγές'} αποθηκεύτηκαν`,
+    helpProposeDenied:'Μόνο συνδεδεμένοι φροντιστές μπορούν να αλλάξουν ψυγείο και λίστα.',
+    helpProposeEmpty:'Δεν αναγνωρίστηκαν έγκυρες αλλαγές.',
+    helpActionStock:(dir,qty,unit,name,house)=>`${dir==='IN'?'+':'−'} ${qty} ${unit} ${name} @ ${house}`,
+    helpActionShopAdd:(qty,unit,name,house)=>`🛒 + ${qty} ${unit} ${name} → λίστα ${house}`,
+    helpActionShopRemove:(name,house)=>`🛒 αφαίρεση: ${name} @ ${house}`,
     helpPlaceholder:'Ρώτησε για την τρέχουσα οθόνη…', helpSend:'Αποστολή',
     helpThinking:'Το ελέγχω…', helpUnavailable:'Η βοήθεια δεν είναι διαθέσιμη αυτή τη στιγμή.',
     viewEvents:'Events', eventsPanel:'Events & ανακοινώσεις', newEvent:'Νέο event', editEvent:'Επεξεργασία event',
@@ -981,6 +1001,36 @@ const state = {
   onboardingVersion: 2,
 };
 const isAdminUser = () => !!(state.mode==='staff' && state.user?.admin);
+const currentProfileId = () => state.mode==='child' ? state.child?.id : state.user?.id;
+
+function onboardingStorageKey(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
+  return `paidia-onboarding:${profileId||'_'}:${mode}:${Number(version)||0}`;
+}
+function readOnboardingLocal(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
+  try{ return localStorage.getItem(onboardingStorageKey(profileId, mode, version))==='1'; }
+  catch{ return false; }
+}
+function writeOnboardingLocal(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
+  try{ localStorage.setItem(onboardingStorageKey(profileId, mode, version), '1'); }catch{}
+}
+async function syncOnboardingComplete(version=state.onboardingVersion){
+  const response=await fetch('/api/auth/onboarding/complete',{
+    method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
+    body:JSON.stringify({version}),
+  });
+  const data=await response.json().catch(()=>({}));
+  if(response.status===409 && data.version){
+    state.onboardingVersion=Number(data.version)||state.onboardingVersion;
+    const err=new Error(data.error||'version'); err.code='onboarding_version'; err.version=data.version; throw err;
+  }
+  if(!response.ok || data.completed!==true){
+    const err=new Error(data.error||`HTTP ${response.status}`); err.code=data.code||'save_failed'; throw err;
+  }
+  state.onboardingComplete=true;
+  state.onboardingVersion=Number(data.version)||version;
+  writeOnboardingLocal(currentProfileId(), state.mode, state.onboardingVersion);
+  return data;
+}
 
 function applyAuthenticatedProfile(data,{logLogin=false}={}){
   const mode=data.mode==='child'?'child':'staff';
@@ -990,10 +1040,15 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   state.mode=mode;
   state.child=mode==='child'?authenticatedWho:null;
   state.user=mode==='staff'?authenticatedWho:null;
-  state.onboardingComplete=data.onboardingComplete===true;
   state.onboardingVersion=Number(data.onboardingVersion)||1;
+  const serverDone=data.onboardingComplete===true;
+  const localDone=readOnboardingLocal(data.profileId, mode, state.onboardingVersion);
+  state.onboardingComplete=serverDone || localDone;
   session.sessionId=data.sessionId||session.sessionId;
   if(logLogin && mode==='staff') logEntry('LOGIN',t('loginEntry'));
+  if(!serverDone && localDone){
+    syncOnboardingComplete(state.onboardingVersion).catch(()=>{ /* keep local completion; retry next login */ });
+  }
   return true;
 }
 
@@ -1202,13 +1257,28 @@ function openTutorial({required=false}={}){
       if(current<steps.length-1){current++;paint();return;}
       if(!required){closeSheet();return;}
       saving=true;const button=root.querySelector('#tutorialNext'),status=root.querySelector('#tutorialStatus');
-      button.disabled=true;status.textContent=t('tutorialSaving');
-      try{
-        const response=await fetch('/api/auth/onboarding/complete',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({version:state.onboardingVersion})});
-        const data=await response.json().catch(()=>({}));
-        if(!response.ok||data.completed!==true)throw new Error(data.error||'save failed');
-        state.onboardingComplete=true;closeSheet();toast(t('tutorialDone'),'success',4200);
-      }catch(error){saving=false;button.disabled=false;status.textContent=t('tutorialSaveError');}
+      button.disabled=true;status.textContent=t('tutorialSaving');status.className='tutorial-status busy';
+      let lastError=null;
+      for(let attempt=0;attempt<3;attempt++){
+        try{
+          await syncOnboardingComplete(state.onboardingVersion);
+          closeSheet();toast(t('tutorialDone'),'success',4200);return;
+        }catch(error){
+          lastError=error;
+          if(error.code==='onboarding_version'){
+            status.className='tutorial-status';status.textContent=t('tutorialSaveError');
+            saving=false;button.disabled=false;return;
+          }
+          await new Promise(resolve=>setTimeout(resolve,350*(attempt+1)));
+        }
+      }
+      // Durable client fallback so the mandatory tour does not trap the user on flaky /tmp.
+      writeOnboardingLocal();
+      state.onboardingComplete=true;
+      saving=false;button.disabled=false;
+      closeSheet();
+      toast(t('tutorialDone'),'success',4200);
+      console.warn('onboarding sync failed; kept local completion', lastError);
     };
   };
   paint();
@@ -1218,7 +1288,126 @@ function openMandatoryTutorial(){openTutorial({required:true});}
 function openAppTutorial(){openTutorial({required:false});}
 
 async function ensureOnboarding({afterLogin=false}={}){
-  if(!state.onboardingComplete)openMandatoryTutorial();
+  if(state.onboardingComplete) return;
+  if(readOnboardingLocal()){
+    state.onboardingComplete=true;
+    syncOnboardingComplete(state.onboardingVersion).catch(()=>{});
+    return;
+  }
+  openMandatoryTutorial();
+}
+
+function helpInventoryContext(){
+  const canMutate=state.mode==='staff' && !!state.user;
+  if(!canMutate) return {canMutate:false};
+  const houses=DB.houses.map(h=>({id:h.id,name:h.short||L(h)||h.id}));
+  const products=PRODUCTS().map(p=>{
+    const stock={};
+    DB.houses.forEach(h=>{stock[h.id]=DB.stock[stockKey(h.id,p.id)]??0;});
+    return {id:p.id,name:L(p),unit:p.unit,stock};
+  });
+  const low=products.filter(p=>DB.houses.some(h=>(p.stock[h.id]??0)<=lowThreshold(prod(p.id)||{unit:p.unit})))
+    .slice(0,40)
+    .map(p=>({id:p.id,name:p.name,unit:p.unit,stock:p.stock}));
+  const openShop=DB.listEntries.filter(e=>['open','pending'].includes(e.status)).slice(0,40).map(e=>({
+    name:e.name,qty:e.qty,unit:e.unit,houseId:e.houseId,status:e.status,
+  }));
+  return {
+    canMutate:true,
+    admin:isAdminUser(),
+    houses,
+    productNames:products.slice(0,160).map(p=>`${p.name} (${p.unit})`),
+    lowStock:low,
+    openShopping:openShop,
+    activeHouse:state.house,
+    shopFriday:state.shopFriday||fridayFor(),
+  };
+}
+
+function describeHelpAction(action){
+  const query=action.productQuery||action.name||'';
+  const product=matchProduct(query);
+  const name=product?L(product):(action.name||query||'?');
+  const unit=action.unit||product?.unit||'Stk';
+  const hid=action.houseId||shopHouse();
+  const houseName=house(hid)?.short||hid;
+  if(action.type==='stock_adjust') return T[state.lang].helpActionStock(action.dir||'IN', action.qty||1, unit, name, houseName);
+  if(action.type==='shop_add') return T[state.lang].helpActionShopAdd(action.qty||1, unit, name, houseName);
+  if(action.type==='shop_remove') return T[state.lang].helpActionShopRemove(name, houseName);
+  return name;
+}
+
+function applyHelpActions(actions){
+  if(state.mode!=='staff' || !state.user){ toast(t('helpProposeDenied'),'error'); return 0; }
+  let applied=0;
+  actions.forEach(action=>{
+    const query=action.productQuery||action.name||'';
+    const product=matchProduct(query);
+    const hid=action.houseId && house(action.houseId) ? action.houseId : shopHouse();
+    if(action.type==='stock_adjust'){
+      const qty=Number(action.qty)||0; if(qty<=0) return;
+      const p=product||{id:null,unit:action.unit||'Stk',de:query,el:query};
+      if(!product){
+        DB.customProducts ||= [];
+        const created={id:'cp-'+uid(),cat:'custom',de:query,el:query,unit:action.unit||'Stk',alias:[]};
+        DB.customProducts.push(created);
+        Object.assign(p, created);
+      }
+      const key=stockKey(hid,p.id);
+      const delta=action.dir==='OUT'?-qty:qty;
+      DB.stock[key]=Math.max(0, Math.round(((DB.stock[key]??0)+delta)*100)/100);
+      logEntry(action.dir==='OUT'?'OUT':'IN',
+        `AI · ${describeHelpAction(action)}`,
+        {houseId:hid, reason:action.reason||'AI help', items:[{pid:p.id, qty}]});
+      applied++;
+      return;
+    }
+    if(action.type==='shop_add'){
+      const qty=Number(action.qty)||1;
+      const name=product?L(product):(action.name||query);
+      const unit=action.unit||product?.unit||'Stk';
+      const friday=state.shopFriday||fridayFor();
+      const existing=fridayEntries(hid,friday).find(e=>e.status==='open'&&((product&&e.productId===product.id)||norm(e.name)===norm(name)));
+      if(existing) existing.qty=Math.round((Number(existing.qty)+qty)*100)/100;
+      else DB.listEntries.push({id:uid(),productId:product?.id||null,name,qty,unit,houseId:hid,fridayDate:friday,by:state.user.id,status:'open'});
+      logEntry('SHOP',`AI · ${describeHelpAction(action)}`,{houseId:hid});
+      applied++;
+      return;
+    }
+    if(action.type==='shop_remove'){
+      const before=DB.listEntries.length;
+      DB.listEntries=DB.listEntries.filter(e=>{
+        if(e.houseId!==hid || !['open','pending'].includes(e.status)) return true;
+        if(product && e.productId===product.id) return false;
+        return norm(e.name)!==norm(query);
+      });
+      if(DB.listEntries.length!==before){
+        logEntry('SHOP',`AI · ${describeHelpAction(action)}`,{houseId:hid});
+        applied++;
+      }
+    }
+  });
+  if(applied) save();
+  return applied;
+}
+
+function sheetHelpProposals(actions){
+  if(!actions?.length){ toast(t('helpProposeEmpty')); return; }
+  if(state.mode!=='staff' || !state.user){ toast(t('helpProposeDenied'),'error'); return; }
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">AI</div><h2>${t('helpProposeTitle')}</h2><p>${t('helpProposeHint')}</p></div>
+    <div class="help-propose-list">${actions.map((action,i)=>`<div class="help-propose-row"><b>${i+1}.</b><span>${esc(describeHelpAction(action))}</span></div>`).join('')}</div>
+    <div class="row" style="gap:8px;margin-top:14px"><button class="btn sec" id="helpProposeCancel" type="button">${t('helpProposeCancel')}</button>
+      <button class="btn" id="helpProposeConfirm" type="button">${t('helpProposeConfirm')}</button></div>`);
+  sheetEl.querySelector('#helpProposeCancel').onclick=()=>closeSheet();
+  sheetEl.querySelector('#helpProposeConfirm').onclick=()=>{
+    askPin(t('helpProposeConfirm'), who=>{
+      state.user=who;
+      const n=applyHelpActions(actions);
+      closeSheet();
+      if(n){ render(); toast(T[state.lang].helpProposeDone(n),'success'); }
+      else toast(t('helpProposeEmpty'));
+    });
+  };
 }
 
 function sheetHelpCenter(){
@@ -1233,6 +1422,7 @@ function sheetHelp(){
   if(!state.helpMessages.length){
     state.helpMessages.push({role:'assistant', content:t('helpWelcome')});
   }
+  let recognition=null, listening=false;
   const paint = () => {
     const log = sheetEl.querySelector('#helpLog');
     if(!log) return;
@@ -1240,47 +1430,82 @@ function sheetHelp(){
       `<div class="chat-msg ${m.role==='user'?'user':'assistant'}">${esc(m.content)}</div>`).join('');
     log.scrollTop = log.scrollHeight;
   };
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
   openSheet(`<h3>✨ ${t('helpChat')}</h3>
     <div class="chat-log" id="helpLog" aria-live="polite"></div>
     <div class="chat-compose">
       <textarea id="helpInput" rows="1" placeholder="${esc(t('helpPlaceholder'))}"></textarea>
+      <button class="chat-mic" id="helpMic" type="button" aria-label="${esc(t('helpVoice'))}" title="${esc(t('helpVoice'))}">🎤</button>
       <button class="btn" id="helpSend" type="button">${t('helpSend')}</button>
-    </div>`);
+    </div>
+    <div class="chat-voice-status" id="helpVoiceStatus" hidden></div>`);
   paint();
   const input = sheetEl.querySelector('#helpInput');
   const send = sheetEl.querySelector('#helpSend');
+  const mic = sheetEl.querySelector('#helpMic');
+  const voiceStatus = sheetEl.querySelector('#helpVoiceStatus');
+  const setListening=(on)=>{
+    listening=on; mic.classList.toggle('on', on);
+    voiceStatus.hidden=!on; voiceStatus.textContent=on?t('helpVoiceListening'):'';
+  };
   const submit = async () => {
     const content = input.value.trim();
     if(!content || send.disabled) return;
+    if(recognition && listening){ try{recognition.stop();}catch{} setListening(false); }
     state.helpMessages.push({role:'user', content});
     state.helpMessages = state.helpMessages.slice(-12);
-    input.value = ''; send.disabled = true; paint();
+    input.value = ''; send.disabled = true; mic.disabled=true; paint();
     const thinking = document.createElement('div');
     thinking.className = 'chat-msg assistant'; thinking.id = 'helpThinking';
     thinking.textContent = t('helpThinking');
     sheetEl.querySelector('#helpLog').appendChild(thinking);
     try{
       const response = await fetch('/api/chat', {
-        method:'POST', headers:{'Content-Type':'application/json'},
+        method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
         body:JSON.stringify({
-          messages:state.helpMessages,
-          context:{mode:state.mode, tab:state.mode==='child'?state.childView:state.tab,
-            scheduleView:state.scheduleView, houseFilter:state.houseFilter, lang:state.lang},
+          messages:state.helpMessages.filter(m=>m.role==='user'||m.role==='assistant'),
+          context:{
+            mode:state.mode, tab:state.mode==='child'?state.childView:state.tab,
+            scheduleView:state.scheduleView, houseFilter:state.houseFilter, lang:state.lang,
+            canMutate:state.mode==='staff'&&!!state.user,
+            inventory:helpInventoryContext(),
+          },
         }),
       });
-      const data = await response.json();
+      const data = await response.json().catch(()=>({}));
       if(!response.ok) throw new Error(data.detail || data.error || String(response.status));
       state.helpMessages.push({role:'assistant', content:data.message || t('helpUnavailable')});
       state.helpMessages = state.helpMessages.slice(-12);
+      paint();
+      if(Array.isArray(data.actions) && data.actions.length) sheetHelpProposals(data.actions);
     }catch(error){
       state.helpMessages.push({role:'assistant', content:t('helpUnavailable')});
+      paint();
     }finally{
-      send.disabled = false; paint(); input.focus();
+      send.disabled = false; mic.disabled=false; input.focus();
     }
   };
   send.onclick = submit;
   input.onkeydown = e => {
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); }
+  };
+  mic.onclick=()=>{
+    if(!SpeechRecognition){ toast(t('helpVoiceUnsupported')); return; }
+    if(listening && recognition){ try{recognition.stop();}catch{} setListening(false); return; }
+    recognition=new SpeechRecognition();
+    recognition.lang=state.lang==='el'?'el-GR':'de-DE';
+    recognition.interimResults=false;
+    recognition.maxAlternatives=1;
+    recognition.onstart=()=>setListening(true);
+    recognition.onend=()=>setListening(false);
+    recognition.onerror=()=>{ setListening(false); toast(t('helpVoiceError'),'error'); };
+    recognition.onresult=event=>{
+      const transcript=event.results?.[0]?.[0]?.transcript?.trim();
+      if(!transcript) return;
+      input.value=(input.value?input.value+' ':'')+transcript;
+      input.focus();
+    };
+    try{ recognition.start(); }catch{ toast(t('helpVoiceError'),'error'); }
   };
   input.focus();
 }
