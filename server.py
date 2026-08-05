@@ -104,18 +104,14 @@ SECURITY_LOG_PATH = Path(os.environ.get("PAIDIA_SECURITY_LOG_PATH", ".paidia-sec
 PASSKEY_STORE_PATH = Path(os.environ.get("PAIDIA_PASSKEY_STORE_PATH", ".paidia-passkeys.json"))
 ONBOARDING_STATE_PATH = Path(os.environ.get("PAIDIA_ONBOARDING_STATE_PATH", ".paidia-onboarding.json"))
 
-# Vercel serverless FS is read-only except /tmp — keep writable state there.
+# Vercel serverless FS is read-only except /tmp — always keep writable state there.
 if os.environ.get("VERCEL") == "1":
     _tmp = Path("/tmp/paidia")
     _tmp.mkdir(parents=True, exist_ok=True)
-    if not os.environ.get("PAIDIA_ONBOARDING_STATE_PATH"):
-        ONBOARDING_STATE_PATH = _tmp / "onboarding.json"
-    if not os.environ.get("PAIDIA_PASSKEY_STORE_PATH"):
-        PASSKEY_STORE_PATH = _tmp / "passkeys.json"
-    if not os.environ.get("PAIDIA_SECURITY_STATE_PATH"):
-        SECURITY_STATE_PATH = _tmp / "security-state.json"
-    if not os.environ.get("PAIDIA_SECURITY_LOG_PATH"):
-        SECURITY_LOG_PATH = _tmp / "security-events.jsonl"
+    ONBOARDING_STATE_PATH = _tmp / "onboarding.json"
+    PASSKEY_STORE_PATH = _tmp / "passkeys.json"
+    SECURITY_STATE_PATH = _tmp / "security-state.json"
+    SECURITY_LOG_PATH = _tmp / "security-events.jsonl"
 ONBOARDING_VERSION = 2
 WEBAUTHN_ORIGIN = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", os.environ.get(
     "PAIDIA_PUBLIC_URL", f"http://localhost:{PORT}"
