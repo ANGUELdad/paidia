@@ -4,16 +4,25 @@
    ════════════════════════════════════════════════════════════════ */
 const T = {
   de: {
-    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch',
-    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente',
+    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente',
     logout:'Profil', noUser:'Nicht angemeldet',
-    navChat:'Chat', topChat:'Chat', topHelp:'Zo-Ai', topTalk:'Team', topTutorial:'Tutorial',
+    navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Team sprechen', topTutorial:'Tutorial',
     topAdd:'＋ Eintrag', topIn:'＋ Ein', topOut:'− Aus', topBoard:'Bewegung', topFood:'＋ Ware',
     topShop:'Liste', topScan:'Scan', topHistory:'Verlauf', topShift:'Schicht', topFix:'Korrektur',
     topDay:'Tag', topWeek:'Woche', topEvents:'Events', topBoth:'Beide Häuser',
     headerHome:'Armonia · Home', headerScheduleDay:'Plan · Tag', headerScheduleWeek:'Plan · Woche',
     headerScheduleEvents:'Plan · Events', headerStock:'Lager', headerStockAll:'Lager · beide Häuser',
-    headerShop:'Einkauf', headerBook:'Buch & Schicht',
+    headerShop:'Einkauf', headerBook:'Buch & Schicht', headerGallery:'Große Momente',
+    galleryTitle:'Große Momente', galleryHint:'Fotos von schönen Momenten — für Kinder und Team',
+    galleryEmpty:'Noch keine Momente. Sei der Erste!', galleryShare:'Moment teilen',
+    galleryCaption:'Was ist passiert?', galleryCaptionPh:'z.B. Strandtag, Geburtstag, Fußball-Sieg…',
+    galleryPick:'Foto wählen', galleryCamera:'Kamera', galleryPost:'Teilen',
+    galleryPosted:'Moment geteilt!', galleryDelete:'Löschen', galleryLike:'Like',
+    galleryLoading:'Momente laden…', galleryFail:'Galerie nicht erreichbar',
+    galleryNeedPhoto:'Bitte ein Foto hinzufügen', galleryTooBig:'Foto zu groß — nochmal versuchen',
+    galleryJustNow:'gerade eben', galleryMinutes:n=>`vor ${n} Min.`, galleryHours:n=>`vor ${n} Std.`, galleryDays:n=>`vor ${n} T.`,
+    galleryByKid:'Kind', galleryByStaff:'Team', galleryChildTab:'Momente',
     shiftDiary:'Meine Schichtnotiz', shiftDiaryHint:'Was ist in deiner Schicht passiert? Nur dein Profil schreibt hier.',
     shiftDiaryPh:'z.B. Übergabe erledigt, Lager nachgefüllt, Kind X früher abgeholt…',
     shiftDiarySave:'Schichtnotiz speichern', shiftDiarySaved:'Schichtnotiz gespeichert',
@@ -50,7 +59,16 @@ const T = {
     stockTitle:'Bestand', lastMoves:'Letzte Bewegungen',
     inventoryDashboard:'Lagerübersicht', inventoryHint:'Zuerst sehen, was fehlt – den vollständigen Bestand nur bei Bedarf öffnen.',
     inventoryHealth:'Bestandssicherheit', inventoryHealthyPct:n=>`${n}% der Produkte sind ausreichend vorhanden`,
-    tapProduct:'Produkt öffnen', productDetail:'Produktdetails', addToShopping:'Zur Einkaufsliste hinzufügen',
+    tapProduct:'Produkt bearbeiten', productDetail:'Produkt bearbeiten', addToShopping:'Zur Einkaufsliste hinzufügen',
+    productEditHint:'Name, Einheit, Kategorie und Bestand ändern',
+    productNameDe:'Name (DE)', productNameEl:'Name (EL)',
+    productAliases:'Aliases (Komma)', productAliasesHint:'z. B. milch, γάλα',
+    productStockQty:'Bestand je Haus',
+    productSave:'Änderungen speichern', productSaved:'Produkt gespeichert',
+    productDelete:'Produkt löschen', productDeleted:'Produkt gelöscht',
+    productDeleteConfirm:'Dieses Produkt wirklich löschen?',
+    productNameRequired:'Bitte einen Namen eingeben',
+    productQuickActions:'Schnellaktionen',
     addedToShopping:'Zur Einkaufsliste hinzugefügt', alreadyPlanned:'Bereits auf der Einkaufsliste',
     listItemRemoved:'Position aus der Liste entfernt.',
     stockSearch:'Produkt suchen…', stockAttention:'Achtung', stockAll:'Alle', stockEmpty:'Leer',
@@ -67,7 +85,7 @@ const T = {
     stockHoldIn:'＋ Eingang',
     stockHoldOut:'− Ausgang',
     stockHoldShop:'Zur Einkaufsliste',
-    stockHoldDetail:'Details / Menge',
+    stockHoldDetail:'Bearbeiten',
     stockHoldClear:'Aus Auswahl entfernen',
     stockAddFood:'＋ Lebensmittel',
     stockAddCat:'＋ Kategorie',
@@ -115,15 +133,26 @@ const T = {
     lockedFor:n=>`Anmeldung gesperrt. Versuche es in ${n} Minute${n===1?'':'n'} erneut.`,
     attemptsRemaining:n=>`Falsche PIN. Noch ${n} Versuch${n===1?'':'e'}.`,
     useBiometrics:'Mit Geräte-Sperre anmelden', passkey:'Passkey', passkeySetup:'Face ID / Touch ID einrichten',
-    passkeyHint:'Dein Gerät entscheidet: Face ID, Touch ID, Fingerabdruck oder Windows Hello. Biometriedaten verlassen das Gerät nie.',
-    passkeyAdded:'Passkey wurde sicher hinzugefügt.', passkeyRemoved:'Passkeys wurden entfernt.', removePasskeys:'Passkeys entfernen',
-    passkeyNone:'Auf diesem Profil ist noch kein Passkey eingerichtet. Melde dich mit PIN an und tippe unter Profil auf „Face ID / Touch ID einrichten“.',
-    passkeySetupNeeded:'Zuerst mit PIN anmelden, dann unter Profil den Passkey einrichten.',
+    passkeyHint:'iPhone: Face ID · Android: Fingerabdruck · Mac: Touch ID · Windows: Hello. Biometrie bleibt auf dem Gerät — nur ein öffentlicher Schlüssel wird gespeichert.',
+    passkeyAdded:'Face ID / Touch ID wurde eingerichtet.', passkeyRemoved:'Biometrie-Anmeldung entfernt.', removePasskeys:'Biometrie entfernen',
+    passkeyNone:'Noch nicht eingerichtet. Mit PIN anmelden, dann unten „einrichten“ tippen.',
+    passkeySetupNeeded:'Zuerst mit PIN anmelden, dann unter Profil Face ID / Touch ID einrichten.',
     passkeyConfig:'Passkey-Server ist nicht konfiguriert (Origin/RP ID). Prüfe PAIDIA_WEBAUTHN_ORIGIN auf Vercel.',
     emailNotFound:'E-Mail-Profil wurde nicht gefunden. Speichere zuerst Kontaktdaten oder prüfe, ob du angemeldet bist.',
     profileCustomize:'Profil anpassen', profileNickname:'Anzeigename', profileColor:'Farbe', profileEmoji:'Emoji',
-    profileSaved:'Profil gespeichert', passkeyCount:n=>`${n} Passkey${n===1?'':'s'} eingerichtet`,
-    passkeyUnavailable:'Passkeys brauchen ein unterstütztes Gerät und HTTPS.', passkeyCancelled:'Anmeldung wurde abgebrochen.',
+    profileSaved:'Profil gespeichert', passkeyCount:n=>n===1?'1 Gerät eingerichtet':`${n} Geräte eingerichtet`,
+    passkeyUnavailable:'Dieses Gerät unterstützt keine Biometrie-Anmeldung (braucht HTTPS und Face ID / Fingerabdruck / Windows Hello).',
+    passkeyCancelled:'Abgebrochen — nichts wurde geändert.',
+    profilePinTitle:'PIN ändern', profilePinHint:'Neue PIN gilt auf allen Geräten. 4–6 Ziffern.',
+    profilePinCurrent:'Aktuelle PIN', profilePinNew:'Neue PIN', profilePinConfirm:'Neue PIN bestätigen',
+    profilePinSave:'PIN speichern', profilePinChanged:'PIN geändert',
+    profilePinWrong:'Aktuelle PIN ist falsch', profilePinSame:'Neue PIN muss anders sein',
+    profilePinInvalid:'PIN muss 4–6 Ziffern haben und übereinstimmen',
+    profileSectionLook:'Aussehen', profileSectionContact:'Kontakt', profileSectionPin:'PIN',
+    profileSectionBio:'Face ID / Touch ID',
+    profileStorageOk:'Datenbank aktiv — Plan, Lager, Listen und Profil überleben Deployments.',
+    profileStorageWarn:'Kein Postgres — Daten können nach einem Deploy verloren gehen. In Vercel → Environment Variables DATABASE_URL setzen.',
+    durableStorageBadge:'Server-Speicher',
     securityAccess:'Anmeldung & Sicherheit', signOut:'Abmelden', pinFallback:'Oder PIN verwenden', thisDevice:'Dieses Gerät',
     profileDetails:'Profildaten', manageProfiles:'Profile verwalten', recoveryEmail:'E-Mail für PIN-Wiederherstellung',
     recoveryEmailHint:'An diese Adresse gehen einmalige PIN-Links und wichtige Sicherheitsmeldungen.',
@@ -267,7 +296,7 @@ const T = {
     actions:n=>n===1?'Buchung':'Buchungen', noActionsToday:'Heute noch nichts gebucht',
     visibleToAll:'Für alle sichtbar',
     close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele',
-    gamesTitle:'Spiele', gamesHint:'Tippe ein Spiel — bunte Runden für zwischendurch',
+    gamesTitle:'Spiele', gamesHint:'Lernen & spielen — Griechisch, Wissen, Rechnen und Klassiker',
     gameMemory:'Memory', gameMemoryHint:'Finde die Paare · so wenig Züge wie möglich',
     gameTac:'XO', gameTacHint:'Hol 3 in einer Reihe gegen den PC',
     gameCatch:'Fische fangen', gameCatchHint:'Tippe schwimmende Fische · Kombo!',
@@ -276,6 +305,9 @@ const T = {
     gameDice:'Würfel', gameDiceHint:'Würfle · wer ist dran?',
     gameSimon:'Simon', gameSimonHint:'Merk dir die Farben · tippe die Reihe',
     gameColors:'Farbtreffer', gameColorsHint:'Tippe die richtige Farbe · Tempo!',
+    gameLearn:'Griechisch lernen', gameLearnHint:'Deutsch ↔ Ελληνικά · wie Duolingo · auch mit KI',
+    gameQuiz:'Wissen', gameQuizHint:'Natur, Griechenland, Spa & Allgemeinwissen',
+    gameMath:'Rechnen', gameMathHint:'Schnelles Kopfrechnen · Serie halten',
     gameBack:'Alle Spiele', gamePlay:'Spielen', gameAgain:'Nochmal',
     gameMoves:'Züge', gamePairs:'Paare', gameScore:'Punkte', gameTime:'Zeit',
     gameBest:'Best', gameCombo:'Kombo', gameStreak:'Serie', gameLevel:'Stufe',
@@ -296,6 +328,14 @@ const T = {
     gameColorsTap:'Tippe:', gameColorsHintPlay:'Welche Farbe steht da? Tippe schnell',
     gameColorRed:'Rot', gameColorGreen:'Grün', gameColorBlue:'Blau', gameColorYellow:'Gelb',
     gameFishCatch:'Fisch tippen',
+    gameLearnHintPlay:'Wähle die richtige Übersetzung',
+    gameLearnDeToEl:'DE → EL', gameLearnElToDe:'EL → DE',
+    gameLearnAi:'KI zufällig', gameLearnAiLoading:'KI lädt…', gameLearnAiFail:'KI nicht erreichbar — lokale Karten',
+    gameLearnCorrect:'Richtig!', gameLearnWrong:'Nicht ganz —', gameLearnHearts:'Leben',
+    gameLearnRound:'Runde', gameLearnDone:'Lektion geschafft!', gameLearnXp:'XP',
+    gameQuizHintPlay:'Tippe die richtige Antwort', gameQuizTopic:'Thema',
+    gameMathHintPlay:'Rechne schnell und tippe die richtige Zahl',
+    gameMathPlus:'Plus', gameMathMinus:'Minus', gameMathTimes:'Mal',
     eventOfWeek:'Event der Woche', eventToday:'Heute', eventTomorrow:'Morgen', upcomingEvents:'Demnächst',
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
     helpChat:'Zo-Ai', helpWelcome:'Hallo! Ich bin Zo-Ai. Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauche ich danach deine Bestätigung.',
@@ -391,16 +431,25 @@ const T = {
     pasteScreenshot:'Screenshot einfügen', pickScreenshot:'Screenshot / Foto wählen',
   },
   el: {
-    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο',
-    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές',
+    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
-    navChat:'Chat', topChat:'Chat', topHelp:'Zo-Ai', topTalk:'Ομάδα', topTutorial:'Tutorial',
+    navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Ομάδα — συνομιλία', topTutorial:'Tutorial',
     topAdd:'＋ Εγγραφή', topIn:'＋ Εισ', topOut:'− Έξ', topBoard:'Κίνηση', topFood:'＋ Είδος',
     topShop:'Λίστα', topScan:'Σάρωση', topHistory:'Ιστορικό', topShift:'Βάρδια', topFix:'Διόρθωση',
     topDay:'Ημέρα', topWeek:'Εβδομάδα', topEvents:'Events', topBoth:'Και τα δύο',
     headerHome:'Armonia · Αρχική', headerScheduleDay:'Πρόγραμμα · Ημέρα', headerScheduleWeek:'Πρόγραμμα · Εβδομάδα',
     headerScheduleEvents:'Πρόγραμμα · Events', headerStock:'Αποθήκη', headerStockAll:'Αποθήκη · όλα',
-    headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια',
+    headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια', headerGallery:'Μεγάλες στιγμές',
+    galleryTitle:'Μεγάλες στιγμές', galleryHint:'Φωτογραφίες ωραίων στιγμών — για παιδιά και ομάδα',
+    galleryEmpty:'Καμία στιγμή ακόμα. Γίνε ο πρώτος!', galleryShare:'Μοιράσου στιγμή',
+    galleryCaption:'Τι έγινε;', galleryCaptionPh:'π.χ. παραλία, γενέθλια, νίκη στο ποδόσφαιρο…',
+    galleryPick:'Επιλογή φωτό', galleryCamera:'Κάμερα', galleryPost:'Δημοσίευση',
+    galleryPosted:'Η στιγμή δημοσιεύτηκε!', galleryDelete:'Διαγραφή', galleryLike:'Like',
+    galleryLoading:'Φόρτωση στιγμών…', galleryFail:'Η συλλογή δεν είναι διαθέσιμη',
+    galleryNeedPhoto:'Πρόσθεσε μια φωτογραφία', galleryTooBig:'Η φωτό είναι μεγάλη — δοκίμασε ξανά',
+    galleryJustNow:'μόλις τώρα', galleryMinutes:n=>`πριν ${n} λεπ.`, galleryHours:n=>`πριν ${n} ώρ.`, galleryDays:n=>`πριν ${n} ημ.`,
+    galleryByKid:'Παιδί', galleryByStaff:'Ομάδα', galleryChildTab:'Στιγμές',
     shiftDiary:'Σημείωση βάρδιας μου', shiftDiaryHint:'Τι έγινε στη βάρδιά σου; Μόνο το προφίλ σου γράφει εδώ.',
     shiftDiaryPh:'π.χ. παράδοση ολοκληρώθηκε, αναπλήρωση αποθέματος, παιδί Χ έφυγε νωρίς…',
     shiftDiarySave:'Αποθήκευση σημείωσης βάρδιας', shiftDiarySaved:'Η σημείωση βάρδιας αποθηκεύτηκε',
@@ -437,7 +486,16 @@ const T = {
     stockTitle:'Απόθεμα', lastMoves:'Τελευταίες κινήσεις',
     inventoryDashboard:'Εικόνα αποθέματος', inventoryHint:'Δες πρώτα τι χρειάζεται προσοχή – άνοιξε ολόκληρο τον κατάλογο μόνο όταν τον χρειάζεσαι.',
     inventoryHealth:'Ασφάλεια αποθέματος', inventoryHealthyPct:n=>`${n}% των προϊόντων έχουν επαρκές απόθεμα`,
-    tapProduct:'Άνοιγμα προϊόντος', productDetail:'Στοιχεία προϊόντος', addToShopping:'Προσθήκη στη λίστα αγορών',
+    tapProduct:'Επεξεργασία προϊόντος', productDetail:'Επεξεργασία προϊόντος', addToShopping:'Προσθήκη στη λίστα αγορών',
+    productEditHint:'Άλλαξε όνομα, μονάδα, κατηγορία και απόθεμα',
+    productNameDe:'Όνομα (DE)', productNameEl:'Όνομα (EL)',
+    productAliases:'Ψευδώνυμα (κόμμα)', productAliasesHint:'π.χ. milch, γάλα',
+    productStockQty:'Απόθεμα ανά σπίτι',
+    productSave:'Αποθήκευση αλλαγών', productSaved:'Το προϊόν αποθηκεύτηκε',
+    productDelete:'Διαγραφή προϊόντος', productDeleted:'Το προϊόν διαγράφηκε',
+    productDeleteConfirm:'Να διαγραφεί αυτό το προϊόν;',
+    productNameRequired:'Γράψε ένα όνομα',
+    productQuickActions:'Γρήγορες ενέργειες',
     addedToShopping:'Προστέθηκε στη λίστα αγορών', alreadyPlanned:'Υπάρχει ήδη στη λίστα αγορών',
     listItemRemoved:'Το είδος αφαιρέθηκε από τη λίστα.',
     stockSearch:'Αναζήτηση προϊόντος…', stockAttention:'Προσοχή', stockAll:'Όλα', stockEmpty:'Άδεια',
@@ -454,7 +512,7 @@ const T = {
     stockHoldIn:'＋ Είσοδος',
     stockHoldOut:'− Έξοδος',
     stockHoldShop:'Στη λίστα αγορών',
-    stockHoldDetail:'Λεπτομέρειες / ποσότητα',
+    stockHoldDetail:'Επεξεργασία',
     stockHoldClear:'Αφαίρεση από επιλογή',
     stockAddFood:'＋ Τρόφιμο',
     stockAddCat:'＋ Κατηγορία',
@@ -502,15 +560,26 @@ const T = {
     lockedFor:n=>`Η σύνδεση κλειδώθηκε. Δοκίμασε ξανά σε ${n} λεπτά.`,
     attemptsRemaining:n=>`Λάθος PIN. Απομένουν ${n} προσπάθειες.`,
     useBiometrics:'Σύνδεση με κλείδωμα συσκευής', passkey:'Passkey', passkeySetup:'Ρύθμιση Face ID / Touch ID',
-    passkeyHint:'Η συσκευή αποφασίζει: Face ID, Touch ID, δακτυλικό αποτύπωμα ή Windows Hello. Τα βιομετρικά δεν φεύγουν ποτέ από τη συσκευή.',
-    passkeyAdded:'Το passkey προστέθηκε με ασφάλεια.', passkeyRemoved:'Τα passkeys αφαιρέθηκαν.', removePasskeys:'Αφαίρεση passkeys',
-    passkeyNone:'Δεν έχει ρυθμιστεί ακόμη passkey για αυτό το προφίλ. Μπες με PIN και στο Προφίλ πάτα «Ρύθμιση Face ID / Touch ID».',
-    passkeySetupNeeded:'Πρώτα σύνδεση με PIN, μετά ρύθμιση passkey από το Προφίλ.',
+    passkeyHint:'iPhone: Face ID · Android: δακτυλικό · Mac: Touch ID · Windows: Hello. Τα βιομετρικά μένουν στη συσκευή — αποθηκεύεται μόνο δημόσιο κλειδί.',
+    passkeyAdded:'Το Face ID / Touch ID ρυθμίστηκε.', passkeyRemoved:'Η βιομετρική είσοδος αφαιρέθηκε.', removePasskeys:'Αφαίρεση βιομετρικών',
+    passkeyNone:'Δεν έχει ρυθμιστεί ακόμη. Μπες με PIN και πάτα παρακάτω «ρύθμιση».',
+    passkeySetupNeeded:'Πρώτα σύνδεση με PIN, μετά Face ID / Touch ID από το Προφίλ.',
     passkeyConfig:'Το Passkey server δεν είναι ρυθμισμένο (Origin/RP ID). Έλεγξε PAIDIA_WEBAUTHN_ORIGIN στο Vercel.',
     emailNotFound:'Το email προφίλ δεν βρέθηκε. Αποθήκευσε πρώτα στοιχεία επικοινωνίας ή έλεγξε αν είσαι συνδεδεμένος.',
     profileCustomize:'Προσαρμογή προφίλ', profileNickname:'Εμφανιζόμενο όνομα', profileColor:'Χρώμα', profileEmoji:'Emoji',
-    profileSaved:'Το προφίλ αποθηκεύτηκε', passkeyCount:n=>`${n} ${n===1?'passkey':'passkeys'} ενεργά`,
-    passkeyUnavailable:'Τα passkeys χρειάζονται συμβατή συσκευή και HTTPS.', passkeyCancelled:'Η σύνδεση ακυρώθηκε.',
+    profileSaved:'Το προφίλ αποθηκεύτηκε', passkeyCount:n=>n===1?'1 συσκευή ρυθμισμένη':`${n} συσκευές ρυθμισμένες`,
+    passkeyUnavailable:'Αυτή η συσκευή δεν υποστηρίζει βιομετρική είσοδο (χρειάζεται HTTPS και Face ID / δακτυλικό / Windows Hello).',
+    passkeyCancelled:'Ακυρώθηκε — δεν άλλαξε τίποτα.',
+    profilePinTitle:'Αλλαγή PIN', profilePinHint:'Το νέο PIN ισχύει σε όλες τις συσκευές. 4–6 ψηφία.',
+    profilePinCurrent:'Τρέχον PIN', profilePinNew:'Νέο PIN', profilePinConfirm:'Επιβεβαίωση νέου PIN',
+    profilePinSave:'Αποθήκευση PIN', profilePinChanged:'Το PIN άλλαξε',
+    profilePinWrong:'Το τρέχον PIN είναι λάθος', profilePinSame:'Το νέο PIN πρέπει να διαφέρει',
+    profilePinInvalid:'Το PIN πρέπει να έχει 4–6 ψηφία και να ταιριάζει',
+    profileSectionLook:'Εμφάνιση', profileSectionContact:'Επικοινωνία', profileSectionPin:'PIN',
+    profileSectionBio:'Face ID / Touch ID',
+    profileStorageOk:'Η βάση είναι ενεργή — πρόγραμμα, αποθήκη, λίστες και προφίλ επιβιώνουν τα deploys.',
+    profileStorageWarn:'Χωρίς Postgres — τα δεδομένα μπορεί να χαθούν μετά από deploy. Στο Vercel βάλε DATABASE_URL.',
+    durableStorageBadge:'Αποθήκευση server',
     securityAccess:'Σύνδεση & ασφάλεια', signOut:'Αποσύνδεση', pinFallback:'Ή χρησιμοποίησε PIN', thisDevice:'Αυτή η συσκευή',
     profileDetails:'Στοιχεία προφίλ', manageProfiles:'Διαχείριση προφίλ', recoveryEmail:'Email ανάκτησης PIN',
     recoveryEmailHint:'Σε αυτή τη διεύθυνση στέλνονται σύνδεσμοι PIN και σημαντικές ειδοποιήσεις ασφαλείας.',
@@ -654,7 +723,7 @@ const T = {
     actions:n=>n===1?'κίνηση':'κινήσεις', noActionsToday:'Καμία κίνηση σήμερα',
     visibleToAll:'Ορατό σε όλους',
     close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια',
-    gamesTitle:'Παιχνίδια', gamesHint:'Διάλεξε παιχνίδι — ζωηρές γύρες για διάλειμμα',
+    gamesTitle:'Παιχνίδια', gamesHint:'Μάθε & παίξε — Ελληνικά, γνώση, μαθηματικά και κλασικά',
     gameMemory:'Μνήμη', gameMemoryHint:'Βρες τα ζευγάρια · όσο λιγότερες κινήσεις',
     gameTac:'XO', gameTacHint:'Κάνε 3 στη σειρά κόντρα στον PC',
     gameCatch:'Ψάρεμα', gameCatchHint:'Πάτα τα ψάρια που κολυμπάνε · κομπο!',
@@ -663,6 +732,9 @@ const T = {
     gameDice:'Ζάρι', gameDiceHint:'Ρίξε · ποιος είναι σειρά;',
     gameSimon:'Simon', gameSimonHint:'Θυμήσου τα χρώματα · πάτα τη σειρά',
     gameColors:'Χρώματα', gameColorsHint:'Πάτα το σωστό χρώμα · γρήγορα!',
+    gameLearn:'Μάθε Ελληνικά', gameLearnHint:'Deutsch ↔ Ελληνικά · σαν Duolingo · και με AI',
+    gameQuiz:'Γνώση', gameQuizHint:'Φύση, Ελλάδα, spa και γενικές γνώσεις',
+    gameMath:'Μαθηματικά', gameMathHint:'Γρήγοροι υπολογισμοί · κράτα τη σειρά',
     gameBack:'Όλα τα παιχνίδια', gamePlay:'Παίξε', gameAgain:'Ξανά',
     gameMoves:'Κινήσεις', gamePairs:'Ζευγάρια', gameScore:'Πόντοι', gameTime:'Χρόνος',
     gameBest:'Ρεκόρ', gameCombo:'Κομπο', gameStreak:'Σειρά', gameLevel:'Επίπεδο',
@@ -683,6 +755,14 @@ const T = {
     gameColorsTap:'Πάτα:', gameColorsHintPlay:'Ποιο χρώμα λέει; Πάτα γρήγορα',
     gameColorRed:'Κόκκινο', gameColorGreen:'Πράσινο', gameColorBlue:'Μπλε', gameColorYellow:'Κίτρινο',
     gameFishCatch:'Πάτα το ψάρι',
+    gameLearnHintPlay:'Διάλεξε τη σωστή μετάφραση',
+    gameLearnDeToEl:'DE → EL', gameLearnElToDe:'EL → DE',
+    gameLearnAi:'AI τυχαία', gameLearnAiLoading:'Το AI φορτώνει…', gameLearnAiFail:'AI μη διαθέσιμο — τοπικές κάρτες',
+    gameLearnCorrect:'Σωστά!', gameLearnWrong:'Όχι ακριβώς —', gameLearnHearts:'Ζωές',
+    gameLearnRound:'Γύρος', gameLearnDone:'Μάθημα ολοκληρώθηκε!', gameLearnXp:'XP',
+    gameQuizHintPlay:'Πάτα τη σωστή απάντηση', gameQuizTopic:'Θέμα',
+    gameMathHintPlay:'Υπολόγισε γρήγορα και πάτα τον σωστό αριθμό',
+    gameMathPlus:'Πρόσθεση', gameMathMinus:'Αφαίρεση', gameMathTimes:'Πολλαπλασιασμός',
     eventOfWeek:'Event της εβδομάδας', eventToday:'Σήμερα', eventTomorrow:'Αύριο', upcomingEvents:'Επόμενα events',
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
     helpChat:'Zo-Ai', helpWelcome:'Γεια! Είμαι η Zo-Ai. Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση.',
@@ -1097,7 +1177,7 @@ const SEED = {
 const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
-                 'customProducts', 'customCategories',
+                 'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'profilePrefs', 'shiftNotes'];
 
 let DB = load();
@@ -1114,6 +1194,7 @@ function load(){
   ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','log']
     .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
+  if(!db.productOverrides || typeof db.productOverrides !== 'object') db.productOverrides = {};
   if(!db.profilePrefs || typeof db.profilePrefs !== 'object') db.profilePrefs = {};
   if(!db.weeks || typeof db.weeks !== 'object') db.weeks = {};
   if(!db.shiftNotes || typeof db.shiftNotes !== 'object') db.shiftNotes = {};
@@ -1122,13 +1203,23 @@ function load(){
   return db;
 }
 
-/** Shared across all staff devices — lists, stock, custom catalogue. */
-const SHARED_KEYS = ['listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons','profilePrefs'];
-const SHARED_DICT_KEYS = new Set(['stock','profilePrefs']);
+/** Shared across all staff devices — full operational state (survives when Postgres is configured). */
+const SHARED_KEYS = [
+  'listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons',
+  'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
+  'aiImports','log','customActivities','shiftNotes',
+];
+const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
 let sharedPushTimer = null;
 let sharedPollTimer = null;
 let sharedBusy = false;
+
+function sharedBucketHasData(bucket, key){
+  const v = bucket?.[key];
+  if(SHARED_DICT_KEYS.has(key)) return !!(v && typeof v==='object' && Object.keys(v).length);
+  return Array.isArray(v) && v.length > 0;
+}
 
 function saveLocal(){
   try{
@@ -1162,7 +1253,7 @@ function applySharedPayload(data){
 }
 
 async function pullShared({force=false}={}){
-  if(state.mode !== 'staff' || !(state.user||state.child)) return false;
+  if(!(state.user||state.child)) return false;
   if(sharedBusy && !force) return false;
   sharedBusy = true;
   try{
@@ -1175,14 +1266,8 @@ async function pullShared({force=false}={}){
       return false;
     }
     const serverRev = Number(data.revision)||0;
-    const serverEmpty = serverRev === 0
-      && !(data.listEntries||[]).length
-      && !(data.shoppingTrips||[]).length
-      && !Object.keys(data.stock||{}).length;
-    const localHas = (DB.listEntries||[]).length
-      || (DB.shoppingTrips||[]).length
-      || Object.keys(DB.stock||{}).length
-      || (DB.customProducts||[]).length;
+    const serverEmpty = serverRev === 0 && !SHARED_KEYS.some(k=>sharedBucketHasData(data, k));
+    const localHas = SHARED_KEYS.some(k=>sharedBucketHasData(DB, k));
     // First device seeds the server — never wipe local with an empty cloud.
     if(serverEmpty && localHas){
       sharedRevision = 0;
@@ -1250,20 +1335,26 @@ function save(){
 
 function startSharedSync(){
   stopSharedSync();
-  if(state.mode !== 'staff') return;
+  if(!(state.user||state.child)) return;
   pullShared({force:true}).then(changed=>{
     if(changed && !document.body.classList.contains('auth-pending')) render();
-    // Seed empty server from this device's local list/stock once.
-    if(sharedRevision === 0) pushShared();
+    // Staff seeds empty server from this device once.
+    if(state.mode==='staff' && state.user && sharedRevision === 0) pushShared();
+  });
+  refreshGallery({silent:true}).then(()=>{
+    if(state.tab==='gallery' || (state.mode==='child' && state.childView==='gallery')) render();
   });
   sharedPollTimer = setInterval(async()=>{
     if(document.body.classList.contains('auth-pending')) return;
     if(document.hidden) return;
-    // Keep lists/fridge live while staff use the app.
-    if(!['shop','stock','home','book'].includes(state.tab)) return;
     const changed = await pullShared();
     if(changed && !sheetEl.classList.contains('on')) render();
-  }, 1500);
+    if(state.tab==='gallery' || (state.mode==='child' && state.childView==='gallery')){
+      const before = state.galleryUpdatedAt;
+      await refreshGallery({silent:true});
+      if(state.galleryUpdatedAt !== before && !sheetEl.classList.contains('on')) render();
+    }
+  }, 2500);
 }
 
 function stopSharedSync(){
@@ -1274,7 +1365,7 @@ function stopSharedSync(){
 }
 
 window.addEventListener('visibilitychange', ()=>{
-  if(!document.hidden && state.mode==='staff' && (state.user||state.child)){
+  if(!document.hidden && (state.user||state.child)){
     pullShared().then(changed=>{ if(changed && !sheetEl.classList.contains('on')) render(); });
   }
 });
@@ -1299,9 +1390,44 @@ const profileLabel = person => {
 /** Προκαθορισμένες + όσες πρόσθεσε το προσωπικό μέσα από την εφαρμογή. */
 const ACTS = () => [...DB.activities, ...DB.customActivities];
 const act = id => ACTS().find(a=>a.id===id);
-const PRODUCTS = () => [...DB.products, ...(DB.customProducts||[])];
+const PRODUCTS = () => [...DB.products.map(applyProductOverride), ...(DB.customProducts||[]).map(applyProductOverride)];
 const CATS = () => [...DB.categories, ...(DB.customCategories||[])];
 const prod = id => PRODUCTS().find(p=>p.id===id);
+
+function applyProductOverride(p){
+  if(!p) return p;
+  const o = DB.productOverrides?.[p.id];
+  if(!o || typeof o !== 'object') return p;
+  return {
+    ...p,
+    de: o.de != null ? o.de : p.de,
+    el: o.el != null ? o.el : p.el,
+    en: o.en != null ? o.en : p.en,
+    unit: o.unit || p.unit,
+    cat: o.cat || p.cat,
+    alias: Array.isArray(o.alias) ? o.alias : (p.alias || []),
+  };
+}
+
+function persistProductFields(pid, fields){
+  const custom = (DB.customProducts||[]).find(p=>p.id===pid);
+  if(custom){
+    if(fields.de != null) custom.de = fields.de;
+    if(fields.el != null) custom.el = fields.el;
+    if(fields.en != null) custom.en = fields.en;
+    if(fields.unit != null) custom.unit = fields.unit;
+    if(fields.cat != null) custom.cat = fields.cat;
+    if(fields.alias != null) custom.alias = fields.alias;
+    return;
+  }
+  DB.productOverrides ||= {};
+  const prev = DB.productOverrides[pid] || {};
+  DB.productOverrides[pid] = {
+    ...prev,
+    ...fields,
+    alias: fields.alias != null ? fields.alias : prev.alias,
+  };
+}
 const house = id => DB.houses.find(h=>h.id===id);
 const planningHouses = () => DB.houses.filter(h=>h.planning!==false);
 const shoppingHouses = () => DB.houses;
@@ -1471,6 +1597,9 @@ const state = {
   childView: 'today',
   gameId: null,
   game: null,
+  galleryPosts: [],
+  galleryUpdatedAt: 0,
+  galleryLoading: false,
   mode: 'staff',
   user: null,
   child: null,
@@ -1645,9 +1774,9 @@ async function authenticateProfile(mode,who,pin){
 const passkeyCapable=()=>window.isSecureContext&&!!window.PublicKeyCredential&&!!navigator.credentials;
 const biometricName=()=>{
   const ua=navigator.userAgent;
-  if(/iPhone|iPad|iPod/i.test(ua)) return 'Face ID / Touch ID';
-  if(/Macintosh|Mac OS/i.test(ua)) return 'Touch ID / Passkey';
-  if(/Android/i.test(ua)) return state.lang==='el'?'Δακτυλικό αποτύπωμα / κλείδωμα':'Fingerabdruck / Gerätesperre';
+  if(/iPhone|iPad|iPod/i.test(ua)) return 'Face ID';
+  if(/Macintosh|Mac OS/i.test(ua)) return 'Touch ID';
+  if(/Android/i.test(ua)) return state.lang==='el'?'Δακτυλικό αποτύπωμα':'Fingerabdruck';
   if(/Windows/i.test(ua)) return 'Windows Hello';
   return t('passkey');
 };
@@ -1784,7 +1913,7 @@ function closeSheet(){
   sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
   stopCamera();
-  document.querySelectorAll('.stock-hold-menu,.ghost').forEach(el=>el.remove());
+  document.querySelectorAll('.stock-hold-menu,.drag-ghost').forEach(el=>el.remove());
   sheetEl.replaceChildren();
   scheduleMeasureChrome();
 }
@@ -2650,9 +2779,9 @@ function sheetHelpCenter(){
       <button class="help-center-card" id="helpAi" type="button"><span class="icon">✨</span><b>${t('askAiHelp')}</b><span>${t('askAiHelpHint')}</span></button>
     </div>`);
   sheetEl.querySelector('#helpTutorial').onclick=openAppTutorial;
-  sheetEl.querySelector('#helpAi').onclick=sheetHelp;
+  sheetEl.querySelector('#helpAi').onclick=()=>{ closeSheet(); openZoAi(); };
   const talkBtn=sheetEl.querySelector('#helpTalk');
-  if(talkBtn) talkBtn.onclick=()=>{ feedback('open'); sheetStaffTalk(); };
+  if(talkBtn) talkBtn.onclick=()=>{ closeSheet(); openStaffTalk(); };
 }
 
 async function talkApi(action=null, extra={}){
@@ -2669,6 +2798,273 @@ async function talkApi(action=null, extra={}){
   const data=await response.json().catch(()=>({}));
   if(!response.ok){ const err=new Error(data.error||String(response.status)); err.code=data.code; throw err; }
   return data;
+}
+
+function galleryRelative(at){
+  const ms = Date.now() - (Number(at)||0);
+  if(ms < 60_000) return t('galleryJustNow');
+  if(ms < 3_600_000) return t('galleryMinutes')(Math.max(1, Math.floor(ms/60_000)));
+  if(ms < 86_400_000) return t('galleryHours')(Math.max(1, Math.floor(ms/3_600_000)));
+  return t('galleryDays')(Math.max(1, Math.floor(ms/86_400_000)));
+}
+
+function compressGalleryPhoto(dataUrl, maxEdge=720, quality=0.58){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.onerror = reject;
+    img.onload = ()=>{
+      const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+      const cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round(img.width * scale));
+      cv.height = Math.max(1, Math.round(img.height * scale));
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      let q = quality;
+      let out = cv.toDataURL('image/jpeg', q);
+      while(out.length > 135_000 && q > 0.35){
+        q -= 0.07;
+        out = cv.toDataURL('image/jpeg', q);
+      }
+      if(out.length > 140_000){
+        const scale2 = 560 / Math.max(cv.width, cv.height);
+        if(scale2 < 1){
+          const cv2 = document.createElement('canvas');
+          cv2.width = Math.max(1, Math.round(cv.width * scale2));
+          cv2.height = Math.max(1, Math.round(cv.height * scale2));
+          cv2.getContext('2d').drawImage(cv, 0, 0, cv2.width, cv2.height);
+          out = cv2.toDataURL('image/jpeg', 0.45);
+        }
+      }
+      resolve(out);
+    };
+    img.src = dataUrl;
+  });
+}
+
+async function galleryFileData(file){
+  const raw = await new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ()=> resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+  return compressGalleryPhoto(String(raw));
+}
+
+async function galleryApi(action=null, extra={}){
+  const who = state.user || state.child;
+  if(action){
+    const response = await fetch('/api/gallery', {
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
+      body: JSON.stringify({
+        action,
+        byName: profileName(who) || who?.name || '',
+        byColor: profileColor(who),
+        ...extra,
+      }),
+    });
+    const data = await response.json().catch(()=>({}));
+    if(!response.ok){
+      const err = new Error(data.error || String(response.status));
+      err.code = data.code;
+      throw err;
+    }
+    return data;
+  }
+  const response = await fetch('/api/gallery', {credentials:'same-origin'});
+  const data = await response.json().catch(()=>({}));
+  if(!response.ok){
+    const err = new Error(data.error || String(response.status));
+    err.code = data.code;
+    throw err;
+  }
+  return data;
+}
+
+function applyGallerySnapshot(data){
+  if(!data || !Array.isArray(data.posts)) return;
+  state.galleryPosts = data.posts;
+  state.galleryUpdatedAt = Number(data.updatedAt) || 0;
+}
+
+async function refreshGallery({silent=false}={}){
+  if(!(state.user || state.child)) return;
+  if(!silent) state.galleryLoading = true;
+  try{
+    const data = await galleryApi();
+    applyGallerySnapshot(data);
+  }catch{
+    if(!silent) toast(t('galleryFail'), 'error');
+  }finally{
+    state.galleryLoading = false;
+  }
+}
+
+function canDeleteGalleryPost(post){
+  const me = currentProfileId();
+  if(!me || !post) return false;
+  if(post.by === me) return true;
+  return state.mode === 'staff' && !!state.user;
+}
+
+function galleryPostCard(post){
+  const me = currentProfileId();
+  const liked = (post.likes||[]).includes(me);
+  const likes = (post.likes||[]).length;
+  const role = post.byMode === 'child' ? t('galleryByKid') : t('galleryByStaff');
+  const del = canDeleteGalleryPost(post);
+  return `<article class="gal-post" data-gal-id="${esc(post.id)}">
+    <header class="gal-head">
+      <span class="gal-ava" style="background:${esc(post.byColor||'#94a3b8')}">${esc((post.byName||'?').slice(0,2).toUpperCase())}</span>
+      <div class="grow">
+        <b>${esc(post.byName||'—')}</b>
+        <div class="muted gal-meta">${esc(role)} · ${esc(galleryRelative(post.at))}</div>
+      </div>
+      ${del?`<button class="chip ghost gal-del" type="button" data-gal-del="${esc(post.id)}" aria-label="${esc(t('galleryDelete'))}">🗑</button>`:''}
+    </header>
+    <div class="gal-photo"><img src="${esc(post.photo)}" alt="" loading="lazy"></div>
+    ${post.caption?`<p class="gal-caption">${esc(post.caption)}</p>`:''}
+    <footer class="gal-foot">
+      <button class="gal-like ${liked?'on':''}" type="button" data-gal-like="${esc(post.id)}">
+        ${liked?'❤️':'🤍'} ${likes?likes:''} <span class="muted">${esc(t('galleryLike'))}</span>
+      </button>
+    </footer>
+  </article>`;
+}
+
+function viewGallery(){
+  const posts = state.galleryPosts || [];
+  return `<div class="gal-hero">
+      <div class="brand-kicker">Armonia</div>
+      <h2>${t('galleryTitle')}</h2>
+      <p>${t('galleryHint')}</p>
+    </div>
+    <div class="page-actions" role="toolbar">
+      <button class="page-act primary" type="button" id="galShare">📷 ${esc(t('galleryShare'))}</button>
+      <button class="page-act ghost" type="button" id="galRefresh">↻</button>
+    </div>
+    ${state.galleryLoading && !posts.length?`<div class="empty">${esc(t('galleryLoading'))}</div>`:''}
+    <div class="gal-feed" id="galFeed">
+      ${posts.length ? posts.map(galleryPostCard).join('') : `<div class="empty">${esc(t('galleryEmpty'))}</div>`}
+    </div>`;
+}
+
+function childGalleryView(){
+  return viewGallery();
+}
+
+function bindGallery(root){
+  if(!root) return;
+  root.querySelector('#galShare')?.addEventListener('click', ()=>{ feedback('select'); sheetGalleryCompose(); });
+  root.querySelector('#galRefresh')?.addEventListener('click', async ()=>{
+    feedback('select');
+    await refreshGallery();
+    render();
+  });
+  root.querySelectorAll('[data-gal-like]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      try{
+        const data = await galleryApi('like', {id: btn.dataset.galLike});
+        applyGallerySnapshot(data);
+        feedback('save');
+        render();
+      }catch{ toast(t('galleryFail'), 'error'); }
+    };
+  });
+  root.querySelectorAll('[data-gal-del]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      if(!confirm(t('galleryDelete')+'?')) return;
+      try{
+        const data = await galleryApi('delete', {id: btn.dataset.galDel});
+        applyGallerySnapshot(data);
+        feedback('save');
+        render();
+      }catch{ toast(t('galleryFail'), 'error'); }
+    };
+  });
+}
+
+function sheetGalleryCompose(){
+  let photo = null;
+  openSheet(`<div class="gal-compose">
+      <div class="import-kicker">Armonia</div>
+      <h2>${t('galleryShare')}</h2>
+      <p class="muted">${t('galleryHint')}</p>
+      <div class="gal-preview empty" id="galPreview"><span>📷</span></div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin:10px 0">
+        <button class="btn sec sm" type="button" id="galPick">${t('galleryPick')}</button>
+        <button class="btn sec sm" type="button" id="galCam">${t('galleryCamera')}</button>
+      </div>
+      <input type="file" accept="image/*" id="galFile" hidden>
+      <div id="galCamBox" hidden>
+        <video id="galVideo" playsinline autoplay muted style="width:100%;border-radius:14px;background:#0f172a"></video>
+        <button class="btn sm" type="button" id="galSnap" style="margin-top:8px">${t('galleryCamera')}</button>
+      </div>
+      <label class="f"><span>${t('galleryCaption')}</span>
+        <textarea id="galCaption" rows="3" maxlength="280" placeholder="${esc(t('galleryCaptionPh'))}"></textarea>
+      </label>
+      <div class="status-box muted" id="galStatus"></div>
+      <button class="btn" type="button" id="galSubmit">${t('galleryPost')}</button>
+    </div>`);
+
+  const preview = sheetEl.querySelector('#galPreview');
+  const status = sheetEl.querySelector('#galStatus');
+  const setPhoto = (dataUrl)=>{
+    photo = dataUrl;
+    preview.classList.remove('empty');
+    preview.innerHTML = `<img src="${esc(dataUrl)}" alt="">`;
+    setStatus(status, '', 'info');
+  };
+
+  sheetEl.querySelector('#galPick').onclick = ()=> sheetEl.querySelector('#galFile').click();
+  sheetEl.querySelector('#galFile').onchange = async (ev)=>{
+    const file = ev.target.files?.[0];
+    if(!file) return;
+    try{
+      setStatus(status, '…', 'info');
+      const data = await galleryFileData(file);
+      setPhoto(data);
+    }catch{
+      setStatus(status, t('galleryFail'), 'error');
+    }
+  };
+
+  sheetEl.querySelector('#galCam').onclick = async ()=>{
+    const box = sheetEl.querySelector('#galCamBox');
+    box.hidden = false;
+    const ok = await startCamera(sheetEl.querySelector('#galVideo'), status);
+    if(!ok) box.hidden = true;
+  };
+  sheetEl.querySelector('#galSnap').onclick = async ()=>{
+    const raw = snap(sheetEl.querySelector('#galVideo'));
+    if(!raw){ setStatus(status, t('galleryNeedPhoto'), 'error'); return; }
+    try{
+      const data = await compressGalleryPhoto(raw);
+      setPhoto(data);
+      stopCamera();
+      sheetEl.querySelector('#galCamBox').hidden = true;
+    }catch{
+      setStatus(status, t('galleryFail'), 'error');
+    }
+  };
+
+  sheetEl.querySelector('#galSubmit').onclick = async ()=>{
+    if(!photo){ setStatus(status, t('galleryNeedPhoto'), 'error'); return; }
+    const caption = sheetEl.querySelector('#galCaption').value.trim();
+    const btn = sheetEl.querySelector('#galSubmit');
+    btn.disabled = true;
+    try{
+      const data = await galleryApi('create', {photo, caption});
+      applyGallerySnapshot(data);
+      stopCamera();
+      closeSheet();
+      toast(t('galleryPosted'), 'success');
+      feedback('save');
+      render();
+    }catch(err){
+      setStatus(status, err.code==='photo_too_large'?t('galleryTooBig'):t('galleryFail'), 'error');
+      btn.disabled = false;
+    }
+  };
 }
 
 function talkSuggestTopics(){
@@ -2752,15 +3148,10 @@ function sheetStaffTalk(){
   };
 
   openSheet(`<div id="talkRoot">
-      <div class="security-hero" style="margin-bottom:12px"><div class="row" style="gap:12px">
-        <div class="security-icon">💬</div>
-        <div><div class="import-kicker">Armonia Thassos</div>
-          <h2 style="margin:3px 0">${esc(t('staffTalkTitle'))}</h2>
-          <div class="muted" style="font-size:12.5px;line-height:1.45">${esc(t('staffTalkIntro'))}</div>
-        </div></div></div>
-      <div class="talk-video-card">
-        <div><b>📹 ${esc(t('staffTalkVideo'))}</b><div class="muted">${esc(t('staffTalkVideoHint'))}</div></div>
-        <button class="btn" id="talkVideoOpen" type="button">${esc(t('staffTalkVideoOpen'))}</button>
+      <div class="row between" style="align-items:center;gap:10px;margin:0 0 10px">
+        <div><div class="strong">💬 ${esc(t('staffTalkTitle'))}</div>
+          <div class="muted" style="font-size:12px;margin-top:2px">${esc(t('staffTalkHint'))}</div></div>
+        <button class="btn sm" id="talkVideoOpen" type="button">📹 ${esc(t('staffTalkVideoOpen'))}</button>
       </div>
       <div class="talk-topics">
         <div class="talk-topics-head">
@@ -3412,6 +3803,9 @@ function viewSchedule(){
         <button class="${state.houseFilter===''?'on':''}" data-h="">${t('allHouses')}</button>
         ${planningHouses().map(h=>`<button class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
       </div>`}
+      ${['day','week'].includes(state.scheduleView)?`<div class="page-actions">
+        <button class="page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
+      </div>`:''}
     </div>
     ${state.scheduleView==='day' ? viewScheduleDay()
       : state.scheduleView==='week' ? viewScheduleWeek()
@@ -3771,7 +4165,7 @@ function viewStock(){
     if(hid==='all'){
       const quantities=houses.map(h=>`<div class="stock-qty"><span class="stock-state">${esc(h.short)}</span>${DB.stock[stockKey(h.id,p.id)]??0}<small>${esc(p.unit)}</small></div>`).join('');
       return `<button class="stock-product ${st} multi-house" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div class="stock-product-main"><div class="stock-product-name">${esc(L(p))}</div>
-        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div></div>
+        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ✎</div></div>
         <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div></button>`;
     }
     const qty=DB.stock[stockKey(hid,p.id)]??0;
@@ -3782,7 +4176,7 @@ function viewStock(){
     return `<div class="stock-product ${st} has-stepper ${delta?'drafting':''}">
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
         <div class="stock-product-name">${esc(L(p))}${pending}</div>
-        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div>
+        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ✎</div>
       </button>
       <div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
         <button class="stock-step out" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${preview<=0&&delta<=0?'disabled':''}>−</button>
@@ -3808,9 +4202,9 @@ function viewStock(){
         <button type="button" class="stock-chip low ${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b>${t('stockAttention')}</button>
         <button type="button" class="stock-chip ok ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b>${t('stockAll')}</button>
       </div>
-      ${hid!=='all'?`<div class="stock-toolbar-actions">
-        <button class="btn sec sm" type="button" id="stockQuickFood">${t('stockAddFood')}</button>
-        <button class="btn sec sm" type="button" id="stockOpenBoard">${t('stockBoard')}</button>
+      ${hid!=='all'?`<div class="page-actions stock-toolbar-actions">
+        <button class="page-act" type="button" id="stockQuickFood">${t('stockAddFood')}</button>
+        <button class="page-act primary" type="button" id="stockOpenBoard">${t('stockBoard')}</button>
       </div>`:''}
     </div>
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
@@ -3840,20 +4234,126 @@ function viewStock(){
 
 function sheetStockDetail(pid,hid=state.house){
   const p=prod(pid);if(!p)return;
-  const houses=hid==='all'?DB.houses:[house(hid)];
-  const cat=CATS().find(c=>c.id===p.cat),icon={fridge:'🧀',produce:'🥬',dry:'🥫',drinks:'🥤',household:'🧻'}[p.cat]||'📦';
+  const houses=hid==='all'?DB.houses:[house(hid)].filter(Boolean);
+  const allHouses=DB.houses;
+  const icon={fridge:'🧀',produce:'🥬',dry:'🥫',drinks:'🥤',household:'🧻'}[p.cat]||'📦';
   const isPlanned=houseId=>fridayEntries(houseId).some(e=>['open','pending'].includes(e.status)&&e.productId===pid);
-  openSheet(`<div class="stock-detail-head"><div class="stock-detail-icon">${icon}</div><div><div class="import-kicker">${t('productDetail')}</div>
-      <h2 style="margin:3px 0">${esc(L(p))}</h2><div class="muted">${esc(cat?L(cat):'')}</div></div></div>
-    <div class="stock-detail-houses">${houses.map(h=>{const qty=DB.stock[stockKey(h.id,pid)]??0,lp=lastPurchaseOf(h.id,pid);return `<div class="stock-detail-house"><span class="muted">🏠 ${esc(h.short)}</span><b>${qty} ${esc(p.unit)}</b><small class="muted">${lp?`${t('lastPurchase')}: ${fmtDT(lp.decidedAt)}`:t(qty===0?'stockOutState':qty<=lowThreshold(p)?'stockLow':'stockHealthy')}</small></div>`;}).join('')}</div>
+  const isCustom=!!p.custom || (DB.customProducts||[]).some(x=>x.id===pid);
+  const aliasText=(p.alias||[]).join(', ');
+  const qtyInputs=allHouses.map(h=>{
+    const qty=DB.stock[stockKey(h.id,pid)]??0;
+    return `<label class="f product-qty-field"><span>🏠 ${esc(h.short)}</span>
+      <input type="number" inputmode="decimal" min="0" step="any" data-edit-qty="${esc(h.id)}" value="${qty}"></label>`;
+  }).join('');
+
+  openSheet(`<div class="stock-detail-head"><div class="stock-detail-icon">${icon}</div>
+      <div><div class="import-kicker">${t('productDetail')}</div>
+      <h2 style="margin:3px 0">${esc(L(p))}</h2>
+      <div class="muted">${esc(t('productEditHint'))}</div></div></div>
+
+    <label class="f"><span>${t('productNameDe')}</span><input id="editProdDe" value="${esc(p.de||'')}" autocomplete="off"></label>
+    <label class="f"><span>${t('productNameEl')}</span><input id="editProdEl" value="${esc(p.el||'')}" autocomplete="off"></label>
+    <div class="row" style="gap:8px">
+      <label class="f grow"><span>${t('stockFoodUnit')}</span>
+        <select id="editProdUnit">${['Stk','L','g','kg'].map(u=>`<option value="${u}" ${p.unit===u?'selected':''}>${u}</option>`).join('')}</select>
+      </label>
+      <label class="f grow"><span>${t('stockFoodCat')}</span>
+        <select id="editProdCat">${CATS().map(c=>`<option value="${esc(c.id)}" ${p.cat===c.id?'selected':''}>${esc(L(c))}</option>`).join('')}</select>
+      </label>
+    </div>
+    <label class="f"><span>${t('productAliases')}</span>
+      <input id="editProdAlias" value="${esc(aliasText)}" placeholder="${esc(t('productAliasesHint'))}" autocomplete="off"></label>
+
+    <div class="block-h" style="margin-top:8px"><span class="t">${t('productStockQty')}</span></div>
+    <div class="product-qty-grid">${qtyInputs}</div>
+
+    <button class="btn" type="button" id="editProdSave" style="margin-top:12px">💾 ${t('productSave')}</button>
+    ${isCustom?`<button class="btn sec" type="button" id="editProdDelete" style="margin-top:8px">🗑 ${t('productDelete')}</button>`:''}
+
+    <div class="block-h" style="margin-top:14px"><span class="t">${t('productQuickActions')}</span></div>
     ${hid!=='all'?`<div class="stock-actions"><button class="btn in" id="detailIn">${t('stockIn')}</button><button class="btn out" id="detailOut">${t('stockOut')}</button></div>`:''}
     <div class="${hid==='all'?'stock-actions':''}">${houses.map(h=>`<button class="btn sec" data-detail-shop="${h.id}" ${isPlanned(h.id)?'disabled':''}>${isPlanned(h.id)?'✓ '+t('alreadyPlanned'):`🛒 ${t('addToShopping')}${hid==='all'?' · '+esc(h.short):''}`}</button>`).join('')}</div>`);
+
+  const parseQty=raw=>{
+    const n=Number(String(raw||'').replace(',','.'));
+    return Number.isFinite(n) && n>=0 ? roundStock(n) : null;
+  };
+
+  sheetEl.querySelector('#editProdSave').onclick=()=>{
+    const de=(sheetEl.querySelector('#editProdDe')?.value||'').trim();
+    const el=(sheetEl.querySelector('#editProdEl')?.value||'').trim();
+    const unit=sheetEl.querySelector('#editProdUnit')?.value||'Stk';
+    const cat=sheetEl.querySelector('#editProdCat')?.value||'custom';
+    const alias=(sheetEl.querySelector('#editProdAlias')?.value||'')
+      .split(/[,;]+/).map(s=>s.trim()).filter(Boolean);
+    if(!de && !el){ toast(t('productNameRequired'),'error'); return; }
+    const nameDe=de||el, nameEl=el||de;
+
+    const qtyChanges=[];
+    let badQty=false;
+    sheetEl.querySelectorAll('[data-edit-qty]').forEach(input=>{
+      const houseId=input.dataset.editQty;
+      const next=parseQty(input.value);
+      if(next==null){ badQty=true; return; }
+      const prev=DB.stock[stockKey(houseId,pid)]??0;
+      if(next!==prev) qtyChanges.push({houseId, prev, next});
+    });
+    if(badQty){ toast(t('needQty'),'error'); return; }
+
+    const apply=()=>{
+      persistProductFields(pid, {de:nameDe, el:nameEl, unit, cat, alias});
+      qtyChanges.forEach(({houseId, prev, next})=>{
+        DB.stock[stockKey(houseId,pid)]=next;
+        const delta=roundStock(next-prev);
+        if(delta!==0){
+          DB.log.push({
+            id:uid(), ts:Date.now(), type:delta>0?'IN':'OUT',
+            employeeId:state.user?.id||null,
+            text:`${L({de:nameDe,el:nameEl})} ${delta>0?'+':''}${delta} ${unit} · ${house(houseId)?.short||houseId} · ${t('productDetail')}`,
+            ip:session.ip||'—', deviceId:session.deviceId, sessionId:session.sessionId, ua:session.ua,
+            houseId, productId:pid, qty:Math.abs(delta), unit,
+          });
+        }
+      });
+      (DB.listEntries||[]).forEach(e=>{
+        if(e.productId===pid && ['open','pending'].includes(e.status)){
+          e.name=state.lang==='el'?nameEl:nameDe;
+          e.unit=unit;
+        }
+      });
+      if(!save()) return;
+      feedback('save');
+      closeSheet();
+      render();
+      toast(t('productSaved'),'success');
+    };
+
+    if(qtyChanges.length) askPin(t('productSave'), ()=>apply());
+    else apply();
+  };
+
+  sheetEl.querySelector('#editProdDelete')?.addEventListener('click',()=>{
+    if(!isCustom) return;
+    if(!confirm(t('productDeleteConfirm'))) return;
+    askPin(t('productDelete'), ()=>{
+      DB.customProducts=(DB.customProducts||[]).filter(x=>x.id!==pid);
+      delete DB.productOverrides?.[pid];
+      Object.keys(DB.stock||{}).forEach(k=>{ if(k.endsWith(':'+pid)) delete DB.stock[k]; });
+      if(!save()) return;
+      feedback('save');
+      closeSheet();
+      render();
+      toast(t('productDeleted'),'success');
+    });
+  });
+
   const add=sheetEl.querySelector('#detailIn'),remove=sheetEl.querySelector('#detailOut');
   if(add)add.onclick=()=>{closeSheet();sheetStockBoard('IN',pid);};
   if(remove)remove.onclick=()=>{closeSheet();sheetStockBoard('OUT',pid);};
   sheetEl.querySelectorAll('[data-detail-shop]').forEach(shop=>shop.onclick=()=>{
     const targetHouse=shop.dataset.detailShop;if(isPlanned(targetHouse))return;
-    DB.listEntries.push({id:uid(),productId:pid,name:L(p),qty:Math.max(1,lowThreshold(p)),unit:p.unit,
+    const cur=prod(pid);
+    DB.listEntries.push({id:uid(),productId:pid,name:L(cur),qty:Math.max(1,lowThreshold(cur)),unit:cur.unit,
       houseId:targetHouse,fridayDate:state.shopFriday||fridayFor(),by:state.user?.id||null,status:'open'});
     save();closeSheet();render();toast(t('addedToShopping'),'success');
   });
@@ -3879,7 +4379,7 @@ const REASONS = () => [...DB.reasons, ...(Array.isArray(DB.customReasons)?DB.cus
  */
 /* Δίχτυ ασφαλείας: ό,τι κι αν πάει στραβά στο σύρσιμο, κανένα «φάντασμα»
    δεν μένει κολλημένο στην οθόνη. Δηλώνεται μία φορά, όχι ανά πλακίδιο. */
-const clearGhosts = () => document.querySelectorAll('.ghost').forEach(el => el.remove());
+const clearGhosts = () => document.querySelectorAll('.drag-ghost').forEach(el => el.remove());
 document.addEventListener('pointerup',     () => setTimeout(clearGhosts, 60));
 document.addEventListener('pointercancel', clearGhosts);
 window.addEventListener('blur',            clearGhosts);
@@ -4379,7 +4879,7 @@ function sheetStockBoard(dir,initialPid=null){
       if(ghost){ ghost.remove(); ghost = null; }
       dragging = false; held = false; active = false;
       zones().forEach(z => z.classList.remove('over'));
-      document.querySelectorAll('.ghost,.stock-side-rails').forEach(el => el.remove());
+      document.querySelectorAll('.drag-ghost,.stock-side-rails').forEach(el => el.remove());
     };
 
     tile.onpointerdown = ev => {
@@ -4404,7 +4904,7 @@ function sheetStockBoard(dir,initialPid=null){
       if(!dragging){
         dragging = true;
         ghost = document.createElement('div');
-        ghost.className = 'ghost';
+        ghost.className = 'drag-ghost';
         ghost.textContent = L(prod(tile.dataset.p));
         document.body.appendChild(ghost);
       }
@@ -4552,8 +5052,13 @@ function viewShop(){
         <label class="friday-date" title="${t('chooseFriday')}"><input type="date" id="shopFridayDate" value="${friday}"><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length}</span></label>
         <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
       </div>
-      <button class="btn ghost sm" id="shoppingHistory" type="button">🧾</button>
-    </div></section>`;
+    </div>
+    <div class="page-actions" role="toolbar" aria-label="${esc(t('shopTitle'))}">
+      <button class="page-act primary" type="button" data-page-act="shopAdd">＋ ${esc(t('addProduct'))}</button>
+      <button class="page-act" type="button" data-page-act="shopScan">📷 ${esc(t('topScan'))}</button>
+      <button class="page-act ghost" type="button" data-page-act="shopHistory">🧾 ${esc(t('topHistory'))}</button>
+    </div>
+  </section>`;
 
   // ── Store mode: full-page compact aisle list ──
   const done = pending.filter(e => e.decision).length;
@@ -5442,6 +5947,12 @@ function viewBook(){
     .filter(l => (!f.employeeId || l.employeeId===f.employeeId) && (!f.type || l.type===f.type))
     .slice().reverse();
   return `
+    <div class="page-actions book-toolbar" role="toolbar">
+      <button class="page-act primary" type="button" data-page-act="shiftFocus">📒 ${esc(t('topShift'))}</button>
+      <button class="page-act ${state.bookRange==='today'?'on':''}" type="button" data-page-act="bookToday">${esc(t('today'))}</button>
+      <button class="page-act ${state.bookRange==='week'?'on':''}" type="button" data-page-act="bookWeek">${esc(t('last7'))}</button>
+      <button class="page-act ghost" type="button" data-page-act="bookFix">${esc(t('topFix'))}</button>
+    </div>
     ${shiftDiaryCard()}
     ${whoDidWhatCard()}
     <div class="card">
@@ -5577,6 +6088,9 @@ function childEventsView(cid){
 }
 
 const CHILD_GAMES = [
+  {id:'learn', emoji:'🇬🇷', titleKey:'gameLearn', hintKey:'gameLearnHint', tint:'#0d9488', featured:true},
+  {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#1d4ed8', featured:true},
+  {id:'math', emoji:'➕', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', featured:true},
   {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e'},
   {id:'tac', emoji:'❌', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#c2410c'},
   {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1'},
@@ -5606,6 +6120,78 @@ const COLOR_OPTS = [
   {id:'yellow', hex:'#ca8a04', labelKey:'gameColorYellow'},
 ];
 
+const LEARN_VOCAB = [
+  {de:'Hallo', el:'Γεια', emoji:'👋', topic:'greetings'},
+  {de:'Guten Morgen', el:'Καλημέρα', emoji:'🌅', topic:'greetings'},
+  {de:'Gute Nacht', el:'Καληνύχτα', emoji:'🌙', topic:'greetings'},
+  {de:'Danke', el:'Ευχαριστώ', emoji:'🙏', topic:'greetings'},
+  {de:'Bitte', el:'Παρακαλώ', emoji:'🤝', topic:'greetings'},
+  {de:'Ja', el:'Ναι', emoji:'✅', topic:'basics'},
+  {de:'Nein', el:'Όχι', emoji:'❌', topic:'basics'},
+  {de:'Wasser', el:'Νερό', emoji:'💧', topic:'food'},
+  {de:'Brot', el:'Ψωμί', emoji:'🍞', topic:'food'},
+  {de:'Milch', el:'Γάλα', emoji:'🥛', topic:'food'},
+  {de:'Obst', el:'Φρούτα', emoji:'🍎', topic:'food'},
+  {de:'Fisch', el:'Ψάρι', emoji:'🐟', topic:'food'},
+  {de:'Meer', el:'Θάλασσα', emoji:'🌊', topic:'beach'},
+  {de:'Strand', el:'Παραλία', emoji:'🏖️', topic:'beach'},
+  {de:'Sonne', el:'Ήλιος', emoji:'☀️', topic:'nature'},
+  {de:'Baum', el:'Δέντρο', emoji:'🌳', topic:'nature'},
+  {de:'Blume', el:'Λουλούδι', emoji:'🌸', topic:'nature'},
+  {de:'Hund', el:'Σκύλος', emoji:'🐶', topic:'animals'},
+  {de:'Katze', el:'Γάτα', emoji:'🐱', topic:'animals'},
+  {de:'Vogel', el:'Πουλί', emoji:'🐦', topic:'animals'},
+  {de:'Rot', el:'Κόκκινο', emoji:'🔴', topic:'colors'},
+  {de:'Blau', el:'Μπλε', emoji:'🔵', topic:'colors'},
+  {de:'Grün', el:'Πράσινο', emoji:'🟢', topic:'colors'},
+  {de:'Gelb', el:'Κίτρινο', emoji:'🟡', topic:'colors'},
+  {de:'Eins', el:'Ένα', emoji:'1️⃣', topic:'numbers'},
+  {de:'Zwei', el:'Δύο', emoji:'2️⃣', topic:'numbers'},
+  {de:'Drei', el:'Τρία', emoji:'3️⃣', topic:'numbers'},
+  {de:'Mama', el:'Μαμά', emoji:'👩', topic:'family'},
+  {de:'Papa', el:'Μπαμπάς', emoji:'👨', topic:'family'},
+  {de:'Freund', el:'Φίλος', emoji:'😊', topic:'family'},
+  {de:'Haus', el:'Σπίτι', emoji:'🏠', topic:'home'},
+  {de:'Tür', el:'Πόρτα', emoji:'🚪', topic:'home'},
+  {de:'Bett', el:'Κρεβάτι', emoji:'🛏️', topic:'home'},
+  {de:'Schwimmen', el:'Κολυμπάω', emoji:'🏊', topic:'spa'},
+  {de:'Spaß', el:'Διασκέδαση', emoji:'🎉', topic:'spa'},
+  {de:'Ruhe', el:'Ησυχία', emoji:'🤫', topic:'spa'},
+  {de:'Thassos', el:'Θάσος', emoji:'🏝️', topic:'thassos'},
+  {de:'Griechenland', el:'Ελλάδα', emoji:'🇬🇷', topic:'thassos'},
+  {de:'Heute', el:'Σήμερα', emoji:'📅', topic:'time'},
+  {de:'Morgen', el:'Αύριο', emoji:'⏭️', topic:'time'},
+  {de:'Ich habe Hunger', el:'Πεινάω', emoji:'🍽️', topic:'phrases'},
+  {de:'Ich bin müde', el:'Είμαι κουρασμένος', emoji:'😴', topic:'phrases'},
+  {de:'Wie geht\'s?', el:'Τι κάνεις;', emoji:'💬', topic:'phrases'},
+  {de:'Gut', el:'Καλά', emoji:'👍', topic:'basics'},
+  {de:'Schön', el:'Όμορφο', emoji:'✨', topic:'basics'},
+  {de:'Buch', el:'Βιβλίο', emoji:'📖', topic:'school'},
+  {de:'Spiel', el:'Παιχνίδι', emoji:'🎮', topic:'school'},
+  {de:'Musik', el:'Μουσική', emoji:'🎵', topic:'school'},
+];
+
+const QUIZ_BANK = [
+  {topic:'nature', de:{q:'Welches Tier lebt im Meer?', choices:['Hai','Hund','Katze','Kuh'], a:0}, el:{q:'Ποιο ζώο ζει στη θάλασσα;', choices:['Καρχαρίας','Σκύλος','Γάτα','Αγελάδα'], a:0}},
+  {topic:'nature', de:{q:'Was brauchen Pflanzen zum Wachsen?', choices:['Sonne & Wasser','Schokolade','Fernseher','Auto'], a:0}, el:{q:'Τι χρειάζονται τα φυτά για να μεγαλώσουν;', choices:['Ήλιο & νερό','Σοκολάτα','Τηλεόραση','Αυτοκίνητο'], a:0}},
+  {topic:'nature', de:{q:'Welche Farbe hat der Himmel oft an einem klaren Tag?', choices:['Blau','Grün','Braun','Rosa'], a:0}, el:{q:'Τι χρώμα έχει συχνά ο ουρανός σε καθαρή μέρα;', choices:['Μπλε','Πράσινο','Καφέ','Ροζ'], a:0}},
+  {topic:'greece', de:{q:'In welchem Land liegt Thassos?', choices:['Griechenland','Frankreich','Schweden','Ägypten'], a:0}, el:{q:'Σε ποια χώρα βρίσκεται η Θάσος;', choices:['Ελλάδα','Γαλλία','Σουηδία','Αίγυπτος'], a:0}},
+  {topic:'greece', de:{q:'Was ist die Hauptstadt von Griechenland?', choices:['Athen','Rom','Berlin','Madrid'], a:0}, el:{q:'Ποια είναι η πρωτεύουσα της Ελλάδας;', choices:['Αθήνα','Ρώμη','Βερολίνο','Μαδρίτη'], a:0}},
+  {topic:'greece', de:{q:'Welches Meer umgibt die griechischen Inseln?', choices:['Mittelmeer','Ostsee','Nordsee','Kaspisches Meer'], a:0}, el:{q:'Ποια θάλασσα περιβάλλει τα ελληνικά νησιά;', choices:['Μεσόγειος','Βαλτική','Βόρεια θάλασσα','Κασπία'], a:0}},
+  {topic:'greece', de:{q:'Was isst man oft in Griechenland zum Frühstück mit Joghurt?', choices:['Honig','Eiswürfel','Senf','Popcorn'], a:0}, el:{q:'Τι τρώμε συχνά στην Ελλάδα με γιαούρτι;', choices:['Μέλι','Παγάκια','Μουστάρδα','Ποπ κορν'], a:0}},
+  {topic:'spa', de:{q:'Was sollte man vor dem Schwimmen anziehen?', choices:['Badehose / Badeanzug','Winterjacke','Skihelm','Stiefel'], a:0}, el:{q:'Τι φοράμε πριν κολυμπήσουμε;', choices:['Μαγιό','Χειμωνιάτικο μπουφάν','Κράνος σκι','Μπότες'], a:0}},
+  {topic:'spa', de:{q:'Warum trinkt man Wasser bei Hitze?', choices:['Damit man nicht dehydriert','Damit die Schuhe glänzen','Damit man fliegt','Damit es regnet'], a:0}, el:{q:'Γιατί πίνουμε νερό στη ζέστη;', choices:['Για να μην αφυδατωθούμε','Για να γυαλίζουν τα παπούτσια','Για να πετάξουμε','Για να βρέξει'], a:0}},
+  {topic:'spa', de:{q:'Was bedeutet Ruhe im Spa?', choices:['Leise sein und entspannen','Laut schreien','Rennen','Ball spielen drinnen'], a:0}, el:{q:'Τι σημαίνει ησυχία στο spa;', choices:['Να είμαστε ήσυχοι και να χαλαρώνουμε','Να φωνάζουμε','Να τρέχουμε','Να παίζουμε μπάλα μέσα'], a:0}},
+  {topic:'general', de:{q:'Wie viele Stunden hat ein Tag?', choices:['24','10','7','100'], a:0}, el:{q:'Πόσες ώρες έχει η μέρα;', choices:['24','10','7','100'], a:0}},
+  {topic:'general', de:{q:'Welche Zahl kommt nach 9?', choices:['10','8','11','90'], a:0}, el:{q:'Ποιος αριθμός έρχεται μετά το 9;', choices:['10','8','11','90'], a:0}},
+  {topic:'general', de:{q:'Was benutzt man zum Lesen?', choices:['Augen','Ohren nur','Füße','Ellbogen'], a:0}, el:{q:'Τι χρησιμοποιούμε για διάβασμα;', choices:['Μάτια','Μόνο αυτιά','Πόδια','Αγκώνες'], a:0}},
+  {topic:'general', de:{q:'Welches Werkzeug hilft beim Schneiden von Papier?', choices:['Schere','Hammer','Löffel','Kissen'], a:0}, el:{q:'Τι βοηθάει να κόψουμε χαρτί;', choices:['Ψαλίδι','Σφυρί','Κουτάλι','Μαξιλάρι'], a:0}},
+  {topic:'nature', de:{q:'Was fällt im Herbst oft von Bäumen?', choices:['Blätter','Autos','Häuser','Wolken'], a:0}, el:{q:'Τι πέφτει συχνά από τα δέντρα το φθινόπωρο;', choices:['Φύλλα','Αυτοκίνητα','Σπίτια','Σύννεφα'], a:0}},
+  {topic:'greece', de:{q:'Welches Alphabet nutzt Griechisch?', choices:['Griechisches Alphabet','Nur Emojis','Nur Zahlen','Runen'], a:0}, el:{q:'Ποιο αλφάβητο χρησιμοποιεί η ελληνική;', choices:['Ελληνικό αλφάβητο','Μόνο emoji','Μόνο αριθμούς','Ρούνες'], a:0}},
+  {topic:'general', de:{q:'Was ist 2 + 2?', choices:['4','3','5','22'], a:0}, el:{q:'Πόσο κάνει 2 + 2;', choices:['4','3','5','22'], a:0}},
+  {topic:'spa', de:{q:'Wo spielt man oft Ballspiele draußen?', choices:['Im Garten / Hof','Im Bett','Im Kühlschrank','Unter Wasser ohne Luft'], a:0}, el:{q:'Πού παίζουμε συχνά μπάλα έξω;', choices:['Στον κήπο / αυλή','Στο κρεβάτι','Στο ψυγείο','Κάτω από το νερό χωρίς αέρα'], a:0}},
+];
+
 function shuffleInPlace(arr){
   for(let i=arr.length-1;i>0;i--){
     const j=Math.floor(Math.random()*(i+1));
@@ -5625,6 +6211,235 @@ function writeGameBest(id, score){
     return score;
   }
   return prev;
+}
+
+function pickLearnDeck(pool, n){
+  const src=[...(pool||LEARN_VOCAB)];
+  shuffleInPlace(src);
+  return src.slice(0, Math.min(n, src.length)).map(c=>({...c, source:c.source||'local'}));
+}
+
+function learnWrongChoices(card, mode, pool){
+  const key = mode==='de2el' ? 'el' : 'de';
+  const right = card[key];
+  const distractors = shuffleInPlace(
+    pool.filter(c=>c[key] && c[key]!==right).map(c=>c[key])
+  ).slice(0, 3);
+  while(distractors.length<3){
+    const filler = LEARN_VOCAB.find(c=>c[key] && c[key]!==right && !distractors.includes(c[key]));
+    if(!filler) break;
+    distractors.push(filler[key]);
+  }
+  const choices = shuffleInPlace([right, ...distractors.slice(0,3)]);
+  return {choices, correct: choices.indexOf(right)};
+}
+
+function buildLearnRound(g){
+  const card = g.deck[g.i];
+  if(!card){ g.finished=true; return; }
+  const built = learnWrongChoices(card, g.mode, g.deck.length>4?g.deck:LEARN_VOCAB);
+  g.prompt = g.mode==='de2el' ? card.de : card.el;
+  g.answerLang = g.mode==='de2el' ? 'el' : 'de';
+  g.choices = built.choices;
+  g.correct = built.correct;
+  g.feedback = null;
+  g.lock = false;
+  g.card = card;
+}
+
+function makeLearnGame(mode, deck){
+  const g = {
+    mode: mode==='el2de'?'el2de':'de2el',
+    deck: deck||pickLearnDeck(LEARN_VOCAB, 10),
+    i:0, xp:0, streak:0, hearts:3, finished:false, loading:false,
+    prompt:'', choices:[], correct:0, feedback:null, lock:false, card:null,
+  };
+  buildLearnRound(g);
+  return g;
+}
+
+function answerLearn(choiceIdx){
+  const g=state.game; if(!g || g.lock || g.finished || state.gameId!=='learn') return;
+  g.lock=true;
+  const ok = choiceIdx===g.correct;
+  if(ok){
+    g.xp += 10 + Math.min(20, g.streak*2);
+    g.streak += 1;
+    g.feedback = {ok:true, text:t('gameLearnCorrect')};
+    feedback('save');
+  }else{
+    g.hearts = Math.max(0, g.hearts-1);
+    g.streak = 0;
+    const right = g.choices[g.correct];
+    g.feedback = {ok:false, text:`${t('gameLearnWrong')} ${right}`, pick:choiceIdx};
+    feedback('error');
+  }
+  render();
+  g._cpu = setTimeout(()=>{
+    if(!state.game || state.gameId!=='learn') return;
+    const gg=state.game;
+    if(gg.hearts<=0){
+      gg.finished=true; gg.lock=false;
+      writeGameBest('learn', gg.xp);
+      render(); return;
+    }
+    gg.i += 1;
+    if(gg.i >= gg.deck.length){
+      gg.finished=true; gg.lock=false;
+      writeGameBest('learn', gg.xp);
+      render(); return;
+    }
+    buildLearnRound(gg);
+    render();
+  }, ok?650:1100);
+}
+
+async function fetchLearnAiCards(){
+  const g=state.game; if(!g || state.gameId!=='learn' || g.loading) return;
+  g.loading=true; render();
+  try{
+    const response = await fetch('/api/learn', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        count:8,
+        topic:'random',
+        level:'easy',
+        seed: Math.random().toString(36).slice(2,10),
+      }),
+    });
+    const data = await response.json().catch(()=>({}));
+    if(!response.ok || !Array.isArray(data.cards) || !data.cards.length){
+      throw new Error(data.error||'learn failed');
+    }
+    const cards = data.cards.map(c=>({
+      de:String(c.de||'').trim(),
+      el:String(c.el||'').trim(),
+      emoji:String(c.emoji||'🇬🇷').trim()||'🇬🇷',
+      topic:String(c.topic||'ai').trim()||'ai',
+      source:'ai',
+    })).filter(c=>c.de && c.el);
+    if(cards.length<3) throw new Error('too few');
+    stopChildGameTimers();
+    state.game = makeLearnGame(g.mode, cards);
+    feedback('save');
+    toast(t('gameLearnAi'), 'success');
+  }catch{
+    if(state.game && state.gameId==='learn'){
+      state.game.loading=false;
+      toast(t('gameLearnAiFail'), 'error');
+      render();
+    }
+  }
+}
+
+function makeQuizGame(){
+  const pool = shuffleInPlace([...QUIZ_BANK]).slice(0, 8);
+  const g = {deck:pool, i:0, score:0, streak:0, finished:false, lock:false, feedback:null, choices:[], correct:0, q:null};
+  buildQuizRound(g);
+  return g;
+}
+
+function buildQuizRound(g){
+  const item = g.deck[g.i];
+  if(!item){ g.finished=true; return; }
+  const loc = state.lang==='el' ? item.el : item.de;
+  const order = [0,1,2,3];
+  shuffleInPlace(order);
+  g.q = loc.q;
+  g.topic = item.topic;
+  g.choices = order.map(i=>loc.choices[i]);
+  g.correct = order.indexOf(loc.a);
+  g.feedback = null;
+  g.lock = false;
+}
+
+function answerQuiz(choiceIdx){
+  const g=state.game; if(!g || g.lock || g.finished || state.gameId!=='quiz') return;
+  g.lock=true;
+  const ok = choiceIdx===g.correct;
+  if(ok){
+    g.score += 10 + Math.min(15, g.streak*2);
+    g.streak += 1;
+    g.feedback = {ok:true};
+    feedback('save');
+  }else{
+    g.streak = 0;
+    g.feedback = {ok:false, pick:choiceIdx};
+    feedback('error');
+  }
+  render();
+  g._cpu = setTimeout(()=>{
+    if(!state.game || state.gameId!=='quiz') return;
+    const gg=state.game;
+    gg.i += 1;
+    if(gg.i >= gg.deck.length){
+      gg.finished=true; gg.lock=false;
+      writeGameBest('quiz', gg.score);
+      render(); return;
+    }
+    buildQuizRound(gg);
+    render();
+  }, ok?550:950);
+}
+
+function makeMathGame(){
+  const g = {score:0, left:45, streak:0, finished:false, lock:false, feedback:null, prompt:'', choices:[], correct:0, _timer:null};
+  nextMathRound(g);
+  return g;
+}
+
+function nextMathRound(g){
+  const ops = ['+','-','×'];
+  const op = ops[Math.floor(Math.random()*ops.length)];
+  let a, b, ans;
+  if(op==='+'){
+    a = 2+Math.floor(Math.random()*18);
+    b = 2+Math.floor(Math.random()*18);
+    ans = a+b;
+  }else if(op==='-'){
+    a = 5+Math.floor(Math.random()*20);
+    b = 1+Math.floor(Math.random()*Math.min(12,a-1));
+    ans = a-b;
+  }else{
+    a = 2+Math.floor(Math.random()*9);
+    b = 2+Math.floor(Math.random()*9);
+    ans = a*b;
+  }
+  const distractors = new Set();
+  while(distractors.size<3){
+    const delta = (Math.floor(Math.random()*7)-3) || 2;
+    const wrong = Math.max(0, ans+delta+(Math.random()>0.5?1:-1)*Math.floor(Math.random()*4));
+    if(wrong!==ans) distractors.add(wrong);
+  }
+  const choices = shuffleInPlace([ans, ...distractors]);
+  g.prompt = `${a} ${op} ${b}`;
+  g.choices = choices;
+  g.correct = choices.indexOf(ans);
+  g.feedback = null;
+  g.lock = false;
+}
+
+function answerMath(choiceIdx){
+  const g=state.game; if(!g || g.lock || g.finished || state.gameId!=='math') return;
+  g.lock=true;
+  const ok = choiceIdx===g.correct;
+  if(ok){
+    g.score += 5 + Math.min(20, g.streak*2);
+    g.streak += 1;
+    g.feedback = {ok:true};
+    feedback('save');
+  }else{
+    g.streak = 0;
+    g.feedback = {ok:false, pick:choiceIdx};
+    feedback('error');
+  }
+  render();
+  g._cpu = setTimeout(()=>{
+    if(!state.game || state.gameId!=='math' || state.game.finished) return;
+    nextMathRound(state.game);
+    render();
+  }, ok?400:800);
 }
 
 function stopChildGameTimers(){
@@ -5661,6 +6476,12 @@ function startChildGame(id){
   }else if(id==='colors'){
     state.game = {score:0, left:30, finished:false, target:null, choices:[], _timer:null};
     nextColorRound(state.game);
+  }else if(id==='learn'){
+    state.game = makeLearnGame('de2el', pickLearnDeck(LEARN_VOCAB, 10));
+  }else if(id==='quiz'){
+    state.game = makeQuizGame();
+  }else if(id==='math'){
+    state.game = makeMathGame();
   }else state.game = null;
   render();
 }
@@ -5673,20 +6494,24 @@ function leaveChildGame(){
 }
 
 function childGamesLobby(){
+  const featured=CHILD_GAMES.filter(g=>g.featured);
+  const rest=CHILD_GAMES.filter(g=>!g.featured);
+  const card=(g)=>{
+    const best=readGameBest(g.id);
+    return `<button class="game-card ${g.featured?'featured':''}" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
+      <span class="game-emoji">${g.emoji}</span>
+      <span class="game-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span>
+        ${best?`<small class="game-best-chip">${esc(t('gameBest'))}: ${g.id==='react'?t('gameReactMs')(best):best}</small>`:''}</span>
+      <span class="game-go">${t('gamePlay')} →</span>
+    </button>`;
+  };
   return `<div class="games-hero">
       <div class="brand-kicker">Armonia Play</div>
       <h2>${t('gamesTitle')}</h2>
       <p>${t('gamesHint')}</p>
     </div>
-    <div class="games-grid">${CHILD_GAMES.map(g=>{
-      const best=readGameBest(g.id);
-      return `<button class="game-card" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
-        <span class="game-emoji">${g.emoji}</span>
-        <span class="game-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span>
-          ${best?`<small class="game-best-chip">${esc(t('gameBest'))}: ${g.id==='react'?t('gameReactMs')(best):best}</small>`:''}</span>
-        <span class="game-go">${t('gamePlay')} →</span>
-      </button>`;
-    }).join('')}</div>`;
+    <div class="games-grid featured">${featured.map(card).join('')}</div>
+    <div class="games-grid" style="margin-top:12px">${rest.map(card).join('')}</div>`;
 }
 
 function memoryStars(moves){
@@ -5931,6 +6756,9 @@ function tickCatch(ts){
 }
 
 function childGamesView(){
+  if(state.gameId==='learn') return childLearnView();
+  if(state.gameId==='quiz') return childQuizView();
+  if(state.gameId==='math') return childMathView();
   if(state.gameId==='memory') return childMemoryView();
   if(state.gameId==='tac') return childTacView();
   if(state.gameId==='catch') return childCatchView();
@@ -5940,6 +6768,99 @@ function childGamesView(){
   if(state.gameId==='simon') return childSimonView();
   if(state.gameId==='colors') return childColorsView();
   return childGamesLobby();
+}
+
+function childLearnView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const total=g.deck.length||10;
+  const progress=Math.min(100, Math.round((g.i/total)*100));
+  const hearts='❤️'.repeat(g.hearts)+'🖤'.repeat(Math.max(0,3-g.hearts));
+  if(g.finished){
+    const stars=g.xp>=80?3:g.xp>=40?2:1;
+    return `<div class="game-shell learn">
+      <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+        <div class="game-stats"><span>${t('gameLearnXp')}: <b>${g.xp}</b></span></div></div>
+      <div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameLearnDone')} · ${g.xp} ${t('gameLearnXp')}</div>
+        <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>
+    </div>`;
+  }
+  return `<div class="game-shell learn">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats">
+        <span>${t('gameLearnRound')}: <b>${Math.min(g.i+1,total)}/${total}</b></span>
+        <span>${t('gameLearnXp')}: <b>${g.xp}</b></span>
+        <span title="${esc(t('gameLearnHearts'))}">${hearts}</span>
+      </div></div>
+    <div class="learn-toolbar">
+      <button class="chip ${g.mode==='de2el'?'on':''}" type="button" data-learn-mode="de2el">${t('gameLearnDeToEl')}</button>
+      <button class="chip ${g.mode==='el2de'?'on':''}" type="button" data-learn-mode="el2de">${t('gameLearnElToDe')}</button>
+      <button class="chip ai" type="button" id="learnAi" ${g.loading?'disabled':''}>${g.loading?t('gameLearnAiLoading'):`✨ ${t('gameLearnAi')}`}</button>
+    </div>
+    <div class="learn-progress"><span style="width:${progress}%"></span></div>
+    <p class="game-play-hint">${esc(t('gameLearnHintPlay'))}${g.card?.source==='ai'?' · AI':''}</p>
+    <div class="learn-prompt pop-in">
+      <span class="learn-emoji">${esc(g.card?.emoji||'🇬🇷')}</span>
+      <b>${esc(g.prompt)}</b>
+      <small>${g.mode==='de2el'?'Deutsch → Ελληνικά':'Ελληνικά → Deutsch'}</small>
+    </div>
+    ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${esc(g.feedback.text|| (g.feedback.ok?t('gameLearnCorrect'):t('gameLearnWrong')))}</div>`:''}
+    <div class="learn-choices">${(g.choices||[]).map((c,i)=>`
+      <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
+        type="button" data-learn-choice="${i}" ${g.lock?'disabled':''}>${esc(c)}</button>`).join('')}</div>
+  </div>`;
+}
+
+function childQuizView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const total=g.deck.length;
+  if(g.finished){
+    const stars=g.score>=70?3:g.score>=35?2:1;
+    return `<div class="game-shell quiz">
+      <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button></div>
+      <div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameWin')} · ${g.score} ${t('gameScore')}</div>
+        <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>
+    </div>`;
+  }
+  return `<div class="game-shell quiz">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats">
+        <span>${Math.min(g.i+1,total)}/${total}</span>
+        <span>${t('gameScore')}: <b>${g.score}</b></span>
+        <span>${t('gameStreak')}: <b>${g.streak}</b></span>
+      </div></div>
+    <p class="game-play-hint">${esc(t('gameQuizHintPlay'))} · ${esc(t('gameQuizTopic'))}: ${esc(g.topic||'')}</p>
+    <div class="learn-prompt quiz-q pop-in"><b>${esc(g.q||'')}</b></div>
+    ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${g.feedback.ok?t('gameLearnCorrect'):`${t('gameLearnWrong')} ${esc(g.choices[g.correct]||'')}`}</div>`:''}
+    <div class="learn-choices">${(g.choices||[]).map((c,i)=>`
+      <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
+        type="button" data-quiz-choice="${i}" ${g.lock?'disabled':''}>${esc(c)}</button>`).join('')}</div>
+  </div>`;
+}
+
+function childMathView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  if(g.finished){
+    const stars=g.score>=80?3:g.score>=40?2:1;
+    return `<div class="game-shell math">
+      <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button></div>
+      <div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameCatchOver')} · ${g.score} ${t('gameScore')}</div>
+        <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>
+    </div>`;
+  }
+  return `<div class="game-shell math">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats">
+        <span>${t('gameScore')}: <b id="mathScore">${g.score}</b></span>
+        <span>${t('gameStreak')}: <b>${g.streak}</b></span>
+        <span>${t('gameTime')}: <b id="mathTime">${g.left}s</b></span>
+      </div></div>
+    <p class="game-play-hint">${esc(t('gameMathHintPlay'))}</p>
+    <div class="learn-prompt math-q pop-in"><b>${esc(g.prompt)}</b><small>= ?</small></div>
+    ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${g.feedback.ok?t('gameLearnCorrect'):`${t('gameLearnWrong')} ${g.choices[g.correct]}`}</div>`:''}
+    <div class="learn-choices math">${(g.choices||[]).map((c,i)=>`
+      <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
+        type="button" data-math-choice="${i}" ${g.lock?'disabled':''}>${esc(String(c))}</button>`).join('')}</div>
+  </div>`;
 }
 
 function childReactView(){
@@ -6089,6 +7010,52 @@ function bindChildGames(root){
   if(back) back.onclick=()=>{ feedback('select'); leaveChildGame(); };
   const again=root.querySelector('#gameAgain');
   if(again) again.onclick=()=>{ feedback('save'); startChildGame(state.gameId); };
+
+  if(state.gameId==='learn'){
+    root.querySelectorAll('[data-learn-mode]').forEach(btn=>{
+      btn.onclick=()=>{
+        const g=state.game; if(!g || g.loading) return;
+        const mode=btn.dataset.learnMode;
+        if(mode===g.mode) return;
+        feedback('select');
+        stopChildGameTimers();
+        state.game = makeLearnGame(mode, g.deck);
+        render();
+      };
+    });
+    root.querySelector('#learnAi')?.addEventListener('click',()=>{ feedback('select'); fetchLearnAiCards(); });
+    root.querySelectorAll('[data-learn-choice]').forEach(btn=>{
+      btn.onclick=()=> answerLearn(Number(btn.dataset.learnChoice));
+    });
+  }
+
+  if(state.gameId==='quiz'){
+    root.querySelectorAll('[data-quiz-choice]').forEach(btn=>{
+      btn.onclick=()=> answerQuiz(Number(btn.dataset.quizChoice));
+    });
+  }
+
+  if(state.gameId==='math'){
+    const g=state.game;
+    root.querySelectorAll('[data-math-choice]').forEach(btn=>{
+      btn.onclick=()=> answerMath(Number(btn.dataset.mathChoice));
+    });
+    if(g && !g.finished && !g._timer){
+      g._timer=setInterval(()=>{
+        if(!state.game || state.gameId!=='math'){ stopChildGameTimers(); return; }
+        state.game.left -= 1;
+        const el=document.getElementById('mathTime');
+        if(el) el.textContent=`${Math.max(0,state.game.left)}s`;
+        if(state.game.left<=0){
+          stopChildGameTimers();
+          state.game.left=0;
+          state.game.finished=true;
+          writeGameBest('math', state.game.score);
+          render();
+        }
+      }, 1000);
+    }
+  }
 
   if(state.gameId==='memory'){
     root.querySelectorAll('.memory-card[data-i]').forEach(btn=>{
@@ -6652,6 +7619,11 @@ function viewHome(){
         <div class="home-stat"><b>${upcoming.length}</b><span>${t('eventsSoon')}</span></div>
       </div>
     </div>
+    <div class="page-actions" role="toolbar">
+      <button class="page-act primary" type="button" data-page-act="help">✨ ${esc(t('topHelp'))}</button>
+      ${user?`<button class="page-act" type="button" data-page-act="talk">💬 ${esc(t('topTalk'))}</button>`:''}
+      <button class="page-act ghost" type="button" data-page-act="tutorial">📘 ${esc(t('topTutorial'))}</button>
+    </div>
     ${zoAiBannerHtml()}
     ${user?`<button class="notification-card" id="homeTalkOpen" type="button">
       <span style="font-size:22px">💬</span>
@@ -6659,6 +7631,12 @@ function viewHome(){
         <div class="muted" style="font-size:12px;margin-top:2px">${esc(t('staffTalkHint'))}</div></div>
       <span class="muted">→</span>
     </button>`:''}
+    <button class="notification-card" id="homeGalleryOpen" type="button">
+      <span style="font-size:22px">📸</span>
+      <div class="grow"><b>${esc(t('galleryTitle'))}</b>
+        <div class="muted" style="font-size:12px;margin-top:2px">${esc(t('galleryHint'))}</div></div>
+      <span class="muted">→</span>
+    </button>
     <div class="dashboard-grid">
       ${adminTeamPanel(today)}
       <section class="card"><div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
@@ -6695,14 +7673,20 @@ function renderChild(){
   document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
   const tools=document.getElementById('topTools');
   if(tools){
+    tools.hidden=false;
     tools.innerHTML = [
       `<button type="button" class="topbtn ${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('myToday')}</button>`,
       `<button type="button" class="topbtn ${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('myWeek')}</button>`,
       `<button type="button" class="topbtn ${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('weekEvents')}</button>`,
+      `<button type="button" class="topbtn ${state.childView==='gallery'?'on':''}" data-child-view="gallery">📸 ${t('galleryChildTab')}</button>`,
       `<button type="button" class="topbtn ${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>`,
       `<button type="button" class="topbtn" data-child-chat="1">✨ ${t('helpChat')}</button>`,
     ].join('');
-    tools.querySelectorAll('[data-child-view]').forEach(b=>b.onclick=()=>{state.childView=b.dataset.childView;renderChild();});
+    tools.querySelectorAll('[data-child-view]').forEach(b=>b.onclick=()=>{
+      state.childView=b.dataset.childView;
+      if(state.childView==='gallery') refreshGallery({silent:true}).then(()=>renderChild());
+      else renderChild();
+    });
     tools.querySelector('[data-child-chat]')?.addEventListener('click',()=>openZoAi());
   }
   const bottom=document.getElementById('bottomPanel');
@@ -6745,6 +7729,7 @@ function renderChild(){
     <button class="${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('childToday')}</button>
     <button class="${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('childEvents')}${childUpcomingEvents.length?` <span class="nav-badge">${childUpcomingEvents.length}</span>`:''}</button>
     <button class="${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('childWeek')}</button>
+    <button class="${state.childView==='gallery'?'on':''}" data-child-view="gallery">📸 ${t('galleryChildTab')}</button>
     <button class="${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>
   </div>`;
   const todayView = `
@@ -6761,6 +7746,7 @@ function renderChild(){
   const viewBody = state.childView==='today' ? todayView
     : state.childView==='events' ? childEventsView(c.id)
     : state.childView==='games' ? childGamesView()
+    : state.childView==='gallery' ? childGalleryView()
     : weekView;
 
   document.getElementById('view').innerHTML = `
@@ -6775,6 +7761,10 @@ function renderChild(){
       const next = b.dataset.childView;
       if(next !== 'games'){ stopChildGameTimers(); state.gameId=null; state.game=null; }
       state.childView = next;
+      if(next==='gallery'){
+        refreshGallery({silent:true}).finally(()=>render());
+        return;
+      }
       render();
     };
   });
@@ -6785,6 +7775,7 @@ function renderChild(){
   const zoDismiss=document.getElementById('view').querySelector('#zoAiBannerDismiss');
   if(zoDismiss) zoDismiss.onclick=e=>{ e.stopPropagation(); dismissZoAiBanner(); render(); };
   if(state.childView==='games') bindChildGames(document.getElementById('view'));
+  if(state.childView==='gallery') bindGallery(document.getElementById('view'));
   scheduleMeasureChrome();
 }
 
@@ -6804,6 +7795,7 @@ function dynamicHeaderTitle(){
     const h=house(shopHouse?.() || state.house);
     return `${t('headerShop')}${h?` · ${h.short}`:''}`;
   }
+  if(state.tab==='gallery') return t('headerGallery');
   return t('headerBook');
 }
 
@@ -6826,43 +7818,12 @@ function paintTopChrome(){
     profiles.title = t('profilesBack');
     profiles.setAttribute('aria-label', t('switchProfile'));
   }
+  // Staff actions live in each page — keep sticky header clean.
   const tools=document.getElementById('topTools');
-  if(!tools) return;
-  const btn=(id,label,cls='')=>`<button type="button" class="topbtn ${cls}" data-top="${id}">${label}</button>`;
-  const bits=[];
-  bits.push(btn('chat', `💬 ${t('topChat')}`, state.chatOpen?'on':''));
-  bits.push(btn('help', `? ${t('topHelp')}`));
-  bits.push(btn('tutorial', `📘 ${t('topTutorial')}`));
-  if(state.user) bits.push(btn('talk', `👥 ${t('topTalk')}`));
-  if(state.tab==='home'){
-    bits.push(btn('goSchedule', `📅 ${t('topDay')}`));
-    bits.push(btn('goStock', `📦 ${t('navStock')}`));
-    bits.push(btn('goShop', `🛒 ${t('topShop')}`));
-    bits.push(btn('goBook', `📒 ${t('topShift')}`));
-  }else if(state.tab==='schedule'){
-    bits.push(btn('day', t('topDay'), state.scheduleView==='day'?'on':''));
-    bits.push(btn('week', t('topWeek'), state.scheduleView==='week'?'on':''));
-    bits.push(btn('events', t('topEvents'), state.scheduleView==='events'?'on':''));
-    bits.push(btn('addEntry', t('topAdd'), 'primary'));
-  }else if(state.tab==='stock'){
-    if(state.house!=='all'){
-      bits.push(btn('stockBoard', t('topBoard'), 'primary'));
-      bits.push(btn('stockFood', t('topFood')));
-    }
-  }else if(state.tab==='shop'){
-    bits.push(btn('shopAdd', t('addProduct')));
-    bits.push(btn('shopScan', t('topScan')));
-    bits.push(btn('shopHistory', t('topHistory')));
-  }else if(state.tab==='book'){
-    bits.push(btn('shiftFocus', `📒 ${t('topShift')}`, 'primary'));
-    bits.push(btn('bookToday', t('today'), state.bookRange==='today'?'on':''));
-    bits.push(btn('bookWeek', t('last7'), state.bookRange==='week'?'on':''));
-    bits.push(btn('bookFix', t('topFix')));
+  if(tools && state.mode!=='child'){
+    tools.hidden=true;
+    tools.replaceChildren();
   }
-  tools.innerHTML = bits.join('');
-  tools.querySelectorAll('[data-top]').forEach(b=>{
-    b.onclick=()=>onTopAction(b.dataset.top);
-  });
   const chatLabel=document.querySelector('[data-nav-chat]');
   if(chatLabel) chatLabel.textContent = t('navChat');
   const navChatBtn=document.getElementById('navChat');
@@ -6873,10 +7834,9 @@ function paintTopChrome(){
 
 function onTopAction(id){
   feedback('tap');
-  if(id==='chat'){ toggleChatPanel(); return; }
-  if(id==='help'){ openChatPanel('help'); return; }
+  if(id==='chat' || id==='help'){ openZoAi(); return; }
   if(id==='tutorial'){ openAppTutorial(); return; }
-  if(id==='talk'){ openChatPanel('talk'); return; }
+  if(id==='talk'){ openStaffTalk(); return; }
   if(id==='goSchedule'){ state.tab='schedule'; state.scheduleView='day'; render(); return; }
   if(id==='goStock'){ state.tab='stock'; render(); return; }
   if(id==='goShop'){ state.tab='shop'; render(); return; }
@@ -6911,13 +7871,28 @@ function closeChatPanel(){
 
 function toggleChatPanel(){
   if(state.chatOpen) closeChatPanel();
-  else openChatPanel(state.chatMode||'ai');
+  else openZoAi();
 }
 
-/** Child mode has no bottom chat dock — Zo-Ai opens as a sheet instead. */
-function openZoAi(){
+/** Team talk: own sheet only — never mixed into Zo-Ai panel. */
+function openStaffTalk(){
+  if(state.mode!=='staff' || !state.user){ toast(t('staffTalkNeedStaff'),'error'); return; }
   closeChatPanel();
-  sheetHelp();
+  sheetStaffTalk();
+}
+
+/** Zo-Ai alone: child sheet, staff dedicated chat panel (no Team / help hub). */
+function openZoAi(){
+  if(state.mode==='child'){
+    closeChatPanel();
+    sheetHelp();
+    return;
+  }
+  if(state.chatOpen && state.chatMode==='ai'){
+    closeChatPanel();
+    return;
+  }
+  openChatPanel('ai');
 }
 
 function openChatPanel(mode='ai'){
@@ -6926,25 +7901,24 @@ function openChatPanel(mode='ai'){
     openZoAi();
     return;
   }
-  state.chatMode=mode==='talk' && !state.user ? 'ai' : mode;
+  // Team talk is standalone — never embed in the chat dock.
+  if(mode==='talk'){ openStaffTalk(); return; }
+  // Help hub removed — Zo-Ai opens directly.
+  if(mode==='help') mode='ai';
+
+  state.chatMode='ai';
   state.chatOpen=true;
   document.body.classList.add('chat-open');
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='';
-  document.querySelectorAll('#chatModeSeg button').forEach(b=>{
-    const cm=b.dataset.cm;
-    if(cm==='talk'){
-      b.hidden=!state.user;
-      b.textContent=`💬 ${t('topTalk')}`;
-    }else if(cm==='ai'){
-      b.hidden=false;
-      b.textContent=`✨ ${t('helpChat')}`;
-    }else if(cm==='help'){
-      b.hidden=false;
-      b.textContent=`? ${t('helpCenter').split(' ')[0]||'?'}`;
-    }
-    b.classList.toggle('on', b.dataset.cm===state.chatMode);
-  });
+
+  const seg=document.getElementById('chatModeSeg');
+  if(seg) seg.hidden=true;
+  const title=document.getElementById('chatPanelTitle');
+  if(title){
+    title.hidden=false;
+    title.textContent=`✨ ${t('helpChat')}`;
+  }
   const closeBtn=document.getElementById('chatClose');
   if(closeBtn) closeBtn.setAttribute('aria-label', t('close'));
   paintTopChrome();
@@ -6955,32 +7929,7 @@ function openChatPanel(mode='ai'){
 function paintChatPanel(){
   const body=document.getElementById('chatBody');
   if(!body || !state.chatOpen) return;
-  if(state.chatMode==='talk'){
-    if(state.mode!=='staff' || !state.user){
-      body.innerHTML=`<div class="empty">${esc(t('staffTalkNeedStaff'))}</div>`;
-      return;
-    }
-    // Reuse sheet UI by embedding a lightweight launcher + opening full talk in sheet for reliability
-    body.innerHTML=`<div class="card" style="margin:0">
-      <b>💬 ${esc(t('staffTalk'))}</b>
-      <div class="muted" style="margin:6px 0 10px">${esc(t('staffTalkHint')||t('staffTalkOpen'))}</div>
-      <button class="btn" type="button" id="chatOpenTalk">${esc(t('staffTalkOpen'))}</button>
-    </div>`;
-    body.querySelector('#chatOpenTalk').onclick=()=>{ feedback('open'); sheetStaffTalk(); };
-    return;
-  }
-  if(state.chatMode==='help'){
-    body.innerHTML=`<div class="help-center-grid" style="margin:0">
-      <button class="help-center-card" id="chatTutorial" type="button"><span class="icon">📘</span><b>${t('startTutorial')}</b><span>${t('startTutorialHint')}</span></button>
-      <button class="help-center-card" id="chatAi" type="button"><span class="icon">✨</span><b>${t('askAiHelp')}</b><span>${t('askAiHelpHint')}</span></button>
-      ${state.user?`<button class="help-center-card talk" id="chatTalk" type="button"><span class="icon">💬</span><b>${t('staffTalk')}</b><span>${t('staffTalkHint')}</span></button>`:''}
-    </div>`;
-    body.querySelector('#chatTutorial').onclick=openAppTutorial;
-    body.querySelector('#chatAi').onclick=()=>openChatPanel('ai');
-    body.querySelector('#chatTalk')?.addEventListener('click',()=>openChatPanel('talk'));
-    return;
-  }
-  // AI chat inline
+  // Zo-Ai only in this panel — Team talk uses sheetStaffTalk.
   mountHelpChat(body);
 }
 
@@ -7120,10 +8069,9 @@ function measureChrome(){
       dockH=Math.ceil(dockEl.getBoundingClientRect().height);
     }
   }
-  let chatH=0;
-  if(state.chatOpen && chatPanel && !navHidden){
-    chatH=Math.ceil(chatPanel.getBoundingClientRect().height);
-  }
+  // Zo-Ai floats above the content now, so it must not reserve layout space.
+  // Measuring the panel here would pad #app by the panel's full height.
+  const chatH=0;
   // Set on both html and body so class-based body vars cannot override measured values.
   [root, document.body].forEach(el=>{
     el.style.setProperty('--nav-total', `${navH}px`);
@@ -7150,9 +8098,9 @@ function render(){
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='';
   document.querySelector('nav').style.display = '';
-  document.getElementById('helpFab').textContent='?';
-  document.getElementById('helpFab').setAttribute('aria-label', t('helpCenter'));
-  document.getElementById('helpFab').title = t('helpCenter');
+  document.getElementById('helpFab').textContent='✨';
+  document.getElementById('helpFab').setAttribute('aria-label', t('helpChat'));
+  document.getElementById('helpFab').title = t('helpChat');
   paintTopChrome();
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   document.querySelectorAll('[data-nav]').forEach(s=>{
@@ -7169,11 +8117,13 @@ function render(){
 
   document.getElementById('view').innerHTML =
       state.tab==='home'     ? viewHome()
+    : state.tab==='gallery'  ? viewGallery()
     : state.tab==='schedule' ? viewSchedule()
     : state.tab==='stock'    ? viewStock()
     : state.tab==='shop'     ? viewShop()
     : viewBook();
   wire();
+  if(state.tab==='gallery') bindGallery(document.getElementById('view'));
   if(restoreMatrixFs && state.tab==='schedule'){
     const shell=[...document.querySelectorAll('.matrix-shell')].find(s=>
       (s.querySelector('.matrix-toolbar-title')?.textContent||'')===restoreMatrixFs);
@@ -7184,6 +8134,9 @@ function render(){
 
 function wire(){
   const v = document.getElementById('view');
+  v.querySelectorAll('[data-page-act]').forEach(b=>{
+    b.onclick=()=>{ feedback('tap'); onTopAction(b.dataset.pageAct); };
+  });
 
   v.querySelectorAll('[data-admin-staff]').forEach(button=>button.onclick=()=>sheetAdminStaff(button.dataset.adminStaff));
   v.querySelectorAll('[data-admin-go]').forEach(button=>button.onclick=()=>{
@@ -7196,9 +8149,15 @@ function wire(){
   const homeAllEvents=v.querySelector('#homeAllEvents');
   if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';state.scheduleView='events';render();};
   const homeTalkOpen=v.querySelector('#homeTalkOpen');
-  if(homeTalkOpen) homeTalkOpen.onclick=()=>{ feedback('open'); sheetStaffTalk(); };
+  if(homeTalkOpen) homeTalkOpen.onclick=()=>{ feedback('open'); openStaffTalk(); };
+  const homeGalleryOpen=v.querySelector('#homeGalleryOpen');
+  if(homeGalleryOpen) homeGalleryOpen.onclick=()=>{
+    feedback('open');
+    state.tab='gallery';
+    refreshGallery({silent:true}).finally(()=>render());
+  };
   const zoAiBanner=v.querySelector('#zoAiBanner');
-  if(zoAiBanner) zoAiBanner.onclick=()=>{ dismissZoAiBanner(); openChatPanel('ai'); };
+  if(zoAiBanner) zoAiBanner.onclick=()=>{ dismissZoAiBanner(); openZoAi(); };
   const zoAiBannerDismiss=v.querySelector('#zoAiBannerDismiss');
   if(zoAiBannerDismiss) zoAiBannerDismiss.onclick=()=>{ dismissZoAiBanner(); render(); };
   v.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{
@@ -7532,8 +8491,7 @@ function wire(){
   if(br) br.onclick = sheetReceipt;
   const il = v.querySelector('#importList');
   if(il) il.onclick = () => sheetImportList();
-  const historyButton=v.querySelector('#shoppingHistory');
-  if(historyButton)historyButton.onclick=sheetShoppingHistory;
+  // History is also available via [data-page-act=shopHistory] in page-actions.
 
   v.querySelectorAll('#bRange button').forEach(b=>{
     b.onclick = () => { state.bookRange = b.dataset.r; render(); };
@@ -7573,6 +8531,10 @@ document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   b.onclick = () => {
     if(b.dataset.tab!=='stock' && state.tab==='stock') clearStockDraft();
     state.tab = b.dataset.tab;
+    if(state.tab==='gallery'){
+      refreshGallery({silent:true}).finally(()=>render());
+      return;
+    }
     render();
   };
 });
@@ -7587,7 +8549,8 @@ document.getElementById('chatClose')?.addEventListener('click', ()=>{
 document.querySelectorAll('#chatModeSeg button').forEach(b=>{
   b.onclick=()=>{
     feedback('select');
-    openChatPanel(b.dataset.cm);
+    if(b.dataset.cm==='talk') openStaffTalk();
+    else openZoAi();
   };
 });
 document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
@@ -7608,26 +8571,30 @@ async function sheetSecurityAccess(){
   const who=state.user||state.child;if(!who){openGate();return;}
   openSheet(`<div class="security-hero mail-hero">
       <div class="row" style="gap:12px;align-items:center">
-        <div class="security-icon mail-icon">✉️</div>
+        <div class="security-icon mail-icon">${esc(profileEmoji(who)||'👤')}</div>
         <div class="grow">
           <div class="import-kicker">Armonia Thassos</div>
           <h2 style="margin:3px 0">${t('securityAccess')}</h2>
-          <div class="muted">${esc(who.name)}</div>
+          <div class="muted">${esc(profileName(who))}</div>
         </div>
       </div>
     </div>
-    <div class="security-passkey-card email-card" id="securityProfile"><div class="muted">${t('reading')}</div></div>
+    <div id="securityStorage" class="status-box" style="margin:0 0 12px" hidden></div>
     <div class="security-passkey-card" id="securityCustomize"></div>
+    <div class="security-passkey-card email-card" id="securityProfile"><div class="muted">${t('reading')}</div></div>
+    <div class="security-passkey-card" id="securityPin"></div>
     <div class="security-passkey-card" id="securityPasskey"><div class="muted">${t('reading')}</div></div>
     <button class="btn sec" id="securityTutorial">📘 ${t('tutorialOpen')}</button>
     <button class="btn sec" id="securitySwitch">↔ ${t('switchProfile')}</button>
     <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
   const profileCard=sheetEl.querySelector('#securityProfile'),card=sheetEl.querySelector('#securityPasskey');
   const customizeCard=sheetEl.querySelector('#securityCustomize');
+  const pinCard=sheetEl.querySelector('#securityPin');
+  const storageEl=sheetEl.querySelector('#securityStorage');
   const pref=profilePref(who.id);
   if(customizeCard){
     customizeCard.innerHTML=`<div class="row between" style="align-items:center;gap:10px;margin-bottom:8px">
-        <div><b>${t('profileCustomize')}</b><div class="muted" style="font-size:11px;margin-top:3px">${esc(who.name)}</div></div>
+        <div><b>${t('profileSectionLook')}</b><div class="muted" style="font-size:11px;margin-top:3px">${esc(who.name)}</div></div>
         <div class="pa avatar" style="width:44px;height:44px;border-radius:50%;background:${esc(profileColor(who))};display:grid;place-items:center;font-weight:800">${esc(profileEmoji(who)||initials(profileName(who)))}</div>
       </div>
       <label class="f"><span>${t('profileNickname')}</span><input id="profileNick" value="${esc(pref.nickname||'')}" placeholder="${esc(who.name)}" maxlength="40"></label>
@@ -7649,11 +8616,58 @@ async function sheetSecurityAccess(){
       }
     };
   }
+  if(pinCard){
+    pinCard.innerHTML=`<b>${t('profileSectionPin')}</b>
+      <div class="muted" style="font-size:11.5px;margin:4px 0 10px;line-height:1.45">${esc(t('profilePinHint'))}</div>
+      <label class="f"><span>${t('profilePinCurrent')}</span><input id="pinCurrent" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6"></label>
+      <label class="f"><span>${t('profilePinNew')}</span><input id="pinNew" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6"></label>
+      <label class="f"><span>${t('profilePinConfirm')}</span><input id="pinConfirm" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6"></label>
+      <button class="btn" id="saveProfilePin" type="button">${t('profilePinSave')}</button>
+      <div id="profilePinStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`;
+    pinCard.querySelector('#saveProfilePin').onclick=async event=>{
+      const button=event.currentTarget;
+      const currentPin=pinCard.querySelector('#pinCurrent').value.trim();
+      const pin=pinCard.querySelector('#pinNew').value.trim();
+      const confirmPin=pinCard.querySelector('#pinConfirm').value.trim();
+      const status=pinCard.querySelector('#profilePinStatus');
+      status.style.display='block';
+      if(!/^\d{4,6}$/.test(pin) || pin!==confirmPin){
+        feedback('error'); setStatus(status,t('profilePinInvalid'),'error'); return;
+      }
+      button.disabled=true;
+      try{
+        await passkeyApi('/api/auth/profile/pin',{currentPin,pin,confirmPin});
+        feedback('save');
+        setStatus(status,t('profilePinChanged'),'success');
+        pinCard.querySelector('#pinCurrent').value='';
+        pinCard.querySelector('#pinNew').value='';
+        pinCard.querySelector('#pinConfirm').value='';
+        toast(t('profilePinChanged'),'success');
+      }catch(error){
+        feedback('error');
+        const msg = error.code==='wrong_pin'?t('profilePinWrong')
+          : error.code==='same_pin'?t('profilePinSame')
+          : error.code==='invalid_pin'?t('profilePinInvalid')
+          : (error.message||t('authUnavailable'));
+        setStatus(status,msg,'error');
+      }finally{ button.disabled=false; }
+    };
+  }
   let count=0;
   try{
-    const [response,profilesResponse]=await Promise.all([
-      fetch('/api/auth/session',{credentials:'same-origin'}),fetch('/api/auth/profiles',{credentials:'same-origin'})
-    ]),data=await response.json(),profilesData=await profilesResponse.json();
+    const [response,profilesResponse,healthResponse]=await Promise.all([
+      fetch('/api/auth/session',{credentials:'same-origin'}),
+      fetch('/api/auth/profiles',{credentials:'same-origin'}),
+      fetch('/api/health',{credentials:'same-origin'}).catch(()=>null),
+    ]);
+    const data=await response.json(),profilesData=await profilesResponse.json();
+    const health=healthResponse?await healthResponse.json().catch(()=>null):null;
+    if(storageEl && health){
+      const durable=!!health.durableStorage || health?.database?.backend==='postgres';
+      storageEl.hidden=false;
+      storageEl.className=`status-box ${durable?'success':'error'}`;
+      storageEl.textContent = durable ? t('profileStorageOk') : t('profileStorageWarn');
+    }
     if(!response.ok||!data.authenticated)throw new Error(t('authUnavailable'));
     if(!profilesResponse.ok||!Array.isArray(profilesData.profiles))throw new Error(t('authUnavailable'));
     const profiles=profilesData.profiles;
@@ -7670,7 +8684,7 @@ async function sheetSecurityAccess(){
       profileCard.innerHTML=`<div class="email-panel">
         <div class="email-panel-top">
           <div>
-            <div class="email-panel-kicker">${t('emailProvider')}</div>
+            <div class="email-panel-kicker">${t('profileSectionContact')}</div>
             <h3>${t('contactCardTitle')}</h3>
             <div class="muted" style="font-size:11.5px;margin-top:4px">${profilesData.canManageAll?t('adminsManageEmails'):esc(displayName(selected))}</div>
           </div>
@@ -7739,7 +8753,7 @@ async function sheetSecurityAccess(){
     paintProfile(data.profileId);
     count=Number(data.passkeys)||0;
     const supported=passkeyCapable()&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
-    card.innerHTML=`<div class="row between"><div><b>${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
+    card.innerHTML=`<div class="row between"><div><b>${esc(t('profileSectionBio'))} · ${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
       <p class="muted" style="font-size:11.5px;line-height:1.5">${t('passkeyHint')}</p>
       ${supported?`<button class="btn" id="securityAddPasskey">＋ ${t('passkeySetup')}</button>`:`<div class="status-box error">${t('passkeyUnavailable')}</div>`}
       ${count?`<button class="btn sec" id="securityRemovePasskeys">${t('removePasskeys')}</button>`:''}`;
@@ -8088,10 +9102,7 @@ function renderResetForm(token){
 }
 
 document.documentElement.lang = state.lang;
-document.getElementById('helpFab').onclick = () => {
-  if(state.mode==='child') openZoAi();
-  else openChatPanel('help');
-};
+document.getElementById('helpFab').onclick = () => openZoAi();
 window.addEventListener('keydown', event=>{
   if(event.key==='Escape' && document.body.classList.contains('matrix-fullscreen')){
     event.preventDefault();

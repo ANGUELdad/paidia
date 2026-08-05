@@ -145,6 +145,7 @@ SECURITY_LOG_PATH = Path(os.environ.get("PAIDIA_SECURITY_LOG_PATH", ".paidia-sec
 PASSKEY_STORE_PATH = Path(os.environ.get("PAIDIA_PASSKEY_STORE_PATH", ".paidia-passkeys.json"))
 ONBOARDING_STATE_PATH = Path(os.environ.get("PAIDIA_ONBOARDING_STATE_PATH", ".paidia-onboarding.json"))
 TALK_STATE_PATH = Path(os.environ.get("PAIDIA_TALK_STATE_PATH", ".paidia-talk.json"))
+GALLERY_STATE_PATH = Path(os.environ.get("PAIDIA_GALLERY_STATE_PATH", ".paidia-gallery.json"))
 OPS_STATE_PATH = Path(os.environ.get("PAIDIA_OPS_STATE_PATH", ".paidia-ops.json"))
 AUTH_OVERRIDES_PATH = Path(os.environ.get("PAIDIA_AUTH_OVERRIDES_PATH", ".paidia-auth-overrides.json"))
 
@@ -157,12 +158,17 @@ if os.environ.get("VERCEL") == "1":
     SECURITY_STATE_PATH = _tmp / "security-state.json"
     SECURITY_LOG_PATH = _tmp / "security-events.jsonl"
     TALK_STATE_PATH = _tmp / "talk.json"
+    GALLERY_STATE_PATH = _tmp / "gallery.json"
     OPS_STATE_PATH = _tmp / "ops.json"
     AUTH_OVERRIDES_PATH = _tmp / "auth-overrides.json"
 ONBOARDING_VERSION = 2
 TALK_MESSAGE_LIMIT = 200
 TALK_TOPIC_LIMIT = 120
 TALK_LOCK = threading.Lock()
+GALLERY_POST_LIMIT = 80
+GALLERY_PHOTO_MAX = 140_000  # chars of data-URL (~100KB JPEG)
+GALLERY_CAPTION_MAX = 280
+GALLERY_LOCK = threading.Lock()
 OPS_LOCK = threading.Lock()
 OPS_KEYS = (
     "listEntries",
@@ -171,9 +177,33 @@ OPS_KEYS = (
     "customProducts",
     "customCategories",
     "customReasons",
+    "productOverrides",
     "profilePrefs",
+    "template",
+    "overrides",
+    "weeks",
+    "events",
+    "taskCompletions",
+    "aiImports",
+    "log",
+    "customActivities",
+    "shiftNotes",
 )
-OPS_DICT_KEYS = {"stock", "profilePrefs"}
+OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes"}
+OPS_LIST_CAPS = {
+    "listEntries": 4000,
+    "shoppingTrips": 4000,
+    "log": 2500,
+    "events": 800,
+    "overrides": 4000,
+    "taskCompletions": 4000,
+    "aiImports": 300,
+    "customProducts": 500,
+    "customCategories": 200,
+    "customReasons": 200,
+    "customActivities": 300,
+    "template": 2000,
+}
 def resolve_webauthn_origin() -> str:
     explicit = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", "").strip()
     if explicit:
@@ -830,18 +860,178 @@ def mutate_talk(action: str, body: dict, session: dict) -> tuple[int, dict]:
     return 200, talk_snapshot()
 
 
-def empty_ops_state() -> dict:
+def _normalize_gallery_state(value: object) -> dict:
+    if not isinstance(value, dict):
+        return {"posts": [], "updatedAt": 0}
+    posts = value.get("posts") if isinstance(value.get("posts"), list) else []
+    clean: list[dict] = []
+    for item in posts:
+        if not isinstance(item, dict):
+            continue
+        photo = str(item.get("photo") or "")
+        if not photo.startswith("data:image/"):
+            continue
+        if len(photo) > GALLERY_PHOTO_MAX:
+            continue
+        likes = item.get("likes") if isinstance(item.get("likes"), list) else []
+        try:
+            at = int(item.get("at") or 0)
+        except (TypeError, ValueError):
+            at = 0
+        clean.append({
+            "id": str(item.get("id") or secrets.token_urlsafe(8))[:40],
+            "caption": str(item.get("caption") or "").strip()[:GALLERY_CAPTION_MAX],
+            "photo": photo,
+            "by": str(item.get("by") or "")[:80],
+            "byName": str(item.get("byName") or "")[:80],
+            "byMode": "child" if item.get("byMode") == "child" else "staff",
+            "byColor": str(item.get("byColor") or "#94a3b8")[:20],
+            "at": at,
+            "likes": [str(x)[:80] for x in likes if x][:200],
+        })
+    try:
+        updated_at = int(value.get("updatedAt") or 0)
+    except (TypeError, ValueError):
+        updated_at = 0
+    clean.sort(key=lambda p: p.get("at") or 0)
     return {
+        "posts": clean[-GALLERY_POST_LIMIT:],
+        "updatedAt": updated_at,
+    }
+
+
+def load_gallery_state() -> dict:
+    key = paidia_db.KEY_GALLERY if paidia_db else "gallery"
+    stored = _db_get(key)
+    if isinstance(stored, dict):
+        return _normalize_gallery_state(stored)
+    try:
+        value = json.loads(GALLERY_STATE_PATH.read_text(encoding="utf-8"))
+        normalized = _normalize_gallery_state(value)
+        if normalized["posts"]:
+            _db_set(key, normalized)
+        return normalized
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        pass
+    return {"posts": [], "updatedAt": 0}
+
+
+GALLERY_STATE = load_gallery_state()
+
+
+def persist_gallery_state() -> None:
+    key = paidia_db.KEY_GALLERY if paidia_db else "gallery"
+    db_ok = _db_set(key, GALLERY_STATE)
+    try:
+        GALLERY_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temp_path = GALLERY_STATE_PATH.with_name(GALLERY_STATE_PATH.name + ".tmp")
+        temp_path.write_text(
+            json.dumps(GALLERY_STATE, ensure_ascii=False, separators=(",", ":")),
+            encoding="utf-8",
+        )
+        try:
+            os.chmod(temp_path, 0o600)
+        except OSError:
+            pass
+        os.replace(temp_path, GALLERY_STATE_PATH)
+    except OSError:
+        if os.environ.get("VERCEL") != "1" and not db_ok:
+            raise
+
+
+def gallery_snapshot() -> dict:
+    with GALLERY_LOCK:
+        posts = list(GALLERY_STATE.get("posts") or [])
+        feed = sorted(posts, key=lambda p: p.get("at") or 0, reverse=True)
+        return {
+            "posts": feed,
+            "updatedAt": int(GALLERY_STATE.get("updatedAt") or 0),
+            "limit": GALLERY_POST_LIMIT,
+        }
+
+
+def mutate_gallery(action: str, body: dict, session: dict) -> tuple[int, dict]:
+    """Shared great-moments gallery for staff and children."""
+    profile_id = str(session.get("profile_id") or "")
+    mode = "child" if session.get("mode") == "child" else "staff"
+    if not profile_id:
+        return 401, {"error": "Authentication required", "code": "auth_required"}
+
+    by_name = str(body.get("byName") or profile_id).strip()[:80] or profile_id
+    by_color = str(body.get("byColor") or "#94a3b8").strip()[:20] or "#94a3b8"
+    now_ms = int(time.time() * 1000)
+    is_staff = mode == "staff"
+
+    with GALLERY_LOCK:
+        posts = list(GALLERY_STATE.get("posts") or [])
+
+        if action == "create":
+            caption = str(body.get("caption") or "").strip()[:GALLERY_CAPTION_MAX]
+            photo = str(body.get("photo") or "")
+            if not photo.startswith("data:image/"):
+                return 400, {"error": "Photo required", "code": "input"}
+            if len(photo) > GALLERY_PHOTO_MAX:
+                return 400, {
+                    "error": "Photo too large — compress and retry",
+                    "code": "photo_too_large",
+                    "max": GALLERY_PHOTO_MAX,
+                }
+            posts.append({
+                "id": "gm-" + secrets.token_urlsafe(8),
+                "caption": caption,
+                "photo": photo,
+                "by": profile_id,
+                "byName": by_name,
+                "byMode": mode,
+                "byColor": by_color,
+                "at": now_ms,
+                "likes": [],
+            })
+            posts = posts[-GALLERY_POST_LIMIT:]
+
+        elif action == "like":
+            post_id = str(body.get("id") or "").strip()
+            post = next((p for p in posts if p.get("id") == post_id), None)
+            if not post:
+                return 404, {"error": "Post not found", "code": "not_found"}
+            likes = [str(x) for x in (post.get("likes") or []) if x]
+            if profile_id in likes:
+                likes = [x for x in likes if x != profile_id]
+            else:
+                likes.append(profile_id)
+            post["likes"] = likes[:200]
+
+        elif action == "delete":
+            post_id = str(body.get("id") or "").strip()
+            post = next((p for p in posts if p.get("id") == post_id), None)
+            if not post:
+                return 404, {"error": "Post not found", "code": "not_found"}
+            owner = post.get("by") == profile_id
+            if not owner and not is_staff:
+                return 403, {"error": "Not allowed", "code": "forbidden"}
+            posts = [p for p in posts if p.get("id") != post_id]
+
+        else:
+            return 400, {"error": "Unknown action", "code": "input"}
+
+        GALLERY_STATE["posts"] = posts
+        GALLERY_STATE["updatedAt"] = now_ms
+        try:
+            persist_gallery_state()
+        except OSError:
+            return 507, {"error": "Gallery could not be saved", "code": "storage"}
+
+    return 200, gallery_snapshot()
+
+
+def empty_ops_state() -> dict:
+    state = {
         "revision": 0,
         "updatedAt": 0,
-        "listEntries": [],
-        "shoppingTrips": [],
-        "stock": {},
-        "customProducts": [],
-        "customCategories": [],
-        "customReasons": [],
-        "profilePrefs": {},
     }
+    for key in OPS_KEYS:
+        state[key] = {} if key in OPS_DICT_KEYS else []
+    return state
 
 
 def _normalize_ops_state(value: object) -> dict:
@@ -945,7 +1135,7 @@ def get_ops(since: int = 0) -> dict:
 
 
 def put_ops(body: dict, session: dict) -> tuple[int, dict]:
-    """Replace shared shopping/stock ops data. Staff only. Optimistic concurrency via revision."""
+    """Replace shared operational app state. Staff only. Optimistic concurrency via revision."""
     if session.get("mode") != "staff":
         return 403, {"error": "Staff only", "code": "staff_required"}
     if not isinstance(body, dict):
@@ -980,10 +1170,9 @@ def put_ops(body: dict, session: dict) -> tuple[int, dict]:
                 next_state[key] = raw if isinstance(raw, dict) else {}
             else:
                 rows = raw if isinstance(raw, list) else []
-                if key in {"listEntries", "shoppingTrips"}:
-                    rows = rows[-4000:]
-                elif key.startswith("custom"):
-                    rows = rows[-500:]
+                cap = OPS_LIST_CAPS.get(key)
+                if cap:
+                    rows = rows[-cap:]
                 next_state[key] = rows
 
         OPS_STATE.clear()
@@ -994,6 +1183,101 @@ def put_ops(body: dict, session: dict) -> tuple[int, dict]:
             return 507, {"error": "Ops state could not be saved", "code": "storage"}
 
     return 200, ops_snapshot(True)
+
+
+LEARN_PROMPT = (
+    "You generate kid-friendly Greek–German vocabulary cards for a Duolingo-style learning game "
+    "(ages 6–12, summer camp on Thassos / spa context). "
+    "Return ONLY valid JSON with this shape: "
+    '{"cards":[{"de":"German","el":"Ελληνικά","emoji":"👋","topic":"greetings","hint_de":"short","hint_el":"σύντομο"}]} '
+    "Rules: Modern Greek script in el; correct everyday DE↔EL; one emoji; short hints; "
+    "mix words and short phrases; topics may include greetings, food, beach, animals, colors, "
+    "numbers, family, nature, Thassos, spa; no adult, medical, political, or slang content; "
+    "no transliteration instead of Greek letters."
+)
+
+
+def _parse_learn_cards(text: str, count: int) -> list[dict]:
+    clean = text.strip()
+    if clean.startswith("```"):
+        clean = clean.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+    if not clean.startswith("{"):
+        start, end = clean.find("{"), clean.rfind("}")
+        if start >= 0 and end > start:
+            clean = clean[start:end + 1]
+    value = json.loads(clean)
+    raw = value.get("cards") if isinstance(value, dict) else None
+    if not isinstance(raw, list):
+        raise ValueError("Learn AI returned no cards list")
+    cards: list[dict] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        de = str(item.get("de") or "").strip()
+        el = str(item.get("el") or "").strip()
+        if not de or not el:
+            continue
+        cards.append({
+            "de": de[:80],
+            "el": el[:80],
+            "emoji": (str(item.get("emoji") or "🇬🇷").strip() or "🇬🇷")[:8],
+            "topic": str(item.get("topic") or "misc").strip()[:40],
+            "hint_de": str(item.get("hint_de") or "").strip()[:60],
+            "hint_el": str(item.get("hint_el") or "").strip()[:60],
+            "source": "ai",
+        })
+        if len(cards) >= count:
+            break
+    if len(cards) < max(3, min(count, 4)):
+        raise ValueError("Learn AI returned too few valid cards")
+    return cards
+
+
+def run_learn(body: dict, api_key: str) -> tuple[int, dict]:
+    """Generate random DE↔EL vocab cards for the Learn Greek game."""
+    try:
+        count = int(body.get("count") or 8)
+    except (TypeError, ValueError):
+        count = 8
+    count = max(4, min(12, count))
+    topic = str(body.get("topic") or "random").strip()[:48] or "random"
+    level = str(body.get("level") or "easy").strip()[:24] or "easy"
+    seed = str(body.get("seed") or "").strip()[:32]
+    user = (
+        f"Generate exactly {count} cards. Topic preference: {topic}. "
+        f"Difficulty: {level}. "
+        f"{'Variety seed: ' + seed + '. ' if seed else ''}"
+        "Prefer fresh, varied vocabulary suitable for German-speaking kids learning Greek."
+    )
+    request_body = {
+        "model": CHAT_MODEL,
+        "messages": [
+            {"role": "system", "content": LEARN_PROMPT},
+            {"role": "user", "content": user},
+        ],
+        "temperature": 0.85,
+        "max_completion_tokens": 1400,
+        "response_format": {"type": "json_object"},
+    }
+    try:
+        response = groq_completion(api_key, request_body, timeout=45)
+        cards = _parse_learn_cards(completion_text(response), count)
+        return 200, {
+            "cards": cards,
+            "count": len(cards),
+            "topic": topic,
+            "level": level,
+            "model": response.get("model", CHAT_MODEL),
+            "responseId": response.get("id"),
+        }
+    except urllib.error.HTTPError as exc:
+        return provider_error(exc)
+    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
+        code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+        return (504 if code == "timeout" else 502), {
+            "error": "Learn cards failed",
+            "code": code,
+        }
 
 
 def run_shopping(body: dict, api_key: str) -> tuple[int, dict]:
@@ -2533,13 +2817,17 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             self.json_response(200, talk_snapshot())
             return
-        if parsed.path == "/api/ops":
+        if parsed.path == "/api/gallery":
             session = self.current_auth_session()
             if not session:
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
-            if session.get("mode") != "staff":
-                self.json_response(403, {"error": "Staff only", "code": "staff_required"})
+            self.json_response(200, gallery_snapshot())
+            return
+        if parsed.path == "/api/ops":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
             try:
                 since = int(urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get("since", ["0"])[0])
@@ -2607,13 +2895,13 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(200, {"received": True})
             return
         if path not in {
-            "/api/ai-shopping", "/api/chat", "/api/talk", "/api/ops", "/api/whatsapp/test", "/api/whatsapp/event",
+            "/api/ai-shopping", "/api/chat", "/api/learn", "/api/talk", "/api/gallery", "/api/ops", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/notify/event-email",
             "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
             "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
             "/api/auth/passkey/login/options", "/api/auth/passkey/login/verify", "/api/auth/passkey/remove",
             "/api/auth/onboarding/complete",
-            "/api/auth/profile/email", "/api/auth/profile/email/test",
+            "/api/auth/profile/email", "/api/auth/profile/email/test", "/api/auth/profile/pin",
         }:
             self.json_response(404, {"error": "Not found"})
             return
@@ -2667,6 +2955,9 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/auth/profile/email":
             self.handle_profile_email(body)
             return
+        if path == "/api/auth/profile/pin":
+            self.handle_profile_pin(body)
+            return
         if path == "/api/auth/profile/email/test":
             self.handle_profile_email_test(body)
             return
@@ -2676,6 +2967,14 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
             status, payload = mutate_talk(str(body.get("action") or "").strip(), body, session)
+            self.json_response(status, payload)
+            return
+        if path == "/api/gallery":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = mutate_gallery(str(body.get("action") or "").strip(), body, session)
             self.json_response(status, payload)
             return
         if path == "/api/ops":
@@ -2710,6 +3009,13 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
             self.handle_chat(body, api_key)
+            return
+        if path == "/api/learn":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = run_learn(body, api_key)
+            self.json_response(status, payload)
             return
         if path == "/api/ai-shopping":
             if not self.current_auth_session():
@@ -3109,6 +3415,65 @@ class Handler(SimpleHTTPRequestHandler):
             "emailConfigured": email_delivery_status()["configured"],
             "emailProvider": email_delivery_status()["provider"],
         }, {"Set-Cookie": cookies[0]} if cookies else None)
+
+    def handle_profile_pin(self, body: dict) -> None:
+        """Change PIN while logged in — stored in durable auth DB / overrides."""
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        profile_id = session["profile_id"]
+        user = AUTH_USERS.get(profile_id)
+        if not user:
+            self.json_response(404, {"error": "Profile not found", "code": "profile_not_found"})
+            return
+        current = str(body.get("currentPin", ""))
+        pin = str(body.get("pin", ""))
+        confirm = str(body.get("confirmPin", ""))
+        if not verify_pin(current, str(user.get("pin_hash", ""))):
+            # Constant-time-ish: also poke dummy hash when missing
+            if not user.get("pin_hash"):
+                verify_pin(current, _DUMMY_PIN_HASH)
+            self.json_response(401, {"error": "Current PIN is wrong", "code": "wrong_pin"})
+            return
+        if pin != confirm or not re.fullmatch(r"\d{4,6}", pin):
+            self.json_response(400, {"error": "PINs must match and contain 4 to 6 digits", "code": "invalid_pin"})
+            return
+        if verify_pin(pin, str(user.get("pin_hash", ""))):
+            self.json_response(400, {"error": "New PIN must differ from the current PIN", "code": "same_pin"})
+            return
+        old_hash = user["pin_hash"]
+        user["pin_hash"] = hash_pin(pin)
+        try:
+            persist_auth_users(require_durable=False)
+            set_auth_override(
+                profile_id,
+                pin_hash=user["pin_hash"],
+                email=str(user.get("email") or ""),
+                phone=str(user.get("phone") or ""),
+            )
+            persist_auth_overrides()
+        except RuntimeError:
+            user["pin_hash"] = old_hash
+            self.json_response(507, {"error": "The new PIN could not be saved", "code": "storage"})
+            return
+        # Re-mint session so the new pin_ver keeps the user signed in.
+        token, _session = encode_session_token(profile_id, session.get("mode") or user.get("mode") or "staff", "pin")
+        with AUTH_LOCK:
+            AUTH_SESSIONS[token] = _session
+            # Drop other in-memory sessions for this profile
+            for session_token, other in list(AUTH_SESSIONS.items()):
+                if other.get("profile_id") == profile_id and session_token != token:
+                    AUTH_SESSIONS.pop(session_token, None)
+        cookies = [self.set_session_cookie(token)]
+        try:
+            cookies.append(self.set_auth_override_cookie(encode_auth_override_cookie(AUTH_OVERRIDES)))
+        except RuntimeError:
+            pass
+        append_security_event("pin_changed", profile_id, self.client_ip(), {"method": "profile"})
+        self.json_response(200, {"changed": True, "profileId": profile_id}, {
+            "Set-Cookie": cookies if len(cookies) > 1 else cookies[0],
+        })
 
     def handle_profile_email_test(self, body: dict) -> None:
         user, profile_id = self.editable_profile(body)

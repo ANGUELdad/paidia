@@ -61,6 +61,21 @@
     overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; padding-bottom:1px}
   .topbar-core::-webkit-scrollbar,.topbar-tools::-webkit-scrollbar{display:none}
   .topbar-tools{width:100%; padding-top:1px; border-top:1px solid rgba(148,163,184,.18)}
+  /* Staff: actions live in the page, not the sticky header. */
+  body:not(.mode-child) .topbar-tools{display:none!important}
+  body:not(.mode-child) header{padding:10px 12px; gap:0}
+  .page-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:0 0 12px}
+  .page-act{flex:0 0 auto; border:1px solid var(--line); background:#fff; color:var(--ink);
+    border-radius:12px; padding:10px 14px; font-size:13px; font-weight:720; cursor:pointer;
+    min-height:42px; white-space:nowrap; touch-action:manipulation;
+    box-shadow:0 4px 14px rgba(15,23,42,.04)}
+  .page-act:active{transform:scale(.98)}
+  .page-act.on,.page-act.primary{background:var(--brand); border-color:var(--brand); color:#fff;
+    box-shadow:0 8px 20px rgba(37,99,235,.22)}
+  .page-act.ghost{background:#f8fafc; color:#475569}
+  .shop-bar .page-actions{margin:10px 0 0}
+  .planner-filters .page-actions{margin:10px 0 0; width:100%}
+  .book-toolbar{margin:0 0 12px}
   .topbtn{flex:0 0 auto; border:1px solid #334155; background:#1e293b; color:#e2e8f0;
     border-radius:10px; padding:8px 11px; font-size:12px; font-weight:700; cursor:pointer;
     min-height:40px; white-space:nowrap; line-height:1.1; touch-action:manipulation}
@@ -114,6 +129,7 @@
   body.chat-open .chat-panel{display:flex}
   .chat-panel-head{display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--line);
     background:#f8fafc; flex:0 0 auto}
+  .chat-panel-title{flex:1;font-weight:780;font-size:14px;color:#0f172a;letter-spacing:-.01em}
   .chat-panel-head .seg{margin:0; flex:1}
   .chat-panel-close{width:36px; height:36px; border-radius:10px; border:1px solid var(--line);
     background:#fff; font-size:18px; font-weight:700; cursor:pointer; flex:0 0 auto}
@@ -217,8 +233,8 @@
   .stock-drops-dock .stock-board-save:disabled{opacity:.55;cursor:not-allowed}
   #sbReasonWrap.flash-need{outline:2px solid #dc2626;outline-offset:4px;border-radius:12px;background:#fef2f2}
   .stock-toolbar{display:grid;gap:8px;margin:0 0 10px}
-  .stock-toolbar-actions{display:flex;gap:6px;flex-wrap:wrap}
-  .stock-toolbar-actions .btn{width:auto;margin:0;flex:1;min-width:96px}
+  .stock-toolbar-actions{display:flex;gap:8px;flex-wrap:wrap;width:100%;margin-top:8px}
+  .stock-toolbar-actions .page-act{flex:1;min-width:120px;justify-content:center;display:inline-flex;align-items:center}
   .store-choice{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center;padding:5px 8px;
     border-bottom:1px solid #f1f5f9;min-height:40px}
   .store-choice-name{font-size:13.5px;font-weight:750;line-height:1.2}
@@ -241,7 +257,11 @@
     font-size:17px; font-weight:700; cursor:pointer; flex:0 0 auto; line-height:1}
   .dirbtn.in{background:#ecfdf5; border-color:#6ee7b7; color:var(--in)}
   .dirbtn.out{background:#fef2f2; border-color:#fca5a5; color:var(--out)}
-  .ghost{position:fixed; z-index:90; pointer-events:none; opacity:.9; transform:translate(-50%,-50%) scale(1.05);
+  /* Drag-and-drop cursor ghost. Named `.drag-ghost`, NOT `.ghost`: the plain
+     name collided with the `.btn.ghost` button style, which made those buttons
+     position:fixed + pointer-events:none (off-screen, unclickable) and let
+     clearGhosts() delete them from the DOM. */
+  .drag-ghost{position:fixed; z-index:90; pointer-events:none; opacity:.9; transform:translate(-50%,-50%) scale(1.05);
     background:#0f172a; color:#fff; padding:8px 12px; border-radius:11px; font-size:13px; font-weight:600}
   .basket-row{display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:8px;
     padding:11px 0; border-bottom:1px solid var(--line)}
@@ -485,6 +505,58 @@
     color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);touch-action:manipulation;
     box-shadow:0 10px 24px rgba(15,23,42,.14)}
   .color-btn:active{transform:scale(.97)}
+  .game-card.featured{box-shadow:0 12px 32px color-mix(in srgb, var(--game-tint) 28%, transparent)}
+  .games-grid.featured{margin-bottom:2px}
+  .learn-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+  .learn-toolbar .chip.on{background:#0f766e;color:#fff;border-color:#0f766e}
+  .learn-toolbar .chip.ai{background:linear-gradient(135deg,#0f766e,#0369a1);color:#fff;border:0}
+  .learn-toolbar .chip.ai:disabled{opacity:.65}
+  .learn-progress{height:8px;border-radius:999px;background:#e2e8f0;overflow:hidden;margin:0 0 12px}
+  .learn-progress>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#14b8a6,#0ea5e9);transition:width .35s ease}
+  .learn-prompt{text-align:center;padding:22px 16px;border-radius:22px;margin-bottom:12px;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255,255,255,.35), transparent 40%),
+      linear-gradient(145deg,#0f766e,#0e7490 55%,#155e75);
+    color:#fff;box-shadow:0 14px 34px rgba(15,118,110,.22)}
+  .learn-prompt .learn-emoji{display:block;font-size:36px;margin-bottom:6px}
+  .learn-prompt b{display:block;font-size:clamp(24px,6vw,34px);letter-spacing:-.02em;line-height:1.15}
+  .learn-prompt small{display:block;margin-top:8px;opacity:.85;font-size:12px;font-weight:650}
+  .learn-prompt.quiz-q{background:linear-gradient(145deg,#1e3a8a,#1d4ed8 55%,#0369a1)}
+  .learn-prompt.math-q{background:linear-gradient(145deg,#9a3412,#c2410c 55%,#ea580c)}
+  .learn-choices{display:grid;gap:10px}
+  .learn-choices.math{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .learn-choice{width:100%;min-height:56px;padding:14px 16px;border:0;border-radius:16px;cursor:pointer;
+    text-align:left;font-size:17px;font-weight:740;color:#0f172a;touch-action:manipulation;
+    background:linear-gradient(180deg,#fff,#f8fafc);box-shadow:0 8px 22px rgba(15,23,42,.08);
+    transition:transform .12s ease, background .15s ease, box-shadow .15s ease}
+  .learn-choice:active:not(:disabled){transform:scale(.98)}
+  .learn-choice.is-right{background:linear-gradient(180deg,#d1fae5,#a7f3d0);box-shadow:0 0 0 2px #34d399 inset}
+  .learn-choice.is-wrong{background:linear-gradient(180deg,#ffe4e6,#fecdd3);box-shadow:0 0 0 2px #fb7185 inset}
+
+  .gal-hero{padding:18px 16px;border-radius:22px;margin-bottom:12px;color:#fff;
+    background:
+      radial-gradient(circle at 88% 18%, rgba(255,255,255,.22), transparent 34%),
+      linear-gradient(145deg,#7c2d12 0%,#c2410c 42%,#ea580c 100%);
+    box-shadow:0 16px 36px rgba(194,65,12,.22)}
+  .gal-hero .brand-kicker{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#fed7aa}
+  .gal-hero h2{margin:4px 0 6px;font-size:26px;letter-spacing:-.03em}
+  .gal-hero p{margin:0;color:#ffedd5;font-size:13.5px;max-width:36ch;line-height:1.45}
+  .gal-feed{display:grid;gap:14px}
+  .gal-post{overflow:hidden;border-radius:20px;background:#fff;box-shadow:0 12px 30px rgba(15,23,42,.08)}
+  .gal-head{display:flex;align-items:center;gap:10px;padding:12px 14px 8px}
+  .gal-ava{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;flex:0 0 auto}
+  .gal-meta{font-size:11.5px;margin-top:1px}
+  .gal-photo{aspect-ratio:4/5;max-height:min(62vh,520px);background:#0f172a;overflow:hidden}
+  .gal-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .gal-caption{margin:0;padding:10px 14px 4px;font-size:14.5px;line-height:1.4;color:#0f172a}
+  .gal-foot{padding:8px 10px 12px;display:flex;align-items:center;gap:8px}
+  .gal-like{border:0;background:#f8fafc;border-radius:999px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:13px}
+  .gal-like.on{background:#fff1f2;color:#be123c}
+  .gal-del{border:0}
+  .gal-compose .gal-preview{aspect-ratio:4/5;max-height:280px;border-radius:18px;overflow:hidden;
+    background:linear-gradient(160deg,#fff7ed,#ffedd5);display:grid;place-items:center;margin-top:8px}
+  .gal-compose .gal-preview.empty{color:#c2410c;font-size:42px}
+  .gal-compose .gal-preview img{width:100%;height:100%;object-fit:cover}
   @media (max-width:420px){
     .child-tabs button{font-size:11px;padding:7px 6px}
     .memory-grid{gap:8px}.memory-face{font-size:24px}
@@ -836,6 +908,9 @@
   .stock-detail-head{display:flex;align-items:center;gap:13px;padding:16px;border:1px solid #ccfbf1;border-radius:17px;background:linear-gradient(135deg,#ecfdf5,#ecfeff)}
   .stock-detail-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:#fff;font-size:25px;box-shadow:0 8px 18px rgba(15,118,110,.1)}
   .stock-detail-houses{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}.stock-detail-house{padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.stock-detail-house b{display:block;margin-top:3px;font-size:18px}
+  .product-qty-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 4px}
+  .product-qty-field{margin:0}.product-qty-field input{font-variant-numeric:tabular-nums;font-weight:700}
+  @media(max-width:420px){.product-qty-grid{grid-template-columns:1fr}}
   .stock-notice{display:flex;align-items:center;gap:10px;margin:10px 0;padding:11px 12px;border:1px solid #fecaca;border-radius:13px;background:#fff7f7;color:#991b1b}
   .stock-notice .btn{width:auto;margin-left:auto}.stock-moves{margin-top:10px}.stock-moves summary{cursor:pointer;font-weight:760}
   /* --nav-total / --dock-h are set by measureChrome(); body flags only position the FAB */
@@ -969,7 +1044,7 @@
     .import-source-grid{grid-template-columns:1fr}.merge-choice{grid-template-columns:1fr}.import-context{grid-template-columns:1fr 1fr}.import-review-row{grid-template-columns:minmax(0,1fr) 58px 50px 32px}
     .import-preview-card{grid-template-columns:88px minmax(0,1fr)}.import-preview-card img{width:88px;height:72px}
     .stock-product-grid{grid-template-columns:1fr}.stock-toolbar{top:calc(var(--header-h) + 46px)}.stock-strip{align-items:stretch}.stock-strip-stats{width:100%}.stock-chip{flex:1;justify-content:center;min-width:0;padding:0 6px;font-size:10px}.stock-actions{gap:7px}
-    .inventory-scope{top:var(--header-h)}.shop-item{grid-template-columns:1fr}.cart-controls{justify-content:flex-end}
+    .inventory-scope{top:var(--header-h)}.cart-controls{justify-content:flex-end}
     .store-choice{grid-template-columns:minmax(0,1fr) auto}.store-choice-actions{display:flex}
     .store-decision{width:42px;min-width:42px}.store-finish .row{display:grid;grid-template-columns:auto minmax(0,1fr)}
     .store-finish.bottom-dock .row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px}
@@ -1142,6 +1217,289 @@
   .passkey-btn{min-height:48px;font-size:14px}.passkey-btn .pk-sub{display:block;font-size:10.5px;font-weight:600;opacity:.78;margin-top:2px}
   .gate-pin .btn.logging{opacity:.7;pointer-events:none}
   .pindots i.busy{opacity:.7}
+
+  /* ══════════════════════════════════════════════════════════════════
+     LISTE + LAGER OVERHAUL
+     Loaded last so it wins over the earlier mobile media queries.
+
+     Problems this replaces:
+       · shop rows stacked to one column under 640px — 102px per row, with
+         the controls marooned on their own line above a dead left half
+       · Lager: 62 products x 66px = 4970px of scroll (≈13 phone screens)
+       · every row repeated its state as both a full background tint and a
+         text label ("Gut versorgt"), so the exceptions did not stand out
+     Approach: one line per item, a left accent bar carrying state, and
+     status text only where action is needed. Touch targets stay >=44px.
+     ══════════════════════════════════════════════════════════════════ */
+
+  /* Screen-reader-only: keeps state announced when it is not drawn. */
+  .u-sr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;
+    overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+  /* ── shared row shell ─────────────────────────────────────────── */
+  .shop-item,.stock-product{
+    position:relative;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:8px;
+    min-height:52px;
+    padding:6px 9px 6px 13px;
+    border:1px solid #e6ecf3;
+    border-radius:12px;
+    background:#fff;
+  }
+  /* State reads from a 3px rail, not a wash of colour, so a shelf of
+     healthy stock stays calm and the gaps jump out. */
+  .shop-item::before,.stock-product::before{
+    content:'';position:absolute;left:0;top:9px;bottom:9px;width:3px;
+    border-radius:0 3px 3px 0;background:transparent;
+  }
+  .stock-product.low{background:#fffcf6;border-color:#fde9c8}
+  .stock-product.low::before{background:#f59e0b}
+  .stock-product.empty{background:#fff7f7;border-color:#f9d3d3}
+  .stock-product.empty::before{background:#ef4444}
+  .stock-product.drafting{background:#f5f9ff;border-color:#bfd8fb}
+  .stock-product.drafting::before{background:#3b82f6}
+
+  .shop-item-name,.stock-product-name{
+    font-weight:680;font-size:14px;line-height:1.3;letter-spacing:-.01em;
+    color:#0f172a;
+    display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    -webkit-line-clamp:none;
+  }
+  .shop-item-sub,.stock-product-meta{
+    margin-top:1px;color:#64748b;font-size:10.5px;font-weight:600;line-height:1.25;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  /* "Healthy" needs no label — only exceptions earn ink. */
+  .stock-product:not(.low):not(.empty):not(.drafting) .stock-product-meta{
+    position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;
+    overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;
+  }
+  .stock-product.low .stock-product-meta{color:#b45309;font-weight:750}
+  .stock-product.empty .stock-product-meta{color:#dc2626;font-weight:750}
+
+  /* ── Lager stepper ────────────────────────────────────────────── */
+  .stock-product-main{
+    display:block;min-width:0;padding:0;border:0;background:none;
+    text-align:left;font:inherit;color:inherit;cursor:pointer;
+  }
+  .stock-stepper{display:inline-flex;align-items:center;gap:3px;flex:0 0 auto}
+  .stock-step{
+    width:44px;height:44px;min-width:44px;border-radius:12px;
+    font-size:19px;font-weight:800;line-height:1;
+  }
+  .stock-qty{
+    min-width:44px;padding:0 2px;text-align:center;
+    font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.05;
+  }
+  .stock-qty small{display:block;margin-top:1px;font-size:9.5px;font-weight:700;
+    color:#94a3b8;letter-spacing:.02em}
+
+  /* ── Liste row controls ───────────────────────────────────────── */
+  .cart-controls{display:flex;align-items:center;gap:3px;flex-wrap:nowrap;justify-content:flex-end}
+  .cart-step{width:44px;min-width:44px;height:44px;padding:0;border-radius:12px;
+    font-size:19px;font-weight:800;line-height:1}
+  .cart-qty-input{width:46px;height:44px;padding:0 2px;border-radius:11px;
+    font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+  .shop-item .mini-x{width:34px;min-width:34px;height:34px;border-radius:10px;
+    color:#94a3b8;background:#fff}
+  .shop-item .mini-x:active{background:#fee2e2;color:#dc2626;border-color:#fca5a5}
+
+  .shop-items{display:grid;gap:5px;padding:9px 11px}
+  .stock-product-grid{display:grid;grid-template-columns:1fr;gap:5px;padding:0 8px 9px}
+
+  /* ── creation flows ───────────────────────────────────────────── */
+  /* The quick-add input was clipping its own placeholder because the
+     button claimed intrinsic width. Give the field the room instead. */
+  .cart-quick{grid-template-columns:minmax(0,1fr) auto;gap:7px;padding:10px 11px}
+  .cart-quick input{height:44px;min-width:0;border-radius:11px;font-size:14px}
+  .cart-quick .btn{height:44px;min-width:52px;padding:0 14px;border-radius:11px;
+    font-size:14px;font-weight:750;white-space:nowrap}
+
+  .shop-list-head{padding:12px 13px 10px;gap:8px}
+  .shop-list-head h2{font-size:15.5px;letter-spacing:-.01em}
+  /* .btn.ghost never sets position/pointer-events, so it used to inherit
+     them from the drag ghost — see the .drag-ghost note above. */
+  .shop-list-head .btn.ghost{flex:0 0 auto;width:auto;padding:8px 6px;font-size:12.5px;
+    font-weight:750;white-space:nowrap}
+  /* nowrap: the long German date ("Freitag, 07. August 2026") was wrapping the
+     receipt button onto its own line, orphaning it under the picker. */
+  .shop-bar-top{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+  .shop-bar-top .friday-picker{flex:1 1 auto;min-width:0}
+  .shop-bar-top .friday-picker .friday-date{min-width:0}
+  .shop-bar-top .friday-picker .friday-date b{display:block;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap}
+  .shop-bar-top .btn.ghost{flex:0 0 auto;width:auto;min-width:44px;height:44px;
+    padding:0 10px;font-size:17px;display:grid;place-items:center}
+
+  /* ── category headers ─────────────────────────────────────────── */
+  .stock-category{border-radius:13px;overflow:hidden}
+  .stock-category summary{padding:9px 11px;font-size:13px;font-weight:750}
+  .stock-cat-count{padding:1px 7px;border-radius:999px;background:#eef2f7;
+    color:#64748b;font-size:10px;font-weight:750;font-variant-numeric:tabular-nums}
+
+  .stock-notice{gap:9px;padding:10px 11px;border-radius:12px}
+  .stock-notice b{font-size:12.5px;line-height:1.3}
+  .stock-notice .btn{flex:0 0 auto;width:auto;min-height:38px;padding:0 12px;
+    font-size:12px;white-space:nowrap}
+
+  @media(max-width:360px){
+    .stock-qty,.cart-qty-input{min-width:40px;width:40px}
+    .stock-step,.cart-step{width:40px;min-width:40px}
+    .shop-item-name,.stock-product-name{font-size:13.5px}
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     FLOATING ZO-AI
+     Was the 6th slot in the bottom nav with a drawer docked above it.
+     Now a launcher bubble + floating panel, present on every page.
+     ══════════════════════════════════════════════════════════════════ */
+  .zoai-fab{
+    position:fixed; z-index:60;
+    right:var(--side-gutter);
+    bottom:calc(var(--nav-total) + var(--dock-h) + 14px + var(--safe-b));
+    width:56px; height:56px; padding:0;
+    display:grid; place-items:center;
+    border:0; border-radius:50%;
+    background:linear-gradient(145deg,#5eead4,#38bdf8);
+    color:#073344;
+    box-shadow:0 10px 26px rgba(8,47,73,.34), 0 2px 6px rgba(8,47,73,.2);
+    cursor:pointer;
+    transition:transform .16s ease, box-shadow .16s ease;
+  }
+  .zoai-fab .zoai-fab-icon{font-size:24px;line-height:1}
+  .zoai-fab:active{transform:scale(.93)}
+  .zoai-fab:focus-visible{outline:3px solid #38bdf8;outline-offset:3px}
+  /* Open state: turn the bubble into the panel's dismiss affordance. */
+  body.chat-open .zoai-fab{
+    background:#0f172a;color:#fff;
+    box-shadow:0 6px 18px rgba(8,47,73,.3);
+  }
+  body.chat-open .zoai-fab .zoai-fab-icon{font-size:22px}
+  body.chat-open .zoai-fab .zoai-fab-icon::before{content:'×'}
+  body.chat-open .zoai-fab .zoai-fab-icon{font-size:0}
+  body.chat-open .zoai-fab .zoai-fab-icon::before{font-size:26px;font-weight:300;line-height:1}
+
+  .chat-panel.chat-float{
+    position:fixed; z-index:59;
+    right:var(--side-gutter);
+    bottom:calc(var(--nav-total) + var(--dock-h) + 80px + var(--safe-b));
+    width:min(380px, calc(100vw - (var(--side-gutter) * 2)));
+    max-height:min(62dvh,520px);
+    border:1px solid #e2e8f0;
+    border-radius:18px;
+    box-shadow:0 24px 60px rgba(8,47,73,.28), 0 4px 14px rgba(8,47,73,.14);
+    overflow:hidden;
+    transform-origin:bottom right;
+  }
+  body.chat-open .chat-panel.chat-float{
+    display:flex;
+    animation:zoaiIn .18s cubic-bezier(.2,.8,.3,1);
+  }
+  @keyframes zoaiIn{
+    from{opacity:0;transform:translateY(10px) scale(.97)}
+    to{opacity:1;transform:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    body.chat-open .chat-panel.chat-float{animation:none}
+    .zoai-fab{transition:none}
+  }
+  .chat-panel.chat-float .chat-panel-head{padding:10px 12px;background:#f8fafc}
+  .chat-panel.chat-float .chat-panel-body{flex:1;min-height:0;overflow-y:auto}
+
+  /* The help "?" is hidden on phones already; on wider screens stack it
+     above the Zo-Ai bubble so the two never overlap. */
+  @media(min-width:721px){
+    .help-fab{bottom:calc(var(--nav-total) + var(--dock-h) + 82px + var(--safe-b))}
+    body.has-stock-draft .help-fab{bottom:calc(var(--nav-total) + var(--dock-h) + var(--chat-h) + 88px)}
+  }
+  body.has-stock-dock .zoai-fab,body.has-store-dock .zoai-fab{
+    bottom:calc(var(--nav-total) + var(--dock-h) + 14px + var(--safe-b));
+  }
+  body.matrix-fullscreen .zoai-fab,body.matrix-fullscreen .chat-panel.chat-float,
+  body.store-fullscreen .zoai-fab,body.store-fullscreen .chat-panel.chat-float{display:none!important}
+  body.mode-child .zoai-fab{bottom:calc(16px + var(--safe-b))}
+  body.mode-child .chat-panel.chat-float{bottom:calc(82px + var(--safe-b))}
+
+  @media(max-width:420px){
+    .zoai-fab{width:52px;height:52px}
+    .zoai-fab .zoai-fab-icon{font-size:22px}
+    .chat-panel.chat-float{bottom:calc(var(--nav-total) + var(--dock-h) + 74px + var(--safe-b))}
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     CREATION SHEETS  (Liste einlesen · Bestandsbewegung · Produkt)
+     The import sheet spent 381px — nearly half a phone screen — on a
+     kicker, a headline, a paragraph and a 2-column context grid that
+     orphaned its third chip. Controls now start near the top.
+     ══════════════════════════════════════════════════════════════════ */
+
+  /* Context stats: one compact row, no orphan cell. */
+  .import-context{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+  }
+  .import-context > *{
+    min-width:0;padding:7px 9px;border-radius:11px;
+    background:#f6f9fc;border:1px solid #e8eef4;
+  }
+  /* No positional child selectors here: a chip is a bare label text node plus
+     one value element, so that element matches BOTH :first-child and
+     :last-child and inherited the label's text-transform (values rendered as
+     "KALYVIA"). Style the box and the value element only. */
+  .import-context > *{
+    font-size:9.5px;font-weight:700;color:#8296ab;line-height:1.3;
+  }
+  .import-context > * b,
+  .import-context > * strong,
+  .import-context > * span{
+    display:block;margin-top:2px;
+    font-size:12.5px;font-weight:750;color:#0f172a;line-height:1.25;
+    text-transform:none;letter-spacing:normal;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+
+  .import-hero{padding:12px 13px;border-radius:15px}
+  .import-kicker{font-size:9.5px;letter-spacing:.13em}
+  .import-hero h2,.sheet h2{margin:3px 0 0;font-size:19px;letter-spacing:-.02em;line-height:1.2}
+  /* The explainer is useful once, not on every open — keep it, shrink it. */
+  .import-hero > p,.import-hero .muted{margin:5px 0 10px;font-size:11.5px;line-height:1.4}
+
+  .import-source{padding:12px 13px;border-radius:15px}
+  .import-source h3,.import-source > *:first-child{font-size:14px;letter-spacing:-.01em}
+  .import-source textarea{min-height:96px;font-size:14px;line-height:1.45;border-radius:12px}
+  /* German labels ("Screenshot / Foto wählen") clipped mid-word in a 2-up
+     grid on phones. Stack them; side by side only when there is room. */
+  .import-action-row{display:grid;grid-template-columns:1fr;gap:7px}
+  .import-action-row .btn{margin:0;width:auto;min-height:46px;
+    white-space:normal;line-height:1.25;padding:8px 12px}
+  @media(min-width:480px){
+    .import-action-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+
+  .screenshot-drop{padding:16px 12px;border-radius:13px}
+  .screenshot-drop .big{font-size:26px;line-height:1}
+  .screenshot-drop b,.screenshot-drop strong{font-size:13px}
+
+  /* Sheet chrome: keep the close affordance reachable while scrolling. */
+  .sheet{border-radius:20px 20px 0 0}
+  .sheet .grabber{margin:8px auto 4px}
+  .sheet-close{position:sticky;top:6px;z-index:5;float:right;
+    width:40px;height:40px;border-radius:50%}
+
+  /* Stock movement / product creation rows share the list rhythm. */
+  .stock-board-row,.product-qty-grid > *,.merge-choice > *{border-radius:12px}
+  .merge-choice{display:grid;gap:7px}
+  .merge-choice > *{padding:11px 12px}
+  .status-box{border-radius:12px;padding:10px 12px;font-size:12.5px;line-height:1.4}
+
+  @media(max-width:380px){
+    .import-context{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .import-context > *:last-child{grid-column:1 / -1}
+  }
 </style>
 </head>
 <body class="auth-pending">
@@ -1162,24 +1520,13 @@
   </header>
   <main id="view"></main>
   <div class="bottom-panel" id="bottomPanel">
-    <div class="chat-panel" id="chatPanel" aria-label="Chat">
-      <div class="chat-panel-head">
-        <div class="seg" id="chatModeSeg">
-          <button type="button" data-cm="ai" class="on">✨ Zo-Ai</button>
-          <button type="button" data-cm="talk">💬 Team</button>
-          <button type="button" data-cm="help">?</button>
-        </div>
-        <button class="chat-panel-close" id="chatClose" type="button" aria-label="Close">×</button>
-      </div>
-      <div class="chat-panel-body" id="chatBody"></div>
-    </div>
     <nav>
       <button type="button" data-tab="home"><span class="i" aria-hidden="true">🏠</span><span data-nav="home"></span></button>
+      <button type="button" data-tab="gallery"><span class="i" aria-hidden="true">📸</span><span data-nav="gallery"></span></button>
       <button type="button" data-tab="schedule" class="on"><span class="i" aria-hidden="true">📅</span><span data-nav="schedule"></span></button>
       <button type="button" data-tab="stock"><span class="i" aria-hidden="true">📦</span><span data-nav="stock"></span></button>
       <button type="button" data-tab="shop"><span class="i" aria-hidden="true">🛒</span><span data-nav="shop"></span></button>
       <button type="button" data-tab="book"><span class="i" aria-hidden="true">📖</span><span data-nav="book"></span></button>
-      <button type="button" id="navChat" data-chat="1"><span class="i" aria-hidden="true">💬</span><span data-nav-chat>Chat</span></button>
     </nav>
   </div>
 </div>
@@ -1196,6 +1543,27 @@
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <button class="help-fab" id="helpFab" type="button">?</button>
 
+<!-- Zo-Ai floats on every page instead of occupying a nav slot. The panel and
+     its launcher live outside .bottom-panel so they overlay content rather
+     than displacing it. The launcher keeps id="navChat" so every existing
+     handler, the .on state toggle and the label lookup keep working. -->
+<div class="chat-panel chat-float" id="chatPanel" aria-label="Zo-Ai" role="dialog" aria-modal="false">
+  <div class="chat-panel-head">
+    <div class="chat-panel-title" id="chatPanelTitle">✨ Zo-Ai</div>
+    <div class="seg" id="chatModeSeg" hidden>
+      <button type="button" data-cm="ai" class="on">✨ Zo-Ai</button>
+      <button type="button" data-cm="talk">💬 Team</button>
+      <button type="button" data-cm="help">?</button>
+    </div>
+    <button class="chat-panel-close" id="chatClose" type="button" aria-label="Close">×</button>
+  </div>
+  <div class="chat-panel-body" id="chatBody"></div>
+</div>
+<button class="zoai-fab" id="navChat" data-chat="1" type="button">
+  <span class="zoai-fab-icon" aria-hidden="true">✨</span>
+  <span class="u-sr" data-nav-chat>Zo-Ai</span>
+</button>
+
 <script>
 /* Kill stale PWA shells that kept showing the old broken login */
 (function(){
@@ -1211,6 +1579,6 @@
   } catch (e) {}
 })();
 </script>
-<script src="gate.js?v=50"></script>
+<script src="gate.js?v=56"></script>
 </body>
 </html>

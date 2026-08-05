@@ -402,6 +402,8 @@ def entry(flask_path: str = ""):
         "/api/auth/profile/email": ("handle_profile_email", True),
         "/auth/profile/email/test": ("handle_profile_email_test", True),
         "/api/auth/profile/email/test": ("handle_profile_email_test", True),
+        "/auth/profile/pin": ("handle_profile_pin", True),
+        "/api/auth/profile/pin": ("handle_profile_pin", True),
         "/auth/passkey/register/options": ("handle_passkey_register_options", True),
         "/api/auth/passkey/register/options": ("handle_passkey_register_options", True),
         "/auth/passkey/register/verify": ("handle_passkey_register_verify", True),
@@ -443,12 +445,24 @@ def entry(flask_path: str = ""):
         status, payload = paidia.mutate_talk(str(body.get("action") or "").strip(), body, session)
         return _json(status, payload)
 
+    if request.method == "GET" and api in {"/gallery", "/api/gallery"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        return _json(200, paidia.gallery_snapshot())
+
+    if request.method == "POST" and api in {"/gallery", "/api/gallery"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        body = _body()
+        status, payload = paidia.mutate_gallery(str(body.get("action") or "").strip(), body, session)
+        return _json(status, payload)
+
     if request.method == "GET" and api in {"/ops", "/api/ops"}:
         session = _session_from_request()
         if not session:
             return _json(401, {"error": "Authentication required", "code": "auth_required"})
-        if session.get("mode") != "staff":
-            return _json(403, {"error": "Staff only", "code": "staff_required"})
         try:
             since = int(request.args.get("since") or 0)
         except (TypeError, ValueError):
@@ -490,6 +504,20 @@ def entry(flask_path: str = ""):
         body = _body()
         client_ip = (request.headers.get("X-Forwarded-For") or request.remote_addr or "").split(",")[0].strip()
         status, payload = paidia.run_chat(body, api_key, session=session, client_ip=client_ip)
+        return _json(status, payload)
+
+    if request.method == "POST" and api in {"/learn", "/api/learn"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        api_key = os.environ.get("GROQ_API_KEY", "").strip()
+        if not api_key:
+            return _json(503, {
+                "error": "Groq is not configured",
+                "code": "configuration",
+                "setup": "Set GROQ_API_KEY in Vercel env",
+            })
+        status, payload = paidia.run_learn(_body(), api_key)
         return _json(status, payload)
 
     if request.method in {"GET", "HEAD"}:
