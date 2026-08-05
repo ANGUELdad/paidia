@@ -2096,11 +2096,11 @@ function viewStock(){
   });
   const catIcon={fridge:'🧀',produce:'🥬',dry:'🥫',drinks:'🥤',household:'🧻',custom:'📦'};
   const productCard=p=>{
-    const st=productState(p),lp=hid==='all'?null:lastPurchaseOf(hid,p.id);
-    const quantities=houses.map(h=>`<div class="stock-qty">${hid==='all'?`<span class="stock-state">${esc(h.short)}</span>`:''}${DB.stock[stockKey(h.id,p.id)]??0} ${esc(p.unit)}</div>`).join('');
-    return `<button class="stock-product ${st} ${hid==='all'?'multi-house':''}" data-stock-product="${p.id}" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div><div class="stock-product-name">${esc(L(p))}</div>
-      <div class="stock-product-meta">${lp?`${t('lastPurchase')}: ${fmtDT(lp.decidedAt)} · ${esc(emp(lp.decidedBy)?.name||'—')}`:t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div></div>
-      <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div><span class="stock-open">›</span></div></button>`;
+    const st=productState(p);
+    const quantities=houses.map(h=>`<div class="stock-qty">${hid==='all'?`<span class="stock-state">${esc(h.short)}</span>`:''}${DB.stock[stockKey(h.id,p.id)]??0}<small>${esc(p.unit)}</small></div>`).join('');
+    return `<button class="stock-product ${st} ${hid==='all'?'multi-house':''}" data-stock-product="${p.id}" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div class="stock-product-main"><div class="stock-product-name">${esc(L(p))}</div>
+      <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div></div>
+      <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div></button>`;
   };
   const categoryHtml=DB.categories.map(c=>{
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
@@ -2111,20 +2111,17 @@ function viewStock(){
   const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
   const moves=hid==='all'?[]:DB.log.filter(l=>(l.type==='IN'||l.type==='OUT'||l.type==='SHOP')&&l.houseId===hid).slice(-5).reverse();
   const location=hid==='all'?t('bothHouses'):house(hid).short;
+  const attention=counts.empty+counts.low;
 
-  return seg+`<section class="stock-hero"><div class="import-kicker" style="color:#99f6e4">${t('stockTitle')} · ${esc(location)}</div>
-      <h2>${t('inventoryDashboard')}</h2><p>${t('inventoryHint')}</p><div class="stock-stats">
-        <div class="stock-stat"><b>${counts.empty}</b><span>${t('stockOutState')}</span></div>
-        <div class="stock-stat"><b>${counts.low}</b><span>${t('stockLow')}</span></div>
-        <div class="stock-stat"><b>${counts.ok}</b><span>${t('stockHealthy')}</span></div></div>
-      <div class="inventory-health"><div class="inventory-health-top"><span>${t('inventoryHealth')}</span><b>${T[state.lang].inventoryHealthyPct(healthyPct)}</b></div>
-        <div class="inventory-health-bar"><i style="width:${healthyPct}%"></i></div></div></section>
-    ${hid!=='all'?`<div class="stock-actions"><button class="btn in" id="btnIn">${t('stockIn')}</button><button class="btn out" id="btnOut">${t('stockOut')}</button></div>`:''}
+  return seg+`<section class="stock-strip" aria-label="${t('inventoryDashboard')}">
+      <div class="stock-strip-main"><b>${esc(location)}</b><span>${attention?T[state.lang].inventoryHealthyPct(healthyPct):t('stockHealthy')}</span></div>
+      <div class="stock-strip-stats">
+        <button type="button" class="stock-chip empty ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b>${t('stockEmpty')}</button>
+        <button type="button" class="stock-chip low ${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b>${t('stockAttention')}</button>
+        <button type="button" class="stock-chip ok ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b>${t('stockAll')}</button>
+      </div></section>
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
-    <div class="stock-toolbar"><label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
-      <div class="stock-filters"><button class="stock-filter ${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention">⚠ ${t('stockAttention')} · ${counts.empty+counts.low}</button>
-        <button class="stock-filter ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty">○ ${t('stockEmpty')} · ${counts.empty}</button>
-        <button class="stock-filter ${state.stockFilter==='all'?'on':''}" data-stock-filter="all">${t('stockAll')} · ${allProducts.length}</button></div></div>
+    <div class="stock-toolbar"><label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label></div>
     <div class="stock-categories">${categoryHtml||`<div class="card empty">${t('noStockResults')}</div>`}</div>
     ${moves.length?`<details class="card stock-moves"><summary>${t('lastMoves')} · ${moves.length}</summary><div style="margin-top:9px">${moves.map(l=>`<div class="kv"><div class="grow truncate">${esc(l.text)}</div><div class="muted" style="flex:0 0 auto;margin-left:8px">${fmtDT(l.ts)}</div></div>`).join('')}</div></details>`:''}
     ${hid!=='all'?`<div class="stock-footer-actions" aria-label="${t('stockBoard')}"><button class="btn in" data-stock-action="IN">${t('stockIn')}</button><button class="btn out" data-stock-action="OUT">${t('stockOut')}</button></div>`:''}`;
@@ -2597,33 +2594,23 @@ function viewShop(){
   const fridayList=fridayEntries(hid,friday);
   const of = st => fridayList.filter(e=>e.status===st);
   const open = of('open'), pending = of('pending'), bought = of('bought'), missing = of('missing');
+  const inStore = pending.length > 0;
 
-  const seg = `<section class="shop-house-picker">
-      <div class="shop-house-picker-head"><div><b>${t('chooseShoppingHouse')}</b><span>${t('shoppingHouseHint')}</span></div><span>🏠 ${esc(house(hid).short)}</span></div>
-      <div class="seg house-selector" id="shHouse">
+  const seg = `<div class="seg inventory-scope house-selector shop-scope" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
         ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
-      </div>
-    </section>`;
+      </div>`;
 
   const fridayState=pending.length?t('fridayActive'):(open.length?t('fridayPlanned'):(bought.length||missing.length?t('fridayCompleted'):t('fridayPlanned')));
-  const hero=`<section class="shop-hero">
-    <div class="shop-hero-top"><div><div class="import-kicker" style="color:#93c5fd">${t('shopTitle')}</div>
-      <h2>${t('listJourneyTitle')}</h2><p>${t('listJourneyHint')}</p></div>
-      <div class="shop-hero-actions"><button class="btn sm" id="shoppingHistory">🧾 ${t('shoppingHistory')}</button><button class="btn sm" id="importList">＋ ${t('addToFriday')}</button></div></div>
-    <div class="friday-picker">
-      <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
-      <label class="friday-date" title="${t('chooseFriday')}"><span>📅</span><span><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${esc(house(hid).short)}</span></span>
-        <input type="date" id="shopFridayDate" value="${friday}"></label>
-      <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
-    </div></section>
-    <div class="shop-summary">
-      <div><b>${fridayList.length}</b><span>${t('listItems')}</span></div>
-      <div><b>${open.length+pending.filter(e=>!e.decision).length}</b><span>${t('openItems')}</span></div>
-      <div><b>${bought.length}</b><span>${t('completedItems')}</span></div>
+  const hero=inStore?'':`<section class="shop-bar">
+    <div class="shop-bar-top">
+      <div><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length} ${t('openItems')}</span></div>
+      <button class="btn ghost sm" id="shoppingHistory" type="button">🧾 ${t('shoppingHistory')}</button>
     </div>
-    <div class="shop-steps"><div class="shop-step ${open.length?'on':'done'}"><i>${open.length?'1':'✓'}</i>${t('listPlanned')}</div>
-      <div class="shop-step ${pending.length?'on':bought.length||missing.length?'done':''}"><i>${pending.length?'2':bought.length||missing.length?'✓':'2'}</i>${t('listShopping')}</div>
-      <div class="shop-step ${!open.length&&!pending.length&&(bought.length||missing.length)?'on':''}"><i>3</i>${t('listFinished')}</div></div>`;
+    <div class="friday-picker compact">
+      <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
+      <label class="friday-date" title="${t('chooseFriday')}"><input type="date" id="shopFridayDate" value="${friday}"><span>${t('chooseFriday')}</span></label>
+      <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
+    </div></section>`;
 
   // ── Store mode: μεγάλες γραμμές, ένα tap, ομαδοποίηση κατά διάδρομο ──
   const done = pending.filter(e => e.decision).length;
@@ -2643,13 +2630,14 @@ function viewShop(){
         <div class="store-choice-qty">${e.qty} ${esc(e.unit)}${e.note?' · '+esc(e.note):''}</div></div>
       <div class="store-choice-actions"><button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}">✓ ${t('markBought')}</button>
         <button class="store-decision no ${st==='missing'?'on':''}" data-decision="missing" data-entry="${e.id}">× ${t('markMissing')}</button>
-        ${st?`<button class="store-decision undo" data-decision="undo" data-entry="${e.id}" aria-label="${t('undoDecision')}">↶ ${t('undoDecision')}</button>`:''}</div></div>`;
+        ${st?`<button class="store-decision undo" data-decision="undo" data-entry="${e.id}" aria-label="${t('undoDecision')}">↶</button>`:''}</div></div>`;
   };
 
   const pendingCard = pending.length ? `
-    <section class="store-cockpit"><div class="store-cockpit-head"><div class="import-kicker" style="color:#93c5fd">${t('storeFocus')}</div>
-        <h2>${done===pending.length?'✓ '+t('storeComplete'):t('storeMode')}</h2><p>${t('storeFocusHint')}</p>
-        <div class="store-progress"><i style="width:${progress}%"></i></div><div class="store-progress-label"><span>${t('shoppingProgress')}</span><b>${done}/${pending.length} · ${remaining?t('storeRemaining'):t('storeComplete')}</b></div></div>
+    <section class="store-cockpit"><div class="store-cockpit-head">
+        <div class="store-cockpit-title"><b>${done===pending.length?'✓ '+t('storeComplete'):t('storeMode')}</b>
+          <span>${done}/${pending.length} · ${esc(house(hid).short)}</span></div>
+        <div class="store-progress"><i style="width:${progress}%"></i></div></div>
       <div class="store-search"><input id="storeSearch" value="${esc(state.shopQuery)}" placeholder="${t('storeSearch')}" aria-label="${t('storeSearch')}"></div>
       ${catOrder.filter(c=>byCat[c]).map(c=>{
         const cat = DB.categories.find(x=>x.id===c);
@@ -2661,13 +2649,12 @@ function viewShop(){
         ${remaining?`<div class="muted" style="margin-top:7px;text-align:center;font-size:10.5px">${t('decideAll')}</div>`:''}</div></section>` : '';
 
   const openCard = pending.length?'':`<div class="card shop-list-card">
-    <div class="shop-list-head"><div><h2>${t('secOpen')}</h2><div class="muted" style="font-size:11px">${esc(fridayText(friday))}</div></div>
-      <button class="btn sec sm" id="addItem">${t('addProduct')}</button></div>
+    <div class="shop-list-head"><div><h2>${t('secOpen')}</h2><div class="muted" style="font-size:11px">${open.length} · ${esc(house(hid).short)}</div></div>
+      <button class="btn ghost sm" id="importList" type="button">${t('importList')}</button></div>
     <div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}"><button class="btn sm" id="cartQuickAdd">＋ ${t('addToCart')}</button></div>
     ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${esc(e.name)}</div>
-      <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${t('stOpen')} · ${esc(e.unit)}</div></div><div class="cart-controls"><button class="cart-step jump" data-list-qty="-5" data-entry="${e.id}" aria-label="−5">−5×</button><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="cart-step jump" data-list-qty="5" data-entry="${e.id}" aria-label="＋5">+5×</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
-      `<div class="shop-empty"><div class="big">🧺</div><h3>${t('noFridayItems')}</h3><p>${t('noFridayItemsHint')}</p>
-        <button class="btn sm" id="emptyImport">＋ ${t('addToFriday')}</button></div>`}
+      <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)}</div></div><div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
+      `<div class="shop-empty compact"><div class="big">🧺</div><h3>${t('noFridayItems')}</h3><p>${t('noFridayItemsHint')}</p></div>`}
     ${open.length&&!pending.length?`<div class="cart-start"><button class="btn" id="startFriday">${T[state.lang].cartReady(open.length)}</button></div>`:''}
     </div>`;
 
@@ -3964,9 +3951,6 @@ function wire(){
     });
   };
 
-  const bi = v.querySelector('#btnIn'), bo = v.querySelector('#btnOut');
-  if(bi) bi.onclick = () => sheetStockBoard('IN');
-  if(bo) bo.onclick = () => sheetStockBoard('OUT');
   v.querySelectorAll('[data-stock-action]').forEach(b=>b.onclick=()=>sheetStockBoard(b.dataset.stockAction));
   v.querySelectorAll('[data-stock-product]').forEach(b=>b.onclick=()=>sheetStockDetail(b.dataset.stockProduct,state.house));
   const stockCategories=[...v.querySelectorAll('[data-stock-category]')];
@@ -4060,34 +4044,12 @@ function wire(){
   };
   if(quickAdd)quickAdd.onclick=addQuick;
   if(quickName)quickName.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();addQuick();}};
-  const ai = v.querySelector('#addItem');
-  if(ai) ai.onclick = () => {
-    openSheet(`<h3>${t('newProduct')}</h3>
-      <label class="f"><span>${t('name')}</span><input id="nName"></label>
-      <div class="row" style="gap:10px">
-        <label class="f grow"><span>${t('qty')}</span><input type="number" id="nQty" value="1" min="0" step="0.5" inputmode="decimal"></label>
-        <label class="f grow"><span>${t('unit')}</span><input id="nUnit" value="${state.lang==='de'?'Stk':'τεμ'}"></label></div>
-      <button class="btn" id="nSave">${t('addBtn')}</button>`);
-    sheetEl.querySelector('#nSave').onclick = () => {
-      const name = sheetEl.querySelector('#nName').value.trim();
-      if(!name){ toast(t('name')); return; }
-      const p = PRODUCTS().find(x=>x.de===name || x.el===name);
-      DB.listEntries.push({id:uid(), productId: p ? p.id : null, name,
-        qty: parseFloat(sheetEl.querySelector('#nQty').value)||1,
-        unit: sheetEl.querySelector('#nUnit').value.trim()||'Stk',
-        houseId: shopHouse(), fridayDate:state.shopFriday||fridayFor(), by: state.user ? state.user.id : null,
-        status:fridayEntries(shopHouse()).some(e=>e.status==='pending')?'pending':'open'});
-      save(); closeSheet(); render();
-    };
-  };
   const br = v.querySelector('#btnReceipt');
   if(br) br.onclick = sheetReceipt;
   const il = v.querySelector('#importList');
   if(il) il.onclick = sheetImportList;
   const historyButton=v.querySelector('#shoppingHistory');
   if(historyButton)historyButton.onclick=sheetShoppingHistory;
-  const emptyImport=v.querySelector('#emptyImport');
-  if(emptyImport) emptyImport.onclick=sheetImportList;
 
   v.querySelectorAll('#bRange button').forEach(b=>{
     b.onclick = () => { state.bookRange = b.dataset.r; render(); };
