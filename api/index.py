@@ -534,46 +534,24 @@ def entry(flask_path: str = ""):
         status, payload = paidia.run_chat(body, api_key or None, session=session, client_ip=client_ip)
         return _json(status, payload)
 
-    if request.method == "POST" and api in {"/learn", "/api/learn"}:
+    if request.method == "POST" and api in {"/learn", "/api/learn", "/quiz", "/api/quiz", "/gallery/caption", "/api/gallery/caption"}:
         session = _session_from_request()
         if not session:
             return _json(401, {"error": "Authentication required", "code": "auth_required"})
         api_key = os.environ.get("GROQ_API_KEY", "").strip()
-        if not api_key:
+        if not api_key and not getattr(paidia, "omniroute_reachable", lambda: False)():
             return _json(503, {
-                "error": "Groq is not configured",
+                "error": "AI is not configured",
                 "code": "configuration",
-                "setup": "Set GROQ_API_KEY in Vercel env",
+                "setup": "Set GROQ_API_KEY (or OMNIROUTE_BASE_URL for local OmniRoute)",
             })
-        status, payload = paidia.run_learn(_body(), api_key)
-        return _json(status, payload)
-
-    if request.method == "POST" and api in {"/quiz", "/api/quiz"}:
-        session = _session_from_request()
-        if not session:
-            return _json(401, {"error": "Authentication required", "code": "auth_required"})
-        api_key = os.environ.get("GROQ_API_KEY", "").strip()
-        if not api_key:
-            return _json(503, {
-                "error": "Groq is not configured",
-                "code": "configuration",
-                "setup": "Set GROQ_API_KEY in Vercel env",
-            })
-        status, payload = paidia.run_quiz(_body(), api_key)
-        return _json(status, payload)
-
-    if request.method == "POST" and api in {"/gallery/caption", "/api/gallery/caption"}:
-        session = _session_from_request()
-        if not session:
-            return _json(401, {"error": "Authentication required", "code": "auth_required"})
-        api_key = os.environ.get("GROQ_API_KEY", "").strip()
-        if not api_key:
-            return _json(503, {
-                "error": "Groq is not configured",
-                "code": "configuration",
-                "setup": "Set GROQ_API_KEY in Vercel env",
-            })
-        status, payload = paidia.run_gallery_caption(_body(), api_key)
+        body = _body()
+        if api in {"/learn", "/api/learn"}:
+            status, payload = paidia.run_learn(body, api_key)
+        elif api in {"/quiz", "/api/quiz"}:
+            status, payload = paidia.run_quiz(body, api_key)
+        else:
+            status, payload = paidia.run_gallery_caption(body, api_key)
         return _json(status, payload)
 
     if request.method in {"GET", "HEAD"}:

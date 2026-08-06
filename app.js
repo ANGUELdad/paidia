@@ -2,6 +2,15 @@
 /* ════════════════════════════════════════════════════════════════
    Δίγλωσσο λεξικό — DE (όπως το χαρτί) / EL
    ════════════════════════════════════════════════════════════════ */
+/** Keep in sync with build.json — shown on login. */
+const APP_BUILD = {
+  version: 67,
+  label: 'v67',
+  changed: {
+    de: 'Agent-Maps · Login-Version · Biometrie · Admin-Mails · Kind-Mitteilungen & Anleitung',
+    el: 'Agent maps · Έκδοση στο login · Biometrics · Admin emails · Ειδοποιήσεις & οδηγίες παιδιών',
+  },
+};
 const T = {
   de: {
     appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Team',
@@ -194,6 +203,31 @@ const T = {
     profilePinInvalid:'PIN muss 4–6 Ziffern haben und übereinstimmen',
     profileSectionLook:'Aussehen', profileSectionContact:'Kontakt', profileSectionPin:'PIN',
     profileSectionBio:'Face ID / Touch ID',
+    bioSetupHint:'Richte Face ID / Fingerabdruck ein — schneller als PIN und bleibt auf dem Gerät.',
+    bioSetupNow:'Jetzt einrichten',
+    bioSetupLater:'Später',
+    notifHintChild:'Events und Momente als Mitteilung — wie eine echte App. Nur Nettes, kein Team-Lager.',
+    notifEnableChild:'Mitteilungen für Events an',
+    childInstallTitle:'App aufs Handy',
+    childInstallHint:'So bleibt Armonia wie eine App auf dem Home-Bildschirm.',
+    childInstallIos:'iPhone: Teilen → „Zum Home-Bildschirm“ → Hinzufügen',
+    childInstallAndroid:'Android: Menü ⋮ → „App installieren“ oder „Zum Startbildschirm“',
+    childHowTo:'So geht’s',
+    childHowToHint:'Heute · Events · Woche · Momente · Spiele · Zo-Ai',
+    childHowToToday:'Heute: dein Tag und was ansteht',
+    childHowToEvents:'Events: Feiern und Ausflüge',
+    childHowToWeek:'Woche: Überblick',
+    childHowToGallery:'Momente: schöne Fotos',
+    childHowToGames:'Spiele: lernen und Spaß',
+    childHowToZoai:'Zo-Ai: Fragen stellen (ändert nichts allein)',
+    childNotifEvent:title=>`Event · ${title}`,
+    adminBroadcastPreview:'So sieht die Mail aus',
+    adminBroadcastLang:'Sprache der Mail',
+    adminNotifyPanel:'Mitteilung / E-Mail',
+    adminNotifyPanelHint:'E-Mail an Profile mit Adresse. Kinder-Audience = nur Kinder-Mails.',
+    adminBroadcastAlsoBanner:'Auch als Banner in der App zeigen (online)',
+    adminBroadcastBannerDismiss:'Verstanden',
+    webauthnOriginWarn:'Passkey-Origin prüfen (PAIDIA_WEBAUTHN_ORIGIN) — sonst scheitert Face ID auf dem iPhone.',
     profileStorageOk:'Datenbank aktiv — Plan, Lager, Listen und Profil überleben Deployments.',
     profileStorageWarn:'Kein Postgres — Daten können nach einem Deploy verloren gehen. In Vercel → Environment Variables DATABASE_URL setzen.',
     durableStorageBadge:'Server-Speicher',
@@ -810,6 +844,31 @@ const T = {
     profilePinInvalid:'Το PIN πρέπει να έχει 4–6 ψηφία και να ταιριάζει',
     profileSectionLook:'Εμφάνιση', profileSectionContact:'Επικοινωνία', profileSectionPin:'PIN',
     profileSectionBio:'Face ID / Touch ID',
+    bioSetupHint:'Ρύθμισε Face ID / δακτυλικό — πιο γρήγορα από PIN και μένει στη συσκευή.',
+    bioSetupNow:'Ρύθμιση τώρα',
+    bioSetupLater:'Αργότερα',
+    notifHintChild:'Events και στιγμές ως ειδοποίηση — σαν κανονική εφαρμογή. Μόνο ωραία πράγματα.',
+    notifEnableChild:'Ειδοποιήσεις για events',
+    childInstallTitle:'Εφαρμογή στο κινητό',
+    childInstallHint:'Έτσι μένει το Armonia σαν app στην αρχική οθόνη.',
+    childInstallIos:'iPhone: Κοινή χρήση → «Στην οθόνη Αφετηρίας» → Προσθήκη',
+    childInstallAndroid:'Android: Μενού ⋮ → «Εγκατάσταση εφαρμογής» ή «Στην αρχική οθόνη»',
+    childHowTo:'Πώς δουλεύει',
+    childHowToHint:'Σήμερα · Events · Εβδομάδα · Στιγμές · Παιχνίδια · Zo-Ai',
+    childHowToToday:'Σήμερα: η μέρα σου',
+    childHowToEvents:'Events: γιορτές και εκδρομές',
+    childHowToWeek:'Εβδομάδα: επισκόπηση',
+    childHowToGallery:'Στιγμές: ωραίες φωτογραφίες',
+    childHowToGames:'Παιχνίδια: μάθηση και διασκέδαση',
+    childHowToZoai:'Zo-Ai: κάνε ερωτήσεις (δεν αλλάζει τίποτα μόνο του)',
+    childNotifEvent:title=>`Event · ${title}`,
+    adminBroadcastPreview:'Έτσι φαίνεται το email',
+    adminBroadcastLang:'Γλώσσα email',
+    adminNotifyPanel:'Ειδοποίηση / Email',
+    adminNotifyPanelHint:'Email σε προφίλ με διεύθυνση. Audience παιδιά = μόνο παιδικά emails.',
+    adminBroadcastAlsoBanner:'Και ως banner στην εφαρμογή (online)',
+    adminBroadcastBannerDismiss:'Το κατάλαβα',
+    webauthnOriginWarn:'Έλεγξε Passkey origin (PAIDIA_WEBAUTHN_ORIGIN) — αλλιώς αποτυγχάνει το Face ID στο iPhone.',
     profileStorageOk:'Η βάση είναι ενεργή — πρόγραμμα, αποθήκη, λίστες και προφίλ επιβιώνουν τα deploys.',
     profileStorageWarn:'Χωρίς Postgres — τα δεδομένα μπορεί να χαθούν μετά από deploy. Στο Vercel βάλε DATABASE_URL.',
     durableStorageBadge:'Αποθήκευση server',
@@ -2799,6 +2858,14 @@ function describeHelpAction(action){
   if(action.type==='shop_remove') return T[state.lang].helpActionShopRemove(name, houseName);
   if(action.type==='shift_note') return T[state.lang].helpActionShiftNote(action.text||'');
   if(action.type==='open_tab') return T[state.lang].helpActionOpenTab(action.tab||'');
+  if(action.type==='broadcast_email'){
+    return state.lang==='el'
+      ? `✉️ Email σε ${action.audience||'all'}: ${String(action.subject||'').slice(0,60)}`
+      : `✉️ E-Mail an ${action.audience||'all'}: ${String(action.subject||'').slice(0,60)}`;
+  }
+  if(action.type==='event_announce'){
+    return state.lang==='el' ? '📣 Άνοιγμα εργαλείων Event' : '📣 Event-Tools öffnen';
+  }
   if(action.type==='schedule_add' || action.type==='schedule_template_add'){
     const actId=resolveActivityId(action);
     const what=actId?actLabel(actId):(action.activityQuery||'?');
@@ -2917,8 +2984,30 @@ function applyHelpActions(actions){
 
     if(kind==='open_tab'){
       const tab=String(action.tab||'').trim();
-      if(!['home','gallery','schedule','stock','shop','book'].includes(tab)) return;
+      if(!['home','gallery','schedule','stock','shop','book','talk'].includes(tab)) return;
       state.tab=tab;
+      if(tab==='schedule' && action.open==='events') state.scheduleView='events';
+      applied++;
+      return;
+    }
+
+    if(kind==='broadcast_email'){
+      if(!isAdminUser()) return;
+      state._broadcastDraft={
+        audience:action.audience||'all',
+        subject:action.subject||'',
+        title:action.title||action.subject||'',
+        message:action.message||'',
+      };
+      queueMicrotask(()=>sheetBroadcastEmail());
+      applied++;
+      return;
+    }
+
+    if(kind==='event_announce'){
+      if(!isAdminUser()) return;
+      state.tab='schedule';
+      state.scheduleView='events';
       applied++;
       return;
     }
@@ -9631,7 +9720,7 @@ function adminTeamPanel(today){
       <button class="btn sm sec" data-admin-go="shift">🕒 ${t('adminEditShifts')}</button>
       <button class="btn sm sec" data-admin-go="events">🎉 ${t('adminManageEvents')}</button>
       <button class="btn sm sec" data-admin-go="audit">📖 ${t('adminOpenAudit')}</button>
-      <button class="btn sm sec" data-admin-broadcast type="button">✉️ ${t('adminEmailEveryone')}</button>
+      <button class="btn sm sec" data-admin-broadcast type="button">✉️ ${t('adminNotifyPanel')}</button>
     </div>
     <div class="admin-alert-strip ${issues.length?'':'clear'}"><span>${issues.length?'⚠️':'✅'}</span><div class="grow"><b>${issues.length?`${issues.length} · ${t('adminWarnings')}`:t('adminAllClear')}</b>
       <div style="margin-top:2px">${t('adminFullControl')}</div></div></div>
@@ -9641,9 +9730,28 @@ function adminTeamPanel(today){
 
 async function sheetBroadcastEmail(){
   if(!isAdminUser()){toast(t('adminRequired'),'error');return;}
-  let audience='all';
+  const draft=state._broadcastDraft||{};
+  state._broadcastDraft=null;
+  let audience=draft.audience||'all';
+  if(audience==='child'||audience==='kids') audience='children';
+  let mailLang=state.lang==='el'?'el':'de';
   let recipientCount=0;
   let emailConfigured=true;
+  const paintPreview=()=>{
+    const box=sheetEl.querySelector('#broadcastPreview');
+    if(!box) return;
+    const subject=String(sheetEl.querySelector('#broadcastSubject')?.value||'').trim()||'—';
+    const title=String(sheetEl.querySelector('#broadcastTitle')?.value||'').trim()||subject;
+    const message=String(sheetEl.querySelector('#broadcastMessage')?.value||'').trim()||'…';
+    const who=state.user?.name||'Admin';
+    box.innerHTML=`<div class="broadcast-preview-card">
+      <div class="bp-kicker">${esc(t('adminBroadcastPreview'))} · ${mailLang.toUpperCase()}</div>
+      <b>${esc(title)}</b>
+      <div class="muted">${esc(who)} · ${esc(audience)}</div>
+      <p>${esc(message)}</p>
+      <div class="muted bp-sub">${esc(subject)}</div>
+    </div>`;
+  };
   const refreshCount=async()=>{
     const countEl=sheetEl.querySelector('#broadcastCount');
     if(countEl) countEl.textContent='…';
@@ -9672,25 +9780,41 @@ async function sheetBroadcastEmail(){
   };
   openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:linear-gradient(145deg,#2a6b52,#2f5a63)">✉️</div>
     <div class="grow"><div class="muted">ARMONIA THASSOS</div><h3 style="margin:1px 0">${esc(t('adminBroadcastTitle'))}</h3>
-      <div class="muted">${esc(t('adminBroadcastHint'))}</div></div></div>
+      <div class="muted">${esc(t('adminNotifyPanelHint'))}</div></div></div>
     <label class="f"><span>${t('adminBroadcastAudience')}</span>
       <select id="broadcastAudience">
-        <option value="all">${esc(t('adminBroadcastAll'))}</option>
-        <option value="staff">${esc(t('adminBroadcastStaff'))}</option>
-        <option value="children">${esc(t('adminBroadcastChildren'))}</option>
+        <option value="all" ${audience==='all'?'selected':''}>${esc(t('adminBroadcastAll'))}</option>
+        <option value="staff" ${audience==='staff'?'selected':''}>${esc(t('adminBroadcastStaff'))}</option>
+        <option value="children" ${audience==='children'?'selected':''}>${esc(t('adminBroadcastChildren'))}</option>
+      </select></label>
+    <label class="f"><span>${t('adminBroadcastLang')}</span>
+      <select id="broadcastLang">
+        <option value="de" ${mailLang==='de'?'selected':''}>Deutsch</option>
+        <option value="el" ${mailLang==='el'?'selected':''}>Ελληνικά</option>
       </select></label>
     <div id="broadcastCount" class="status-box" style="display:none;margin:8px 0 12px" role="status"></div>
     <label class="f"><span>${t('adminBroadcastSubject')}</span>
-      <input type="text" id="broadcastSubject" maxlength="160" placeholder="Armonia Thassos – …"></label>
+      <input type="text" id="broadcastSubject" maxlength="160" value="${esc(draft.subject||'')}" placeholder="Armonia Thassos – …"></label>
     <label class="f"><span>${t('adminBroadcastHeadline')}</span>
-      <input type="text" id="broadcastTitle" maxlength="120" placeholder="${esc(t('adminBroadcastHeadline'))}"></label>
+      <input type="text" id="broadcastTitle" maxlength="120" value="${esc(draft.title||'')}" placeholder="${esc(t('adminBroadcastHeadline'))}"></label>
     <label class="f"><span>${t('adminBroadcastMessage')}</span>
-      <textarea id="broadcastMessage" rows="6" maxlength="4000" placeholder="…"></textarea></label>
+      <textarea id="broadcastMessage" rows="6" maxlength="4000" placeholder="…">${esc(draft.message||'')}</textarea></label>
+    <div id="broadcastPreview" class="broadcast-preview" aria-live="polite"></div>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px;margin:8px 0">
+      <input type="checkbox" id="broadcastAlsoBanner" checked>
+      <span>${esc(t('adminBroadcastAlsoBanner'))}</span>
+    </label>
     <div id="broadcastStatus" class="status-box" style="display:none;margin:10px 0" role="status"></div>
     <button class="btn" type="button" id="broadcastSend">${t('adminBroadcastSend')}</button>`);
   const audienceEl=sheetEl.querySelector('#broadcastAudience');
-  audienceEl.onchange=()=>{audience=audienceEl.value;refreshCount();};
+  const langEl=sheetEl.querySelector('#broadcastLang');
+  audienceEl.onchange=()=>{audience=audienceEl.value;refreshCount();paintPreview();};
+  langEl.onchange=()=>{mailLang=langEl.value;paintPreview();};
+  ['broadcastSubject','broadcastTitle','broadcastMessage'].forEach(id=>{
+    sheetEl.querySelector('#'+id)?.addEventListener('input', paintPreview);
+  });
   refreshCount();
+  paintPreview();
   sheetEl.querySelector('#broadcastSend').onclick=()=>{
     const subject=String(sheetEl.querySelector('#broadcastSubject')?.value||'').trim();
     const title=String(sheetEl.querySelector('#broadcastTitle')?.value||'').trim()||subject;
@@ -9708,7 +9832,7 @@ async function sheetBroadcastEmail(){
       toast(t('adminBroadcastNone'),'error');
       return;
     }
-    const payload={audience,subject,title,message};
+    const payload={audience,subject,title,message,lang:mailLang};
     const expected=recipientCount;
     askPin(t('adminBroadcastConfirm')(expected), async()=>{
       try{
@@ -9730,7 +9854,12 @@ async function sheetBroadcastEmail(){
         }
         const sent=Number(data.sent||0), failed=Number(data.failed||0);
         logEntry('ADMIN',`${t('adminEmailEveryone')}: ${subject} · ${sent}/${data.total||expected}`);
+        const alsoBanner=!!sheetEl.querySelector('#broadcastAlsoBanner')?.checked;
+        if(alsoBanner && sent){
+          publishTeamNotice({audience, subject, title, message});
+        }
         toast(t('adminBroadcastSent')(sent,failed), sent?'success':'error', 5200);
+        if(sent) closeSheet();
       }catch(error){
         console.error('Broadcast send failed',error);
         toast(t('adminBroadcastFailed'),'error',5200);
@@ -9902,6 +10031,7 @@ function viewHome(){
       <span class="grow"><b>${esc(t('journalDutyHome'))}</b><small>${esc(t('bookJournalHint'))}</small></span>
       <span class="journal-duty-home-cta">${esc(t('journalDutyCta'))}</span>
     </button>`:''}
+    ${teamNoticeBannerHtml()}
     <div class="home-bento" role="group" aria-label="${esc(t('homeOverview'))}">
       <button class="bento-tile accent action" type="button" data-home-jump="day">
         <b>${todayOpen.length}</b><span>${t('dueToday')}</span>
@@ -10004,6 +10134,17 @@ function renderChild(){
     <button class="${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>
   </div>`;
   const todayView = `
+    <div class="child-app-card">
+      <h3>${esc(t('childInstallTitle'))}</h3>
+      <p>${esc(t('childInstallHint'))}</p>
+      <p>${esc(t('childInstallIos'))}</p>
+      <p>${esc(t('childInstallAndroid'))}</p>
+      <div class="child-app-actions">
+        <button class="btn sm" type="button" id="childEnableNotifs">${esc(t('notifEnableChild'))}</button>
+        <button class="btn sm sec" type="button" id="childHowToBtn">${esc(t('childHowTo'))}</button>
+      </div>
+    </div>
+    ${teamNoticeBannerHtml()}
     ${childUpcomingEvents.length?`<button class="notification-card" id="childEventNotice" type="button">
       <span style="font-size:24px">📣</span><span class="grow"><span class="strong">${t('childNotifications')}</span><br><span class="muted">${t('openEvents')}</span></span>
       <span class="notification-count">${childUpcomingEvents.length}</span></button>`:''}
@@ -10040,6 +10181,16 @@ function renderChild(){
   });
   const eventNotice=document.getElementById('view').querySelector('#childEventNotice');
   if(eventNotice) eventNotice.onclick=()=>{state.childView='events';render();};
+  const teamBanner=document.getElementById('view').querySelector('#teamNoticeBanner');
+  if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
+  const childEnableNotifs=document.getElementById('view').querySelector('#childEnableNotifs');
+  if(childEnableNotifs) childEnableNotifs.onclick=async()=>{
+    const ok=await enableAppNotifications();
+    toast(ok?t('notifEnabled'):t('notifDenied'), ok?'success':'error');
+    if(ok) runNotificationSweep({force:true});
+  };
+  const childHowToBtn=document.getElementById('view').querySelector('#childHowToBtn');
+  if(childHowToBtn) childHowToBtn.onclick=()=>sheetChildHowTo();
   const childCal=document.getElementById('view').querySelector('#childCalendar');
   if(childCal) childCal.onclick=()=>{ feedback('open'); sheetCalendar(c.id,'child'); };
   const zoBan=document.getElementById('view').querySelector('#zoAiBanner');
@@ -10049,6 +10200,45 @@ function renderChild(){
   if(state.childView==='games') bindChildGames(document.getElementById('view'));
   if(state.childView==='gallery') bindGallery(document.getElementById('view'));
   syncLayoutMode();
+}
+
+function sheetChildHowTo(){
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia</div>
+    <h2>${esc(t('childHowTo'))}</h2><p>${esc(t('childHowToHint'))}</p></div>
+    <ul style="list-style:none;padding:0;margin:12px 0;display:grid;gap:8px">
+      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToToday'))}</li>
+      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToEvents'))}</li>
+      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToWeek'))}</li>
+      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToGallery'))}</li>
+      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToGames'))}</li>
+      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToZoai'))}</li>
+    </ul>
+    <p class="muted" style="font-size:12px;line-height:1.45">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>
+    <button class="btn" type="button" id="childHowToNotifs">${esc(t('notifEnableChild'))}</button>
+    <button class="btn sec" type="button" id="childHowToClose" style="margin-top:8px">${esc(t('close'))}</button>`);
+  sheetEl.querySelector('#childHowToClose').onclick=()=>closeSheet();
+  sheetEl.querySelector('#childHowToNotifs').onclick=async()=>{
+    const ok=await enableAppNotifications();
+    toast(ok?t('notifEnabled'):t('notifDenied'), ok?'success':'error');
+    if(ok){ closeSheet(); runNotificationSweep({force:true}); }
+  };
+}
+
+function maybePromptPasskeySetup(){
+  if(!passkeyCapable() || !(state.user||state.child)) return;
+  const id=currentProfileId();
+  if(!id) return;
+  const key=`bio-hint:${id}`;
+  try{ if(sessionStorage.getItem(key)==='1') return; sessionStorage.setItem(key,'1'); }catch{}
+  setTimeout(()=>{
+    if(sheetEl?.classList?.contains('on')) return;
+    openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(biometricName())}</div>
+      <h2>${esc(t('passkeySetup'))}</h2><p>${esc(t('bioSetupHint'))}</p></div>
+      <button class="btn" type="button" id="bioHintNow">${esc(t('bioSetupNow'))}</button>
+      <button class="btn sec" type="button" id="bioHintLater" style="margin-top:8px">${esc(t('bioSetupLater'))}</button>`);
+    sheetEl.querySelector('#bioHintLater').onclick=()=>closeSheet();
+    sheetEl.querySelector('#bioHintNow').onclick=()=>{ closeSheet(); sheetSecurityAccess(); };
+  }, 1200);
 }
 
 function dynamicHeaderTitle(){
@@ -10705,6 +10895,8 @@ function wire(){
     render();
     queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
   };
+  const teamBanner=v.querySelector('#teamNoticeBanner');
+  if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
   const openHomePresence=()=>{ feedback('open'); sheetShiftPresence(); };
   v.querySelectorAll('#homeShiftPresence, #homeShiftPresenceStep').forEach(btn=>{
     btn.onclick=openHomePresence;
@@ -11240,9 +11432,11 @@ async function sheetSecurityAccess(){
   if(notifCard){
     const perm=typeof Notification!=='undefined'?Notification.permission:'denied';
     const on=!!notifPrefs().enabled && perm==='granted';
-    notifCard.innerHTML=`<b>🔔 ${esc(on?t('notifEnabled'):t('notifEnable'))}</b>
-      <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(t('notifHint'))}</p>
-      <button class="btn ${on?'sec':''}" type="button" id="notifToggle">${esc(on?t('notifEnabled'):t('notifEnable'))}</button>
+    const child=state.mode==='child';
+    notifCard.innerHTML=`<b>🔔 ${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</b>
+      <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(child?t('notifHintChild'):t('notifHint'))}</p>
+      ${child?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>`:''}
+      <button class="btn ${on?'sec':''}" type="button" id="notifToggle">${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</button>
       <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
       <div id="notifStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`;
     notifCard.querySelector('#notifToggle').onclick=async()=>{
@@ -11334,7 +11528,7 @@ async function sheetSecurityAccess(){
     const [response,profilesResponse,healthResponse]=await Promise.all([
       fetch('/api/auth/session',{credentials:'same-origin'}),
       fetch('/api/auth/profiles',{credentials:'same-origin'}),
-      fetch('/api/health',{credentials:'same-origin'}).catch(()=>null),
+      fetch('/api/auth/health',{credentials:'same-origin'}).catch(()=>null),
     ]);
     const data=await response.json(),profilesData=await profilesResponse.json();
     const health=healthResponse?await healthResponse.json().catch(()=>null):null;
@@ -11344,6 +11538,7 @@ async function sheetSecurityAccess(){
       storageEl.className=`status-box ${durable?'success':'error'}`;
       storageEl.textContent = durable ? t('profileStorageOk') : t('profileStorageWarn');
     }
+    paintWebauthnOriginWarn(health, storageEl?.parentElement || sheetEl);
     if(!response.ok||!data.authenticated)throw new Error(t('authUnavailable'));
     if(!profilesResponse.ok||!Array.isArray(profilesData.profiles))throw new Error(t('authUnavailable'));
     const profiles=profilesData.profiles;
@@ -11456,8 +11651,31 @@ async function sheetSecurityAccess(){
 }
 
 function gateMeta(){
-  // Keep audit text off the login/reset screens — it looks like a leak and blocks trust.
-  return '';
+  const build = (typeof APP_BUILD==='object' && APP_BUILD) ? APP_BUILD : {label:'v?', changed:{de:'',el:''}};
+  const note = (build.changed && (build.changed[state.lang] || build.changed.de)) || '';
+  return `<div class="gate-build" id="gateMeta" role="status">
+    <b>${esc(build.label || ('v'+build.version))}</b>
+    <span>${esc(note)}</span>
+  </div>`;
+}
+function paintWebauthnOriginWarn(health, host){
+  if(!host || !health) return;
+  const expected = String(health.passkeyOrigin || '').replace(/\/$/, '');
+  const actual = String(location.origin || '').replace(/\/$/, '');
+  if(!expected || !actual || expected === actual){
+    host.querySelector('#webauthnOriginWarn')?.remove();
+    return;
+  }
+  let el = host.querySelector('#webauthnOriginWarn');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'webauthnOriginWarn';
+    el.className = 'status-box error';
+    el.style.margin = '8px 0';
+    el.setAttribute('role', 'status');
+    host.insertBefore(el, host.firstChild);
+  }
+  el.textContent = t('webauthnOriginWarn');
 }
 function refreshGateMeta(){
   const el = document.getElementById('gateMeta');
@@ -11529,6 +11747,11 @@ function renderProfiles(mode = 'staff'){
       <h2>${mode==='child' ? t('entryChild') : t('entryStaff')}</h2>
       <p>${t('gatePick')}</p>
     </div>
+    ${mode==='child'?`<div class="child-app-card" style="margin:0 0 12px">
+      <p>${esc(t('childInstallHint'))}</p>
+      <p>${esc(t('childInstallIos'))}</p>
+      <p>${esc(t('childInstallAndroid'))}</p>
+    </div>`:''}
     <div class="profiles">
       ${people.map(p=>`
         <button class="profile" data-p="${p.id}">
@@ -11564,7 +11787,7 @@ function renderGatePin(who, mode = 'staff'){
       <div class="pa" style="background:${esc(pinColor)}">${initials(who.name)}</div>
       <h3>${esc(who.name)}</h3>
       <div class="sub">${mode==='child' ? '' : esc(L(who.role)) + ' · '}${t('gatePin')}</div>
-      <button class="passkey-btn" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricName())}</b><span class="pk-sub">${esc(biometricHint())}</span></span></button>
+      <button class="passkey-btn primary-bio" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricName())}</b><span class="pk-sub">${esc(biometricHint())}</span></span></button>
       <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
       <div class="pindots" id="gpd" aria-live="polite"></div>
       <input class="pin-field" id="gPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6"
@@ -11600,6 +11823,9 @@ function renderGatePin(who, mode = 'staff'){
       if(available) showPasskey();
     }).catch(()=>{});
   }
+  fetch('/api/auth/health',{credentials:'same-origin'}).then(r=>r.json()).then(health=>{
+    paintWebauthnOriginWarn(health, gateBody.querySelector('#gpErr')?.parentElement || gateBody.querySelector('.gate-pin'));
+  }).catch(()=>{});
   gateBody.querySelector('#gBack').onclick = () => renderProfiles(mode);
   gateBody.querySelector('#gForgot').onclick = () => renderResetRequest(who,mode);
 
@@ -11612,7 +11838,7 @@ function renderGatePin(who, mode = 'staff'){
       await authenticateProfile(mode,who,buf);
       succeeded=true;
       stopPinKeyboard();
-      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');notifyZoAiReady();
+      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');notifyZoAiReady();maybePromptPasskeySetup();
     }catch(error){
       if(error.status===429){
         const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||900)/60));
@@ -11680,7 +11906,7 @@ function renderGatePin(who, mode = 'staff'){
     try{
       await loginWithPasskey(mode,who);
       stopPinKeyboard();
-      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');notifyZoAiReady();
+      closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');notifyZoAiReady();maybePromptPasskeySetup();
     }catch(error){
       errorEl.textContent=error.code==='no_passkey'?t('passkeySetupNeeded'):
         error.code==='passkey_unavailable'||error.code==='configuration'?t('passkeyConfig'):
@@ -11832,6 +12058,59 @@ resolveIp().then(refreshGateMeta);
 registerPaidiaServiceWorker();
 scheduleNotificationSweep();
 
+function publishTeamNotice({audience='all', subject='', title='', message=''}={}){
+  DB.profilePrefs = DB.profilePrefs || {};
+  const id = `tn-${Date.now().toString(36)}`;
+  DB.profilePrefs._teamNotice = {
+    id,
+    audience: audience==='children'?'children':(audience==='staff'?'staff':'all'),
+    subject: String(subject||'').slice(0,160),
+    title: String(title||subject||'').slice(0,120),
+    message: String(message||'').slice(0,400),
+    at: Date.now(),
+    by: state.user?.id || 'admin',
+  };
+  save();
+  try{
+    showAppNotification(DB.profilePrefs._teamNotice.title || subject, {
+      tag: 'paidia-team-notice',
+      body: String(message||'').slice(0,120),
+      data: {url: './?tab=home'},
+    });
+  }catch{}
+}
+function activeTeamNotice(){
+  const n = DB.profilePrefs && DB.profilePrefs._teamNotice;
+  if(!n || typeof n !== 'object' || !n.id) return null;
+  if(n.at && (Date.now() - Number(n.at)) > 7*24*60*60*1000) return null;
+  const audience = n.audience || 'all';
+  if(state.mode==='child'){
+    if(audience!=='all' && audience!=='children') return null;
+  }else if(state.mode==='staff'){
+    if(audience==='children') return null;
+  }else return null;
+  const seen = notifPrefs().seen || {};
+  if(seen['banner-'+n.id]==='1') return null;
+  return n;
+}
+function teamNoticeBannerHtml(){
+  const n = activeTeamNotice();
+  if(!n) return '';
+  const headline = n.title || n.subject || t('adminNotifyPanel');
+  const body = n.message || '';
+  return `<button class="notification-card" id="teamNoticeBanner" type="button">
+    <span style="font-size:24px">✉️</span>
+    <span class="grow"><span class="strong">${esc(headline)}</span><br>
+      <span class="muted">${esc(String(body).slice(0,140))}</span></span>
+    <span class="muted" style="font-size:11px">${esc(t('adminBroadcastBannerDismiss'))}</span>
+  </button>`;
+}
+function dismissTeamNotice(){
+  const n = activeTeamNotice();
+  if(!n) return;
+  setNotifPrefs({seen:{...notifPrefs().seen, ['banner-'+n.id]:'1'}});
+}
+
 function notifPrefs(){
   try{ return JSON.parse(localStorage.getItem('paidia.notif')||'{}')||{}; }catch{ return {}; }
 }
@@ -11882,7 +12161,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=66',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=67',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);
@@ -11890,9 +12169,30 @@ async function registerPaidiaServiceWorker(){
   }
 }
 function runNotificationSweep({force=false}={}){
-  if(state.mode!=='staff' || !state.user) return;
-  if(!notifPrefs().enabled || Notification.permission!=='granted') return;
+  if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return;
   const seen=notifPrefs().seen||{};
+
+  // Child portal: upcoming events only (never staff ops)
+  if(state.mode==='child' && state.child){
+    try{
+      const today=iso(new Date());
+      const upcoming=childEventsFor(state.child.id).filter(e=>e.status==='published' && e.date>=today).slice(0,3);
+      upcoming.forEach(ev=>{
+        const key=`child-event-${state.child.id}-${ev.id}-${ev.date}`;
+        if(force || seen[key]!=='1'){
+          showAppNotification(T[state.lang].childNotifEvent(L(ev)||ev.title||'Event'),{
+            tag:'paidia-child-event-'+ev.id,
+            body: `${ev.date}${ev.from?` · ${ev.from}`:''}`,
+            data:{url:'./?tab=home'},
+          });
+          setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+        }
+      });
+    }catch{}
+    return;
+  }
+
+  if(state.mode!=='staff' || !state.user) return;
   // Low stock attention
   try{
     const houses=DB.houses||[];
@@ -11953,7 +12253,7 @@ function scheduleNotificationSweep(){
   setTimeout(()=>runNotificationSweep(), 2500);
   setInterval(()=>runNotificationSweep(), 15*60*1000);
   setInterval(()=>{
-    if(state.mode==='staff' && state.user) runNotificationSweep();
+    if((state.mode==='staff' && state.user) || (state.mode==='child' && state.child)) runNotificationSweep();
   }, 60*1000);
 }
 if('serviceWorker' in navigator){

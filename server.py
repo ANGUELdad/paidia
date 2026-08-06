@@ -1589,7 +1589,7 @@ def run_learn(body: dict, api_key: str) -> tuple[int, dict]:
         "response_format": {"type": "json_object"},
     }
     try:
-        response = groq_completion(api_key, request_body, timeout=45)
+        response, provider = llm_completion(request_body, timeout=45)
         cards = _parse_learn_cards(completion_text(response), count)
         return 200, {
             "cards": cards,
@@ -1597,8 +1597,13 @@ def run_learn(body: dict, api_key: str) -> tuple[int, dict]:
             "topic": topic,
             "level": level,
             "model": response.get("model", CHAT_MODEL),
+            "provider": provider,
             "responseId": response.get("id"),
         }
+    except RuntimeError as exc:
+        if str(exc) == "missing_llm_key":
+            return 503, {"error": "AI is not configured", "code": "ai_not_configured"}
+        return 502, {"error": "Learn cards failed", "code": "provider"}
     except urllib.error.HTTPError as exc:
         return provider_error(exc)
     except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
@@ -1694,15 +1699,20 @@ def run_quiz(body: dict, api_key: str) -> tuple[int, dict]:
         "response_format": {"type": "json_object"},
     }
     try:
-        response = groq_completion(api_key, request_body, timeout=50)
+        response, provider = llm_completion(request_body, timeout=50)
         questions = _parse_quiz_questions(completion_text(response), count)
         return 200, {
             "questions": questions,
             "count": len(questions),
             "topic": topic,
             "model": response.get("model", CHAT_MODEL),
+            "provider": provider,
             "responseId": response.get("id"),
         }
+    except RuntimeError as exc:
+        if str(exc) == "missing_llm_key":
+            return 503, {"error": "AI is not configured", "code": "ai_not_configured"}
+        return 502, {"error": "Quiz generation failed", "code": "provider"}
     except urllib.error.HTTPError as exc:
         return provider_error(exc)
     except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
@@ -1744,7 +1754,7 @@ def run_gallery_caption(body: dict, api_key: str) -> tuple[int, dict]:
         "response_format": {"type": "json_object"},
     }
     try:
-        response = groq_completion(api_key, request_body, timeout=30)
+        response, provider = llm_completion(request_body, timeout=30)
         text = completion_text(response).strip()
         if text.startswith("```"):
             text = text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
@@ -1763,7 +1773,12 @@ def run_gallery_caption(body: dict, api_key: str) -> tuple[int, dict]:
             "caption_de": caption_de,
             "caption_el": caption_el,
             "model": response.get("model", CHAT_MODEL),
+            "provider": provider,
         }
+    except RuntimeError as exc:
+        if str(exc) == "missing_llm_key":
+            return 503, {"error": "AI is not configured", "code": "ai_not_configured"}
+        return 502, {"error": "Caption helper failed", "code": "provider"}
     except urllib.error.HTTPError as exc:
         return provider_error(exc)
     except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, TypeError) as exc:
@@ -2570,8 +2585,41 @@ def broadcast_recipients(audience: str = "all") -> list[dict]:
     return rows
 
 
+AUDIENCE_LABELS = {
+    "all": {"de": "Alle Profile", "el": "Όλα τα προφίλ"},
+    "staff": {"de": "Team / Staff", "el": "Ομάδα / Staff"},
+    "children": {"de": "Kinder", "el": "Παιδιά"},
+    "child": {"de": "Kinder", "el": "Παιδιά"},
+    "kids": {"de": "Kinder", "el": "Παιδιά"},
+}
+
+
+def audience_label(audience: str, lang: str = "de") -> str:
+    row = AUDIENCE_LABELS.get(audience) or AUDIENCE_LABELS["all"]
+    if isinstance(row, dict):
+        return row.get(lang) or row.get("de") or "Alle Profile"
+    return str(row)
+
+
 def send_broadcast_email(recipient: str, *, subject: str, title: str, body: str,
-                         sender_name: str, audience_label: str) -> None:
+                         sender_name: str, audience_label: str, lang: str = "de") -> None:
+    lang = "el" if str(lang).lower().startswith("el") else "de"
+    kicker = "Μήνυμα ομάδας" if lang == "el" else "Team-Nachricht"
+    from_line = (
+        f"Από {email_escape(sender_name)} · {email_escape(audience_label)}"
+        if lang == "el"
+        else f"Von {email_escape(sender_name)} · {email_escape(audience_label)}"
+    )
+    footer = (
+        "Admin · Απάντησε στην εφαρμογή / Team Talk, όχι με email"
+        if lang == "el"
+        else "Admin-Broadcast · Antworte bitte in der App / Team Talk, nicht per E-Mail"
+    )
+    callout = (
+        "Μήνυμα από το Κέντρο Διαχείρισης"
+        if lang == "el"
+        else "Nachricht aus der Admin-Zentrale"
+    )
     text_body = (
         f"{title}\n\n{body}\n\n"
         f"— {sender_name} (Admin)\n"
@@ -2586,16 +2634,16 @@ def send_broadcast_email(recipient: str, *, subject: str, title: str, body: str,
     )
     html_body = email_shell(
         title or subject,
-        "Team-Nachricht",
+        kicker,
         (
             f"<p style=\"margin:0 0 6px;color:#6b8a94;font-size:12px;font-weight:700;"
             f"letter-spacing:.08em;text-transform:uppercase;"
             f"font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
-            f"Von {email_escape(sender_name)} · {email_escape(audience_label)}</p>"
+            f"{from_line}</p>"
             + paragraphs
-            + email_callout("Nachricht aus der Admin-Zentrale", tone="info")
+            + email_callout(callout, tone="info")
         ),
-        "Admin-Broadcast · Antworte bitte in der App / Team Talk, nicht per E-Mail",
+        footer,
         preheader=f"{sender_name}: {title or subject}",
     )
     send_email(recipient, subject, text_body, html_body)
@@ -2605,14 +2653,6 @@ BROADCAST_RATE: dict[str, float] = {}
 BROADCAST_COOLDOWN = env_int("PAIDIA_BROADCAST_COOLDOWN", 45)
 BROADCAST_MAX_RECIPIENTS = env_int("PAIDIA_BROADCAST_MAX", 80)
 
-AUDIENCE_LABELS = {
-    "all": "Alle Profile",
-    "staff": "Team / Staff",
-    "children": "Kinder",
-    "child": "Kinder",
-    "kids": "Kinder",
-}
-
 
 def deliver_broadcast(
     *,
@@ -2621,9 +2661,10 @@ def deliver_broadcast(
     title: str,
     message: str,
     sender_name: str,
+    lang: str = "de",
 ) -> dict:
     recipients = broadcast_recipients(audience)
-    label = AUDIENCE_LABELS.get(audience, "Alle Profile")
+    label = audience_label(audience, lang)
     sent = 0
     failed = 0
     capped = recipients[: max(1, BROADCAST_MAX_RECIPIENTS)]
@@ -2636,6 +2677,7 @@ def deliver_broadcast(
                 body=message,
                 sender_name=sender_name,
                 audience_label=label,
+                lang=lang,
             )
             sent += 1
         except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
@@ -2882,14 +2924,19 @@ managing events, audit corrections, other profiles' contact details, security ov
 FOOD / STOCK / SHOPPING / DAY SCHEDULE: same staff action types.
 
 PERMANENT TEMPLATE (admin only):
-- schedule_template_add: {type, day:0-6 (Mon=0…Sun=6), block, houseId?, employeeId?, activityQuery|activityId, from?, to?, childIds?, note?}
+- schedule_template_add: {type, day:0-6 (Mon=0…Sun=6), block, houseId?, employeeId?, activityQuery|activityId, from?, to?, note?}
 - schedule_template_update: {type, entryId, day?, block?, houseId?, employeeId?, activityQuery?, from?, to?, note?}
+
+ADMIN COMMS (drafts only — app opens Confirm UI; never send without human Confirm + PIN):
+- broadcast_email: {type, audience:all|staff|children, subject, title?, message}
+- event_announce: {type, open:true} — opens event tools / reminds to publish+email
+- open_tab: {type, tab:home|schedule|stock|shop|book|talk|gallery}
 
 When proposing actions, end with exactly one:
 ```paidia-action
 {"actions":[...]}
 ```
-Confirmation + PIN still required in the app for schedule/template changes.
+Confirmation + PIN still required in the app for schedule/template/broadcast.
 Be precise about which button/path to use. Max 8 actions per reply.
 Remind them that permanent plan changes stay in the audit log."""
 
@@ -2909,6 +2956,7 @@ STAFF_ACTION_TYPES = {
 }
 ADMIN_ACTION_TYPES = STAFF_ACTION_TYPES | {
     "schedule_template_add", "schedule_template_update",
+    "broadcast_email", "event_announce", "open_tab",
 }
 CHAT_ACTION_MAX = env_int("PAIDIA_CHAT_ACTION_MAX", 12)
 
@@ -2984,7 +3032,7 @@ def zoai_knowledge_for_role(role: str, user_text: str = "") -> str:
             continue
         if role == "child" and tid in {"stock", "shop", "schedule", "shift", "admin"}:
             continue
-        hit = not needle or any(str(k).lower() in needle for k in keys)
+        hit = bool(needle) and any(str(k).lower() in needle for k in keys)
         if hit:
             matched.append(f"[{tid}] {snippet}")
     # If nothing matched staff/admin queries, include a tiny ops reminder
@@ -3003,6 +3051,12 @@ def zoai_knowledge_for_role(role: str, user_text: str = "") -> str:
     elif role in {"staff", "admin"}:
         if actions:
             parts.append(_zoai_truncate(actions, actions_limit))
+        # Keyword-only staff.md (token saver — not always injected)
+        staff_keys = ("lager", "liste", "plan", "schicht", "stock", "shop", "schedule", "απόθεμα", "λίστα", "πρόγραμμα")
+        if needle and any(k in needle for k in staff_keys):
+            staff_md = _zoai_read_md("staff.md")
+            if staff_md:
+                parts.append(_zoai_truncate(staff_md, 900))
         if role == "admin":
             admin = _zoai_read_md("admin.md")
             if admin:
@@ -3136,10 +3190,11 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
                 "houseId", "productQuery", "name", "dir", "unit", "reason",
                 "date", "block", "employeeId", "activityId", "activityQuery",
                 "entryId", "from", "to", "note", "text", "tab",
+                "audience", "subject", "title", "message",
             ):
                 value = row.get(key)
                 if isinstance(value, str) and value.strip():
-                    limit = 400 if key in {"text", "note"} else 120
+                    limit = 4000 if key in {"text", "note", "message"} else (400 if key in {"subject", "title"} else 120)
                     action[key] = value.strip()[:limit]
             if isinstance(row.get("childIds"), list):
                 action["childIds"] = [
@@ -3184,9 +3239,18 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
                     continue
             elif kind == "open_tab":
                 tab = str(action.get("tab", "")).strip().lower()
-                if tab not in {"home", "gallery", "schedule", "stock", "shop", "book"}:
+                if tab not in {"home", "gallery", "schedule", "stock", "shop", "book", "talk"}:
                     continue
                 action["tab"] = tab
+            elif kind == "broadcast_email":
+                aud = str(action.get("audience") or "all").strip().lower()
+                if aud not in {"all", "staff", "children", "child", "kids"}:
+                    aud = "all"
+                action["audience"] = "children" if aud in {"child", "kids"} else aud
+                if not action.get("subject") or not action.get("message"):
+                    continue
+            elif kind == "event_announce":
+                action["open"] = True
             elif kind == "schedule_add":
                 if not action.get("date") or not action.get("block"):
                     continue
@@ -3935,6 +3999,24 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             self.handle_chat(body, api_key)
             return
+        if path in {"/api/learn", "/api/quiz", "/api/gallery/caption"}:
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            if not api_key and not omniroute_reachable() and PAIDIA_LLM_PROVIDER != "omniroute":
+                self.json_response(503, {
+                    "error": "AI is not configured",
+                    "setup": "Set GROQ_API_KEY or start OmniRoute (OMNIROUTE_BASE_URL)",
+                })
+                return
+            if path == "/api/learn":
+                status, payload = run_learn(body, api_key)
+            elif path == "/api/quiz":
+                status, payload = run_quiz(body, api_key)
+            else:
+                status, payload = run_gallery_caption(body, api_key)
+            self.json_response(status, payload)
+            return
         if not api_key:
             self.json_response(503, {
                 "error": "Groq is not configured",
@@ -3942,27 +4024,6 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return
 
-        if path == "/api/learn":
-            if not self.current_auth_session():
-                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
-                return
-            status, payload = run_learn(body, api_key)
-            self.json_response(status, payload)
-            return
-        if path == "/api/quiz":
-            if not self.current_auth_session():
-                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
-                return
-            status, payload = run_quiz(body, api_key)
-            self.json_response(status, payload)
-            return
-        if path == "/api/gallery/caption":
-            if not self.current_auth_session():
-                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
-                return
-            status, payload = run_gallery_caption(body, api_key)
-            self.json_response(status, payload)
-            return
         if path == "/api/ai-shopping":
             if not self.current_auth_session():
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
@@ -4769,12 +4830,16 @@ class Handler(SimpleHTTPRequestHandler):
             or session.get("profile_id")
             or "Admin"
         )
+        lang = str(body.get("lang") or "de").strip().lower()
+        if lang not in {"de", "el"}:
+            lang = "de"
         result = deliver_broadcast(
             audience=audience,
             subject=subject,
             title=title,
             message=message,
             sender_name=sender_name,
+            lang=lang,
         )
         status = 200 if result.get("sent") else 502
         self.json_response(status, {"ok": bool(result.get("sent")), **result})

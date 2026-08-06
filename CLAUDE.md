@@ -20,6 +20,11 @@ Do not open `index.html` via `file://` — AI routes need the server.
 | Vercel | `api/index.py` (imports paidia helpers) |
 | Durable store | `db.py` (SQLite / Postgres) |
 | Zo-Ai knowledge | `docs/zoai/` (injected into chat prompts) |
+| Coding-agent maps | `docs/agents/` + root `AGENTS.md` (token savers) |
+
+## Agent maps (read first)
+
+See **[AGENTS.md](AGENTS.md)** → `docs/agents/SUMMARY.md`, `TOKEN_REDUCE.md`, `KNOWLEDGE_MAP.md`, `MEMORY_MAP.md`, `map.json`.
 
 ## Zo-Ai (in-app assistant)
 
@@ -42,4 +47,5 @@ Skill lives at `.claude/skills/task-observer/` (and `~/.claude/skills/task-obser
 
 - Never commit `.env`, PINs, WhatsApp tokens, or live caregiver phone numbers
 - Prefer small diffs; match existing vanilla JS + Flask style
-- Cache bust: bump `?v=` in `gate.js` / `index.html` when shipping client changes
+- Cache bust: bump `build.json` + `CHANGELOG.md` + `?v=` in `gate.js` / `index.html` / `sw.js` when shipping client changes
+- Never paste entire `app.js` / `server.py` — use `docs/agents/` maps

@@ -21,7 +21,7 @@ Max **12** actions per reply. Never claim they are already saved — the app sho
 | `schedule_update` | **date**, entryId and/or activityQuery, block?, houseId?, employeeId?, from?, to?, note? |
 | `schedule_cancel` | **date**, entryId and/or activityQuery, block? |
 | `shift_note` | **text**, houseId? — append own shift diary |
-| `open_tab` | **tab** home\|gallery\|schedule\|stock\|shop\|book — UI only |
+| `open_tab` | **tab** home\|gallery\|schedule\|stock\|shop\|book\|talk — UI only |
 
 ## Admin only
 
@@ -29,6 +29,8 @@ Max **12** actions per reply. Never claim they are already saved — the app sho
 |------|--------|
 | `schedule_template_add` | **day** 0–6 Mon=0, **block**, **activityQuery**\|activityId, houseId?, employeeId?, from?, to?, childIds?, note? |
 | `schedule_template_update` | **entryId**, day?, block?, houseId?, employeeId?, activityQuery?, from?, to?, note? |
+| `broadcast_email` | **subject**, **message**, audience all\|staff\|children, title? — opens Confirm UI (PIN); does not send alone |
+| `event_announce` | open events tools / remind to publish |
 
 Match productQuery / activityQuery / houseId / employeeId to names and ids from UI context when possible. Prefer activeHouse / activeDate when the user does not name them. Batch related changes in one fence.
 

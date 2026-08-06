@@ -1,5 +1,5 @@
 // Network-first PWA worker — never serve a stale login shell.
-const CACHE = 'paidia-v66';
+const CACHE = 'paidia-v67';
 const ASSETS = ['./manifest.webmanifest'];
 
 self.addEventListener('install', e => {

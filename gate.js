@@ -31,6 +31,14 @@
 
   let lang = localStorage.getItem('paidia.lang') || 'de';
   let bootSettled = false;
+  const APP_BUILD = {
+    version: 67,
+    label: 'v67',
+    changed: {
+      de: 'Agent-Maps · Login-Version · Biometrie · Admin-Mails · Kind-Mitteilungen & Anleitung',
+      el: 'Agent maps · Έκδοση στο login · Biometrics · Admin emails · Ειδοποιήσεις & οδηγίες παιδιών',
+    },
+  };
   const copy = {
     de: {
       brand: 'Gemeinsam durch den Tag',
@@ -40,6 +48,7 @@
       staffSub: 'Team-Anmeldung',
       child: 'Kinder',
       childSub: 'Kinder-Anmeldung',
+      childInstall: 'App aufs Handy: iPhone → Teilen → Zum Home-Bildschirm · Android → Menü → App installieren',
       pick: 'Profil wählen',
       pin: 'PIN eingeben',
       login: 'Anmelden',
@@ -75,6 +84,7 @@
       staffSub: 'Είσοδος ομάδας',
       child: 'Παιδιά',
       childSub: 'Είσοδος παιδιών',
+      childInstall: 'App στο κινητό: iPhone → Κοινή χρήση → Στην οθόνη Αφετηρίας · Android → Μενού → Εγκατάσταση εφαρμογής',
       pick: 'Επίλεξε προφίλ',
       pin: 'Βάλε PIN',
       login: 'Είσοδος',
@@ -114,7 +124,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=66';
+    script.src = 'app.js?v=67';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -139,6 +149,7 @@
   }
 
   function renderEntrance() {
+    const note = (APP_BUILD.changed && (APP_BUILD.changed[lang] || APP_BUILD.changed.de)) || '';
     body.innerHTML = `
       ${langSwitch()}
       <div class="gate-head">
@@ -156,11 +167,21 @@
           <div class="pa" style="background:#fde68a;margin:0;flex:0 0 auto">🎈</div>
           <div><div class="pn" style="font-size:16px">${t('child')}</div><div class="pr">${t('childSub')}</div></div>
         </button>
-      </div>`;
+      </div>
+      <div class="gate-build" role="status"><b>${esc(APP_BUILD.label)}</b><span>${esc(note)}</span></div>`;
     wireLang();
     body.querySelectorAll('[data-mode]').forEach((button) => {
       button.onclick = () => renderProfiles(button.dataset.mode);
     });
+    fetch('build.json?v=' + APP_BUILD.version, { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).then((data) => {
+      if (!data || !data.label) return;
+      Object.assign(APP_BUILD, data);
+      const el = body.querySelector('.gate-build');
+      if (el) {
+        const n = (APP_BUILD.changed && (APP_BUILD.changed[lang] || APP_BUILD.changed.de)) || '';
+        el.innerHTML = `<b>${esc(APP_BUILD.label)}</b><span>${esc(n)}</span>`;
+      }
+    }).catch(() => {});
   }
 
   function renderProfiles(mode) {
@@ -173,6 +194,7 @@
         <h2>${mode === 'child' ? t('child') : t('staff')}</h2>
         <p>${t('pick')}</p>
       </div>
+      ${mode === 'child' ? `<p class="muted" style="font-size:12px;line-height:1.4;margin:0 0 12px">${esc(t('childInstall'))}</p>` : ''}
       <div class="profiles">
         ${people.map((person) => `
           <button class="profile" type="button" data-p="${person.id}">

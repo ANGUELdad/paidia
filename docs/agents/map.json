@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "topics": [
+    {
+      "id": "auth",
+      "keys": ["login", "pin", "passkey", "webauthn", "gate", "biometr", "face id", "session"],
+      "files": ["gate.js", "app.js", "server.py"],
+      "snippet": "Gate: renderEntrance, PIN + WebAuthn. Server: /api/auth/*, PAIDIA_WEBAUTHN_ORIGIN/RP_ID. Profile sheetSecurityAccess."
+    },
+    {
+      "id": "book",
+      "keys": ["buch", "book", "journal", "schichtbuch", "shift note", "audit", "log"],
+      "files": ["app.js", "index.html"],
+      "snippet": "viewBook panes shift|log|people. writeShiftJournalPage append ink. Filters bookRange/type/who/q/view."
+    },
+    {
+      "id": "shop",
+      "keys": ["liste", "shop", "friday", "einkauf", "cart"],
+      "files": ["app.js"],
+      "snippet": "viewShop house Friday list; store mode confirmBatch; import OCR."
+    },
+    {
+      "id": "stock",
+      "keys": ["lager", "stock", "shift stock", "kalyvia"],
+      "files": ["app.js"],
+      "snippet": "viewStock drafts; shiftStockCheck Kalyvia h1; want_bought → Friday list."
+    },
+    {
+      "id": "email",
+      "keys": ["email", "broadcast", "smtp", "resend", "mail"],
+      "files": ["server.py", "app.js", "api/index.py", "email-preview.html"],
+      "snippet": "email_shell + send_broadcast_email. Admin sheetBroadcastEmail → /api/notify/broadcast. PAIDIA_BROADCAST_COOLDOWN/MAX."
+    },
+    {
+      "id": "notif",
+      "keys": ["notification", "mitteilung", "push", "presence", "sweep"],
+      "files": ["app.js", "sw.js"],
+      "snippet": "Local Notification API + SW click. runNotificationSweep staff (+ child events). webPush false until Phase E."
+    },
+    {
+      "id": "zoai",
+      "keys": ["zo-ai", "zoai", "chat", "paidia-action", "omni", "groq"],
+      "files": ["server.py", "docs/zoai/", "app.js"],
+      "snippet": "/api/chat + learn/quiz/caption via llm_completion (OmniRoute when reachable, else Groq). Vercel typically Groq. zoai_knowledge_for_role; confirmable actions. docs/zoai/map.json."
+    },
+    {
+      "id": "calendar",
+      "keys": ["calendar", "ics", "google", "outlook", "kalender"],
+      "files": ["app.js"],
+      "snippet": "sheetCalendar buildIcs VALARM; googleCalUrl outlookCalUrl per person."
+    },
+    {
+      "id": "gate",
+      "keys": ["entrance", "version", "changelog", "install", "pwa"],
+      "files": ["gate.js", "build.json", "CHANGELOG.md"],
+      "snippet": "Login shows build.json version + changed.de/el. Child install instructions."
+    },
+    {
+      "id": "db",
+      "keys": ["postgres", "sqlite", "durable", "ops", "DATABASE_URL"],
+      "files": ["db.py", "server.py"],
+      "snippet": "db.py keys; OPS_STATE persist; durableStorage on /api/health."
+    },
+    {
+      "id": "child",
+      "keys": ["kind", "child", "games", "portal", "kids"],
+      "files": ["app.js", "docs/zoai/child.md"],
+      "snippet": "renderChild tabs; install/how-to; event notifs only; no staff ops; Zo-Ai read-only."
+    }
+  ]
+}
