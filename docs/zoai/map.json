@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "always_chars": 900,
+  "actions_chars": 1400,
+  "safety_chars": 700,
+  "overview_chars": 900,
+  "topics": [
+    {
+      "id": "stock",
+      "keys": ["lager", "stock", "bestand", "fridge", "kühl", "milch", "eier", "inventory", "απόθεμα", "ψυγείο", "in ", "out ", "qty", "menge", "want bought", "gekauft werden"],
+      "snippet": "LAGER: sticky house+search+chips. Single house: −/＋ draft dock then save. All houses: optional tile grid. stock_adjust {houseId,productQuery,dir:IN|OUT,qty}. stock_set {houseId,productQuery,qty} absolute. want_bought {houseId,productQuery} adds to Friday list. Shift stock check Kalyvia h1 via ☑️."
+    },
+    {
+      "id": "shop",
+      "keys": ["liste", "shop", "einkauf", "friday", "freitag", "supermarket", "import", "αγορά", "λίστα", "cart", "store"],
+      "snippet": "LISTE: house+Friday+quick-add. shop_add/shop_remove. Store mode: ✓/∅/€ then confirmBatch. Import via Liste einlesen (OCR). Prefer activeHouse + shopFriday from context."
+    },
+    {
+      "id": "schedule",
+      "keys": ["plan", "schedule", "termin", "block", "morning", "afternoon", "evening", "vormittag", "nachmittag", "abend", "πρόγραμμα", "δραστηρι", "template", "dauerhaft"],
+      "snippet": "PLAN: day/week/matrix. Day overrides: schedule_add|update|cancel (PIN). Template admin: schedule_template_add|update day 0=Mon…6=Sun. Blocks: morning|afternoon|evening. Match activityQuery to context activities."
+    },
+    {
+      "id": "shift",
+      "keys": ["schicht", "shift", "notiz", "handover", "übergabe", "βάρδια", "diary"],
+      "snippet": "SCHICHT: shift_note {text,houseId?} appends to own shift diary on Buch. Stock check credit is separate (shift stock check UI)."
+    },
+    {
+      "id": "nav",
+      "keys": ["öffne", "open", "gehe", "goto", "tab", "home", "momente", "gallery", "buch", "άνοιξε"],
+      "snippet": "NAV: open_tab {tab:home|gallery|schedule|stock|shop|book} after confirm switches UI only (no data mutate)."
+    },
+    {
+      "id": "gallery",
+      "keys": ["momente", "gallery", "foto", "photo", "drive", "like", "comment", "στιγμ"],
+      "snippet": "MOMENTE: private feed, share FAB, Drive media when configured. Zo-Ai cannot post/delete photos — guide user to Share."
+    },
+    {
+      "id": "child",
+      "keys": ["kind", "child", "spiel", "game", "heute", "woche", "παιδί", "παιχνίδι"],
+      "snippet": "CHILD: today/week/events/games/gallery only. Zo-Ai read-only — never paidia-action."
+    },
+    {
+      "id": "admin",
+      "keys": ["admin", "vorlage", "template", "security", "kontakt", "email", "passkey"],
+      "snippet": "ADMIN: Admin center, permanent template, contacts, security. Template actions admin-only. Never reveal PINs."
+    }
+  ]
+}

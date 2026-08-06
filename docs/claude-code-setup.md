@@ -47,7 +47,7 @@ claude plugin list 2>/dev/null || true
 claude mcp add-server omniroute --type http --url http://localhost:20128/api/mcp/stream
 ```
 
-Do **not** route Cursor or in-app Zo-Ai through OmniRoute unless you intend to.
+Do **not** route Cursor through OmniRoute unless you intend to. **Zo-Ai** (in-app) uses OmniRoute automatically when `PAIDIA_LLM_PROVIDER=auto` and `OMNIROUTE_BASE_URL` is reachable (falls back to Groq).
 
 ### Headroom wrap (optional)
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import hashlib
 import hmac
+import html as html_lib
 import ipaddress
 import os
 import re
@@ -27,6 +28,11 @@ try:
     import db as paidia_db
 except ImportError:  # pragma: no cover
     paidia_db = None  # type: ignore
+
+try:
+    import drive_gallery as paidia_drive
+except ImportError:  # pragma: no cover
+    paidia_drive = None  # type: ignore
 
 
 def _db_get(key: str, default=None):
@@ -97,6 +103,12 @@ PORT = int(os.environ.get("PAIDIA_PORT", "5173"))
 OCR_MODEL = os.environ.get("GROQ_OCR_MODEL", "qwen/qwen3.6-27b")
 CHAT_MODEL = os.environ.get("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+# OmniRoute (local OpenAI-compatible gateway) — preferred for Zo-Ai when reachable.
+OMNIROUTE_BASE_URL = os.environ.get("OMNIROUTE_BASE_URL", "http://127.0.0.1:20128").rstrip("/")
+OMNIROUTE_API_KEY = os.environ.get("OMNIROUTE_API_KEY", "").strip()
+OMNIROUTE_CHAT_MODEL = os.environ.get("OMNIROUTE_CHAT_MODEL", "auto/best-reasoning")
+PAIDIA_LLM_PROVIDER = os.environ.get("PAIDIA_LLM_PROVIDER", "auto").strip().lower()  # auto|groq|omniroute
+_OMNI_REACHABLE_CACHE: dict[str, float | bool] = {"ok": False, "checked": 0.0}
 MAX_BODY = 12 * 1024 * 1024
 WHATSAPP_GRAPH_VERSION = os.environ.get("WHATSAPP_GRAPH_VERSION", "v23.0")
 WHATSAPP_GRAPH_URL = "https://graph.facebook.com"
@@ -198,13 +210,18 @@ OPS_KEYS = (
     "aiImports",
     "log",
     "customActivities",
+    "customListRemoveReasons",
     "shiftNotes",
+    "stockChecks",
+    "shiftCheckins",
 )
-OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes"}
+OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks"}
 OPS_LIST_CAPS = {
     "listEntries": 4000,
     "shoppingTrips": 4000,
     "log": 2500,
+    "stockChecks": 800,
+    "shiftCheckins": 2000,
     "events": 800,
     "overrides": 4000,
     "taskCompletions": 4000,
@@ -883,6 +900,15 @@ def _safe_int(value: object, default: int = 0, lo: int | None = None, hi: int | 
     return n
 
 
+def _gallery_photo_ok(photo: str) -> bool:
+    raw = str(photo or "")
+    if raw.startswith("data:image/") and len(raw) <= GALLERY_PHOTO_MAX:
+        return True
+    if paidia_drive and paidia_drive.file_id_from_photo_ref(raw):
+        return True
+    return False
+
+
 def _normalize_gallery_state(value: object) -> dict:
     if not isinstance(value, dict):
         return {"posts": [], "updatedAt": 0}
@@ -892,9 +918,7 @@ def _normalize_gallery_state(value: object) -> dict:
         if not isinstance(item, dict):
             continue
         photo = str(item.get("photo") or "")
-        if not photo.startswith("data:image/"):
-            continue
-        if len(photo) > GALLERY_PHOTO_MAX:
+        if not _gallery_photo_ok(photo):
             continue
         likes = item.get("likes") if isinstance(item.get("likes"), list) else []
         stars = item.get("stars") if isinstance(item.get("stars"), list) else []
@@ -989,7 +1013,21 @@ def persist_gallery_state() -> None:
             raise
 
 
+def refresh_gallery_state_from_disk() -> None:
+    """Re-read shared store so concurrent/cold instances see latest Moments writes."""
+    loaded = load_gallery_state()
+    with GALLERY_LOCK:
+        current_at = int(GALLERY_STATE.get("updatedAt") or 0)
+        loaded_at = int(loaded.get("updatedAt") or 0)
+        current_n = len(GALLERY_STATE.get("posts") or [])
+        loaded_n = len(loaded.get("posts") or [])
+        if loaded_at > current_at or (loaded_at == current_at and loaded_n >= current_n):
+            GALLERY_STATE.clear()
+            GALLERY_STATE.update(loaded)
+
+
 def gallery_snapshot() -> dict:
+    refresh_gallery_state_from_disk()
     with GALLERY_LOCK:
         posts = list(GALLERY_STATE.get("posts") or [])
         feed = sorted(posts, key=lambda p: p.get("at") or 0, reverse=True)
@@ -997,7 +1035,23 @@ def gallery_snapshot() -> dict:
             "posts": feed,
             "updatedAt": int(GALLERY_STATE.get("updatedAt") or 0),
             "limit": GALLERY_POST_LIMIT,
+            "drive": bool(paidia_drive and paidia_drive.drive_configured()),
         }
+
+
+def gallery_media_response(file_id: str, session: dict | None) -> tuple[int, dict | bytes, str]:
+    """Return (status, body_or_error, content_type)."""
+    if not session:
+        return 401, {"error": "Authentication required", "code": "auth_required"}, "application/json"
+    if not (paidia_drive and paidia_drive.drive_configured()):
+        return 503, {"error": "Google Drive is not configured", "code": "configuration"}, "application/json"
+    try:
+        blob, mime = paidia_drive.download_gallery_photo(file_id)
+        return 200, blob, mime
+    except ValueError:
+        return 400, {"error": "Invalid media id", "code": "input"}, "application/json"
+    except Exception as exc:  # noqa: BLE001
+        return 502, {"error": f"Media fetch failed: {exc}", "code": "provider"}, "application/json"
 
 
 def gallery_local_blocked(text: str) -> bool:
@@ -1147,20 +1201,37 @@ def mutate_gallery(action: str, body: dict, session: dict) -> tuple[int, dict]:
         if blocked:
             return blocked
 
+    # Upload to Drive outside the lock so cold instances do not block each other.
+    drive_photo_ref = None
+    create_photo_raw = None
+    if action == "create":
+        create_photo_raw = str(body.get("photo") or "")
+        if not create_photo_raw.startswith("data:image/"):
+            return 400, {"error": "Photo required", "code": "input"}
+        if len(create_photo_raw) > GALLERY_PHOTO_MAX:
+            return 400, {
+                "error": "Photo too large — compress and retry",
+                "code": "photo_too_large",
+                "max": GALLERY_PHOTO_MAX,
+            }
+        if paidia_drive and paidia_drive.drive_configured():
+            try:
+                file_id = paidia_drive.upload_gallery_photo(
+                    create_photo_raw,
+                    post_hint=f"{profile_id}-{now_ms}",
+                )
+                drive_photo_ref = paidia_drive.media_path_for(file_id)
+            except Exception as exc:  # noqa: BLE001
+                print(f"[paidia.drive] upload failed, keeping inline photo: {exc}", flush=True)
+
+    refresh_gallery_state_from_disk()
+    delete_drive_ids: list[str] = []
     with GALLERY_LOCK:
         posts = list(GALLERY_STATE.get("posts") or [])
 
         if action == "create":
             caption = str(body.get("caption") or "").strip()[:GALLERY_CAPTION_MAX]
-            photo = str(body.get("photo") or "")
-            if not photo.startswith("data:image/"):
-                return 400, {"error": "Photo required", "code": "input"}
-            if len(photo) > GALLERY_PHOTO_MAX:
-                return 400, {
-                    "error": "Photo too large — compress and retry",
-                    "code": "photo_too_large",
-                    "max": GALLERY_PHOTO_MAX,
-                }
+            photo = drive_photo_ref or create_photo_raw
             posts.append({
                 "id": "gm-" + secrets.token_urlsafe(8),
                 "caption": caption,
@@ -1256,6 +1327,10 @@ def mutate_gallery(action: str, body: dict, session: dict) -> tuple[int, dict]:
             owner = post.get("by") == profile_id
             if not owner and not is_staff:
                 return 403, {"error": "Not allowed", "code": "forbidden"}
+            if paidia_drive:
+                fid = paidia_drive.file_id_from_photo_ref(str(post.get("photo") or ""))
+                if fid:
+                    delete_drive_ids.append(fid)
             posts = [p for p in posts if p.get("id") != post_id]
 
         else:
@@ -1267,6 +1342,13 @@ def mutate_gallery(action: str, body: dict, session: dict) -> tuple[int, dict]:
             persist_gallery_state()
         except OSError:
             return 507, {"error": "Gallery could not be saved", "code": "storage"}
+
+    for fid in delete_drive_ids:
+        try:
+            if paidia_drive:
+                paidia_drive.delete_gallery_photo(fid)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[paidia.drive] delete failed for {fid}: {exc}", flush=True)
 
     return 200, gallery_snapshot()
 
@@ -2214,23 +2296,59 @@ def send_email(recipient: str, subject: str, text_body: str, html_body: str | No
     raise EmailDeliveryError("Email delivery is not configured", "email_not_configured")
 
 
-def email_shell(title: str, eyebrow: str, body_html: str, footer: str | None = None) -> str:
-    """Shared branded HTML wrapper for transactional mail."""
-    foot = footer or "Armonia Thassos · Thasos · Automatische Nachricht"
+def email_escape(value: object) -> str:
+    return html_lib.escape(str(value if value is not None else ""), quote=True)
+
+
+def email_shell(
+    title: str,
+    eyebrow: str,
+    body_html: str,
+    footer: str | None = None,
+    *,
+    preheader: str = "",
+) -> str:
+    """Branded Armonia HTML wrapper — olive / Aegean, card layout, email-safe."""
+    foot = footer or "Armonia Thassos · Thassos · Automatische Nachricht · bitte nicht antworten"
+    safe_title = email_escape(title)
+    safe_eyebrow = email_escape(eyebrow)
+    safe_foot = email_escape(foot)
+    safe_pre = email_escape(preheader or title)
+    public = (os.environ.get("PAIDIA_PUBLIC_URL") or "").rstrip("/")
+    app_link = email_button(public or "#", "App öffnen") if public else ""
     return f"""<!DOCTYPE html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{title}</title></head>
-<body style="margin:0;padding:0;background:#e8eef2;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#e8eef2;padding:28px 12px">
+<html lang="de"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">
+<title>{safe_title}</title>
+</head>
+<body style="margin:0;padding:0;background:#e6ebe7;font-family:Georgia,'Times New Roman',serif">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">{safe_pre}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#e6ebe7;padding:32px 14px">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:22px;overflow:hidden;box-shadow:0 18px 50px rgba(15,40,55,.12)">
-        <tr><td style="padding:28px 28px 18px;background:linear-gradient(135deg,#0f3d4c 0%,#146b73 55%,#1d8a7a 100%)">
-          <div style="display:inline-block;width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.14);color:#ecfeff;font-weight:800;font-size:20px;line-height:42px;text-align:center">A</div>
-          <div style="margin-top:14px;color:#99f6e4;font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase">{eyebrow}</div>
-          <h1 style="margin:8px 0 0;color:#f8fafc;font-size:26px;line-height:1.2;letter-spacing:-.02em">{title}</h1>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:580px;border-collapse:separate">
+        <tr><td style="padding:0 0 14px;text-align:center">
+          <span style="font-family:Georgia,serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#2a6b52;font-weight:700">Armonia Thassos</span>
         </td></tr>
-        <tr><td style="padding:26px 28px 8px;color:#1e293b;font-size:15px;line-height:1.65">{body_html}</td></tr>
-        <tr><td style="padding:18px 28px 26px;color:#64748b;font-size:12px;line-height:1.55;border-top:1px solid #eef2f6">{foot}</td></tr>
+        <tr><td style="background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 22px 56px rgba(26,40,34,.14);border:1px solid rgba(26,40,34,.06)">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+            <tr><td style="padding:28px 28px 22px;background:linear-gradient(145deg,#1a2822 0%,#2f5648 46%,#2f5a63 100%)">
+              <table role="presentation" cellspacing="0" cellpadding="0"><tr>
+                <td style="width:48px;height:48px;border-radius:16px;background:linear-gradient(145deg,#9bc4b0,#7a9eaa);color:#1a2822;font-family:Georgia,serif;font-weight:800;font-size:22px;line-height:48px;text-align:center">A</td>
+                <td style="padding-left:14px">
+                  <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#9bc4b0;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase">{safe_eyebrow}</div>
+                  <div style="font-family:Georgia,serif;color:#f4fafb;font-size:28px;line-height:1.15;letter-spacing:-.03em;margin-top:6px;font-weight:700">{safe_title}</div>
+                </td>
+              </tr></table>
+            </td></tr>
+            <tr><td style="padding:28px 28px 10px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a2822;font-size:15px;line-height:1.65">{body_html}</td></tr>
+            <tr><td style="padding:8px 28px 26px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif">{app_link}</td></tr>
+            <tr><td style="padding:16px 28px 24px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6b8a94;font-size:12px;line-height:1.55;border-top:1px solid #e8eef2;background:#f7faf8">{safe_foot}</td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:18px 8px 0;text-align:center;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6b8a94;font-size:11px">
+          PAIDIA · Betreuung · Plan · Lager · Momente
+        </td></tr>
       </table>
     </td></tr>
   </table>
@@ -2238,10 +2356,47 @@ def email_shell(title: str, eyebrow: str, body_html: str, footer: str | None = N
 
 
 def email_button(url: str, label: str) -> str:
+    if not url or url == "#":
+        return ""
     return (
-        f'<p style="margin:22px 0 8px">'
-        f'<a href="{url}" style="display:inline-block;padding:14px 22px;background:linear-gradient(135deg,#0d9488,#0284c7);'
-        f'color:#ffffff;text-decoration:none;border-radius:12px;font-weight:700;font-size:14px">{label}</a></p>'
+        f'<p style="margin:18px 0 4px">'
+        f'<a href="{email_escape(url)}" style="display:inline-block;padding:14px 22px;'
+        f'background:linear-gradient(135deg,#2a6b52,#2f5a63);color:#ffffff;text-decoration:none;'
+        f'border-radius:14px;font-weight:700;font-size:14px;font-family:\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif">'
+        f'{email_escape(label)}</a></p>'
+    )
+
+
+def email_info_table(rows: list[tuple[str, str]]) -> str:
+    cells = []
+    for i, (label, value) in enumerate(rows):
+        border = "border-bottom:1px solid #e8eef2;" if i < len(rows) - 1 else ""
+        cells.append(
+            f'<tr><td style="padding:11px 14px;{border}color:#6b8a94;font-size:12px;'
+            f'font-family:\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif">{email_escape(label)}</td>'
+            f'<td style="padding:11px 14px;{border}text-align:right;font-weight:700;'
+            f'font-family:\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;color:#1a2822">'
+            f'{email_escape(value or "—")}</td></tr>'
+        )
+    return (
+        '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" '
+        'style="background:#f7faf8;border:1px solid #d5e4e8;border-radius:16px">'
+        + "".join(cells)
+        + "</table>"
+    )
+
+
+def email_callout(text: str, *, tone: str = "ok") -> str:
+    styles = {
+        "ok": ("#ecfdf5", "#a7f3d0", "#065f46"),
+        "warn": ("#fffbeb", "#fcd34d", "#92400e"),
+        "info": ("#ecfeff", "#a5f3fc", "#0e7490"),
+    }
+    bg, border, color = styles.get(tone, styles["info"])
+    return (
+        f'<div style="margin:18px 0 0;padding:14px 16px;border-radius:14px;background:{bg};'
+        f'border:1px solid {border};color:{color};font-weight:700;'
+        f'font-family:\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif">{email_escape(text)}</div>'
     )
 
 
@@ -2253,14 +2408,19 @@ def send_pin_reset_email(recipient: str, reset_url: str) -> None:
     )
     html_body = email_shell(
         "PIN sicher ändern",
-        "Armonia Thassos",
+        "Sicherheit",
         (
-            "<p style=\"margin:0 0 12px\">Du hast eine Änderung deiner PIN angefordert.</p>"
-            "<p style=\"margin:0 0 4px;color:#475569\">Der Link gilt <b>30 Minuten</b> und kann nur einmal verwendet werden.</p>"
+            "<p style=\"margin:0 0 12px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            "Du hast eine Änderung deiner PIN angefordert.</p>"
+            "<p style=\"margin:0 0 4px;color:#455851;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            "Der Link gilt <b>30 Minuten</b> und kann nur einmal verwendet werden.</p>"
             f"{email_button(reset_url, 'PIN jetzt ändern')}"
-            f'<p style="margin:14px 0 0;font-size:12px;color:#94a3b8;word-break:break-all">{reset_url}</p>'
-            "<p style=\"margin:18px 0 0;color:#64748b\">Wenn du das nicht warst, ignoriere diese Nachricht.</p>"
+            f'<p style="margin:14px 0 0;font-size:12px;color:#6b8a94;word-break:break-all;'
+            f'font-family:\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif">{email_escape(reset_url)}</p>'
+            "<p style=\"margin:18px 0 0;color:#6b8a94;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            "Wenn du das nicht warst, ignoriere diese Nachricht.</p>"
         ),
+        preheader="Einmaliger Link zum Ändern deiner PIN (30 Minuten)",
     )
     send_email(recipient, "Armonia Thassos – PIN ändern", text_body, html_body)
 
@@ -2287,23 +2447,23 @@ def send_security_alert_email(recipient: str, profile_id: str, event: str,
     )
     html_body = email_shell(
         "Sicherheitswarnung",
-        "Armonia Thassos · Alert",
+        "Alert",
         (
-            f"<p style=\"margin:0 0 16px\">Es gab eine ungewöhnliche Anmeldung:</p>"
-            "<table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" "
-            "style=\"background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px\">"
-            f"<tr><td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;color:#64748b;font-size:12px\">Ereignis</td>"
-            f"<td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;text-align:right;font-weight:700\">{label}</td></tr>"
-            f"<tr><td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;color:#64748b;font-size:12px\">Profil</td>"
-            f"<td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;text-align:right;font-weight:700\">{profile_id}</td></tr>"
-            f"<tr><td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;color:#64748b;font-size:12px\">IP</td>"
-            f"<td style=\"padding:12px 14px;border-bottom:1px solid #eef2f6;text-align:right;font-weight:700\">{ip}</td></tr>"
-            f"<tr><td style=\"padding:12px 14px;color:#64748b;font-size:12px\">Zeit</td>"
-            f"<td style=\"padding:12px 14px;text-align:right;font-weight:700\">{when}</td></tr>"
-            "</table>"
-            "<p style=\"margin:18px 0 0;color:#64748b\">Wenn du das nicht warst, ändere deine PIN und informiere die Leitung.</p>"
+            "<p style=\"margin:0 0 16px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            "Es gab eine ungewöhnliche Anmeldung:</p>"
+            + email_info_table([
+                ("Ereignis", label),
+                ("Profil", profile_id),
+                ("IP", ip),
+                ("Zeit", when),
+                ("Fehlversuche", str(attempts)),
+            ])
+            + "<p style=\"margin:18px 0 0;color:#6b8a94;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            "Wenn du das nicht warst, ändere deine PIN und informiere die Leitung.</p>"
+            + email_callout("Sofort handeln, wenn du diese Anmeldung nicht kennst", tone="warn")
         ),
         "Keine Antwort nötig · Nur für Admins / Profil-Recovery",
+        preheader=f"{label} · {profile_id}",
     )
     send_email(recipient, f"Armonia Thassos – Sicherheitswarnung: {label}", text_body, html_body)
 
@@ -2315,14 +2475,15 @@ def send_test_profile_email(recipient: str) -> None:
     )
     html_body = email_shell(
         "E-Mail funktioniert",
-        "Armonia Thassos · Test",
+        "Test",
         (
-            "<p style=\"margin:0 0 12px\">Deine Profil-E-Mail ist erfolgreich verbunden.</p>"
-            "<p style=\"margin:0;color:#475569\">PIN-Reset-Links und Sicherheitsmeldungen "
-            "können jetzt an diese Adresse gesendet werden.</p>"
-            "<div style=\"margin:20px 0 0;padding:14px 16px;border-radius:14px;background:#ecfeff;border:1px solid #99f6e4;color:#0f766e;font-weight:700\">"
-            "✓ E-Mail bereit · PIN-Links & Sicherheitsmeldungen</div>"
+            "<p style=\"margin:0 0 12px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            "Deine Profil-E-Mail ist erfolgreich verbunden.</p>"
+            "<p style=\"margin:0;color:#455851;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            "PIN-Reset-Links, Events und Team-Nachrichten können jetzt an diese Adresse gesendet werden.</p>"
+            + email_callout("✓ E-Mail bereit · PIN-Links, Events & Team-Mails", tone="ok")
         ),
+        preheader="Deine Armonia-E-Mail ist verbunden",
     )
     send_email(recipient, "Armonia Thassos – E-Mail funktioniert", text_body, html_body)
 
@@ -2334,12 +2495,16 @@ def send_pin_changed_email(recipient: str, profile_name: str) -> None:
     )
     html_body = email_shell(
         "PIN geändert",
-        "Armonia Thassos · Sicherheit",
+        "Sicherheit",
         (
-            f"<p style=\"margin:0 0 12px\">Die PIN für <b>{profile_name}</b> wurde erfolgreich geändert.</p>"
-            "<p style=\"margin:0;color:#475569\">Wenn du das nicht warst, setze die PIN sofort zurück "
+            f"<p style=\"margin:0 0 12px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            f"Die PIN für <b>{email_escape(profile_name)}</b> wurde erfolgreich geändert.</p>"
+            "<p style=\"margin:0;color:#455851;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            "Wenn du das nicht warst, setze die PIN sofort zurück "
             "über die Anmeldeseite und informiere die Leitung.</p>"
+            + email_callout("PIN-Änderung bestätigt", tone="ok")
         ),
+        preheader=f"PIN für {profile_name} wurde geändert",
     )
     send_email(recipient, "Armonia Thassos – PIN geändert", text_body, html_body)
 
@@ -2354,28 +2519,134 @@ def send_event_announcement_email(recipient: str, title: str, date: str, start: 
         f"Kinder: {children or '—'}\n"
         f"Hinweis: {note or '—'}\n"
     )
-    rows = "".join(
-        f"<tr><td style=\"padding:10px 14px;border-bottom:1px solid #eef2f6;color:#64748b;font-size:12px\">{label}</td>"
-        f"<td style=\"padding:10px 14px;border-bottom:1px solid #eef2f6;text-align:right;font-weight:700\">{value or '—'}</td></tr>"
-        for label, value in (
-            ("Datum", date),
-            ("Zeit", f"{start}–{end}" if start or end else ""),
-            ("Ort", location),
-            ("Kinder", children),
-        )
-    )
     html_body = email_shell(
         title or "Neues Event",
-        "Armonia Thassos · Event",
+        "Event",
         (
-            "<p style=\"margin:0 0 14px\">Ein neues Event wurde veröffentlicht.</p>"
-            "<table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" "
-            f"style=\"background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px\">{rows}</table>"
-            + (f"<p style=\"margin:16px 0 0;color:#475569\">{note}</p>" if note else "")
+            "<p style=\"margin:0 0 14px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            "Ein neues Event wurde veröffentlicht.</p>"
+            + email_info_table([
+                ("Datum", date),
+                ("Zeit", f"{start}–{end}" if start or end else ""),
+                ("Ort", location),
+                ("Kinder", children),
+            ])
+            + (
+                f"<p style=\"margin:16px 0 0;color:#455851;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+                f"{email_escape(note)}</p>"
+                if note else ""
+            )
         ),
         "Bitte im PAIDIA Events-Tab nachsehen",
+        preheader=f"Event: {title} · {date}",
     )
     send_email(recipient, f"Armonia Thassos – Event: {title}", text_body, html_body)
+
+
+def profile_email_directory() -> list[dict]:
+    """Profiles that have a deliverable email on file."""
+    rows = []
+    for profile_id, user in AUTH_USERS.items():
+        email = (user.get("email") or "").strip().lower()
+        if not email or not valid_email(email):
+            continue
+        rows.append({
+            "profileId": profile_id,
+            "mode": user.get("mode") or "staff",
+            "name": user.get("name") or profile_id,
+            "email": email,
+            "admin": bool(user.get("admin")),
+        })
+    return rows
+
+
+def broadcast_recipients(audience: str = "all") -> list[dict]:
+    audience = (audience or "all").strip().lower()
+    rows = profile_email_directory()
+    if audience == "staff":
+        return [r for r in rows if r["mode"] == "staff"]
+    if audience in {"child", "children", "kids"}:
+        return [r for r in rows if r["mode"] == "child"]
+    return rows
+
+
+def send_broadcast_email(recipient: str, *, subject: str, title: str, body: str,
+                         sender_name: str, audience_label: str) -> None:
+    text_body = (
+        f"{title}\n\n{body}\n\n"
+        f"— {sender_name} (Admin)\n"
+        f"Armonia Thassos · {audience_label}\n"
+    )
+    paragraphs = "".join(
+        f"<p style=\"margin:0 0 12px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"
+        f'color:#1a2822;white-space:pre-wrap">{email_escape(part)}</p>'
+        for part in (body or "").split("\n\n") if part.strip()
+    ) or (
+        "<p style=\"margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">—</p>"
+    )
+    html_body = email_shell(
+        title or subject,
+        "Team-Nachricht",
+        (
+            f"<p style=\"margin:0 0 6px;color:#6b8a94;font-size:12px;font-weight:700;"
+            f"letter-spacing:.08em;text-transform:uppercase;"
+            f"font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+            f"Von {email_escape(sender_name)} · {email_escape(audience_label)}</p>"
+            + paragraphs
+            + email_callout("Nachricht aus der Admin-Zentrale", tone="info")
+        ),
+        "Admin-Broadcast · Antworte bitte in der App / Team Talk, nicht per E-Mail",
+        preheader=f"{sender_name}: {title or subject}",
+    )
+    send_email(recipient, subject, text_body, html_body)
+
+
+BROADCAST_RATE: dict[str, float] = {}
+BROADCAST_COOLDOWN = env_int("PAIDIA_BROADCAST_COOLDOWN", 45)
+BROADCAST_MAX_RECIPIENTS = env_int("PAIDIA_BROADCAST_MAX", 80)
+
+AUDIENCE_LABELS = {
+    "all": "Alle Profile",
+    "staff": "Team / Staff",
+    "children": "Kinder",
+    "child": "Kinder",
+    "kids": "Kinder",
+}
+
+
+def deliver_broadcast(
+    *,
+    audience: str,
+    subject: str,
+    title: str,
+    message: str,
+    sender_name: str,
+) -> dict:
+    recipients = broadcast_recipients(audience)
+    label = AUDIENCE_LABELS.get(audience, "Alle Profile")
+    sent = 0
+    failed = 0
+    capped = recipients[: max(1, BROADCAST_MAX_RECIPIENTS)]
+    for row in capped:
+        try:
+            send_broadcast_email(
+                row["email"],
+                subject=subject,
+                title=title,
+                body=message,
+                sender_name=sender_name,
+                audience_label=label,
+            )
+            sent += 1
+        except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
+            failed += 1
+    return {
+        "sent": sent,
+        "failed": failed,
+        "total": len(recipients),
+        "attempted": len(capped),
+        "audience": audience,
+    }
 
 
 def queue_security_alert(profile_id: str, event: str, ip: str, details: dict | None = None) -> bool:
@@ -2566,8 +2837,12 @@ Use houseId / employeeId from context — prefer activeHouse / activeDate when n
 FOOD / STOCK / SHOPPING:
 - "Milch +2 in Kalyvia" → stock_adjust IN
 - "Eier raus 6" → stock_adjust OUT
+- "set Milch to 4" → stock_set
 - "Reis auf die Liste" → shop_add
 - "Tomaten von der Liste" → shop_remove
+- "Butter soll gekauft werden" → want_bought
+- "öffne Lager" → open_tab stock
+- "Schichtnotiz: …" → shift_note
 
 SCHEDULE (fills the plan tables for ONE day — not the permanent template):
 - "trag morgen Nachmittag Fußball für Maria ein" → schedule_add
@@ -2578,11 +2853,15 @@ activityQuery or activityId, from?, to?, childIds?, note?
 
 Allowed action types for staff:
 - stock_adjust: {type, houseId, productQuery, dir:IN|OUT, qty:number, unit?, reason?}
+- stock_set: {type, houseId, productQuery|name, qty:number, unit?}
+- want_bought: {type, houseId, productQuery|name}
 - shop_add: {type, houseId, productQuery|name, qty:number, unit?}
 - shop_remove: {type, houseId, productQuery|name}
 - schedule_add: {type, date, block, houseId?, employeeId?, activityQuery|activityId, from?, to?, childIds?, note?}
 - schedule_update: {type, entryId|activityQuery, date, block?, houseId?, employeeId?, activityQuery?, from?, to?, note?}
 - schedule_cancel: {type, entryId|activityQuery, date, block?}
+- shift_note: {type, text, houseId?}
+- open_tab: {type, tab:home|gallery|schedule|stock|shop|book}
 
 If you propose actions, end with exactly one fenced block:
 ```paidia-action
@@ -2591,7 +2870,7 @@ If you propose actions, end with exactly one fenced block:
 Changes need confirmation in the app (and PIN for schedule). Never claim they are already saved.
 ADMIN-ONLY (you cannot do these — say an admin must): permanent week template edits,
 shift template edits for others, editing another profile's contact, admin center overrides.
-Max 8 actions per reply. If a feature is missing, say so clearly."""
+Max 12 actions per reply. Batch related changes. If a feature is missing, say so clearly."""
 
 HELP_PROMPT_ADMIN = HELP_PROMPT_BASE + """
 
@@ -2623,15 +2902,18 @@ CHAT_RATE_HITS: dict[str, list[float]] = {}
 CHAT_RATE_LOCK = threading.Lock()
 
 STAFF_ACTION_TYPES = {
-    "stock_adjust", "shop_add", "shop_remove",
+    "stock_adjust", "stock_set", "want_bought",
+    "shop_add", "shop_remove",
     "schedule_add", "schedule_update", "schedule_cancel",
+    "shift_note", "open_tab",
 }
 ADMIN_ACTION_TYPES = STAFF_ACTION_TYPES | {
     "schedule_template_add", "schedule_template_update",
 }
+CHAT_ACTION_MAX = env_int("PAIDIA_CHAT_ACTION_MAX", 12)
 
-# --- Zo-Ai curated knowledge (docs/zoai/*.md) ---
-ZOAI_KNOWLEDGE_MAX_CHARS = env_int("PAIDIA_ZOAI_KNOWLEDGE_CHARS", 7500)
+# --- Zo-Ai curated knowledge (docs/zoai/*.md + map.json) ---
+ZOAI_KNOWLEDGE_MAX_CHARS = env_int("PAIDIA_ZOAI_KNOWLEDGE_CHARS", 5500)
 _ZOAI_DOC_DIR = Path(__file__).resolve().parent / "docs" / "zoai"
 # Vercel: api/index.py may live under api/; also try repo-root docs/zoai
 _ZOAI_DOC_DIR_FALLBACKS = (
@@ -2651,6 +2933,19 @@ def _zoai_read_md(name: str) -> str:
     return ""
 
 
+def _zoai_read_map() -> dict:
+    for base in _ZOAI_DOC_DIR_FALLBACKS:
+        path = base / "map.json"
+        try:
+            if path.is_file():
+                data = json.loads(path.read_text(encoding="utf-8"))
+                if isinstance(data, dict):
+                    return data
+        except (OSError, json.JSONDecodeError):
+            continue
+    return {}
+
+
 def _zoai_truncate(text: str, limit: int) -> str:
     text = (text or "").strip()
     if len(text) <= limit:
@@ -2658,45 +2953,66 @@ def _zoai_truncate(text: str, limit: int) -> str:
     return text[: max(0, limit - 20)].rstrip() + "\n…[truncated]"
 
 
-def zoai_knowledge_for_role(role: str) -> str:
-    """Load role-scoped knowledge pack; empty string if docs missing."""
+def zoai_knowledge_for_role(role: str, user_text: str = "") -> str:
+    """Role + keyword map pack — only matching topic snippets to save tokens."""
+    meta = _zoai_read_map()
+    overview_limit = int(meta.get("overview_chars") or 900)
+    actions_limit = int(meta.get("actions_chars") or 1400)
+    safety_limit = int(meta.get("safety_chars") or 700)
     overview = _zoai_read_md("overview.md")
     safety = _zoai_read_md("safety.md")
+    actions = _zoai_read_md("actions.md")
     parts: list[str] = []
-    # Prefer a short overview slice for all roles
     if overview:
-        parts.append(_zoai_truncate(overview, 1800))
+        parts.append(_zoai_truncate(overview, overview_limit))
+
+    needle = (user_text or "").lower()
+    topics = meta.get("topics") if isinstance(meta.get("topics"), list) else []
+    matched: list[str] = []
+    for topic in topics:
+        if not isinstance(topic, dict):
+            continue
+        tid = str(topic.get("id") or "")
+        keys = topic.get("keys") if isinstance(topic.get("keys"), list) else []
+        snippet = str(topic.get("snippet") or "").strip()
+        if not snippet:
+            continue
+        # Role gates
+        if tid == "child" and role != "child":
+            continue
+        if tid == "admin" and role != "admin":
+            continue
+        if role == "child" and tid in {"stock", "shop", "schedule", "shift", "admin"}:
+            continue
+        hit = not needle or any(str(k).lower() in needle for k in keys)
+        if hit:
+            matched.append(f"[{tid}] {snippet}")
+    # If nothing matched staff/admin queries, include a tiny ops reminder
+    if role in {"staff", "admin"} and not matched and needle:
+        matched.append(
+            "[ops] Prefer stock_adjust/shop_add/schedule_* drafts. Confirm in app; PIN for schedule."
+        )
+    if matched:
+        # Cap topic count — keep most specific order as discovered
+        parts.append("TOPIC MAP:\n" + "\n".join(matched[:5]))
+
     if role == "child":
         child = _zoai_read_md("child.md")
         if child:
-            parts.append(child)
-    elif role == "staff":
-        staff = _zoai_read_md("staff.md")
-        actions = _zoai_read_md("actions.md")
-        if staff:
-            parts.append(staff)
+            parts.append(_zoai_truncate(child, 1600))
+    elif role in {"staff", "admin"}:
         if actions:
-            parts.append(actions)
-    elif role == "admin":
-        staff = _zoai_read_md("staff.md")
-        admin = _zoai_read_md("admin.md")
-        actions = _zoai_read_md("actions.md")
-        if staff:
-            parts.append(_zoai_truncate(staff, 2800))
-        if admin:
-            parts.append(admin)
-        if actions:
-            parts.append(actions)
-    else:
-        if safety:
-            parts.append(safety)
-        return _zoai_truncate("\n\n".join(parts), ZOAI_KNOWLEDGE_MAX_CHARS)
+            parts.append(_zoai_truncate(actions, actions_limit))
+        if role == "admin":
+            admin = _zoai_read_md("admin.md")
+            if admin:
+                parts.append(_zoai_truncate(admin, 1200))
     if safety:
-        parts.append(safety)
+        parts.append(_zoai_truncate(safety, safety_limit))
     return _zoai_truncate("\n\n".join(p for p in parts if p), ZOAI_KNOWLEDGE_MAX_CHARS)
 
 
-# Preload once so Vercel cold starts pay once; still re-readable via zoai_knowledge_for_role
+# Preload base packs (no user text) for cold start; query-time rebuild uses map.
 ZOAI_KNOWLEDGE_CACHE = {
     "child": zoai_knowledge_for_role("child"),
     "staff": zoai_knowledge_for_role("staff"),
@@ -2732,7 +3048,7 @@ def chat_role_for_session(session: dict | None) -> str:
     return "staff"
 
 
-def help_prompt_for_role(role: str) -> str:
+def help_prompt_for_role(role: str, user_text: str = "") -> str:
     if role == "child":
         base = HELP_PROMPT_CHILD
     elif role == "admin":
@@ -2741,7 +3057,9 @@ def help_prompt_for_role(role: str) -> str:
         base = HELP_PROMPT_STAFF
     else:
         base = HELP_PROMPT_BASE + "\n\nROLE: UNKNOWN — only explain general navigation; never mutate data."
-    knowledge = ZOAI_KNOWLEDGE_CACHE.get(role) or zoai_knowledge_for_role(role)
+    knowledge = zoai_knowledge_for_role(role, user_text) if user_text else (
+        ZOAI_KNOWLEDGE_CACHE.get(role) or zoai_knowledge_for_role(role)
+    )
     if knowledge:
         return base + "\n\n## Knowledge\n" + knowledge
     return base
@@ -2807,7 +3125,7 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
         rows = payload.get("actions") if isinstance(payload, dict) else payload
         if not isinstance(rows, list):
             return ""
-        for row in rows[:8]:
+        for row in rows[:CHAT_ACTION_MAX]:
             if not isinstance(row, dict):
                 continue
             kind = str(row.get("type", "")).strip()
@@ -2817,11 +3135,12 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
             for key in (
                 "houseId", "productQuery", "name", "dir", "unit", "reason",
                 "date", "block", "employeeId", "activityId", "activityQuery",
-                "entryId", "from", "to", "note",
+                "entryId", "from", "to", "note", "text", "tab",
             ):
                 value = row.get(key)
                 if isinstance(value, str) and value.strip():
-                    action[key] = value.strip()[:120]
+                    limit = 400 if key in {"text", "note"} else 120
+                    action[key] = value.strip()[:limit]
             if isinstance(row.get("childIds"), list):
                 action["childIds"] = [
                     str(x).strip()[:40] for x in row["childIds"] if str(x).strip()
@@ -2831,7 +3150,7 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
                 qty_num = float(qty)
             except (TypeError, ValueError):
                 qty_num = None
-            if qty_num is not None and qty_num > 0:
+            if qty_num is not None and qty_num >= 0:
                 action["qty"] = round(qty_num, 2)
             day = row.get("day")
             try:
@@ -2846,14 +3165,28 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
                 if direction not in {"IN", "OUT"}:
                     continue
                 action["dir"] = direction
+                if "qty" not in action or action["qty"] <= 0 or not (action.get("productQuery") or action.get("name")):
+                    continue
+            elif kind == "stock_set":
                 if "qty" not in action or not (action.get("productQuery") or action.get("name")):
                     continue
+            elif kind == "want_bought":
+                if not (action.get("productQuery") or action.get("name")):
+                    continue
             elif kind == "shop_add":
-                if "qty" not in action or not (action.get("productQuery") or action.get("name")):
+                if "qty" not in action or action["qty"] <= 0 or not (action.get("productQuery") or action.get("name")):
                     continue
             elif kind == "shop_remove":
                 if not (action.get("productQuery") or action.get("name")):
                     continue
+            elif kind == "shift_note":
+                if not action.get("text"):
+                    continue
+            elif kind == "open_tab":
+                tab = str(action.get("tab", "")).strip().lower()
+                if tab not in {"home", "gallery", "schedule", "stock", "shop", "book"}:
+                    continue
+                action["tab"] = tab
             elif kind == "schedule_add":
                 if not action.get("date") or not action.get("block"):
                     continue
@@ -2890,9 +3223,126 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
     return cleaned, actions
 
 
+def omniroute_reachable(timeout: float = 0.35) -> bool:
+    """Cached probe — local OmniRoute only; never blocks chat long."""
+    now = time.time()
+    if now - float(_OMNI_REACHABLE_CACHE.get("checked") or 0) < 20:
+        return bool(_OMNI_REACHABLE_CACHE.get("ok"))
+    ok = False
+    try:
+        req = urllib.request.Request(
+            f"{OMNIROUTE_BASE_URL}/v1/models",
+            headers={"User-Agent": "PAIDIA/1.0"},
+            method="GET",
+        )
+        if OMNIROUTE_API_KEY:
+            req.add_header("Authorization", f"Bearer {OMNIROUTE_API_KEY}")
+        with urllib.request.urlopen(req, timeout=timeout) as result:
+            ok = 200 <= result.status < 300
+    except Exception:  # noqa: BLE001
+        ok = False
+    _OMNI_REACHABLE_CACHE["ok"] = ok
+    _OMNI_REACHABLE_CACHE["checked"] = now
+    return ok
+
+
+def resolve_llm_endpoint(prefer: str | None = None) -> tuple[str, str, str, str]:
+    """Return (provider, url, api_key, model)."""
+    choice = (prefer or PAIDIA_LLM_PROVIDER or "auto").strip().lower()
+    groq_key = os.environ.get("GROQ_API_KEY", "").strip()
+    want_omni = choice == "omniroute" or (
+        choice == "auto" and OMNIROUTE_BASE_URL and omniroute_reachable()
+    )
+    if want_omni:
+        # OmniRoute often accepts any local bearer; do not reuse Groq secrets as Omni tokens.
+        key = OMNIROUTE_API_KEY or "paidia-local"
+        return (
+            "omniroute",
+            f"{OMNIROUTE_BASE_URL}/v1/chat/completions",
+            key,
+            OMNIROUTE_CHAT_MODEL or CHAT_MODEL,
+        )
+    if not groq_key and choice == "omniroute":
+        # Forced Omni but unreachable — still try Omni URL once.
+        return (
+            "omniroute",
+            f"{OMNIROUTE_BASE_URL}/v1/chat/completions",
+            OMNIROUTE_API_KEY or "paidia-local",
+            OMNIROUTE_CHAT_MODEL or CHAT_MODEL,
+        )
+    return ("groq", GROQ_URL, groq_key, CHAT_MODEL)
+
+
+def llm_completion(request_body: dict, timeout: int = 90) -> tuple[dict, str]:
+    """Call OmniRoute or Groq; returns (response_json, provider)."""
+    provider, url, api_key, model = resolve_llm_endpoint()
+    if not api_key and provider == "groq":
+        raise RuntimeError("missing_llm_key")
+    body = dict(request_body)
+    body["model"] = model
+    body.setdefault("stream", False)
+    # OpenAI-compatible gateways differ: Groq likes max_completion_tokens; Omni prefers max_tokens.
+    if "max_completion_tokens" in body and "max_tokens" not in body:
+        body["max_tokens"] = body["max_completion_tokens"]
+    last_exc: Exception | None = None
+    for attempt in range(2):
+        request = urllib.request.Request(
+            url,
+            data=json.dumps(body).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "User-Agent": "PAIDIA/1.0",
+                "Accept": "application/json",
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=timeout) as result:
+                raw = result.read()
+                if not raw:
+                    raise ValueError("empty LLM response")
+                return json.loads(raw), provider
+        except urllib.error.HTTPError as exc:
+            last_exc = exc
+            # Omni down → fall back to Groq once
+            if provider == "omniroute" and attempt == 0:
+                _OMNI_REACHABLE_CACHE["ok"] = False
+                _OMNI_REACHABLE_CACHE["checked"] = time.time()
+                provider, url, api_key, model = resolve_llm_endpoint("groq")
+                if not api_key:
+                    raise
+                body["model"] = model
+                continue
+            if exc.code != 429 or attempt == 1:
+                raise
+            retry_after = exc.headers.get("retry-after", "3")
+            try:
+                match = re.search(r"\d+(?:\.\d+)?", retry_after)
+                delay = min(15.0, max(1.0, float(match.group()) if match else 3.0))
+            except ValueError:
+                delay = 3.0
+            exc.read()
+            time.sleep(delay)
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if provider == "omniroute" and attempt == 0:
+                _OMNI_REACHABLE_CACHE["ok"] = False
+                _OMNI_REACHABLE_CACHE["checked"] = time.time()
+                provider, url, api_key, model = resolve_llm_endpoint("groq")
+                if not api_key:
+                    raise
+                body["model"] = model
+                continue
+            raise
+    if last_exc:
+        raise last_exc
+    raise RuntimeError("unreachable")
+
+
 def run_chat(
     body: dict,
-    api_key: str,
+    api_key: str | None = None,
     session: dict | None = None,
     *,
     client_ip: str | None = None,
@@ -2913,22 +3363,36 @@ def run_chat(
     context = apply_session_chat_permissions(context, session)
     role = context["role"]
     can_mutate = bool(context.get("canMutate"))
-    prompt = help_prompt_for_role(role)
+    last_user = ""
+    for message in reversed(raw_messages):
+        if isinstance(message, dict) and message.get("role") == "user":
+            content = message.get("content")
+            if isinstance(content, str) and content.strip():
+                last_user = content.strip()
+                break
+    prompt = help_prompt_for_role(role, last_user)
     messages = [{"role": "system", "content": prompt + "\nCurrent UI context: " +
-                 json.dumps(context, ensure_ascii=False)[:12000]}]
-    for message in raw_messages[-12:]:
+                 json.dumps(context, ensure_ascii=False)[:8000]}]
+    for message in raw_messages[-10:]:
         if not isinstance(message, dict) or message.get("role") not in {"user", "assistant"}:
             continue
         content = message.get("content")
         if isinstance(content, str) and content.strip():
-            messages.append({"role": message["role"], "content": content[:4000]})
+            messages.append({"role": message["role"], "content": content[:3500]})
     if len(messages) == 1:
         return 400, {"error": "No valid messages"}
+    provider_name, _, resolved_key, model_name = resolve_llm_endpoint()
+    if provider_name == "groq" and not (api_key or resolved_key):
+        return 503, {
+            "error": "AI is not configured",
+            "setup": "Set GROQ_API_KEY or run OmniRoute (OMNIROUTE_BASE_URL)",
+            "code": "configuration",
+        }
     try:
-        response = groq_completion(api_key, {
-            "model": CHAT_MODEL, "messages": messages, "temperature": 0.3,
-            "max_completion_tokens": 900,
-        }, timeout=60)
+        response, used_provider = llm_completion({
+            "model": model_name, "messages": messages, "temperature": 0.3,
+            "max_completion_tokens": 1100,
+        }, timeout=75)
         raw = completion_text(response)
         message, actions = extract_chat_actions(raw, role=role if can_mutate else "child")
         if not can_mutate:
@@ -2944,11 +3408,16 @@ def run_chat(
             "actions": actions,
             "role": role,
             "canMutate": can_mutate,
-            "model": response.get("model", CHAT_MODEL),
+            "model": response.get("model", model_name),
+            "provider": used_provider,
             "responseId": response.get("id"),
         }
     except urllib.error.HTTPError as exc:
         return provider_error(exc)
+    except RuntimeError as exc:
+        if str(exc) == "missing_llm_key":
+            return 503, {"error": "AI is not configured", "code": "configuration"}
+        return 502, {"error": "Zo-Ai chat failed", "code": "provider"}
     except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
         code = "timeout" if isinstance(exc, TimeoutError) else "provider"
         return (504 if code == "timeout" else 502), {"error": "Zo-Ai chat failed", "code": code}
@@ -2958,7 +3427,7 @@ def run_chat(
 
 
 def groq_completion(api_key: str, request_body: dict, timeout: int = 90) -> dict:
-    """Call Groq and transparently retry short, recoverable rate limits."""
+    """Call Groq (OCR / learn / quiz still use this path)."""
     for attempt in range(2):
         request = urllib.request.Request(
             GROQ_URL,
@@ -3004,7 +3473,7 @@ def completion_text(response: dict) -> str:
     try:
         return response["choices"][0]["message"]["content"]
     except (KeyError, IndexError, TypeError) as exc:
-        raise ValueError("Groq returned no message content") from exc
+        raise ValueError("LLM returned no message content") from exc
 
 
 def parse_json_output(text: str) -> dict:
@@ -3036,6 +3505,14 @@ class Handler(SimpleHTTPRequestHandler):
                 self.send_header(name, value)
         self.end_headers()
         self.wfile.write(raw)
+
+    def binary_response(self, status: int, payload: bytes, content_type: str) -> None:
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(payload)))
+        self.send_header("Cache-Control", "private, max-age=86400")
+        self.end_headers()
+        self.wfile.write(payload)
 
     def auth_cookie(self) -> str:
         cookie = SimpleCookie(self.headers.get("Cookie", ""))
@@ -3142,15 +3619,32 @@ class Handler(SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlsplit(self.path)
         if parsed.path == "/api/health":
             db_info = paidia_db.health() if paidia_db else {"ok": False, "backend": "none"}
+            provider, _, _, model = resolve_llm_endpoint()
+            omni_ok = omniroute_reachable() if PAIDIA_LLM_PROVIDER in {"auto", "omniroute"} else False
+            ops_rev = None
+            try:
+                if OPS_STATE:
+                    ops_rev = int(OPS_STATE.get("revision") or 0)
+            except Exception:  # noqa: BLE001
+                ops_rev = None
             self.json_response(200, {
                 "ok": True,
-                "aiConfigured": bool(os.environ.get("GROQ_API_KEY")),
+                "aiConfigured": bool(os.environ.get("GROQ_API_KEY")) or omni_ok,
+                "llmProvider": provider,
+                "omniroute": {
+                    "baseUrl": OMNIROUTE_BASE_URL,
+                    "reachable": omni_ok,
+                    "model": OMNIROUTE_CHAT_MODEL,
+                    "mode": PAIDIA_LLM_PROVIDER,
+                },
                 "ocrModel": OCR_MODEL,
-                "chatModel": CHAT_MODEL,
+                "chatModel": model,
                 "whatsappConfigured": bool(whatsapp_config()["access_token"] and
                                              whatsapp_config()["phone_number_id"]),
                 "whatsappSendEnabled": whatsapp_config()["send_enabled"],
                 "database": db_info,
+                "opsRevision": ops_rev,
+                "notifications": {"local": True, "webPush": False},
             })
             return
         if parsed.path == "/api/auth/health":
@@ -3236,6 +3730,15 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             self.json_response(200, gallery_snapshot())
             return
+        if parsed.path.startswith("/api/gallery/media/"):
+            session = self.current_auth_session()
+            file_id = parsed.path[len("/api/gallery/media/"):].strip("/")
+            status, payload, content_type = gallery_media_response(file_id, session)
+            if isinstance(payload, (bytes, bytearray)):
+                self.binary_response(status, bytes(payload), content_type)
+            else:
+                self.json_response(status, payload)
+            return
         if parsed.path == "/api/ops":
             session = self.current_auth_session()
             if not session:
@@ -3310,6 +3813,8 @@ class Handler(SimpleHTTPRequestHandler):
             "/api/ai-shopping", "/api/chat", "/api/learn", "/api/quiz", "/api/gallery/caption",
             "/api/talk", "/api/gallery", "/api/ops", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/notify/event-email",
+            "/api/notify/broadcast",
+            "/api/notify/broadcast-preview",
             "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
             "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
             "/api/auth/passkey/login/options", "/api/auth/passkey/login/verify", "/api/auth/passkey/remove",
@@ -3408,8 +3913,27 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/notify/event-email":
             self.handle_event_email(body)
             return
+        if path == "/api/notify/broadcast":
+            self.handle_broadcast_email(body)
+            return
+        if path == "/api/notify/broadcast-preview":
+            self.handle_broadcast_preview(body)
+            return
 
         api_key = os.environ.get("GROQ_API_KEY")
+        if path == "/api/chat":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            # OmniRoute and/or Groq — run_chat resolves the live provider.
+            if not api_key and not omniroute_reachable() and PAIDIA_LLM_PROVIDER != "omniroute":
+                self.json_response(503, {
+                    "error": "AI is not configured",
+                    "setup": "Set GROQ_API_KEY or start OmniRoute (OMNIROUTE_BASE_URL)",
+                })
+                return
+            self.handle_chat(body, api_key)
+            return
         if not api_key:
             self.json_response(503, {
                 "error": "Groq is not configured",
@@ -3417,12 +3941,6 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return
 
-        if path == "/api/chat":
-            if not self.current_auth_session():
-                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
-                return
-            self.handle_chat(body, api_key)
-            return
         if path == "/api/learn":
             if not self.current_auth_session():
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
@@ -4178,6 +4696,87 @@ class Handler(SimpleHTTPRequestHandler):
             "recipientCount": len(recipients),
             "eventId": event_id,
         })
+
+    def handle_broadcast_preview(self, body: dict) -> None:
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        if not session.get("admin"):
+            self.json_response(403, {"error": "Admin only", "code": "admin_required"})
+            return
+        audience = str(body.get("audience") or "all").strip().lower()
+        if audience not in {"all", "staff", "children", "child", "kids"}:
+            self.json_response(400, {"error": "Invalid audience", "code": "bad_audience"})
+            return
+        if audience in {"child", "kids"}:
+            audience = "children"
+        recipients = broadcast_recipients(audience)
+        delivery = email_delivery_status()
+        self.json_response(200, {
+            "ok": True,
+            "audience": audience,
+            "count": len(recipients),
+            "emailConfigured": delivery["configured"],
+            "emailProvider": delivery["provider"],
+        })
+
+    def handle_broadcast_email(self, body: dict) -> None:
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        if not session.get("admin"):
+            self.json_response(403, {"error": "Admin only", "code": "admin_required"})
+            return
+        if not email_delivery_status()["configured"]:
+            self.json_response(503, {"error": "Email delivery is not configured", "code": "email_not_configured"})
+            return
+        audience = str(body.get("audience") or "all").strip().lower()
+        if audience not in {"all", "staff", "children", "child", "kids"}:
+            self.json_response(400, {"error": "Invalid audience", "code": "bad_audience"})
+            return
+        if audience in {"child", "kids"}:
+            audience = "children"
+        subject = str(body.get("subject") or "").strip()[:160]
+        title = str(body.get("title") or "").strip()[:120]
+        message = str(body.get("message") or "").strip()[:4000]
+        if not subject or not message:
+            self.json_response(400, {"error": "Subject and message are required", "code": "missing_fields"})
+            return
+        if not title:
+            title = subject
+        recipients = broadcast_recipients(audience)
+        if not recipients:
+            self.json_response(422, {"error": "No profile emails are configured", "code": "no_recipients"})
+            return
+        now = time.time()
+        rate_key = str(session.get("profile_id") or "_admin")
+        last = float(BROADCAST_RATE.get(rate_key) or 0)
+        if now - last < BROADCAST_COOLDOWN:
+            wait = int(BROADCAST_COOLDOWN - (now - last))
+            self.json_response(429, {
+                "error": "Please wait before sending another broadcast",
+                "code": "rate_limited",
+                "retryInSec": wait,
+            })
+            return
+        BROADCAST_RATE[rate_key] = now
+        profile = AUTH_USERS.get(session.get("profile_id") or "", {})
+        sender_name = str(
+            (profile.get("name") if isinstance(profile, dict) else None)
+            or session.get("profile_id")
+            or "Admin"
+        )
+        result = deliver_broadcast(
+            audience=audience,
+            subject=subject,
+            title=title,
+            message=message,
+            sender_name=sender_name,
+        )
+        status = 200 if result.get("sent") else 502
+        self.json_response(status, {"ok": bool(result.get("sent")), **result})
 
     def handle_shopping(self, body: dict, api_key: str) -> None:
         status, payload = run_shopping(body, api_key)

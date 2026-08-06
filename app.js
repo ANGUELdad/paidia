@@ -16,6 +16,8 @@ const T = {
     headerShop:'Einkauf', headerBook:'Buch & Schicht', headerGallery:'Große Momente',
     galleryTitle:'Große Momente', galleryHint:'Fotos von schönen Momenten — für Kinder und Team',
     galleryEmpty:'Noch keine Momente. Sei der Erste!', galleryShare:'Moment teilen',
+    galleryDriveOn:'Fotos speichern in Google Drive', galleryDriveOff:'Fotos speichern auf dem Server',
+    galleryNewPost:'Neu', galleryTapLike:'Doppeltippen zum Liken',
     galleryCaption:'Was ist passiert?', galleryCaptionPh:'z.B. Strandtag, Geburtstag, Fußball-Sieg…',
     galleryPick:'Foto wählen', galleryCamera:'Kamera', galleryPost:'Teilen',
     galleryPosted:'Moment geteilt!', galleryDelete:'Löschen', galleryLike:'Like',
@@ -36,6 +38,21 @@ const T = {
     shiftDiarySave:'Schichtnotiz speichern', shiftDiarySaved:'Schichtnotiz gespeichert',
     shiftDiaryEmpty:'Noch keine Schichtnotiz für heute.', shiftDiaryTeam:'Schichtnotizen der Gruppe',
     shiftDiaryMine:'Meine Notiz', typeSHIFT:'Schicht',
+    typeSTOCKCHECK:'Lagercheck',
+    shiftStockCheck:'Schicht-Lagercheck',
+    shiftStockCheckHint:'Wer die Schicht beginnt, prüft das Lager in Kalyvia. Tippe ✓ oder „Alles ja“.',
+    shiftStockCheckStart:'Lagercheck starten',
+    shiftStockCheckDone:'Lagercheck erledigt',
+    shiftStockCheckAllYes:'Alles ja',
+    shiftStockCheckSave:'Check speichern',
+    shiftStockCheckNeedAll:'Bitte alle Positionen mit ✓ oder „Alles ja“ bestätigen.',
+    shiftStockCheckSaved:(n,name)=>`Lagercheck · ${n} Positionen · ${name}`,
+    shiftStockCheckToday:(name,when)=>`Heute geprüft von ${name} · ${when}`,
+    shiftStockCheckPending:'Noch kein Lagercheck heute',
+    shiftStockCheckQty:'Ist-Menge',
+    shiftStockCheckOk:'OK',
+    shiftStockCheckFixed:'Korrigiert',
+    shiftStockCheckProgress:(a,b)=>`${a}/${b} geprüft`,
     viewDay:'Tag', viewWeek:'Woche', filterView:'Ansicht', filterHouse:'Haus',
     tableFullscreen:'Vollbild', tableExitFullscreen:'Schließen',
     allHouses:'Kombiniert',
@@ -68,6 +85,13 @@ const T = {
     inventoryDashboard:'Lagerübersicht', inventoryHint:'Zuerst sehen, was fehlt – den vollständigen Bestand nur bei Bedarf öffnen.',
     inventoryHealth:'Bestandssicherheit', inventoryHealthyPct:n=>`${n}% der Produkte sind ausreichend vorhanden`,
     tapProduct:'Produkt bearbeiten', productDetail:'Produkt bearbeiten', addToShopping:'Zur Einkaufsliste hinzufügen',
+    wantBought:'Das soll gekauft werden', wantBoughtDone:'Bereits angefragt',
+    wantBoughtToast:'Für Freitagseinkauf vorgemerkt',
+    startListTitle:'Neue Einkaufsliste starten',
+    startListHint:'Wähle Freitag und Haus oben. Tippe das erste Produkt ein — oder importiere Text/Screenshot.',
+    startListAdd:'Erstes Produkt hinzufügen',
+    startListFromStock:'Personal: im Lager „Das soll gekauft werden“ tippen.',
+    pickOneHouse:'Bitte zuerst ein Haus wählen.',
     productEditHint:'Name, Einheit, Kategorie und Bestand ändern',
     productNameDe:'Name (DE)', productNameEl:'Name (EL)',
     productAliases:'Aliases (Komma)', productAliasesHint:'z. B. milch, γάλα',
@@ -78,8 +102,8 @@ const T = {
     productNameRequired:'Bitte einen Namen eingeben',
     productQuickActions:'Schnellaktionen',
     addedToShopping:'Zur Einkaufsliste hinzugefügt', alreadyPlanned:'Bereits auf der Einkaufsliste',
-    listItemRemoved:'Position aus der Liste entfernt.',
     stockSearch:'Produkt suchen…', stockAttention:'Achtung', stockAll:'Alle', stockEmpty:'Leer',
+    stockTilesOn:'Kacheln', stockTilesOff:'Liste',
     stockHealthy:'Gut versorgt', stockLow:'Wenig', stockOutState:'Leer', productTypes:'Produkte',
     noStockResults:'Keine passenden Produkte gefunden.', openShopping:'Zur Einkaufsliste', missingFromShop:n=>`${n} Fehlmenge${n===1?'':'n'} aus dem Einkauf`,
     inTitle:'Eingang Lager', outTitle:'Ausgang Lager',
@@ -92,7 +116,7 @@ const T = {
     stockHoldHint:'Gedrückt halten für Optionen · Ziehen zu Ein/Aus unten',
     stockHoldIn:'＋ Eingang',
     stockHoldOut:'− Ausgang',
-    stockHoldShop:'Zur Einkaufsliste',
+    stockHoldShop:'Das soll gekauft werden',
     stockHoldDetail:'Bearbeiten',
     stockHoldClear:'Aus Auswahl entfernen',
     stockAddFood:'＋ Lebensmittel',
@@ -173,7 +197,7 @@ const T = {
     contactSave:'Speichern & weiter', contactRequired:'E-Mail und Telefon sind erforderlich.',
     saveContact:'Kontaktdaten speichern', contactSaved:'Kontaktdaten gespeichert.',
     emailProvider:'E-Mail-Versand', emailReady:'bereit', emailNotReady:'E-Mail ist noch nicht konfiguriert',
-    emailReadyHint:'PIN-Links, Tests und Event-Mails können zugestellt werden.',
+    emailReadyHint:'PIN-Links, Tests, Events und Team-Nachrichten können zugestellt werden.',
     emailOfflineHint:'Auf dem Server fehlen SMTP oder Resend. Ohne Versand kein PIN-Link.',
     sendTestEmail:'Test-E-Mail senden', testEmailSent:'Test-E-Mail wurde gesendet — prüfe Posteingang & Spam.', testEmailFailed:'Die Test-E-Mail konnte nicht gesendet werden.',
     testEmailAuthFailed:'Anmeldung beim Mailversand abgelehnt. Prüfe SMTP-Passwort oder Resend-API-Key und starte neu.',
@@ -262,6 +286,12 @@ const T = {
     noShoppingHistory:'Noch kein abgeschlossener Einkauf', noShoppingHistoryHint:'Nach der Bestätigung im Supermarkt erscheint der Einkauf automatisch hier.',
     boughtItems:'Gekauft', notBoughtItems:'Nicht gekauft', completedBy:'Abgeschlossen von', completedOn:'Abgeschlossen',
     cartQuickAdd:'Produkt schnell hinzufügen…', addToCart:'Hinzufügen', cartReady:n=>`${n} ${n===1?'Produkt':'Produkte'} – Einkauf starten`,
+    removeListTitle:'Von der Liste nehmen',
+    removeListHint:'Warum wird diese Position entfernt?',
+    removeListConfirm:'Entfernen',
+    removeListNeedReason:'Bitte einen Grund wählen.',
+    removeListReasonPh:'z. B. Kind bringt mit, Spende…',
+    listItemRemoved:'Position aus der Liste entfernt.',
     bookedToHouse:n=>`Gekauft und in ${n} eingebucht`, backToCart:'Zurück zum Warenkorb', externalHome:'Anderes Zuhause', customProducts:'Weitere Produkte',
     chooseShoppingHouse:'1. Haus auswählen', shoppingHouseHint:'Auch Julian groß, Valeria und Lea — nur für Einkauf/Bestand, nicht im Wochenplan.',
     fullBlock:'Ganzer Block', fromTime:'ab', timeFrom:'Von', timeTo:'Bis',
@@ -279,7 +309,7 @@ const T = {
     replaceFriday:'Freitag ersetzen', replaceFridayHint:'Offene Einträge dieses Freitags werden ersetzt.',
     importDestination:'Ziel', importSource:'Quelle', importReview:'Vorschau & Korrektur',
     importedToFriday:d=>`Liste für Freitag, ${d}, gespeichert`, noFridayItems:'Für diesen Freitag gibt es noch keine Liste.',
-    noFridayItemsHint:'Füge Text ein oder lade einen Screenshot hoch. Du kannst später jederzeit weitere Produkte ergänzen.',
+    noFridayItemsHint:'Tippe oben ein Produkt ein, oder importiere Text/Screenshot. Später jederzeit ergänzen.',
     fridayActive:'Einkauf läuft', fridayPlanned:'Geplant', fridayCompleted:'Abgeschlossen',
     pasteList:'Liste einfügen oder tippen',
     pastePh:'Nutella 2, Milch light 2, Wasser groß 4, Nektarinen 10–12',
@@ -396,7 +426,50 @@ const T = {
     helpProposeEmpty:'Keine gültigen Änderungen erkannt.',
     helpProposeNeedPin:'Für Plan-Änderungen bitte PIN bestätigen.',
     helpActionStock:(dir,qty,unit,name,house)=>`${dir==='IN'?'+':'−'} ${qty} ${unit} ${name} @ ${house}`,
+    helpActionStockSet:(qty,unit,name,house)=>`= ${qty} ${unit} ${name} @ ${house}`,
+    helpActionWantBought:(name,house)=>`🛒 ${name} → Liste @ ${house}`,
+    helpActionShiftNote:text=>`📝 Schicht: ${String(text||'').slice(0,80)}`,
+    helpActionOpenTab:tab=>`↗ ${tab}`,
     helpActionShopAdd:(qty,unit,name,house)=>`🛒 + ${qty} ${unit} ${name} → Liste ${house}`,
+    notifEnable:'Mitteilungen aktivieren',
+    notifEnabled:'Mitteilungen an',
+    notifDenied:'Mitteilungen blockiert — in den Geräteeinstellungen erlauben',
+    notifHint:'Wie eine echte App: Lager leer, Schicht-Check, Anwesenheit, Events.',
+    notifLowStock:n=>`${n} Produkte brauchen Aufmerksamkeit`,
+    notifShiftCheck:'Schicht-Lagercheck offen (Kalyvia)',
+    notifShiftStart:t=>`Schicht beginnt · ${t}`,
+    notifShiftLate:t=>`Schicht gestartet — bitte Anwesenheit melden · ${t}`,
+    notifTest:'Test-Mitteilung von Armonia',
+    calTitle:'Mein Kalender',
+    calHint:'Dienste und Events als Datei für Apple, Google, Outlook und andere Kalender.',
+    calDownloadAll:'Dienste + Events (.ics)',
+    calDownloadShifts:'Nur Dienste (.ics)',
+    calDownloadEvents:'Nur Events (.ics)',
+    calGoogleNext:'Nächste Schicht in Google öffnen',
+    calOutlookNext:'Nächste Schicht in Outlook öffnen',
+    calNextNone:'Keine kommenden Dienste in den nächsten Wochen.',
+    calSaved:'Kalenderdatei bereit',
+    calWeeks:'Nächste 8 Wochen',
+    presenceTitle:'Schicht-Anwesenheit',
+    presenceImThere:'Ich bin da',
+    presenceLateWhy:'Warum zu spät?',
+    presenceLateHint:'Dein Dienst hat schon begonnen. Kurz sagen, warum du später bist.',
+    presenceReasonNeeded:'Bitte einen Grund angeben.',
+    presenceSaved:'Anwesenheit gespeichert',
+    presenceLateSaved:'Verspätung gemeldet',
+    presenceBannerReady:(from,to)=>`Schicht ${from}–${to} · Bitte melden`,
+    presenceBannerLate:(from,mins)=>`Schicht ab ${from} · ${mins} Min. später`,
+    presenceBannerDone:(status,at)=>status==='late'?`Verspätet gemeldet · ${at}`:`Da · ${at}`,
+    presenceOpen:'Melden',
+    presenceDone:'Gemeldet',
+    presenceReasonTraffic:'Verkehr',
+    presenceReasonHealth:'Gesundheit',
+    presenceReasonHandover:'Übergabe / Absprache',
+    presenceReasonOther:'Sonstiges',
+    presenceCustomReason:'Eigener Grund',
+    presenceOnTime:'Pünktlich',
+    presenceLate:'Zu spät',
+    presenceNoShift:'Gerade keine offene Schicht-Meldung.',
     helpActionShopRemove:(name,house)=>`🛒 entfernen: ${name} @ ${house}`,
     helpActionScheduleAdd:(when,block,what,who)=>`📅 + ${when} · ${block}: ${what}${who?' · '+who:''}`,
     helpActionScheduleUpdate:(when,what)=>`📅 ändern ${when}: ${what}`,
@@ -426,7 +499,26 @@ const T = {
     adminCenter:'Admin-Zentrale', adminOverview:'Team, Aufgaben und Änderungen auf einen Blick',
     adminWarnings:'Nur Admins sehen betriebliche Warnungen', adminAllClear:'Keine aktuellen Planwarnungen',
     adminEditPlan:'Wochenplan bearbeiten', adminEditShifts:'Dienste bearbeiten', adminManageEvents:'Events verwalten',
-    adminOpenAudit:'Protokoll öffnen', adminToday:'Heute', adminNext7:'Nächste 7 Tage', adminDone:'Erledigt',
+    adminOpenAudit:'Protokoll öffnen', adminEmailEveryone:'E-Mail an alle',
+    adminBroadcastTitle:'Team-Nachricht senden',
+    adminBroadcastHint:'Schickt eine markierte Armonia-E-Mail an alle Profile mit hinterlegter Adresse.',
+    adminBroadcastAudience:'Empfänger',
+    adminBroadcastAll:'Alle mit E-Mail',
+    adminBroadcastStaff:'Nur Team',
+    adminBroadcastChildren:'Nur Kinder',
+    adminBroadcastSubject:'Betreff',
+    adminBroadcastHeadline:'Überschrift in der E-Mail',
+    adminBroadcastMessage:'Nachricht',
+    adminBroadcastSend:'E-Mail senden',
+    adminBroadcastRecipients:n=>`${n} Empfänger mit E-Mail`,
+    adminBroadcastNone:'Keine Profile mit E-Mail gefunden.',
+    adminBroadcastNeedFields:'Betreff und Nachricht sind nötig.',
+    adminBroadcastConfirm:n=>`E-Mail an ${n} Personen senden?`,
+    adminBroadcastSent:(s,f)=>f?`Gesendet: ${s} · fehlgeschlagen: ${f}`:`E-Mail an ${s} Personen gesendet.`,
+    adminBroadcastFailed:'E-Mail konnte nicht gesendet werden.',
+    adminBroadcastRate:s=>`Bitte ${s}s warten, bevor du erneut sendest.`,
+    adminBroadcastOffline:'E-Mail-Versand ist nicht eingerichtet (SMTP/Resend).',
+    adminToday:'Heute', adminNext7:'Nächste 7 Tage', adminDone:'Erledigt',
     adminLastAction:'Letzte Aktivität', adminNoActivity:'Noch keine Aktivität', adminDetails:'Teamdetails',
     adminFullControl:'Admins können Planung, Dienste, Events, Notizen, Bestand und Protokollkorrekturen ändern.',
     editShiftDay:'Dienste bearbeiten', addShift:'Dienst hinzufügen', shiftType:'Typ', deleteShift:'Dienst entfernen',
@@ -467,6 +559,8 @@ const T = {
     headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια', headerGallery:'Μεγάλες στιγμές',
     galleryTitle:'Μεγάλες στιγμές', galleryHint:'Φωτογραφίες ωραίων στιγμών — για παιδιά και ομάδα',
     galleryEmpty:'Καμία στιγμή ακόμα. Γίνε ο πρώτος!', galleryShare:'Μοιράσου στιγμή',
+    galleryDriveOn:'Οι φωτογραφίες αποθηκεύονται στο Google Drive', galleryDriveOff:'Οι φωτογραφίες αποθηκεύονται στον διακομιστή',
+    galleryNewPost:'Νέα', galleryTapLike:'Διπλό πάτημα για like',
     galleryCaption:'Τι έγινε;', galleryCaptionPh:'π.χ. παραλία, γενέθλια, νίκη στο ποδόσφαιρο…',
     galleryPick:'Επιλογή φωτό', galleryCamera:'Κάμερα', galleryPost:'Δημοσίευση',
     galleryPosted:'Η στιγμή δημοσιεύτηκε!', galleryDelete:'Διαγραφή', galleryLike:'Like',
@@ -487,6 +581,21 @@ const T = {
     shiftDiarySave:'Αποθήκευση σημείωσης βάρδιας', shiftDiarySaved:'Η σημείωση βάρδιας αποθηκεύτηκε',
     shiftDiaryEmpty:'Καμία σημείωση βάρδιας για σήμερα.', shiftDiaryTeam:'Σημειώσεις βάρδιας ομάδας',
     shiftDiaryMine:'Η σημείωσή μου', typeSHIFT:'Βάρδια',
+    typeSTOCKCHECK:'Έλεγχος αποθέματος',
+    shiftStockCheck:'Έλεγχος αποθέματος βάρδιας',
+    shiftStockCheckHint:'Όποιος ξεκινά τη βάρδια ελέγχει το απόθεμα στο Kalyvia. Πάτα ✓ ή «Όλα ναι».',
+    shiftStockCheckStart:'Έναρξη ελέγχου',
+    shiftStockCheckDone:'Ο έλεγχος ολοκληρώθηκε',
+    shiftStockCheckAllYes:'Όλα ναι',
+    shiftStockCheckSave:'Αποθήκευση ελέγχου',
+    shiftStockCheckNeedAll:'Επιβεβαίωσε όλα με ✓ ή «Όλα ναι».',
+    shiftStockCheckSaved:(n,name)=>`Έλεγχος · ${n} είδη · ${name}`,
+    shiftStockCheckToday:(name,when)=>`Σήμερα έλεγξε ο/η ${name} · ${when}`,
+    shiftStockCheckPending:'Δεν έγινε ακόμα έλεγχος σήμερα',
+    shiftStockCheckQty:'Ποσότητα',
+    shiftStockCheckOk:'OK',
+    shiftStockCheckFixed:'Διορθώθηκε',
+    shiftStockCheckProgress:(a,b)=>`${a}/${b} ελέγχθηκαν`,
     viewDay:'Ημέρα', viewWeek:'Εβδομάδα', filterView:'Προβολή', filterHouse:'Σπίτι',
     tableFullscreen:'Πλήρης οθόνη', tableExitFullscreen:'Κλείσιμο',
     allHouses:'Συνδυαστικά',
@@ -519,6 +628,13 @@ const T = {
     inventoryDashboard:'Εικόνα αποθέματος', inventoryHint:'Δες πρώτα τι χρειάζεται προσοχή – άνοιξε ολόκληρο τον κατάλογο μόνο όταν τον χρειάζεσαι.',
     inventoryHealth:'Ασφάλεια αποθέματος', inventoryHealthyPct:n=>`${n}% των προϊόντων έχουν επαρκές απόθεμα`,
     tapProduct:'Επεξεργασία προϊόντος', productDetail:'Επεξεργασία προϊόντος', addToShopping:'Προσθήκη στη λίστα αγορών',
+    wantBought:'Θέλω να αγοραστεί', wantBoughtDone:'Ήδη ζητήθηκε',
+    wantBoughtToast:'Προστέθηκε στα ψώνια Παρασκευής',
+    startListTitle:'Ξεκίνα νέα λίστα αγορών',
+    startListHint:'Διάλεξε Παρασκευή και σπίτι πάνω. Γράψε το πρώτο προϊόν — ή εισήγαγε κείμενο/screenshot.',
+    startListAdd:'Προσθήκη πρώτου προϊόντος',
+    startListFromStock:'Προσωπικό: στο απόθεμα πάτα «Θέλω να αγοραστεί».',
+    pickOneHouse:'Διάλεξε πρώτα ένα σπίτι.',
     productEditHint:'Άλλαξε όνομα, μονάδα, κατηγορία και απόθεμα',
     productNameDe:'Όνομα (DE)', productNameEl:'Όνομα (EL)',
     productAliases:'Ψευδώνυμα (κόμμα)', productAliasesHint:'π.χ. milch, γάλα',
@@ -529,8 +645,8 @@ const T = {
     productNameRequired:'Γράψε ένα όνομα',
     productQuickActions:'Γρήγορες ενέργειες',
     addedToShopping:'Προστέθηκε στη λίστα αγορών', alreadyPlanned:'Υπάρχει ήδη στη λίστα αγορών',
-    listItemRemoved:'Το είδος αφαιρέθηκε από τη λίστα.',
     stockSearch:'Αναζήτηση προϊόντος…', stockAttention:'Προσοχή', stockAll:'Όλα', stockEmpty:'Άδεια',
+    stockTilesOn:'Πλακίδια', stockTilesOff:'Λίστα',
     stockHealthy:'Επαρκές', stockLow:'Λίγο', stockOutState:'Άδειο', productTypes:'Προϊόντα',
     noStockResults:'Δεν βρέθηκαν προϊόντα.', openShopping:'Στη λίστα αγορών', missingFromShop:n=>`${n} ${n===1?'έλλειψη':'ελλείψεις'} από τα ψώνια`,
     inTitle:'Είσοδος αποθήκης', outTitle:'Έξοδος αποθήκης',
@@ -543,7 +659,7 @@ const T = {
     stockHoldHint:'Κράτα πατημένο για επιλογές · Σύρε σε Είσοδο/Έξοδο κάτω',
     stockHoldIn:'＋ Είσοδος',
     stockHoldOut:'− Έξοδος',
-    stockHoldShop:'Στη λίστα αγορών',
+    stockHoldShop:'Θέλω να αγοραστεί',
     stockHoldDetail:'Επεξεργασία',
     stockHoldClear:'Αφαίρεση από επιλογή',
     stockAddFood:'＋ Τρόφιμο',
@@ -624,7 +740,7 @@ const T = {
     contactSave:'Αποθήκευση & συνέχεια', contactRequired:'Το email και το τηλέφωνο είναι υποχρεωτικά.',
     saveContact:'Αποθήκευση στοιχείων', contactSaved:'Τα στοιχεία αποθηκεύτηκαν.',
     emailProvider:'Αποστολή email', emailReady:'έτοιμη', emailNotReady:'Το email δεν έχει ρυθμιστεί ακόμη',
-    emailReadyHint:'Σύνδεσμοι PIN, δοκιμές και emails events μπορούν να σταλούν.',
+    emailReadyHint:'Σύνδεσμοι PIN, δοκιμές, events και μηνύματα ομάδας μπορούν να σταλούν.',
     emailOfflineHint:'Στον server λείπουν SMTP ή Resend. Χωρίς αποστολή δεν υπάρχει σύνδεσμος PIN.',
     sendTestEmail:'Αποστολή δοκιμαστικού email', testEmailSent:'Το δοκιμαστικό email στάλθηκε — έλεγξε εισερχόμενα & ανεπιθύμητα.', testEmailFailed:'Το δοκιμαστικό email δεν στάλθηκε.',
     testEmailAuthFailed:'Η είσοδος στο mail απορρίφθηκε. Έλεγξε κωδικό SMTP ή Resend API key.',
@@ -713,6 +829,12 @@ const T = {
     noShoppingHistory:'Δεν υπάρχει ολοκληρωμένη αγορά ακόμη', noShoppingHistoryHint:'Μετά την επιβεβαίωση στο σουπερμάρκετ, η αγορά εμφανίζεται αυτόματα εδώ.',
     boughtItems:'Αγοράστηκαν', notBoughtItems:'Δεν αγοράστηκαν', completedBy:'Ολοκληρώθηκε από', completedOn:'Ολοκληρώθηκε',
     cartQuickAdd:'Γρήγορη προσθήκη προϊόντος…', addToCart:'Προσθήκη', cartReady:n=>`${n} ${n===1?'προϊόν':'προϊόντα'} – έναρξη αγορών`,
+    removeListTitle:'Αφαίρεση από τη λίστα',
+    removeListHint:'Γιατί αφαιρείται αυτό το είδος;',
+    removeListConfirm:'Αφαίρεση',
+    removeListNeedReason:'Διάλεξε λόγο.',
+    removeListReasonPh:'π.χ. το φέρνει παιδί, δωρεά…',
+    listItemRemoved:'Το είδος αφαιρέθηκε από τη λίστα.',
     bookedToHouse:n=>`Αγοράστηκαν και καταχωρήθηκαν στο ${n}`, backToCart:'Πίσω στο καλάθι', externalHome:'Άλλο σπίτι', customProducts:'Άλλα προϊόντα',
     chooseShoppingHouse:'1. Επίλεξε σπίτι', shoppingHouseHint:'Και Julian groß, Valeria, Lea — μόνο για ψώνια/απόθεμα, όχι στο πρόγραμμα.',
     fullBlock:'Όλο το μπλοκ', fromTime:'από', timeFrom:'Από', timeTo:'Έως',
@@ -730,7 +852,7 @@ const T = {
     replaceFriday:'Αντικατάσταση Παρασκευής', replaceFridayHint:'Αντικαθιστά τα ανοιχτά είδη αυτής της Παρασκευής.',
     importDestination:'Προορισμός', importSource:'Πηγή', importReview:'Προεπισκόπηση & διόρθωση',
     importedToFriday:d=>`Η λίστα για την Παρασκευή ${d} αποθηκεύτηκε`, noFridayItems:'Δεν υπάρχει ακόμη λίστα για αυτή την Παρασκευή.',
-    noFridayItemsHint:'Επικόλλησε κείμενο ή ανέβασε screenshot. Μπορείς να προσθέσεις κι άλλα προϊόντα οποιαδήποτε στιγμή.',
+    noFridayItemsHint:'Γράψε πάνω ένα προϊόν, ή εισήγαγε κείμενο/screenshot. Μπορείς να συμπληρώνεις ανά πάσα στιγμή.',
     fridayActive:'Τα ψώνια τρέχουν', fridayPlanned:'Προγραμματισμένη', fridayCompleted:'Ολοκληρωμένη',
     pasteList:'Επικόλλησε ή γράψε τη λίστα',
     pastePh:'Γάλα 2, Ψωμί 4, Ντομάτες 3 kg, Νεκταρίνια 10–12',
@@ -847,7 +969,50 @@ const T = {
     helpProposeEmpty:'Δεν αναγνωρίστηκαν έγκυρες αλλαγές.',
     helpProposeNeedPin:'Για αλλαγές προγράμματος χρειάζεται PIN.',
     helpActionStock:(dir,qty,unit,name,house)=>`${dir==='IN'?'+':'−'} ${qty} ${unit} ${name} @ ${house}`,
+    helpActionStockSet:(qty,unit,name,house)=>`= ${qty} ${unit} ${name} @ ${house}`,
+    helpActionWantBought:(name,house)=>`🛒 ${name} → Λίστα @ ${house}`,
+    helpActionShiftNote:text=>`📝 Βάρδια: ${String(text||'').slice(0,80)}`,
+    helpActionOpenTab:tab=>`↗ ${tab}`,
     helpActionShopAdd:(qty,unit,name,house)=>`🛒 + ${qty} ${unit} ${name} → λίστα ${house}`,
+    notifEnable:'Ενεργοποίηση ειδοποιήσεων',
+    notifEnabled:'Ειδοποιήσεις ενεργές',
+    notifDenied:'Ειδοποιήσεις μπλοκαρισμένες — επίτρεψέ τις στις ρυθμίσεις',
+    notifHint:'Σαν πραγματική εφαρμογή: άδειο απόθεμα, έλεγχος βάρδιας, παρουσία, events.',
+    notifLowStock:n=>`${n} προϊόντα χρειάζονται προσοχή`,
+    notifShiftCheck:'Έλεγχος αποθέματος βάρδιας ανοιχτός (Kalyvia)',
+    notifShiftStart:t=>`Η βάρδια ξεκινά · ${t}`,
+    notifShiftLate:t=>`Η βάρδια ξεκίνησε — δήλωσε παρουσία · ${t}`,
+    notifTest:'Δοκιμαστική ειδοποίηση Armonia',
+    calTitle:'Το ημερολόγιό μου',
+    calHint:'Βάρδιες και events ως αρχείο για Apple, Google, Outlook και άλλα ημερολόγια.',
+    calDownloadAll:'Βάρδιες + events (.ics)',
+    calDownloadShifts:'Μόνο βάρδιες (.ics)',
+    calDownloadEvents:'Μόνο events (.ics)',
+    calGoogleNext:'Επόμενη βάρδια στο Google',
+    calOutlookNext:'Επόμενη βάρδια στο Outlook',
+    calNextNone:'Δεν υπάρχουν επόμενες βάρδιες στις επόμενες εβδομάδες.',
+    calSaved:'Το αρχείο ημερολογίου είναι έτοιμο',
+    calWeeks:'Επόμενες 8 εβδομάδες',
+    presenceTitle:'Παρουσία βάρδιας',
+    presenceImThere:'Είμαι εδώ',
+    presenceLateWhy:'Γιατί αργείς;',
+    presenceLateHint:'Η βάρδια έχει ήδη ξεκινήσει. Πες σύντομα γιατί αργείς.',
+    presenceReasonNeeded:'Χρειάζεται ένας λόγος.',
+    presenceSaved:'Η παρουσία αποθηκεύτηκε',
+    presenceLateSaved:'Η καθυστέρηση δηλώθηκε',
+    presenceBannerReady:(from,to)=>`Βάρδια ${from}–${to} · Δήλωσε παρουσία`,
+    presenceBannerLate:(from,mins)=>`Βάρδια από ${from} · ${mins} λεπτά αργότερα`,
+    presenceBannerDone:(status,at)=>status==='late'?`Δηλώθηκε καθυστέρηση · ${at}`:`Εδώ · ${at}`,
+    presenceOpen:'Δήλωση',
+    presenceDone:'Δηλώθηκε',
+    presenceReasonTraffic:'Κυκλοφορία',
+    presenceReasonHealth:'Υγεία',
+    presenceReasonHandover:'Παράδοση / συνεννόηση',
+    presenceReasonOther:'Άλλο',
+    presenceCustomReason:'Δικός σου λόγος',
+    presenceOnTime:'Έγκαιρα',
+    presenceLate:'Αργά',
+    presenceNoShift:'Δεν υπάρχει ανοιχτή δήλωση βάρδιας τώρα.',
     helpActionShopRemove:(name,house)=>`🛒 αφαίρεση: ${name} @ ${house}`,
     helpActionScheduleAdd:(when,block,what,who)=>`📅 + ${when} · ${block}: ${what}${who?' · '+who:''}`,
     helpActionScheduleUpdate:(when,what)=>`📅 αλλαγή ${when}: ${what}`,
@@ -877,7 +1042,26 @@ const T = {
     adminCenter:'Κέντρο διαχείρισης', adminOverview:'Ομάδα, εργασίες και αλλαγές με μία ματιά',
     adminWarnings:'Μόνο οι admins βλέπουν λειτουργικές προειδοποιήσεις', adminAllClear:'Δεν υπάρχουν προειδοποιήσεις προγράμματος',
     adminEditPlan:'Επεξεργασία εβδομάδας', adminEditShifts:'Επεξεργασία βαρδιών', adminManageEvents:'Διαχείριση events',
-    adminOpenAudit:'Άνοιγμα καταγραφών', adminToday:'Σήμερα', adminNext7:'Επόμενες 7 ημέρες', adminDone:'Ολοκληρωμένα',
+    adminOpenAudit:'Άνοιγμα καταγραφών', adminEmailEveryone:'Email σε όλους',
+    adminBroadcastTitle:'Αποστολή μηνύματος ομάδας',
+    adminBroadcastHint:'Στέλνει επώνυμο Armonia email σε όλα τα προφίλ με αποθηκευμένη διεύθυνση.',
+    adminBroadcastAudience:'Παραλήπτες',
+    adminBroadcastAll:'Όλοι με email',
+    adminBroadcastStaff:'Μόνο ομάδα',
+    adminBroadcastChildren:'Μόνο παιδιά',
+    adminBroadcastSubject:'Θέμα',
+    adminBroadcastHeadline:'Τίτλος στο email',
+    adminBroadcastMessage:'Μήνυμα',
+    adminBroadcastSend:'Αποστολή email',
+    adminBroadcastRecipients:n=>`${n} παραλήπτες με email`,
+    adminBroadcastNone:'Δεν βρέθηκαν προφίλ με email.',
+    adminBroadcastNeedFields:'Χρειάζονται θέμα και μήνυμα.',
+    adminBroadcastConfirm:n=>`Αποστολή email σε ${n} άτομα;`,
+    adminBroadcastSent:(s,f)=>f?`Στάλθηκαν: ${s} · απέτυχαν: ${f}`:`Το email στάλθηκε σε ${s} άτομα.`,
+    adminBroadcastFailed:'Το email δεν στάλθηκε.',
+    adminBroadcastRate:s=>`Περίμενε ${s}δ πριν ξαναστείλεις.`,
+    adminBroadcastOffline:'Η αποστολή email δεν έχει ρυθμιστεί (SMTP/Resend).',
+    adminToday:'Σήμερα', adminNext7:'Επόμενες 7 ημέρες', adminDone:'Ολοκληρωμένα',
     adminLastAction:'Τελευταία δραστηριότητα', adminNoActivity:'Καμία δραστηριότητα ακόμη', adminDetails:'Στοιχεία ομάδας',
     adminFullControl:'Οι admins μπορούν να αλλάζουν πρόγραμμα, βάρδιες, events, σημειώσεις, απόθεμα και διορθώσεις καταγραφών.',
     editShiftDay:'Επεξεργασία βαρδιών', addShift:'Προσθήκη βάρδιας', shiftType:'Τύπος', deleteShift:'Αφαίρεση βάρδιας',
@@ -1003,6 +1187,16 @@ const SEED = {
     {id:'r14', de:'Reinigung',        el:'Καθαρισμός'},
   ],
   customReasons: [],
+  /* Λόγοι αφαίρεσης από λίστα αγορών — presets + custom. */
+  listRemoveReasons: [
+    {id:'lr1', de:'Nicht mehr nötig', el:'Δεν χρειάζεται πια'},
+    {id:'lr2', de:'Schon im Haus', el:'Υπάρχει ήδη'},
+    {id:'lr3', de:'Falsches Produkt', el:'Λάθος προϊόν'},
+    {id:'lr4', de:'Doppelt eingetragen', el:'Διπλή καταχώρηση'},
+    {id:'lr5', de:'Anderswo besorgt', el:'Αγοράστηκε αλλού'},
+    {id:'lr6', de:'Zu teuer', el:'Πολύ ακριβό'},
+  ],
+  customListRemoveReasons: [],
   // Το λεξιλόγιο δραστηριοτήτων βγήκε από το ίδιο το έντυπο
   activities: [
     {id:'a01', emoji:'👩‍🍳', de:'Kochkurs',       el:'Μάθημα μαγειρικής'},
@@ -1219,6 +1413,8 @@ const SEED = {
   stock: {},
   log: [],
   shiftNotes: {},
+  stockChecks: [],
+  shiftCheckins: [],
 };
 
 /* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
@@ -1226,7 +1422,7 @@ const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
-                 'customActivities', 'customReasons', 'profilePrefs', 'shiftNotes'];
+                 'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins'];
 
 let DB = load();
 function load(){
@@ -1239,7 +1435,7 @@ function load(){
     }
   }catch(e){ console.warn('load failed', e); }
   // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
-  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','log']
+  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins']
     .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object') db.productOverrides = {};
@@ -1253,9 +1449,9 @@ function load(){
 
 /** Shared across all staff devices — full operational state (survives when Postgres is configured). */
 const SHARED_KEYS = [
-  'listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons',
+  'listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
-  'aiImports','log','customActivities','shiftNotes',
+  'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
 ];
 const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
@@ -1525,8 +1721,28 @@ function setStatus(el, message='', type='info'){
   el.setAttribute('aria-live', 'polite');
 }
 
-/* UI feedback — silent (no SFX). */
-function feedback(_kind){}
+/* UI feedback — haptic + light visual pulse (no SFX). */
+function feedback(kind){
+  try{
+    if(navigator.vibrate){
+      if(kind==='error') navigator.vibrate([18,40,18]);
+      else if(kind==='save'||kind==='success') navigator.vibrate(14);
+      else navigator.vibrate(8);
+    }
+  }catch{}
+  document.body.classList.add('fx-tap');
+  clearTimeout(feedback._t);
+  feedback._t=setTimeout(()=>document.body.classList.remove('fx-tap'),120);
+}
+
+function emptyState(icon, title, hint='', ctaHtml=''){
+  return `<div class="empty-state" role="status">
+    <div class="empty-ico" aria-hidden="true">${icon}</div>
+    <p class="empty-title">${esc(title)}</p>
+    ${hint?`<p class="empty-hint">${esc(hint)}</p>`:''}
+    ${ctaHtml||''}
+  </div>`;
+}
 
 function entrySec(icon, label, hint=''){
   return `<div class="entry-sec"><span class="sec-ico" aria-hidden="true">${icon}</span><span>${esc(label)}</span>${hint?`<span class="sec-hint">${esc(hint)}</span>`:''}</div>`;
@@ -1654,6 +1870,7 @@ const state = {
   galleryPosts: [],
   galleryUpdatedAt: 0,
   galleryLoading: false,
+  galleryDrive: false,
   mode: 'staff',
   user: null,
   child: null,
@@ -1662,6 +1879,7 @@ const state = {
   stockFilter: 'all',
   stockQuery: '',
   stockOpenCategories: null,
+  stockTiles: localStorage.getItem('paidia.stockTiles')==='1',
   stockDraft: {},
   stockDraftReason: null,
   shopQuery: '',
@@ -1946,8 +2164,7 @@ function openSheet(html, {dismissable = true} = {}){
   document.querySelectorAll('.stock-hold-menu,.drag-ghost').forEach(el=>el.remove());
   sheetLocked = !dismissable;
   document.getElementById('app').inert = sheetLocked;
-  const fab=document.getElementById('helpFab');
-  if(fab){ fab.inert = true; fab.hidden = true; }
+  document.body.classList.add('sheet-open');
   sheetEl.setAttribute('role','dialog');
   sheetEl.setAttribute('aria-modal','true');
   sheetEl.innerHTML = (dismissable
@@ -1962,8 +2179,7 @@ function closeSheet(){
   stockBoardUiAbort?.abort();
   stockBoardUiAbort = null;
   document.getElementById('app').inert = false;
-  const fab=document.getElementById('helpFab');
-  if(fab){ fab.inert = false; fab.hidden = false; }
+  document.body.classList.remove('sheet-open');
   sheetEl.removeAttribute('role');sheetEl.removeAttribute('aria-modal');
   sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
@@ -2428,8 +2644,12 @@ function describeHelpAction(action){
   const hid=action.houseId||shopHouse();
   const houseName=house(hid)?.short||hid;
   if(action.type==='stock_adjust') return T[state.lang].helpActionStock(action.dir||'IN', action.qty||1, unit, name, houseName);
+  if(action.type==='stock_set') return T[state.lang].helpActionStockSet(action.qty??0, unit, name, houseName);
+  if(action.type==='want_bought') return T[state.lang].helpActionWantBought(name, houseName);
   if(action.type==='shop_add') return T[state.lang].helpActionShopAdd(action.qty||1, unit, name, houseName);
   if(action.type==='shop_remove') return T[state.lang].helpActionShopRemove(name, houseName);
+  if(action.type==='shift_note') return T[state.lang].helpActionShiftNote(action.text||'');
+  if(action.type==='open_tab') return T[state.lang].helpActionOpenTab(action.tab||'');
   if(action.type==='schedule_add' || action.type==='schedule_template_add'){
     const actId=resolveActivityId(action);
     const what=actId?actLabel(actId):(action.activityQuery||'?');
@@ -2464,12 +2684,12 @@ function applyHelpActions(actions){
   let applied=0;
   actions.forEach(action=>{
     const kind=action.type;
-    if(kind==='stock_adjust' || kind==='shop_add' || kind==='shop_remove'){
+    if(kind==='stock_adjust' || kind==='stock_set' || kind==='want_bought' || kind==='shop_add' || kind==='shop_remove'){
       const query=action.productQuery||action.name||'';
       const product=matchProduct(query);
       const hid=action.houseId && house(action.houseId) ? action.houseId : shopHouse();
-      if(kind==='stock_adjust'){
-        const qty=Number(action.qty)||0; if(qty<=0) return;
+      if(kind==='stock_adjust' || kind==='stock_set'){
+        const qty=Number(action.qty); if(!(qty>=0) || (kind==='stock_adjust' && qty<=0)) return;
         const p=product||{id:null,unit:action.unit||'Stk',de:query,el:query};
         if(!product){
           DB.customProducts ||= [];
@@ -2478,12 +2698,31 @@ function applyHelpActions(actions){
           Object.assign(p, created);
         }
         const key=stockKey(hid,p.id);
+        const prev=DB.stock[key]??0;
+        if(kind==='stock_set'){
+          const next=Math.max(0, Math.round(qty*100)/100);
+          DB.stock[key]=next;
+          const delta=Math.round((next-prev)*100)/100;
+          if(delta!==0){
+            logEntry(delta>0?'IN':'OUT',
+              `Zo-Ai · ${describeHelpAction(action)}`,
+              {houseId:hid, reason:action.reason||'Zo-Ai', items:[{pid:p.id, qty:Math.abs(delta)}]});
+          }
+          applied++;
+          return;
+        }
         const delta=action.dir==='OUT'?-qty:qty;
         DB.stock[key]=Math.max(0, Math.round(((DB.stock[key]??0)+delta)*100)/100);
         logEntry(action.dir==='OUT'?'OUT':'IN',
           `Zo-Ai · ${describeHelpAction(action)}`,
           {houseId:hid, reason:action.reason||'Zo-Ai', items:[{pid:p.id, qty}]});
         applied++;
+        return;
+      }
+      if(kind==='want_bought'){
+        const pid=product?.id;
+        if(!pid){ return; }
+        if(requestWantBought(pid, hid)) applied++;
         return;
       }
       if(kind==='shop_add'){
@@ -2510,6 +2749,28 @@ function applyHelpActions(actions){
           applied++;
         }
       }
+      return;
+    }
+
+    if(kind==='shift_note'){
+      const text=String(action.text||'').trim();
+      if(!text || !state.user) return;
+      const dateStr=iso(new Date());
+      const key=typeof shiftNoteKey==='function'?shiftNoteKey(state.user.id, dateStr):`${state.user.id}:${dateStr}`;
+      DB.shiftNotes ||= {};
+      const prev=DB.shiftNotes[key];
+      const merged=prev?.text ? `${prev.text}\n${text}` : text;
+      DB.shiftNotes[key]={id:key, employeeId:state.user.id, date:dateStr, text:merged.slice(-4000), ts:Date.now()};
+      logEntry('SHIFT',`Zo-Ai · ${describeHelpAction(action)}`,{date:dateStr});
+      applied++;
+      return;
+    }
+
+    if(kind==='open_tab'){
+      const tab=String(action.tab||'').trim();
+      if(!['home','gallery','schedule','stock','shop','book'].includes(tab)) return;
+      state.tab=tab;
+      applied++;
       return;
     }
 
@@ -2947,6 +3208,7 @@ function applyGallerySnapshot(data){
   if(!data || !Array.isArray(data.posts)) return;
   state.galleryPosts = data.posts;
   state.galleryUpdatedAt = Number(data.updatedAt) || 0;
+  state.galleryDrive = !!data.drive;
 }
 
 async function refreshGallery({silent=false}={}){
@@ -2969,6 +3231,12 @@ function canDeleteGalleryPost(post){
   return state.mode === 'staff' && !!state.user;
 }
 
+function galleryPhotoSrc(photo){
+  if(!photo) return '';
+  if(String(photo).startsWith('/api/gallery/media/')) return photo;
+  return photo;
+}
+
 function galleryPostCard(post, idx=0){
   const me = currentProfileId();
   const liked = (post.likes||[]).includes(me);
@@ -2983,6 +3251,7 @@ function galleryPostCard(post, idx=0){
   const canDelComment = (c)=> c.by===me || (state.mode==='staff' && !!state.user);
   const flagged = !!post.flagged;
   const showFlag = flagged && state.mode==='staff';
+  const photoSrc = galleryPhotoSrc(post.photo);
   return `<article class="gal-post gal-enter ${flagged?'is-flagged':''}" style="--gal-i:${idx}" data-gal-id="${esc(post.id)}">
     <header class="gal-head">
       <span class="gal-ava" style="background:${esc(post.byColor||'#94a3b8')}">${esc((post.byName||'?').slice(0,2).toUpperCase())}</span>
@@ -2994,7 +3263,7 @@ function galleryPostCard(post, idx=0){
       ${del?`<button class="chip ghost gal-del" type="button" data-gal-del="${esc(post.id)}" aria-label="${esc(t('galleryDelete'))}">🗑</button>`:''}
     </header>
     <button class="gal-photo" type="button" data-gal-light="${esc(post.id)}" aria-label="photo">
-      <img src="${esc(post.photo)}" alt="" loading="lazy">
+      <img src="${esc(photoSrc)}" alt="" loading="lazy" decoding="async" referrerpolicy="same-origin">
     </button>
     ${post.caption?`<p class="gal-caption">${esc(post.caption)}</p>`:''}
     <footer class="gal-foot">
@@ -3024,24 +3293,29 @@ function galleryPostCard(post, idx=0){
 
 function viewGallery(){
   const posts = state.galleryPosts || [];
-  return `<div class="gal-hero">
+  const hasFeed = posts.length > 0;
+  return `<div class="gal-shell">
+    <div class="gal-hero ${hasFeed?'compact':''}">
       <div class="brand-kicker">Armonia</div>
       <h2>${t('galleryTitle')}</h2>
-      <p>${t('galleryHint')}</p>
-      <p class="gal-safe-line">${esc(t('gallerySafeHint'))}</p>
+      ${hasFeed?'':`<p>${t('galleryHint')}</p><p class="gal-safe-line">${esc(t('gallerySafeHint'))}</p>`}
+      <p class="gal-drive-line">${esc(state.galleryDrive?t('galleryDriveOn'):t('galleryDriveOff'))}</p>
     </div>
-    <div class="page-actions" role="toolbar">
-      <button class="page-act primary" type="button" id="galShare">📷 ${esc(t('galleryShare'))}</button>
-      <button class="page-act ghost" type="button" id="galRefresh">↻</button>
+    <div class="gal-compose-bar">
+      <button class="gal-fab" type="button" id="galShare" aria-label="${esc(t('galleryShare'))}">
+        <span>📷</span><b>${esc(t('galleryNewPost'))}</b>
+      </button>
+      <button class="gal-refresh" type="button" id="galRefresh" aria-label="refresh">↻</button>
     </div>
     ${state.galleryLoading && !posts.length?`<div class="empty">${esc(t('galleryLoading'))}</div>`:''}
     <div class="gal-feed" id="galFeed">
-      ${posts.length ? posts.map((p,i)=>galleryPostCard(p,i)).join('') : `<div class="empty">${esc(t('galleryEmpty'))}</div>`}
+      ${posts.length ? posts.map((p,i)=>galleryPostCard(p,i)).join('') : emptyState('📸', t('galleryEmpty'))}
     </div>
     <div class="gal-lightbox" id="galLightbox" hidden>
       <button type="button" class="gal-lightbox-close" id="galLightClose" aria-label="${esc(t('close'))}">×</button>
       <img id="galLightImg" alt="">
-    </div>`;
+    </div>
+  </div>`;
 }
 
 function childGalleryView(){
@@ -3060,26 +3334,52 @@ function bindGallery(root){
     const box = root.querySelector('#galLightbox');
     const img = root.querySelector('#galLightImg');
     if(!box||!img||!src) return;
+    img.removeAttribute('crossorigin');
     img.src = src;
     box.hidden = false;
     box.classList.add('open');
+    document.body.classList.add('gal-lightbox-open');
   };
   const closeLight = ()=>{
     const box = root.querySelector('#galLightbox');
     if(!box) return;
     box.hidden = true;
     box.classList.remove('open');
+    document.body.classList.remove('gal-lightbox-open');
     const img = root.querySelector('#galLightImg');
-    if(img) img.removeAttribute('src');
+    if(img){ img.removeAttribute('src'); img.removeAttribute('crossorigin'); }
   };
   root.querySelector('#galLightClose')?.addEventListener('click', closeLight);
   root.querySelector('#galLightbox')?.addEventListener('click', (ev)=>{
     if(ev.target.id==='galLightbox') closeLight();
   });
   root.querySelectorAll('[data-gal-light]').forEach(btn=>{
-    btn.onclick = ()=>{
-      const img = btn.querySelector('img');
-      if(img?.src) openLight(img.src);
+    let lastTap=0;
+    const likeId=btn.dataset.galLight;
+    btn.onclick = (ev)=>{
+      const now=Date.now();
+      if(now-lastTap<320){
+        ev.preventDefault();
+        lastTap=0;
+        btn.classList.add('liked-burst');
+        setTimeout(()=>btn.classList.remove('liked-burst'),420);
+        (async()=>{
+          try{
+            const data=await galleryApi('like',{id:likeId});
+            applyGallerySnapshot(data);
+            feedback('save');
+            render();
+          }catch{ toast(t('galleryFail'),'error'); }
+        })();
+        return;
+      }
+      lastTap=now;
+      setTimeout(()=>{
+        if(Date.now()-lastTap>=300){
+          const img=btn.querySelector('img');
+          if(img?.src) openLight(img.currentSrc||img.src);
+        }
+      },300);
     };
   });
   root.querySelectorAll('[data-gal-like]').forEach(btn=>{
@@ -3426,6 +3726,349 @@ function onDuty(empId, day, fromHHMM, toHHMM){
     const sp = shiftSpan(s);
     return sp.start < target.end && sp.end > target.start;
   });
+}
+
+/* ── Calendar (.ics) + shift presence ─────────────────────────── */
+const SHIFT_PRESENCE_GRACE_MS = 5 * 60 * 1000;
+const SHIFT_PRESENCE_PRE_MS = 30 * 60 * 1000;
+const CAL_LOCATION = 'Armonia Thassos, Thassos';
+
+function localDateTime(dateStr, hhmm){
+  const [h,m] = String(hhmm||'00:00').split(':').map(Number);
+  const d = new Date(`${dateStr}T12:00:00`);
+  d.setHours(h||0, m||0, 0, 0);
+  return d;
+}
+
+function shiftBounds(shift, dateStr){
+  const start = localDateTime(dateStr, shift.from || '00:00');
+  let end;
+  if(shift.type === 'H24') end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+  else {
+    end = localDateTime(dateStr, shift.to || shift.from || '00:00');
+    if(end <= start) end = new Date(end.getTime() + 24 * 60 * 60 * 1000);
+  }
+  return {start, end};
+}
+
+function shiftLabel(shift){
+  if(shift.type === 'H24') return `${shift.from} · 24h`;
+  if(shift.type === 'HANDOVER') return `${shift.from}–${shift.to} · ${t('handover')||'Übergabe'}`;
+  return `${shift.from}–${shift.to}`;
+}
+
+function personShiftOccurrences(employeeId, weeks=8){
+  const today = iso(new Date());
+  const startMon = weekKey(today);
+  const out = [];
+  for(let w=0; w<weeks; w++){
+    for(let day=0; day<7; day++){
+      const dateStr = shiftDate(startMon, w*7 + day);
+      shiftsOf(employeeId, day).filter(s => s.type !== 'OFF' && s.from).forEach(s=>{
+        const {start, end} = shiftBounds(s, dateStr);
+        if(end < new Date()) return;
+        out.push({
+          kind:'shift',
+          id:s.id,
+          dateStr,
+          start,
+          end,
+          title:`Armonia · ${empName(employeeId)} · ${shiftLabel(s)}`,
+          description:[shift.type, s.note].filter(Boolean).join(' · '),
+          location:CAL_LOCATION,
+        });
+      });
+    }
+  }
+  return out.sort((a,b)=>a.start - b.start);
+}
+
+function personEventOccurrences(profileId, mode='staff'){
+  const today = iso(new Date());
+  return (DB.events||[])
+    .filter(e => e.status === 'published' && e.date >= today)
+    .filter(e => {
+      if(mode === 'child') return (e.childIds||[]).includes(profileId);
+      return (e.employeeIds||[]).includes(profileId);
+    })
+    .map(e=>{
+      const start = localDateTime(e.date, e.from || '10:00');
+      let end = localDateTime(e.date, e.to || e.from || '11:00');
+      if(end <= start) end = new Date(start.getTime() + 60 * 60 * 1000);
+      return {
+        kind:'event',
+        id:e.id,
+        dateStr:e.date,
+        start,
+        end,
+        title:`${e.emoji||'🎉'} ${L(e)}`,
+        description:[typeof e.description==='object'?L(e.description):String(e.description||''), e.note, e.bring].filter(Boolean).join('\n'),
+        location:e.location || CAL_LOCATION,
+      };
+    })
+    .sort((a,b)=>a.start - b.start);
+}
+
+function icsEscape(text){
+  return String(text||'')
+    .replace(/\\/g,'\\\\')
+    .replace(/\n/g,'\\n')
+    .replace(/,/g,'\\,')
+    .replace(/;/g,'\\;');
+}
+
+function icsStamp(d){
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getUTCFullYear()}${p(d.getUTCMonth()+1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}Z`;
+}
+
+function icsLocal(d){
+  const p = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}T${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+function buildIcs(events, calName='Armonia Thassos'){
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Armonia Thassos//PAIDIA//DE',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:${icsEscape(calName)}`,
+  ];
+  const now = new Date();
+  events.forEach(ev=>{
+    lines.push(
+      'BEGIN:VEVENT',
+      `UID:${icsEscape(`${ev.kind}-${ev.id}-${ev.dateStr}@armonia-thassos`)}`,
+      `DTSTAMP:${icsStamp(now)}`,
+      `DTSTART:${icsLocal(ev.start)}`,
+      `DTEND:${icsLocal(ev.end)}`,
+      `SUMMARY:${icsEscape(ev.title)}`,
+      `DESCRIPTION:${icsEscape(ev.description||'')}`,
+      `LOCATION:${icsEscape(ev.location||CAL_LOCATION)}`,
+      'END:VEVENT',
+    );
+  });
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
+}
+
+function downloadTextFile(filename, text, mime='text/calendar;charset=utf-8'){
+  const blob = new Blob([text], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 2500);
+}
+
+function googleCalUrl(ev){
+  const params = new URLSearchParams({
+    action:'TEMPLATE',
+    text:ev.title,
+    dates:`${icsLocal(ev.start)}/${icsLocal(ev.end)}`,
+    details:ev.description||'',
+    location:ev.location||CAL_LOCATION,
+  });
+  return `https://calendar.google.com/calendar/render?${params}`;
+}
+
+function outlookCalUrl(ev){
+  const params = new URLSearchParams({
+    path:'/calendar/action/compose',
+    rru:'addevent',
+    subject:ev.title,
+    startdt:ev.start.toISOString(),
+    enddt:ev.end.toISOString(),
+    body:ev.description||'',
+    location:ev.location||CAL_LOCATION,
+  });
+  return `https://outlook.live.com/calendar/0/deeplink/compose?${params}`;
+}
+
+function sheetCalendar(profileId, mode='staff'){
+  const person = mode==='child' ? kid(profileId) : emp(profileId);
+  if(!person) return;
+  const shifts = mode==='staff' ? personShiftOccurrences(profileId, 8) : [];
+  const events = personEventOccurrences(profileId, mode);
+  const next = shifts[0] || events[0] || null;
+  const name = profileName(person);
+  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:${esc(profileColor(person))}">📅</div>
+    <div class="grow"><div class="muted">ARMONIA THASSOS</div>
+      <h3 style="margin:1px 0">${esc(t('calTitle'))}</h3>
+      <div class="muted">${esc(name)} · ${esc(t('calWeeks'))}</div></div></div>
+    <p class="muted" style="margin:0 0 12px;line-height:1.45">${esc(t('calHint'))}</p>
+    <div class="admin-action-grid">
+      <button class="btn" type="button" id="calDlAll">${esc(t('calDownloadAll'))}</button>
+      ${mode==='staff'?`<button class="btn sec" type="button" id="calDlShifts">${esc(t('calDownloadShifts'))}</button>`:''}
+      <button class="btn sec" type="button" id="calDlEvents">${esc(t('calDownloadEvents'))}</button>
+    </div>
+    ${next?`<div class="status-box success" style="margin:14px 0 10px">${esc(next.title)}<br><span class="muted">${esc(fmtDT(next.start.getTime()))}</span></div>
+      <div class="admin-action-grid">
+        <a class="btn sec" id="calGoogle" href="${esc(googleCalUrl(next))}" target="_blank" rel="noopener">${esc(t('calGoogleNext'))}</a>
+        <a class="btn sec" id="calOutlook" href="${esc(outlookCalUrl(next))}" target="_blank" rel="noopener">${esc(t('calOutlookNext'))}</a>
+      </div>`:`<div class="status-box" style="margin-top:14px">${esc(t('calNextNone'))}</div>`}`);
+  const slug = String(name||profileId).replace(/\s+/g,'-').toLowerCase();
+  const savePack = (items, file)=>{
+    if(!items.length){ toast(t('calNextNone'),'error'); return; }
+    downloadTextFile(file, buildIcs(items, `Armonia · ${name}`));
+    feedback('save');
+    toast(t('calSaved'),'success');
+  };
+  sheetEl.querySelector('#calDlAll')?.addEventListener('click',()=>savePack([...shifts,...events], `armonia-${slug}.ics`));
+  sheetEl.querySelector('#calDlShifts')?.addEventListener('click',()=>savePack(shifts, `armonia-${slug}-shifts.ics`));
+  sheetEl.querySelector('#calDlEvents')?.addEventListener('click',()=>savePack(events, `armonia-${slug}-events.ics`));
+}
+
+function shiftCheckinFor(employeeId, dateStr, shiftId){
+  return (DB.shiftCheckins||[]).find(c =>
+    c.employeeId===employeeId && c.date===dateStr && c.shiftId===shiftId);
+}
+
+function activeShiftPresence(employeeId){
+  if(!employeeId) return null;
+  const now = new Date();
+  const today = iso(now);
+  const yesterday = shiftDate(today, -1);
+  const yDay = dowIdx(new Date(yesterday+'T12:00:00'));
+  const candidates = [
+    ...shiftsOf(employeeId, dowIdx(now)).filter(s=>s.type!=='OFF' && s.from).map(s=>({s, dateStr:today})),
+    ...shiftsOf(employeeId, yDay).filter(s=>s.type==='H24' && s.from).map(s=>({s, dateStr:yesterday})),
+  ];
+  for(const {s, dateStr} of candidates){
+    const checkin = shiftCheckinFor(employeeId, dateStr, s.id);
+    const {start, end} = shiftBounds(s, dateStr);
+    if(checkin){
+      if(now >= new Date(start.getTime()-SHIFT_PRESENCE_PRE_MS) && now <= end){
+        return {shift:s, dateStr, start, end, late:checkin.status==='late', minutesLate:0, checkin};
+      }
+      continue;
+    }
+    if(now < new Date(start.getTime()-SHIFT_PRESENCE_PRE_MS)) continue;
+    if(now > end) continue;
+    const late = now.getTime() > start.getTime() + SHIFT_PRESENCE_GRACE_MS;
+    const minutesLate = late ? Math.max(1, Math.round((now - start) / 60000)) : 0;
+    return {shift:s, dateStr, start, end, late, minutesLate, checkin:null};
+  }
+  return null;
+}
+
+function shiftPresenceBannerHtml(){
+  if(state.mode!=='staff' || !state.user) return '';
+  const active = activeShiftPresence(state.user.id);
+  if(!active) return '';
+  const {shift, late, minutesLate, checkin, start} = active;
+  const toLabel = shift.type==='H24' ? '+24h' : (shift.to||'');
+  if(checkin){
+    return `<div class="shift-check-banner presence done">
+      <div><b>✅ ${esc(t('presenceDone'))}</b>
+        <span>${esc(T[state.lang].presenceBannerDone(checkin.status, fmtDT(checkin.at)))}</span></div>
+      <button class="btn sec sm" type="button" id="shiftPresenceOpen">${esc(t('presenceOpen'))}</button>
+    </div>`;
+  }
+  if(late){
+    return `<div class="shift-check-banner presence late">
+      <div><b>⏰ ${esc(t('presenceTitle'))}</b>
+        <span>${esc(T[state.lang].presenceBannerLate(shift.from, minutesLate))}</span></div>
+      <button class="btn sm" type="button" id="shiftPresenceOpen">${esc(t('presenceImThere'))}</button>
+    </div>`;
+  }
+  return `<div class="shift-check-banner presence pending">
+    <div><b>👋 ${esc(t('presenceTitle'))}</b>
+      <span>${esc(T[state.lang].presenceBannerReady(shift.from, toLabel))}</span></div>
+    <button class="btn sm" type="button" id="shiftPresenceOpen">${esc(t('presenceImThere'))}</button>
+  </div>`;
+}
+
+function saveShiftPresence({shift, dateStr, late, reason}){
+  const who = state.user;
+  if(!who) return false;
+  DB.shiftCheckins = DB.shiftCheckins || [];
+  DB.shiftCheckins = DB.shiftCheckins.filter(c =>
+    !(c.employeeId===who.id && c.date===dateStr && c.shiftId===shift.id));
+  DB.shiftCheckins.push({
+    id:'sc'+uid(),
+    employeeId:who.id,
+    date:dateStr,
+    shiftId:shift.id,
+    from:shift.from,
+    to:shift.to||'',
+    type:shift.type,
+    status:late?'late':'present',
+    reason:late ? String(reason||'').trim().slice(0,240) : '',
+    at:Date.now(),
+    byName:who.name||who.id,
+  });
+  if(DB.shiftCheckins.length > 800) DB.shiftCheckins = DB.shiftCheckins.slice(-800);
+  logEntry('SHIFT', late
+    ? `${t('presenceLate')}: ${who.name} · ${dateStr} ${shift.from} · ${reason}`
+    : `${t('presenceOnTime')}: ${who.name} · ${dateStr} ${shift.from}`);
+  return save();
+}
+
+function sheetShiftPresence(){
+  if(state.mode!=='staff' || !state.user){ toast(t('presenceNoShift'),'error'); return; }
+  const active = activeShiftPresence(state.user.id);
+  if(!active){ toast(t('presenceNoShift'),'error'); return; }
+  const {shift, dateStr, late, minutesLate, checkin, start} = active;
+  if(checkin){
+    openSheet(`<div class="import-kicker">${esc(t('presenceTitle'))}</div>
+      <h2 style="margin:4px 0 8px">${esc(checkin.status==='late'?t('presenceLate'):t('presenceOnTime'))}</h2>
+      <div class="status-box success">${esc(T[state.lang].presenceBannerDone(checkin.status, fmtDT(checkin.at)))}
+        ${checkin.reason?`<div style="margin-top:6px">${esc(checkin.reason)}</div>`:''}</div>
+      <p class="muted">${esc(shiftLabel(shift))} · ${esc(dateStr)}</p>
+      <button class="btn sec" type="button" id="presenceClose">${t('close')}</button>`);
+    sheetEl.querySelector('#presenceClose').onclick=()=>closeSheet();
+    return;
+  }
+  const reasons = [
+    ['traffic', t('presenceReasonTraffic')],
+    ['health', t('presenceReasonHealth')],
+    ['handover', t('presenceReasonHandover')],
+    ['other', t('presenceReasonOther')],
+  ];
+  openSheet(`<div class="import-kicker">${esc(eventDayLabel(dateStr))}</div>
+    <h2 style="margin:4px 0 6px">${esc(t('presenceTitle'))}</h2>
+    <p class="muted" style="margin:0 0 10px">${esc(shiftLabel(shift))} · ${esc(fmtDT(start.getTime()))}</p>
+    ${late?`<div class="status-box error" style="margin-bottom:12px"><b>${esc(t('presenceLateWhy'))}</b>
+      <div style="margin-top:4px">${esc(t('presenceLateHint'))} (${minutesLate} Min.)</div></div>
+      <div class="chips" id="presenceReasons" style="margin:0 0 10px">
+        ${reasons.map(([id,label])=>`<button class="chip" type="button" data-presence-reason="${id}">${esc(label)}</button>`).join('')}
+      </div>
+      <label class="f"><span>${t('presenceCustomReason')}</span>
+        <input type="text" id="presenceReason" maxlength="240" placeholder="…"></label>`
+      :`<p class="muted" style="margin:0 0 14px">${esc(t('presenceImThere'))}</p>`}
+    <button class="btn" type="button" id="presenceConfirm">${esc(t('presenceImThere'))}</button>`);
+  let picked = '';
+  sheetEl.querySelectorAll('[data-presence-reason]').forEach(btn=>{
+    btn.onclick=()=>{
+      picked = btn.dataset.presenceReason;
+      sheetEl.querySelectorAll('[data-presence-reason]').forEach(b=>b.classList.toggle('on', b===btn));
+      const input = sheetEl.querySelector('#presenceReason');
+      if(input && picked !== 'other' && !input.value.trim()){
+        input.value = reasons.find(([id])=>id===picked)?.[1] || '';
+      }
+    };
+  });
+  sheetEl.querySelector('#presenceConfirm').onclick=()=>{
+    let reason = '';
+    if(late){
+      reason = String(sheetEl.querySelector('#presenceReason')?.value || '').trim();
+      if(!reason && picked && picked !== 'other'){
+        reason = reasons.find(([id])=>id===picked)?.[1] || '';
+      }
+      if(!reason){ toast(t('presenceReasonNeeded'),'error'); return; }
+    }
+    if(!saveShiftPresence({shift, dateStr, late, reason})) return;
+    feedback('save');
+    toast(late?t('presenceLateSaved'):t('presenceSaved'),'success');
+    closeSheet();
+    render();
+  };
 }
 
 /* ── Validation engine (§9, §35) — warnings, όχι απαγορεύσεις ── */
@@ -4166,7 +4809,7 @@ function sheetEntry(e, dateStr, presets = {}){
       from:f.from||def.from,to:f.to||def.to,location:sheetEl.querySelector('#fEventLocation')?.value.trim()||'',
       employeeIds:[...f.employeeIds],employeeId:f.employeeId,childIds:[...f.childIds],
       bring:{de:sheetEl.querySelector('#fEventBring')?.value.trim()||'',el:sheetEl.querySelector('#fEventBring')?.value.trim()||''},
-      emoji:act(f.activityId)?.emoji||'🎉',color:prior.color||'#0c6f88',status:'published',
+      emoji:act(f.activityId)?.emoji||'🎉',color:prior.color||'#2f5a63',status:'published',
       scheduleEntryId:entryId,scheduleDate:dateStr};
     if(idx>=0) DB.events[idx]=value; else DB.events.push(value);
     logEntry('EVENT',`${t('eventPublished')}: ${title}`);
@@ -4261,11 +4904,8 @@ const svgIcon = (id, cls) => `<svg class="${cls}" aria-hidden="true"><use href="
 
 function viewStock(){
   const hid = state.house;
-  const seg = `<div class="seg inventory-scope house-selector" id="sHouse" aria-label="${t('filterHouse')}">
-      ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
-      <button class="${hid==='all'?'on':''}" data-h="all">${t('bothHouses')}</button>
-    </div>`;
   const houses=hid==='all'?DB.houses:[house(hid)];
+  const friday=state.shopFriday||fridayFor();
   const productState=p=>{
     const values=houses.map(h=>DB.stock[stockKey(h.id,p.id)]??0);
     return values.some(q=>q===0)?'empty':values.some(q=>q<=lowThreshold(p))?'low':'ok';
@@ -4281,16 +4921,31 @@ function viewStock(){
   const productCard=p=>{
     const st=productState(p);
     if(hid==='all'){
+      if(state.stockTiles){
+        const qtyLine=houses.map(h=>`${esc(h.short)} ${DB.stock[stockKey(h.id,p.id)]??0}`).join(' · ');
+        return `<button class="stock-tile ${st}" type="button" data-stock-product="${p.id}" aria-label="${t('tapProduct')}: ${esc(L(p))}">
+          <span class="stock-tile-name">${esc(L(p))}</span>
+          <b class="stock-tile-qty">${houses.map(h=>DB.stock[stockKey(h.id,p.id)]??0).join('/')}</b>
+          <span class="stock-tile-meta">${qtyLine}</span>
+        </button>`;
+      }
       const quantities=houses.map(h=>`<div class="stock-qty"><span class="stock-state">${esc(h.short)}</span>${DB.stock[stockKey(h.id,p.id)]??0}<small>${esc(p.unit)}</small></div>`).join('');
-      return `<button class="stock-product ${st} multi-house" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div class="stock-product-main"><div class="stock-product-name">${esc(L(p))}</div>
-        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ✎</div></div>
-        <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div></button>`;
+      const wantBtns=houses.map(h=>{
+        const planned=isProductOnFridayList(h.id,p.id,friday);
+        return `<button type="button" class="want-bought ${planned?'on':''}" data-want-shop="${p.id}" data-want-house="${h.id}" ${planned?'disabled':''}>${planned?'✓ ':''}${esc(h.short)}</button>`;
+      }).join('');
+      return `<div class="stock-product ${st} multi-house">
+        <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div class="stock-product-name">${esc(L(p))}</div>
+        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ✎</div></button>
+        <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div>
+        <div class="want-bought-row" role="group" aria-label="${esc(t('wantBought'))}">${wantBtns}</div></div>`;
     }
     const qty=DB.stock[stockKey(hid,p.id)]??0;
     const step=stepFor(p);
     const delta=state.stockDraft[p.id]||0;
     const preview=roundStock(qty+delta);
     const pending=delta?`<span class="stock-pending ${delta>0?'in':'out'}">${delta>0?'+':''}${delta}</span>`:'';
+    const planned=isProductOnFridayList(hid,p.id,friday);
     return `<div class="stock-product ${st} has-stepper ${delta?'drafting':''}">
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
         <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}${pending}</div>
@@ -4301,35 +4956,43 @@ function viewStock(){
         <div class="stock-qty ${delta>0?'draft-in':delta<0?'draft-out':''}">${preview}<small>${esc(p.unit)}</small></div>
         <button class="stock-step in" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">＋</button>
       </div>
+      <button type="button" class="want-bought ${planned?'on':''}" data-want-shop="${p.id}" ${planned?'disabled':''}>${planned?'✓ '+t('wantBoughtDone'):t('wantBought')}</button>
     </div>`;
   };
+  const forceOpenCats=!!query || state.stockFilter!=='all';
   const categoryHtml=CATS().map(c=>{
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
-    // Show stock by default — collapsed categories made the fridge feel empty.
-    const shouldOpen=true;
-    return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}" open><summary><span class="cat-ico-wrap">${catIcon(c.id)}</span><span>${esc(L(c))}</span>
-      <span class="stock-cat-count">${products.length}</span></summary><div class="stock-product-grid">${products.map(productCard).join('')}</div></details>`;
+    const hasAttention=products.some(p=>{const st=productState(p);return st==='empty'||st==='low';});
+    const hasDraft=hid!=='all'&&products.some(p=>state.stockDraft[p.id]);
+    const shouldOpen=forceOpenCats||hasAttention||hasDraft;
+    return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"${shouldOpen?' open':''}><summary><span class="cat-ico-wrap">${catIcon(c.id)}</span><span>${esc(L(c))}</span>
+      <span class="stock-cat-count">${products.length}</span></summary><div class="stock-product-grid ${hid==='all'&&state.stockTiles?'tiles':''}">${products.map(productCard).join('')}</div></details>`;
   }).join('');
   const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
   const attention=counts.empty+counts.low;
-  const houseMeta=hid==='all'?t('bothHouses'):(house(hid)?.short||hid);
-  const filterMeta=[houseMeta, state.stockFilter==='all'?t('stockAll'):state.stockFilter==='empty'?t('stockEmpty'):state.stockFilter==='attention'?t('stockAttention'):t('stockAll')].join(' · ');
-  const stockFilters=adaptiveChrome(`${seg}
-    <div class="stock-strip-stats" style="margin-top:8px">
-      <button type="button" class="stock-chip empty ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b>${t('stockEmpty')}</button>
-      <button type="button" class="stock-chip low ${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b>${t('stockAttention')}</button>
-      <button type="button" class="stock-chip ok ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b>${t('stockAll')}</button>
-    </div>
-    ${hid!=='all'?`<div class="page-actions stock-toolbar-actions" style="margin-top:8px">
-      <button class="page-act" type="button" id="stockQuickFood">${t('stockAddFood')}</button>
-      <button class="page-act primary" type="button" id="stockOpenBoard">${t('stockBoard')}</button>
-    </div>`:''}`, filterMeta);
 
-  return stockFilters+`<div class="stock-toolbar">
-      <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
+  return `<div class="stock-command" aria-label="${esc(t('headerStock'))}">
+      <div class="seg house-selector" id="sHouse" aria-label="${t('filterHouse')}">
+        ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
+        <button class="${hid==='all'?'on':''}" data-h="all">${t('bothHouses')}</button>
+      </div>
+      <div class="stock-command-row">
+        <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
+        ${hid==='all'?`<button class="stock-tool ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle" title="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-label="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-pressed="${state.stockTiles?'true':'false'}">${state.stockTiles?'▦':'☰'}</button>`:''}
+        ${hid!=='all'?`<button class="stock-tool" type="button" id="stockOpenBoard" title="${esc(t('stockBoard'))}" aria-label="${esc(t('stockBoard'))}">▦</button>
+        <button class="stock-tool" type="button" id="stockQuickFood" title="${esc(t('stockAddFood'))}" aria-label="${esc(t('stockAddFood'))}">＋</button>`:''}
+      </div>
+      <div class="stock-strip-stats" role="toolbar" aria-label="${esc(t('menuFilters'))}">
+        <button type="button" class="stock-chip empty ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b>${t('stockEmpty')}</button>
+        <button type="button" class="stock-chip low ${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b>${t('stockAttention')}</button>
+        <button type="button" class="stock-chip ok ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b>${t('stockAll')}</button>
+        <button type="button" class="stock-chip check" id="stockShiftCheck" title="${esc(t('shiftStockCheck'))}">☑️</button>
+      </div>
     </div>
+    ${shiftPresenceBannerHtml()}
+    ${shiftStockCheckBannerHtml()}
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
-    <div class="stock-categories">${categoryHtml||`<div class="card empty">${t('noStockResults')}</div>`}</div>
+    <div class="stock-categories">${categoryHtml||emptyState('⌕', t('noStockResults'))}</div>
     ${hid!=='all'?(()=>{
       const draft=stockDraftEntries();
       if(!draft.length) return '';
@@ -4393,7 +5056,7 @@ function sheetStockDetail(pid,hid=state.house){
 
     <div class="block-h" style="margin-top:14px"><span class="t">${t('productQuickActions')}</span></div>
     ${hid!=='all'?`<div class="stock-actions"><button class="btn in" id="detailIn">${t('stockIn')}</button><button class="btn out" id="detailOut">${t('stockOut')}</button></div>`:''}
-    <div class="${hid==='all'?'stock-actions':''}">${houses.map(h=>`<button class="btn sec" data-detail-shop="${h.id}" ${isPlanned(h.id)?'disabled':''}>${isPlanned(h.id)?'✓ '+t('alreadyPlanned'):`🛒 ${t('addToShopping')}${hid==='all'?' · '+esc(h.short):''}`}</button>`).join('')}</div>`);
+    <div class="${hid==='all'?'stock-actions':''}">${houses.map(h=>`<button class="btn sec" data-detail-shop="${h.id}" ${isPlanned(h.id)?'disabled':''}>${isPlanned(h.id)?'✓ '+t('wantBoughtDone'):`${t('wantBought')}${hid==='all'?' · '+esc(h.short):''}`}</button>`).join('')}</div>`);
 
   const parseQty=raw=>{
     const n=Number(String(raw||'').replace(',','.'));
@@ -4473,10 +5136,7 @@ function sheetStockDetail(pid,hid=state.house){
   if(remove)remove.onclick=()=>{closeSheet();sheetStockBoard('OUT',pid);};
   sheetEl.querySelectorAll('[data-detail-shop]').forEach(shop=>shop.onclick=()=>{
     const targetHouse=shop.dataset.detailShop;if(isPlanned(targetHouse))return;
-    const cur=prod(pid);
-    DB.listEntries.push({id:uid(),productId:pid,name:L(cur),qty:Math.max(1,lowThreshold(cur)),unit:cur.unit,
-      houseId:targetHouse,fridayDate:state.shopFriday||fridayFor(),by:state.user?.id||null,status:'open'});
-    save();closeSheet();render();toast(t('addedToShopping'),'success');
+    if(requestWantBought(pid, targetHouse)){ closeSheet(); render(); }
   });
 }
 
@@ -4496,6 +5156,107 @@ function shortagesCard(hid){
 }
 
 const REASONS = () => [...DB.reasons, ...(Array.isArray(DB.customReasons)?DB.customReasons:[])];
+const LIST_REMOVE_REASONS = () => [
+  ...(SEED.listRemoveReasons||[]),
+  ...(Array.isArray(DB.customListRemoveReasons)?DB.customListRemoveReasons:[]),
+];
+
+/** Αφαίρεση από λίστα αγορών με λόγο (preset ή custom). */
+function sheetRemoveListItem(entryId){
+  const entry=DB.listEntries.find(e=>e.id===entryId);
+  if(!entry || entry.status==='removed') return;
+  let reasonId=null, creating=false;
+
+  const paint=()=>{
+    const host=sheetEl.querySelector('#removeListBody');
+    if(!host) return;
+    const draft=creating ? (sheetEl.querySelector('#removeReasonName')?.value||'') : '';
+    host.innerHTML=`
+      <div class="chips" id="removeReasonChips">
+        ${LIST_REMOVE_REASONS().map(r=>r.custom
+          ? `<span class="reason-option"><button type="button" class="chip ${r.id===reasonId?'on':''}" data-rr="${r.id}">${esc(L(r))}</button><button type="button" class="reason-remove" data-drop-rr="${r.id}" aria-label="${t('close')}: ${esc(L(r))}">×</button></span>`
+          : `<button type="button" class="chip ${r.id===reasonId?'on':''}" data-rr="${r.id}">${esc(L(r))}</button>`).join('')}
+        <button type="button" class="chip" id="removeNewReason" style="border-style:dashed">＋ ${t('newReason')}</button>
+      </div>
+      ${creating?`<div class="reason-create" style="margin-top:10px">
+        <input id="removeReasonName" maxlength="60" autocomplete="off" placeholder="${esc(t('removeListReasonPh'))}" value="${esc(draft)}">
+        <button class="btn sec" type="button" id="removeReasonSave">＋ ${t('saveReason')}</button>
+        <button class="mini-x" type="button" id="removeReasonCancel" aria-label="${t('close')}">×</button>
+      </div>`:''}
+      <div class="status" id="removeListStatus" hidden></div>
+      <button class="btn out" type="button" id="removeListConfirm" style="margin-top:14px">${t('removeListConfirm')}</button>`;
+
+    host.querySelectorAll('[data-rr]').forEach(b=>b.onclick=()=>{ reasonId=b.dataset.rr; creating=false; paint(); });
+    host.querySelectorAll('[data-drop-rr]').forEach(b=>b.onclick=()=>{
+      const id=b.dataset.dropRr;
+      const before=[...(DB.customListRemoveReasons||[])];
+      DB.customListRemoveReasons=before.filter(r=>r.id!==id);
+      if(!save()){ DB.customListRemoveReasons=before; return; }
+      if(reasonId===id) reasonId=null;
+      toast(t('reasonRemoved'),'success');
+      paint();
+    });
+    host.querySelector('#removeNewReason')?.addEventListener('click',()=>{
+      creating=true; paint();
+      sheetEl.querySelector('#removeReasonName')?.focus();
+    });
+    const saveCustom=()=>{
+      const input=sheetEl.querySelector('#removeReasonName');
+      const name=(input?.value||'').trim().replace(/\s+/g,' ');
+      const status=sheetEl.querySelector('#removeListStatus');
+      if(status) status.hidden=false;
+      if(!name){ setStatus(status, t('reasonRequired'), 'error'); input?.focus(); return; }
+      const existing=LIST_REMOVE_REASONS().find(r=>[r.de,r.el,L(r)].some(v=>norm(v)===norm(name)));
+      if(existing){
+        reasonId=existing.id; creating=false;
+        setStatus(status, t('reasonExists'), 'info'); paint(); return;
+      }
+      DB.customListRemoveReasons ||= [];
+      const reason={id:'lrr-'+uid(), de:name, el:name, custom:true};
+      DB.customListRemoveReasons.push(reason);
+      if(!save()){
+        DB.customListRemoveReasons=DB.customListRemoveReasons.filter(r=>r.id!==reason.id);
+        setStatus(status, t('errStorage'), 'error'); return;
+      }
+      reasonId=reason.id; creating=false;
+      toast(T[state.lang].reasonAdded(name),'success');
+      paint();
+    };
+    host.querySelector('#removeReasonSave')?.addEventListener('click', saveCustom);
+    host.querySelector('#removeReasonCancel')?.addEventListener('click', ()=>{ creating=false; paint(); });
+    host.querySelector('#removeReasonName')?.addEventListener('keydown', ev=>{
+      if(ev.key==='Enter'){ ev.preventDefault(); saveCustom(); }
+      if(ev.key==='Escape'){ ev.preventDefault(); creating=false; paint(); }
+    });
+    host.querySelector('#removeListConfirm')?.addEventListener('click', ()=>{
+      const status=sheetEl.querySelector('#removeListStatus');
+      if(status) status.hidden=false;
+      if(!reasonId){ setStatus(status, t('removeListNeedReason'), 'error'); return; }
+      const reason=LIST_REMOVE_REASONS().find(r=>r.id===reasonId);
+      const label=reason?L(reason):reasonId;
+      entry.status='removed';
+      entry.removeReasonId=reasonId;
+      entry.removeReason=label;
+      entry.removedAt=Date.now();
+      entry.removedBy=state.user?.id||null;
+      logEntry('SHOP', `${entry.name} · ${t('removeListTitle')}: ${label}`, {
+        houseId:entry.houseId, entryId:entry.id, productId:entry.productId||null,
+        fridayDate:entry.fridayDate||listEntryFriday(entry), removeReasonId:reasonId, removeReason:label
+      });
+      feedback('save');
+      closeSheet();
+      render();
+      toast(t('listItemRemoved'),'success');
+    });
+  };
+
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(house(entry.houseId)?.short||'')}</div>
+    <h2>${t('removeListTitle')}</h2>
+    <p>${esc(entry.name)} · ${entry.qty} ${esc(entry.unit)}</p>
+    <p class="muted" style="margin-top:4px">${t('removeListHint')}</p></div>
+    <div id="removeListBody"></div>`);
+  paint();
+}
 
 /**
  * Πίνακας ψυγείου: πλακίδια προϊόντων που τα πατάς ή τα σέρνεις στη ζώνη.
@@ -4517,6 +5278,28 @@ function lowThreshold(p){
   return p.unit === 'g' ? 200 : p.unit === 'kg' ? 1 : 1;
 }
 const roundStock = n => Math.round(n * 100) / 100;
+
+function isProductOnFridayList(houseId, pid, friday=state.shopFriday||fridayFor()){
+  return fridayEntries(houseId, friday).some(e=>['open','pending'].includes(e.status)&&e.productId===pid);
+}
+
+/** Personal: «Θέλω να αγοραστεί» → ανοιχτή θέση στη λίστα Παρασκευής. */
+function requestWantBought(pid, houseId=state.house){
+  if(!houseId || houseId==='all'){ toast(t('pickOneHouse'),'info'); return false; }
+  const p=prod(pid); if(!p) return false;
+  const friday=state.shopFriday||fridayFor();
+  if(isProductOnFridayList(houseId, pid, friday)){ toast(t('alreadyPlanned')); return false; }
+  DB.listEntries.push({
+    id:uid(), productId:pid, name:L(p),
+    qty:Math.max(stepFor(p), lowThreshold(p)),
+    unit:p.unit, houseId, fridayDate:friday,
+    by:state.user?.id||null, status:'open'
+  });
+  if(!save()) return false;
+  feedback('save');
+  toast(t('wantBoughtToast'),'success');
+  return true;
+}
 
 function stockDraftEntries(){
   return Object.entries(state.stockDraft||{}).filter(([,delta])=>delta);
@@ -4570,6 +5353,167 @@ function commitStockDraft(){
     render();
     feedback('save');
     toast(t('saved'),'success');
+  });
+}
+
+const SHIFT_STOCK_HOUSE = 'h1'; // Kalyvia (Villa)
+
+function stockCheckForDate(houseId=SHIFT_STOCK_HOUSE, dateStr=iso(new Date())){
+  return (DB.stockChecks||[]).slice().reverse().find(c=>c.houseId===houseId && c.date===dateStr) || null;
+}
+
+function shiftStockCheckBannerHtml(){
+  const today=iso(new Date());
+  const done=stockCheckForDate(SHIFT_STOCK_HOUSE, today);
+  if(done){
+    const who=emp(done.by);
+    return `<div class="shift-check-banner done">
+      <div><b>✅ ${esc(t('shiftStockCheckDone'))}</b>
+        <span>${esc(T[state.lang].shiftStockCheckToday(who?.name||done.byName||'—', fmtDT(done.at)))}</span></div>
+      <button class="btn sec sm" type="button" id="shiftStockCheckOpen">${esc(t('shiftStockCheckStart'))}</button>
+    </div>`;
+  }
+  return `<div class="shift-check-banner pending">
+    <div><b>☑️ ${esc(t('shiftStockCheck'))}</b><span>${esc(t('shiftStockCheckPending'))} · ${esc(t('shiftStockCheckHint'))}</span></div>
+    <button class="btn sm" type="button" id="shiftStockCheckOpen">${esc(t('shiftStockCheckStart'))}</button>
+  </div>`;
+}
+
+function paintShiftStockCheckSheet(draft){
+  const products=PRODUCTS();
+  const done=Object.keys(draft.marks).length;
+  const total=products.length;
+  const rows=products.map(p=>{
+    const mark=draft.marks[p.id];
+    const qty=draft.qtys[p.id] ?? (DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0);
+    return `<div class="shift-check-row ${mark?'is-ok':''}" data-check-pid="${p.id}">
+      <div class="shift-check-main">
+        <b>${esc(L(p))}</b>
+        <span class="muted">${esc(p.unit)}</span>
+      </div>
+      <label class="shift-check-qty"><span>${esc(t('shiftStockCheckQty'))}</span>
+        <input type="number" inputmode="decimal" min="0" step="any" data-check-qty="${p.id}" value="${qty}" ${mark?'disabled':''}>
+      </label>
+      <button class="shift-check-ok ${mark?'on':''}" type="button" data-check-ok="${p.id}">${mark?'✓':esc(t('shiftStockCheckOk'))}</button>
+    </div>`;
+  }).join('');
+  return `<div class="shift-check-flow">
+    <div class="import-kicker">${esc(house(SHIFT_STOCK_HOUSE)?.short||'Kalyvia')}</div>
+    <h2 style="margin:4px 0 6px">${esc(t('shiftStockCheck'))}</h2>
+    <p class="muted" style="margin:0 0 10px">${esc(t('shiftStockCheckHint'))}</p>
+    <div class="shift-check-progress">${esc(T[state.lang].shiftStockCheckProgress(done,total))}</div>
+    <div class="shift-check-list">${rows}</div>
+    <div class="shift-check-actions">
+      <button class="btn sec" type="button" id="shiftCheckAllYes">${esc(t('shiftStockCheckAllYes'))}</button>
+      <button class="btn" type="button" id="shiftCheckSave" ${done<total?'disabled':''}>${esc(t('shiftStockCheckSave'))}</button>
+    </div>
+  </div>`;
+}
+
+function sheetShiftStockCheck(){
+  const products=PRODUCTS();
+  const draft={
+    marks:{},
+    qtys:Object.fromEntries(products.map(p=>[p.id, DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0])),
+  };
+  const refresh=()=>{
+    openSheet(paintShiftStockCheckSheet(draft));
+    wireShiftStockCheckSheet(draft, refresh);
+  };
+  refresh();
+}
+
+function wireShiftStockCheckSheet(draft, refresh){
+  const parseQty=raw=>{
+    const n=Number(String(raw||'').replace(',','.'));
+    return Number.isFinite(n) && n>=0 ? roundStock(n) : null;
+  };
+  sheetEl.querySelectorAll('[data-check-qty]').forEach(input=>{
+    input.onchange=()=>{
+      const pid=input.dataset.checkQty;
+      const next=parseQty(input.value);
+      if(next==null){ input.value=draft.qtys[pid]; toast(t('needQty'),'error'); return; }
+      draft.qtys[pid]=next;
+    };
+  });
+  sheetEl.querySelectorAll('[data-check-ok]').forEach(btn=>{
+    btn.onclick=()=>{
+      const pid=btn.dataset.checkOk;
+      const input=sheetEl.querySelector(`[data-check-qty="${pid}"]`);
+      const next=parseQty(input?.value);
+      if(next==null){ toast(t('needQty'),'error'); return; }
+      draft.qtys[pid]=next;
+      draft.marks[pid]='ok';
+      feedback('select');
+      refresh();
+    };
+  });
+  sheetEl.querySelector('#shiftCheckAllYes')?.addEventListener('click',()=>{
+    sheetEl.querySelectorAll('[data-check-qty]').forEach(input=>{
+      const pid=input.dataset.checkQty;
+      if(draft.marks[pid]) return;
+      const next=parseQty(input.value);
+      if(next==null) return;
+      draft.qtys[pid]=next;
+      draft.marks[pid]='ok';
+    });
+    PRODUCTS().forEach(p=>{
+      if(!draft.marks[p.id]){
+        draft.qtys[p.id]=draft.qtys[p.id]??(DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0);
+        draft.marks[p.id]='ok';
+      }
+    });
+    feedback('save');
+    refresh();
+  });
+  sheetEl.querySelector('#shiftCheckSave')?.addEventListener('click',()=>{
+    const products=PRODUCTS();
+    if(products.some(p=>!draft.marks[p.id])){
+      toast(t('shiftStockCheckNeedAll'),'error');
+      return;
+    }
+    askPin(t('shiftStockCheck'), who=>{
+      state.user=who;
+      const today=iso(new Date());
+      const now=Date.now();
+      const items=[];
+      const fixes=[];
+      products.forEach(p=>{
+        const prev=DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0;
+        const next=draft.qtys[p.id]??prev;
+        const status=next===prev?'ok':'fixed';
+        items.push({productId:p.id,name:L(p),qty:next,prev,status,unit:p.unit});
+        if(next!==prev){
+          DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]=next;
+          const delta=roundStock(next-prev);
+          fixes.push({productId:p.id,name:L(p),delta,unit:p.unit});
+          logEntry(delta>0?'IN':'OUT',
+            `${delta>0?t('typeIN'):t('typeOUT')} @ ${house(SHIFT_STOCK_HOUSE).short} · ${t('shiftStockCheck')}: ${L(p)} ${delta>0?'+':''}${delta} ${p.unit}`,
+            {houseId:SHIFT_STOCK_HOUSE, productId:p.id, qty:Math.abs(delta), unit:p.unit, stockCheck:true});
+        }
+      });
+      DB.stockChecks=DB.stockChecks||[];
+      DB.stockChecks.push({
+        id:'sc-'+uid(),
+        houseId:SHIFT_STOCK_HOUSE,
+        date:today,
+        by:who.id,
+        byName:who.name,
+        at:now,
+        allYes:fixes.length===0,
+        items,
+      });
+      if(DB.stockChecks.length>400) DB.stockChecks=DB.stockChecks.slice(-400);
+      logEntry('STOCKCHECK',
+        T[state.lang].shiftStockCheckSaved(items.length, who.name)
+          +(fixes.length?` · ${fixes.map(f=>`${f.name} ${f.delta>0?'+':''}${f.delta}`).join(', ')}`:''),
+        {houseId:SHIFT_STOCK_HOUSE, date:today, count:items.length, fixes:fixes.length});
+      if(!save()) return;
+      closeSheet();
+      render();
+      feedback('save');
+      toast(t('shiftStockCheckDone'),'success');
+    });
   });
 }
 
@@ -4679,12 +5623,7 @@ function sheetStockBoard(dir,initialPid=null){
   };
 
   const addToShopList=pid=>{
-    const p=prod(pid); if(!p) return;
-    const friday=state.shopFriday||fridayFor();
-    const existing=fridayEntries(hid,friday).find(e=>e.status==='open'&&e.productId===pid);
-    if(existing){ toast(t('alreadyPlanned')); return; }
-    DB.listEntries.push({id:uid(),productId:pid,name:L(p),qty:stepFor(p),unit:p.unit,houseId:hid,fridayDate:friday,by:state.user?.id||null,status:'open'});
-    if(save()) toast(t('addedToShopping'),'success');
+    if(requestWantBought(pid, hid)) paint();
   };
 
   const showHoldMenu=(pid, x, y)=>{
@@ -5137,7 +6076,7 @@ function listEntryFriday(e){
 }
 
 function fridayEntries(hid,friday=state.shopFriday){
-  return DB.listEntries.filter(e=>e.houseId===hid && listEntryFriday(e)===friday);
+  return DB.listEntries.filter(e=>e.houseId===hid && listEntryFriday(e)===friday && e.status!=='removed');
 }
 
 function shoppingHistory(hid){
@@ -5179,24 +6118,24 @@ function viewShop(){
   const open = of('open'), pending = of('pending'), bought = of('bought'), missing = of('missing');
   const inStore = pending.length > 0;
 
-  const seg = inStore ? '' : `<div class="seg inventory-scope house-selector shop-scope" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
-        ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
-      </div>`;
-
   const fridayState=pending.length?t('fridayActive'):(open.length?t('fridayPlanned'):(bought.length||missing.length?t('fridayCompleted'):t('fridayPlanned')));
-  const hero=inStore?'':`<section class="shop-bar">
-    <div class="shop-bar-top">
+  const hero=inStore?'':`<section class="shop-command" aria-label="${esc(t('shopTitle'))}">
+    <div class="seg house-selector" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
+      ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
+    </div>
+    <div class="shop-command-row">
       <div class="friday-picker compact">
         <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
         <label class="friday-date" title="${t('chooseFriday')}"><input type="date" id="shopFridayDate" value="${friday}"><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length}</span></label>
         <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
       </div>
+      <div class="shop-tools" role="toolbar" aria-label="${esc(t('shopTitle'))}">
+        <button class="shop-tool" type="button" data-page-act="shopScan" title="${esc(t('topScan'))}" aria-label="${esc(t('topScan'))}">📷</button>
+        <button class="shop-tool" type="button" id="importList" title="${esc(t('importList'))}" aria-label="${esc(t('importList'))}">📥</button>
+        <button class="shop-tool" type="button" data-page-act="shopHistory" title="${esc(t('topHistory'))}" aria-label="${esc(t('topHistory'))}">🧾</button>
+      </div>
     </div>
-    ${adaptiveChrome(`<div class="page-actions" role="toolbar" aria-label="${esc(t('shopTitle'))}">
-      <button class="page-act primary" type="button" data-page-act="shopAdd">＋ ${esc(t('addProduct'))}</button>
-      <button class="page-act" type="button" data-page-act="shopScan">📷 ${esc(t('topScan'))}</button>
-      <button class="page-act ghost" type="button" data-page-act="shopHistory">🧾 ${esc(t('topHistory'))}</button>
-    </div>`, t('shopTitle'))}
+    <div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋</button></div>
   </section>`;
 
   // ── Store mode: full-page compact aisle list ──
@@ -5219,15 +6158,14 @@ function viewShop(){
   const storeRow = e => {
     const st = e.decision;
     return `<div class="store-choice ${st||''}" data-entry-row="${e.id}">
-      <div class="store-choice-main">
+      <button class="store-choice-main" type="button" data-decision="${st==='bought'?'undo':'bought'}" data-entry="${e.id}" aria-label="${st==='bought'?t('undoDecision'):t('markBought')}">
         <div class="store-choice-name">${esc(e.name)}</div>
         <div class="store-choice-qty"><b>${e.qty} ${esc(e.unit)}</b>${e.note?' · '+esc(e.note):''}</div>
-      </div>
+      </button>
       <div class="store-choice-actions">
         <button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}" type="button" aria-label="${t('markBought')}" title="${esc(t('markBought'))}">✓</button>
         <button class="store-decision mid ${st==='unavailable'?'on':''}" data-decision="unavailable" data-entry="${e.id}" type="button" aria-label="${t('markUnavailable')}" title="${esc(t('markUnavailable'))}">∅</button>
         <button class="store-decision expensive ${st==='expensive'?'on':''}" data-decision="expensive" data-entry="${e.id}" type="button" aria-label="${t('markExpensive')}" title="${esc(t('markExpensive'))}">€</button>
-        ${st?`<button class="store-decision undo" data-decision="undo" data-entry="${e.id}" type="button" aria-label="${t('undoDecision')}">↶</button>`:''}
       </div>
     </div>`;
   };
@@ -5245,7 +6183,6 @@ function viewShop(){
         </div>
         <div class="store-progress"><i style="width:${progress}%"></i></div>
         <div class="store-search"><input id="storeSearch" value="${esc(state.shopQuery)}" placeholder="${t('storeSearch')}" aria-label="${t('storeSearch')}" autocomplete="off" enterkeyhint="search"></div>
-        <div class="store-hint">${esc(t('storeTapHint'))}</div>
       </div>
       <div class="store-scroll">
         ${catOrder.filter(c=>byCat[c]).map(c=>{
@@ -5265,12 +6202,16 @@ function viewShop(){
     </section>` : '';
 
   const openCard = pending.length?'':`<div class="card shop-list-card">
-    <div class="shop-list-head"><div><h2>${t('secOpen')}</h2><div class="muted" style="font-size:11px">${open.length} · ${esc(house(hid).short)}</div></div>
-      <button class="btn ghost sm" id="importList" type="button">${t('importList')}</button></div>
-    <div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}"><button class="btn sm" id="cartQuickAdd">＋ ${t('addToCart')}</button></div>
     ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${svgIcon(prodIconId(e.productId?prod(e.productId):matchProduct(e.name)),'prod-ico')}${esc(e.name)}</div>
       <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)}</div></div><div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
-      `<div class="shop-empty compact"><div class="big">🧺</div><h3>${t('noFridayItems')}</h3><p>${t('noFridayItemsHint')}</p></div>`}
+      `<div class="shop-empty">
+        <div class="big">🧺</div>
+        <h3>${t('startListTitle')}</h3>
+        <p>${t('startListHint')}</p>
+        <div class="shop-start-actions">
+          <button class="btn" type="button" id="shopStartAdd">${t('startListAdd')}</button>
+        </div>
+      </div>`}
     ${open.length&&!pending.length?`<div class="cart-start"><button class="btn" id="startFriday">${T[state.lang].cartReady(open.length)}</button></div>`:''}
     </div>`;
 
@@ -5280,7 +6221,7 @@ function viewShop(){
   const boughtCard = bought.length ? `<details class="card shop-history"><summary>✓ ${t('secBought')}<span class="pill in">${bought.length}</span></summary><div class="shop-history-body">
       ${bought.slice(-8).reverse().map(e=>entryRow(e,`<span class="pill in">${t('stBought')}</span>`)).join('')}</div></details>` : '';
 
-  return seg + hero + pendingCard + openCard + missingCard + boughtCard;
+  return hero + pendingCard + openCard + missingCard + boughtCard;
 }
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
@@ -5989,9 +6930,9 @@ function sheetReceipt(){
 /* ════════════════════════════════════════════════════════════════
    Το Βιβλίο
    ════════════════════════════════════════════════════════════════ */
-const LOG_TYPES = ['IN','OUT','SHOP','SCHEDULE','EVENT','NOTES','SHIFT','CORRECTION','LOGIN'];
+const LOG_TYPES = ['IN','OUT','SHOP','SCHEDULE','EVENT','NOTES','SHIFT','STOCKCHECK','CORRECTION','LOGIN'];
 const typeLabel = ty => t('type'+ty);
-const typeIcon = ty => ({IN:'➕',OUT:'➖',SHOP:'🛒',SCHEDULE:'📅',EVENT:'🎉',NOTES:'📝',SHIFT:'📒',CORRECTION:'✍️',LOGIN:'🔐'}[ty]||'•');
+const typeIcon = ty => ({IN:'➕',OUT:'➖',SHOP:'🛒',SCHEDULE:'📅',EVENT:'🎉',NOTES:'📝',SHIFT:'📒',STOCKCHECK:'✅',CORRECTION:'✍️',LOGIN:'🔐'}[ty]||'•');
 
 /**
  * «Ποιος έκανε τι» — σύνοψη ανά άτομο, ορατή σε όλους.
@@ -6054,7 +6995,8 @@ function shiftDiaryCard(){
       <h2 style="margin:0">📒 ${t('shiftDiary')}</h2>
       <span class="pill gray">${esc(state.user.name)}</span>
     </div>
-    <div class="muted" style="margin-bottom:8px">${t('shiftDiaryHint')}</div>
+    ${shiftStockCheckBannerHtml()}
+    <div class="muted" style="margin-bottom:8px;margin-top:10px">${t('shiftDiaryHint')}</div>
     <label class="f"><span>${t('shiftDiaryMine')} · ${esc(today)}</span>
       <textarea id="shiftNoteText" rows="4" placeholder="${esc(t('shiftDiaryPh'))}">${esc(mine?.text||'')}</textarea>
     </label>
@@ -6188,7 +7130,7 @@ function eventDayLabel(dateStr){
 function childEventHero(e){
   const caregivers=entryEmployeeIds(e).map(emp).filter(Boolean);
   return `<div class="card event-hero">
-    <div class="event-cover" style="background:linear-gradient(135deg,${esc(e.color||'#0c6f88')},#062a30)">
+    <div class="event-cover" style="background:linear-gradient(135deg,${esc(e.color||'#2f5a63')},#062a30)">
       <span class="event-emoji">${esc(e.emoji||'🎉')}</span>
       <div class="event-title"><span class="pill in" style="margin-bottom:8px">${t('eventOfWeek')}</span><br>${esc(L(e))}</div>
     </div>
@@ -6206,7 +7148,7 @@ function childEventHero(e){
 
 function childEventCard(e){
   const d = new Date(e.date+'T12:00:00'), caregivers=entryEmployeeIds(e).map(emp).filter(Boolean);
-  return `<div class="card event-card" style="--event-color:${esc(e.color||'#0c6f88')}">
+  return `<div class="card event-card" style="--event-color:${esc(e.color||'#2f5a63')}">
     <div class="event-date"><span>${DAY_NAMES[state.lang][dowIdx(d)]}</span><b>${d.getDate()}</b><span>${d.getMonth()+1}</span></div>
     <div class="grow"><div class="strong">${esc(e.emoji||'🎉')} ${esc(L(e))}</div>
       <div class="muted">${esc(e.from)}–${esc(e.to)} · 📍 ${esc(e.location)}</div>
@@ -6216,7 +7158,10 @@ function childEventCard(e){
 
 function childEventsView(cid){
   const events = childEventsFor(cid);
-  if(!events.length) return `<div class="empty">${t('noEvents')}</div>`;
+  const calBar = `<div class="page-actions" role="toolbar" style="margin-bottom:10px">
+      <button class="page-act ghost" type="button" id="childCalendar">📅 ${esc(t('calTitle'))}</button>
+    </div>`;
+  if(!events.length) return `${calBar}${emptyState('📣', t('noEvents'))}`;
   const today = iso(new Date()), tomorrowDate = new Date();
   tomorrowDate.setDate(tomorrowDate.getDate()+1);
   const tomorrow = iso(tomorrowDate);
@@ -6226,24 +7171,24 @@ function childEventsView(cid){
     [t('eventTomorrow'), events.filter(e=>e.date===tomorrow && e.id!==featured.id)],
     [t('upcomingEvents'), events.filter(e=>e.date>tomorrow && e.id!==featured.id)],
   ].filter(([,list])=>list.length);
-  return `${childEventHero(featured)}${sections.map(([title,list])=>`
+  return `${calBar}${childEventHero(featured)}${sections.map(([title,list])=>`
     <div class="block-h"><span class="t">${title}</span></div>${list.map(childEventCard).join('')}`).join('')}`;
 }
 
 const CHILD_GAMES = [
   {id:'learn', emoji:'🇬🇷', titleKey:'gameLearn', hintKey:'gameLearnHint', tint:'#0d9488', featured:true},
-  {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#0b6b6f', featured:true},
+  {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#2a6b52', featured:true},
   {id:'math', emoji:'➕', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', featured:true},
   {id:'island', emoji:'🏝️', titleKey:'gameIsland', hintKey:'gameIslandHint', tint:'#0e7490', featured:true},
   {id:'eduhub', emoji:'🎓', titleKey:'gameEduHub', hintKey:'gameEduHubHint', tint:'#0369a1', featured:true},
   {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e'},
   {id:'tac', emoji:'❌', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#c2410c'},
   {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1'},
-  {id:'react', emoji:'⚡', titleKey:'gameReact', hintKey:'gameReactHint', tint:'#0b6b6f'},
+  {id:'react', emoji:'⚡', titleKey:'gameReact', hintKey:'gameReactHint', tint:'#2a6b52'},
   {id:'rps', emoji:'✊', titleKey:'gameRps', hintKey:'gameRpsHint', tint:'#be185d'},
   {id:'dice', emoji:'🎲', titleKey:'gameDice', hintKey:'gameDiceHint', tint:'#0f766e'},
   {id:'simon', emoji:'🎵', titleKey:'gameSimon', hintKey:'gameSimonHint', tint:'#b45309'},
-  {id:'colors', emoji:'🎨', titleKey:'gameColors', hintKey:'gameColorsHint', tint:'#0b6b6f'},
+  {id:'colors', emoji:'🎨', titleKey:'gameColors', hintKey:'gameColorsHint', tint:'#2a6b52'},
 ];
 const MEMORY_EMOJIS = ['🌊','☀️','🐚','🐙','🐟','⭐','🍋','⛵'];
 const CATCH_FISH = [
@@ -6261,7 +7206,7 @@ const SIMON_PADS = [
 const COLOR_OPTS = [
   {id:'red', hex:'#e11d48', labelKey:'gameColorRed'},
   {id:'green', hex:'#16a34a', labelKey:'gameColorGreen'},
-  {id:'blue', hex:'#0c6f88', labelKey:'gameColorBlue'},
+  {id:'blue', hex:'#2f5a63', labelKey:'gameColorBlue'},
   {id:'yellow', hex:'#ca8a04', labelKey:'gameColorYellow'},
 ];
 
@@ -6866,21 +7811,23 @@ function childGamesLobby(){
   const card=(g)=>{
     const best=readGameBest(g.id);
     const prog=progressLabel(g,best);
-    return `<button class="game-card ${g.featured?'featured':''}" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
-      <span class="game-emoji">${g.emoji}</span>
-      <span class="game-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span>
-        <small class="game-best-chip">${esc(t('gamesPlayTime'))}${prog?` · ${esc(prog)}`:''}</small></span>
-      <span class="game-go">${t('gamePlay')} →</span>
+    return `<button class="arcade-tile ${g.featured?'featured':''}" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
+      <span class="arcade-glow" aria-hidden="true"></span>
+      <span class="arcade-emoji">${g.emoji}</span>
+      <span class="arcade-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span>
+        ${prog?`<small>${esc(prog)}</small>`:''}</span>
+      <span class="arcade-play">${t('gamePlay')}</span>
     </button>`;
   };
-  return `<div class="games-hero">
-      <div class="brand-kicker">Armonia Play</div>
-      <h2>${t('gamesTitle')}</h2>
-      <p>${t('gamesHint')}</p>
-    </div>
-    <p class="game-lobby-meta muted">${esc(t('gamesPlayTime'))}</p>
-    <div class="games-grid featured">${featured.map(card).join('')}</div>
-    <div class="games-grid" style="margin-top:12px">${rest.map(card).join('')}</div>`;
+  return `<div class="arcade-lobby">
+      <div class="arcade-hero">
+        <div class="brand-kicker">Armonia Play</div>
+        <h2>${t('gamesTitle')}</h2>
+        <p>${t('gamesHint')}</p>
+      </div>
+      <div class="arcade-grid featured">${featured.map(card).join('')}</div>
+      <div class="arcade-grid">${rest.map(card).join('')}</div>
+    </div>`;
 }
 
 function memoryStars(moves){
@@ -7305,7 +8252,7 @@ function childLearnView(){
     {id:'thassos', key:'gameLearnTopicThassos'},
     {id:'weak', key:'gameLearnWeak'},
   ];
-  return `<div class="game-shell learn topic-${esc(g.topic||'all')}">
+  return `<div class="game-shell learn arcade-stage topic-${esc(g.topic||'all')}">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
       <div class="game-stats">
         <span>${t('gameLearnRound')}: <b>${Math.min(g.i+1,total)}/${total}</b></span>
@@ -7313,16 +8260,17 @@ function childLearnView(){
         <span class="learn-hearts" title="${esc(t('gameLearnHearts'))}">${heartsHtml}</span>
         ${g.streak>=2?`<span class="learn-flame">🔥 ${g.streak}</span>`:''}
       </div></div>
-    <div class="learn-toolbar topics">
-      ${topics.map(tp=>`<button class="chip ${g.topic===tp.id?'on':''}" type="button" data-learn-topic="${tp.id}">${esc(t(tp.key))}</button>`).join('')}
-    </div>
-    <div class="learn-toolbar">
-      <button class="chip ${g.mode==='de2el'?'on':''}" type="button" data-learn-mode="de2el">${t('gameLearnDeToEl')}</button>
-      <button class="chip ${g.mode==='el2de'?'on':''}" type="button" data-learn-mode="el2de">${t('gameLearnElToDe')}</button>
-      <button class="chip ai" type="button" id="learnAi" ${g.loading?'disabled':''}>${g.loading?t('gameLearnAiLoading'):`✨ ${t('gameLearnAi')}`}</button>
+    <div class="arcade-controls">
+      <label class="arcade-select"><span>${esc(t('gameLearnTopicAll'))}</span>
+        <select id="learnTopicSelect">${topics.map(tp=>`<option value="${tp.id}" ${g.topic===tp.id?'selected':''}>${esc(t(tp.key))}</option>`).join('')}</select>
+      </label>
+      <div class="arcade-mode">
+        <button class="arcade-mode-btn ${g.mode==='de2el'?'on':''}" type="button" data-learn-mode="de2el">DE→EL</button>
+        <button class="arcade-mode-btn ${g.mode==='el2de'?'on':''}" type="button" data-learn-mode="el2de">EL→DE</button>
+        <button class="arcade-mode-btn ai" type="button" id="learnAi" ${g.loading?'disabled':''}>${g.loading?'…':'✨'}</button>
+      </div>
     </div>
     <div class="learn-progress"><span style="width:${progress}%"></span></div>
-    <p class="game-play-hint">${esc(t('gameLearnHintPlay'))}${g.card?.source==='ai'?' · AI':''}</p>
     <div class="learn-prompt card-flip" data-flip="${g.flipKey||0}">
       <span class="learn-emoji">${esc(g.card?.emoji||'🇬🇷')}</span>
       <b>${esc(g.prompt)}</b>
@@ -7332,9 +8280,9 @@ function childLearnView(){
       ${esc(g.feedback.text|| (g.feedback.ok?t('gameLearnCorrect'):t('gameLearnWrong')))}
       ${g.feedback.hint?`<div class="learn-hint">${esc(g.feedback.hint)}</div>`:''}
     </div>`:''}
-    <div class="learn-choices">${(g.choices||[]).map((c,i)=>`
+    <div class="learn-choices arcade-answers">${(g.choices||[]).map((c,i)=>`
       <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
-        type="button" data-learn-choice="${i}" ${g.lock?'disabled':''}>${esc(c)}</button>`).join('')}</div>
+        type="button" data-learn-choice="${i}" ${g.lock?'disabled':''}><i>${String.fromCharCode(65+i)}</i><span>${esc(c)}</span></button>`).join('')}</div>
   </div>`;
 }
 
@@ -7348,22 +8296,21 @@ function childQuizView(){
       ${gameShareBar(stars, `${t('gameWin')} · ${g.score} ${t('gameScore')}`)}
     </div>`;
   }
-  return `<div class="game-shell quiz">
+  return `<div class="game-shell quiz arcade-stage">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
       <div class="game-stats">
         <span>${Math.min(g.i+1,total)}/${total}</span>
         <span>${t('gameScore')}: <b>${g.score}</b></span>
         <span>${t('gameStreak')}: <b>${g.streak}</b></span>
       </div></div>
-    <div class="learn-toolbar">
-      <button class="chip ai" type="button" id="quizAi" ${g.loading?'disabled':''}>${g.loading?t('gameLearnAiLoading'):`✨ ${t('gameLearnAi')}`}</button>
+    <div class="arcade-controls end">
+      <button class="arcade-mode-btn ai" type="button" id="quizAi" ${g.loading?'disabled':''}>${g.loading?'…':`✨ ${t('gameLearnAi')}`}</button>
     </div>
-    <p class="game-play-hint">${esc(t('gameQuizHintPlay'))} · ${esc(t('gameQuizTopic'))}: ${esc(g.topic||'')}</p>
     <div class="learn-prompt quiz-q quiz-pop"><b>${esc(g.q||'')}</b></div>
     ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${g.feedback.ok?t('gameLearnCorrect'):`${t('gameLearnWrong')} ${esc(g.choices[g.correct]||'')}`}</div>`:''}
-    <div class="learn-choices">${(g.choices||[]).map((c,i)=>`
+    <div class="learn-choices arcade-answers">${(g.choices||[]).map((c,i)=>`
       <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
-        type="button" data-quiz-choice="${i}" ${g.lock?'disabled':''}>${esc(c)}</button>`).join('')}</div>
+        type="button" data-quiz-choice="${i}" ${g.lock?'disabled':''}><i>${String.fromCharCode(65+i)}</i><span>${esc(c)}</span></button>`).join('')}</div>
   </div>`;
 }
 
@@ -7377,7 +8324,7 @@ function childMathView(){
     </div>`;
   }
   const lifeIcons='💚'.repeat(g.lives||0)+'🖤'.repeat(Math.max(0,3-(g.lives||0)));
-  return `<div class="game-shell math level-${g.level||1}">
+  return `<div class="game-shell math arcade-stage level-${g.level||1}">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
       <div class="game-stats">
         <span>${t('gameScore')}: <b id="mathScore">${g.score}</b></span>
@@ -7386,12 +8333,11 @@ function childMathView(){
         <span>${t('gameStreak')}: <b class="${g.comboBurst?'math-combo':''}">${g.streak}</b></span>
         <span>${t('gameTime')}: <b id="mathTime">${g.left}s</b></span>
       </div></div>
-    <p class="game-play-hint">${esc(t('gameMathHintPlay'))}</p>
     <div class="learn-prompt math-q ${g.comboBurst?'combo-burst':''}"><b class="math-num">${esc(g.prompt)}</b><small>= ?</small></div>
     ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${g.feedback.ok?t('gameLearnCorrect'):`${t('gameLearnWrong')} ${g.choices[g.correct]}`}</div>`:''}
-    <div class="learn-choices math">${(g.choices||[]).map((c,i)=>`
+    <div class="learn-choices math arcade-answers">${(g.choices||[]).map((c,i)=>`
       <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
-        type="button" data-math-choice="${i}" ${g.lock?'disabled':''}>${esc(String(c))}</button>`).join('')}</div>
+        type="button" data-math-choice="${i}" ${g.lock?'disabled':''}><i>${String.fromCharCode(65+i)}</i><span>${esc(String(c))}</span></button>`).join('')}</div>
   </div>`;
 }
 
@@ -7579,6 +8525,26 @@ function bindChildGames(root){
         render();
       };
     });
+    const topicSelect=root.querySelector('#learnTopicSelect');
+    if(topicSelect){
+      topicSelect.onchange=()=>{
+        const g=state.game; if(!g || g.loading) return;
+        const topic=topicSelect.value;
+        if(topic===g.topic) return;
+        feedback('select');
+        writeLearnTopic(topic);
+        stopChildGameTimers();
+        let deck;
+        if(topic==='weak'){
+          const weak=readLearnWeak();
+          deck = weak.length>=4 ? pickLearnDeck(weak, LEARN_SESSION, 'all') : pickLearnDeck(LEARN_VOCAB, LEARN_SESSION, 'all');
+        }else{
+          deck = pickLearnDeck(LEARN_VOCAB, LEARN_SESSION, topic);
+        }
+        state.game = makeLearnGame(g.mode, deck, topic);
+        render();
+      };
+    }
     root.querySelector('#learnAi')?.addEventListener('click',()=>{ feedback('select'); fetchLearnAiCards(); });
     root.querySelectorAll('[data-learn-choice]').forEach(btn=>{
       btn.onclick=()=> answerLearn(Number(btn.dataset.learnChoice));
@@ -7869,7 +8835,7 @@ function staffEventsView(){
     </div>
     ${events.length ? `<div class="events-grid">${events.map(e=>{
       const d=new Date(e.date+'T12:00:00');
-      return `<article class="event-staff-card" style="--event-color:${esc(e.color||'#0c6f88')}">
+      return `<article class="event-staff-card" style="--event-color:${esc(e.color||'#2f5a63')}">
         <button class="mini-x event-delete" data-event-delete="${esc(e.id)}" type="button" aria-label="${esc(t('deleteEvent'))}">×</button>
         <div class="event-staff-top">
           <div class="event-date event-date-rich"><span>${DAY_NAMES[state.lang][dowIdx(d)]}</span><b>${d.getDate()}</b><span>${esc(eventDayLabel(e.date))}</span></div>
@@ -7897,7 +8863,7 @@ function sheetEvent(existing=null, presets={}){
     date:presets.date||state.date, from:presets.from||'16:00', to:presets.to||'18:00',
     location:presets.location||'', employeeIds:presets.employeeIds||[presets.employeeId||state.user?.id].filter(Boolean),
     employeeId:presets.employeeId||state.user?.id||'',
-    childIds:[...(presets.childIds||[])], bring:{de:'',el:''}, emoji:'🎉', color:'#0c6f88',
+    childIds:[...(presets.childIds||[])], bring:{de:'',el:''}, emoji:'🎉', color:'#2f5a63',
     status:'published', featured:false, scheduleEntryId:presets.scheduleEntryId||null,
     scheduleDate:presets.scheduleDate||null,
   };
@@ -8000,7 +8966,7 @@ function dashboardTaskCard(e,dateStr,employeeId,{overdue=false,readonly=false}={
 }
 
 function homeEventCard(e){
-  return `<button class="task-row event-card" data-event="${esc(e.id)}" style="--event-color:${esc(e.color||'#0c6f88')};width:100%;text-align:left;cursor:pointer" type="button">
+  return `<button class="task-row event-card" data-event="${esc(e.id)}" style="--event-color:${esc(e.color||'#2f5a63')};width:100%;text-align:left;cursor:pointer" type="button">
     <div class="event-date"><span>${DAY_NAMES[state.lang][dowIdx(new Date(e.date+'T12:00:00'))]}</span><b>${new Date(e.date+'T12:00:00').getDate()}</b></div>
     <div class="grow"><div class="strong">${esc(e.emoji||'🎉')} ${esc(L(e))}</div>
       <div class="muted">${esc(e.from)}–${esc(e.to)} · 📍 ${esc(e.location||'—')}</div>
@@ -8042,11 +9008,112 @@ function adminTeamPanel(today){
       <button class="btn sm sec" data-admin-go="shift">🕒 ${t('adminEditShifts')}</button>
       <button class="btn sm sec" data-admin-go="events">🎉 ${t('adminManageEvents')}</button>
       <button class="btn sm sec" data-admin-go="audit">📖 ${t('adminOpenAudit')}</button>
+      <button class="btn sm sec" data-admin-broadcast type="button">✉️ ${t('adminEmailEveryone')}</button>
     </div>
     <div class="admin-alert-strip ${issues.length?'':'clear'}"><span>${issues.length?'⚠️':'✅'}</span><div class="grow"><b>${issues.length?`${issues.length} · ${t('adminWarnings')}`:t('adminAllClear')}</b>
       <div style="margin-top:2px">${t('adminFullControl')}</div></div></div>
     <div class="admin-team-grid">${team}</div>
   </section>`;
+}
+
+async function sheetBroadcastEmail(){
+  if(!isAdminUser()){toast(t('adminRequired'),'error');return;}
+  let audience='all';
+  let recipientCount=0;
+  let emailConfigured=true;
+  const refreshCount=async()=>{
+    const countEl=sheetEl.querySelector('#broadcastCount');
+    if(countEl) countEl.textContent='…';
+    try{
+      const response=await fetch('/api/notify/broadcast-preview',{
+        method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
+        body:JSON.stringify({audience}),
+      });
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok) throw new Error(data.error||String(response.status));
+      recipientCount=Number(data.count||0);
+      emailConfigured=data.emailConfigured!==false;
+      if(countEl){
+        countEl.textContent=recipientCount?t('adminBroadcastRecipients')(recipientCount):t('adminBroadcastNone');
+        countEl.className=`status-box ${recipientCount&&emailConfigured?'success':emailConfigured?'':'error'}`;
+        countEl.style.display='block';
+      }
+    }catch(error){
+      console.error('Broadcast preview failed',error);
+      if(countEl){
+        countEl.textContent=t('adminBroadcastFailed');
+        countEl.className='status-box error';
+        countEl.style.display='block';
+      }
+    }
+  };
+  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:linear-gradient(145deg,#2a6b52,#2f5a63)">✉️</div>
+    <div class="grow"><div class="muted">ARMONIA THASSOS</div><h3 style="margin:1px 0">${esc(t('adminBroadcastTitle'))}</h3>
+      <div class="muted">${esc(t('adminBroadcastHint'))}</div></div></div>
+    <label class="f"><span>${t('adminBroadcastAudience')}</span>
+      <select id="broadcastAudience">
+        <option value="all">${esc(t('adminBroadcastAll'))}</option>
+        <option value="staff">${esc(t('adminBroadcastStaff'))}</option>
+        <option value="children">${esc(t('adminBroadcastChildren'))}</option>
+      </select></label>
+    <div id="broadcastCount" class="status-box" style="display:none;margin:8px 0 12px" role="status"></div>
+    <label class="f"><span>${t('adminBroadcastSubject')}</span>
+      <input type="text" id="broadcastSubject" maxlength="160" placeholder="Armonia Thassos – …"></label>
+    <label class="f"><span>${t('adminBroadcastHeadline')}</span>
+      <input type="text" id="broadcastTitle" maxlength="120" placeholder="${esc(t('adminBroadcastHeadline'))}"></label>
+    <label class="f"><span>${t('adminBroadcastMessage')}</span>
+      <textarea id="broadcastMessage" rows="6" maxlength="4000" placeholder="…"></textarea></label>
+    <div id="broadcastStatus" class="status-box" style="display:none;margin:10px 0" role="status"></div>
+    <button class="btn" type="button" id="broadcastSend">${t('adminBroadcastSend')}</button>`);
+  const audienceEl=sheetEl.querySelector('#broadcastAudience');
+  audienceEl.onchange=()=>{audience=audienceEl.value;refreshCount();};
+  refreshCount();
+  sheetEl.querySelector('#broadcastSend').onclick=()=>{
+    const subject=String(sheetEl.querySelector('#broadcastSubject')?.value||'').trim();
+    const title=String(sheetEl.querySelector('#broadcastTitle')?.value||'').trim()||subject;
+    const message=String(sheetEl.querySelector('#broadcastMessage')?.value||'').trim();
+    const statusEl=sheetEl.querySelector('#broadcastStatus');
+    if(!subject||!message){
+      toast(t('adminBroadcastNeedFields'),'error');
+      return;
+    }
+    if(!emailConfigured){
+      toast(t('adminBroadcastOffline'),'error',5200);
+      return;
+    }
+    if(!recipientCount){
+      toast(t('adminBroadcastNone'),'error');
+      return;
+    }
+    const payload={audience,subject,title,message};
+    const expected=recipientCount;
+    askPin(t('adminBroadcastConfirm')(expected), async()=>{
+      try{
+        const response=await fetch('/api/notify/broadcast',{
+          method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
+          body:JSON.stringify(payload),
+        });
+        const data=await response.json().catch(()=>({}));
+        if(response.status===429){
+          toast(t('adminBroadcastRate')(data.retryInSec||45),'error');
+          return;
+        }
+        if(response.status===503||data.code==='email_not_configured'){
+          toast(t('adminBroadcastOffline'),'error',5200);
+          return;
+        }
+        if(!response.ok){
+          throw new Error(data.error||String(response.status));
+        }
+        const sent=Number(data.sent||0), failed=Number(data.failed||0);
+        logEntry('ADMIN',`${t('adminEmailEveryone')}: ${subject} · ${sent}/${data.total||expected}`);
+        toast(t('adminBroadcastSent')(sent,failed), sent?'success':'error', 5200);
+      }catch(error){
+        console.error('Broadcast send failed',error);
+        toast(t('adminBroadcastFailed'),'error',5200);
+      }
+    }, {requirePin:true});
+  };
 }
 
 function sheetAdminStaff(employeeId){
@@ -8083,6 +9150,7 @@ function sheetAdminStaff(employeeId){
       <button class="btn sm sec" type="button" id="adminPersonShop">🛒 ${t('adminOpenShop')}</button>
       <button class="btn sm sec" type="button" id="adminPersonAudit">📖 ${t('adminOpenAudit')}</button>
       <button class="btn sm sec" type="button" id="adminPersonContact">✉️ ${t('adminContact')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonCalendar">📅 ${t('calTitle')}</button>
     </div>
     <div class="block-h" style="margin-top:14px"><span class="t">🕒 ${t('adminShiftsWeek')}</span></div>
     <div class="chips" id="adminShiftDays" style="margin:0 0 12px">
@@ -8145,6 +9213,9 @@ function sheetAdminStaff(employeeId){
   sheetEl.querySelector('#adminPersonContact').onclick=()=>{
     closeSheet(); setTimeout(()=>sheetSecurityAccess(),180);
   };
+  sheetEl.querySelector('#adminPersonCalendar')?.addEventListener('click',()=>{
+    sheetCalendar(employeeId,'staff');
+  });
 }
 
 function zoAiBannerKey(){
@@ -8197,31 +9268,40 @@ function viewHome(){
       <h2>${t('homeOverview')}</h2>
     </section>
     <div class="home-bento" role="group" aria-label="${esc(t('homeOverview'))}">
-      <div class="bento-tile span3 accent"><b>${todayOpen.length}</b><span>${t('dueToday')}</span></div>
-      <div class="bento-tile span3 warn"><b>${overdue.length}</b><span>${t('overdue')}</span></div>
-      <div class="bento-tile span4 sea"><b>${upcoming.length}</b><span>${t('eventsSoon')}</span></div>
-      <button class="bento-tile span2 action sea" id="homeGalleryOpen" type="button">
-        <b style="font-size:18px">📸</b><span>${esc(t('galleryTitle'))}</span>
+      <button class="bento-tile accent action" type="button" data-home-jump="day">
+        <b>${todayOpen.length}</b><span>${t('dueToday')}</span>
+      </button>
+      <button class="bento-tile warn action" type="button" data-home-jump="day">
+        <b>${overdue.length}</b><span>${t('overdue')}</span>
+      </button>
+      <button class="bento-tile sea action" type="button" data-home-jump="events">
+        <b>${upcoming.length}</b><span>${t('eventsSoon')}</span>
+      </button>
+      <button class="bento-tile action" id="homeGalleryOpen" type="button">
+        <b style="font-size:22px">📸</b><span>${esc(t('galleryTitle'))}</span>
       </button>
     </div>
     <div class="page-actions" role="toolbar">
       <button class="page-act ghost" type="button" data-page-act="tutorial">📘 ${esc(t('topTutorial'))}</button>
+      <button class="page-act ghost" type="button" id="homeCalendar">📅 ${esc(t('calTitle'))}</button>
     </div>
+    ${shiftPresenceBannerHtml()}
+    ${shiftStockCheckBannerHtml()}
     <div class="dashboard-grid">
       ${adminTeamPanel(today)}
       <section class="card"><div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
-        <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):`<div class="empty">${t('noTasks')}</div>`}</div>
+        <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState('✅', t('noTasks'))}</div>
       </section>
       <section class="card"><div class="block-h"><span class="t">⚠️ ${t('overdueTasks')}</span><span class="hrs">7</span></div>
         <div class="task-list">${overdue.length||recentlyDone.length?
           overdue.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id,{overdue:true})).join('')+
-          recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):`<div class="empty">${t('noOverdue')}</div>`}</div>
+          recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):emptyState('🌿', t('noOverdue'))}</div>
       </section>
       <section class="card wide"><div class="block-h"><span class="t">📣 ${t('allEvents')}</span><button class="btn sm sec" id="homeAllEvents" type="button">${t('openEvents')} →</button></div>
-        <div class="task-list">${events.length?events.map(homeEventCard).join(''):`<div class="empty">${t('noEvents')}</div>`}</div>
+        <div class="task-list">${events.length?events.map(homeEventCard).join(''):emptyState('📣', t('noEvents'))}</div>
       </section>
       <section class="card wide"><div class="block-h"><span class="t">👤 ${t('unassignedTasks')}</span><span class="hrs">${t('next3Days')}</span></div>
-        <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):`<div class="empty">${t('noUnassigned')}</div>`}</div>
+        <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):emptyState('👤', t('noUnassigned'))}</div>
       </section>
     </div>
   </div>`;
@@ -8264,8 +9344,6 @@ function renderChild(){
   document.body.classList.add('mode-child');
   document.body.classList.remove('has-stock-dock','has-store-dock');
   document.body.classList.toggle('chat-open', !!state.chatOpen);
-  const helpFab=document.getElementById('helpFab');
-  if(helpFab) helpFab.hidden=true;
   const zoFab=document.getElementById('navChat');
   if(zoFab){
     zoFab.hidden=false;
@@ -8289,7 +9367,7 @@ function renderChild(){
         return `<div class="kv"><div class="grow">${a?a.emoji:'📝'} ${esc(actLabel(e.activityId))}</div>
           <div class="muted">${esc(entryTime(e))}</div></div>`;
       }).join('')}`;
-  }).join('') || `<div class="empty">${t('nothingToday')}</div>`;
+  }).join('') || emptyState('☀️', t('nothingToday'));
 
   const profile = `<div class="card" style="text-align:center;border:0;background:none;padding:4px 0 10px">
       <div class="pa avatar" style="width:64px;height:64px;border-radius:50%;margin:0 auto 8px;
@@ -8310,7 +9388,7 @@ function renderChild(){
     <div class="days">${days}</div>
     <div class="block-h" style="margin-top:6px"><span class="t">${t('myToday')}</span></div>
     ${todays.length ? todays.map(e=>childEntryCard(e, c.id)).join('')
-      : `<div class="empty">${t('nothingToday')}</div>`}
+      : emptyState('☀️', t('nothingToday'))}
     ${childEventsFor(c.id).filter(e=>e.date===state.date).map(childEventCard).join('')}`;
   const weekView = `<div class="card"><h2>${t('myWeek')}</h2>${weekList}</div>`;
   const viewBody = state.childView==='today' ? todayView
@@ -8340,6 +9418,8 @@ function renderChild(){
   });
   const eventNotice=document.getElementById('view').querySelector('#childEventNotice');
   if(eventNotice) eventNotice.onclick=()=>{state.childView='events';render();};
+  const childCal=document.getElementById('view').querySelector('#childCalendar');
+  if(childCal) childCal.onclick=()=>{ feedback('open'); sheetCalendar(c.id,'child'); };
   const zoBan=document.getElementById('view').querySelector('#zoAiBanner');
   if(zoBan) zoBan.onclick=()=>{ dismissZoAiBanner(); openZoAi(); };
   const zoDismiss=document.getElementById('view').querySelector('#zoAiBannerDismiss');
@@ -8404,26 +9484,8 @@ function paintTopChrome(){
 
 function onTopAction(id){
   feedback('tap');
-  if(id==='chat' || id==='help'){ openZoAi(); return; }
   if(id==='tutorial'){ openAppTutorial(); return; }
-  if(id==='talk'){ openStaffTalk(); return; }
-  if(id==='goSchedule'){ state.tab='schedule'; state.scheduleView='day'; render(); return; }
-  if(id==='goStock'){ state.tab='stock'; render(); return; }
-  if(id==='goShop'){ state.tab='shop'; render(); return; }
-  if(id==='goBook'){ state.tab='book'; render(); setTimeout(()=>document.getElementById('shiftNoteText')?.scrollIntoView({behavior:'smooth',block:'start'}),40); return; }
-  if(id==='day'){ state.scheduleView='day'; render(); return; }
-  if(id==='week'){ state.scheduleView='week'; render(); return; }
-  if(id==='events'){ state.scheduleView='events'; render(); return; }
   if(id==='addEntry'){ sheetEntry(null, state.date); return; }
-  if(id==='stockBoard'){ sheetStockBoard('IN'); return; }
-  if(id==='stockFood'){ sheetStockBoard('IN'); setTimeout(()=>document.getElementById('sbAddFood')?.click(),200); return; }
-  if(id==='shopAdd'){
-    const input=document.getElementById('cartQuickName');
-    if(input){ input.focus(); return; }
-    // Store mode has no quick-add field — open list import instead of a silent no-op.
-    sheetImportList();
-    return;
-  }
   if(id==='shopScan'){ document.getElementById('btnReceipt')?.click() || sheetImportList(); return; }
   if(id==='shopHistory'){ sheetShoppingHistory(); return; }
   if(id==='shiftFocus'){ document.getElementById('shiftNoteText')?.focus(); document.getElementById('shiftNoteText')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
@@ -8823,10 +9885,16 @@ function measureChrome(){
     }
   }
   const chatH=0;
+  const zoFab=document.getElementById('navChat');
+  const fabVisible=!!zoFab && !zoFab.hidden && getComputedStyle(zoFab).display!=='none'
+    && !document.body.classList.contains('adaptive-open')
+    && !storeFs && !matrixFs;
+  const fabClear=fabVisible ? 72 : 0;
   [root, document.body].forEach(el=>{
     el.style.setProperty('--nav-total', `${navH}px`);
     el.style.setProperty('--dock-h', `${dockH}px`);
     el.style.setProperty('--chat-h', `${chatH}px`);
+    el.style.setProperty('--fab-clear', `${fabClear}px`);
   });
 }
 
@@ -8848,8 +9916,6 @@ function render(){
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='';
   document.querySelector('nav').style.display = '';
-  const helpFab=document.getElementById('helpFab');
-  if(helpFab) helpFab.hidden=true;
   const zoFab=document.getElementById('navChat');
   if(zoFab){
     zoFab.hidden=false;
@@ -8889,6 +9955,7 @@ function render(){
     if(shell) enterMatrixFullscreen(shell);
   }
   syncLayoutMode();
+  scheduleMeasureChrome();
 }
 
 function wire(){
@@ -8905,15 +9972,38 @@ function wire(){
     else{state.tab='schedule';state.scheduleView=destination;}
     render();
   });
+  v.querySelectorAll('[data-admin-broadcast]').forEach(button=>button.onclick=()=>{
+    feedback('open');
+    sheetBroadcastEmail();
+  });
+  const homeCalendar=v.querySelector('#homeCalendar');
+  if(homeCalendar) homeCalendar.onclick=()=>{
+    feedback('open');
+    if(state.user) sheetCalendar(state.user.id,'staff');
+  };
 
   const homeAllEvents=v.querySelector('#homeAllEvents');
   if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';state.scheduleView='events';render();};
+  v.querySelectorAll('[data-home-jump]').forEach(btn=>{
+    btn.onclick=()=>{
+      feedback('tap');
+      state.tab='schedule';
+      state.scheduleView=btn.dataset.homeJump==='events'?'events':'day';
+      render();
+    };
+  });
   const homeGalleryOpen=v.querySelector('#homeGalleryOpen');
   if(homeGalleryOpen) homeGalleryOpen.onclick=()=>{
     feedback('open');
     state.tab='gallery';
     refreshGallery({silent:true}).finally(()=>render());
   };
+  v.querySelectorAll('#shiftStockCheckOpen, #stockShiftCheck').forEach(btn=>{
+    btn.onclick=()=>{ feedback('select'); sheetShiftStockCheck(); };
+  });
+  v.querySelectorAll('#shiftPresenceOpen').forEach(btn=>{
+    btn.onclick=()=>{ feedback('open'); sheetShiftPresence(); };
+  });
   const zoAiBanner=v.querySelector('#zoAiBanner');
   if(zoAiBanner) zoAiBanner.onclick=()=>{ dismissZoAiBanner(); openZoAi(); };
   const zoAiBannerDismiss=v.querySelector('#zoAiBannerDismiss');
@@ -9119,10 +10209,7 @@ function wire(){
             if(act==='in'){ adjustStockDraft(pid,'IN'); render(); }
             else if(act==='out'){ adjustStockDraft(pid,'OUT'); render(); }
             else if(act==='shop'){
-              const friday=state.shopFriday||fridayFor();
-              if(fridayEntries(state.house,friday).some(e=>e.status==='open'&&e.productId===pid)){ toast(t('alreadyPlanned')); return; }
-              DB.listEntries.push({id:uid(),productId:pid,name:L(p),qty:stepFor(p),unit:p.unit,houseId:state.house,fridayDate:friday,by:state.user?.id||null,status:'open'});
-              if(save()) toast(t('addedToShopping'),'success');
+              if(requestWantBought(pid, state.house)) render();
             }else if(act==='board') sheetStockBoard('IN', pid);
             else sheetStockDetail(pid, state.house);
           };
@@ -9134,10 +10221,26 @@ function wire(){
     b.onpointermove=ev=>{ if(Math.hypot(ev.clientX-sx, ev.clientY-sy)>10){ moved=true; clear(); } };
     b.onpointerup=clear; b.onpointercancel=clear;
   });
+  v.querySelectorAll('[data-want-shop]').forEach(btn=>{
+    btn.onclick=ev=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      const pid=btn.dataset.wantShop;
+      const houseId=btn.dataset.wantHouse||state.house;
+      if(requestWantBought(pid, houseId)) render();
+    };
+  });
   const stockOpenBoard=v.querySelector('#stockOpenBoard');
   if(stockOpenBoard) stockOpenBoard.onclick=()=>sheetStockBoard('IN');
   const stockQuickFood=v.querySelector('#stockQuickFood');
   if(stockQuickFood) stockQuickFood.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddFood')?.click(), 80); };
+  const stockTilesToggle=v.querySelector('#stockTilesToggle');
+  if(stockTilesToggle) stockTilesToggle.onclick=()=>{
+    state.stockTiles=!state.stockTiles;
+    try{ localStorage.setItem('paidia.stockTiles', state.stockTiles?'1':'0'); }catch{}
+    feedback('toggle');
+    render();
+  };
   v.querySelectorAll('[data-stock-step]').forEach(b=>b.onclick=event=>{
     event.preventDefault();
     event.stopPropagation();
@@ -9155,13 +10258,16 @@ function wire(){
   if(stockDraftSave) stockDraftSave.onclick=()=>commitStockDraft();
   const stockCategories=[...v.querySelectorAll('[data-stock-category]')];
   if(stockCategories.length){
+    const forceOpen=!!state.stockQuery||state.stockFilter!=='all';
     if(!Array.isArray(state.stockOpenCategories)){
-      state.stockOpenCategories=stockCategories.map(d=>d.dataset.stockCategory);
+      state.stockOpenCategories=stockCategories
+        .filter(d=>d.dataset.defaultOpen==='1')
+        .map(d=>d.dataset.stockCategory);
     }
     stockCategories.forEach(d=>{
-      d.open=!!state.stockQuery||state.stockOpenCategories.includes(d.dataset.stockCategory);
+      d.open=forceOpen||state.stockOpenCategories.includes(d.dataset.stockCategory);
       d.ontoggle=()=>{
-        if(state.stockQuery)return;
+        if(forceOpen)return;
         const id=d.dataset.stockCategory,set=new Set(state.stockOpenCategories);
         if(d.open)set.add(id);else set.delete(id);state.stockOpenCategories=[...set];
       };
@@ -9195,6 +10301,7 @@ function wire(){
     b.onclick = () => {
       const e = DB.listEntries.find(x=>x.id===b.dataset.entry);if(!e)return;
       e.decision=b.dataset.decision==='undo'?undefined:b.dataset.decision;
+      feedback('select');
       save(); render();
     };
   });
@@ -9212,10 +10319,7 @@ function wire(){
       save(); render();
     };
   });
-  v.querySelectorAll('[data-remove-list]').forEach(b=>b.onclick=()=>{
-    DB.listEntries=DB.listEntries.filter(e=>e.id!==b.dataset.removeList);
-    save();render();toast(t('listItemRemoved'),'success');
-  });
+  v.querySelectorAll('[data-remove-list]').forEach(b=>b.onclick=()=>sheetRemoveListItem(b.dataset.removeList));
   v.querySelectorAll('[data-list-qty]').forEach(button=>button.onclick=()=>{
     const entry=DB.listEntries.find(e=>e.id===button.dataset.entry);if(!entry)return;
     const product=entry.productId?prod(entry.productId):null;
@@ -9248,6 +10352,13 @@ function wire(){
   };
   if(quickAdd)quickAdd.onclick=addQuick;
   if(quickName)quickName.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();addQuick();}};
+  const shopStartAdd=v.querySelector('#shopStartAdd');
+  if(shopStartAdd) shopStartAdd.onclick=()=>{
+    const input=document.querySelector('#cartQuickName');
+    if(input){ input.focus(); input.scrollIntoView({behavior:'smooth',block:'center'}); }
+  };
+  const importListHero=v.querySelector('#importListHero');
+  if(importListHero) importListHero.onclick=()=>sheetImportList();
   const br = v.querySelector('#btnReceipt');
   if(br) br.onclick = sheetReceipt;
   const il = v.querySelector('#importList');
@@ -9334,6 +10445,8 @@ async function sheetSecurityAccess(){
       </div>
     </div>
     <div id="securityStorage" class="status-box" style="margin:0 0 12px" hidden></div>
+    <div class="security-passkey-card" id="securityNotifs"></div>
+    <div class="security-passkey-card" id="securityCalendar"></div>
     <div class="security-passkey-card" id="securityCustomize"></div>
     <div class="security-passkey-card email-card" id="securityProfile"><div class="muted">${t('reading')}</div></div>
     <div class="security-passkey-card" id="securityPin"></div>
@@ -9343,9 +10456,39 @@ async function sheetSecurityAccess(){
     <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
   const profileCard=sheetEl.querySelector('#securityProfile'),card=sheetEl.querySelector('#securityPasskey');
   const customizeCard=sheetEl.querySelector('#securityCustomize');
+  const notifCard=sheetEl.querySelector('#securityNotifs');
+  const calendarCard=sheetEl.querySelector('#securityCalendar');
   const pinCard=sheetEl.querySelector('#securityPin');
   const storageEl=sheetEl.querySelector('#securityStorage');
   const pref=profilePref(who.id);
+  if(notifCard){
+    const perm=typeof Notification!=='undefined'?Notification.permission:'denied';
+    const on=!!notifPrefs().enabled && perm==='granted';
+    notifCard.innerHTML=`<b>🔔 ${esc(on?t('notifEnabled'):t('notifEnable'))}</b>
+      <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(t('notifHint'))}</p>
+      <button class="btn ${on?'sec':''}" type="button" id="notifToggle">${esc(on?t('notifEnabled'):t('notifEnable'))}</button>
+      <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
+      <div id="notifStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`;
+    notifCard.querySelector('#notifToggle').onclick=async()=>{
+      const st=notifCard.querySelector('#notifStatus');
+      const ok=await enableAppNotifications();
+      st.style.display='block';
+      setStatus(st, ok?t('notifEnabled'):(Notification.permission==='denied'?t('notifDenied'):t('notifEnable')), ok?'success':'error');
+      if(ok) sheetSecurityAccess();
+    };
+    notifCard.querySelector('#notifTestBtn').onclick=()=>{
+      showAppNotification(t('notifTest'),{tag:'paidia-test', body:'Armonia Thassos'});
+    };
+  }
+  if(calendarCard){
+    calendarCard.innerHTML=`<b>📅 ${esc(t('calTitle'))}</b>
+      <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(t('calHint'))}</p>
+      <button class="btn sec" type="button" id="openMyCalendar">${esc(t('calTitle'))}</button>`;
+    calendarCard.querySelector('#openMyCalendar').onclick=()=>{
+      const mode=state.mode==='child'?'child':'staff';
+      sheetCalendar(who.id, mode);
+    };
+  }
   if(customizeCard){
     customizeCard.innerHTML=`<div class="row between" style="align-items:center;gap:10px;margin-bottom:8px">
         <div><b>${t('profileSectionLook')}</b><div class="muted" style="font-size:11px;margin-top:3px">${esc(who.name)}</div></div>
@@ -9856,9 +10999,16 @@ function renderResetForm(token){
 }
 
 document.documentElement.lang = state.lang;
-const helpFabEl=document.getElementById('helpFab');
-if(helpFabEl){ helpFabEl.hidden=true; helpFabEl.onclick=null; }
 window.addEventListener('keydown', event=>{
+  if(event.key==='Escape' && document.body.classList.contains('gal-lightbox-open')){
+    event.preventDefault();
+    document.body.classList.remove('gal-lightbox-open');
+    const box=document.getElementById('galLightbox');
+    if(box){ box.hidden=true; box.classList.remove('open'); }
+    const img=document.getElementById('galLightImg');
+    if(img){ img.removeAttribute('src'); img.removeAttribute('crossorigin'); }
+    return;
+  }
   if(event.key==='Escape' && document.body.classList.contains('adaptive-open')){
     event.preventDefault();
     document.querySelectorAll('.adaptive-chrome.is-open').forEach(box=>box.classList.remove('is-open'));
@@ -9900,12 +11050,119 @@ if(resetToken){
   restoreServerSession();
 }
 resolveIp().then(refreshGateMeta);
-// Do not register a service worker — stale PWA caches were breaking login.
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(regs=>{
-    regs.forEach(reg=>reg.unregister());
-  }).catch(()=>{});
+registerPaidiaServiceWorker();
+scheduleNotificationSweep();
+
+function notifPrefs(){
+  try{ return JSON.parse(localStorage.getItem('paidia.notif')||'{}')||{}; }catch{ return {}; }
 }
-if(window.caches&&caches.keys){
-  caches.keys().then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{});
+function setNotifPrefs(patch){
+  const next={...notifPrefs(), ...patch, updatedAt:Date.now()};
+  try{ localStorage.setItem('paidia.notif', JSON.stringify(next)); }catch{}
+  return next;
+}
+async function enableAppNotifications(){
+  if(!('Notification' in window)) return false;
+  let perm=Notification.permission;
+  if(perm!=='granted'){
+    try{ perm=await Notification.requestPermission(); }catch{ return false; }
+  }
+  const ok=perm==='granted';
+  setNotifPrefs({enabled:ok});
+  if(ok){
+    await registerPaidiaServiceWorker();
+    showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint')});
+    runNotificationSweep({force:true});
+  }
+  return ok;
+}
+function showAppNotification(title, opts={}){
+  if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return;
+  const payload={
+    body:opts.body||'',
+    icon:opts.icon||'icons/icon-192.png',
+    badge:opts.badge||'icons/icon-192.png',
+    tag:opts.tag||'paidia',
+    renotify:!!opts.renotify,
+    data:opts.data||{url:'./'},
+  };
+  try{
+    if(navigator.serviceWorker?.controller){
+      navigator.serviceWorker.ready.then(reg=>reg.showNotification(title, payload)).catch(()=>{
+        new Notification(title, payload);
+      });
+    }else{
+      new Notification(title, payload);
+    }
+  }catch{}
+}
+async function registerPaidiaServiceWorker(){
+  if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
+  try{
+    const reg=await navigator.serviceWorker.register('./sw.js?v=59',{scope:'./'});
+    return reg;
+  }catch(err){
+    console.warn('SW register failed', err);
+    return null;
+  }
+}
+function runNotificationSweep({force=false}={}){
+  if(state.mode!=='staff' || !state.user) return;
+  if(!notifPrefs().enabled || Notification.permission!=='granted') return;
+  const seen=notifPrefs().seen||{};
+  // Low stock attention
+  try{
+    const houses=DB.houses||[];
+    let attention=0;
+    (typeof PRODUCTS==='function'?PRODUCTS():[]).forEach(p=>{
+      const bad=houses.some(h=>{
+        const q=DB.stock?.[stockKey(h.id,p.id)]??0;
+        return q===0 || q<=(typeof lowThreshold==='function'?lowThreshold(p):2);
+      });
+      if(bad) attention++;
+    });
+    const key=`low-${attention}`;
+    if(attention>0 && (force || seen.low!==key)){
+      showAppNotification(T[state.lang].notifLowStock(attention),{tag:'paidia-low', body:t('headerStock'), data:{url:'./?tab=stock'}});
+      setNotifPrefs({seen:{...seen, low:key}});
+    }
+  }catch{}
+  // Shift stock check pending
+  try{
+    if(typeof shiftStockCheckPending==='function' && shiftStockCheckPending()){
+      if(force || !seen.shiftCheck){
+        showAppNotification(t('notifShiftCheck'),{tag:'paidia-shift-check', body:'Kalyvia', data:{url:'./?tab=stock'}});
+        setNotifPrefs({seen:{...notifPrefs().seen, shiftCheck:true}});
+      }
+    }
+  }catch{}
+  // Shift presence / late check-in
+  try{
+    const active=typeof activeShiftPresence==='function'?activeShiftPresence(state.user.id):null;
+    if(active && !active.checkin){
+      const key=`presence-${active.dateStr}-${active.shift.id}-${active.late?'late':'soon'}`;
+      if(force || seen.presence!==key){
+        const label=shiftLabel(active.shift);
+        showAppNotification(
+          active.late?T[state.lang].notifShiftLate(label):T[state.lang].notifShiftStart(label),
+          {tag:'paidia-presence', renotify:!!active.late, body:t('presenceImThere'), data:{url:'./?tab=home'}}
+        );
+        setNotifPrefs({seen:{...notifPrefs().seen, presence:key}});
+      }
+    }
+  }catch{}
+}
+function scheduleNotificationSweep(){
+  setTimeout(()=>runNotificationSweep(), 2500);
+  setInterval(()=>runNotificationSweep(), 15*60*1000);
+  setInterval(()=>{
+    if(state.mode==='staff' && state.user) runNotificationSweep();
+  }, 60*1000);
+}
+function shiftStockCheckPending(){
+  try{
+    return !stockCheckForDate(SHIFT_STOCK_HOUSE, iso(new Date()));
+  }catch{
+    return false;
+  }
 }

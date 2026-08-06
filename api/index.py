@@ -420,6 +420,10 @@ def entry(flask_path: str = ""):
         "/api/auth/reset": ("handle_auth_reset", True),
         "/notify/event-email": ("handle_event_email", True),
         "/api/notify/event-email": ("handle_event_email", True),
+        "/notify/broadcast": ("handle_broadcast_email", True),
+        "/api/notify/broadcast": ("handle_broadcast_email", True),
+        "/notify/broadcast-preview": ("handle_broadcast_preview", True),
+        "/api/notify/broadcast-preview": ("handle_broadcast_preview", True),
         "/whatsapp/event": ("handle_whatsapp_event", True),
         "/api/whatsapp/event": ("handle_whatsapp_event", True),
         "/whatsapp/test": ("handle_whatsapp_test", True),
@@ -450,6 +454,19 @@ def entry(flask_path: str = ""):
         if not session:
             return _json(401, {"error": "Authentication required", "code": "auth_required"})
         return _json(200, paidia.gallery_snapshot())
+
+    if request.method == "GET" and (
+        api.startswith("/gallery/media/") or api.startswith("/api/gallery/media/")
+    ):
+        session = _session_from_request()
+        file_id = api.rsplit("/", 1)[-1]
+        status, payload, content_type = paidia.gallery_media_response(file_id, session)
+        if isinstance(payload, (bytes, bytearray)):
+            response = make_response(bytes(payload), status)
+            response.headers["Content-Type"] = content_type
+            response.headers["Cache-Control"] = "private, max-age=86400"
+            return response
+        return _json(status, payload)
 
     if request.method == "POST" and api in {"/gallery", "/api/gallery"}:
         session = _session_from_request()
@@ -495,15 +512,16 @@ def entry(flask_path: str = ""):
         if not session:
             return _json(401, {"error": "Authentication required", "code": "auth_required"})
         api_key = os.environ.get("GROQ_API_KEY", "").strip()
-        if not api_key:
+        # Local OmniRoute or Groq — run_chat picks the live provider.
+        if not api_key and not getattr(paidia, "omniroute_reachable", lambda: False)():
             return _json(503, {
-                "error": "Groq is not configured",
+                "error": "AI is not configured",
                 "code": "configuration",
-                "setup": "Set GROQ_API_KEY in Vercel env",
+                "setup": "Set GROQ_API_KEY (or OMNIROUTE_BASE_URL for local OmniRoute)",
             })
         body = _body()
         client_ip = (request.headers.get("X-Forwarded-For") or request.remote_addr or "").split(",")[0].strip()
-        status, payload = paidia.run_chat(body, api_key, session=session, client_ip=client_ip)
+        status, payload = paidia.run_chat(body, api_key or None, session=session, client_ip=client_ip)
         return _json(status, payload)
 
     if request.method == "POST" and api in {"/learn", "/api/learn"}:
