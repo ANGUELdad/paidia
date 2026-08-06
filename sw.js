@@ -1,5 +1,5 @@
 // Network-first PWA worker — never serve a stale login shell.
-const CACHE = 'paidia-v61';
+const CACHE = 'paidia-v66';
 const ASSETS = ['./manifest.webmanifest'];
 
 self.addEventListener('install', e => {
@@ -51,13 +51,21 @@ self.addEventListener('fetch', e => {
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || './';
+  const action = event.action || '';
+  let target = (event.notification.data && event.notification.data.url) || './';
+  if(action === 'there' || action === 'late' || action === 'open' ||
+     (event.notification.data && event.notification.data.open === 'presence')){
+    target = './?tab=home&presence=1';
+  }
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
       for (const client of list) {
         if ('focus' in client) {
           client.focus();
-          if (client.navigate) try { client.navigate(target); } catch (_) {}
+          try { client.postMessage({ type: 'presence-open', action }); } catch (_) {}
+          if (client.navigate) {
+            try { client.navigate(target); } catch (_) {}
+          }
           return;
         }
       }

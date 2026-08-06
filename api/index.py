@@ -109,6 +109,15 @@ def _api_path(path: str) -> str:
     return api
 
 
+def _drive_configured():
+    """Boolean only — never surfaces any Drive credential."""
+    try:
+        import drive_gallery
+        return bool(drive_gallery.drive_configured())
+    except Exception:
+        return False
+
+
 def _db_health():
     try:
         import db as paidia_db
@@ -380,6 +389,7 @@ def entry(flask_path: str = ""):
             "chatModel": paidia.CHAT_MODEL,
             "ocrModel": paidia.OCR_MODEL,
             "database": _db_health(),
+            "driveConfigured": _drive_configured(),
         })
     if request.method == "GET" and api in {"/auth/health", "/api/auth/health"}:
         return _auth_health()

@@ -4,8 +4,8 @@
    ════════════════════════════════════════════════════════════════ */
 const T = {
   de: {
-    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente',
-    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Team',
+    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch',
     logout:'Profil', noUser:'Nicht angemeldet',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Team sprechen', topTutorial:'Tutorial',
     topAdd:'＋ Eintrag', topIn:'＋ Ein', topOut:'− Aus', topBoard:'Bewegung', topFood:'＋ Ware',
@@ -13,7 +13,7 @@ const T = {
     topDay:'Tag', topWeek:'Woche', topEvents:'Events', topBoth:'Beide Häuser',
     headerHome:'Armonia · Home', headerScheduleDay:'Plan · Tag', headerScheduleWeek:'Plan · Woche',
     headerScheduleEvents:'Plan · Events', headerStock:'Lager', headerStockAll:'Lager · beide Häuser',
-    headerShop:'Einkauf', headerBook:'Buch & Schicht', headerGallery:'Große Momente',
+    headerShop:'Einkauf', headerBook:'Buch & Schicht', headerGallery:'Große Momente', headerTalk:'Team-Gespräch',
     galleryTitle:'Große Momente', galleryHint:'Fotos von schönen Momenten — für Kinder und Team',
     galleryEmpty:'Noch keine Momente. Sei der Erste!', galleryShare:'Moment teilen',
     galleryDriveOn:'Fotos speichern in Google Drive', galleryDriveOff:'Fotos speichern auf dem Server',
@@ -33,11 +33,23 @@ const T = {
     galleryBlocked:'Das geht hier nicht — bitte freundlich bleiben',
     galleryFlagged:'Zur Prüfung markiert', galleryReport:'Melden', galleryReportOk:'Gemeldet — Team prüft',
     gallerySafetyFail:'Sicherheitscheck fehlgeschlagen — später erneut',
-    shiftDiary:'Meine Schichtnotiz', shiftDiaryHint:'Was ist in deiner Schicht passiert? Nur dein Profil schreibt hier.',
-    shiftDiaryPh:'z.B. Übergabe erledigt, Lager nachgefüllt, Kind X früher abgeholt…',
-    shiftDiarySave:'Schichtnotiz speichern', shiftDiarySaved:'Schichtnotiz gespeichert',
-    shiftDiaryEmpty:'Noch keine Schichtnotiz für heute.', shiftDiaryTeam:'Schichtnotizen der Gruppe',
-    shiftDiaryMine:'Meine Notiz', typeSHIFT:'Schicht',
+    shiftDiary:'Schichtbuch', shiftDiaryHint:'Dieses Buch muss geführt werden. Jede Schicht schreibt ihre Seite — nur mit deinem Profil.',
+    shiftDiaryPh:'Was geschah in der Schicht? Übergabe, Lager, Kinder, Besonderes…',
+    shiftDiarySave:'Ins Buch schreiben', shiftDiarySaved:'Seite im Buch gespeichert',
+    shiftDiaryEmpty:'Noch keine Seiten in diesem Zeitraum.', shiftDiaryTeam:'Frühere Seiten',
+    shiftDiaryMine:'Heutige Seite', typeSHIFT:'Schicht',
+    journalMustWrite:'Heutige Seite offen — muss geschrieben werden',
+    journalPageDone:'Heutige Seite ist geschrieben',
+    journalContinue:'Weiter schreiben (wird angehängt)',
+    journalRewrite:'Seite neu fassen',
+    journalRewriteSave:'Seite ersetzen',
+    journalPages:n=>n===1?'1 Seite':`${n} Seiten`,
+    journalDutyHome:'Schichtbuch: heutige Seite noch leer',
+    journalDutyCta:'Jetzt schreiben',
+    journalInkHint:'Neue Zeilen werden unten an die heutige Seite gehängt — wie Tinte im Buch.',
+    journalEmptyPage:'Leere Seite. Schreib, was in der Schicht passiert ist.',
+    journalSigned:'gezeichnet',
+    journalBrowse:'Seiten lesen',
     typeSTOCKCHECK:'Lagercheck',
     shiftStockCheck:'Schicht-Lagercheck',
     shiftStockCheckHint:'Wer die Schicht beginnt, prüft das Lager in Kalyvia. Tippe ✓ oder „Alles ja“.',
@@ -332,7 +344,15 @@ const T = {
     tenMinRule:'10-Minuten-Regel: mindestens 10 Minuten vor Dienstbeginn vor Ort. Bleibt die Übergabe unvollständig, bleibt die vorherige Schicht im Dienst.',
     newActivity:'Neue Aktivität', activityName:'Name der Aktivität',
     adminOnly:'Die feste Vorlage dürfen nur Zoi, Angelos und Dimitris ändern.',
-    whoDidWhat:'Wer hat was gemacht', today:'Heute', last7:'Letzte 7 Tage',
+    whoDidWhat:'Wer hat was gemacht', today:'Heute', last7:'Letzte 7 Tage', last30:'30 Tage', bookAll:'Alles',
+    bookHeroTitle:'Was passiert ist', bookHeroHint:'Filtern und eine klare Ansicht wählen — nicht alles auf einmal.',
+    bookJournalHero:'Schichtbuch', bookJournalHint:'Ein Buch, das geführt werden muss. Heute eine Seite schreiben.',
+    bookPaneLog:'Verlauf', bookPanePeople:'Personen', bookPaneShift:'Schichtbuch',
+    bookSearchPh:'Suche in Text, Name, Typ…', bookClearFilters:'Filter zurücksetzen',
+    bookViewTimeline:'Zeitlinie', bookViewByDay:'Nach Tag', bookViewCompact:'Kompakt',
+    bookShowTech:'IP & Gerät zeigen', bookHideTech:'Technik ausblenden',
+    bookResults:n=>n===1?'1 Eintrag':`${n} Einträge`, bookNoMatch:'Nichts für diese Filter',
+    bookRangeLabel:'Zeitraum', bookTypeLabel:'Art', bookWhoLabel:'Person', bookViewLabel:'Darstellung',
     actions:n=>n===1?'Buchung':'Buchungen', noActionsToday:'Heute noch nichts gebucht',
     visibleToAll:'Für alle sichtbar',
     close:'Schließen', menuFilters:'Filter', menuDone:'Fertig',
@@ -441,15 +461,36 @@ const T = {
     notifShiftLate:t=>`Schicht gestartet — bitte Anwesenheit melden · ${t}`,
     notifTest:'Test-Mitteilung von Armonia',
     calTitle:'Mein Kalender',
-    calHint:'Dienste und Events als Datei für Apple, Google, Outlook und andere Kalender.',
-    calDownloadAll:'Dienste + Events (.ics)',
+    calHint:'Ein Klick — Dienste und Events in Apple, Google, Outlook oder jeden anderen Kalender.',
+    calDownloadAll:'Alles als .ics (Apple & alle Apps)',
     calDownloadShifts:'Nur Dienste (.ics)',
     calDownloadEvents:'Nur Events (.ics)',
-    calGoogleNext:'Nächste Schicht in Google öffnen',
-    calOutlookNext:'Nächste Schicht in Outlook öffnen',
+    calGoogleNext:'Nächste in Google Kalender',
+    calOutlookNext:'Nächste in Outlook',
     calNextNone:'Keine kommenden Dienste in den nächsten Wochen.',
-    calSaved:'Kalenderdatei bereit',
+    calSaved:'Kalenderdatei bereit — Datei öffnen und hinzufügen',
     calWeeks:'Nächste 8 Wochen',
+    calAddAny:'In jeden Kalender',
+    calAddAnyHint:'Apple Kalender, Samsung, Fantastical, Thunderbird: .ics-Datei öffnen → „Alle hinzufügen“.',
+    calAddWeb:'Schnell online',
+    calUpcoming:'Kommende Termine',
+    calAddThis:'Diesen Termin',
+    calOneIcs:'.ics',
+    calGoogle:'Google',
+    calOutlook:'Outlook',
+    calApple:'Apple / .ics',
+    calReminder:'Erinnerung 30 Min. vor Schicht (in der Datei)',
+    calOpenPerson:(name)=>`Kalender · ${name}`,
+    calCount:n=>n===1?'1 Termin':`${n} Termine`,
+    presencePanelTitle:'Schichtstart',
+    presencePanelReady:'Melde dich, wenn du da bist.',
+    presencePanelLateTitle:'Du bist später',
+    presencePanelLateAsk:'Warum? Kurz tippen — dann „Ich bin da“.',
+    presenceConfirmLate:'Verspätung melden & ich bin da',
+    presenceNotifActionThere:'Ich bin da',
+    presenceNotifActionLate:'Warum zu spät?',
+    presenceNotifBodyReady:'Tippe die Mitteilung → „Ich bin da“.',
+    presenceNotifBodyLate:'Schicht läuft schon — sag kurz warum und melde dich.',
     presenceTitle:'Schicht-Anwesenheit',
     presenceImThere:'Ich bin da',
     presenceLateWhy:'Warum zu spät?',
@@ -470,6 +511,18 @@ const T = {
     presenceOnTime:'Pünktlich',
     presenceLate:'Zu spät',
     presenceNoShift:'Gerade keine offene Schicht-Meldung.',
+    homeShiftStart:'Schicht beginnt',
+    homeShiftStartLate:'Schicht hat begonnen — du bist später',
+    homeShiftStartOn:'Schicht läuft',
+    homeShiftStartHint:'Beim Start: Anwesenheit, Lagercheck, dann Seite im Schichtbuch.',
+    homeShiftStepPresence:'Ich bin da',
+    homeShiftStepStock:'Lagercheck Kalyvia',
+    homeShiftStepJournal:'Schichtbuch schreiben',
+    homeShiftStartDone:'Schichtstart erledigt',
+    homeShiftOpen:'Jetzt melden',
+    homeShiftStockGo:'Check starten',
+    homeShiftJournalGo:'Seite öffnen',
+    homeShiftDoneMark:'Erledigt',
     helpActionShopRemove:(name,house)=>`🛒 entfernen: ${name} @ ${house}`,
     helpActionScheduleAdd:(when,block,what,who)=>`📅 + ${when} · ${block}: ${what}${who?' · '+who:''}`,
     helpActionScheduleUpdate:(when,what)=>`📅 ändern ${when}: ${what}`,
@@ -567,8 +620,8 @@ const T = {
     pasteScreenshot:'Screenshot einfügen', pickScreenshot:'Screenshot / Foto wählen',
   },
   el: {
-    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές',
-    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Ομάδα',
+    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Ομάδα — συνομιλία', topTutorial:'Tutorial',
     topAdd:'＋ Εγγραφή', topIn:'＋ Εισ', topOut:'− Έξ', topBoard:'Κίνηση', topFood:'＋ Είδος',
@@ -576,7 +629,7 @@ const T = {
     topDay:'Ημέρα', topWeek:'Εβδομάδα', topEvents:'Events', topBoth:'Και τα δύο',
     headerHome:'Armonia · Αρχική', headerScheduleDay:'Πρόγραμμα · Ημέρα', headerScheduleWeek:'Πρόγραμμα · Εβδομάδα',
     headerScheduleEvents:'Πρόγραμμα · Events', headerStock:'Αποθήκη', headerStockAll:'Αποθήκη · όλα',
-    headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια', headerGallery:'Μεγάλες στιγμές',
+    headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια', headerGallery:'Μεγάλες στιγμές', headerTalk:'Συνομιλία ομάδας',
     galleryTitle:'Μεγάλες στιγμές', galleryHint:'Φωτογραφίες ωραίων στιγμών — για παιδιά και ομάδα',
     galleryEmpty:'Καμία στιγμή ακόμα. Γίνε ο πρώτος!', galleryShare:'Μοιράσου στιγμή',
     galleryDriveOn:'Οι φωτογραφίες αποθηκεύονται στο Google Drive', galleryDriveOff:'Οι φωτογραφίες αποθηκεύονται στον διακομιστή',
@@ -596,11 +649,23 @@ const T = {
     galleryBlocked:'Αυτό δεν επιτρέπεται — μείνε φιλικός/ή',
     galleryFlagged:'Σημειώθηκε για έλεγχο', galleryReport:'Αναφορά', galleryReportOk:'Αναφέρθηκε — η ομάδα ελέγχει',
     gallerySafetyFail:'Έλεγχος ασφαλείας απέτυχε — δοκίμασε αργότερα',
-    shiftDiary:'Σημείωση βάρδιας μου', shiftDiaryHint:'Τι έγινε στη βάρδιά σου; Μόνο το προφίλ σου γράφει εδώ.',
-    shiftDiaryPh:'π.χ. παράδοση ολοκληρώθηκε, αναπλήρωση αποθέματος, παιδί Χ έφυγε νωρίς…',
-    shiftDiarySave:'Αποθήκευση σημείωσης βάρδιας', shiftDiarySaved:'Η σημείωση βάρδιας αποθηκεύτηκε',
-    shiftDiaryEmpty:'Καμία σημείωση βάρδιας για σήμερα.', shiftDiaryTeam:'Σημειώσεις βάρδιας ομάδας',
-    shiftDiaryMine:'Η σημείωσή μου', typeSHIFT:'Βάρδια',
+    shiftDiary:'Βιβλίο βάρδιας', shiftDiaryHint:'Αυτό το βιβλίο πρέπει να τηρείται. Κάθε βάρδια γράφει τη σελίδα της — μόνο με το προφίλ σου.',
+    shiftDiaryPh:'Τι έγινε στη βάρδια; Παράδοση, αποθήκη, παιδιά, κάτι ιδιαίτερο…',
+    shiftDiarySave:'Γράψε στο βιβλίο', shiftDiarySaved:'Η σελίδα αποθηκεύτηκε στο βιβλίο',
+    shiftDiaryEmpty:'Καμία σελίδα σε αυτή την περίοδο.', shiftDiaryTeam:'Προηγούμενες σελίδες',
+    shiftDiaryMine:'Σημερινή σελίδα', typeSHIFT:'Βάρδια',
+    journalMustWrite:'Η σημερινή σελίδα είναι ανοιχτή — πρέπει να γραφτεί',
+    journalPageDone:'Η σημερινή σελίδα έχει γραφτεί',
+    journalContinue:'Συνέχισε να γράφεις (προστίθεται)',
+    journalRewrite:'Ξαναγράψε τη σελίδα',
+    journalRewriteSave:'Αντικατάσταση σελίδας',
+    journalPages:n=>n===1?'1 σελίδα':`${n} σελίδες`,
+    journalDutyHome:'Βιβλίο βάρδιας: η σημερινή σελίδα είναι κενή',
+    journalDutyCta:'Γράψε τώρα',
+    journalInkHint:'Οι νέες γραμμές μπαίνουν κάτω στη σημερινή σελίδα — σαν μελάνι στο βιβλίο.',
+    journalEmptyPage:'Κενή σελίδα. Γράψε τι έγινε στη βάρδια.',
+    journalSigned:'υπογραφή',
+    journalBrowse:'Διάβασε σελίδες',
     typeSTOCKCHECK:'Έλεγχος αποθέματος',
     shiftStockCheck:'Έλεγχος αποθέματος βάρδιας',
     shiftStockCheckHint:'Όποιος ξεκινά τη βάρδια ελέγχει το απόθεμα στο Kalyvia. Πάτα ✓ ή «Όλα ναι».',
@@ -895,7 +960,15 @@ const T = {
     tenMinRule:'Κανόνας 10 λεπτών: άφιξη τουλάχιστον 10 λεπτά πριν την έναρξη. Αν η παράδοση δεν ολοκληρωθεί, η προηγούμενη βάρδια παραμένει σε υπηρεσία.',
     newActivity:'Νέα δραστηριότητα', activityName:'Όνομα δραστηριότητας',
     adminOnly:'Το μόνιμο πρότυπο το αλλάζουν μόνο η Zoi, ο Angelos και ο Dimitris.',
-    whoDidWhat:'Ποιος έκανε τι', today:'Σήμερα', last7:'Τελευταίες 7 ημέρες',
+    whoDidWhat:'Ποιος έκανε τι', today:'Σήμερα', last7:'Τελευταίες 7 ημέρες', last30:'30 ημέρες', bookAll:'Όλα',
+    bookHeroTitle:'Τι έγινε', bookHeroHint:'Φίλτρα και μία καθαρή προβολή — όχι όλα μαζί.',
+    bookJournalHero:'Βιβλίο βάρδιας', bookJournalHint:'Ένα βιβλίο που πρέπει να γράφεται. Σήμερα μία σελίδα.',
+    bookPaneLog:'Ιστορικό', bookPanePeople:'Άτομα', bookPaneShift:'Βιβλίο βάρδιας',
+    bookSearchPh:'Αναζήτηση σε κείμενο, όνομα, τύπο…', bookClearFilters:'Καθαρισμός φίλτρων',
+    bookViewTimeline:'Χρονολόγιο', bookViewByDay:'Ανά ημέρα', bookViewCompact:'Συμπαγές',
+    bookShowTech:'Εμφάνιση IP & συσκευής', bookHideTech:'Απόκρυψη τεχνικών',
+    bookResults:n=>n===1?'1 εγγραφή':`${n} εγγραφές`, bookNoMatch:'Τίποτα για αυτά τα φίλτρα',
+    bookRangeLabel:'Περίοδος', bookTypeLabel:'Είδος', bookWhoLabel:'Άτομο', bookViewLabel:'Προβολή',
     actions:n=>n===1?'κίνηση':'κινήσεις', noActionsToday:'Καμία κίνηση σήμερα',
     visibleToAll:'Ορατό σε όλους',
     close:'Κλείσιμο', menuFilters:'Φίλτρα', menuDone:'Έτοιμο',
@@ -1004,15 +1077,36 @@ const T = {
     notifShiftLate:t=>`Η βάρδια ξεκίνησε — δήλωσε παρουσία · ${t}`,
     notifTest:'Δοκιμαστική ειδοποίηση Armonia',
     calTitle:'Το ημερολόγιό μου',
-    calHint:'Βάρδιες και events ως αρχείο για Apple, Google, Outlook και άλλα ημερολόγια.',
-    calDownloadAll:'Βάρδιες + events (.ics)',
+    calHint:'Με ένα πάτημα — βάρδιες και events σε Apple, Google, Outlook ή οποιοδήποτε ημερολόγιο.',
+    calDownloadAll:'Όλα ως .ics (Apple & όλες οι εφαρμογές)',
     calDownloadShifts:'Μόνο βάρδιες (.ics)',
     calDownloadEvents:'Μόνο events (.ics)',
-    calGoogleNext:'Επόμενη βάρδια στο Google',
-    calOutlookNext:'Επόμενη βάρδια στο Outlook',
+    calGoogleNext:'Επόμενη στο Google Calendar',
+    calOutlookNext:'Επόμενη στο Outlook',
     calNextNone:'Δεν υπάρχουν επόμενες βάρδιες στις επόμενες εβδομάδες.',
-    calSaved:'Το αρχείο ημερολογίου είναι έτοιμο',
+    calSaved:'Το αρχείο ημερολογίου είναι έτοιμο — άνοιξέ το και πρόσθεσε',
     calWeeks:'Επόμενες 8 εβδομάδες',
+    calAddAny:'Σε οποιοδήποτε ημερολόγιο',
+    calAddAnyHint:'Apple Calendar, Samsung, Fantastical, Thunderbird: άνοιξε το .ics → «Προσθήκη όλων».',
+    calAddWeb:'Γρήγορα online',
+    calUpcoming:'Επόμενα',
+    calAddThis:'Αυτό το συμβάν',
+    calOneIcs:'.ics',
+    calGoogle:'Google',
+    calOutlook:'Outlook',
+    calApple:'Apple / .ics',
+    calReminder:'Υπενθύμιση 30 λεπτά πριν τη βάρδια (στο αρχείο)',
+    calOpenPerson:(name)=>`Ημερολόγιο · ${name}`,
+    calCount:n=>n===1?'1 συμβάν':`${n} συμβάντα`,
+    presencePanelTitle:'Έναρξη βάρδιας',
+    presencePanelReady:'Δήλωσε όταν είσαι εδώ.',
+    presencePanelLateTitle:'Αργείς',
+    presencePanelLateAsk:'Γιατί; Διάλεξε σύντομα — μετά «Είμαι εδώ».',
+    presenceConfirmLate:'Δήλωσε καθυστέρηση & είμαι εδώ',
+    presenceNotifActionThere:'Είμαι εδώ',
+    presenceNotifActionLate:'Γιατί αργώ;',
+    presenceNotifBodyReady:'Πάτα την ειδοποίηση → «Είμαι εδώ».',
+    presenceNotifBodyLate:'Η βάρδια τρέχει ήδη — πες γιατί και δήλωσε παρουσία.',
     presenceTitle:'Παρουσία βάρδιας',
     presenceImThere:'Είμαι εδώ',
     presenceLateWhy:'Γιατί αργείς;',
@@ -1033,6 +1127,18 @@ const T = {
     presenceOnTime:'Έγκαιρα',
     presenceLate:'Αργά',
     presenceNoShift:'Δεν υπάρχει ανοιχτή δήλωση βάρδιας τώρα.',
+    homeShiftStart:'Η βάρδια ξεκινά',
+    homeShiftStartLate:'Η βάρδια ξεκίνησε — αργείς',
+    homeShiftStartOn:'Η βάρδια τρέχει',
+    homeShiftStartHint:'Στην έναρξη: παρουσία, έλεγχος αποθέματος, μετά σελίδα στο βιβλίο.',
+    homeShiftStepPresence:'Είμαι εδώ',
+    homeShiftStepStock:'Έλεγχος αποθέματος Kalyvia',
+    homeShiftStepJournal:'Γράψε στο βιβλίο βάρδιας',
+    homeShiftStartDone:'Η έναρξη ολοκληρώθηκε',
+    homeShiftOpen:'Δήλωσε τώρα',
+    homeShiftStockGo:'Έναρξη ελέγχου',
+    homeShiftJournalGo:'Άνοιξε σελίδα',
+    homeShiftDoneMark:'Ολοκληρώθηκε',
     helpActionShopRemove:(name,house)=>`🛒 αφαίρεση: ${name} @ ${house}`,
     helpActionScheduleAdd:(when,block,what,who)=>`📅 + ${when} · ${block}: ${what}${who?' · '+who:''}`,
     helpActionScheduleUpdate:(when,what)=>`📅 αλλαγή ${when}: ${what}`,
@@ -1926,9 +2032,12 @@ const state = {
   storeShowDone: false,
   houseFilter: '',
   date: iso(new Date()),
-  bookRange: 'today',
-  bookFilter: {employeeId:'', type:''},
-  bookPane: 'shift', // shift | log
+  bookRange: 'today', // today | week | month | all
+  bookFilter: {employeeId:'', type:'', q:''},
+  bookPane: 'shift', // shift | log | people
+  bookView: 'timeline', // timeline | byDay | compact
+  bookJournalMode: 'ink', // ink | rewrite
+  bookShowTech: false,
   chatOpen: false,
   chatMode: 'ai', // ai | talk | help
   helpMessages: [],          // active user's transcript (session-only)
@@ -3656,6 +3765,35 @@ function talkSuggestTopics(){
 
 let talkCache = {messages:[], topics:[], videoUrl:'', updatedAt:0};
 
+function viewTalk(){
+  if(state.mode!=='staff' || !state.user){
+    return `<div class="talk-page">${emptyState('💬', t('staffTalkNeedStaff'))}</div>`;
+  }
+  return `<div class="talk-page">
+    <header class="talk-hero">
+      <div class="brand-kicker">Armonia</div>
+      <h2>${esc(t('staffTalkTitle'))}</h2>
+      <p>${esc(t('staffTalkIntro'))}</p>
+    </header>
+    <section class="talk-topics card" aria-label="${esc(t('staffTalkTopics'))}">
+      <div class="block-h"><span class="t">${esc(t('staffTalkTopics'))}</span></div>
+      <p class="muted talk-topics-hint">${esc(t('staffTalkTopicsHint'))}</p>
+      <div id="talkTopicsList" class="talk-topics-list"></div>
+      <div class="talk-topic-add">
+        <input id="talkTopicInput" maxlength="400" autocomplete="off" placeholder="${esc(t('staffTalkTopicPh'))}">
+        <button class="btn sm" type="button" id="talkTopicAdd">${esc(t('staffTalkAddTopic'))}</button>
+      </div>
+      <div class="talk-topic-actions">
+        <button class="btn ghost sm" type="button" id="talkTopicSuggest">${esc(t('staffTalkSuggest'))}</button>
+        <button class="btn ghost sm" type="button" id="talkTopicClear">${esc(t('staffTalkClearDone'))}</button>
+      </div>
+    </section>
+    <section class="talk-chat-shell card" aria-label="${esc(t('staffTalkTitle'))}">
+      <div id="talkPageMount" class="talk-root-fast"></div>
+    </section>
+  </div>`;
+}
+
 function sheetStaffTalk(){
   openStaffTalk();
 }
@@ -3869,7 +4007,7 @@ function icsLocal(d){
   return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}T${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
 }
 
-function buildIcs(events, calName='Armonia Thassos'){
+function buildIcs(events, calName='Armonia Thassos', {alarmMinutes=30}={}){
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -3889,8 +4027,18 @@ function buildIcs(events, calName='Armonia Thassos'){
       `SUMMARY:${icsEscape(ev.title)}`,
       `DESCRIPTION:${icsEscape(ev.description||'')}`,
       `LOCATION:${icsEscape(ev.location||CAL_LOCATION)}`,
-      'END:VEVENT',
+      'STATUS:CONFIRMED',
     );
+    if(alarmMinutes>0 && ev.kind==='shift'){
+      lines.push(
+        'BEGIN:VALARM',
+        `TRIGGER:-PT${Math.max(1, alarmMinutes)}M`,
+        'ACTION:DISPLAY',
+        `DESCRIPTION:${icsEscape(ev.title)}`,
+        'END:VALARM',
+      );
+    }
+    lines.push('END:VEVENT');
   });
   lines.push('END:VCALENDAR');
   return lines.join('\r\n');
@@ -3937,23 +4085,10 @@ function sheetCalendar(profileId, mode='staff'){
   if(!person) return;
   const shifts = mode==='staff' ? personShiftOccurrences(profileId, 8) : [];
   const events = personEventOccurrences(profileId, mode);
-  const next = shifts[0] || events[0] || null;
+  const all = [...shifts, ...events].sort((a,b)=>a.start-b.start);
+  const next = all[0] || null;
+  const upcoming = all.slice(0, 8);
   const name = profileName(person);
-  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:${esc(profileColor(person))}">📅</div>
-    <div class="grow"><div class="muted">ARMONIA THASSOS</div>
-      <h3 style="margin:1px 0">${esc(t('calTitle'))}</h3>
-      <div class="muted">${esc(name)} · ${esc(t('calWeeks'))}</div></div></div>
-    <p class="muted" style="margin:0 0 12px;line-height:1.45">${esc(t('calHint'))}</p>
-    <div class="admin-action-grid">
-      <button class="btn" type="button" id="calDlAll">${esc(t('calDownloadAll'))}</button>
-      ${mode==='staff'?`<button class="btn sec" type="button" id="calDlShifts">${esc(t('calDownloadShifts'))}</button>`:''}
-      <button class="btn sec" type="button" id="calDlEvents">${esc(t('calDownloadEvents'))}</button>
-    </div>
-    ${next?`<div class="status-box success" style="margin:14px 0 10px">${esc(next.title)}<br><span class="muted">${esc(fmtDT(next.start.getTime()))}</span></div>
-      <div class="admin-action-grid">
-        <a class="btn sec" id="calGoogle" href="${esc(googleCalUrl(next))}" target="_blank" rel="noopener">${esc(t('calGoogleNext'))}</a>
-        <a class="btn sec" id="calOutlook" href="${esc(outlookCalUrl(next))}" target="_blank" rel="noopener">${esc(t('calOutlookNext'))}</a>
-      </div>`:`<div class="status-box" style="margin-top:14px">${esc(t('calNextNone'))}</div>`}`);
   const slug = String(name||profileId).replace(/\s+/g,'-').toLowerCase();
   const savePack = (items, file)=>{
     if(!items.length){ toast(t('calNextNone'),'error'); return; }
@@ -3961,9 +4096,66 @@ function sheetCalendar(profileId, mode='staff'){
     feedback('save');
     toast(t('calSaved'),'success');
   };
-  sheetEl.querySelector('#calDlAll')?.addEventListener('click',()=>savePack([...shifts,...events], `armonia-${slug}.ics`));
+
+  openSheet(`<div class="cal-sheet">
+    <div class="admin-detail-hero"><div class="pa avatar" style="background:${esc(profileColor(person))}">📅</div>
+      <div class="grow"><div class="muted">ARMONIA THASSOS</div>
+        <h3 style="margin:1px 0">${esc(T[state.lang].calOpenPerson(name))}</h3>
+        <div class="muted">${esc(t('calWeeks'))} · ${esc(T[state.lang].calCount(all.length))}</div></div></div>
+    <p class="muted cal-sheet-hint">${esc(t('calHint'))}</p>
+
+    <section class="cal-block">
+      <h4>${esc(t('calAddAny'))}</h4>
+      <p class="muted">${esc(t('calAddAnyHint'))}</p>
+      <p class="cal-reminder">${esc(t('calReminder'))}</p>
+      <div class="cal-actions">
+        <button class="btn" type="button" id="calDlAll">${esc(t('calApple'))} · ${esc(t('calDownloadAll'))}</button>
+        ${mode==='staff'?`<button class="btn sec" type="button" id="calDlShifts">${esc(t('calDownloadShifts'))}</button>`:''}
+        <button class="btn sec" type="button" id="calDlEvents">${esc(t('calDownloadEvents'))}</button>
+      </div>
+    </section>
+
+    ${next?`<section class="cal-block">
+      <h4>${esc(t('calAddWeb'))}</h4>
+      <div class="cal-next-card">
+        <b>${esc(next.title)}</b>
+        <span>${esc(fmtDT(next.start.getTime()))}</span>
+      </div>
+      <div class="cal-actions row">
+        <a class="btn sec" href="${esc(googleCalUrl(next))}" target="_blank" rel="noopener">${esc(t('calGoogle'))}</a>
+        <a class="btn sec" href="${esc(outlookCalUrl(next))}" target="_blank" rel="noopener">${esc(t('calOutlook'))}</a>
+        <button class="btn sec" type="button" id="calDlNext">${esc(t('calOneIcs'))}</button>
+      </div>
+    </section>`:`<div class="status-box" style="margin-top:8px">${esc(t('calNextNone'))}</div>`}
+
+    ${upcoming.length?`<section class="cal-block">
+      <h4>${esc(t('calUpcoming'))}</h4>
+      <div class="cal-upcoming">${upcoming.map((ev,i)=>`
+        <article class="cal-up-row">
+          <div class="grow">
+            <b>${esc(ev.title)}</b>
+            <span class="muted">${esc(fmtDT(ev.start.getTime()))}</span>
+          </div>
+          <div class="cal-up-acts">
+            <a class="btn sm sec" href="${esc(googleCalUrl(ev))}" target="_blank" rel="noopener">${esc(t('calGoogle'))}</a>
+            <a class="btn sm sec" href="${esc(outlookCalUrl(ev))}" target="_blank" rel="noopener">${esc(t('calOutlook'))}</a>
+            <button class="btn sm sec" type="button" data-cal-one="${i}">${esc(t('calOneIcs'))}</button>
+          </div>
+        </article>`).join('')}
+      </div>
+    </section>`:''}
+  </div>`);
+
+  sheetEl.querySelector('#calDlAll')?.addEventListener('click',()=>savePack(all, `armonia-${slug}.ics`));
   sheetEl.querySelector('#calDlShifts')?.addEventListener('click',()=>savePack(shifts, `armonia-${slug}-shifts.ics`));
   sheetEl.querySelector('#calDlEvents')?.addEventListener('click',()=>savePack(events, `armonia-${slug}-events.ics`));
+  sheetEl.querySelector('#calDlNext')?.addEventListener('click',()=>{ if(next) savePack([next], `armonia-${slug}-next.ics`); });
+  sheetEl.querySelectorAll('[data-cal-one]').forEach(btn=>{
+    btn.onclick=()=>{
+      const ev = upcoming[Number(btn.dataset.calOne)];
+      if(ev) savePack([ev], `armonia-${slug}-${ev.kind}-${ev.dateStr}.ics`);
+    };
+  });
 }
 
 function shiftCheckinFor(employeeId, dateStr, shiftId){
@@ -4026,6 +4218,62 @@ function shiftPresenceBannerHtml(){
   </div>`;
 }
 
+/** Home: shift-start checklist (presence → stock → journal). */
+function homeShiftStartCardHtml(){
+  if(state.mode!=='staff' || !state.user) return '';
+  const active = activeShiftPresence(state.user.id);
+  const stockPending = typeof shiftStockCheckPending==='function' && shiftStockCheckPending();
+  const today = iso(new Date());
+  const journalDue = !(shiftNoteFor(state.user.id, today)?.text||'').trim();
+  if(!active && !stockPending) return '';
+
+  const presenceDone = !!(active?.checkin);
+  const stockDone = !stockPending;
+  const journalDone = !journalDue;
+  const allDone = (!active || presenceDone) && stockDone && (!active || journalDone);
+  const toLabel = active ? (active.shift.type==='H24' ? '+24h' : (active.shift.to||'')) : '';
+  const timeLine = active
+    ? `${active.shift.from}${toLabel?`–${toLabel}`:''}`
+    : '';
+  const title = !active
+    ? t('shiftStockCheck')
+    : presenceDone
+      ? t('homeShiftStartOn')
+      : (active.late ? t('homeShiftStartLate') : t('homeShiftStart'));
+  const subtitle = active
+    ? (active.late && !presenceDone
+        ? T[state.lang].presenceBannerLate(active.shift.from, active.minutesLate)
+        : T[state.lang].presenceBannerReady(active.shift.from, toLabel))
+    : t('shiftStockCheckPending');
+  const tone = !presenceDone && active?.late ? 'late' : (allDone ? 'done' : 'go');
+
+  const step = (ok, label, cta, id, primary) => `
+    <div class="home-shift-step ${ok?'ok':''}">
+      <span class="home-shift-mark" aria-hidden="true">${ok?'✓':'○'}</span>
+      <span class="home-shift-step-label">${esc(label)}</span>
+      ${ok
+        ? `<span class="home-shift-step-done">${esc(t('homeShiftDoneMark'))}</span>`
+        : `<button type="button" class="home-shift-step-cta ${primary?'primary':''}" id="${id}">${esc(cta)}</button>`}
+    </div>`;
+
+  return `<section class="home-shift-start ${tone}" aria-label="${esc(t('homeShiftStart'))}">
+    <header class="home-shift-start-head">
+      <div>
+        <div class="home-shift-kicker">${esc(t('homeShiftStart'))}${timeLine?` · ${esc(timeLine)}`:''}</div>
+        <h2>${esc(title)}</h2>
+        <p>${esc(allDone?t('homeShiftStartDone'):subtitle)}</p>
+      </div>
+      ${!presenceDone && active ? `<button type="button" class="home-shift-primary" id="homeShiftPresence">${esc(t('homeShiftOpen'))}</button>` : ''}
+    </header>
+    <p class="home-shift-hint">${esc(t('homeShiftStartHint'))}</p>
+    <div class="home-shift-steps">
+      ${active ? step(presenceDone, t('homeShiftStepPresence'), t('presenceImThere'), 'homeShiftPresenceStep', true) : ''}
+      ${step(stockDone, t('homeShiftStepStock'), t('homeShiftStockGo'), 'homeShiftStock', !active || presenceDone)}
+      ${active || journalDue ? step(journalDone, t('homeShiftStepJournal'), t('homeShiftJournalGo'), 'homeShiftJournal', presenceDone && stockDone) : ''}
+    </div>
+  </section>`;
+}
+
 function saveShiftPresence({shift, dateStr, late, reason}){
   const who = state.user;
   if(!who) return false;
@@ -4058,12 +4306,14 @@ function sheetShiftPresence(){
   if(!active){ toast(t('presenceNoShift'),'error'); return; }
   const {shift, dateStr, late, minutesLate, checkin, start} = active;
   if(checkin){
-    openSheet(`<div class="import-kicker">${esc(t('presenceTitle'))}</div>
-      <h2 style="margin:4px 0 8px">${esc(checkin.status==='late'?t('presenceLate'):t('presenceOnTime'))}</h2>
+    openSheet(`<div class="presence-panel done">
+      <div class="presence-kicker">${esc(t('presencePanelTitle'))}</div>
+      <h2>${esc(checkin.status==='late'?t('presenceLate'):t('presenceOnTime'))}</h2>
       <div class="status-box success">${esc(T[state.lang].presenceBannerDone(checkin.status, fmtDT(checkin.at)))}
         ${checkin.reason?`<div style="margin-top:6px">${esc(checkin.reason)}</div>`:''}</div>
       <p class="muted">${esc(shiftLabel(shift))} · ${esc(dateStr)}</p>
-      <button class="btn sec" type="button" id="presenceClose">${t('close')}</button>`);
+      <button class="btn sec" type="button" id="presenceClose">${t('close')}</button>
+    </div>`);
     sheetEl.querySelector('#presenceClose').onclick=()=>closeSheet();
     return;
   }
@@ -4073,18 +4323,23 @@ function sheetShiftPresence(){
     ['handover', t('presenceReasonHandover')],
     ['other', t('presenceReasonOther')],
   ];
-  openSheet(`<div class="import-kicker">${esc(eventDayLabel(dateStr))}</div>
-    <h2 style="margin:4px 0 6px">${esc(t('presenceTitle'))}</h2>
-    <p class="muted" style="margin:0 0 10px">${esc(shiftLabel(shift))} · ${esc(fmtDT(start.getTime()))}</p>
-    ${late?`<div class="status-box error" style="margin-bottom:12px"><b>${esc(t('presenceLateWhy'))}</b>
-      <div style="margin-top:4px">${esc(t('presenceLateHint'))} (${minutesLate} Min.)</div></div>
-      <div class="chips" id="presenceReasons" style="margin:0 0 10px">
-        ${reasons.map(([id,label])=>`<button class="chip" type="button" data-presence-reason="${id}">${esc(label)}</button>`).join('')}
-      </div>
-      <label class="f"><span>${t('presenceCustomReason')}</span>
-        <input type="text" id="presenceReason" maxlength="240" placeholder="…"></label>`
-      :`<p class="muted" style="margin:0 0 14px">${esc(t('presenceImThere'))}</p>`}
-    <button class="btn" type="button" id="presenceConfirm">${esc(t('presenceImThere'))}</button>`);
+  openSheet(`<div class="presence-panel ${late?'late':'ready'}">
+    <div class="presence-kicker">${esc(t('presencePanelTitle'))} · ${esc(eventDayLabel(dateStr))}</div>
+    <h2>${esc(late?t('presencePanelLateTitle'):t('presenceImThere'))}</h2>
+    <p class="presence-meta">${esc(shiftLabel(shift))} · ${esc(fmtDT(start.getTime()))}</p>
+    ${late
+      ? `<div class="presence-late-box">
+          <b>${esc(t('presenceLateWhy'))}</b>
+          <p>${esc(t('presencePanelLateAsk'))} (${minutesLate} Min.)</p>
+          <div class="chips presence-reasons" id="presenceReasons">
+            ${reasons.map(([id,label])=>`<button class="chip" type="button" data-presence-reason="${id}">${esc(label)}</button>`).join('')}
+          </div>
+          <label class="f"><span>${t('presenceCustomReason')}</span>
+            <input type="text" id="presenceReason" maxlength="240" placeholder="…" enterkeyhint="done"></label>
+        </div>`
+      : `<p class="presence-ready-copy">${esc(t('presencePanelReady'))}</p>`}
+    <button class="btn presence-cta" type="button" id="presenceConfirm">${esc(late?t('presenceConfirmLate'):t('presenceImThere'))}</button>
+  </div>`);
   let picked = '';
   sheetEl.querySelectorAll('[data-presence-reason]').forEach(btn=>{
     btn.onclick=()=>{
@@ -4111,6 +4366,44 @@ function sheetShiftPresence(){
     closeSheet();
     render();
   };
+  if(late) queueMicrotask(()=>sheetEl.querySelector('#presenceReason')?.focus());
+}
+
+function consumePresenceDeepLink(){
+  try{
+    const u = new URL(location.href);
+    const want = u.searchParams.get('presence')==='1' || u.searchParams.get('open')==='presence';
+    if(!want) return false;
+    u.searchParams.delete('presence');
+    u.searchParams.delete('open');
+    if(u.searchParams.get('tab')==='home') u.searchParams.delete('tab');
+    history.replaceState({}, '', u.pathname + (u.search||'') + u.hash);
+    return true;
+  }catch{ return false; }
+}
+function openPresenceFromSignal(){
+  if(state.mode!=='staff' || !state.user) return;
+  state.tab='home';
+  render();
+  queueMicrotask(()=>sheetShiftPresence());
+}
+function maybePromptShiftPresence(){
+  if(state.mode!=='staff' || !state.user || state.tab!=='home') return;
+  if(typeof sheetEl!=='undefined' && sheetEl?.classList?.contains('on')) return;
+  const active = activeShiftPresence(state.user.id);
+  if(!active || active.checkin) return;
+  const key = `auto-presence:${active.dateStr}:${active.shift.id}`;
+  try{ if(sessionStorage.getItem(key)==='1') return; }catch{}
+  const now = Date.now();
+  // Prompt from 5 minutes before start, or whenever already late.
+  if(!active.late && now < active.start.getTime() - 5*60*1000) return;
+  try{ sessionStorage.setItem(key,'1'); }catch{}
+  setTimeout(()=>{
+    if(state.tab!=='home') return;
+    const still = activeShiftPresence(state.user.id);
+    if(!still || still.checkin) return;
+    sheetShiftPresence();
+  }, 500);
 }
 
 /* ── Validation engine (§9, §35) — warnings, όχι απαγορεύσεις ── */
@@ -7054,49 +7347,125 @@ function sheetReceipt(){
 }
 
 /* ════════════════════════════════════════════════════════════════
-   Το Βιβλίο
+   Το Βιβλίο — filters + one presentation at a time
    ════════════════════════════════════════════════════════════════ */
 const LOG_TYPES = ['IN','OUT','SHOP','SCHEDULE','EVENT','NOTES','SHIFT','STOCKCHECK','CORRECTION','LOGIN'];
 const typeLabel = ty => t('type'+ty);
 const typeIcon = ty => ({IN:'➕',OUT:'➖',SHOP:'🛒',SCHEDULE:'📅',EVENT:'🎉',NOTES:'📝',SHIFT:'📒',STOCKCHECK:'✅',CORRECTION:'✍️',LOGIN:'🔐'}[ty]||'•');
 
-/**
- * «Ποιος έκανε τι» — σύνοψη ανά άτομο, ορατή σε όλους.
- * Κάθε γραμμή δείχνει πόσες κινήσεις, τι είδους και πότε ήταν η τελευταία.
- */
-function whoDidWhatCard(){
-  const now = new Date();
-  const from = state.bookRange === 'today'
-    ? new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
-    : now.getTime() - 7*24*3600*1000;
-  const rows = DB.log.filter(l => l.ts >= from && l.employeeId);
+function bookRangeFromTs(){
+  const now = Date.now();
+  if(state.bookRange==='today'){
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    return d.getTime();
+  }
+  if(state.bookRange==='week') return now - 7*24*3600*1000;
+  if(state.bookRange==='month') return now - 30*24*3600*1000;
+  return 0;
+}
+function bookRangeLabel(){
+  return ({today:t('today'), week:t('last7'), month:t('last30'), all:t('bookAll')})[state.bookRange] || t('today');
+}
+function bookHasActiveFilters(){
+  const f = state.bookFilter;
+  return !!(f.employeeId || f.type || (f.q||'').trim() || state.bookRange!=='today');
+}
+function bookFilteredLogs(){
+  const f = state.bookFilter;
+  const from = bookRangeFromTs();
+  const q = norm(f.q||'');
+  return DB.log
+    .filter(l=>{
+      if(from && (l.ts||0) < from) return false;
+      if(f.employeeId && l.employeeId!==f.employeeId) return false;
+      if(f.type && l.type!==f.type) return false;
+      if(q){
+        const e = l.employeeId ? emp(l.employeeId) : null;
+        const hay = norm(`${l.text||''} ${e?.name||''} ${typeLabel(l.type)} ${l.type||''}`);
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    })
+    .slice()
+    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+}
+function bookClearFilters(){
+  state.bookFilter = {employeeId:'', type:'', q:''};
+  state.bookRange = 'today';
+}
 
+function bookLogItemHtml(l, {compact=false}={}){
+  const e = l.employeeId ? emp(l.employeeId) : null;
+  const pillCls = l.type==='IN'?'in':l.type==='OUT'?'out':'gray';
+  if(compact){
+    return `<div class="book-compact-row" title="${esc(l.text||'')}">
+      <span class="pill ${pillCls}">${typeLabel(l.type)}</span>
+      <span class="book-compact-text">${esc((l.text||'').slice(0,72))}${(l.text||'').length>72?'…':''}</span>
+      <span class="muted book-compact-who">${esc(e?e.name:'—')}</span>
+      <span class="muted book-compact-time">${fmtDT(l.ts)}</span>
+    </div>`;
+  }
+  return `<div class="log-item book-log-item">
+    <div class="row between">
+      <span class="pill ${pillCls}">${typeIcon(l.type)} ${typeLabel(l.type)}</span>
+      <span class="muted">${fmtDT(l.ts)}</span>
+    </div>
+    <div class="book-log-text">${esc(l.text)}</div>
+    <div class="muted book-log-stamp">${t('stamp')}: ${esc(e?e.name:'—')}</div>
+    ${state.bookShowTech?`<div class="muted book-log-tech">IP ${esc(l.ip||'—')} · ${t('device')} ${esc(l.deviceId||'—')}</div>`:''}
+    ${l.photo?`<img class="thumb" src="${l.photo}" alt="">`:''}
+  </div>`;
+}
+
+function bookTimelineHtml(rows){
+  if(!rows.length) return `<div class="empty">${bookHasActiveFilters()?t('bookNoMatch'):t('noLog')}</div>`;
+  if(state.bookView==='compact'){
+    return `<div class="book-compact">${rows.map(l=>bookLogItemHtml(l,{compact:true})).join('')}</div>`;
+  }
+  if(state.bookView==='byDay'){
+    const groups = {};
+    rows.forEach(l=>{
+      const day = iso(new Date(l.ts||0));
+      (groups[day]=groups[day]||[]).push(l);
+    });
+    return Object.keys(groups).map(day=>`
+      <section class="book-day-group">
+        <h3 class="book-day-title">${esc(day)} <span class="muted">· ${groups[day].length}</span></h3>
+        <div class="log">${groups[day].map(l=>bookLogItemHtml(l)).join('')}</div>
+      </section>`).join('');
+  }
+  return `<div class="log">${rows.map(l=>bookLogItemHtml(l)).join('')}</div>`;
+}
+
+function whoDidWhatCard(rows){
   const per = DB.employees.map(e=>{
     const mine = rows.filter(l => l.employeeId === e.id);
     if(!mine.length) return null;
     const counts = {};
     mine.forEach(l => { counts[l.type] = (counts[l.type]||0) + 1; });
-    return {e, n: mine.length, counts, last: Math.max(...mine.map(l=>l.ts))};
+    return {e, n: mine.length, counts, last: Math.max(...mine.map(l=>l.ts||0))};
   }).filter(Boolean).sort((a,b)=> b.n - a.n);
 
-  return `<div class="card">
-    <div class="row between" style="margin-bottom:9px">
-      <h2 style="margin:0">${t('whoDidWhat')}</h2>
-      <span class="pill gray">${t('visibleToAll')} · ${state.bookRange==='today'?t('today'):t('last7')}</span>
+  return `<div class="book-panel">
+    <div class="row between book-panel-head">
+      <h2>${t('whoDidWhat')}</h2>
+      <span class="pill gray">${t('visibleToAll')} · ${esc(bookRangeLabel())}</span>
     </div>
-    ${per.length ? per.map(p=>`
-      <button class="entry" data-who="${p.e.id}">
+    ${per.length ? `<div class="book-people">${per.map(p=>`
+      <button type="button" class="entry book-person" data-book-who="${p.e.id}">
         <div class="top">
           <div class="avatar" style="background:${p.e.color}">${initials(p.e.name)}</div>
           <div class="grow">
             <div class="act">${esc(p.e.name)} <span class="muted">· ${p.n} ${T[state.lang].actions(p.n)}</span></div>
             <div class="meta">${Object.entries(p.counts)
+              .sort((a,b)=>b[1]-a[1])
               .map(([ty,n])=>`${typeLabel(ty)} ${n}`).join(' · ')}</div>
           </div>
           <div class="muted" style="flex:0 0 auto">${fmtDT(p.last)}</div>
         </div>
-      </button>`).join('')
-      : `<div class="empty">${t('noActionsToday')}</div>`}
+      </button>`).join('')}</div>`
+      : `<div class="empty">${bookHasActiveFilters()?t('bookNoMatch'):t('noActionsToday')}</div>`}
   </div>`;
 }
 
@@ -7106,93 +7475,221 @@ function shiftNoteKey(employeeId, dateStr=iso(new Date())){
 function shiftNoteFor(employeeId, dateStr=iso(new Date())){
   return (DB.shiftNotes && DB.shiftNotes[shiftNoteKey(employeeId, dateStr)]) || null;
 }
+function journalTimeLabel(ts=Date.now()){
+  try{
+    return new Date(ts).toLocaleTimeString(state.lang==='el'?'el-GR':'de-DE',{hour:'2-digit',minute:'2-digit'});
+  }catch{ return ''; }
+}
+function journalDateLabel(dateStr){
+  try{
+    const [y,m,d]=String(dateStr).split('-').map(Number);
+    return new Date(y,m-1,d).toLocaleDateString(state.lang==='el'?'el-GR':'de-DE',{weekday:'long',day:'numeric',month:'long'});
+  }catch{ return dateStr; }
+}
+function writeShiftJournalPage(employeeId, text, {mode='ink'}={}){
+  const addition=String(text||'').trim();
+  if(!addition) return null;
+  const dateStr=iso(new Date());
+  const key=shiftNoteKey(employeeId, dateStr);
+  DB.shiftNotes=DB.shiftNotes||{};
+  const prev=DB.shiftNotes[key];
+  let next;
+  if(mode==='rewrite'){
+    next=addition.slice(0,8000);
+  }else{
+    const stamp=`— ${journalTimeLabel()} —`;
+    const chunk=`${stamp}\n${addition}`;
+    next=(prev?.text ? `${prev.text}\n\n${chunk}` : chunk).slice(-8000);
+  }
+  const entry={id:key, employeeId, date:dateStr, text:next, ts:Date.now()};
+  DB.shiftNotes[key]=entry;
+  logEntry('SHIFT', `${t('typeSHIFT')}: ${addition.slice(0,180)}`, {date:dateStr});
+  return entry;
+}
 function shiftDiaryCard(){
-  if(!state.user) return '';
+  if(!state.user) return `<div class="empty">${t('noUser')}</div>`;
   const today=iso(new Date());
   const mine=shiftNoteFor(state.user.id, today);
-  const from = state.bookRange === 'today'
-    ? new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()).getTime()
-    : Date.now() - 7*24*3600*1000;
-  const team = Object.values(DB.shiftNotes||{})
-    .filter(n => n && n.ts >= from)
-    .sort((a,b)=>b.ts-a.ts);
-  return `<div class="card shift-diary">
-    <div class="row between" style="margin-bottom:8px">
-      <h2 style="margin:0">📒 ${t('shiftDiary')}</h2>
-      <span class="pill gray">${esc(state.user.name)}</span>
+  const written=!!(mine?.text||'').trim();
+  const mode=state.bookJournalMode==='rewrite'?'rewrite':'ink';
+  const from=bookRangeFromTs();
+  const team=Object.values(DB.shiftNotes||{})
+    .filter(n=>n && n.text && (!from || (n.ts||0)>=from) && !(n.employeeId===state.user.id && n.date===today))
+    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const pageBody=(mine?.text||'').trim();
+
+  return `<div class="journal-book">
+    <div class="journal-duty ${written?'ok':'must'}">
+      <span>${written?t('journalPageDone'):t('journalMustWrite')}</span>
+      <span class="pill ${written?'in':'out'}">${written?'✓':'!'}</span>
     </div>
     ${shiftStockCheckBannerHtml()}
-    <div class="muted" style="margin-bottom:8px;margin-top:10px">${t('shiftDiaryHint')}</div>
-    <label class="f"><span>${t('shiftDiaryMine')} · ${esc(today)}</span>
-      <textarea id="shiftNoteText" rows="4" placeholder="${esc(t('shiftDiaryPh'))}">${esc(mine?.text||'')}</textarea>
-    </label>
-    <button class="btn" id="shiftNoteSave" type="button">${t('shiftDiarySave')}</button>
-    <div style="margin-top:14px">
-      <div class="row between" style="margin-bottom:8px">
-        <h2 style="margin:0;font-size:13px">${t('shiftDiaryTeam')}</h2>
-        <div class="seg" id="bRange" style="margin:0;min-width:150px">
-          <button class="${state.bookRange==='today'?'on':''}" data-r="today">${t('today')}</button>
-          <button class="${state.bookRange==='week'?'on':''}" data-r="week">${t('last7')}</button>
+    <article class="journal-spread" aria-label="${esc(t('shiftDiaryMine'))}">
+      <div class="journal-spine" aria-hidden="true"></div>
+      <div class="journal-page">
+        <header class="journal-page-head">
+          <div>
+            <div class="journal-kicker">${esc(t('shiftDiary'))}</div>
+            <h2>${esc(journalDateLabel(today))}</h2>
+          </div>
+          <div class="journal-page-meta">
+            <span>${esc(state.user.name)}</span>
+            <span>${esc(today)}</span>
+          </div>
+        </header>
+        <div class="journal-ruled">
+          ${pageBody
+            ? `<div class="journal-ink">${esc(pageBody)}</div>`
+            : `<div class="journal-blank">${esc(t('journalEmptyPage'))}</div>`}
         </div>
+        <footer class="journal-sign">
+          <span>${t('journalSigned')}</span>
+          <b>${esc(state.user.name)}</b>
+          ${mine?.ts?`<span class="muted">${fmtDT(mine.ts)}</span>`:''}
+        </footer>
+      </div>
+    </article>
+    <div class="journal-write">
+      <p class="journal-write-hint">${mode==='rewrite'?t('journalRewrite'):t('journalInkHint')}</p>
+      <label class="f"><span>${mode==='rewrite'?t('journalRewrite'):t('journalContinue')}</span>
+        <textarea id="shiftNoteText" rows="5" placeholder="${esc(t('shiftDiaryPh'))}">${mode==='rewrite'?esc(pageBody):''}</textarea>
+      </label>
+      <div class="journal-write-actions">
+        <button class="btn" id="shiftNoteSave" type="button">${mode==='rewrite'?t('journalRewriteSave'):t('shiftDiarySave')}</button>
+        ${written?`<button class="btn sec" id="shiftNoteMode" type="button" data-journal-mode="${mode==='rewrite'?'ink':'rewrite'}">${mode==='rewrite'?t('journalContinue'):t('journalRewrite')}</button>`:''}
+      </div>
+    </div>
+    <section class="journal-archive">
+      <div class="row between book-panel-head">
+        <h2 style="font-size:15px">${t('journalBrowse')}</h2>
+        <span class="pill gray">${T[state.lang].journalPages(team.length)} · ${esc(bookRangeLabel())}</span>
       </div>
       ${team.length ? team.map(n=>{
         const e=emp(n.employeeId);
-        return `<div class="entry" style="cursor:default;margin-bottom:7px">
-          <div class="top">
+        return `<article class="journal-past-page">
+          <header>
             <div class="avatar" style="background:${e?.color||'#94a3b8'}">${esc(e?initials(e.name):'?')}</div>
             <div class="grow">
-              <div class="act">${esc(e?.name||'—')} <span class="muted">· ${esc(n.date)}</span></div>
-              <div class="meta" style="white-space:pre-wrap">${esc(n.text)}</div>
+              <b>${esc(e?.name||'—')}</b>
+              <span class="muted">${esc(journalDateLabel(n.date))} · ${esc(n.date)}</span>
             </div>
-            <div class="muted" style="flex:0 0 auto">${fmtDT(n.ts)}</div>
-          </div>
-        </div>`;
+            <span class="muted">${fmtDT(n.ts)}</span>
+          </header>
+          <div class="journal-ink past">${esc(n.text)}</div>
+        </article>`;
       }).join('') : `<div class="empty">${t('shiftDiaryEmpty')}</div>`}
+    </section>
+  </div>`;
+}
+
+function bookFiltersHtml(){
+  const f = state.bookFilter;
+  const rangeFrom = bookRangeFromTs();
+  const rangeRows = DB.log.filter(l=>!rangeFrom || (l.ts||0)>=rangeFrom);
+  const typeBase = {};
+  rangeRows.forEach(l=>{ if(l.type) typeBase[l.type]=(typeBase[l.type]||0)+1; });
+
+  return `<div class="book-filters">
+    <div class="book-filter-block">
+      <span class="book-filter-label">${t('bookRangeLabel')}</span>
+      <div class="book-chips" role="group">
+        ${[['today',t('today')],['week',t('last7')],['month',t('last30')],['all',t('bookAll')]].map(([k,lab])=>
+          `<button type="button" class="book-chip ${state.bookRange===k?'on':''}" data-book-range="${k}">${esc(lab)}</button>`
+        ).join('')}
+      </div>
     </div>
+    <div class="book-filter-block">
+      <span class="book-filter-label">${t('bookTypeLabel')}</span>
+      <div class="book-chips book-chips-scroll" role="group">
+        <button type="button" class="book-chip ${!f.type?'on':''}" data-book-type="">${t('all')}</button>
+        ${LOG_TYPES.filter(k=>(typeBase[k]||0)>0 || f.type===k).map(k=>
+          `<button type="button" class="book-chip ${f.type===k?'on':''}" data-book-type="${k}">${typeLabel(k)}${typeBase[k]?` · ${typeBase[k]}`:''}</button>`
+        ).join('')}
+      </div>
+    </div>
+    <div class="book-filter-block">
+      <span class="book-filter-label">${t('bookWhoLabel')}</span>
+      <div class="book-chips book-chips-scroll" role="group">
+        <button type="button" class="book-chip ${!f.employeeId?'on':''}" data-book-who="">${t('allStaff')}</button>
+        ${DB.employees.map(e=>{
+          const n = rangeRows.filter(l=>l.employeeId===e.id).length;
+          if(!n && f.employeeId!==e.id) return '';
+          return `<button type="button" class="book-chip book-chip-who ${f.employeeId===e.id?'on':''}" data-book-who="${e.id}">
+            <span class="book-chip-av" style="background:${e.color}">${initials(e.name)}</span>${esc(e.name.split(' ')[0])}${n?` · ${n}`:''}
+          </button>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="book-filter-block book-filter-search">
+      <label class="book-search">
+        <span aria-hidden="true">⌕</span>
+        <input id="bookSearch" type="search" value="${esc(f.q||'')}" placeholder="${esc(t('bookSearchPh'))}" autocomplete="off" enterkeyhint="search">
+        ${(f.q||'').trim()?`<button type="button" id="bookSearchClear" aria-label="${esc(t('close'))}">×</button>`:''}
+      </label>
+    </div>
+    ${state.bookPane==='log'?`<div class="book-filter-block">
+      <span class="book-filter-label">${t('bookViewLabel')}</span>
+      <div class="book-chips" role="group">
+        ${[['timeline',t('bookViewTimeline')],['byDay',t('bookViewByDay')],['compact',t('bookViewCompact')]].map(([k,lab])=>
+          `<button type="button" class="book-chip ${state.bookView===k?'on':''}" data-book-view="${k}">${esc(lab)}</button>`
+        ).join('')}
+        <button type="button" class="book-chip ghost ${state.bookShowTech?'on':''}" data-book-tech="1">${state.bookShowTech?t('bookHideTech'):t('bookShowTech')}</button>
+      </div>
+    </div>`:''}
+    ${bookHasActiveFilters()?`<button type="button" class="btn sm sec book-clear" id="bookClearFilters">${t('bookClearFilters')}</button>`:''}
   </div>`;
 }
 
 function viewBook(){
-  const f = state.bookFilter;
-  const rows = DB.log
-    .filter(l => (!f.employeeId || l.employeeId===f.employeeId) && (!f.type || l.type===f.type))
-    .slice().reverse();
-  return `
-    ${adaptiveChrome(`<div class="page-actions book-toolbar" role="toolbar">
-      <button class="page-act primary" type="button" data-page-act="shiftFocus">📒 ${esc(t('topShift'))}</button>
-      <button class="page-act ${state.bookRange==='today'?'on':''}" type="button" data-page-act="bookToday">${esc(t('today'))}</button>
-      <button class="page-act ${state.bookRange==='week'?'on':''}" type="button" data-page-act="bookWeek">${esc(t('last7'))}</button>
-      <button class="page-act ghost" type="button" data-page-act="bookFix">${esc(t('topFix'))}</button>
-    </div>`, state.bookRange==='today'?t('today'):t('last7'))}
-    ${shiftDiaryCard()}
-    ${whoDidWhatCard()}
-    <div class="card">
-      <div class="row" style="gap:9px">
-        <select id="bEmp"><option value="">${t('allStaff')}</option>
-          ${DB.employees.map(e=>`<option value="${e.id}" ${f.employeeId===e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select>
-        <select id="bType"><option value="">${t('all')}</option>
-          ${LOG_TYPES.map(k=>`<option value="${k}" ${f.type===k?'selected':''}>${typeLabel(k)}</option>`).join('')}</select>
-      </div>
-    </div>
-    <div class="card">
-      <div class="row between" style="margin-bottom:10px">
-        <h2 style="margin:0">${t('history')} · ${rows.length}</h2>
-        <span class="pill gray">${t('appendOnly')}</span>
-      </div>
-      ${rows.length ? `<div class="log">${rows.map(l=>{
-        const e = l.employeeId ? emp(l.employeeId) : null;
-        return `<div class="log-item">
-          <div class="row between"><span class="pill ${l.type==='IN'?'in':l.type==='OUT'?'out':'gray'}">${typeLabel(l.type)}</span>
-            <span class="muted">${fmtDT(l.ts)}</span></div>
-          <div style="margin-top:5px">${esc(l.text)}</div>
-          <div class="muted">${t('stamp')}: ${esc(e?e.name:'—')}</div>
-          <div class="muted" style="font-size:11px">IP ${esc(l.ip||'—')} · ${t('device')} ${esc(l.deviceId||'—')}</div>
-          ${l.photo?`<img class="thumb" src="${l.photo}">`:''}
+  const rows = bookFilteredLogs();
+  const pane = state.bookPane || 'shift';
+  const filterMeta = [
+    bookRangeLabel(),
+    state.bookFilter.type ? typeLabel(state.bookFilter.type) : null,
+    state.bookFilter.employeeId ? (emp(state.bookFilter.employeeId)?.name||null) : null,
+    (state.bookFilter.q||'').trim() ? `“${(state.bookFilter.q||'').trim().slice(0,12)}”` : null,
+    pane==='log' ? T[state.lang].bookResults(rows.length) : null,
+  ].filter(Boolean).join(' · ');
+
+  const body = pane==='shift'
+    ? shiftDiaryCard()
+    : pane==='people'
+      ? whoDidWhatCard(rows)
+      : `<div class="book-panel">
+          <div class="row between book-panel-head">
+            <h2>${t('history')}</h2>
+            <span class="pill gray">${T[state.lang].bookResults(rows.length)} · ${t('appendOnly')}</span>
+          </div>
+          ${bookTimelineHtml(rows)}
+          <div class="book-foot">
+            <button class="btn sec" id="bFix" type="button">${t('correction')}</button>
+            <p class="muted">${t('logNoDelete')}</p>
+          </div>
         </div>`;
-      }).join('')}</div>` : `<div class="empty">${t('noLog')}</div>`}
+
+  const heroTitle = pane==='shift' ? t('bookJournalHero') : t('bookHeroTitle');
+  const heroHint = pane==='shift' ? t('bookJournalHint') : t('bookHeroHint');
+
+  return `<div class="book-page">
+    <header class="book-hero ${pane==='shift'?'journal':''}">
+      <div class="brand-kicker">${esc(t('navBook'))}</div>
+      <h2>${esc(heroTitle)}</h2>
+      <p>${esc(heroHint)}</p>
+    </header>
+    <div class="book-panes" role="tablist">
+      <button type="button" role="tab" class="book-pane-btn ${pane==='shift'?'on':''}" data-book-pane="shift" aria-selected="${pane==='shift'}">${esc(t('bookPaneShift'))}</button>
+      <button type="button" role="tab" class="book-pane-btn ${pane==='log'?'on':''}" data-book-pane="log" aria-selected="${pane==='log'}">${esc(t('bookPaneLog'))}</button>
+      <button type="button" role="tab" class="book-pane-btn ${pane==='people'?'on':''}" data-book-pane="people" aria-selected="${pane==='people'}">${esc(t('bookPanePeople'))}</button>
     </div>
-    <button class="btn sec" id="bFix">${t('correction')}</button>
-    <div class="muted" style="margin-top:8px;text-align:center">${t('logNoDelete')}</div>`;
+    ${pane!=='shift' ? adaptiveChrome(bookFiltersHtml(), filterMeta) : adaptiveChrome(`
+      <div class="page-actions book-toolbar" role="toolbar">
+        <button class="page-act ${state.bookRange==='today'?'on':''}" type="button" data-book-range="today">${esc(t('today'))}</button>
+        <button class="page-act ${state.bookRange==='week'?'on':''}" type="button" data-book-range="week">${esc(t('last7'))}</button>
+        <button class="page-act ${state.bookRange==='month'?'on':''}" type="button" data-book-range="month">${esc(t('last30'))}</button>
+        <button class="page-act ghost" type="button" data-page-act="bookFix">${esc(t('topFix'))}</button>
+      </div>`, bookRangeLabel())}
+    ${body}
+  </div>`;
 }
 
 function sheetCorrection(){
@@ -9334,7 +9831,7 @@ function sheetAdminStaff(employeeId){
   sheetEl.querySelector('#adminPersonStock').onclick=()=>go('stock');
   sheetEl.querySelector('#adminPersonShop').onclick=()=>go('shop');
   sheetEl.querySelector('#adminPersonAudit').onclick=()=>{
-    closeSheet(); state.tab='book'; state.bookFilter.employeeId=employeeId; render();
+    closeSheet(); state.tab='book'; state.bookPane='log'; state.bookFilter.employeeId=employeeId; render();
   };
   sheetEl.querySelector('#adminPersonContact').onclick=()=>{
     closeSheet(); setTimeout(()=>sheetSecurityAccess(),180);
@@ -9387,6 +9884,9 @@ function viewHome(){
     .forEach(e=>unassigned.push({e,dateStr})));
   const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
   const upcoming=events.filter(e=>e.status==='published' && e.date>=today);
+  const journalDue=!!(user && !(shiftNoteFor(user.id, today)?.text||'').trim());
+  const shiftStartCard=homeShiftStartCardHtml();
+  const showJournalDuty=journalDue && !shiftStartCard;
   const planCta=`<button class="btn sm" type="button" data-home-jump="day">${esc(t('homeOpenPlan'))}</button>`;
   const eventsCta=`<button class="btn sm sec" type="button" data-home-jump="events">${esc(t('homeOpenEvents'))}</button>`;
   return `<div class="home-shell">
@@ -9396,6 +9896,12 @@ function viewHome(){
       <h2>${t('homeOverview')}</h2>
       <button class="home-primary page-act primary" type="button" data-home-jump="day">${esc(t('homePrimaryCta'))}</button>
     </section>
+    ${shiftStartCard}
+    ${showJournalDuty?`<button class="journal-duty-home" type="button" id="homeWriteBook">
+      <span class="journal-duty-home-mark">!</span>
+      <span class="grow"><b>${esc(t('journalDutyHome'))}</b><small>${esc(t('bookJournalHint'))}</small></span>
+      <span class="journal-duty-home-cta">${esc(t('journalDutyCta'))}</span>
+    </button>`:''}
     <div class="home-bento" role="group" aria-label="${esc(t('homeOverview'))}">
       <button class="bento-tile accent action" type="button" data-home-jump="day">
         <b>${todayOpen.length}</b><span>${t('dueToday')}</span>
@@ -9410,8 +9916,7 @@ function viewHome(){
         <b style="font-size:22px">📸</b><span>${esc(t('galleryTitle'))}</span>
       </button>
     </div>
-    ${shiftPresenceBannerHtml()}
-    ${shiftStockCheckBannerHtml()}
+    ${shiftStartCard?'':`${shiftPresenceBannerHtml()}${shiftStockCheckBannerHtml()}`}
     <div class="dashboard-grid">
       ${adminTeamPanel(today)}
       <section class="card"><div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
@@ -9563,6 +10068,7 @@ function dynamicHeaderTitle(){
     return `${t('headerShop')}${h?` · ${h.short}`:''}`;
   }
   if(state.tab==='gallery') return t('headerGallery');
+  if(state.tab==='talk') return t('headerTalk');
   return t('headerBook');
 }
 
@@ -9605,9 +10111,17 @@ function onTopAction(id){
   if(id==='addEntry'){ sheetEntry(null, state.date); return; }
   if(id==='shopScan'){ document.getElementById('btnReceipt')?.click() || sheetImportList(); return; }
   if(id==='shopHistory'){ sheetShoppingHistory(); return; }
-  if(id==='shiftFocus'){ document.getElementById('shiftNoteText')?.focus(); document.getElementById('shiftNoteText')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
-  if(id==='bookToday'){ state.bookRange='today'; render(); return; }
-  if(id==='bookWeek'){ state.bookRange='week'; render(); return; }
+  if(id==='shiftFocus'){
+    state.bookPane='shift';
+    render();
+    queueMicrotask(()=>{
+      document.getElementById('shiftNoteText')?.focus();
+      document.getElementById('shiftNoteText')?.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+    return;
+  }
+  if(id==='bookToday'){ state.bookRange='today'; state.bookPane=state.bookPane||'log'; render(); return; }
+  if(id==='bookWeek'){ state.bookRange='week'; state.bookPane=state.bookPane||'log'; render(); return; }
   if(id==='bookFix'){ sheetCorrection(); return; }
 }
 
@@ -9626,10 +10140,13 @@ function toggleChatPanel(){
   else openZoAi();
 }
 
-/** Team talk opens in the floating chat panel — chat-first, no hub buttons. */
+/** Team talk is its own staff nav section — never the Zo-Ai FAB. */
 function openStaffTalk(){
   if(state.mode!=='staff' || !state.user){ toast(t('staffTalkNeedStaff'),'error'); return; }
-  openChatPanel('talk');
+  if(state.chatOpen) closeChatPanel();
+  state.tab='talk';
+  feedback('open');
+  render();
 }
 
 /** Zo-Ai via floating panel only (kids + staff). */
@@ -9647,12 +10164,10 @@ function stopTalkPanelPoll(){
 }
 
 function openChatPanel(mode='ai'){
-  if(mode==='talk' && (state.mode!=='staff' || !state.user)){
-    toast(t('staffTalkNeedStaff'),'error');
-    return;
-  }
+  // Employee team chat is a dedicated tab — never reopen it inside Zo-Ai.
+  if(mode==='talk'){ openStaffTalk(); return; }
   if(mode==='help') mode='ai';
-  if(mode!=='talk') mode='ai';
+  mode='ai';
 
   stopTalkPanelPoll();
   state.chatMode=mode;
@@ -9666,7 +10181,7 @@ function openChatPanel(mode='ai'){
   const title=document.getElementById('chatPanelTitle');
   if(title){
     title.hidden=false;
-    title.textContent = mode==='talk' ? `💬 ${t('staffTalkTitle')}` : `✨ ${t('helpChat')}`;
+    title.textContent = `✨ ${t('helpChat')}`;
   }
   const closeBtn=document.getElementById('chatClose');
   if(closeBtn) closeBtn.setAttribute('aria-label', t('close'));
@@ -9679,8 +10194,11 @@ function paintChatPanel(){
   const body=document.getElementById('chatBody');
   if(!body || !state.chatOpen) return;
   stopTalkPanelPoll();
-  if(state.chatMode==='talk') mountStaffTalkChat(body);
-  else mountHelpChat(body);
+  mountHelpChat(body);
+}
+
+function talkPageActive(){
+  return state.tab==='talk' && state.mode==='staff' && !!state.user;
 }
 
 function mountStaffTalkChat(root){
@@ -9700,8 +10218,29 @@ function mountStaffTalkChat(root){
     catch{ return ''; }
   };
   const remember=()=>{ talkCache={messages:talk.messages||[], topics:talk.topics||[], videoUrl:talk.videoUrl||'', updatedAt:talk.updatedAt||0}; };
+  const paintTopics=()=>{
+    const host=document.getElementById('talkTopicsList');
+    if(!host) return;
+    const today=iso(new Date());
+    const rows=(talk.topics||[]).filter(tp=>!tp.date || tp.date===today || !tp.done);
+    host.innerHTML = rows.length
+      ? rows.map(tp=>`<label class="talk-topic-row ${tp.done?'done':''}">
+          <input type="checkbox" data-topic-toggle="${esc(tp.id)}" ${tp.done?'checked':''}>
+          <span>${esc(tp.text)}</span>
+          <small>${esc(tp.byName||'')}</small>
+        </label>`).join('')
+      : `<div class="muted" style="font-size:12px">${esc(t('staffTalkEmpty'))}</div>`;
+    host.querySelectorAll('[data-topic-toggle]').forEach(input=>{
+      input.onchange=async()=>{
+        try{
+          talk=await talkApi('toggle_topic',{topicId:input.dataset.topicToggle});
+          remember(); paint(); paintTopics();
+        }catch(error){ toast(error.message||t('staffTalkLoadError'),'error'); paintTopics(); }
+      };
+    });
+  };
   const paint=()=>{
-    if(!state.chatOpen || state.chatMode!=='talk') return;
+    if(!talkPageActive()) return;
     const log=root.querySelector('#talkLog');
     const videoBtn=root.querySelector('#talkVideoOpen');
     if(videoBtn){ videoBtn.disabled=!talk.videoUrl; videoBtn.dataset.url=talk.videoUrl||''; }
@@ -9716,6 +10255,7 @@ function mountStaffTalkChat(root){
         : `<div class="chat-msg talk-meta">${esc(t('staffTalkEmpty'))}</div>`;
       log.scrollTop=log.scrollHeight;
     }
+    paintTopics();
   };
 
   root.innerHTML=`
@@ -9742,7 +10282,36 @@ function mountStaffTalkChat(root){
     feedback('open');
     window.open(url, '_blank', 'noopener,noreferrer');
   };
-  root.querySelector('#talkToZoAi').onclick=()=>{ feedback('select'); openChatPanel('ai'); };
+  root.querySelector('#talkToZoAi').onclick=()=>{ feedback('select'); openZoAi(); };
+
+  const topicInput=document.getElementById('talkTopicInput');
+  document.getElementById('talkTopicAdd')?.addEventListener('click', async()=>{
+    const text=(topicInput?.value||'').trim();
+    if(!text){ topicInput?.focus(); return; }
+    try{
+      talk=await talkApi('add_topic',{text, date:iso(new Date()), source:'manual'});
+      remember(); if(topicInput) topicInput.value=''; paint(); feedback('save');
+    }catch(error){ toast(error.message||t('staffTalkLoadError'),'error'); }
+  });
+  topicInput?.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); document.getElementById('talkTopicAdd')?.click(); }
+  });
+  document.getElementById('talkTopicClear')?.addEventListener('click', async()=>{
+    try{
+      talk=await talkApi('clear_done',{date:iso(new Date())});
+      remember(); paint();
+    }catch(error){ toast(error.message||t('staffTalkLoadError'),'error'); }
+  });
+  document.getElementById('talkTopicSuggest')?.addEventListener('click', async()=>{
+    const suggestions=talkSuggestTopics();
+    if(!suggestions.length){ toast(t('staffTalkEmpty'),'info'); return; }
+    try{
+      for(const s of suggestions.slice(0,5)){
+        talk=await talkApi('add_topic',{text:s.text, date:iso(new Date()), source:s.source||'suggest'});
+      }
+      remember(); paint(); feedback('save');
+    }catch(error){ toast(error.message||t('staffTalkLoadError'),'error'); }
+  });
 
   const submit=async()=>{
     const content=input.value.trim();
@@ -9775,7 +10344,7 @@ function mountStaffTalkChat(root){
       remember(); paint();
       stopTalkPanelPoll();
       talkPanelPoll=setInterval(async()=>{
-        if(!state.chatOpen || state.chatMode!=='talk' || busy) return;
+        if(!talkPageActive() || busy) return;
         try{
           const next=await talkApi();
           if(next.updatedAt!==talk.updatedAt){ talk=next; remember(); paint(); }
@@ -10024,6 +10593,7 @@ function scheduleMeasureChrome(){
 
 function render(){
   if(state.mode === 'child' && state.child) return renderChild();
+  if(state.tab==='talk' && state.mode!=='staff') state.tab='home';
   const restoreMatrixFs = document.body.classList.contains('matrix-fullscreen')
     ? (document.querySelector('.matrix-shell.is-fullscreen .matrix-toolbar-title')?.textContent || '')
     : '';
@@ -10044,6 +10614,10 @@ function render(){
   document.querySelectorAll('[data-nav]').forEach(s=>{
     s.textContent = t('nav' + s.dataset.nav[0].toUpperCase() + s.dataset.nav.slice(1));
   });
+  document.querySelectorAll('nav button[data-staff-only]').forEach(b=>{
+    b.hidden = state.mode!=='staff';
+  });
+  if(state.tab!=='talk') stopTalkPanelPoll();
 
   const stockDraftActive=state.tab==='stock' && state.house!=='all' && stockDraftEntries().length>0;
   const storeDock=state.tab==='shop' && fridayEntries(shopHouse()).some(e=>e.status==='pending');
@@ -10063,9 +10637,14 @@ function render(){
     : state.tab==='schedule' ? viewSchedule()
     : state.tab==='stock'    ? viewStock()
     : state.tab==='shop'     ? viewShop()
+    : state.tab==='talk'     ? viewTalk()
     : viewBook();
   wire();
   if(state.tab==='gallery') bindGallery(document.getElementById('view'));
+  if(state.tab==='talk'){
+    const mount=document.getElementById('talkPageMount');
+    if(mount) mountStaffTalkChat(mount);
+  }
   if(restoreMatrixFs && state.tab==='schedule'){
     const shell=[...document.querySelectorAll('.matrix-shell')].find(s=>
       (s.querySelector('.matrix-toolbar-title')?.textContent||'')===restoreMatrixFs);
@@ -10073,6 +10652,8 @@ function render(){
   }
   syncLayoutMode();
   scheduleMeasureChrome();
+  if(consumePresenceDeepLink()) queueMicrotask(()=>sheetShiftPresence());
+  else maybePromptShiftPresence();
 }
 
 function wire(){
@@ -10085,7 +10666,7 @@ function wire(){
   v.querySelectorAll('[data-admin-staff]').forEach(button=>button.onclick=()=>sheetAdminStaff(button.dataset.adminStaff));
   v.querySelectorAll('[data-admin-go]').forEach(button=>button.onclick=()=>{
     const destination=button.dataset.adminGo;
-    if(destination==='audit'){state.tab='book';state.bookRange='week';}
+    if(destination==='audit'){state.tab='book';state.bookPane='log';state.bookRange='week';}
     else{state.tab='schedule';state.scheduleView=destination;}
     render();
   });
@@ -10114,6 +10695,30 @@ function wire(){
     feedback('open');
     state.tab='gallery';
     refreshGallery({silent:true}).finally(()=>render());
+  };
+  const homeWriteBook=v.querySelector('#homeWriteBook');
+  if(homeWriteBook) homeWriteBook.onclick=()=>{
+    feedback('open');
+    state.tab='book';
+    state.bookPane='shift';
+    state.bookJournalMode='ink';
+    render();
+    queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
+  };
+  const openHomePresence=()=>{ feedback('open'); sheetShiftPresence(); };
+  v.querySelectorAll('#homeShiftPresence, #homeShiftPresenceStep').forEach(btn=>{
+    btn.onclick=openHomePresence;
+  });
+  const homeShiftStock=v.querySelector('#homeShiftStock');
+  if(homeShiftStock) homeShiftStock.onclick=()=>{ feedback('select'); sheetShiftStockCheck(); };
+  const homeShiftJournal=v.querySelector('#homeShiftJournal');
+  if(homeShiftJournal) homeShiftJournal.onclick=()=>{
+    feedback('open');
+    state.tab='book';
+    state.bookPane='shift';
+    state.bookJournalMode='ink';
+    render();
+    queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
   };
   v.querySelectorAll('#shiftStockCheckOpen, #stockShiftCheck').forEach(btn=>{
     btn.onclick=()=>{ feedback('select'); sheetShiftStockCheck(); };
@@ -10503,33 +11108,66 @@ function wire(){
   if(il) il.onclick = () => sheetImportList();
   // History is also available via [data-page-act=shopHistory] in page-actions.
 
-  v.querySelectorAll('#bRange button').forEach(b=>{
-    b.onclick = () => { state.bookRange = b.dataset.r; render(); };
+  v.querySelectorAll('[data-book-pane]').forEach(b=>{
+    b.onclick = () => { state.bookPane = b.dataset.bookPane; feedback('toggle'); render(); };
   });
-  v.querySelectorAll('[data-who]').forEach(b=>{
+  v.querySelectorAll('[data-book-range]').forEach(b=>{
+    b.onclick = () => { state.bookRange = b.dataset.bookRange; feedback('toggle'); render(); };
+  });
+  v.querySelectorAll('[data-book-type]').forEach(b=>{
     b.onclick = () => {
-      state.bookFilter.employeeId = state.bookFilter.employeeId === b.dataset.who ? '' : b.dataset.who;
-      render();
+      const ty = b.dataset.bookType || '';
+      state.bookFilter.type = state.bookFilter.type === ty ? '' : ty;
+      feedback('toggle'); render();
     };
   });
+  v.querySelectorAll('[data-book-who]').forEach(b=>{
+    b.onclick = () => {
+      const who = b.dataset.bookWho || '';
+      state.bookFilter.employeeId = state.bookFilter.employeeId === who ? '' : who;
+      if(who && state.bookPane==='people') state.bookPane = 'log';
+      feedback('toggle'); render();
+    };
+  });
+  v.querySelectorAll('[data-book-view]').forEach(b=>{
+    b.onclick = () => { state.bookView = b.dataset.bookView; feedback('toggle'); render(); };
+  });
+  v.querySelectorAll('[data-book-tech]').forEach(b=>{
+    b.onclick = () => { state.bookShowTech = !state.bookShowTech; feedback('toggle'); render(); };
+  });
+  const bookSearch = v.querySelector('#bookSearch');
+  if(bookSearch){
+    bookSearch.oninput = () => {
+      state.bookFilter.q = bookSearch.value;
+      const caret = bookSearch.selectionStart;
+      render();
+      const again = document.querySelector('#bookSearch');
+      if(again){ again.focus(); try{ again.setSelectionRange(caret, caret); }catch{} }
+    };
+  }
+  const bookSearchClear = v.querySelector('#bookSearchClear');
+  if(bookSearchClear) bookSearchClear.onclick = () => { state.bookFilter.q = ''; render(); };
+  const bookClearBtn = v.querySelector('#bookClearFilters');
+  if(bookClearBtn) bookClearBtn.onclick = () => { bookClearFilters(); feedback('toggle'); render(); };
 
-  const be = v.querySelector('#bEmp'), bt = v.querySelector('#bType'), bf = v.querySelector('#bFix');
-  if(be) be.onchange = () => { state.bookFilter.employeeId = be.value; render(); };
-  if(bt) bt.onchange = () => { state.bookFilter.type = bt.value; render(); };
+  const bf = v.querySelector('#bFix');
   if(bf) bf.onclick = sheetCorrection;
+  const shiftMode=v.querySelector('#shiftNoteMode');
+  if(shiftMode) shiftMode.onclick=()=>{
+    state.bookJournalMode = shiftMode.dataset.journalMode==='rewrite'?'rewrite':'ink';
+    feedback('toggle'); render();
+  };
   const shiftSave=v.querySelector('#shiftNoteSave');
   if(shiftSave) shiftSave.onclick=()=>{
     if(!state.user){ toast(t('noUser'),'error'); return; }
     const text=(v.querySelector('#shiftNoteText')?.value||'').trim();
     if(!text){ toast(t('shiftDiaryPh'),'error'); return; }
+    const mode=state.bookJournalMode==='rewrite'?'rewrite':'ink';
     askPin(t('shiftDiary'), who=>{
       state.user=who;
-      const dateStr=iso(new Date());
-      const key=shiftNoteKey(who.id, dateStr);
-      DB.shiftNotes=DB.shiftNotes||{};
-      DB.shiftNotes[key]={id:key, employeeId:who.id, date:dateStr, text, ts:Date.now()};
-      logEntry('SHIFT', `${t('typeSHIFT')}: ${text.slice(0,180)}`, {date:dateStr});
+      writeShiftJournalPage(who.id, text, {mode});
       if(!save()) return;
+      state.bookJournalMode='ink';
       render();
       feedback('save');
       toast(t('shiftDiarySaved'),'success');
@@ -10621,11 +11259,14 @@ async function sheetSecurityAccess(){
   if(calendarCard){
     calendarCard.innerHTML=`<b>📅 ${esc(t('calTitle'))}</b>
       <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(t('calHint'))}</p>
-      <button class="btn sec" type="button" id="openMyCalendar">${esc(t('calTitle'))}</button>`;
-    calendarCard.querySelector('#openMyCalendar').onclick=()=>{
+      <button class="btn" type="button" id="openMyCalendar">${esc(t('calApple'))}</button>
+      <button class="btn sec" type="button" id="openMyCalendarMore" style="margin-top:8px">${esc(t('calGoogle'))} / ${esc(t('calOutlook'))}</button>`;
+    const openCal=()=>{
       const mode=state.mode==='child'?'child':'staff';
       sheetCalendar(who.id, mode);
     };
+    calendarCard.querySelector('#openMyCalendar').onclick=openCal;
+    calendarCard.querySelector('#openMyCalendarMore').onclick=openCal;
   }
   if(customizeCard){
     customizeCard.innerHTML=`<div class="row between" style="align-items:center;gap:10px;margin-bottom:8px">
@@ -11222,8 +11863,12 @@ function showAppNotification(title, opts={}){
     badge:opts.badge||'icons/icon-192.png',
     tag:opts.tag||'paidia',
     renotify:!!opts.renotify,
+    requireInteraction:!!opts.requireInteraction,
     data:opts.data||{url:'./'},
   };
+  if(Array.isArray(opts.actions) && opts.actions.length){
+    payload.actions = opts.actions.slice(0, 2);
+  }
   try{
     if(navigator.serviceWorker?.controller){
       navigator.serviceWorker.ready.then(reg=>reg.showNotification(title, payload)).catch(()=>{
@@ -11237,7 +11882,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=61',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=66',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);
@@ -11283,7 +11928,21 @@ function runNotificationSweep({force=false}={}){
         const label=shiftLabel(active.shift);
         showAppNotification(
           active.late?T[state.lang].notifShiftLate(label):T[state.lang].notifShiftStart(label),
-          {tag:'paidia-presence', renotify:!!active.late, body:t('presenceImThere'), data:{url:'./?tab=home'}}
+          {
+            tag:'paidia-presence',
+            renotify:!!active.late,
+            requireInteraction:true,
+            body:active.late?t('presenceNotifBodyLate'):t('presenceNotifBodyReady'),
+            data:{url:'./?tab=home&presence=1', open:'presence'},
+            actions: active.late
+              ? [
+                  {action:'late', title:t('presenceNotifActionLate')},
+                  {action:'there', title:t('presenceNotifActionThere')},
+                ]
+              : [
+                  {action:'there', title:t('presenceNotifActionThere')},
+                ],
+          }
         );
         setNotifPrefs({seen:{...notifPrefs().seen, presence:key}});
       }
@@ -11296,6 +11955,13 @@ function scheduleNotificationSweep(){
   setInterval(()=>{
     if(state.mode==='staff' && state.user) runNotificationSweep();
   }, 60*1000);
+}
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.addEventListener('message', event=>{
+    if(event.data?.type==='presence-open'){
+      openPresenceFromSignal();
+    }
+  });
 }
 function shiftStockCheckPending(){
   try{

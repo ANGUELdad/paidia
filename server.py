@@ -3629,6 +3629,7 @@ class Handler(SimpleHTTPRequestHandler):
                 ops_rev = None
             self.json_response(200, {
                 "ok": True,
+                "driveConfigured": bool(paidia_drive and paidia_drive.drive_configured()),
                 "aiConfigured": bool(os.environ.get("GROQ_API_KEY")) or omni_ok,
                 "llmProvider": provider,
                 "omniroute": {
