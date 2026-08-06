@@ -1,0 +1,57 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "name": "Armonia Thassos",
+  "description": "Figma-ready Aegean crystal design system. Sync into Figma variables once MCP auth works.",
+  "color": {
+    "ink": { "$value": "#062a30" },
+    "muted": { "$value": "#3a5a64" },
+    "mutedSoft": { "$value": "#4a6a74" },
+    "meta": { "$value": "#6b8a94" },
+    "line": { "$value": "rgba(10,46,54,0.12)" },
+    "bg": { "$value": "#e6f0f1" },
+    "bgDeep": { "$value": "#cfe3e7" },
+    "surface": { "$value": "#f4fafb" },
+    "surface2": { "$value": "#eef5f6" },
+    "brand": { "$value": "#0b6b6f" },
+    "brand2": { "$value": "#128a94" },
+    "sea": { "$value": "#0c6f88" },
+    "sun": { "$value": "#e0a01a" },
+    "in": { "$value": "#0f766e" },
+    "out": { "$value": "#c2410c" },
+    "warn": { "$value": "#b45309" },
+    "chrome": { "$value": "rgba(6,42,48,0.72)" },
+    "glass": { "$value": "rgba(255,255,255,0.62)" },
+    "glassStrong": { "$value": "rgba(255,255,255,0.82)" },
+    "markA": { "$value": "#5eead4" },
+    "markB": { "$value": "#38bdf8" }
+  },
+  "radius": {
+    "sm": { "$value": "12px" },
+    "md": { "$value": "18px" },
+    "dock": { "$value": "24px" },
+    "pill": { "$value": "999px" }
+  },
+  "space": {
+    "1": { "$value": "4px" },
+    "2": { "$value": "8px" },
+    "3": { "$value": "12px" },
+    "4": { "$value": "16px" },
+    "5": { "$value": "24px" }
+  },
+  "typography": {
+    "display": { "$value": { "fontFamily": "Syne", "fontWeight": 800 } },
+    "ui": { "$value": { "fontFamily": "Figtree", "fontWeight": 550 } }
+  },
+  "components": [
+    "ChromeHeader",
+    "DockNav",
+    "Sheet",
+    "Seg",
+    "PageAct",
+    "BentoTile",
+    "TaskRow",
+    "PlanDayChip",
+    "StoreCockpit"
+  ],
+  "screens": ["Gate", "Home", "PlanDay", "Stock", "Shop", "Child"]
+}

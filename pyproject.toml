@@ -6,6 +6,12 @@ requires-python = ">=3.11"
 dependencies = [
   "flask==3.1.1",
   "webauthn==3.0.0",
+  # Postgres driver for db.py. MUST be listed here, not only in
+  # requirements.txt — Vercel reads pyproject.toml and ignores that file, so a
+  # psycopg pinned only there is silently absent at runtime and /api/health
+  # reports backend=postgres with "No module named 'psycopg'".
+  # Unpinned minor: the ==3.2.9 pin has no wheel for Python 3.14+.
+  "psycopg[binary]>=3.2,<4",
 ]
 
 [tool.vercel]

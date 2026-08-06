@@ -1941,6 +1941,7 @@ let stockBoardUiAbort = null;
 function openSheet(html, {dismissable = true} = {}){
   exitMatrixFullscreen();
   if(state.chatOpen) closeChatPanel();
+  document.querySelectorAll('.stock-hold-menu,.drag-ghost').forEach(el=>el.remove());
   sheetLocked = !dismissable;
   document.getElementById('app').inert = sheetLocked;
   const fab=document.getElementById('helpFab');
@@ -3546,8 +3547,9 @@ function entryLine(e, dateStr=state.date){
   const person = people.length ? esc(employeeNames(e)) : `<span class="pill open">${t('unassigned')}</span>`;
   const kids = (e.childIds||[]).map(id=>`<span class="pill kid">${esc(kid(id)?.name||'')}</span>`).join('');
   const who = emp(people[0]);
-  return `<div class="entry-wrap">
-    <button class="entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-src="${e.source}" type="button">
+  const accent = who?.color || '#0e7490';
+  return `<div class="plan-entry entry-wrap ${e.cancelled?'is-cancelled':''}" style="--entry-accent:${accent}">
+    <button class="plan-entry-main entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-src="${e.source}" type="button">
       <div class="top">
         ${who ? `<div class="avatar" style="background:${who.color}">${initials(who.name)}</div>`
               : `<span class="emoji">${a?a.emoji:'📝'}</span>`}
@@ -3558,14 +3560,14 @@ function entryLine(e, dateStr=state.date){
             entryHouseIds(e).length ? ' · 🏠 ' + esc(houseNames(e)) : ''}</div>
           ${e.note ? `<div class="meta">${esc(e.note)}</div>` : ''}
         </div>
-        <div style="flex:0 0 auto">
+        <div class="plan-entry-flags">
           ${e.cancelled ? `<span class="pill gray">${t('cancelled')}</span>`
             : e.overridden ? `<span class="pill ovr">${t('override')}</span>` : ''}
         </div>
       </div>
       ${kids ? `<div class="kids">${kids}</div>` : ''}
     </button>
-    ${!e.cancelled?`<button type="button" class="mini-x entry-x" data-remove-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" aria-label="${esc(t('removeFromTable'))}" title="${esc(t('removeFromTable'))}">×</button>`:''}
+    ${!e.cancelled?`<button type="button" class="mini-x entry-x plan-entry-x" data-remove-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" aria-label="${esc(t('removeFromTable'))}" title="${esc(t('removeFromTable'))}">×</button>`:''}
   </div>`;
 }
 
@@ -3577,11 +3579,11 @@ function viewScheduleDay(){
 
   const days = week.map(ds=>{
     const d = new Date(ds+'T12:00:00');
-    return `<div class="day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}">
-      <div class="d">${DAY_NAMES[state.lang][dowIdx(d)]}</div><div class="n">${d.getDate()}</div></div>`;
+    return `<button type="button" class="plan-day-chip day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}" aria-pressed="${ds===state.date?'true':'false'}" aria-label="${esc(DAY_LONG[state.lang][dowIdx(d)])} ${d.getDate()}">
+      <span class="d">${DAY_NAMES[state.lang][dowIdx(d)]}</span><span class="n">${d.getDate()}</span></button>`;
   }).join('');
 
-  const blocks = BLOCKS.map(b=>{
+  const blocks = BLOCKS.map((b, bi)=>{
     const list = all.filter(e => e.block === b.id);
     let body;
     if(b.by === 'house'){
@@ -3589,37 +3591,44 @@ function viewScheduleDay(){
         .filter(h => !state.houseFilter || h.id === state.houseFilter)
         .map(h=>{
           const rows = list.filter(e => entryHouseIds(e).includes(h.id));
-          return `<div class="house-h">${esc(h.name)}</div>` +
-            (rows.length ? rows.map(e=>entryLine(e,state.date)).join('')
-              : `<button class="empty" style="width:100%;cursor:pointer;background:none"
-                   data-add="${b.id}" data-house="${h.id}">${t('noEntries')} · ${t('add')}</button>`);
+          return `<div class="plan-lane">
+            <div class="plan-lane-h house-h">${esc(h.name)}</div>
+            ${rows.length ? rows.map(e=>entryLine(e,state.date)).join('')
+              : `<button class="plan-lane-empty empty" type="button" data-add="${b.id}" data-house="${h.id}">${t('noEntries')} · ${t('add')}</button>`}
+          </div>`;
         }).join('');
     }else{
-      body = list.length
+      const assigned = list.length
         ? DB.employees.map(p=>{
             const rows = list.filter(e => entryEmployeeIds(e).includes(p.id));
             return rows.length ? rows.map(e=>entryLine(e,state.date)).join('') : '';
           }).join('') + list.filter(e=>!entryEmployeeIds(e).length).map(e=>entryLine(e,state.date)).join('')
-        : `<button class="empty" style="width:100%;cursor:pointer;background:none"
-             data-add="${b.id}">${t('noEntries')} · ${t('add')}</button>`;
+        : '';
+      body = `<div class="plan-lane">${assigned ||
+        `<button class="plan-lane-empty empty" type="button" data-add="${b.id}">${t('noEntries')} · ${t('add')}</button>`}</div>`;
     }
-    return `<div class="block">
-      <div class="block-h">
+    return `<section class="plan-block block block-${b.id}" style="--block-i:${bi}">
+      <div class="plan-block-h block-h">
         <span class="t">${t(b.id)}</span>
-        <span class="hrs">${b.from}–${b.to}</span>
+        <span class="hrs plan-time-chip">${b.from}–${b.to}</span>
       </div>
       ${body}
-      <div style="text-align:right"><button class="btn ghost" data-add="${b.id}">${t('add')}</button></div>
-    </div>`;
+      <div class="plan-block-add"><button class="btn ghost sm" type="button" data-add="${b.id}">${t('add')}</button></div>
+    </section>`;
   }).join('');
 
   const d = new Date(state.date+'T12:00:00');
+  const longDate = `${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
   return `
-    <div class="days">${days}</div>
-    <div class="row between" style="margin:2px 0 12px">
-      <div class="muted">${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.</div>
-      <div class="muted">${t('besprechung')}</div>
-    </div>
+    <header class="plan-hero">
+      <div class="plan-hero-copy">
+        <div class="brand-kicker">Armonia</div>
+        <h2 class="plan-hero-date">${esc(longDate)}</h2>
+        <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
+      </div>
+      <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
+    </header>
+    <div class="plan-days days" role="tablist" aria-label="${esc(t('viewDay'))}">${days}</div>
     ${blocks}
     ${validationCard(state.date)}
     ${weekNotesCard()}`;
@@ -3803,18 +3812,23 @@ function viewScheduleWeek(){
 
   const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   return `
-    <div class="row between" style="margin-bottom:10px">
-      <div class="muted">${t('weekOf')}: ${first.getDate()}.${first.getMonth()+1}. – ${last.getDate()}.${last.getMonth()+1}.${last.getFullYear()}</div>
-      <div class="row" style="gap:4px">
-        <button class="btn sm sec" data-shift="-7">‹</button>
-        <button class="btn sm sec" data-shift="7">›</button>
+    <header class="plan-hero plan-hero-week">
+      <div class="plan-hero-copy">
+        <div class="brand-kicker">Armonia</div>
+        <h2 class="plan-hero-date">${t('weekOf')}: ${first.getDate()}.${first.getMonth()+1}. – ${last.getDate()}.${last.getMonth()+1}.${last.getFullYear()}</h2>
+        <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
       </div>
-    </div>
-    <div class="block-h"><span class="t">${t('morning')}</span><span class="hrs">10:00–14:00</span></div>
+      <div class="plan-hero-actions">
+        <button class="btn sm sec" type="button" data-shift="-7" aria-label="${esc(t('previousFriday')||'‹')}">‹</button>
+        <button class="btn sm sec" type="button" data-shift="7" aria-label="›">›</button>
+        <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
+      </div>
+    </header>
+    <div class="plan-block-h block-h block-morning"><span class="t">${t('morning')}</span><span class="hrs plan-time-chip">10:00–14:00</span></div>
     ${houseTable('morning')}
-    <div class="block-h"><span class="t">${t('afternoon')}</span><span class="hrs">15:00–19:00</span></div>
+    <div class="plan-block-h block-h block-afternoon"><span class="t">${t('afternoon')}</span><span class="hrs plan-time-chip">15:00–19:00</span></div>
     ${personTable}
-    <div class="block-h"><span class="t">${t('evening')}</span><span class="hrs">19:00–22:00</span></div>
+    <div class="plan-block-h block-h block-evening"><span class="t">${t('evening')}</span><span class="hrs plan-time-chip">19:00–22:00</span></div>
     ${houseTable('evening')}
     ${weekNotesCard()}`;
 }
@@ -3840,27 +3854,32 @@ function weekNotesCard(){
 }
 
 function viewSchedule(){
+  const sv = state.scheduleView;
+  const showHouse = ['day','week'].includes(sv);
+  const viewBtn = (id, icon, label, shortLabel) =>
+    `<button type="button" class="${sv===id?'on':''}" data-v="${id}" title="${esc(label)}" aria-label="${esc(label)}" aria-pressed="${sv===id?'true':'false'}">
+      <span class="planner-seg-ico" aria-hidden="true">${icon}</span>
+      <span class="planner-seg-lbl"><span class="lbl-full">${esc(label)}</span><span class="lbl-short">${esc(shortLabel||label)}</span></span>
+    </button>`;
+  const eventsShort = state.lang==='el' ? 'Evt' : 'Evt';
   return `
-    <div class="planner-filters">
-      <span class="filter-label">${t('filterView')}</span>
-      <div class="seg" id="schView">
-        <button class="${state.scheduleView==='day'?'on':''}" data-v="day">${t('viewDay')}</button>
-        <button class="${state.scheduleView==='week'?'on':''}" data-v="week">${t('viewWeek')}</button>
-        <button class="${state.scheduleView==='shift'?'on':''}" data-v="shift">${t('viewShift')}</button>
-        <button class="${state.scheduleView==='events'?'on':''}" data-v="events">${t('viewEvents')}</button>
+    <div class="planner ${sv==='day'?'plan-day':sv==='week'?'plan-week':sv==='shift'?'plan-shift':'plan-events'}">
+      <div class="planner-chrome">
+        <div class="seg planner-seg" id="schView" role="tablist" aria-label="${esc(t('filterView'))}">
+          ${viewBtn('day','📅',t('viewDay'))}
+          ${viewBtn('week','▦',t('viewWeek'))}
+          ${viewBtn('shift','⏱',t('viewShift'))}
+          ${viewBtn('events','📣',t('viewEvents'),eventsShort)}
+        </div>
+        ${showHouse?`<div class="seg planner-seg planner-seg-house house-selector" id="hFilter" role="tablist" aria-label="${esc(t('filterHouse'))}">
+          <button type="button" class="${state.houseFilter===''?'on':''}" data-h="" title="${esc(t('all'))}" aria-label="${esc(t('all'))}">${esc(t('all'))}</button>
+          ${planningHouses().map(h=>`<button type="button" class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}" title="${esc(h.name)}" aria-label="${esc(h.name)}">${esc(h.short)}</button>`).join('')}
+        </div>`:''}
       </div>
-      ${['shift','events'].includes(state.scheduleView) ? '' : `<span class="filter-label">${t('filterHouse')}</span>
-      <div class="seg house-selector" id="hFilter">
-        <button class="${state.houseFilter===''?'on':''}" data-h="">${t('allHouses')}</button>
-        ${planningHouses().map(h=>`<button class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
-      </div>`}
-      ${['day','week'].includes(state.scheduleView)?`<div class="page-actions">
-        <button class="page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
-      </div>`:''}
-    </div>
-    ${state.scheduleView==='day' ? viewScheduleDay()
-      : state.scheduleView==='week' ? viewScheduleWeek()
-      : state.scheduleView==='shift' ? viewShifts() : staffEventsView()}`;
+      ${sv==='day' ? viewScheduleDay()
+        : sv==='week' ? viewScheduleWeek()
+        : sv==='shift' ? viewShifts() : staffEventsView()}
+    </div>`;
 }
 
 /* ── Φόρμα εγγραφής ── */
@@ -4127,7 +4146,7 @@ function sheetEntry(e, dateStr, presets = {}){
       from:f.from||def.from,to:f.to||def.to,location:sheetEl.querySelector('#fEventLocation')?.value.trim()||'',
       employeeIds:[...f.employeeIds],employeeId:f.employeeId,childIds:[...f.childIds],
       bring:{de:sheetEl.querySelector('#fEventBring')?.value.trim()||'',el:sheetEl.querySelector('#fEventBring')?.value.trim()||''},
-      emoji:act(f.activityId)?.emoji||'🎉',color:prior.color||'#7c3aed',status:'published',
+      emoji:act(f.activityId)?.emoji||'🎉',color:prior.color||'#0c6f88',status:'published',
       scheduleEntryId:entryId,scheduleDate:dateStr};
     if(idx>=0) DB.events[idx]=value; else DB.events.push(value);
     logEntry('EVENT',`${t('eventPublished')}: ${title}`);
@@ -4961,7 +4980,7 @@ function sheetStockBoard(dir,initialPid=null){
       if(ghost){ ghost.remove(); ghost = null; }
       dragging = false; held = false; active = false;
       zones().forEach(z => z.classList.remove('over'));
-      document.querySelectorAll('.drag-ghost,.stock-side-rails').forEach(el => el.remove());
+      document.querySelectorAll('.drag-ghost').forEach(el => el.remove());
     };
 
     tile.onpointerdown = ev => {
@@ -6146,7 +6165,7 @@ function eventDayLabel(dateStr){
 function childEventHero(e){
   const caregivers=entryEmployeeIds(e).map(emp).filter(Boolean);
   return `<div class="card event-hero">
-    <div class="event-cover" style="background:linear-gradient(135deg,${esc(e.color||'#2563eb')},#0f172a)">
+    <div class="event-cover" style="background:linear-gradient(135deg,${esc(e.color||'#0c6f88')},#062a30)">
       <span class="event-emoji">${esc(e.emoji||'🎉')}</span>
       <div class="event-title"><span class="pill in" style="margin-bottom:8px">${t('eventOfWeek')}</span><br>${esc(L(e))}</div>
     </div>
@@ -6164,7 +6183,7 @@ function childEventHero(e){
 
 function childEventCard(e){
   const d = new Date(e.date+'T12:00:00'), caregivers=entryEmployeeIds(e).map(emp).filter(Boolean);
-  return `<div class="card event-card" style="--event-color:${esc(e.color||'#2563eb')}">
+  return `<div class="card event-card" style="--event-color:${esc(e.color||'#0c6f88')}">
     <div class="event-date"><span>${DAY_NAMES[state.lang][dowIdx(d)]}</span><b>${d.getDate()}</b><span>${d.getMonth()+1}</span></div>
     <div class="grow"><div class="strong">${esc(e.emoji||'🎉')} ${esc(L(e))}</div>
       <div class="muted">${esc(e.from)}–${esc(e.to)} · 📍 ${esc(e.location)}</div>
@@ -6190,18 +6209,18 @@ function childEventsView(cid){
 
 const CHILD_GAMES = [
   {id:'learn', emoji:'🇬🇷', titleKey:'gameLearn', hintKey:'gameLearnHint', tint:'#0d9488', featured:true},
-  {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#1d4ed8', featured:true},
+  {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#0b6b6f', featured:true},
   {id:'math', emoji:'➕', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', featured:true},
   {id:'island', emoji:'🏝️', titleKey:'gameIsland', hintKey:'gameIslandHint', tint:'#0e7490', featured:true},
   {id:'eduhub', emoji:'🎓', titleKey:'gameEduHub', hintKey:'gameEduHubHint', tint:'#0369a1', featured:true},
   {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e'},
   {id:'tac', emoji:'❌', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#c2410c'},
   {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1'},
-  {id:'react', emoji:'⚡', titleKey:'gameReact', hintKey:'gameReactHint', tint:'#7c3aed'},
+  {id:'react', emoji:'⚡', titleKey:'gameReact', hintKey:'gameReactHint', tint:'#0b6b6f'},
   {id:'rps', emoji:'✊', titleKey:'gameRps', hintKey:'gameRpsHint', tint:'#be185d'},
   {id:'dice', emoji:'🎲', titleKey:'gameDice', hintKey:'gameDiceHint', tint:'#0f766e'},
   {id:'simon', emoji:'🎵', titleKey:'gameSimon', hintKey:'gameSimonHint', tint:'#b45309'},
-  {id:'colors', emoji:'🎨', titleKey:'gameColors', hintKey:'gameColorsHint', tint:'#1d4ed8'},
+  {id:'colors', emoji:'🎨', titleKey:'gameColors', hintKey:'gameColorsHint', tint:'#0b6b6f'},
 ];
 const MEMORY_EMOJIS = ['🌊','☀️','🐚','🐙','🐟','⭐','🍋','⛵'];
 const CATCH_FISH = [
@@ -6219,7 +6238,7 @@ const SIMON_PADS = [
 const COLOR_OPTS = [
   {id:'red', hex:'#e11d48', labelKey:'gameColorRed'},
   {id:'green', hex:'#16a34a', labelKey:'gameColorGreen'},
-  {id:'blue', hex:'#2563eb', labelKey:'gameColorBlue'},
+  {id:'blue', hex:'#0c6f88', labelKey:'gameColorBlue'},
   {id:'yellow', hex:'#ca8a04', labelKey:'gameColorYellow'},
 ];
 
@@ -7827,7 +7846,7 @@ function staffEventsView(){
     </div>
     ${events.length ? `<div class="events-grid">${events.map(e=>{
       const d=new Date(e.date+'T12:00:00');
-      return `<article class="event-staff-card" style="--event-color:${esc(e.color||'#2563eb')}">
+      return `<article class="event-staff-card" style="--event-color:${esc(e.color||'#0c6f88')}">
         <button class="mini-x event-delete" data-event-delete="${esc(e.id)}" type="button" aria-label="${esc(t('deleteEvent'))}">×</button>
         <div class="event-staff-top">
           <div class="event-date event-date-rich"><span>${DAY_NAMES[state.lang][dowIdx(d)]}</span><b>${d.getDate()}</b><span>${esc(eventDayLabel(e.date))}</span></div>
@@ -7855,7 +7874,7 @@ function sheetEvent(existing=null, presets={}){
     date:presets.date||state.date, from:presets.from||'16:00', to:presets.to||'18:00',
     location:presets.location||'', employeeIds:presets.employeeIds||[presets.employeeId||state.user?.id].filter(Boolean),
     employeeId:presets.employeeId||state.user?.id||'',
-    childIds:[...(presets.childIds||[])], bring:{de:'',el:''}, emoji:'🎉', color:'#7c3aed',
+    childIds:[...(presets.childIds||[])], bring:{de:'',el:''}, emoji:'🎉', color:'#0c6f88',
     status:'published', featured:false, scheduleEntryId:presets.scheduleEntryId||null,
     scheduleDate:presets.scheduleDate||null,
   };
@@ -7958,7 +7977,7 @@ function dashboardTaskCard(e,dateStr,employeeId,{overdue=false,readonly=false}={
 }
 
 function homeEventCard(e){
-  return `<button class="task-row event-card" data-event="${esc(e.id)}" style="--event-color:${esc(e.color||'#2563eb')};width:100%;text-align:left;cursor:pointer" type="button">
+  return `<button class="task-row event-card" data-event="${esc(e.id)}" style="--event-color:${esc(e.color||'#0c6f88')};width:100%;text-align:left;cursor:pointer" type="button">
     <div class="event-date"><span>${DAY_NAMES[state.lang][dowIdx(new Date(e.date+'T12:00:00'))]}</span><b>${new Date(e.date+'T12:00:00').getDate()}</b></div>
     <div class="grow"><div class="strong">${esc(e.emoji||'🎉')} ${esc(L(e))}</div>
       <div class="muted">${esc(e.from)}–${esc(e.to)} · 📍 ${esc(e.location||'—')}</div>
@@ -8148,24 +8167,23 @@ function viewHome(){
     .forEach(e=>unassigned.push({e,dateStr})));
   const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
   const upcoming=events.filter(e=>e.status==='published' && e.date>=today);
-  return `<div class="card home-hero">
-      <div class="muted">${t('homeHello')}${user?', '+esc(user.name):''}</div>
+  return `<div class="home-shell">
+    <section class="home-mast" aria-label="Armonia">
+      <p class="home-brand">Armonia</p>
+      <p class="home-hello">${t('homeHello')}${user?', '+esc(user.name):''}</p>
       <h2>${t('homeOverview')}</h2>
-      <div class="home-stats">
-        <div class="home-stat"><b>${todayOpen.length}</b><span>${t('dueToday')}</span></div>
-        <div class="home-stat"><b>${overdue.length}</b><span>${t('overdue')}</span></div>
-        <div class="home-stat"><b>${upcoming.length}</b><span>${t('eventsSoon')}</span></div>
-      </div>
+    </section>
+    <div class="home-bento" role="group" aria-label="${esc(t('homeOverview'))}">
+      <div class="bento-tile span3 accent"><b>${todayOpen.length}</b><span>${t('dueToday')}</span></div>
+      <div class="bento-tile span3 warn"><b>${overdue.length}</b><span>${t('overdue')}</span></div>
+      <div class="bento-tile span4 sea"><b>${upcoming.length}</b><span>${t('eventsSoon')}</span></div>
+      <button class="bento-tile span2 action sea" id="homeGalleryOpen" type="button">
+        <b style="font-size:18px">📸</b><span>${esc(t('galleryTitle'))}</span>
+      </button>
     </div>
     <div class="page-actions" role="toolbar">
       <button class="page-act ghost" type="button" data-page-act="tutorial">📘 ${esc(t('topTutorial'))}</button>
     </div>
-    <button class="notification-card" id="homeGalleryOpen" type="button">
-      <span style="font-size:22px">📸</span>
-      <div class="grow"><b>${esc(t('galleryTitle'))}</b>
-        <div class="muted" style="font-size:12px;margin-top:2px">${esc(t('galleryHint'))}</div></div>
-      <span class="muted">→</span>
-    </button>
     <div class="dashboard-grid">
       ${adminTeamPanel(today)}
       <section class="card"><div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
@@ -8182,7 +8200,8 @@ function viewHome(){
       <section class="card wide"><div class="block-h"><span class="t">👤 ${t('unassignedTasks')}</span><span class="hrs">${t('next3Days')}</span></div>
         <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):`<div class="empty">${t('noUnassigned')}</div>`}</div>
       </section>
-    </div>`;
+    </div>
+  </div>`;
 }
 
 function renderChild(){
@@ -8373,13 +8392,15 @@ function onTopAction(id){
   if(id==='week'){ state.scheduleView='week'; render(); return; }
   if(id==='events'){ state.scheduleView='events'; render(); return; }
   if(id==='addEntry'){ sheetEntry(null, state.date); return; }
-  if(id==='houseAll'){ state.house='all'; clearStockDraft(); render(); return; }
-  if(id.startsWith('house:')){ state.house=id.slice(6); clearStockDraft(); render(); return; }
-  if(id==='stockIn'){ sheetStockBoard('IN'); return; }
-  if(id==='stockOut'){ sheetStockBoard('OUT'); return; }
   if(id==='stockBoard'){ sheetStockBoard('IN'); return; }
   if(id==='stockFood'){ sheetStockBoard('IN'); setTimeout(()=>document.getElementById('sbAddFood')?.click(),200); return; }
-  if(id==='shopAdd'){ document.getElementById('cartQuickName')?.focus(); return; }
+  if(id==='shopAdd'){
+    const input=document.getElementById('cartQuickName');
+    if(input){ input.focus(); return; }
+    // Store mode has no quick-add field — open list import instead of a silent no-op.
+    sheetImportList();
+    return;
+  }
   if(id==='shopScan'){ document.getElementById('btnReceipt')?.click() || sheetImportList(); return; }
   if(id==='shopHistory'){ sheetShoppingHistory(); return; }
   if(id==='shiftFocus'){ document.getElementById('shiftNoteText')?.focus(); document.getElementById('shiftNoteText')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
@@ -8750,12 +8771,13 @@ function render(){
     s.textContent = t('nav' + s.dataset.nav[0].toUpperCase() + s.dataset.nav.slice(1));
   });
 
-  const stockDock=state.tab==='stock' && state.house!=='all';
+  const stockDraftActive=state.tab==='stock' && state.house!=='all' && stockDraftEntries().length>0;
   const storeDock=state.tab==='shop' && fridayEntries(shopHouse()).some(e=>e.status==='pending');
-  document.body.classList.toggle('has-stock-dock', stockDock);
+  // Only shift the Zo-Ai FAB when the draft footer is actually on screen.
+  document.body.classList.toggle('has-stock-dock', stockDraftActive);
   document.body.classList.toggle('has-store-dock', storeDock);
   document.body.classList.toggle('store-fullscreen', storeDock);
-  document.body.classList.toggle('has-stock-draft', stockDock && stockDraftEntries().length>0);
+  document.body.classList.toggle('has-stock-draft', stockDraftActive);
   document.body.classList.toggle('chat-open', !!state.chatOpen);
   // Lets the stylesheet theme a single tab without touching the rest
   // of the app's ~1000 rules. Read by body[data-tab="…"] in index.html.
@@ -8960,19 +8982,23 @@ function wire(){
     });
   };
 
-  v.querySelectorAll('[data-stock-action]').forEach(b=>b.onclick=()=>sheetStockBoard(b.dataset.stockAction));
   v.querySelectorAll('[data-stock-product]').forEach(b=>{
-    b.onclick=()=>sheetStockDetail(b.dataset.stockProduct,state.house);
     // Long-press options on fridge rows (IN / OUT / shop / board).
-    let holdTimer=null, moved=false, sx=0, sy=0;
+    // `held` skips the click that would otherwise open detail right after the menu.
+    let holdTimer=null, moved=false, held=false, sx=0, sy=0;
     const clear=()=>{ if(holdTimer){ clearTimeout(holdTimer); holdTimer=null; } };
+    b.onclick=ev=>{
+      if(held){ held=false; ev.preventDefault(); ev.stopPropagation(); return; }
+      sheetStockDetail(b.dataset.stockProduct,state.house);
+    };
     b.onpointerdown=ev=>{
       if(state.house==='all') return;
-      moved=false; sx=ev.clientX; sy=ev.clientY;
+      moved=false; held=false; sx=ev.clientX; sy=ev.clientY;
       clear();
       holdTimer=setTimeout(()=>{
         holdTimer=null;
         if(moved) return;
+        held=true;
         ev.preventDefault?.();
         const pid=b.dataset.stockProduct; if(!pid) return;
         const p=prod(pid); if(!p) return;
@@ -8996,6 +9022,7 @@ function wire(){
         menu.querySelectorAll('button').forEach(btn=>{
           btn.onclick=()=>{
             menu.remove();
+            held=false;
             const act=btn.dataset.act;
             if(act==='in'){ adjustStockDraft(pid,'IN'); render(); }
             else if(act==='out'){ adjustStockDraft(pid,'OUT'); render(); }
@@ -9008,7 +9035,7 @@ function wire(){
             else sheetStockDetail(pid, state.house);
           };
         });
-        const dismiss=e=>{ if(menu.contains(e.target)) return; menu.remove(); document.removeEventListener('pointerdown', dismiss, true); };
+        const dismiss=e=>{ if(menu.contains(e.target)) return; menu.remove(); held=false; document.removeEventListener('pointerdown', dismiss, true); };
         setTimeout(()=>document.addEventListener('pointerdown', dismiss, true), 0);
       }, 420);
     };
@@ -9019,8 +9046,6 @@ function wire(){
   if(stockOpenBoard) stockOpenBoard.onclick=()=>sheetStockBoard('IN');
   const stockQuickFood=v.querySelector('#stockQuickFood');
   if(stockQuickFood) stockQuickFood.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddFood')?.click(), 80); };
-  const stockQuickCat=v.querySelector('#stockQuickCat');
-  if(stockQuickCat) stockQuickCat.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddCat')?.click(), 80); };
   v.querySelectorAll('[data-stock-step]').forEach(b=>b.onclick=event=>{
     event.preventDefault();
     event.stopPropagation();

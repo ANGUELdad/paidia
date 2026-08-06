@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Armonia — Figma board (source of truth)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;550;650;750&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#062a30; --muted:#3a5a64; --brand:#0b6b6f; --brand-2:#128a94;
+    --sea:#0c6f88; --sun:#e0a01a; --bg:#e6f0f1; --glass:rgba(255,255,255,.72);
+    --chrome:rgba(6,42,48,.78); --font-ui:Figtree,system-ui,sans-serif;
+    --font-display:Syne,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.4 var(--font-ui);background:#0a1e24;color:#e8f4f5;
+    padding:32px 24px 80px}
+  h1{font-family:var(--font-display);font-size:28px;margin:0 0 8px;letter-spacing:-.03em}
+  .lede{color:#8eb4bc;max-width:52ch;margin:0 0 28px}
+  .board{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+  .phone{
+    width:390px;height:844px;border-radius:36px;overflow:hidden;position:relative;
+    background:linear-gradient(168deg,#f4fafb,#e5f0f2 42%,#d7e8eb);
+    box-shadow:0 24px 60px rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.12);
+    color:var(--ink); flex:0 0 auto;
+  }
+  .label{font-size:11px;font-weight:750;letter-spacing:.14em;text-transform:uppercase;
+    color:#5eead4;margin:0 0 10px}
+  .chrome{height:64px;background:var(--chrome);color:#fff;display:flex;align-items:center;
+    gap:10px;padding:10px 14px;backdrop-filter:blur(16px)}
+  .mark{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+    font-family:var(--font-display);font-weight:800;background:linear-gradient(145deg,#5eead4,#38bdf8);color:#062a30}
+  .chrome b{display:block;font-family:var(--font-display);font-size:15px;letter-spacing:-.02em}
+  .chrome span{font-size:11px;color:#a8d8dc}
+  .stage{padding:14px;height:calc(100% - 64px - 78px);overflow:hidden}
+  .dock{position:absolute;left:10px;right:10px;bottom:10px;height:58px;border-radius:24px;
+    background:var(--glass);border:1px solid rgba(255,255,255,.55);
+    display:flex;align-items:center;justify-content:space-around;
+    backdrop-filter:blur(18px);box-shadow:0 12px 32px rgba(6,42,48,.16);font-size:10px;font-weight:650;color:var(--muted)}
+  .dock .on{color:var(--brand);font-weight:750}
+  .mast{border-radius:18px;padding:20px 16px;color:#fff;margin-bottom:12px;
+    background:linear-gradient(135deg,#062a30,#0b555c 48%,#0c6f88);
+    box-shadow:0 16px 40px rgba(6,42,48,.25)}
+  .mast .brand{font-family:var(--font-display);font-size:34px;font-weight:800;letter-spacing:-.04em;margin:0;line-height:1}
+  .mast h2{font-family:var(--font-display);font-size:17px;margin:6px 0 0;font-weight:700}
+  .bento{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .tile{background:rgba(255,255,255,.85);border:1px solid rgba(10,46,54,.1);border-radius:14px;padding:12px;min-height:72px}
+  .tile b{font-family:var(--font-display);font-size:26px;display:block}
+  .tile span{font-size:11px;color:var(--muted);font-weight:650}
+  .row{background:#fff;border:1px solid rgba(10,46,54,.1);border-radius:12px;padding:10px;margin-bottom:6px;font-size:13px}
+  .gate-bg{background:linear-gradient(145deg,#071a2b,#0b3140 48%,#0a3d44);color:#fff;height:100%;padding:48px 22px}
+  .gate-card{background:rgba(7,25,42,.72);border:1px solid rgba(255,255,255,.16);border-radius:24px;padding:22px;backdrop-filter:blur(20px);text-align:center}
+  .gate-card .mark{margin:0 auto 14px;width:56px;height:56px;border-radius:18px;font-size:24px}
+  .gate-card h2{font-family:var(--font-display);font-size:24px;margin:0}
+  .profiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+  .profile{background:rgba(30,55,73,.72);border:1px solid rgba(148,183,204,.2);border-radius:16px;padding:12px;font-size:12px}
+  .plan-hero{font-family:var(--font-display);font-size:22px;font-weight:800;margin:0 0 10px}
+  .chips{display:flex;gap:6px;overflow:hidden;margin-bottom:12px}
+  .chip{flex:0 0 52px;text-align:center;padding:8px 0;border-radius:14px;background:#fff;border:1px solid rgba(10,46,54,.12);font-size:11px}
+  .chip.on{background:#062a30;color:#fff}
+  .block{border-left:3px solid var(--brand);padding-left:10px;margin-bottom:12px}
+  .block .t{font-weight:750;font-size:12px;margin-bottom:6px}
+  .stock-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .stock-tile{background:#fff;border-radius:14px;padding:12px 8px;text-align:center;border:1px solid rgba(10,46,54,.1);font-size:12px}
+  .store-head{background:linear-gradient(135deg,#062a30,#0c6f88);color:#fff;border-radius:16px;padding:14px;margin-bottom:10px}
+  .child .chrome{background:linear-gradient(135deg,#0b555c,#128a94)}
+</style>
+</head>
+<body>
+  <h1>Armonia Thassos — UI board</h1>
+  <p class="lede">Figma-ready mobile frames (390×844). Capture with generate_figma_design after MCP auth, or use as the design source of truth for the SPA overhaul.</p>
+  <div class="board">
+
+    <div>
+      <p class="label">01 · Gate</p>
+      <div class="phone">
+        <div class="gate-bg">
+          <div class="gate-card">
+            <div class="mark">A</div>
+            <div style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#5eead4;font-weight:800">Armonia Thassos</div>
+            <h2>Armonia Thassos</h2>
+            <p style="color:#b8c8d6;font-size:13px;margin:8px 0 0">Profil wählen</p>
+            <div class="profiles">
+              <div class="profile"><div class="mark" style="width:40px;height:40px;margin:0 auto 8px;font-size:14px">AG</div>Aggelos</div>
+              <div class="profile"><div class="mark" style="width:40px;height:40px;margin:0 auto 8px;font-size:14px">MA</div>Maria</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="label">02 · Home</p>
+      <div class="phone">
+        <div class="chrome"><div class="mark">A</div><div><span style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7dd3c7">Armonia Thassos</span><b>Übersicht</b><span>Guten Tag, Aggelos</span></div></div>
+        <div class="stage">
+          <div class="mast"><p class="brand">Armonia</p><div style="opacity:.8;font-size:12px;margin-top:6px">Guten Tag, Aggelos</div><h2>Dein Überblick für heute</h2></div>
+          <div class="bento">
+            <div class="tile"><b>3</b><span>Heute fällig</span></div>
+            <div class="tile"><b>1</b><span>Überfällig</span></div>
+            <div class="tile" style="grid-column:span 2"><b>2</b><span>Events bald</span></div>
+          </div>
+          <div class="row">✅ Pool check · 09:00</div>
+          <div class="row">🧊 Kühlschrank · 11:30</div>
+        </div>
+        <div class="dock"><span class="on">Home</span><span>Galerie</span><span>Plan</span><span>Lager</span><span>Shop</span><span>Buch</span></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="label">03 · Plan day</p>
+      <div class="phone">
+        <div class="chrome"><div class="mark">A</div><div><span style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7dd3c7">Armonia Thassos</span><b>Plan</b><span>Dienstag · Tag</span></div></div>
+        <div class="stage">
+          <p class="plan-hero">Dienstag</p>
+          <div class="chips"><div class="chip on">Di<br><b>4</b></div><div class="chip">Mi<br><b>5</b></div><div class="chip">Do<br><b>6</b></div><div class="chip">Fr<br><b>7</b></div></div>
+          <div class="block"><div class="t">Morgen · 08–12</div><div class="row">Pool · Aggelos</div></div>
+          <div class="block" style="border-color:var(--sea)"><div class="t">Nachmittag · 12–17</div><div class="row">Einkauf · Maria</div></div>
+        </div>
+        <div class="dock"><span>Home</span><span>Galerie</span><span class="on">Plan</span><span>Lager</span><span>Shop</span><span>Buch</span></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="label">04 · Stock</p>
+      <div class="phone">
+        <div class="chrome"><div class="mark">A</div><div><span style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7dd3c7">Armonia Thassos</span><b>Lager</b><span>Haus 1</span></div></div>
+        <div class="stage">
+          <div class="chips" style="margin-bottom:14px"><div class="chip on" style="flex:1">Alle</div><div class="chip" style="flex:1">Kühl</div><div class="chip" style="flex:1">Trocken</div></div>
+          <div class="stock-grid">
+            <div class="stock-tile">Milch<br><b>4</b></div>
+            <div class="stock-tile">Eier<br><b>12</b></div>
+            <div class="stock-tile">Butter<br><b>2</b></div>
+            <div class="stock-tile">Brot<br><b>1</b></div>
+            <div class="stock-tile">Öl<br><b>3</b></div>
+            <div class="stock-tile">Reis<br><b>5</b></div>
+          </div>
+        </div>
+        <div class="dock"><span>Home</span><span>Galerie</span><span>Plan</span><span class="on">Lager</span><span>Shop</span><span>Buch</span></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="label">05 · Shop / store</p>
+      <div class="phone">
+        <div class="chrome"><div class="mark">A</div><div><span style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#7dd3c7">Armonia Thassos</span><b>Einkauf</b><span>Im Markt</span></div></div>
+        <div class="stage">
+          <div class="store-head"><b style="font-family:var(--font-display);font-size:18px">Supermarkt</b><div style="opacity:.85;font-size:12px;margin-top:4px">12 Positionen · Freitag</div></div>
+          <div class="row">Milch · ✓ gekauft</div>
+          <div class="row">Eier · ∅ nicht da</div>
+          <div class="row">Butter · € zu teuer</div>
+        </div>
+        <div class="dock"><span>Home</span><span>Galerie</span><span>Plan</span><span>Lager</span><span class="on">Shop</span><span>Buch</span></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="label">06 · Child</p>
+      <div class="phone child">
+        <div class="chrome"><div class="mark">A</div><div><b>Nikos</b><span>Meine Woche</span></div></div>
+        <div class="stage">
+          <div class="mast" style="text-align:center"><div class="mark" style="margin:0 auto 10px;width:56px;height:56px;border-radius:50%">N</div><p class="brand" style="font-size:22px">Nikos</p></div>
+          <div class="chips"><div class="chip on" style="flex:1">Heute</div><div class="chip" style="flex:1">Woche</div><div class="chip" style="flex:1">Events</div></div>
+          <div class="row">🏊 Schwimmen · 10:00</div>
+          <div class="row">🎨 Basteln · 16:00</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
