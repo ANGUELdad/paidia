@@ -30,3 +30,5 @@ __pycache__/
 .coverage
 coverage/
 node_modules/
+.vercel
+.env*

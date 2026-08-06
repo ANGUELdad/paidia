@@ -168,7 +168,18 @@ TALK_LOCK = threading.Lock()
 GALLERY_POST_LIMIT = 80
 GALLERY_PHOTO_MAX = 140_000  # chars of data-URL (~100KB JPEG)
 GALLERY_CAPTION_MAX = 280
+GALLERY_COMMENT_MAX = 80
+GALLERY_COMMENTS_PER_POST = 40
 GALLERY_LOCK = threading.Lock()
+
+# Soft local blocklist (DE/EL/EN) — AI does deeper malice detection when Groq is up.
+_GALLERY_BLOCK_RE = re.compile(
+    r"(?i)\b("
+    r"kill\s*yourself|kys|nazi|rape|porn|xxx|nude|nudes|"
+    r"selbstmord|töten|fotze|hurensohn|arschloch|"
+    r"σκατά|μαλάκα|πουτάνα|γάμησ"
+    r")\b"
+)
 OPS_LOCK = threading.Lock()
 OPS_KEYS = (
     "listEntries",
@@ -860,6 +871,18 @@ def mutate_talk(action: str, body: dict, session: dict) -> tuple[int, dict]:
     return 200, talk_snapshot()
 
 
+def _safe_int(value: object, default: int = 0, lo: int | None = None, hi: int | None = None) -> int:
+    try:
+        n = int(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        n = default
+    if lo is not None:
+        n = max(lo, n)
+    if hi is not None:
+        n = min(hi, n)
+    return n
+
+
 def _normalize_gallery_state(value: object) -> dict:
     if not isinstance(value, dict):
         return {"posts": [], "updatedAt": 0}
@@ -874,6 +897,27 @@ def _normalize_gallery_state(value: object) -> dict:
         if len(photo) > GALLERY_PHOTO_MAX:
             continue
         likes = item.get("likes") if isinstance(item.get("likes"), list) else []
+        stars = item.get("stars") if isinstance(item.get("stars"), list) else []
+        claps = item.get("claps") if isinstance(item.get("claps"), list) else []
+        raw_comments = item.get("comments") if isinstance(item.get("comments"), list) else []
+        comments: list[dict] = []
+        for c in raw_comments[-GALLERY_COMMENTS_PER_POST:]:
+            if not isinstance(c, dict):
+                continue
+            text = str(c.get("text") or "").strip()[:GALLERY_COMMENT_MAX]
+            if not text:
+                continue
+            try:
+                c_at = int(c.get("at") or 0)
+            except (TypeError, ValueError):
+                c_at = 0
+            comments.append({
+                "id": str(c.get("id") or secrets.token_urlsafe(6))[:40],
+                "text": text,
+                "by": str(c.get("by") or "")[:80],
+                "byName": str(c.get("byName") or "")[:80],
+                "at": c_at,
+            })
         try:
             at = int(item.get("at") or 0)
         except (TypeError, ValueError):
@@ -888,6 +932,12 @@ def _normalize_gallery_state(value: object) -> dict:
             "byColor": str(item.get("byColor") or "#94a3b8")[:20],
             "at": at,
             "likes": [str(x)[:80] for x in likes if x][:200],
+            "stars": [str(x)[:80] for x in stars if x][:200],
+            "claps": [str(x)[:80] for x in claps if x][:200],
+            "comments": comments,
+            "flagged": bool(item.get("flagged")),
+            "flagReason": str(item.get("flagReason") or "").strip()[:120],
+            "flagCount": _safe_int(item.get("flagCount"), 0, 0, 99),
         })
     try:
         updated_at = int(value.get("updatedAt") or 0)
@@ -950,6 +1000,129 @@ def gallery_snapshot() -> dict:
         }
 
 
+def gallery_local_blocked(text: str) -> bool:
+    clean = str(text or "").strip()
+    if not clean:
+        return False
+    if len(set(clean.lower())) <= 1 and len(clean) >= 4:
+        return True
+    return bool(_GALLERY_BLOCK_RE.search(clean))
+
+
+GALLERY_SAFETY_PROMPT = (
+    "You are a kid-safety classifier for Armonia Thassos Moments (private camp gallery, ages 6–12). "
+    "Return ONLY JSON: "
+    '{"safe":true,"malicious":false,"categories":[],"reason":""} '
+    "Set safe=false for bullying, hate, sexual content, graphic violence, self-harm, drugs, "
+    "scams, malware/phishing instructions, doxxing (phone/address), or adult themes. "
+    "Kind camp comments and happy beach/food posts are safe=true. Be strict but not silly."
+)
+
+
+def run_gallery_safety(body: dict, api_key: str) -> tuple[int, dict]:
+    """AI + local guardrails for captions/comments (optional photo glance)."""
+    text = str(body.get("text") or body.get("caption") or "").strip()[:GALLERY_CAPTION_MAX]
+    kind = str(body.get("kind") or "caption").strip()[:24] or "caption"
+    photo = str(body.get("photo") or "")
+    if gallery_local_blocked(text):
+        return 200, {
+            "safe": False,
+            "malicious": True,
+            "categories": ["local_block"],
+            "reason": "blocked_local",
+            "source": "local",
+        }
+    if not text and not (photo.startswith("data:image/") and len(photo) > 32):
+        return 200, {"safe": True, "malicious": False, "categories": [], "reason": "", "source": "empty"}
+    user_content: list | str
+    if photo.startswith("data:image/") and len(photo) < GALLERY_PHOTO_MAX:
+        user_content = [
+            {"type": "text", "text": f"Classify this Moments {kind}. Text: {text or '(no caption)'}"},
+            {"type": "image_url", "image_url": {"url": photo[:GALLERY_PHOTO_MAX]}},
+        ]
+        model = OCR_MODEL
+    else:
+        user_content = f"Classify this Moments {kind}. Text: {text}"
+        model = CHAT_MODEL
+    request_body = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": GALLERY_SAFETY_PROMPT},
+            {"role": "user", "content": user_content},
+        ],
+        "temperature": 0.1,
+        "max_completion_tokens": 200,
+        "response_format": {"type": "json_object"},
+    }
+    try:
+        response = groq_completion(api_key, request_body, timeout=35)
+        raw = completion_text(response).strip()
+        if raw.startswith("```"):
+            raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        if not raw.startswith("{"):
+            start, end = raw.find("{"), raw.rfind("}")
+            if start >= 0 and end > start:
+                raw = raw[start:end + 1]
+        value = json.loads(raw)
+        safe = bool(value.get("safe", True))
+        malicious = bool(value.get("malicious", not safe))
+        cats = value.get("categories") if isinstance(value.get("categories"), list) else []
+        return 200, {
+            "safe": safe and not malicious,
+            "malicious": malicious or not safe,
+            "categories": [str(c)[:40] for c in cats][:8],
+            "reason": str(value.get("reason") or "")[:120],
+            "source": "ai",
+            "model": response.get("model", model),
+        }
+    except urllib.error.HTTPError as exc:
+        return provider_error(exc)
+    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, TypeError) as exc:
+        code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+        return (504 if code == "timeout" else 502), {
+            "error": "Safety check failed",
+            "code": code,
+            "safe": True,
+            "malicious": False,
+            "fallback": True,
+        }
+
+
+def _gallery_safety_gate(text: str, photo: str | None = None, kind: str = "caption") -> tuple[int, dict] | None:
+    """Return an error response if content must be blocked; None if OK to proceed."""
+    if gallery_local_blocked(text or ""):
+        return 400, {"error": "Content blocked by safety rules", "code": "unsafe"}
+    api_key = os.environ.get("GROQ_API_KEY", "").strip()
+    if not api_key:
+        return None
+    if not (text or "").strip() and not (photo and photo.startswith("data:image/")):
+        return None
+    # For photos, only send a short prefix to keep request size reasonable
+    photo_snip = None
+    if photo and photo.startswith("data:image/") and (text or "").strip():
+        # Text already checked; skip heavy vision unless caption empty and we want glance — keep light
+        photo_snip = None
+    elif photo and photo.startswith("data:image/") and not (text or "").strip():
+        photo_snip = photo[: min(len(photo), 80_000)]
+    status, payload = run_gallery_safety(
+        {"text": text or "", "kind": kind, "photo": photo_snip or ""},
+        api_key,
+    )
+    if status != 200:
+        # Fail open on AI outage after local pass — keep Moments usable offline
+        if payload.get("fallback"):
+            return None
+        return status, payload
+    if not payload.get("safe", True) or payload.get("malicious"):
+        return 400, {
+            "error": "Content blocked by safety rules",
+            "code": "unsafe",
+            "reason": payload.get("reason") or "",
+            "categories": payload.get("categories") or [],
+        }
+    return None
+
+
 def mutate_gallery(action: str, body: dict, session: dict) -> tuple[int, dict]:
     """Shared great-moments gallery for staff and children."""
     profile_id = str(session.get("profile_id") or "")
@@ -961,6 +1134,18 @@ def mutate_gallery(action: str, body: dict, session: dict) -> tuple[int, dict]:
     by_color = str(body.get("byColor") or "#94a3b8").strip()[:20] or "#94a3b8"
     now_ms = int(time.time() * 1000)
     is_staff = mode == "staff"
+
+    if action == "create":
+        caption = str(body.get("caption") or "").strip()[:GALLERY_CAPTION_MAX]
+        photo = str(body.get("photo") or "")
+        blocked = _gallery_safety_gate(caption, photo, "caption")
+        if blocked:
+            return blocked
+    elif action == "comment":
+        text = str(body.get("text") or "").strip()[:GALLERY_COMMENT_MAX]
+        blocked = _gallery_safety_gate(text, None, "comment")
+        if blocked:
+            return blocked
 
     with GALLERY_LOCK:
         posts = list(GALLERY_STATE.get("posts") or [])
@@ -986,6 +1171,12 @@ def mutate_gallery(action: str, body: dict, session: dict) -> tuple[int, dict]:
                 "byColor": by_color,
                 "at": now_ms,
                 "likes": [],
+                "stars": [],
+                "claps": [],
+                "comments": [],
+                "flagged": False,
+                "flagReason": "",
+                "flagCount": 0,
             })
             posts = posts[-GALLERY_POST_LIMIT:]
 
@@ -1000,6 +1191,62 @@ def mutate_gallery(action: str, body: dict, session: dict) -> tuple[int, dict]:
             else:
                 likes.append(profile_id)
             post["likes"] = likes[:200]
+
+        elif action in {"react_star", "react_clap"}:
+            key = "stars" if action == "react_star" else "claps"
+            post_id = str(body.get("id") or "").strip()
+            post = next((p for p in posts if p.get("id") == post_id), None)
+            if not post:
+                return 404, {"error": "Post not found", "code": "not_found"}
+            bucket = [str(x) for x in (post.get(key) or []) if x]
+            if profile_id in bucket:
+                bucket = [x for x in bucket if x != profile_id]
+            else:
+                bucket.append(profile_id)
+            post[key] = bucket[:200]
+
+        elif action == "comment":
+            post_id = str(body.get("id") or "").strip()
+            text = str(body.get("text") or "").strip()[:GALLERY_COMMENT_MAX]
+            if not text:
+                return 400, {"error": "Comment required", "code": "input"}
+            post = next((p for p in posts if p.get("id") == post_id), None)
+            if not post:
+                return 404, {"error": "Post not found", "code": "not_found"}
+            comments = list(post.get("comments") or [])
+            comments.append({
+                "id": "gc-" + secrets.token_urlsafe(6),
+                "text": text,
+                "by": profile_id,
+                "byName": by_name,
+                "at": now_ms,
+            })
+            post["comments"] = comments[-GALLERY_COMMENTS_PER_POST:]
+
+        elif action == "report":
+            post_id = str(body.get("id") or "").strip()
+            reason = str(body.get("reason") or "reported").strip()[:120] or "reported"
+            post = next((p for p in posts if p.get("id") == post_id), None)
+            if not post:
+                return 404, {"error": "Post not found", "code": "not_found"}
+            post["flagged"] = True
+            post["flagReason"] = reason
+            post["flagCount"] = _safe_int(post.get("flagCount"), 0, 0, 99) + 1
+
+        elif action == "delete_comment":
+            post_id = str(body.get("id") or "").strip()
+            comment_id = str(body.get("commentId") or "").strip()
+            post = next((p for p in posts if p.get("id") == post_id), None)
+            if not post:
+                return 404, {"error": "Post not found", "code": "not_found"}
+            comments = list(post.get("comments") or [])
+            comment = next((c for c in comments if c.get("id") == comment_id), None)
+            if not comment:
+                return 404, {"error": "Comment not found", "code": "not_found"}
+            owner = comment.get("by") == profile_id
+            if not owner and not is_staff:
+                return 403, {"error": "Not allowed", "code": "forbidden"}
+            post["comments"] = [c for c in comments if c.get("id") != comment_id]
 
         elif action == "delete":
             post_id = str(body.get("id") or "").strip()
@@ -1276,6 +1523,171 @@ def run_learn(body: dict, api_key: str) -> tuple[int, dict]:
         code = "timeout" if isinstance(exc, TimeoutError) else "provider"
         return (504 if code == "timeout" else 502), {
             "error": "Learn cards failed",
+            "code": code,
+        }
+
+
+QUIZ_PROMPT = (
+    "You create kid-safe quiz questions for ages 6–12 at a summer camp on Thassos (Greece/spa). "
+    "Return ONLY valid JSON: "
+    '{"questions":[{"topic":"nature|greece|spa|general","de":{"q":"...","choices":["A","B","C","D"],"a":0},'
+    '"el":{"q":"...","choices":["A","B","C","D"],"a":0}}]} '
+    "Rules: exactly 4 choices; a is the correct index 0–3; bilingual DE and EL; "
+    "fun educational facts; no adult/medical/political content; keep choices short."
+)
+
+
+def _parse_quiz_questions(text: str, count: int) -> list[dict]:
+    clean = text.strip()
+    if clean.startswith("```"):
+        clean = clean.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+    if not clean.startswith("{"):
+        start, end = clean.find("{"), clean.rfind("}")
+        if start >= 0 and end > start:
+            clean = clean[start:end + 1]
+    value = json.loads(clean)
+    raw = value.get("questions") if isinstance(value, dict) else None
+    if not isinstance(raw, list):
+        raise ValueError("Quiz AI returned no questions")
+    out: list[dict] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        de = item.get("de") if isinstance(item.get("de"), dict) else None
+        el = item.get("el") if isinstance(item.get("el"), dict) else None
+        if not de or not el:
+            continue
+        de_choices = de.get("choices") if isinstance(de.get("choices"), list) else []
+        el_choices = el.get("choices") if isinstance(el.get("choices"), list) else []
+        if len(de_choices) < 4 or len(el_choices) < 4:
+            continue
+        try:
+            a = int(de.get("a") if de.get("a") is not None else el.get("a") or 0)
+        except (TypeError, ValueError):
+            a = 0
+        a = max(0, min(3, a))
+        out.append({
+            "topic": str(item.get("topic") or "general").strip()[:40],
+            "de": {
+                "q": str(de.get("q") or "").strip()[:160],
+                "choices": [str(x).strip()[:60] for x in de_choices[:4]],
+                "a": a,
+            },
+            "el": {
+                "q": str(el.get("q") or "").strip()[:160],
+                "choices": [str(x).strip()[:60] for x in el_choices[:4]],
+                "a": a,
+            },
+            "source": "ai",
+        })
+        if len(out) >= count:
+            break
+    if len(out) < max(3, min(count, 4)):
+        raise ValueError("Quiz AI returned too few questions")
+    return out
+
+
+def run_quiz(body: dict, api_key: str) -> tuple[int, dict]:
+    """Generate kid-safe quiz rounds when online."""
+    try:
+        count = int(body.get("count") or 12)
+    except (TypeError, ValueError):
+        count = 12
+    count = max(6, min(15, count))
+    topic = str(body.get("topic") or "mixed").strip()[:48] or "mixed"
+    seed = str(body.get("seed") or "").strip()[:32]
+    user = (
+        f"Generate exactly {count} questions. Topic mix preference: {topic}. "
+        f"{'Variety seed: ' + seed + '. ' if seed else ''}"
+        "Include nature, Greece/Thassos, spa/camp, and general kid knowledge."
+    )
+    request_body = {
+        "model": CHAT_MODEL,
+        "messages": [
+            {"role": "system", "content": QUIZ_PROMPT},
+            {"role": "user", "content": user},
+        ],
+        "temperature": 0.8,
+        "max_completion_tokens": 2200,
+        "response_format": {"type": "json_object"},
+    }
+    try:
+        response = groq_completion(api_key, request_body, timeout=50)
+        questions = _parse_quiz_questions(completion_text(response), count)
+        return 200, {
+            "questions": questions,
+            "count": len(questions),
+            "topic": topic,
+            "model": response.get("model", CHAT_MODEL),
+            "responseId": response.get("id"),
+        }
+    except urllib.error.HTTPError as exc:
+        return provider_error(exc)
+    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
+        code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+        return (504 if code == "timeout" else 502), {
+            "error": "Quiz generation failed",
+            "code": code,
+        }
+
+
+CAPTION_PROMPT = (
+    "You write short, warm, kid-safe photo captions for a camp Moments gallery "
+    "(Armonia Thassos, ages 6–12). Return ONLY JSON: "
+    '{"caption_de":"...","caption_el":"..."} '
+    "One short line each (max ~90 chars), cheerful, no hashtags spam, no personal data, "
+    "no adult themes. Prefer DE and EL both."
+)
+
+
+def run_gallery_caption(body: dict, api_key: str) -> tuple[int, dict]:
+    """Suggest a DE/EL caption for a Moments post."""
+    topic = str(body.get("topic") or body.get("hint") or "").strip()[:120]
+    game = str(body.get("game") or "").strip()[:40]
+    lang = str(body.get("lang") or "de").strip()[:8] or "de"
+    user = (
+        f"Suggest captions. Preferred language emphasis: {lang}. "
+        f"Photo/topic context: {topic or 'happy camp moment'}. "
+        f"{'After winning game: ' + game + '. ' if game else ''}"
+        "Keep it Instagram-lite for kids — one friendly sentence."
+    )
+    request_body = {
+        "model": CHAT_MODEL,
+        "messages": [
+            {"role": "system", "content": CAPTION_PROMPT},
+            {"role": "user", "content": user},
+        ],
+        "temperature": 0.7,
+        "max_completion_tokens": 220,
+        "response_format": {"type": "json_object"},
+    }
+    try:
+        response = groq_completion(api_key, request_body, timeout=30)
+        text = completion_text(response).strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        if not text.startswith("{"):
+            start, end = text.find("{"), text.rfind("}")
+            if start >= 0 and end > start:
+                text = text[start:end + 1]
+        value = json.loads(text)
+        caption_de = str(value.get("caption_de") or "").strip()[:GALLERY_CAPTION_MAX]
+        caption_el = str(value.get("caption_el") or "").strip()[:GALLERY_CAPTION_MAX]
+        caption = caption_el if lang == "el" and caption_el else (caption_de or caption_el)
+        if not caption:
+            raise ValueError("empty caption")
+        return 200, {
+            "caption": caption,
+            "caption_de": caption_de,
+            "caption_el": caption_el,
+            "model": response.get("model", CHAT_MODEL),
+        }
+    except urllib.error.HTTPError as exc:
+        return provider_error(exc)
+    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, TypeError) as exc:
+        code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+        return (504 if code == "timeout" else 502), {
+            "error": "Caption helper failed",
             "code": code,
         }
 
@@ -2895,7 +3307,8 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(200, {"received": True})
             return
         if path not in {
-            "/api/ai-shopping", "/api/chat", "/api/learn", "/api/talk", "/api/gallery", "/api/ops", "/api/whatsapp/test", "/api/whatsapp/event",
+            "/api/ai-shopping", "/api/chat", "/api/learn", "/api/quiz", "/api/gallery/caption",
+            "/api/talk", "/api/gallery", "/api/ops", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/notify/event-email",
             "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
             "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
@@ -3015,6 +3428,20 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
             status, payload = run_learn(body, api_key)
+            self.json_response(status, payload)
+            return
+        if path == "/api/quiz":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = run_quiz(body, api_key)
+            self.json_response(status, payload)
+            return
+        if path == "/api/gallery/caption":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = run_gallery_caption(body, api_key)
             self.json_response(status, payload)
             return
         if path == "/api/ai-shopping":

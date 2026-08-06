@@ -23,6 +23,14 @@ const T = {
     galleryNeedPhoto:'Bitte ein Foto hinzufügen', galleryTooBig:'Foto zu groß — nochmal versuchen',
     galleryJustNow:'gerade eben', galleryMinutes:n=>`vor ${n} Min.`, galleryHours:n=>`vor ${n} Std.`, galleryDays:n=>`vor ${n} T.`,
     galleryByKid:'Kind', galleryByStaff:'Team', galleryChildTab:'Momente',
+    galleryComment:'Kommentar', galleryCommentPh:'Schreib etwas Nettes…', galleryCommentSend:'Senden',
+    galleryComments:n=>n===1?'1 Kommentar':`${n} Kommentare`,
+    galleryCaptionAi:'KI-Bildtext', galleryCaptionAiLoading:'KI schreibt…', galleryCaptionAiFail:'KI-Bildtext fehlgeschlagen',
+    galleryReactStar:'Stern', galleryReactClap:'Klatschen',
+    gallerySafeHint:'Sichere Momente — KI prüft Texte auf Unfreundliches',
+    galleryBlocked:'Das geht hier nicht — bitte freundlich bleiben',
+    galleryFlagged:'Zur Prüfung markiert', galleryReport:'Melden', galleryReportOk:'Gemeldet — Team prüft',
+    gallerySafetyFail:'Sicherheitscheck fehlgeschlagen — später erneut',
     shiftDiary:'Meine Schichtnotiz', shiftDiaryHint:'Was ist in deiner Schicht passiert? Nur dein Profil schreibt hier.',
     shiftDiaryPh:'z.B. Übergabe erledigt, Lager nachgefüllt, Kind X früher abgeholt…',
     shiftDiarySave:'Schichtnotiz speichern', shiftDiarySaved:'Schichtnotiz gespeichert',
@@ -235,12 +243,14 @@ const T = {
     storeMode:'Im Supermarkt', other:'Sonstiges',
     storeFocus:'Einkaufsmodus', storeFocusHint:'Entscheide jede Position eindeutig. Nichts wird automatisch als fehlend markiert.',
     storeSearch:'Suchen…', storeRemaining:'Noch offen', storeComplete:'Fertig',
-    markBought:'Gekauft', markMissing:'Fehlt', undoDecision:'Zurücksetzen',
+    markBought:'Gekauft', markMissing:'Fehlt', markUnavailable:'Nicht da', markExpensive:'Zu teuer',
+    undoDecision:'Zurücksetzen',
+    missReasonUnavailable:'Nicht verfügbar', missReasonExpensive:'Zu teuer',
     decideAll:'Entscheide zuerst alle Positionen.', shoppingProgress:'Einkaufsfortschritt',
     storeShowDone:'Erledigte zeigen', storeHideDone:'Erledigte ausblenden',
-    storeLeft:n=>`${n} offen`, storeTapHint:'Tippe ✓ oder × — Liste bleibt kompakt',
+    storeLeft:n=>`${n} offen`, storeTapHint:'✓ gekauft · ∅ nicht da · € zu teuer',
     listPlanned:'Liste geplant', listShopping:'Im Einkauf', listFinished:'Abgeschlossen',
-    tapToTick:'Tippen: gekauft → nicht da → offen',
+    tapToTick:'Tippen: gekauft → nicht da → zu teuer → offen',
     gotIt:'✓ gekauft', notThere:'✕ nicht da',
     confirmBatch:'Charge bestätigen', batchHint:'Alle Positionen werden gemeinsam gebucht.',
     carryOver:'↩︎ Zurück auf die Liste', nothingPending:'Keine offene Charge',
@@ -296,18 +306,31 @@ const T = {
     actions:n=>n===1?'Buchung':'Buchungen', noActionsToday:'Heute noch nichts gebucht',
     visibleToAll:'Für alle sichtbar',
     close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele',
-    gamesTitle:'Spiele', gamesHint:'Lernen & spielen — Griechisch, Wissen, Rechnen und Klassiker',
+    gamesTitle:'Spiele', gamesHint:'Längere Runden · ~3–5 Min · Lernen, Wissen, Rechnen & Klassiker',
+    gamesPlayTime:'~3–5 Min',
     gameMemory:'Memory', gameMemoryHint:'Finde die Paare · so wenig Züge wie möglich',
     gameTac:'XO', gameTacHint:'Hol 3 in einer Reihe gegen den PC',
-    gameCatch:'Fische fangen', gameCatchHint:'Tippe schwimmende Fische · Kombo!',
+    gameCatch:'Fische fangen', gameCatchHint:'60 Sek · Kombo & Power-ups!',
     gameReact:'Reaktion', gameReactHint:'Tippe wenn es GRÜN wird',
     gameRps:'Schere Stein Papier', gameRpsHint:'Spiele gegen den Computer',
     gameDice:'Würfel', gameDiceHint:'Würfle · wer ist dran?',
     gameSimon:'Simon', gameSimonHint:'Merk dir die Farben · tippe die Reihe',
     gameColors:'Farbtreffer', gameColorsHint:'Tippe die richtige Farbe · Tempo!',
-    gameLearn:'Griechisch lernen', gameLearnHint:'Deutsch ↔ Ελληνικά · wie Duolingo · auch mit KI',
-    gameQuiz:'Wissen', gameQuizHint:'Natur, Griechenland, Spa & Allgemeinwissen',
-    gameMath:'Rechnen', gameMathHint:'Schnelles Kopfrechnen · Serie halten',
+    gameLearn:'Griechisch lernen', gameLearnHint:'20 Karten · Themen · KI · wie Duolingo',
+    gameQuiz:'Wissen', gameQuizHint:'14 Fragen · Natur, Griechenland, Spa',
+    gameMath:'Rechnen', gameMathHint:'Stufen · Leben · Tempo!',
+    gameIsland:'Insel-Pfad', gameIslandHint:'3D-Pfad · Thassos & Natur · ~4 Min',
+    gameEduHub:'Lern-Spiele', gameEduHubHint:'Kostenlose Bildungs-Spiele (PhET) · sicher',
+    gameIslandHintPlay:'Beantworte und steige den 3D-Pfad hinauf',
+    gameIslandStep:'Station', gameIslandDone:'Insel erkundet!',
+    eduOpen:'Öffnen', eduClose:'Schließen', eduSandbox:'Sicherer Modus · nur Lern-Seiten',
+    eduArith:'Rechnen (PhET)', eduFrac:'Brüche (PhET)', eduColor:'Farben sehen (PhET)',
+    eduExternalFail:'Spiel konnte nicht geladen werden',
+    gameShareMoment:'In Momente teilen', gameShareMomentHint:'Feier deinen Sieg in der Galerie',
+    gameLearnTopicAll:'Alles', gameLearnTopicGreet:'Hallo', gameLearnTopicFood:'Essen',
+    gameLearnTopicBeach:'Strand', gameLearnTopicNature:'Natur', gameLearnTopicThassos:'Thassos',
+    gameLearnWeak:'Schwache üben',
+    gameLearnHintLabel:'Tipp', gameMathLives:'Leben', gameMathLevel:'Level',
     gameBack:'Alle Spiele', gamePlay:'Spielen', gameAgain:'Nochmal',
     gameMoves:'Züge', gamePairs:'Paare', gameScore:'Punkte', gameTime:'Zeit',
     gameBest:'Best', gameCombo:'Kombo', gameStreak:'Serie', gameLevel:'Stufe',
@@ -450,6 +473,14 @@ const T = {
     galleryNeedPhoto:'Πρόσθεσε μια φωτογραφία', galleryTooBig:'Η φωτό είναι μεγάλη — δοκίμασε ξανά',
     galleryJustNow:'μόλις τώρα', galleryMinutes:n=>`πριν ${n} λεπ.`, galleryHours:n=>`πριν ${n} ώρ.`, galleryDays:n=>`πριν ${n} ημ.`,
     galleryByKid:'Παιδί', galleryByStaff:'Ομάδα', galleryChildTab:'Στιγμές',
+    galleryComment:'Σχόλιο', galleryCommentPh:'Γράψε κάτι ωραίο…', galleryCommentSend:'Αποστολή',
+    galleryComments:n=>n===1?'1 σχόλιο':`${n} σχόλια`,
+    galleryCaptionAi:'AI λεζάντα', galleryCaptionAiLoading:'Το AI γράφει…', galleryCaptionAiFail:'Αποτυχία λεζάντας',
+    galleryReactStar:'Αστέρι', galleryReactClap:'Χειροκρότημα',
+    gallerySafeHint:'Ασφαλείς στιγμές — το AI ελέγχει για μη φιλικό περιεχόμενο',
+    galleryBlocked:'Αυτό δεν επιτρέπεται — μείνε φιλικός/ή',
+    galleryFlagged:'Σημειώθηκε για έλεγχο', galleryReport:'Αναφορά', galleryReportOk:'Αναφέρθηκε — η ομάδα ελέγχει',
+    gallerySafetyFail:'Έλεγχος ασφαλείας απέτυχε — δοκίμασε αργότερα',
     shiftDiary:'Σημείωση βάρδιας μου', shiftDiaryHint:'Τι έγινε στη βάρδιά σου; Μόνο το προφίλ σου γράφει εδώ.',
     shiftDiaryPh:'π.χ. παράδοση ολοκληρώθηκε, αναπλήρωση αποθέματος, παιδί Χ έφυγε νωρίς…',
     shiftDiarySave:'Αποθήκευση σημείωσης βάρδιας', shiftDiarySaved:'Η σημείωση βάρδιας αποθηκεύτηκε',
@@ -662,12 +693,14 @@ const T = {
     storeMode:'Στο σουπερμάρκετ', other:'Άλλα',
     storeFocus:'Λειτουργία αγορών', storeFocusHint:'Αποφάσισε καθαρά για κάθε είδος. Τίποτα δεν σημειώνεται αυτόματα ως έλλειψη.',
     storeSearch:'Αναζήτηση…', storeRemaining:'Ακόμα ανοιχτά', storeComplete:'Ολοκληρώθηκε',
-    markBought:'Αγοράστηκε', markMissing:'Λείπει', undoDecision:'Επαναφορά',
+    markBought:'Αγοράστηκε', markMissing:'Λείπει', markUnavailable:'Δεν υπάρχει', markExpensive:'Ακριβό',
+    undoDecision:'Επαναφορά',
+    missReasonUnavailable:'Μη διαθέσιμο', missReasonExpensive:'Ακριβό',
     decideAll:'Αποφάσισε πρώτα για όλα τα είδη.', shoppingProgress:'Πρόοδος αγορών',
     storeShowDone:'Εμφάνιση ολοκληρωμένων', storeHideDone:'Απόκρυψη ολοκληρωμένων',
-    storeLeft:n=>`${n} ανοιχτά`, storeTapHint:'Πάτα ✓ ή × — συμπτυγμένη λίστα',
+    storeLeft:n=>`${n} ανοιχτά`, storeTapHint:'✓ αγορά · ∅ δεν υπάρχει · € ακριβό',
     listPlanned:'Σχεδιασμένη λίστα', listShopping:'Στα ψώνια', listFinished:'Ολοκληρώθηκε',
-    tapToTick:'Πάτα: αγοράστηκε → δεν υπήρχε → ανοιχτό',
+    tapToTick:'Πάτα: αγοράστηκε → δεν υπάρχει → ακριβό → ανοιχτό',
     gotIt:'✓ αγοράστηκε', notThere:'✕ δεν υπήρχε',
     confirmBatch:'Επιβεβαίωση παρτίδας', batchHint:'Όλα τα είδη καταχωρούνται μαζί.',
     carryOver:'↩︎ Πίσω στη λίστα', nothingPending:'Καμία ανοιχτή παρτίδα',
@@ -723,18 +756,31 @@ const T = {
     actions:n=>n===1?'κίνηση':'κινήσεις', noActionsToday:'Καμία κίνηση σήμερα',
     visibleToAll:'Ορατό σε όλους',
     close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια',
-    gamesTitle:'Παιχνίδια', gamesHint:'Μάθε & παίξε — Ελληνικά, γνώση, μαθηματικά και κλασικά',
+    gamesTitle:'Παιχνίδια', gamesHint:'Μεγαλύτερες γύρες · ~3–5 λεπτά · Ελληνικά, γνώση, μαθηματικά',
+    gamesPlayTime:'~3–5 λεπτά',
     gameMemory:'Μνήμη', gameMemoryHint:'Βρες τα ζευγάρια · όσο λιγότερες κινήσεις',
     gameTac:'XO', gameTacHint:'Κάνε 3 στη σειρά κόντρα στον PC',
-    gameCatch:'Ψάρεμα', gameCatchHint:'Πάτα τα ψάρια που κολυμπάνε · κομπο!',
+    gameCatch:'Ψάρεμα', gameCatchHint:'60 δευτ · κομπο & power-ups!',
     gameReact:'Αντίδραση', gameReactHint:'Πάτα όταν γίνει ΠΡΑΣΙΝΟ',
     gameRps:'Πέτρα Ψαλίδι Χαρτί', gameRpsHint:'Παίξε κόντρα στον υπολογιστή',
     gameDice:'Ζάρι', gameDiceHint:'Ρίξε · ποιος είναι σειρά;',
     gameSimon:'Simon', gameSimonHint:'Θυμήσου τα χρώματα · πάτα τη σειρά',
     gameColors:'Χρώματα', gameColorsHint:'Πάτα το σωστό χρώμα · γρήγορα!',
-    gameLearn:'Μάθε Ελληνικά', gameLearnHint:'Deutsch ↔ Ελληνικά · σαν Duolingo · και με AI',
-    gameQuiz:'Γνώση', gameQuizHint:'Φύση, Ελλάδα, spa και γενικές γνώσεις',
-    gameMath:'Μαθηματικά', gameMathHint:'Γρήγοροι υπολογισμοί · κράτα τη σειρά',
+    gameLearn:'Μάθε Ελληνικά', gameLearnHint:'20 κάρτες · θέματα · AI · σαν Duolingo',
+    gameQuiz:'Γνώση', gameQuizHint:'14 ερωτήσεις · φύση, Ελλάδα, spa',
+    gameMath:'Μαθηματικά', gameMathHint:'Επίπεδα · ζωές · γρήγορα!',
+    gameIsland:'Μονοπάτι νησιού', gameIslandHint:'3D μονοπάτι · Θάσος & φύση · ~4 λεπτά',
+    gameEduHub:'Παιχνίδια μάθησης', gameEduHubHint:'Δωρεάν εκπαιδευτικά (PhET) · ασφαλές',
+    gameIslandHintPlay:'Απάντησε και ανέβα στο 3D μονοπάτι',
+    gameIslandStep:'Σταθμός', gameIslandDone:'Εξερεύνησες το νησί!',
+    eduOpen:'Άνοιγμα', eduClose:'Κλείσιμο', eduSandbox:'Ασφαλής λειτουργία · μόνο μάθηση',
+    eduArith:'Αριθμητική (PhET)', eduFrac:'Κλάσματα (PhET)', eduColor:'Χρώματα (PhET)',
+    eduExternalFail:'Αποτυχία φόρτωσης παιχνιδιού',
+    gameShareMoment:'Μοιράσου στις Στιγμές', gameShareMomentHint:'Γιόρτασε τη νίκη στη συλλογή',
+    gameLearnTopicAll:'Όλα', gameLearnTopicGreet:'Χαιρετισμοί', gameLearnTopicFood:'Φαγητό',
+    gameLearnTopicBeach:'Παραλία', gameLearnTopicNature:'Φύση', gameLearnTopicThassos:'Θάσος',
+    gameLearnWeak:'Επανάληψη',
+    gameLearnHintLabel:'Υπόδειξη', gameMathLives:'Ζωές', gameMathLevel:'Επίπεδο',
     gameBack:'Όλα τα παιχνίδια', gamePlay:'Παίξε', gameAgain:'Ξανά',
     gameMoves:'Κινήσεις', gamePairs:'Ζευγάρια', gameScore:'Πόντοι', gameTime:'Χρόνος',
     gameBest:'Ρεκόρ', gameCombo:'Κομπο', gameStreak:'Σειρά', gameLevel:'Επίπεδο',
@@ -1341,6 +1387,11 @@ function startSharedSync(){
     // Staff seeds empty server from this device once.
     if(state.mode==='staff' && state.user && sharedRevision === 0) pushShared();
   });
+  if(state.mode==='staff' && state.user){
+    talkApi().then(data=>{
+      if(data) talkCache={messages:data.messages||[], topics:data.topics||[], videoUrl:data.videoUrl||'', updatedAt:data.updatedAt||0};
+    }).catch(()=>{});
+  }
   refreshGallery({silent:true}).then(()=>{
     if(state.tab==='gallery' || (state.mode==='child' && state.childView==='gallery')) render();
   });
@@ -1597,6 +1648,7 @@ const state = {
   childView: 'today',
   gameId: null,
   game: null,
+  gameCoach: null,
   galleryPosts: [],
   galleryUpdatedAt: 0,
   galleryLoading: false,
@@ -2153,7 +2205,20 @@ function helpUiContext(){
     base.childView = state.childView;
     base.myTodayCount = childEntriesFor(today, state.child.id).length;
     base.myEventsCount = childEventsFor(state.child.id).length;
-    base.availableGames = CHILD_GAMES.map(g=>t(g.titleKey));
+    base.availableGames = CHILD_GAMES.map(g=>({id:g.id, title:t(g.titleKey), best:readGameBest(g.id)||0, featured:!!g.featured}));
+    base.currentGame = state.gameId || null;
+    base.gameCoach = state.gameCoach || null;
+    base.learnTopic = (typeof readLearnTopic==='function' ? readLearnTopic() : null);
+    base.learnWeakCount = (typeof readLearnWeak==='function' ? readLearnWeak().length : 0);
+    const unfinished = base.learnTopic && base.learnTopic!=='all' ? base.learnTopic : null;
+    const bests = Object.fromEntries(CHILD_GAMES.map(g=>[g.id, readGameBest(g.id)||0]));
+    const suggest = [];
+    if(unfinished) suggest.push({game:'learn', reason:'unfinished_topic', topic:unfinished});
+    if((bests.learn||0)<80) suggest.push({game:'learn', reason:'practice'});
+    if((bests.math||0)<60) suggest.push({game:'math', reason:'level_up'});
+    if((bests.catch||0)<30) suggest.push({game:'catch', reason:'fun'});
+    if(!suggest.length) suggest.push({game:'quiz', reason:'variety'});
+    base.playSuggestions = suggest.slice(0,3);
   }
   if(role==='staff' || role==='admin'){
     base.inventory = helpInventoryContext();
@@ -2771,17 +2836,12 @@ function sheetHelp(){
 }
 
 function sheetHelpCenter(){
-  const staff = state.mode==='staff' && !!state.user;
   openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia Thassos</div><h2>${t('helpCenter')}</h2><p>${t('helpCenterHint')}</p></div>
-    <div class="help-center-grid ${staff?'three':''}">
+    <div class="help-center-grid">
       <button class="help-center-card" id="helpTutorial" type="button"><span class="icon">📘</span><b>${t('startTutorial')}</b><span>${t('startTutorialHint')}</span></button>
-      ${staff?`<button class="help-center-card talk" id="helpTalk" type="button"><span class="icon">💬</span><b>${t('staffTalk')}</b><span>${t('staffTalkHint')}</span></button>`:''}
-      <button class="help-center-card" id="helpAi" type="button"><span class="icon">✨</span><b>${t('askAiHelp')}</b><span>${t('askAiHelpHint')}</span></button>
-    </div>`);
+    </div>
+    <p class="muted" style="margin:14px 0 0;font-size:12.5px">✨ ${esc(t('helpChat'))} · ${esc(t('navChat'))}</p>`);
   sheetEl.querySelector('#helpTutorial').onclick=openAppTutorial;
-  sheetEl.querySelector('#helpAi').onclick=()=>{ closeSheet(); openZoAi(); };
-  const talkBtn=sheetEl.querySelector('#helpTalk');
-  if(talkBtn) talkBtn.onclick=()=>{ closeSheet(); openStaffTalk(); };
 }
 
 async function talkApi(action=null, extra={}){
@@ -2906,28 +2966,56 @@ function canDeleteGalleryPost(post){
   return state.mode === 'staff' && !!state.user;
 }
 
-function galleryPostCard(post){
+function galleryPostCard(post, idx=0){
   const me = currentProfileId();
   const liked = (post.likes||[]).includes(me);
+  const starred = (post.stars||[]).includes(me);
+  const clapped = (post.claps||[]).includes(me);
   const likes = (post.likes||[]).length;
+  const stars = (post.stars||[]).length;
+  const claps = (post.claps||[]).length;
+  const comments = post.comments||[];
   const role = post.byMode === 'child' ? t('galleryByKid') : t('galleryByStaff');
   const del = canDeleteGalleryPost(post);
-  return `<article class="gal-post" data-gal-id="${esc(post.id)}">
+  const canDelComment = (c)=> c.by===me || (state.mode==='staff' && !!state.user);
+  const flagged = !!post.flagged;
+  const showFlag = flagged && state.mode==='staff';
+  return `<article class="gal-post gal-enter ${flagged?'is-flagged':''}" style="--gal-i:${idx}" data-gal-id="${esc(post.id)}">
     <header class="gal-head">
       <span class="gal-ava" style="background:${esc(post.byColor||'#94a3b8')}">${esc((post.byName||'?').slice(0,2).toUpperCase())}</span>
       <div class="grow">
         <b>${esc(post.byName||'—')}</b>
-        <div class="muted gal-meta">${esc(role)} · ${esc(galleryRelative(post.at))}</div>
+        <div class="muted gal-meta">${esc(role)} · ${esc(galleryRelative(post.at))}${showFlag?` · ⚑ ${esc(t('galleryFlagged'))}`:''}</div>
       </div>
+      ${post.by!==me?`<button class="chip ghost gal-report" type="button" data-gal-report="${esc(post.id)}" title="${esc(t('galleryReport'))}">⚑</button>`:''}
       ${del?`<button class="chip ghost gal-del" type="button" data-gal-del="${esc(post.id)}" aria-label="${esc(t('galleryDelete'))}">🗑</button>`:''}
     </header>
-    <div class="gal-photo"><img src="${esc(post.photo)}" alt="" loading="lazy"></div>
+    <button class="gal-photo" type="button" data-gal-light="${esc(post.id)}" aria-label="photo">
+      <img src="${esc(post.photo)}" alt="" loading="lazy">
+    </button>
     ${post.caption?`<p class="gal-caption">${esc(post.caption)}</p>`:''}
     <footer class="gal-foot">
       <button class="gal-like ${liked?'on':''}" type="button" data-gal-like="${esc(post.id)}">
-        ${liked?'❤️':'🤍'} ${likes?likes:''} <span class="muted">${esc(t('galleryLike'))}</span>
+        ${liked?'❤️':'🤍'} ${likes?likes:''}
+      </button>
+      <button class="gal-like ${starred?'on star':''}" type="button" data-gal-star="${esc(post.id)}" title="${esc(t('galleryReactStar'))}">
+        ${starred?'⭐':'☆'} ${stars?stars:''}
+      </button>
+      <button class="gal-like ${clapped?'on clap':''}" type="button" data-gal-clap="${esc(post.id)}" title="${esc(t('galleryReactClap'))}">
+        👏 ${claps?claps:''}
       </button>
     </footer>
+    <div class="gal-comments">
+      ${comments.length?`<div class="muted gal-comments-count">${esc(t('galleryComments')(comments.length))}</div>`:''}
+      ${comments.slice(-5).map(c=>`<div class="gal-comment" data-c-id="${esc(c.id)}">
+        <b>${esc(c.byName||'—')}</b> ${esc(c.text)}
+        ${canDelComment(c)?`<button class="gal-c-del" type="button" data-gal-cdel="${esc(post.id)}" data-cid="${esc(c.id)}" aria-label="${esc(t('galleryDelete'))}">×</button>`:''}
+      </div>`).join('')}
+      <form class="gal-comment-form" data-gal-comment="${esc(post.id)}">
+        <input type="text" maxlength="80" placeholder="${esc(t('galleryCommentPh'))}" aria-label="${esc(t('galleryComment'))}">
+        <button class="chip" type="submit">${esc(t('galleryCommentSend'))}</button>
+      </form>
+    </div>
   </article>`;
 }
 
@@ -2937,6 +3025,7 @@ function viewGallery(){
       <div class="brand-kicker">Armonia</div>
       <h2>${t('galleryTitle')}</h2>
       <p>${t('galleryHint')}</p>
+      <p class="gal-safe-line">${esc(t('gallerySafeHint'))}</p>
     </div>
     <div class="page-actions" role="toolbar">
       <button class="page-act primary" type="button" id="galShare">📷 ${esc(t('galleryShare'))}</button>
@@ -2944,7 +3033,11 @@ function viewGallery(){
     </div>
     ${state.galleryLoading && !posts.length?`<div class="empty">${esc(t('galleryLoading'))}</div>`:''}
     <div class="gal-feed" id="galFeed">
-      ${posts.length ? posts.map(galleryPostCard).join('') : `<div class="empty">${esc(t('galleryEmpty'))}</div>`}
+      ${posts.length ? posts.map((p,i)=>galleryPostCard(p,i)).join('') : `<div class="empty">${esc(t('galleryEmpty'))}</div>`}
+    </div>
+    <div class="gal-lightbox" id="galLightbox" hidden>
+      <button type="button" class="gal-lightbox-close" id="galLightClose" aria-label="${esc(t('close'))}">×</button>
+      <img id="galLightImg" alt="">
     </div>`;
 }
 
@@ -2960,10 +3053,56 @@ function bindGallery(root){
     await refreshGallery();
     render();
   });
+  const openLight = (src)=>{
+    const box = root.querySelector('#galLightbox');
+    const img = root.querySelector('#galLightImg');
+    if(!box||!img||!src) return;
+    img.src = src;
+    box.hidden = false;
+    box.classList.add('open');
+  };
+  const closeLight = ()=>{
+    const box = root.querySelector('#galLightbox');
+    if(!box) return;
+    box.hidden = true;
+    box.classList.remove('open');
+    const img = root.querySelector('#galLightImg');
+    if(img) img.removeAttribute('src');
+  };
+  root.querySelector('#galLightClose')?.addEventListener('click', closeLight);
+  root.querySelector('#galLightbox')?.addEventListener('click', (ev)=>{
+    if(ev.target.id==='galLightbox') closeLight();
+  });
+  root.querySelectorAll('[data-gal-light]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const img = btn.querySelector('img');
+      if(img?.src) openLight(img.src);
+    };
+  });
   root.querySelectorAll('[data-gal-like]').forEach(btn=>{
     btn.onclick = async ()=>{
       try{
         const data = await galleryApi('like', {id: btn.dataset.galLike});
+        applyGallerySnapshot(data);
+        feedback('save');
+        render();
+      }catch{ toast(t('galleryFail'), 'error'); }
+    };
+  });
+  root.querySelectorAll('[data-gal-star]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      try{
+        const data = await galleryApi('react_star', {id: btn.dataset.galStar});
+        applyGallerySnapshot(data);
+        feedback('save');
+        render();
+      }catch{ toast(t('galleryFail'), 'error'); }
+    };
+  });
+  root.querySelectorAll('[data-gal-clap]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      try{
+        const data = await galleryApi('react_clap', {id: btn.dataset.galClap});
         applyGallerySnapshot(data);
         feedback('save');
         render();
@@ -2981,18 +3120,62 @@ function bindGallery(root){
       }catch{ toast(t('galleryFail'), 'error'); }
     };
   });
+  root.querySelectorAll('[data-gal-report]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      try{
+        const data = await galleryApi('report', {id: btn.dataset.galReport, reason:'user_report'});
+        applyGallerySnapshot(data);
+        feedback('save');
+        toast(t('galleryReportOk'), 'success');
+        render();
+      }catch{ toast(t('galleryFail'), 'error'); }
+    };
+  });
+  root.querySelectorAll('[data-gal-cdel]').forEach(btn=>{
+    btn.onclick = async ()=>{
+      try{
+        const data = await galleryApi('delete_comment', {id: btn.dataset.galCdel, commentId: btn.dataset.cid});
+        applyGallerySnapshot(data);
+        feedback('save');
+        render();
+      }catch{ toast(t('galleryFail'), 'error'); }
+    };
+  });
+  root.querySelectorAll('form[data-gal-comment]').forEach(form=>{
+    form.onsubmit = async (ev)=>{
+      ev.preventDefault();
+      const input = form.querySelector('input');
+      const text = (input?.value||'').trim();
+      if(!text) return;
+      if(text.length>=4 && new Set(text.toLowerCase()).size<=1){
+        toast(t('galleryBlocked'), 'error'); return;
+      }
+      try{
+        const data = await galleryApi('comment', {id: form.dataset.galComment, text});
+        applyGallerySnapshot(data);
+        feedback('save');
+        render();
+      }catch(err){
+        toast(err.code==='unsafe'?t('galleryBlocked'):t('galleryFail'), 'error');
+      }
+    };
+  });
 }
 
-function sheetGalleryCompose(){
-  let photo = null;
+function sheetGalleryCompose(opts={}){
+  let photo = opts.photo || null;
+  const presetCaption = opts.caption || '';
+  const topicHint = opts.topic || '';
+  const gameHint = opts.game || '';
   openSheet(`<div class="gal-compose">
       <div class="import-kicker">Armonia</div>
       <h2>${t('galleryShare')}</h2>
-      <p class="muted">${t('galleryHint')}</p>
-      <div class="gal-preview empty" id="galPreview"><span>📷</span></div>
+      <p class="muted">${opts.game ? t('gameShareMomentHint') : t('galleryHint')}</p>
+      <div class="gal-preview ${photo?'':'empty'}" id="galPreview">${photo?`<img src="${esc(photo)}" alt="">`:'<span>📷</span>'}</div>
       <div class="row" style="gap:8px;flex-wrap:wrap;margin:10px 0">
         <button class="btn sec sm" type="button" id="galPick">${t('galleryPick')}</button>
         <button class="btn sec sm" type="button" id="galCam">${t('galleryCamera')}</button>
+        <button class="btn sec sm" type="button" id="galCaptionAi">✨ ${t('galleryCaptionAi')}</button>
       </div>
       <input type="file" accept="image/*" id="galFile" hidden>
       <div id="galCamBox" hidden>
@@ -3000,7 +3183,7 @@ function sheetGalleryCompose(){
         <button class="btn sm" type="button" id="galSnap" style="margin-top:8px">${t('galleryCamera')}</button>
       </div>
       <label class="f"><span>${t('galleryCaption')}</span>
-        <textarea id="galCaption" rows="3" maxlength="280" placeholder="${esc(t('galleryCaptionPh'))}"></textarea>
+        <textarea id="galCaption" rows="3" maxlength="280" placeholder="${esc(t('galleryCaptionPh'))}">${esc(presetCaption)}</textarea>
       </label>
       <div class="status-box muted" id="galStatus"></div>
       <button class="btn" type="button" id="galSubmit">${t('galleryPost')}</button>
@@ -3047,6 +3230,36 @@ function sheetGalleryCompose(){
     }
   };
 
+  sheetEl.querySelector('#galCaptionAi').onclick = async ()=>{
+    const btn = sheetEl.querySelector('#galCaptionAi');
+    const ta = sheetEl.querySelector('#galCaption');
+    btn.disabled = true;
+    const prev = btn.textContent;
+    btn.textContent = t('galleryCaptionAiLoading');
+    try{
+      const response = await fetch('/api/gallery/caption', {
+        method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          topic: topicHint || ta.value.trim() || '',
+          game: gameHint || '',
+          lang: state.lang || 'de',
+          hint: ta.value.trim() || topicHint || '',
+        }),
+      });
+      const data = await response.json().catch(()=>({}));
+      if(!response.ok || !data.caption) throw new Error(data.error||'caption');
+      ta.value = String(data.caption).slice(0,280);
+      setStatus(status, '', 'info');
+      feedback('save');
+    }catch{
+      setStatus(status, t('galleryCaptionAiFail'), 'error');
+    }finally{
+      btn.disabled = false;
+      btn.textContent = prev;
+    }
+  };
+
   sheetEl.querySelector('#galSubmit').onclick = async ()=>{
     if(!photo){ setStatus(status, t('galleryNeedPhoto'), 'error'); return; }
     const caption = sheetEl.querySelector('#galCaption').value.trim();
@@ -3059,13 +3272,16 @@ function sheetGalleryCompose(){
       closeSheet();
       toast(t('galleryPosted'), 'success');
       feedback('save');
+      if(state.mode==='child') state.childView = 'gallery';
+      else state.tab = 'gallery';
       render();
     }catch(err){
-      setStatus(status, err.code==='photo_too_large'?t('galleryTooBig'):t('galleryFail'), 'error');
+      setStatus(status, err.code==='photo_too_large'?t('galleryTooBig'):err.code==='unsafe'?t('galleryBlocked'):t('galleryFail'), 'error');
       btn.disabled = false;
     }
   };
 }
+
 
 function talkSuggestTopics(){
   const today=iso(new Date());
@@ -3093,175 +3309,10 @@ function talkSuggestTopics(){
   return suggestions.slice(0,10);
 }
 
+let talkCache = {messages:[], topics:[], videoUrl:'', updatedAt:0};
+
 function sheetStaffTalk(){
-  if(state.mode!=='staff' || !state.user){ toast(t('staffTalkNeedStaff'),'error'); return; }
-  let talk={messages:[], topics:[], videoUrl:'', updatedAt:0};
-  let pollTimer=null, busy=false, voice=null;
-
-  const stopPoll=()=>{ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } };
-  const fmtTalkTime=ts=>{
-    try{ return new Date(ts).toLocaleTimeString(state.lang==='el'?'el-GR':'de-DE',{hour:'2-digit',minute:'2-digit'}); }
-    catch{ return ''; }
-  };
-  const openTopics=()=>(talk.topics||[]).filter(x=>!x.done && (!x.date || x.date===iso(new Date())));
-  const paint=()=>{
-    if(!sheetEl.classList.contains('on') || !sheetEl.querySelector('#talkRoot')){ stopPoll(); return; }
-    const log=sheetEl.querySelector('#talkLog');
-    const topicsEl=sheetEl.querySelector('#talkTopics');
-    const videoUrl=talk.videoUrl||'';
-    const videoBtn=sheetEl.querySelector('#talkVideoOpen');
-    if(videoBtn){ videoBtn.disabled=!videoUrl; videoBtn.dataset.url=videoUrl; }
-    if(log){
-      const msgs=talk.messages||[];
-      log.innerHTML = msgs.length
-        ? msgs.map(m=>{
-            const mine=m.by===state.user.id;
-            return `<div class="chat-msg ${mine?'talk-user':'assistant'}">
-              <span class="talk-who">${esc(m.byName||m.by)} · ${esc(fmtTalkTime(m.at))}</span>${esc(m.text)}</div>`;
-          }).join('')
-        : `<div class="chat-msg talk-meta">${esc(t('staffTalkEmpty'))}</div>`;
-      log.scrollTop=log.scrollHeight;
-    }
-    if(topicsEl){
-      const today=iso(new Date());
-      const list=[...(talk.topics||[])]
-        .filter(x=>!x.date || x.date===today || !x.done)
-        .sort((a,b)=>(Number(a.done)-Number(b.done)) || (b.createdAt||0)-(a.createdAt||0))
-        .slice(0,40);
-      topicsEl.innerHTML = list.length
-        ? list.map(topic=>`<button class="talk-topic ${topic.done?'on':''}" type="button" data-topic="${esc(topic.id)}">
-            <span class="mark" aria-hidden="true">✓</span>
-            <span class="body"><b>${esc(topic.text)}</b>
-              <small>${esc(topic.byName||'')} · ${topic.done?(state.lang==='el'?'συζητήθηκε':'besprochen'):(topic.source||'manual')}</small>
-            </span></button>`).join('')
-        : `<div class="muted" style="font-size:12px">${esc(t('staffTalkTopicsHint'))}</div>`;
-      topicsEl.querySelectorAll('[data-topic]').forEach(btn=>{
-        btn.onclick=async()=>{
-          if(busy) return;
-          busy=true; feedback('select');
-          try{ talk=await talkApi('toggle_topic',{topicId:btn.dataset.topic}); paint(); }
-          catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
-          finally{ busy=false; }
-        };
-      });
-    }
-  };
-
-  openSheet(`<div id="talkRoot">
-      <div class="row between" style="align-items:center;gap:10px;margin:0 0 10px">
-        <div><div class="strong">💬 ${esc(t('staffTalkTitle'))}</div>
-          <div class="muted" style="font-size:12px;margin-top:2px">${esc(t('staffTalkHint'))}</div></div>
-        <button class="btn sm" id="talkVideoOpen" type="button">📹 ${esc(t('staffTalkVideoOpen'))}</button>
-      </div>
-      <div class="talk-topics">
-        <div class="talk-topics-head">
-          <div><h4>📌 ${esc(t('staffTalkTopics'))}</h4>
-            <div class="muted" style="font-size:11.5px;margin-top:2px">${esc(t('staffTalkTopicsHint'))}</div></div>
-        </div>
-        <div class="talk-topic-list" id="talkTopics"></div>
-        <div class="talk-compose-row">
-          <input id="talkTopicInput" maxlength="400" placeholder="${esc(t('staffTalkTopicPh'))}">
-          <button class="btn sm" id="talkTopicAdd" type="button">＋</button>
-        </div>
-        <div class="talk-actions">
-          <button class="btn sm sec" id="talkSuggest" type="button">💡 ${esc(t('staffTalkSuggest'))}</button>
-          <button class="btn sm sec" id="talkClearDone" type="button">${esc(t('staffTalkClearDone'))}</button>
-        </div>
-      </div>
-      <div class="chat-log" id="talkLog" aria-live="polite"></div>
-      <div class="chat-compose">
-        <textarea id="talkInput" rows="1" placeholder="${esc(t('staffTalkPlaceholder'))}"></textarea>
-        <button class="chat-mic" id="talkMic" type="button" aria-label="${esc(t('helpVoice'))}" title="${esc(t('helpVoice'))}">🎤</button>
-        <button class="btn" id="talkSend" type="button">${esc(t('staffTalkSend'))}</button>
-      </div>
-      <div class="chat-voice-status" id="talkVoiceStatus" hidden></div>
-    </div>`);
-
-  const input=sheetEl.querySelector('#talkInput');
-  const send=sheetEl.querySelector('#talkSend');
-  const mic=sheetEl.querySelector('#talkMic');
-
-  sheetEl.querySelector('#talkVideoOpen').onclick=()=>{
-    const url=sheetEl.querySelector('#talkVideoOpen').dataset.url;
-    if(!url) return;
-    feedback('open');
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-  sheetEl.querySelector('#talkTopicAdd').onclick=async()=>{
-    const text=sheetEl.querySelector('#talkTopicInput').value.trim();
-    if(!text || busy) return;
-    busy=true;
-    try{
-      talk=await talkApi('add_topic',{text, date:iso(new Date()), source:'manual'});
-      sheetEl.querySelector('#talkTopicInput').value='';
-      feedback('success'); paint();
-    }catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
-    finally{ busy=false; }
-  };
-  sheetEl.querySelector('#talkClearDone').onclick=async()=>{
-    if(busy) return; busy=true;
-    try{ talk=await talkApi('clear_done',{date:iso(new Date())}); feedback('toggle'); paint(); }
-    catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
-    finally{ busy=false; }
-  };
-  sheetEl.querySelector('#talkSuggest').onclick=async()=>{
-    if(busy) return; busy=true;
-    const ideas=talkSuggestTopics();
-    try{
-      for(const idea of ideas){
-        talk=await talkApi('add_topic',{text:idea.text, date:iso(new Date()), source:idea.source});
-      }
-      feedback('success'); paint();
-      toast(T[state.lang].staffTalkOpenTopics(openTopics().length),'success');
-    }catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
-    finally{ busy=false; }
-  };
-
-  const submit=async()=>{
-    const content=input.value.trim();
-    if(!content || busy || send.disabled) return;
-    voice?.stop();
-    busy=true; send.disabled=true; if(mic) mic.disabled=true;
-    try{
-      talk=await talkApi('send',{text:content});
-      input.value='';
-      feedback('select'); paint();
-    }catch(error){ feedback('error'); toast(error.message||t('staffTalkLoadError'),'error'); }
-    finally{ busy=false; send.disabled=false; if(mic) mic.disabled=false; input.focus(); }
-  };
-  send.onclick=submit;
-  input.onkeydown=e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); } };
-  voice=bindVoiceInput({
-    input,
-    mic,
-    statusEl:sheetEl.querySelector('#talkVoiceStatus'),
-  });
-
-  // Keep polling while this sheet is open.
-  (async()=>{
-    try{
-      talk=await talkApi();
-      paint();
-      pollTimer=setInterval(async()=>{
-        if(!sheetEl.classList.contains('on') || !sheetEl.querySelector('#talkRoot') || busy) return;
-        try{
-          const next=await talkApi();
-          if(next.updatedAt!==talk.updatedAt){ talk=next; paint(); }
-        }catch{}
-      }, 4000);
-    }catch(error){
-      toast(error.message||t('staffTalkLoadError'),'error');
-      closeSheet();
-    }
-  })();
-
-  // Stop poll when sheet closes.
-  const observer=new MutationObserver(()=>{
-    if(!sheetEl.classList.contains('on') || !sheetEl.querySelector('#talkRoot')){
-      stopPoll(); observer.disconnect();
-    }
-  });
-  observer.observe(sheetEl,{attributes:true, childList:true, attributeFilter:['class']});
+  openStaffTalk();
 }
 
 sheetBg.onclick = () => { if(!sheetLocked) closeSheet(); };
@@ -4141,6 +4192,34 @@ function lastPurchaseOf(hid, pid){
   return hits.reduce((a,b) => a.decidedAt > b.decidedAt ? a : b);
 }
 
+/* ── Food & category icons (SVG sprite in index.html) ──────────────────
+   Replaces the emoji category/product glyphs. Sprite symbols are
+   monochrome, so `fill:currentColor` themes them with the surrounding
+   text — including the dark Lager surface. */
+const CAT_ICON = {fridge:'cheese', produce:'carrot', dry:'wheat',
+                  drinks:'bottle', household:'bottle-droplet', custom:'fork-knife'};
+/* Product-level overrides, keyed by the German name. Anything not listed
+   falls back to its category icon, so every row always has a glyph. */
+const PROD_ICON = {
+  'Milch':'milk-carton','Butter':'butter','Margarine':'butter-ghee','Käse':'cheese',
+  'Streukäse':'cheese','Frischkäse':'cheese','Feta':'cheese','Joghurt':'yogurt',
+  'Eier':'egg','Schinken':'meat','Salami':'meat',
+  'Tomaten':'tomato','Gurken':'cucumber','Paprika':'chili','Zucchini':'eggplant',
+  'Möhren':'carrot','Äpfel':'apple','Zitronen':'lemon','Wassermelone':'grape',
+  'Toastbrot':'bread','Deutsches Brot':'bread','Blätterteig':'bread','Wraps':'bread',
+  'Cornflakes':'wheat','Granola':'wheat','Haferflocken':'wheat',
+  'Makkaroni':'wheat','Spirelli':'wheat','Spaghetti':'wheat','Lasagneplatten':'wheat',
+  'Reis':'bowl-rice','Mais':'corn','Kirschmarmelade':'honey',
+  'Salz':'food-seasoning','Pfeffer gemahlen':'food-seasoning','Waschmaschinensalz':'food-seasoning',
+  'Öl':'bottle','Essig weiß':'bottle','Essig rot':'bottle','Ketchup':'bottle',
+  'Tomatensoße':'canned-food','Süßsauer im Glas':'canned-food',
+  'Vanillearoma':'bottle-droplet','Spüli':'bottle-droplet','Bodenputzmittel':'bottle-droplet',
+  'Wasser':'bottle','Sprudelwasser':'glass-fill',
+};
+const catIconId  = cid => CAT_ICON[cid] || 'fork-knife';
+const prodIconId = pr  => (pr && PROD_ICON[pr.de]) || catIconId(pr && pr.cat);
+const svgIcon = (id, cls) => `<svg class="${cls}" aria-hidden="true"><use href="#f-${id}"/></svg>`;
+
 function viewStock(){
   const hid = state.house;
   const seg = `<div class="seg inventory-scope house-selector" id="sHouse" aria-label="${t('filterHouse')}">
@@ -4159,7 +4238,7 @@ function viewStock(){
     const st=productState(p), matches=!query||norm(`${p.de} ${p.el}`).includes(query);
     return matches&&(!!query||state.stockFilter==='all'||state.stockFilter===st||state.stockFilter==='attention'&&st!=='ok');
   });
-  const catIcon={fridge:'🧀',produce:'🥬',dry:'🥫',drinks:'🥤',household:'🧻',custom:'📦'};
+  const catIcon = cid => svgIcon(catIconId(cid), 'cat-ico');
   const productCard=p=>{
     const st=productState(p);
     if(hid==='all'){
@@ -4175,7 +4254,7 @@ function viewStock(){
     const pending=delta?`<span class="stock-pending ${delta>0?'in':'out'}">${delta>0?'+':''}${delta}</span>`:'';
     return `<div class="stock-product ${st} has-stepper ${delta?'drafting':''}">
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
-        <div class="stock-product-name">${esc(L(p))}${pending}</div>
+        <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}${pending}</div>
         <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ✎</div>
       </button>
       <div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
@@ -4189,7 +4268,7 @@ function viewStock(){
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
     // Show stock by default — collapsed categories made the fridge feel empty.
     const shouldOpen=true;
-    return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}" open><summary><span>${catIcon[c.id]||'📦'}</span><span>${esc(L(c))}</span>
+    return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}" open><summary><span class="cat-ico-wrap">${catIcon(c.id)}</span><span>${esc(L(c))}</span>
       <span class="stock-cat-count">${products.length}</span></summary><div class="stock-product-grid">${products.map(productCard).join('')}</div></details>`;
   }).join('');
   const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
@@ -4236,7 +4315,7 @@ function sheetStockDetail(pid,hid=state.house){
   const p=prod(pid);if(!p)return;
   const houses=hid==='all'?DB.houses:[house(hid)].filter(Boolean);
   const allHouses=DB.houses;
-  const icon={fridge:'🧀',produce:'🥬',dry:'🥫',drinks:'🥤',household:'🧻'}[p.cat]||'📦';
+  const icon=svgIcon(prodIconId(p),'detail-ico');
   const isPlanned=houseId=>fridayEntries(houseId).some(e=>['open','pending'].includes(e.status)&&e.productId===pid);
   const isCustom=!!p.custom || (DB.customProducts||[]).some(x=>x.id===pid);
   const aliasText=(p.alias||[]).join(', ');
@@ -4366,8 +4445,11 @@ function shortagesCard(hid){
   return `<div class="card"><h2>${t('secMissing')}</h2>
     ${miss.map(e=>`<div class="kv"><div class="grow">${esc(e.name)}
       <div class="muted" style="font-size:11.5px">🏠 ${esc(house(e.houseId).short)}${
-        e.decidedAt?' · '+fmtDT(e.decidedAt):''}</div></div>
-      <div class="muted">${e.qty} ${esc(e.unit)}</div></div>`).join('')}
+        e.decidedAt?' · '+fmtDT(e.decidedAt):''}${e.missReason?' · '+esc(missReasonLabel(e.missReason)):''}</div></div>
+      <div class="row" style="flex:0 0 auto;gap:6px;align-items:center">
+        ${e.missReason?missReasonPill(e.missReason):''}
+        <div class="muted">${e.qty} ${esc(e.unit)}</div>
+      </div></div>`).join('')}
   </div>`;
 }
 
@@ -4981,13 +5063,26 @@ function sheetStockBoard(dir,initialPid=null){
    ════════════════════════════════════════════════════════════════ */
 const shopHouse = () => state.house === 'all' ? DB.houses[0].id : state.house;
 
+function missReasonLabel(reason){
+  if(reason==='expensive') return t('missReasonExpensive');
+  if(reason==='unavailable') return t('missReasonUnavailable');
+  return t('stMissing');
+}
+
+function missReasonPill(reason){
+  if(!reason) return '';
+  const cls = reason==='expensive' ? 'expensive' : 'unavailable';
+  return `<span class="pill miss-reason ${cls}">${esc(missReasonLabel(reason))}</span>`;
+}
+
 function entryRow(e, extra = ''){
   const by = e.by ? emp(e.by) : null;
   return `<div class="kv"><div class="grow">${esc(e.name)}
       ${e.note?`<div class="muted" style="font-size:11.5px">${esc(e.note)}</div>`:''}
+      ${e.missReason?`<div class="muted" style="font-size:11.5px">${esc(missReasonLabel(e.missReason))}</div>`:''}
       ${by?`<div class="muted" style="font-size:11.5px">${t('byWhom')} ${esc(by.name)}</div>`:''}</div>
     <div class="row" style="flex:0 0 auto;gap:8px">
-      <span class="muted">${e.qty} ${esc(e.unit)}</span>${extra}</div></div>`;
+      <span class="muted">${e.qty} ${esc(e.unit)}</span>${e.missReason?missReasonPill(e.missReason):''}${extra}</div></div>`;
 }
 
 function listEntryFriday(e){
@@ -5010,7 +5105,7 @@ function shoppingHistory(hid){
   DB.listEntries.filter(e=>e.houseId===hid&&['bought','missing'].includes(e.status)&&!capturedIds.has(e.id)).forEach(e=>{
     const friday=listEntryFriday(e),key=`${hid}:${friday}`,trip=legacy.get(key)||{id:`legacy-${key}`,houseId:hid,fridayDate:friday,completedAt:0,completedBy:null,items:[],legacy:true};
     trip.completedAt=Math.max(trip.completedAt,Number(e.decidedAt)||0);trip.completedBy=e.decidedBy||trip.completedBy;
-    trip.items.push({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status});legacy.set(key,trip);
+    trip.items.push({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status,reason:e.missReason||null});legacy.set(key,trip);
   });
   return [...saved,...legacy.values()].sort((a,b)=>(b.completedAt||new Date(b.fridayDate+'T12:00:00'))-(a.completedAt||new Date(a.fridayDate+'T12:00:00')));
 }
@@ -5019,14 +5114,16 @@ function sheetShoppingHistory(){
   const hid=shopHouse(),trips=shoppingHistory(hid);
   const itemList=(items,kind)=>{
     const rows=items.filter(item=>item.result===kind);
-    return rows.length?`<ul>${rows.map(item=>`<li><span>${esc(item.name)}</span><span>${item.qty} ${esc(item.unit)}</span></li>`).join('')}</ul>`:`<div class="muted" style="font-size:11px">—</div>`;
+    return rows.length?`<ul>${rows.map(item=>`<li><span>${esc(item.name)}${item.reason?` · ${esc(missReasonLabel(item.reason))}`:''}</span><span>${item.qty} ${esc(item.unit)}</span></li>`).join('')}</ul>`:`<div class="muted" style="font-size:11px">—</div>`;
   };
   openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(house(hid).short)}</div><h2>🛒 ${t('shoppingHistory')}</h2><p>${t('shoppingHistoryHint')}</p></div>
     <div class="seg house-selector" id="historyHouse" style="margin-top:12px">${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-history-house="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}</div>
     <div class="trip-history-list">${trips.length?trips.map((trip,index)=>{
       const bought=trip.items.filter(item=>item.result==='bought'),missing=trip.items.filter(item=>item.result==='missing'),who=emp(trip.completedBy);
+      const unavail=missing.filter(item=>item.reason==='unavailable'||!item.reason).length;
+      const expensive=missing.filter(item=>item.reason==='expensive').length;
       const dateDay=new Date(trip.fridayDate+'T12:00:00').getDate();
-      return `<details class="trip-card" ${index===0?'open':''}><summary><div class="trip-date">${dateDay}</div><div><h3>${esc(fridayText(trip.fridayDate))}</h3><div class="trip-meta">${t('completedBy')} ${esc(who?.name||'—')}${trip.completedAt?' · '+t('completedOn')+' '+esc(fmtDT(trip.completedAt)):''}</div></div><div class="trip-counts"><span class="pill in">✓ ${bought.length}</span><span class="pill out">× ${missing.length}</span></div></summary>
+      return `<details class="trip-card" ${index===0?'open':''}><summary><div class="trip-date">${dateDay}</div><div><h3>${esc(fridayText(trip.fridayDate))}</h3><div class="trip-meta">${t('completedBy')} ${esc(who?.name||'—')}${trip.completedAt?' · '+t('completedOn')+' '+esc(fmtDT(trip.completedAt)):''}</div></div><div class="trip-counts"><span class="pill in">✓ ${bought.length}</span><span class="pill out">∅ ${unavail}</span>${expensive?`<span class="pill miss-reason expensive">€ ${expensive}</span>`:''}</div></summary>
         <div class="trip-results"><section class="trip-result bought"><h4>✓ ${t('boughtItems')}</h4>${itemList(trip.items,'bought')}</section><section class="trip-result missing"><h4>× ${t('notBoughtItems')}</h4>${itemList(trip.items,'missing')}</section></div></details>`;
     }).join(''):`<div class="trip-empty"><div class="big">🧾</div><b>${t('noShoppingHistory')}</b><div style="margin-top:5px;font-size:11.5px">${t('noShoppingHistoryHint')}</div></div>`}</div>`);
   sheetEl.querySelectorAll('[data-history-house]').forEach(button=>button.onclick=()=>{state.house=button.dataset.historyHouse;closeSheet();sheetShoppingHistory();});
@@ -5085,8 +5182,9 @@ function viewShop(){
         <div class="store-choice-qty"><b>${e.qty} ${esc(e.unit)}</b>${e.note?' · '+esc(e.note):''}</div>
       </div>
       <div class="store-choice-actions">
-        <button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}" type="button" aria-label="${t('markBought')}">✓</button>
-        <button class="store-decision no ${st==='missing'?'on':''}" data-decision="missing" data-entry="${e.id}" type="button" aria-label="${t('markMissing')}">×</button>
+        <button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}" type="button" aria-label="${t('markBought')}" title="${esc(t('markBought'))}">✓</button>
+        <button class="store-decision mid ${st==='unavailable'?'on':''}" data-decision="unavailable" data-entry="${e.id}" type="button" aria-label="${t('markUnavailable')}" title="${esc(t('markUnavailable'))}">∅</button>
+        <button class="store-decision expensive ${st==='expensive'?'on':''}" data-decision="expensive" data-entry="${e.id}" type="button" aria-label="${t('markExpensive')}" title="${esc(t('markExpensive'))}">€</button>
         ${st?`<button class="store-decision undo" data-decision="undo" data-entry="${e.id}" type="button" aria-label="${t('undoDecision')}">↶</button>`:''}
       </div>
     </div>`;
@@ -5128,7 +5226,7 @@ function viewShop(){
     <div class="shop-list-head"><div><h2>${t('secOpen')}</h2><div class="muted" style="font-size:11px">${open.length} · ${esc(house(hid).short)}</div></div>
       <button class="btn ghost sm" id="importList" type="button">${t('importList')}</button></div>
     <div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}"><button class="btn sm" id="cartQuickAdd">＋ ${t('addToCart')}</button></div>
-    ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${esc(e.name)}</div>
+    ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${svgIcon(prodIconId(e.productId?prod(e.productId):matchProduct(e.name)),'prod-ico')}${esc(e.name)}</div>
       <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)}</div></div><div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
       `<div class="shop-empty compact"><div class="big">🧺</div><h3>${t('noFridayItems')}</h3><p>${t('noFridayItemsHint')}</p></div>`}
     ${open.length&&!pending.length?`<div class="cart-start"><button class="btn" id="startFriday">${T[state.lang].cartReady(open.length)}</button></div>`:''}
@@ -5168,7 +5266,7 @@ function inventoryProductForEntry(entry){
 
 /**
  * Κλείνει την παρτίδα με ένα PIN. Ό,τι τσεκαρίστηκε ως αγορασμένο μπαίνει στο
- * απόθεμα του σπιτιού· μόνο ό,τι δηλώθηκε ρητά μη διαθέσιμο γίνεται έλλειψη.
+ * απόθεμα του σπιτιού· unavailable / expensive γίνονται έλλειψη με λόγο.
  */
 function confirmFridayBatch(){
   const hid = shopHouse();
@@ -5182,23 +5280,26 @@ function confirmFridayBatch(){
       e.decidedBy = who.id; e.decidedAt = completedAt;
       if(e.decision === 'bought'){
         e.status = 'bought';
+        delete e.missReason;
         const inventoryProduct=inventoryProductForEntry(e),k=stockKey(hid,inventoryProduct.id);
         DB.stock[k] = (DB.stock[k] ?? 0) + e.qty;
         got.push(`${e.name} ${e.qty}${e.unit}`);
-      }else if(e.decision === 'missing'){
-        e.status = 'missing';           // ό,τι δεν πατήθηκε = δεν υπήρχε
-        miss.push(`${e.name} ${e.qty}${e.unit}`);
+      }else if(e.decision === 'unavailable' || e.decision === 'expensive' || e.decision === 'missing'){
+        // legacy `missing` treated as unavailable
+        e.missReason = e.decision === 'expensive' ? 'expensive' : 'unavailable';
+        e.status = 'missing';
+        miss.push(`${e.name} ${e.qty}${e.unit} (${missReasonLabel(e.missReason)})`);
       }
       delete e.decision;
     });
     DB.shoppingTrips ||= [];
     const tripId='trip-'+uid();
     DB.shoppingTrips.push({id:tripId,houseId:hid,fridayDate:friday,completedAt,completedBy:who.id,
-      items:pending.map(e=>({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status}))});
+      items:pending.map(e=>({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status,reason:e.missReason||null}))});
     logEntry('SHOP',
       `${t('typeSHOP')} @ ${house(hid).short} — ${t('stBought')}: ${got.join(', ') || '—'}` +
       ` | ${t('shortage')}: ${miss.join(', ') || '—'}`,
-      {houseId:hid,tripId,items:pending.map(e=>({productId:e.productId,name:e.name,qty:e.qty,unit:e.unit,result:e.status}))});
+      {houseId:hid,tripId,items:pending.map(e=>({productId:e.productId,name:e.name,qty:e.qty,unit:e.unit,result:e.status,reason:e.missReason||null}))});
     save(); render(); toast(`${T[state.lang].batchBooked(pending.length)} · ${T[state.lang].bookedToHouse(house(hid).short)}`,'success',4800);
   });
 }
@@ -6091,6 +6192,8 @@ const CHILD_GAMES = [
   {id:'learn', emoji:'🇬🇷', titleKey:'gameLearn', hintKey:'gameLearnHint', tint:'#0d9488', featured:true},
   {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#1d4ed8', featured:true},
   {id:'math', emoji:'➕', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', featured:true},
+  {id:'island', emoji:'🏝️', titleKey:'gameIsland', hintKey:'gameIslandHint', tint:'#0e7490', featured:true},
+  {id:'eduhub', emoji:'🎓', titleKey:'gameEduHub', hintKey:'gameEduHubHint', tint:'#0369a1', featured:true},
   {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e'},
   {id:'tac', emoji:'❌', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#c2410c'},
   {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1'},
@@ -6118,6 +6221,24 @@ const COLOR_OPTS = [
   {id:'green', hex:'#16a34a', labelKey:'gameColorGreen'},
   {id:'blue', hex:'#2563eb', labelKey:'gameColorBlue'},
   {id:'yellow', hex:'#ca8a04', labelKey:'gameColorYellow'},
+];
+
+/** Allowlisted free educational embeds (PhET HTML5 — kid-safe STEM). */
+const EDU_FREE_GAMES = [
+  {id:'arith', emoji:'🔢', titleKey:'eduArith', url:'https://phet.colorado.edu/sims/html/arithmetic/latest/arithmetic_all.html'},
+  {id:'frac', emoji:'🍕', titleKey:'eduFrac', url:'https://phet.colorado.edu/sims/html/fraction-matcher/latest/fraction-matcher_all.html'},
+  {id:'color', emoji:'🌈', titleKey:'eduColor', url:'https://phet.colorado.edu/sims/html/color-vision/latest/color-vision_all.html'},
+];
+
+const ISLAND_STEPS = [
+  {emoji:'⛵', de:{q:'Auf welcher Insel sind wir?', choices:['Thassos','Kreta','Sizilien','Mallorca'], a:0}, el:{q:'Σε ποιο νησί είμαστε;', choices:['Θάσος','Κρήτη','Σικελία','Μαγιόρκα'], a:0}},
+  {emoji:'🌊', de:{q:'Welche Farbe hat oft das Ägäische Meer?', choices:['Blau','Braun','Rosa','Grau'], a:0}, el:{q:'Τι χρώμα έχει συχνά το Αιγαίο;', choices:['Μπλε','Καφέ','Ροζ','Γκρι'], a:0}},
+  {emoji:'🫒', de:{q:'Welches typische griechische Öl kommt von Bäumen?', choices:['Olivenöl','Motoröl','Kokosöl','Fischöl'], a:0}, el:{q:'Ποιο ελληνικό λάδι βγαίνει από δέντρα;', choices:['Ελαιόλαδο','Λάδι μηχανής','Ινδοκάρυδο','Ψαρόλαδο'], a:0}},
+  {emoji:'🐝', de:{q:'Was machen Bienen, das wir auf Joghurt essen?', choices:['Honig','Salz','Käse','Brot'], a:0}, el:{q:'Τι κάνουν οι μέλισσες που τρώμε με γιαούρτι;', choices:['Μέλι','Αλάτι','Τυρί','Ψωμί'], a:0}},
+  {emoji:'🏊', de:{q:'Was brauchst du vor dem Schwimmen?', choices:['Badekleidung','Ski','Ofen','Hammer'], a:0}, el:{q:'Τι χρειάζεσαι πριν κολυμπήσεις;', choices:['Μαγιό','Σκι','Φούρνο','Σφυρί'], a:0}},
+  {emoji:'🇬🇷', de:{q:'Wie heißt „Danke“ auf Griechisch?', choices:['Ευχαριστώ','Γεια','Νερό','Όχι'], a:0}, el:{q:'Πώς λέμε «Danke» στα ελληνικά;', choices:['Ευχαριστώ','Hallo','Wasser','Nein'], a:0}},
+  {emoji:'☀️', de:{q:'Warum Sonnencreme am Strand?', choices:['Haut schützen','Damit es regnet','Damit Schuhe glänzen','Zum Fliegen'], a:0}, el:{q:'Γιατί αντηλιακό στην παραλία;', choices:['Να προστατεύσουμε το δέρμα','Να βρέξει','Να γυαλίσουν παπούτσια','Να πετάξουμε'], a:0}},
+  {emoji:'⭐', de:{q:'Was bedeutet Ruhe im Spa / Haus?', choices:['Leise & freundlich','Laut schreien','Rennen drinnen','Türen knallen'], a:0}, el:{q:'Τι σημαίνει ησυχία στο spa;', choices:['Ήσυχα & φιλικά','Να φωνάζουμε','Να τρέχουμε μέσα','Να χτυπάμε πόρτες'], a:0}},
 ];
 
 const LEARN_VOCAB = [
@@ -6213,8 +6334,96 @@ function writeGameBest(id, score){
   return prev;
 }
 
-function pickLearnDeck(pool, n){
-  const src=[...(pool||LEARN_VOCAB)];
+const LEARN_SESSION = 20;
+const QUIZ_SESSION = 14;
+const LEARN_TOPICS = [
+  {id:'all', key:'gameLearnTopicAll'},
+  {id:'greetings', key:'gameLearnTopicGreet'},
+  {id:'food', key:'gameLearnTopicFood'},
+  {id:'beach', key:'gameLearnTopicBeach'},
+  {id:'nature', key:'gameLearnTopicNature'},
+  {id:'thassos', key:'gameLearnTopicBeach'},
+];
+const LEARN_WEAK_KEY = 'paidia.learn.weak';
+const LEARN_TOPIC_KEY = 'paidia.learn.topic';
+
+function readLearnWeak(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LEARN_WEAK_KEY)||'[]');
+    return Array.isArray(raw) ? raw.filter(c=>c&&c.de&&c.el).slice(0,40) : [];
+  }catch{ return []; }
+}
+function pushLearnWeak(card){
+  if(!card?.de || !card?.el) return;
+  const list = readLearnWeak().filter(c=>!(c.de===card.de && c.el===card.el));
+  list.unshift({de:card.de, el:card.el, emoji:card.emoji||'🇬🇷', topic:card.topic||'misc'});
+  try{ localStorage.setItem(LEARN_WEAK_KEY, JSON.stringify(list.slice(0,40))); }catch{}
+}
+function readLearnTopic(){
+  try{ return localStorage.getItem(LEARN_TOPIC_KEY)||'all'; }catch{ return 'all'; }
+}
+function writeLearnTopic(topic){
+  try{ localStorage.setItem(LEARN_TOPIC_KEY, topic||'all'); }catch{}
+}
+
+function setGameCoach(patch){
+  state.gameCoach = {...(state.gameCoach||{}), ...patch, at: Date.now()};
+}
+
+function gameShareBar(stars, scoreText){
+  return `<div class="game-banner win learn-win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${esc(scoreText)}</div>
+    <div class="game-win-actions">
+      <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button>
+      <button class="btn sec" type="button" id="gameShareMoment">📸 ${esc(t('gameShareMoment'))}</button>
+    </div></div>`;
+}
+
+function gameMomentSticker(emoji, title, detail){
+  const c = document.createElement('canvas');
+  c.width = 720; c.height = 900;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0,0,720,900);
+  g.addColorStop(0,'#0f766e'); g.addColorStop(.55,'#0369a1'); g.addColorStop(1,'#c2410c');
+  ctx.fillStyle = g; ctx.fillRect(0,0,720,900);
+  ctx.fillStyle = 'rgba(255,255,255,.12)';
+  ctx.beginPath(); ctx.arc(560,140,160,0,Math.PI*2); ctx.fill();
+  ctx.font = '120px serif'; ctx.textAlign = 'center';
+  ctx.fillText(emoji||'⭐', 360, 340);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 42px system-ui,sans-serif';
+  ctx.fillText(String(title||'Armonia').slice(0,28), 360, 460);
+  ctx.font = '28px system-ui,sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,.9)';
+  ctx.fillText(String(detail||'').slice(0,40), 360, 520);
+  ctx.font = 'bold 22px system-ui,sans-serif';
+  ctx.fillStyle = '#fed7aa';
+  ctx.fillText('Armonia · Momente', 360, 820);
+  return c.toDataURL('image/jpeg', 0.82);
+}
+
+function sheetGameShareMoment(){
+  const meta = CHILD_GAMES.find(g=>g.id===state.gameId) || {emoji:'⭐', titleKey:'gamesTitle'};
+  const g = state.game || {};
+  const title = t(meta.titleKey);
+  let detail = '';
+  if(state.gameId==='learn') detail = `${g.xp||0} XP`;
+  else if(state.gameId==='quiz' || state.gameId==='math' || state.gameId==='catch' || state.gameId==='island') detail = `${g.score||0} ${t('gameScore')}`;
+  else if(state.gameId==='memory') detail = `${g.moves||0} ${t('gameMoves')}`;
+  else if(state.gameId==='simon') detail = `${t('gameLevel')} ${g.level||0}`;
+  else detail = t('gameWin');
+  const photo = gameMomentSticker(meta.emoji, title, detail);
+  const draft = state.lang==='el'
+    ? `Νίκησα στο ${title}! ${detail}`
+    : `Gewonnen bei ${title}! ${detail}`;
+  sheetGalleryCompose({photo, caption:draft, topic:title, game:state.gameId});
+}
+
+function pickLearnDeck(pool, n, topic){
+  let src=[...(pool||LEARN_VOCAB)];
+  if(topic && topic!=='all' && topic!=='weak'){
+    const filtered = src.filter(c=>c.topic===topic);
+    if(filtered.length>=4) src = filtered;
+  }
   shuffleInPlace(src);
   return src.slice(0, Math.min(n, src.length)).map(c=>({...c, source:c.source||'local'}));
 }
@@ -6234,6 +6443,14 @@ function learnWrongChoices(card, mode, pool){
   return {choices, correct: choices.indexOf(right)};
 }
 
+function learnCardHint(card, mode){
+  if(!card) return '';
+  if(mode==='de2el'){
+    return card.hint_el || card.hint_de || (card.el ? `${card.el.slice(0,1)}…` : '');
+  }
+  return card.hint_de || card.hint_el || (card.de ? `${card.de.slice(0,1)}…` : '');
+}
+
 function buildLearnRound(g){
   const card = g.deck[g.i];
   if(!card){ g.finished=true; return; }
@@ -6245,16 +6462,19 @@ function buildLearnRound(g){
   g.feedback = null;
   g.lock = false;
   g.card = card;
+  g.flipKey = (g.flipKey||0)+1;
 }
 
-function makeLearnGame(mode, deck){
+function makeLearnGame(mode, deck, topic){
   const g = {
     mode: mode==='el2de'?'el2de':'de2el',
-    deck: deck||pickLearnDeck(LEARN_VOCAB, 10),
+    deck: deck||pickLearnDeck(LEARN_VOCAB, LEARN_SESSION, topic||readLearnTopic()),
+    topic: topic||readLearnTopic()||'all',
     i:0, xp:0, streak:0, hearts:3, finished:false, loading:false,
-    prompt:'', choices:[], correct:0, feedback:null, lock:false, card:null,
+    prompt:'', choices:[], correct:0, feedback:null, lock:false, card:null, flipKey:0,
   };
   buildLearnRound(g);
+  setGameCoach({gameId:'learn', streak:0, topic:g.topic, hearts:3});
   return g;
 }
 
@@ -6266,12 +6486,25 @@ function answerLearn(choiceIdx){
     g.xp += 10 + Math.min(20, g.streak*2);
     g.streak += 1;
     g.feedback = {ok:true, text:t('gameLearnCorrect')};
+    setGameCoach({gameId:'learn', streak:g.streak, lastWrong:null, xp:g.xp});
     feedback('save');
   }else{
     g.hearts = Math.max(0, g.hearts-1);
     g.streak = 0;
     const right = g.choices[g.correct];
-    g.feedback = {ok:false, text:`${t('gameLearnWrong')} ${right}`, pick:choiceIdx};
+    const hint = learnCardHint(g.card, g.mode);
+    pushLearnWeak(g.card);
+    g.feedback = {
+      ok:false,
+      text:`${t('gameLearnWrong')} ${right}`,
+      hint: hint ? `${t('gameLearnHintLabel')}: ${hint}` : '',
+      pick:choiceIdx,
+      heartBreak:true,
+    };
+    setGameCoach({
+      gameId:'learn', streak:0, hearts:g.hearts,
+      lastWrong:{prompt:g.prompt, answer:right, hint, de:g.card?.de, el:g.card?.el},
+    });
     feedback('error');
   }
   render();
@@ -6291,19 +6524,20 @@ function answerLearn(choiceIdx){
     }
     buildLearnRound(gg);
     render();
-  }, ok?650:1100);
+  }, ok?650:1300);
 }
 
 async function fetchLearnAiCards(){
   const g=state.game; if(!g || state.gameId!=='learn' || g.loading) return;
   g.loading=true; render();
   try{
+    const topic = g.topic && g.topic!=='all' && g.topic!=='weak' ? g.topic : 'random';
     const response = await fetch('/api/learn', {
       method:'POST', credentials:'same-origin',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        count:8,
-        topic:'random',
+        count:12,
+        topic,
         level:'easy',
         seed: Math.random().toString(36).slice(2,10),
       }),
@@ -6317,11 +6551,13 @@ async function fetchLearnAiCards(){
       el:String(c.el||'').trim(),
       emoji:String(c.emoji||'🇬🇷').trim()||'🇬🇷',
       topic:String(c.topic||'ai').trim()||'ai',
+      hint_de:String(c.hint_de||'').trim(),
+      hint_el:String(c.hint_el||'').trim(),
       source:'ai',
     })).filter(c=>c.de && c.el);
     if(cards.length<3) throw new Error('too few');
     stopChildGameTimers();
-    state.game = makeLearnGame(g.mode, cards);
+    state.game = makeLearnGame(g.mode, cards, g.topic);
     feedback('save');
     toast(t('gameLearnAi'), 'success');
   }catch{
@@ -6333,10 +6569,13 @@ async function fetchLearnAiCards(){
   }
 }
 
-function makeQuizGame(){
-  const pool = shuffleInPlace([...QUIZ_BANK]).slice(0, 8);
-  const g = {deck:pool, i:0, score:0, streak:0, finished:false, lock:false, feedback:null, choices:[], correct:0, q:null};
+function makeQuizGame(deck){
+  const pool = deck && deck.length
+    ? deck.slice(0, QUIZ_SESSION)
+    : shuffleInPlace([...QUIZ_BANK]).slice(0, QUIZ_SESSION);
+  const g = {deck:pool, i:0, score:0, streak:0, finished:false, lock:false, feedback:null, choices:[], correct:0, q:null, loading:false};
   buildQuizRound(g);
+  setGameCoach({gameId:'quiz', streak:0, score:0});
   return g;
 }
 
@@ -6362,10 +6601,15 @@ function answerQuiz(choiceIdx){
     g.score += 10 + Math.min(15, g.streak*2);
     g.streak += 1;
     g.feedback = {ok:true};
+    setGameCoach({gameId:'quiz', streak:g.streak, score:g.score, lastWrong:null});
     feedback('save');
   }else{
     g.streak = 0;
     g.feedback = {ok:false, pick:choiceIdx};
+    setGameCoach({
+      gameId:'quiz', streak:0, score:g.score,
+      lastWrong:{q:g.q, answer:g.choices[g.correct], topic:g.topic},
+    });
     feedback('error');
   }
   render();
@@ -6383,27 +6627,69 @@ function answerQuiz(choiceIdx){
   }, ok?550:950);
 }
 
+async function fetchQuizAiRound(){
+  const g=state.game; if(!g || state.gameId!=='quiz' || g.loading) return;
+  g.loading=true; render();
+  try{
+    const response = await fetch('/api/quiz', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        count: QUIZ_SESSION,
+        topic:'mixed',
+        seed: Math.random().toString(36).slice(2,10),
+      }),
+    });
+    const data = await response.json().catch(()=>({}));
+    if(!response.ok || !Array.isArray(data.questions) || !data.questions.length){
+      throw new Error(data.error||'quiz failed');
+    }
+    stopChildGameTimers();
+    state.game = makeQuizGame(data.questions);
+    feedback('save');
+    toast(t('gameLearnAi'), 'success');
+  }catch{
+    if(state.game && state.gameId==='quiz'){
+      state.game.loading=false;
+      toast(t('gameLearnAiFail'), 'error');
+      render();
+    }
+  }
+}
+
+function mathRanges(level){
+  if(level>=3) return {add:28, sub:24, mul:12};
+  if(level===2) return {add:20, sub:16, mul:9};
+  return {add:12, sub:10, mul:6};
+}
+
 function makeMathGame(){
-  const g = {score:0, left:45, streak:0, finished:false, lock:false, feedback:null, prompt:'', choices:[], correct:0, _timer:null};
+  const g = {
+    score:0, left:75, lives:3, level:1, solved:0, streak:0,
+    finished:false, lock:false, feedback:null, prompt:'', choices:[], correct:0,
+    comboBurst:false, _timer:null,
+  };
   nextMathRound(g);
+  setGameCoach({gameId:'math', level:1, lives:3, streak:0});
   return g;
 }
 
 function nextMathRound(g){
-  const ops = ['+','-','×'];
+  const r = mathRanges(g.level||1);
+  const ops = g.level>=3 ? ['+','-','×'] : g.level===2 ? ['+','-','×'] : ['+','-'];
   const op = ops[Math.floor(Math.random()*ops.length)];
   let a, b, ans;
   if(op==='+'){
-    a = 2+Math.floor(Math.random()*18);
-    b = 2+Math.floor(Math.random()*18);
+    a = 2+Math.floor(Math.random()*r.add);
+    b = 2+Math.floor(Math.random()*r.add);
     ans = a+b;
   }else if(op==='-'){
-    a = 5+Math.floor(Math.random()*20);
-    b = 1+Math.floor(Math.random()*Math.min(12,a-1));
+    a = 5+Math.floor(Math.random()*r.sub);
+    b = 1+Math.floor(Math.random()*Math.min(r.sub-2,a-1));
     ans = a-b;
   }else{
-    a = 2+Math.floor(Math.random()*9);
-    b = 2+Math.floor(Math.random()*9);
+    a = 2+Math.floor(Math.random()*r.mul);
+    b = 2+Math.floor(Math.random()*r.mul);
     ans = a*b;
   }
   const distractors = new Set();
@@ -6418,6 +6704,7 @@ function nextMathRound(g){
   g.correct = choices.indexOf(ans);
   g.feedback = null;
   g.lock = false;
+  g.comboBurst = false;
 }
 
 function answerMath(choiceIdx){
@@ -6425,18 +6712,36 @@ function answerMath(choiceIdx){
   g.lock=true;
   const ok = choiceIdx===g.correct;
   if(ok){
-    g.score += 5 + Math.min(20, g.streak*2);
+    g.score += 5 + Math.min(20, g.streak*2) + (g.level||1)*2;
     g.streak += 1;
+    g.solved = (g.solved||0)+1;
+    if(g.solved%6===0 && g.level<3) g.level += 1;
     g.feedback = {ok:true};
+    g.comboBurst = g.streak>=3;
+    g.left = Math.min(90, g.left + (g.streak>=4?1:0));
+    setGameCoach({gameId:'math', streak:g.streak, level:g.level, lives:g.lives, score:g.score, lastWrong:null});
     feedback('save');
   }else{
     g.streak = 0;
+    g.lives = Math.max(0, (g.lives||1)-1);
     g.feedback = {ok:false, pick:choiceIdx};
+    setGameCoach({
+      gameId:'math', streak:0, level:g.level, lives:g.lives, score:g.score,
+      lastWrong:{prompt:g.prompt, answer:g.choices[g.correct]},
+    });
     feedback('error');
   }
   render();
   g._cpu = setTimeout(()=>{
     if(!state.game || state.gameId!=='math' || state.game.finished) return;
+    if(state.game.lives<=0){
+      stopChildGameTimers();
+      state.game.finished=true;
+      state.game.lock=false;
+      writeGameBest('math', state.game.score);
+      render();
+      return;
+    }
     nextMathRound(state.game);
     render();
   }, ok?400:800);
@@ -6462,9 +6767,10 @@ function startChildGame(id){
     state.game = {board:Array(9).fill(''), turn:'x', status:'play', winner:null, line:null};
   }else if(id==='catch'){
     state.game = {
-      score:0, left:35, combo:0, bestCombo:0, finished:false,
-      fish:[], splashes:[], _timer:null, _raf:null, _last:0, _spawn:0,
+      score:0, left:60, combo:0, bestCombo:0, finished:false, power:null,
+      fish:[], splashes:[], _timer:null, _raf:null, _last:0, _spawn:0, _powerT:0,
     };
+    setGameCoach({gameId:'catch', score:0, left:60});
   }else if(id==='react'){
     state.game = {phase:'idle', ms:null, best:readGameBest('react')||null, early:false, _cpu:null, startedAt:0};
   }else if(id==='rps'){
@@ -6477,11 +6783,23 @@ function startChildGame(id){
     state.game = {score:0, left:30, finished:false, target:null, choices:[], _timer:null};
     nextColorRound(state.game);
   }else if(id==='learn'){
-    state.game = makeLearnGame('de2el', pickLearnDeck(LEARN_VOCAB, 10));
+    const topic = readLearnTopic();
+    let deck;
+    if(topic==='weak'){
+      const weak = readLearnWeak();
+      deck = weak.length>=4 ? pickLearnDeck(weak, LEARN_SESSION, 'all') : pickLearnDeck(LEARN_VOCAB, LEARN_SESSION, 'all');
+    }else{
+      deck = pickLearnDeck(LEARN_VOCAB, LEARN_SESSION, topic);
+    }
+    state.game = makeLearnGame('de2el', deck, topic);
   }else if(id==='quiz'){
     state.game = makeQuizGame();
   }else if(id==='math'){
     state.game = makeMathGame();
+  }else if(id==='island'){
+    state.game = makeIslandGame();
+  }else if(id==='eduhub'){
+    state.game = {embed:null};
   }else state.game = null;
   render();
 }
@@ -6496,12 +6814,20 @@ function leaveChildGame(){
 function childGamesLobby(){
   const featured=CHILD_GAMES.filter(g=>g.featured);
   const rest=CHILD_GAMES.filter(g=>!g.featured);
+  const progressLabel=(g,best)=>{
+    if(!best) return '';
+    if(g.id==='react') return `${t('gameBest')}: ${t('gameReactMs')(best)}`;
+    if(g.id==='learn') return `XP ${best}`;
+    if(g.id==='simon') return `${t('gameLevel')} ${best}`;
+    return `${t('gameBest')}: ${best}`;
+  };
   const card=(g)=>{
     const best=readGameBest(g.id);
+    const prog=progressLabel(g,best);
     return `<button class="game-card ${g.featured?'featured':''}" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
       <span class="game-emoji">${g.emoji}</span>
       <span class="game-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span>
-        ${best?`<small class="game-best-chip">${esc(t('gameBest'))}: ${g.id==='react'?t('gameReactMs')(best):best}</small>`:''}</span>
+        <small class="game-best-chip">${esc(t('gamesPlayTime'))}${prog?` · ${esc(prog)}`:''}</small></span>
       <span class="game-go">${t('gamePlay')} →</span>
     </button>`;
   };
@@ -6510,6 +6836,7 @@ function childGamesLobby(){
       <h2>${t('gamesTitle')}</h2>
       <p>${t('gamesHint')}</p>
     </div>
+    <p class="game-lobby-meta muted">${esc(t('gamesPlayTime'))}</p>
     <div class="games-grid featured">${featured.map(card).join('')}</div>
     <div class="games-grid" style="margin-top:12px">${rest.map(card).join('')}</div>`;
 }
@@ -6536,9 +6863,8 @@ function childMemoryView(){
         <span>${t('gameStreak')}: <b id="memStreak">${g.streak||0}</b></span>
       </div></div>
     <p class="game-play-hint">${esc(t('gameMemoryHintPlay'))}</p>
-    ${done?`<div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameWin')} · ${g.moves} ${t('gameMoves')}</div>
-      <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
-    <div class="memory-grid" id="memoryGrid">${g.deck.map((card,i)=>`
+    ${done?gameShareBar(stars, `${t('gameWin')} · ${g.moves} ${t('gameMoves')}`)+`<div class="memory-confetti" aria-hidden="true"></div>`:''}
+    <div class="memory-grid ${done?'board-clear':''}" id="memoryGrid">${g.deck.map((card,i)=>`
       <button class="memory-card ${card.open||card.done?'open':''} ${card.done?'done':''} ${card.justMatched?'matched':''}" type="button" data-i="${i}" ${card.done||g.lock?'disabled':''} aria-label="${card.open||card.done?card.emoji:'card'}">
         <span class="memory-face back">🌊</span><span class="memory-face front">${card.emoji}</span>
       </button>`).join('')}</div>
@@ -6627,22 +6953,31 @@ function childTacView(){
 }
 
 function catchStars(score){
-  if(score>=40) return 3;
-  if(score>=22) return 2;
+  if(score>=55) return 3;
+  if(score>=30) return 2;
   return 1;
 }
 
 function spawnCatchFish(g){
-  const kind=CATCH_FISH[Math.floor(Math.random()*CATCH_FISH.length)];
+  const powerRoll = Math.random();
+  let kind;
+  if(powerRoll>0.92){
+    kind = {emoji:'⭐', pts:8, speed:1.35, size:1.05, power:'star'};
+  }else if(powerRoll>0.86){
+    kind = {emoji:'🫧', pts:0, speed:.9, size:1.1, power:'slow'};
+  }else{
+    kind = CATCH_FISH[Math.floor(Math.random()*CATCH_FISH.length)];
+  }
   const fromLeft=Math.random()>0.5;
   g.fish.push({
     id:'f'+Math.random().toString(36).slice(2,8),
     ...kind,
     x: fromLeft ? -12 : 112,
     y: 12 + Math.random()*70,
-    vx: (fromLeft?1:-1) * (28 + Math.random()*34) * kind.speed,
+    vx: (fromLeft?1:-1) * (28 + Math.random()*34) * kind.speed * (g.power==='slow'?0.55:1),
     wobble: Math.random()*Math.PI*2,
     life: 0,
+    spawnFx: true,
   });
 }
 
@@ -6659,8 +6994,7 @@ function childCatchView(){
         <span>${t('gameTime')}: <b id="catchTime">${Math.max(0,g.left)}s</b></span>
       </div></div>
     <p class="game-play-hint">${esc(t('gameCatchHintPlay'))}${best?` · ${esc(t('gameBest'))}: ${best}`:''}</p>
-    ${over?`<div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameCatchOver')} · ${g.score} ${t('gameScore')}</div>
-      <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
+    ${over?gameShareBar(stars, `${t('gameCatchOver')} · ${g.score} ${t('gameScore')}`):''}
     <div class="catch-sea" id="catchSea" aria-label="sea">
       <div class="catch-wave w1"></div><div class="catch-wave w2"></div><div class="catch-bubbles" aria-hidden="true"></div>
       <div id="catchFishLayer"></div>
@@ -6677,8 +7011,9 @@ function paintCatchFishLayer(){
   if(layer.dataset.ids!==ids){
     layer.dataset.ids=ids;
     layer.innerHTML=g.fish.map(f=>`
-      <button class="catch-fish swim" type="button" data-fid="${f.id}" aria-label="${esc(t('gameFishCatch'))}"
+      <button class="catch-fish swim ${f.spawnFx?'spawn-in':''} ${f.power?'power':''}" type="button" data-fid="${f.id}" aria-label="${esc(t('gameFishCatch'))}"
         style="left:${f.x}%;top:${f.y}%;--sz:${f.size};transform:scaleX(${f.vx<0?-1:1}) scale(var(--sz))">${f.emoji}</button>`).join('');
+    g.fish.forEach(f=>f.spawnFx=false);
   }else{
     g.fish.forEach(f=>{
       const el=layer.querySelector(`[data-fid="${f.id}"]`);
@@ -6698,10 +7033,13 @@ function paintCatchFishLayer(){
       if(!fish || gg.finished) return;
       gg.combo=Math.min(8,(gg.combo||0)+1);
       gg.bestCombo=Math.max(gg.bestCombo,gg.combo);
-      const gained=fish.pts*Math.max(1,gg.combo);
+      if(fish.power==='slow'){ gg.power='slow'; gg._powerT=6; }
+      if(fish.power==='star'){ gg.left=Math.min(75,(gg.left||0)+5); }
+      const gained=Math.max(1, fish.pts*Math.max(1,gg.combo));
       gg.score+=gained;
-      gg.splashes.push({id:fish.id,x:fish.x,y:fish.y,pts:`+${gained}`,t:0});
+      gg.splashes.push({id:fish.id,x:fish.x,y:fish.y,pts:fish.power==='slow'?'🐌':`+${gained}`,t:0});
       gg.fish=gg.fish.filter(x=>x.id!==fish.id);
+      setGameCoach({gameId:'catch', score:gg.score, combo:gg.combo, left:gg.left});
       feedback('save');
       const scoreEl=document.getElementById('catchScore');
       const comboEl=document.getElementById('catchCombo');
@@ -6727,8 +7065,13 @@ function tickCatch(ts){
   if(!g._last) g._last=ts;
   const dt=Math.min(0.05,(ts-g._last)/1000);
   g._last=ts;
+  if(g.power==='slow'){
+    g._powerT=(g._powerT||0)-dt;
+    if(g._powerT<=0){ g.power=null; g._powerT=0; }
+  }
   g._spawn=(g._spawn||0)+dt;
-  if(g.fish.length<4 && g._spawn>0.55){
+  const spawnEvery = g.power==='slow' ? 0.7 : 0.48;
+  if(g.fish.length<(g.power==='slow'?3:5) && g._spawn>spawnEvery){
     spawnCatchFish(g);
     g._spawn=0;
     paintCatchFishLayer();
@@ -6755,10 +7098,136 @@ function tickCatch(ts){
   g._raf=requestAnimationFrame(tickCatch);
 }
 
+function makeIslandGame(){
+  const deck = shuffleInPlace([...ISLAND_STEPS]).slice(0, 8);
+  const g = {deck, i:0, score:0, hearts:3, finished:false, lock:false, feedback:null, choices:[], correct:0, q:null};
+  buildIslandRound(g);
+  setGameCoach({gameId:'island', step:0, hearts:3});
+  return g;
+}
+function buildIslandRound(g){
+  const item = g.deck[g.i];
+  if(!item){ g.finished=true; return; }
+  const loc = state.lang==='el' ? item.el : item.de;
+  const order = [0,1,2,3];
+  shuffleInPlace(order);
+  g.q = loc.q;
+  g.emoji = item.emoji;
+  g.choices = order.map(i=>loc.choices[i]);
+  g.correct = order.indexOf(loc.a);
+  g.feedback = null;
+  g.lock = false;
+}
+function answerIsland(choiceIdx){
+  const g=state.game; if(!g || g.lock || g.finished || state.gameId!=='island') return;
+  g.lock=true;
+  const ok = choiceIdx===g.correct;
+  if(ok){
+    g.score += 12 + g.i;
+    g.feedback = {ok:true};
+    setGameCoach({gameId:'island', step:g.i+1, score:g.score, lastWrong:null});
+    feedback('save');
+  }else{
+    g.hearts = Math.max(0, g.hearts-1);
+    g.feedback = {ok:false, pick:choiceIdx};
+    setGameCoach({gameId:'island', step:g.i, hearts:g.hearts, lastWrong:{q:g.q, answer:g.choices[g.correct]}});
+    feedback('error');
+  }
+  render();
+  g._cpu = setTimeout(()=>{
+    if(!state.game || state.gameId!=='island') return;
+    const gg=state.game;
+    if(gg.hearts<=0){
+      gg.finished=true; gg.lock=false;
+      writeGameBest('island', gg.score);
+      render(); return;
+    }
+    gg.i += 1;
+    if(gg.i >= gg.deck.length){
+      gg.finished=true; gg.lock=false;
+      writeGameBest('island', gg.score);
+      render(); return;
+    }
+    buildIslandRound(gg);
+    render();
+  }, ok?550:1000);
+}
+
+function childIslandView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  const total=g.deck.length;
+  const progress=Math.min(100, Math.round((g.i/total)*100));
+  if(g.finished){
+    const stars=g.score>=70?3:g.score>=35?2:1;
+    return `<div class="game-shell island">
+      <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button></div>
+      ${gameShareBar(stars, `${t('gameIslandDone')} · ${g.score} ${t('gameScore')}`)}
+    </div>`;
+  }
+  return `<div class="game-shell island">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats">
+        <span>${t('gameIslandStep')}: <b>${Math.min(g.i+1,total)}/${total}</b></span>
+        <span>${t('gameScore')}: <b>${g.score}</b></span>
+        <span>${'❤️'.repeat(g.hearts)}${'🖤'.repeat(Math.max(0,3-g.hearts))}</span>
+      </div></div>
+    <p class="game-play-hint">${esc(t('gameIslandHintPlay'))}</p>
+    <div class="island-stage" aria-hidden="true">
+      <div class="island-sky"></div>
+      <div class="island-scene" style="--progress:${progress}">
+        <div class="island-platform"></div>
+        <div class="island-path">${g.deck.map((_,i)=>`<span class="island-node ${i<g.i?'done':i===g.i?'here':''}">${i+1}</span>`).join('')}</div>
+        <div class="island-avatar" style="--step:${g.i}">🧭</div>
+      </div>
+    </div>
+    <div class="learn-prompt island-q pop-in"><span class="learn-emoji">${esc(g.emoji||'🏝️')}</span><b>${esc(g.q||'')}</b></div>
+    ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${g.feedback.ok?t('gameLearnCorrect'):`${t('gameLearnWrong')} ${esc(g.choices[g.correct]||'')}`}</div>`:''}
+    <div class="learn-choices">${(g.choices||[]).map((c,i)=>`
+      <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
+        type="button" data-island-choice="${i}" ${g.lock?'disabled':''}>${esc(c)}</button>`).join('')}</div>
+  </div>`;
+}
+
+function childEduHubView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  if(g.embed){
+    const game = EDU_FREE_GAMES.find(x=>x.id===g.embed);
+    return `<div class="game-shell eduhub">
+      <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+        <button class="chip" type="button" id="eduClose">${t('eduClose')}</button></div>
+      <p class="game-play-hint">${esc(t('eduSandbox'))}${game?` · ${esc(t(game.titleKey))}`:''}</p>
+      <div class="edu-frame-wrap">
+        <iframe class="edu-frame" title="${esc(game?t(game.titleKey):'edu')}"
+          src="${esc(game?.url||'')}"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          referrerpolicy="no-referrer"
+          loading="lazy"></iframe>
+      </div>
+    </div>`;
+  }
+  return `<div class="game-shell eduhub">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button></div>
+    <div class="games-hero edu-hero">
+      <div class="brand-kicker">Armonia Learn</div>
+      <h2>${t('gameEduHub')}</h2>
+      <p>${t('gameEduHubHint')}</p>
+    </div>
+    <p class="muted" style="margin:0 0 10px;font-size:12.5px">${esc(t('eduSandbox'))}</p>
+    <div class="games-grid">${EDU_FREE_GAMES.map(eg=>`
+      <button class="game-card" type="button" data-edu="${eg.id}" style="--game-tint:#0369a1">
+        <span class="game-emoji">${eg.emoji}</span>
+        <span class="game-copy"><b>${esc(t(eg.titleKey))}</b><span>PhET · Colorado</span></span>
+        <span class="game-go">${t('eduOpen')} →</span>
+      </button>`).join('')}</div>
+  </div>`;
+}
+
 function childGamesView(){
   if(state.gameId==='learn') return childLearnView();
   if(state.gameId==='quiz') return childQuizView();
   if(state.gameId==='math') return childMathView();
+  if(state.gameId==='island') return childIslandView();
+  if(state.gameId==='eduhub') return childEduHubView();
   if(state.gameId==='memory') return childMemoryView();
   if(state.gameId==='tac') return childTacView();
   if(state.gameId==='catch') return childCatchView();
@@ -6772,25 +7241,39 @@ function childGamesView(){
 
 function childLearnView(){
   const g=state.game; if(!g) return childGamesLobby();
-  const total=g.deck.length||10;
+  const total=g.deck.length||LEARN_SESSION;
   const progress=Math.min(100, Math.round((g.i/total)*100));
-  const hearts='❤️'.repeat(g.hearts)+'🖤'.repeat(Math.max(0,3-g.hearts));
+  const heartsHtml = Array.from({length:3},(_,i)=>
+    `<span class="learn-heart ${i<g.hearts?'':'broken'}">${i<g.hearts?'❤️':'💔'}</span>`
+  ).join('');
   if(g.finished){
-    const stars=g.xp>=80?3:g.xp>=40?2:1;
-    return `<div class="game-shell learn">
+    const stars=g.xp>=140?3:g.xp>=70?2:1;
+    return `<div class="game-shell learn topic-${esc(g.topic||'all')}">
       <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
         <div class="game-stats"><span>${t('gameLearnXp')}: <b>${g.xp}</b></span></div></div>
-      <div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameLearnDone')} · ${g.xp} ${t('gameLearnXp')}</div>
-        <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>
+      ${gameShareBar(stars, `${t('gameLearnDone')} · ${g.xp} ${t('gameLearnXp')}`)}
     </div>`;
   }
-  return `<div class="game-shell learn">
+  const topics = [
+    {id:'all', key:'gameLearnTopicAll'},
+    {id:'greetings', key:'gameLearnTopicGreet'},
+    {id:'food', key:'gameLearnTopicFood'},
+    {id:'beach', key:'gameLearnTopicBeach'},
+    {id:'nature', key:'gameLearnTopicNature'},
+    {id:'thassos', key:'gameLearnTopicThassos'},
+    {id:'weak', key:'gameLearnWeak'},
+  ];
+  return `<div class="game-shell learn topic-${esc(g.topic||'all')}">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
       <div class="game-stats">
         <span>${t('gameLearnRound')}: <b>${Math.min(g.i+1,total)}/${total}</b></span>
         <span>${t('gameLearnXp')}: <b>${g.xp}</b></span>
-        <span title="${esc(t('gameLearnHearts'))}">${hearts}</span>
+        <span class="learn-hearts" title="${esc(t('gameLearnHearts'))}">${heartsHtml}</span>
+        ${g.streak>=2?`<span class="learn-flame">🔥 ${g.streak}</span>`:''}
       </div></div>
+    <div class="learn-toolbar topics">
+      ${topics.map(tp=>`<button class="chip ${g.topic===tp.id?'on':''}" type="button" data-learn-topic="${tp.id}">${esc(t(tp.key))}</button>`).join('')}
+    </div>
     <div class="learn-toolbar">
       <button class="chip ${g.mode==='de2el'?'on':''}" type="button" data-learn-mode="de2el">${t('gameLearnDeToEl')}</button>
       <button class="chip ${g.mode==='el2de'?'on':''}" type="button" data-learn-mode="el2de">${t('gameLearnElToDe')}</button>
@@ -6798,12 +7281,15 @@ function childLearnView(){
     </div>
     <div class="learn-progress"><span style="width:${progress}%"></span></div>
     <p class="game-play-hint">${esc(t('gameLearnHintPlay'))}${g.card?.source==='ai'?' · AI':''}</p>
-    <div class="learn-prompt pop-in">
+    <div class="learn-prompt card-flip" data-flip="${g.flipKey||0}">
       <span class="learn-emoji">${esc(g.card?.emoji||'🇬🇷')}</span>
       <b>${esc(g.prompt)}</b>
       <small>${g.mode==='de2el'?'Deutsch → Ελληνικά':'Ελληνικά → Deutsch'}</small>
     </div>
-    ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${esc(g.feedback.text|| (g.feedback.ok?t('gameLearnCorrect'):t('gameLearnWrong')))}</div>`:''}
+    ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} ${g.feedback.heartBreak?'heart-break':''} pop-in">
+      ${esc(g.feedback.text|| (g.feedback.ok?t('gameLearnCorrect'):t('gameLearnWrong')))}
+      ${g.feedback.hint?`<div class="learn-hint">${esc(g.feedback.hint)}</div>`:''}
+    </div>`:''}
     <div class="learn-choices">${(g.choices||[]).map((c,i)=>`
       <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
         type="button" data-learn-choice="${i}" ${g.lock?'disabled':''}>${esc(c)}</button>`).join('')}</div>
@@ -6814,11 +7300,10 @@ function childQuizView(){
   const g=state.game; if(!g) return childGamesLobby();
   const total=g.deck.length;
   if(g.finished){
-    const stars=g.score>=70?3:g.score>=35?2:1;
+    const stars=g.score>=100?3:g.score>=50?2:1;
     return `<div class="game-shell quiz">
       <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button></div>
-      <div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameWin')} · ${g.score} ${t('gameScore')}</div>
-        <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>
+      ${gameShareBar(stars, `${t('gameWin')} · ${g.score} ${t('gameScore')}`)}
     </div>`;
   }
   return `<div class="game-shell quiz">
@@ -6828,8 +7313,11 @@ function childQuizView(){
         <span>${t('gameScore')}: <b>${g.score}</b></span>
         <span>${t('gameStreak')}: <b>${g.streak}</b></span>
       </div></div>
+    <div class="learn-toolbar">
+      <button class="chip ai" type="button" id="quizAi" ${g.loading?'disabled':''}>${g.loading?t('gameLearnAiLoading'):`✨ ${t('gameLearnAi')}`}</button>
+    </div>
     <p class="game-play-hint">${esc(t('gameQuizHintPlay'))} · ${esc(t('gameQuizTopic'))}: ${esc(g.topic||'')}</p>
-    <div class="learn-prompt quiz-q pop-in"><b>${esc(g.q||'')}</b></div>
+    <div class="learn-prompt quiz-q quiz-pop"><b>${esc(g.q||'')}</b></div>
     ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${g.feedback.ok?t('gameLearnCorrect'):`${t('gameLearnWrong')} ${esc(g.choices[g.correct]||'')}`}</div>`:''}
     <div class="learn-choices">${(g.choices||[]).map((c,i)=>`
       <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
@@ -6840,22 +7328,24 @@ function childQuizView(){
 function childMathView(){
   const g=state.game; if(!g) return childGamesLobby();
   if(g.finished){
-    const stars=g.score>=80?3:g.score>=40?2:1;
+    const stars=g.score>=120?3:g.score>=60?2:1;
     return `<div class="game-shell math">
       <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button></div>
-      <div class="game-banner win pop-in"><div><div class="game-stars">${t('gameStars')(stars)}</div>${t('gameCatchOver')} · ${g.score} ${t('gameScore')}</div>
-        <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>
+      ${gameShareBar(stars, `${t('gameCatchOver')} · ${g.score} ${t('gameScore')}`)}
     </div>`;
   }
-  return `<div class="game-shell math">
+  const lifeIcons='💚'.repeat(g.lives||0)+'🖤'.repeat(Math.max(0,3-(g.lives||0)));
+  return `<div class="game-shell math level-${g.level||1}">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
       <div class="game-stats">
         <span>${t('gameScore')}: <b id="mathScore">${g.score}</b></span>
-        <span>${t('gameStreak')}: <b>${g.streak}</b></span>
+        <span>${t('gameMathLevel')}: <b>${g.level||1}</b></span>
+        <span>${t('gameMathLives')}: <b>${lifeIcons}</b></span>
+        <span>${t('gameStreak')}: <b class="${g.comboBurst?'math-combo':''}">${g.streak}</b></span>
         <span>${t('gameTime')}: <b id="mathTime">${g.left}s</b></span>
       </div></div>
     <p class="game-play-hint">${esc(t('gameMathHintPlay'))}</p>
-    <div class="learn-prompt math-q pop-in"><b>${esc(g.prompt)}</b><small>= ?</small></div>
+    <div class="learn-prompt math-q ${g.comboBurst?'combo-burst':''}"><b class="math-num">${esc(g.prompt)}</b><small>= ?</small></div>
     ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${g.feedback.ok?t('gameLearnCorrect'):`${t('gameLearnWrong')} ${g.choices[g.correct]}`}</div>`:''}
     <div class="learn-choices math">${(g.choices||[]).map((c,i)=>`
       <button class="learn-choice ${g.feedback&&i===g.correct?'is-right':''} ${g.feedback&&!g.feedback.ok&&i===g.feedback.pick?'is-wrong':''}"
@@ -6939,7 +7429,7 @@ function childSimonView(){
       </div></div>
     <p class="game-play-hint">${esc(banner)}</p>
     <div class="simon-grid">${SIMON_PADS.map(p=>`
-      <button class="simon-pad ${p.cls}${g.lit===p.id?' lit':''}" type="button" data-simon="${p.id}"
+      <button class="simon-pad ${p.cls}${g.lit===p.id?' lit ripple':''}${g.phase==='show'?' tempo':''}" type="button" data-simon="${p.id}"
         aria-label="${esc(t(p.labelKey))}" ${g.phase!=='input'?'disabled':''}></button>`).join('')}</div>
     ${g.phase==='idle'||g.phase==='fail'?`<button class="btn" type="button" id="simonStart">${g.phase==='fail'?t('gameAgain'):t('gamePlay')}</button>`:''}
   </div>`;
@@ -7011,6 +7501,11 @@ function bindChildGames(root){
   const again=root.querySelector('#gameAgain');
   if(again) again.onclick=()=>{ feedback('save'); startChildGame(state.gameId); };
 
+  root.querySelector('#gameShareMoment')?.addEventListener('click', ()=>{
+    feedback('select');
+    sheetGameShareMoment();
+  });
+
   if(state.gameId==='learn'){
     root.querySelectorAll('[data-learn-mode]').forEach(btn=>{
       btn.onclick=()=>{
@@ -7019,7 +7514,26 @@ function bindChildGames(root){
         if(mode===g.mode) return;
         feedback('select');
         stopChildGameTimers();
-        state.game = makeLearnGame(mode, g.deck);
+        state.game = makeLearnGame(mode, g.deck, g.topic);
+        render();
+      };
+    });
+    root.querySelectorAll('[data-learn-topic]').forEach(btn=>{
+      btn.onclick=()=>{
+        const g=state.game; if(!g || g.loading) return;
+        const topic=btn.dataset.learnTopic;
+        if(topic===g.topic) return;
+        feedback('select');
+        writeLearnTopic(topic);
+        stopChildGameTimers();
+        let deck;
+        if(topic==='weak'){
+          const weak=readLearnWeak();
+          deck = weak.length>=4 ? pickLearnDeck(weak, LEARN_SESSION, 'all') : pickLearnDeck(LEARN_VOCAB, LEARN_SESSION, 'all');
+        }else{
+          deck = pickLearnDeck(LEARN_VOCAB, LEARN_SESSION, topic);
+        }
+        state.game = makeLearnGame(g.mode, deck, topic);
         render();
       };
     });
@@ -7030,8 +7544,32 @@ function bindChildGames(root){
   }
 
   if(state.gameId==='quiz'){
+    root.querySelector('#quizAi')?.addEventListener('click',()=>{ feedback('select'); fetchQuizAiRound(); });
     root.querySelectorAll('[data-quiz-choice]').forEach(btn=>{
       btn.onclick=()=> answerQuiz(Number(btn.dataset.quizChoice));
+    });
+  }
+
+  if(state.gameId==='island'){
+    root.querySelectorAll('[data-island-choice]').forEach(btn=>{
+      btn.onclick=()=> answerIsland(Number(btn.dataset.islandChoice));
+    });
+  }
+
+  if(state.gameId==='eduhub'){
+    root.querySelectorAll('[data-edu]').forEach(btn=>{
+      btn.onclick=()=>{
+        if(!state.game) return;
+        feedback('select');
+        state.game.embed = btn.dataset.edu;
+        render();
+      };
+    });
+    root.querySelector('#eduClose')?.addEventListener('click', ()=>{
+      if(!state.game) return;
+      state.game.embed = null;
+      feedback('select');
+      render();
     });
   }
 
@@ -7620,17 +8158,8 @@ function viewHome(){
       </div>
     </div>
     <div class="page-actions" role="toolbar">
-      <button class="page-act primary" type="button" data-page-act="help">✨ ${esc(t('topHelp'))}</button>
-      ${user?`<button class="page-act" type="button" data-page-act="talk">💬 ${esc(t('topTalk'))}</button>`:''}
       <button class="page-act ghost" type="button" data-page-act="tutorial">📘 ${esc(t('topTutorial'))}</button>
     </div>
-    ${zoAiBannerHtml()}
-    ${user?`<button class="notification-card" id="homeTalkOpen" type="button">
-      <span style="font-size:22px">💬</span>
-      <div class="grow"><b>${esc(t('staffTalkOpen'))}</b>
-        <div class="muted" style="font-size:12px;margin-top:2px">${esc(t('staffTalkHint'))}</div></div>
-      <span class="muted">→</span>
-    </button>`:''}
     <button class="notification-card" id="homeGalleryOpen" type="button">
       <span style="font-size:22px">📸</span>
       <div class="grow"><b>${esc(t('galleryTitle'))}</b>
@@ -7680,27 +8209,27 @@ function renderChild(){
       `<button type="button" class="topbtn ${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('weekEvents')}</button>`,
       `<button type="button" class="topbtn ${state.childView==='gallery'?'on':''}" data-child-view="gallery">📸 ${t('galleryChildTab')}</button>`,
       `<button type="button" class="topbtn ${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>`,
-      `<button type="button" class="topbtn" data-child-chat="1">✨ ${t('helpChat')}</button>`,
     ].join('');
     tools.querySelectorAll('[data-child-view]').forEach(b=>b.onclick=()=>{
       state.childView=b.dataset.childView;
       if(state.childView==='gallery') refreshGallery({silent:true}).then(()=>renderChild());
       else renderChild();
     });
-    tools.querySelector('[data-child-chat]')?.addEventListener('click',()=>openZoAi());
   }
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='none';
   document.querySelector('nav').style.display = 'none';
   document.body.classList.add('mode-child');
-  document.body.classList.remove('has-stock-dock','has-store-dock','chat-open');
-  state.chatOpen=false;
-  const fab=document.getElementById('helpFab');
-  if(fab){
-    fab.hidden=false;
-    fab.textContent='✨';
-    fab.setAttribute('aria-label', t('helpChat'));
-    fab.title = t('helpChat');
+  document.body.classList.remove('has-stock-dock','has-store-dock');
+  document.body.classList.toggle('chat-open', !!state.chatOpen);
+  const helpFab=document.getElementById('helpFab');
+  if(helpFab) helpFab.hidden=true;
+  const zoFab=document.getElementById('navChat');
+  if(zoFab){
+    zoFab.hidden=false;
+    zoFab.classList.toggle('on', !!state.chatOpen);
+    zoFab.setAttribute('aria-label', t('helpChat'));
+    zoFab.title = t('helpChat');
   }
   const days = week.map(ds=>{
     const d = new Date(ds+'T12:00:00');
@@ -7733,7 +8262,6 @@ function renderChild(){
     <button class="${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>
   </div>`;
   const todayView = `
-    ${zoAiBannerHtml()}
     ${childUpcomingEvents.length?`<button class="notification-card" id="childEventNotice" type="button">
       <span style="font-size:24px">📣</span><span class="grow"><span class="strong">${t('childNotifications')}</span><br><span class="muted">${t('openEvents')}</span></span>
       <span class="notification-count">${childUpcomingEvents.length}</span></button>`:''}
@@ -7861,6 +8389,7 @@ function onTopAction(id){
 }
 
 function closeChatPanel(){
+  stopTalkPanelPoll();
   state.chatOpen=false;
   document.body.classList.remove('chat-open');
   const body=document.getElementById('chatBody');
@@ -7874,20 +8403,14 @@ function toggleChatPanel(){
   else openZoAi();
 }
 
-/** Team talk: own sheet only — never mixed into Zo-Ai panel. */
+/** Team talk opens in the floating chat panel — chat-first, no hub buttons. */
 function openStaffTalk(){
   if(state.mode!=='staff' || !state.user){ toast(t('staffTalkNeedStaff'),'error'); return; }
-  closeChatPanel();
-  sheetStaffTalk();
+  openChatPanel('talk');
 }
 
-/** Zo-Ai alone: child sheet, staff dedicated chat panel (no Team / help hub). */
+/** Zo-Ai via floating panel only (kids + staff). */
 function openZoAi(){
-  if(state.mode==='child'){
-    closeChatPanel();
-    sheetHelp();
-    return;
-  }
   if(state.chatOpen && state.chatMode==='ai'){
     closeChatPanel();
     return;
@@ -7895,29 +8418,32 @@ function openZoAi(){
   openChatPanel('ai');
 }
 
+let talkPanelPoll = null;
+function stopTalkPanelPoll(){
+  if(talkPanelPoll){ clearInterval(talkPanelPoll); talkPanelPoll=null; }
+}
+
 function openChatPanel(mode='ai'){
-  if(state.mode==='child'){
-    if(mode==='talk'){ toast(t('staffTalkNeedStaff')||t('helpChildHint')); return; }
-    openZoAi();
+  if(mode==='talk' && (state.mode!=='staff' || !state.user)){
+    toast(t('staffTalkNeedStaff'),'error');
     return;
   }
-  // Team talk is standalone — never embed in the chat dock.
-  if(mode==='talk'){ openStaffTalk(); return; }
-  // Help hub removed — Zo-Ai opens directly.
   if(mode==='help') mode='ai';
+  if(mode!=='talk') mode='ai';
 
-  state.chatMode='ai';
+  stopTalkPanelPoll();
+  state.chatMode=mode;
   state.chatOpen=true;
   document.body.classList.add('chat-open');
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='';
 
   const seg=document.getElementById('chatModeSeg');
-  if(seg) seg.hidden=true;
+  if(seg){ seg.hidden=true; seg.setAttribute('aria-hidden','true'); seg.replaceChildren(); }
   const title=document.getElementById('chatPanelTitle');
   if(title){
     title.hidden=false;
-    title.textContent=`✨ ${t('helpChat')}`;
+    title.textContent = mode==='talk' ? `💬 ${t('staffTalkTitle')}` : `✨ ${t('helpChat')}`;
   }
   const closeBtn=document.getElementById('chatClose');
   if(closeBtn) closeBtn.setAttribute('aria-label', t('close'));
@@ -7929,8 +8455,113 @@ function openChatPanel(mode='ai'){
 function paintChatPanel(){
   const body=document.getElementById('chatBody');
   if(!body || !state.chatOpen) return;
-  // Zo-Ai only in this panel — Team talk uses sheetStaffTalk.
-  mountHelpChat(body);
+  stopTalkPanelPoll();
+  if(state.chatMode==='talk') mountStaffTalkChat(body);
+  else mountHelpChat(body);
+}
+
+function mountStaffTalkChat(root){
+  if(state.mode!=='staff' || !state.user){
+    root.innerHTML=`<div class="empty">${esc(t('staffTalkNeedStaff'))}</div>`;
+    return;
+  }
+  let talk={
+    messages: Array.isArray(talkCache.messages) ? talkCache.messages : [],
+    topics: Array.isArray(talkCache.topics) ? talkCache.topics : [],
+    videoUrl: talkCache.videoUrl || '',
+    updatedAt: talkCache.updatedAt || 0,
+  };
+  let busy=false, voice=null;
+  const fmtTalkTime=ts=>{
+    try{ return new Date(ts).toLocaleTimeString(state.lang==='el'?'el-GR':'de-DE',{hour:'2-digit',minute:'2-digit'}); }
+    catch{ return ''; }
+  };
+  const remember=()=>{ talkCache={messages:talk.messages||[], topics:talk.topics||[], videoUrl:talk.videoUrl||'', updatedAt:talk.updatedAt||0}; };
+  const paint=()=>{
+    if(!state.chatOpen || state.chatMode!=='talk') return;
+    const log=root.querySelector('#talkLog');
+    const videoBtn=root.querySelector('#talkVideoOpen');
+    if(videoBtn){ videoBtn.disabled=!talk.videoUrl; videoBtn.dataset.url=talk.videoUrl||''; }
+    if(log){
+      const msgs=talk.messages||[];
+      log.innerHTML = msgs.length
+        ? msgs.map(m=>{
+            const mine=m.by===state.user.id;
+            return `<div class="chat-msg ${mine?'talk-user':'assistant'}">
+              <span class="talk-who">${esc(m.byName||m.by)} · ${esc(fmtTalkTime(m.at))}</span>${esc(m.text)}</div>`;
+          }).join('')
+        : `<div class="chat-msg talk-meta">${esc(t('staffTalkEmpty'))}</div>`;
+      log.scrollTop=log.scrollHeight;
+    }
+  };
+
+  root.innerHTML=`
+    <div class="chat-log talk-chat-fast" id="talkLog" aria-live="polite"></div>
+    <div class="chat-compose">
+      <textarea id="talkInput" rows="1" placeholder="${esc(t('staffTalkPlaceholder'))}"></textarea>
+      <button class="chat-mic" id="talkMic" type="button" aria-label="${esc(t('helpVoice'))}" title="${esc(t('helpVoice'))}">🎤</button>
+      <button class="btn" id="talkSend" type="button">${esc(t('staffTalkSend'))}</button>
+    </div>
+    <div class="chat-voice-status" id="talkVoiceStatus" hidden></div>
+    <div class="talk-float-tools">
+      <button class="btn ghost sm" type="button" id="talkVideoOpen">📹 ${esc(t('staffTalkVideoOpen'))}</button>
+      <button class="btn ghost sm" type="button" id="talkToZoAi">✨ ${esc(t('helpChat'))}</button>
+    </div>`;
+  paint();
+  const input=root.querySelector('#talkInput');
+  const send=root.querySelector('#talkSend');
+  const mic=root.querySelector('#talkMic');
+  setTimeout(()=>input?.focus(), 20);
+
+  root.querySelector('#talkVideoOpen').onclick=()=>{
+    const url=root.querySelector('#talkVideoOpen').dataset.url;
+    if(!url) return;
+    feedback('open');
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+  root.querySelector('#talkToZoAi').onclick=()=>{ feedback('select'); openChatPanel('ai'); };
+
+  const submit=async()=>{
+    const content=input.value.trim();
+    if(!content || busy || send.disabled) return;
+    voice?.stop();
+    const optimistic={
+      id:'local-'+Date.now(), text:content, by:state.user.id,
+      byName:profileName(state.user)||state.user.name, at:Date.now(), kind:'chat',
+    };
+    talk.messages=[...(talk.messages||[]), optimistic];
+    input.value='';
+    paint();
+    busy=true; send.disabled=true; if(mic) mic.disabled=true;
+    try{
+      talk=await talkApi('send',{text:content});
+      remember(); paint(); feedback('select');
+    }catch(error){
+      talk.messages=(talk.messages||[]).filter(m=>m.id!==optimistic.id);
+      paint();
+      feedback('error'); toast(error.message||t('staffTalkLoadError'),'error');
+    }finally{ busy=false; send.disabled=false; if(mic) mic.disabled=false; input.focus(); }
+  };
+  send.onclick=submit;
+  input.onkeydown=e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); } };
+  voice=bindVoiceInput({ input, mic, statusEl:root.querySelector('#talkVoiceStatus') });
+
+  (async()=>{
+    try{
+      talk=await talkApi();
+      remember(); paint();
+      stopTalkPanelPoll();
+      talkPanelPoll=setInterval(async()=>{
+        if(!state.chatOpen || state.chatMode!=='talk' || busy) return;
+        try{
+          const next=await talkApi();
+          if(next.updatedAt!==talk.updatedAt){ talk=next; remember(); paint(); }
+        }catch{}
+      }, 2500);
+    }catch(error){
+      if(!(talk.messages||[]).length) toast(error.message||t('staffTalkLoadError'),'error');
+    }
+  })();
 }
 
 function mountHelpChat(root){
@@ -7962,15 +8593,11 @@ function mountHelpChat(root){
           ? ['πρόσθεσε 2 γάλα στο Kalyvia','βγάλε 1 βούτυρο Limenaria','βάλε ρύζι στη λίστα']
           : ['2 Milch nach Kalyvia','1 Butter raus Limenaria','Reis auf die Liste']);
   const quickLabel = role==='child' ? t('helpQuickChild') : role==='admin' ? t('helpQuickAdmin') : t('helpQuickFood');
-  root.innerHTML=`<div class="row between" style="align-items:flex-start;gap:10px;margin-bottom:8px">
-      <div class="strong">✨ ${t('helpChat')}</div>
-      <span class="help-role-pill ${esc(role)}">${esc(helpRoleLabel())}</span>
-    </div>
+  const staffTalkLink = (state.mode==='staff' && state.user)
+    ? `<button class="btn ghost sm talk-open-link" type="button" id="zoAiOpenTalk">💬 ${esc(t('staffTalkTitle'))}</button>`
+    : '';
+  root.innerHTML=`
     <div class="status error" id="helpConfigStatus" hidden style="margin:0 0 10px"></div>
-    <div class="chips help-quick" id="helpQuick" style="margin:0 0 10px">
-      <span class="muted" style="width:100%;font-size:11px">${esc(quickLabel)}</span>
-      ${quickPrompts.map(q=>`<button class="chip" type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('')}
-    </div>
     <div class="chat-log" id="helpLog" aria-live="polite"></div>
     <div id="helpProposeBox" class="help-propose-box" hidden></div>
     <div class="chat-compose">
@@ -7978,8 +8605,19 @@ function mountHelpChat(root){
       <button class="chat-mic" id="helpMic" type="button" aria-label="${esc(t('helpVoice'))}" title="${esc(t('helpVoice'))}">🎤</button>
       <button class="btn" id="helpSend" type="button">${t('helpSend')}</button>
     </div>
-    <div class="chat-voice-status" id="helpVoiceStatus" hidden></div>`;
+    <div class="chat-voice-status" id="helpVoiceStatus" hidden></div>
+    <div class="talk-float-tools">
+      ${staffTalkLink}
+      <details class="help-quick-details">
+        <summary class="muted">${esc(quickLabel)}</summary>
+        <div class="chips help-quick" id="helpQuick" style="margin-top:8px">
+          ${quickPrompts.map(q=>`<button class="chip" type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('')}
+        </div>
+      </details>
+    </div>`;
   paint();
+  setTimeout(()=>root.querySelector('#helpInput')?.focus(), 20);
+  root.querySelector('#zoAiOpenTalk')?.addEventListener('click',()=>{ feedback('select'); openStaffTalk(); });
   fetch('/api/health',{credentials:'same-origin'}).then(r=>r.json()).then(health=>{
     const banner=root.querySelector('#helpConfigStatus');
     if(!banner || health?.aiConfigured!==false) return;
@@ -8098,9 +8736,14 @@ function render(){
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='';
   document.querySelector('nav').style.display = '';
-  document.getElementById('helpFab').textContent='✨';
-  document.getElementById('helpFab').setAttribute('aria-label', t('helpChat'));
-  document.getElementById('helpFab').title = t('helpChat');
+  const helpFab=document.getElementById('helpFab');
+  if(helpFab) helpFab.hidden=true;
+  const zoFab=document.getElementById('navChat');
+  if(zoFab){
+    zoFab.hidden=false;
+    zoFab.setAttribute('aria-label', t('helpChat'));
+    zoFab.title = t('helpChat');
+  }
   paintTopChrome();
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   document.querySelectorAll('[data-nav]').forEach(s=>{
@@ -8114,6 +8757,9 @@ function render(){
   document.body.classList.toggle('store-fullscreen', storeDock);
   document.body.classList.toggle('has-stock-draft', stockDock && stockDraftEntries().length>0);
   document.body.classList.toggle('chat-open', !!state.chatOpen);
+  // Lets the stylesheet theme a single tab without touching the rest
+  // of the app's ~1000 rules. Read by body[data-tab="…"] in index.html.
+  document.body.dataset.tab = state.tab || '';
 
   document.getElementById('view').innerHTML =
       state.tab==='home'     ? viewHome()
@@ -8148,8 +8794,6 @@ function wire(){
 
   const homeAllEvents=v.querySelector('#homeAllEvents');
   if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';state.scheduleView='events';render();};
-  const homeTalkOpen=v.querySelector('#homeTalkOpen');
-  if(homeTalkOpen) homeTalkOpen.onclick=()=>{ feedback('open'); openStaffTalk(); };
   const homeGalleryOpen=v.querySelector('#homeGalleryOpen');
   if(homeGalleryOpen) homeGalleryOpen.onclick=()=>{
     feedback('open');
@@ -8447,7 +9091,7 @@ function wire(){
   v.querySelectorAll('[data-carry]').forEach(b=>{
     b.onclick = () => {
       const e = DB.listEntries.find(x=>x.id===b.dataset.carry);
-      e.status = 'open'; delete e.decidedAt; delete e.decidedBy;
+      e.status = 'open'; delete e.decidedAt; delete e.decidedBy; delete e.missReason;
       save(); render();
     };
   });
@@ -8545,13 +9189,6 @@ document.getElementById('navChat')?.addEventListener('click', ()=>{
 document.getElementById('chatClose')?.addEventListener('click', ()=>{
   feedback('tap');
   closeChatPanel();
-});
-document.querySelectorAll('#chatModeSeg button').forEach(b=>{
-  b.onclick=()=>{
-    feedback('select');
-    if(b.dataset.cm==='talk') openStaffTalk();
-    else openZoAi();
-  };
 });
 document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
 document.getElementById('btnLang').onclick = () => setLang(state.lang === 'de' ? 'el' : 'de');
@@ -9102,7 +9739,8 @@ function renderResetForm(token){
 }
 
 document.documentElement.lang = state.lang;
-document.getElementById('helpFab').onclick = () => openZoAi();
+const helpFabEl=document.getElementById('helpFab');
+if(helpFabEl){ helpFabEl.hidden=true; helpFabEl.onclick=null; }
 window.addEventListener('keydown', event=>{
   if(event.key==='Escape' && document.body.classList.contains('matrix-fullscreen')){
     event.preventDefault();
