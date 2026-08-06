@@ -490,7 +490,27 @@ const T = {
     homeHello:'Guten Tag', homeOverview:'Dein Überblick für heute', myTasks:'Meine Aufgaben',
     overdueTasks:'Vergessen / überfällig', unassignedTasks:'Noch ohne Person', allEvents:'Alle Events',
     dueToday:'Heute zu tun', overdue:'Überfällig', eventsSoon:'Events', noTasks:'Keine offenen Aufgaben.',
-    noOverdue:'Nichts vergessen – alles im grünen Bereich.', noUnassigned:'Alle Aufgaben sind zugeteilt.',
+    noTasksHint:'Tippe auf Planen, um den Tag zu öffnen.',
+    noOverdue:'Nichts vergessen – alles im grünen Bereich.',
+    noOverdueHint:'Offene Aufgaben von den letzten 7 Tagen erscheinen hier.',
+    noUnassigned:'Alle Aufgaben sind zugeteilt.',
+    noUnassignedHint:'Frei gebliebene Einträge der nächsten Tage erscheinen hier.',
+    noEventsHint:'Veröffentlichte Events erscheinen hier und im Plan.',
+    homePrimaryCta:'Tag planen',
+    homeOpenPlan:'Zum Plan',
+    homeOpenEvents:'Zu Events',
+    planLaneEmpty:'Noch nichts · Tippen zum Hinzufügen',
+    stockBoardShort:'Bewegung',
+    stockAddFoodShort:'Produkt',
+    noStockHint:'Filter zurücksetzen oder neues Produkt anlegen.',
+    stockClearSearch:'Suche löschen',
+    storeNoMatch:'Kein Treffer in der Einkaufsliste',
+    storeNoMatchHint:'Suche löschen oder erledigte Positionen einblenden.',
+    storeClearSearch:'Suche löschen',
+    storeProgressHint:(done,total)=>`${done} von ${total} entschieden`,
+    matrixEmpty:'Leer · tippen',
+    galleryEmptyHint:'Teile den ersten Moment mit Foto und kurzem Text.',
+    galleryComposeCta:'Moment teilen',
     markDone:'Als erledigt markieren', markOpen:'Wieder öffnen', taskDone:'Aufgabe erledigt', taskReopened:'Aufgabe wieder geöffnet',
     next3Days:'Nächste 3 Tage',
     eventButton:'Event', eventButtonOn:'Event wird veröffentlicht', childNotifications:'Neue Event-Mitteilungen',
@@ -1033,7 +1053,27 @@ const T = {
     homeHello:'Καλημέρα', homeOverview:'Η εικόνα της ημέρας σου', myTasks:'Οι εργασίες μου',
     overdueTasks:'Ξεχασμένα / εκπρόθεσμα', unassignedTasks:'Χωρίς υπεύθυνο', allEvents:'Όλα τα events',
     dueToday:'Για σήμερα', overdue:'Εκπρόθεσμα', eventsSoon:'Events', noTasks:'Δεν υπάρχουν ανοιχτές εργασίες.',
-    noOverdue:'Δεν ξέχασες τίποτα – όλα καλά.', noUnassigned:'Όλες οι εργασίες έχουν υπεύθυνο.',
+    noTasksHint:'Πάτα «Πρόγραμμα» για να ανοίξεις τη μέρα.',
+    noOverdue:'Δεν ξέχασες τίποτα – όλα καλά.',
+    noOverdueHint:'Εδώ φαίνονται ανοιχτές εργασίες των τελευταίων 7 ημερών.',
+    noUnassigned:'Όλες οι εργασίες έχουν υπεύθυνο.',
+    noUnassignedHint:'Εδώ φαίνονται αδιάθετες εργασίες των επόμενων ημερών.',
+    noEventsHint:'Τα δημοσιευμένα events εμφανίζονται εδώ και στο πρόγραμμα.',
+    homePrimaryCta:'Πρόγραμμα ημέρας',
+    homeOpenPlan:'Στο πρόγραμμα',
+    homeOpenEvents:'Στα events',
+    planLaneEmpty:'Τίποτα ακόμη · Πάτα για προσθήκη',
+    stockBoardShort:'Κίνηση',
+    stockAddFoodShort:'Προϊόν',
+    noStockHint:'Καθάρισε την αναζήτηση ή πρόσθεσε προϊόν.',
+    stockClearSearch:'Καθαρισμός αναζήτησης',
+    storeNoMatch:'Κανένα αποτέλεσμα στη λίστα',
+    storeNoMatchHint:'Καθάρισε την αναζήτηση ή εμφάνισε ολοκληρωμένα.',
+    storeClearSearch:'Καθαρισμός αναζήτησης',
+    storeProgressHint:(done,total)=>`${done} από ${total} αποφασίστηκαν`,
+    matrixEmpty:'Κενό · πάτα',
+    galleryEmptyHint:'Μοιράσου την πρώτη στιγμή με φωτογραφία και σύντομο κείμενο.',
+    galleryComposeCta:'Μοιράσου στιγμή',
     markDone:'Σήμανση ως ολοκληρωμένο', markOpen:'Άνοιγμα ξανά', taskDone:'Η εργασία ολοκληρώθηκε', taskReopened:'Η εργασία άνοιξε ξανά',
     next3Days:'Επόμενες 3 ημέρες',
     eventButton:'Event', eventButtonOn:'Το event θα δημοσιευτεί', childNotifications:'Νέες ανακοινώσεις event',
@@ -3309,7 +3349,7 @@ function viewGallery(){
     </div>
     ${state.galleryLoading && !posts.length?`<div class="empty">${esc(t('galleryLoading'))}</div>`:''}
     <div class="gal-feed" id="galFeed">
-      ${posts.length ? posts.map((p,i)=>galleryPostCard(p,i)).join('') : emptyState('📸', t('galleryEmpty'))}
+      ${posts.length ? posts.map((p,i)=>galleryPostCard(p,i)).join('') : emptyState('📸', t('galleryEmpty'), t('galleryEmptyHint'), `<button class="btn" type="button" id="galEmptyShare">${esc(t('galleryComposeCta'))}</button>`)}
     </div>
     <div class="gal-lightbox" id="galLightbox" hidden>
       <button type="button" class="gal-lightbox-close" id="galLightClose" aria-label="${esc(t('close'))}">×</button>
@@ -3324,7 +3364,9 @@ function childGalleryView(){
 
 function bindGallery(root){
   if(!root) return;
-  root.querySelector('#galShare')?.addEventListener('click', ()=>{ feedback('select'); sheetGalleryCompose(); });
+  const openCompose=()=>{ feedback('select'); sheetGalleryCompose(); };
+  root.querySelector('#galShare')?.addEventListener('click', openCompose);
+  root.querySelector('#galEmptyShare')?.addEventListener('click', openCompose);
   root.querySelector('#galRefresh')?.addEventListener('click', async ()=>{
     feedback('select');
     await refreshGallery();
@@ -4194,7 +4236,7 @@ function entryLine(e, dateStr=state.date){
   const who = emp(people[0]);
   const accent = who?.color || '#0e7490';
   return `<div class="plan-entry entry-wrap ${e.cancelled?'is-cancelled':''}" style="--entry-accent:${accent}">
-    <button class="plan-entry-main entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-src="${e.source}" type="button">
+    <button class="plan-entry-main entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-entry-date="${esc(dateStr)}" type="button">
       <div class="top">
         ${who ? `<div class="avatar" style="background:${who.color}">${initials(who.name)}</div>`
               : `<span class="emoji">${a?a.emoji:'📝'}</span>`}
@@ -4224,8 +4266,10 @@ function viewScheduleDay(){
 
   const days = week.map(ds=>{
     const d = new Date(ds+'T12:00:00');
-    return `<button type="button" class="plan-day-chip day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}" aria-pressed="${ds===state.date?'true':'false'}" aria-label="${esc(DAY_LONG[state.lang][dowIdx(d)])} ${d.getDate()}">
-      <span class="d">${DAY_NAMES[state.lang][dowIdx(d)]}</span><span class="n">${d.getDate()}</span></button>`;
+    const di = dowIdx(d);
+    return `<button type="button" class="plan-day-chip day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}" aria-pressed="${ds===state.date?'true':'false'}" aria-label="${esc(DAY_LONG[state.lang][di])} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}">
+      <span class="d">${DAY_NAMES[state.lang][di]}</span>
+      <span class="n">${d.getDate()}<i>.${d.getMonth()+1}</i></span></button>`;
   }).join('');
 
   const blocks = BLOCKS.map((b, bi)=>{
@@ -4239,7 +4283,7 @@ function viewScheduleDay(){
           return `<div class="plan-lane">
             <div class="plan-lane-h house-h">${esc(h.name)}</div>
             ${rows.length ? rows.map(e=>entryLine(e,state.date)).join('')
-              : `<button class="plan-lane-empty empty" type="button" data-add="${b.id}" data-house="${h.id}">${t('noEntries')} · ${t('add')}</button>`}
+              : `<button class="plan-lane-empty empty-state-btn" type="button" data-add="${b.id}" data-house="${h.id}"><span class="empty-ico" aria-hidden="true">＋</span><span class="empty-title">${esc(t('planLaneEmpty'))}</span></button>`}
           </div>`;
         }).join('');
     }else{
@@ -4250,7 +4294,7 @@ function viewScheduleDay(){
           }).join('') + list.filter(e=>!entryEmployeeIds(e).length).map(e=>entryLine(e,state.date)).join('')
         : '';
       body = `<div class="plan-lane">${assigned ||
-        `<button class="plan-lane-empty empty" type="button" data-add="${b.id}">${t('noEntries')} · ${t('add')}</button>`}</div>`;
+        `<button class="plan-lane-empty empty-state-btn" type="button" data-add="${b.id}"><span class="empty-ico" aria-hidden="true">＋</span><span class="empty-title">${esc(t('planLaneEmpty'))}</span></button>`}</div>`;
     }
     return `<section class="plan-block block block-${b.id}" style="--block-i:${bi}">
       <div class="plan-block-h block-h">
@@ -4258,7 +4302,7 @@ function viewScheduleDay(){
         <span class="hrs plan-time-chip">${b.from}–${b.to}</span>
       </div>
       ${body}
-      <div class="plan-block-add"><button class="btn ghost sm" type="button" data-add="${b.id}">${t('add')}</button></div>
+      ${list.length?`<div class="plan-block-add"><button class="btn ghost sm" type="button" data-add="${b.id}">${t('add')}</button></div>`:''}
     </section>`;
   }).join('');
 
@@ -4279,20 +4323,41 @@ function viewScheduleDay(){
     ${weekNotesCard()}`;
 }
 
+/** Ημερομηνία ημέρας για πίνακες / chips: όνομα + ημερομηνία. */
+function dayStamp(ds, i=dowIdx(new Date(ds+'T12:00:00'))){
+  const d = new Date(ds+'T12:00:00');
+  const name = DAY_NAMES[state.lang][i];
+  const date = `${d.getDate()}.${d.getMonth()+1}.`;
+  const full = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+  const long = DAY_LONG[state.lang][i];
+  return {
+    name, date, full, long, i, ds,
+    text: `${name} ${date}`,
+    headHtml: `<span class="mh-day">${esc(name)}</span><span class="mh-date">${esc(date)}</span>`,
+    labelHtml: `<span class="mh-day">${esc(name)}</span><span class="mh-date">${esc(date)}</span>`,
+  };
+}
+
 /** Κοινό responsive table system για πρόγραμμα, βάρδιες και μελλοντικά datasets. */
 function matrixView(headers, rows, {label = '', interactive = false, title = ''} = {}){
-  const desktopMin=140 + headers.length*150;
-  const mobileMin=108 + headers.length*144;
+  const desktopMin=140 + headers.length*158;
+  const mobileMin=100 + headers.length*132;
+  const headCell = h => {
+    if(h && typeof h === 'object'){
+      return `<div class="matrix-cell matrix-head" role="columnheader">${h.html || h.headHtml || `<span class="mh-day">${esc(h.text||h.label||'')}</span>`}</div>`;
+    }
+    return `<div class="matrix-cell matrix-head" role="columnheader">${esc(h)}</div>`;
+  };
   const head = `<div class="matrix-row" role="row">
     <div class="matrix-cell matrix-head matrix-label" role="columnheader">${esc(label)}</div>
-    ${headers.map(h=>`<div class="matrix-cell matrix-head" role="columnheader">${esc(h)}</div>`).join('')}
+    ${headers.map(headCell).join('')}
   </div>`;
   const table = `<div class="matrix" role="table" style="--cols:${headers.length};--matrix-min:${desktopMin}px;--matrix-min-mobile:${mobileMin}px" tabindex="0">
     ${head}${rows.map(r=>`<div class="matrix-row" role="row">
-      <div class="matrix-cell matrix-label" role="rowheader">${r.label}</div>
+      <div class="matrix-cell matrix-label" role="rowheader">${r.labelHtml || r.label}</div>
       ${r.cells.map(c=>`<div class="matrix-cell ${c.action?'matrix-action':''}" role="cell"
         ${c.action ? `tabindex="0" data-cell="${esc(c.action)}" aria-label="${esc(c.aria||t('add'))}"` : ''}>
-        ${c.html || '<span class="matrix-empty">—</span>'}${c.action ? '<span class="matrix-add" aria-hidden="true">＋</span>' : ''}
+        ${c.html || `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}${c.action ? '<span class="matrix-add" aria-hidden="true">＋</span>' : ''}
       </div>`).join('')}
     </div>`).join('')}
   </div>`;
@@ -4334,29 +4399,31 @@ function enterMatrixFullscreen(shell){
 
 /** Πρόγραμμα βαρδιών — προσωπικό × ημέρα, με τις 24ωρες ως ενιαίο μπλοκ (§6.2). */
 function viewShifts(){
-  const dn = DAY_NAMES[state.lang];
+  const week = weekDates(state.date);
+  const stamps = week.map((ds,i)=>dayStamp(ds,i));
   const cell = (empId, day) => {
     const list = shiftsOf(empId, day);
     if(!list.length) return '<span class="muted">—</span>';
     return list.map(s=>{
       if(s.type==='OFF') return `<div class="cellitem"><span class="pill gray">${t('off')}</span></div>`;
-      if(s.type==='H24') return `<div class="cellitem"><b>${s.from} → ${dn[(day+1)%7]} ${s.to}</b>
+      if(s.type==='H24') return `<div class="cellitem"><b>${s.from} → ${stamps[(day+1)%7].name} ${s.to}</b>
         <br><span class="pill ovr">${t('h24')}</span></div>`;
       if(s.type==='HANDOVER') return `<div class="cellitem"><b>${s.from}–${s.to}</b>
         <br><span class="pill gray">${t('handover')}</span></div>`;
       return `<div class="cellitem"><b>${s.from}–${s.to}</b></div>`;
     }).join('');
   };
+  const headers = stamps.map(s=>({html:s.headHtml, text:s.text}));
   const rows = DB.employees.map(p=>({
     label:esc(p.name),
-    cells:dn.map((_,d)=>({
+    cells:stamps.map((s,d)=>({
       html:cell(p.id,d),
       action:isAdminUser()?`shift:${p.id}:${d}`:'',
-      aria:`${p.name} · ${DAY_LONG[state.lang][d]} · ${t('editShiftDay')}`,
+      aria:`${p.name} · ${s.long} ${s.full} · ${t('editShiftDay')}`,
     })),
   }));
   return `
-    ${matrixView(dn, rows, {label:state.lang==='de'?'Person':'Άτομο', title:t('viewShift')})}
+    ${matrixView(headers, rows, {label:state.lang==='de'?'Person':'Άτομο', title:t('viewShift')})}
     <div class="muted" style="margin-bottom:12px">${t('tenMinRule')}</div>
     ${validationCard(state.date)}`;
 }
@@ -4364,6 +4431,7 @@ function viewShifts(){
 function sheetShiftDay(employeeId, day){
   if(!isAdminUser()){toast(t('adminRequired'),'error');return;}
   const person=emp(employeeId); if(!person) return;
+  const stamp=dayStamp(weekDates(state.date)[day], day);
   const existing=shiftsOf(employeeId,day).map(s=>({...s}));
   const rowHtml=s=>`<div class="shift-edit-row" data-shift-id="${esc(s.id||'')}">
     <label class="f"><span>${t('shiftType')}</span><select class="seType">
@@ -4376,7 +4444,7 @@ function sheetShiftDay(employeeId, day){
   openSheet(`<div class="admin-detail-hero">
       <div class="pa avatar" style="background:${person.color}">${initials(person.name)}</div>
       <div><div class="muted">${t('editShiftDay')}</div><h3 style="margin:1px 0">${esc(person.name)}</h3>
-        <div class="muted">${DAY_LONG[state.lang][day]}</div></div>
+        <div class="muted">${esc(stamp.long)} · ${esc(stamp.full)}</div></div>
     </div>
     <div class="shift-editor-list" id="shiftEditorList">${existing.map(rowHtml).join('')}</div>
     <button class="btn sec" id="addShiftRow" type="button">＋ ${t('addShift')}</button>
@@ -4407,7 +4475,7 @@ function sheetShiftDay(employeeId, day){
     askPin(t('saveWithPin'),who=>{
       if(!who.admin){setStatus(status,t('adminRequired'),'error');return;}
       DB.shifts=DB.shifts.filter(s=>!(s.employeeId===employeeId&&s.day===day)).concat(values);
-      logEntry('SCHEDULE',`${t('editShiftDay')}: ${person.name} · ${DAY_LONG[state.lang][day]}`);
+      logEntry('SCHEDULE',`${t('editShiftDay')}: ${person.name} · ${stamp.long} ${stamp.full}`);
       if(!save()) return;closeSheet();render();toast(t('shiftSaved'),'success');
     });
   };
@@ -4431,29 +4499,76 @@ function cellItems(list, showWho = true, dateStr=state.date){
 
 function viewScheduleWeek(){
   const week = weekDates(state.date);
+  const today = iso(new Date());
+  const stamps = week.map((ds,i)=>dayStamp(ds,i));
   const byDate = {};
   week.forEach(ds => { byDate[ds] = entriesFor(ds).filter(e=>!e.cancelled &&
     (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter))); });
-  const dn = DAY_NAMES[state.lang];
   const visibleHouses=planningHouses().filter(h=>!state.houseFilter || h.id===state.houseFilter);
 
-  const houseTable = (blockId) => matrixView(visibleHouses.map(h=>h.name), week.map((ds,i)=>({
-    label:dn[i],
+  const houseTable = (blockId) => matrixView(visibleHouses.map(h=>h.name), stamps.map(s=>({
+    label:esc(s.text),
+    labelHtml:s.labelHtml,
     cells:visibleHouses.map(h=>{
-      const list = byDate[ds].filter(e=>e.block===blockId && entryHouseIds(e).includes(h.id));
-      return {html:cellItems(list,true,ds), action:`${ds}|${blockId}|${h.id}|`,
-        aria:`${DAY_LONG[state.lang][i]} · ${h.name} · ${t(blockId)}`};
+      const list = byDate[s.ds].filter(e=>e.block===blockId && entryHouseIds(e).includes(h.id));
+      return {html:cellItems(list,true,s.ds), action:`${s.ds}|${blockId}|${h.id}|`,
+        aria:`${s.long} ${s.full} · ${h.name} · ${t(blockId)}`};
     }),
   })), {label:state.lang==='de'?'Tag':'Ημέρα', interactive:true, title:t(blockId)});
 
-  const personTable = matrixView(dn, DB.employees.map(p=>({
+  const dayHeaders = stamps.map(s=>({html:s.headHtml, text:s.text}));
+  const personTable = matrixView(dayHeaders, DB.employees.map(p=>({
     label:esc(p.name),
-    cells:week.map((ds,i)=>{
-      const list = byDate[ds].filter(e=>e.block==='afternoon' && entryEmployeeIds(e).includes(p.id));
-      return {html:cellItems(list,false,ds), action:`${ds}|afternoon||${p.id}`,
-        aria:`${p.name} · ${DAY_LONG[state.lang][i]} · ${t('afternoon')}`};
+    cells:stamps.map(s=>{
+      const list = byDate[s.ds].filter(e=>e.block==='afternoon' && entryEmployeeIds(e).includes(p.id));
+      return {html:cellItems(list,false,s.ds), action:`${s.ds}|afternoon||${p.id}`,
+        aria:`${p.name} · ${s.long} ${s.full} · ${t('afternoon')}`};
     }),
   })), {label:state.lang==='de'?'Person':'Άτομο', interactive:true, title:t('afternoon')});
+
+  const stackBlock = (ds, blockId) => {
+    const list = byDate[ds].filter(e=>e.block===blockId);
+    const b = blockDef(blockId);
+    let body;
+    if(b.by==='house'){
+      body = visibleHouses.map(h=>{
+        const rows = list.filter(e=>entryHouseIds(e).includes(h.id));
+        return `<div class="week-stack-lane">
+          <div class="week-stack-lane-h">${esc(h.short||h.name)}</div>
+          ${rows.length ? rows.map(e=>entryLine(e,ds)).join('')
+            : `<button class="plan-lane-empty empty-state-btn" type="button" data-add="${blockId}" data-house="${h.id}" data-add-date="${ds}"><span class="empty-ico" aria-hidden="true">＋</span><span class="empty-title">${esc(t('planLaneEmpty'))}</span></button>`}
+        </div>`;
+      }).join('');
+    }else{
+      body = list.length
+        ? list.map(e=>entryLine(e,ds)).join('')
+        : `<button class="plan-lane-empty empty-state-btn" type="button" data-add="${blockId}" data-add-date="${ds}"><span class="empty-ico" aria-hidden="true">＋</span><span class="empty-title">${esc(t('planLaneEmpty'))}</span></button>`;
+    }
+    return `<div class="week-stack-block block-${blockId}">
+      <div class="week-stack-block-h"><span>${t(blockId)}</span><span class="plan-time-chip">${b.from}–${b.to}</span></div>
+      ${body}
+    </div>`;
+  };
+
+  const dayStack = `<div class="week-day-stack" aria-label="${esc(t('viewWeek'))}">
+    ${stamps.map(s=>{
+      const count = byDate[s.ds].length;
+      return `<section class="week-day-card ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-selected':''}">
+        <button type="button" class="week-day-card-h" data-jump-day="${s.ds}" aria-label="${esc(s.long)} ${esc(s.full)}">
+          <span class="wd-main">
+            <span class="wd-name">${esc(s.long)}</span>
+            <span class="wd-date">${esc(s.full)}</span>
+          </span>
+          <span class="wd-meta">${count?`${count}`:''}<span class="wd-go" aria-hidden="true">›</span></span>
+        </button>
+        <div class="week-day-card-body">
+          ${stackBlock(s.ds,'morning')}
+          ${stackBlock(s.ds,'afternoon')}
+          ${stackBlock(s.ds,'evening')}
+        </div>
+      </section>`;
+    }).join('')}
+  </div>`;
 
   const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   return `
@@ -4469,12 +4584,15 @@ function viewScheduleWeek(){
         <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
       </div>
     </header>
-    <div class="plan-block-h block-h block-morning"><span class="t">${t('morning')}</span><span class="hrs plan-time-chip">10:00–14:00</span></div>
-    ${houseTable('morning')}
-    <div class="plan-block-h block-h block-afternoon"><span class="t">${t('afternoon')}</span><span class="hrs plan-time-chip">15:00–19:00</span></div>
-    ${personTable}
-    <div class="plan-block-h block-h block-evening"><span class="t">${t('evening')}</span><span class="hrs plan-time-chip">19:00–22:00</span></div>
-    ${houseTable('evening')}
+    ${dayStack}
+    <div class="week-matrix-desktop">
+      <div class="plan-block-h block-h block-morning"><span class="t">${t('morning')}</span><span class="hrs plan-time-chip">10:00–14:00</span></div>
+      ${houseTable('morning')}
+      <div class="plan-block-h block-h block-afternoon"><span class="t">${t('afternoon')}</span><span class="hrs plan-time-chip">15:00–19:00</span></div>
+      ${personTable}
+      <div class="plan-block-h block-h block-evening"><span class="t">${t('evening')}</span><span class="hrs plan-time-chip">19:00–22:00</span></div>
+      ${houseTable('evening')}
+    </div>
     ${weekNotesCard()}`;
 }
 
@@ -4979,8 +5097,8 @@ function viewStock(){
       <div class="stock-command-row">
         <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
         ${hid==='all'?`<button class="stock-tool ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle" title="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-label="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-pressed="${state.stockTiles?'true':'false'}">${state.stockTiles?'▦':'☰'}</button>`:''}
-        ${hid!=='all'?`<button class="stock-tool" type="button" id="stockOpenBoard" title="${esc(t('stockBoard'))}" aria-label="${esc(t('stockBoard'))}">▦</button>
-        <button class="stock-tool" type="button" id="stockQuickFood" title="${esc(t('stockAddFood'))}" aria-label="${esc(t('stockAddFood'))}">＋</button>`:''}
+        ${hid!=='all'?`<button class="stock-tool labeled" type="button" id="stockOpenBoard" title="${esc(t('stockBoard'))}" aria-label="${esc(t('stockBoard'))}"><span aria-hidden="true">▦</span><span>${esc(t('stockBoardShort'))}</span></button>
+        <button class="stock-tool labeled" type="button" id="stockQuickFood" title="${esc(t('stockAddFood'))}" aria-label="${esc(t('stockAddFood'))}"><span aria-hidden="true">＋</span><span>${esc(t('stockAddFoodShort'))}</span></button>`:''}
       </div>
       <div class="stock-strip-stats" role="toolbar" aria-label="${esc(t('menuFilters'))}">
         <button type="button" class="stock-chip empty ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b>${t('stockEmpty')}</button>
@@ -4992,7 +5110,7 @@ function viewStock(){
     ${shiftPresenceBannerHtml()}
     ${shiftStockCheckBannerHtml()}
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
-    <div class="stock-categories">${categoryHtml||emptyState('⌕', t('noStockResults'))}</div>
+    <div class="stock-categories">${categoryHtml||emptyState('⌕', t('noStockResults'), t('noStockHint'), state.stockQuery?`<button class="btn sm sec" type="button" id="stockEmptyClear">${esc(t('stockClearSearch'))}</button>`:(hid!=='all'?`<button class="btn sm" type="button" id="stockEmptyAdd">${esc(t('stockAddFoodShort'))}</button>`:''))}</div>
     ${hid!=='all'?(()=>{
       const draft=stockDraftEntries();
       if(!draft.length) return '';
@@ -6190,14 +6308,22 @@ function viewShop(){
           const rows=byCat[c];
           return `<div class="store-category"><div class="store-cat-h">${cat?esc(L(cat)):t('other')}<span>${rows.length}</span></div>${rows.map(storeRow).join('')}</div>`;
         }).join('')}
-        ${!pendingVisible.length?`<div class="shop-empty compact"><div class="big">⌕</div><h3>${t('noStockResults')}</h3></div>`:''}
+        ${!pendingVisible.length?`<div class="shop-empty compact">
+          <div class="big">⌕</div>
+          <h3>${t('storeNoMatch')}</h3>
+          <p>${t('storeNoMatchHint')}</p>
+          <div class="shop-start-actions">
+            <button class="btn sm" type="button" id="storeClearSearch">${t('storeClearSearch')}</button>
+            ${!showDone?`<button class="btn sm sec" type="button" id="storeShowDoneEmpty">${t('storeShowDone')}</button>`:''}
+          </div>
+        </div>`:''}
       </div>
       <div class="store-finish bottom-dock">
         <div class="row">
           <button class="btn sec sm" id="btnReceipt" type="button">${t('scanReceipt')}</button>
-          <button class="btn" id="confirmBatch" type="button" ${remaining?'disabled':''}>${remaining?`${remaining} · ${t('storeRemaining')}`:t('confirmBatch')}</button>
+          <button class="btn" id="confirmBatch" type="button" ${remaining?'disabled':''}>${remaining?`${done}/${pending.length} · ${t('storeRemaining')}`:t('confirmBatch')}</button>
         </div>
-        ${remaining?`<div class="muted" style="margin-top:6px;text-align:center;font-size:10.5px">${t('decideAll')}</div>`:''}
+        ${remaining?`<div class="muted" style="margin-top:6px;text-align:center;font-size:10.5px">${T[state.lang].storeProgressHint(done,pending.length)} · ${t('decideAll')}</div>`:''}
       </div>
     </section>` : '';
 
@@ -9261,11 +9387,14 @@ function viewHome(){
     .forEach(e=>unassigned.push({e,dateStr})));
   const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
   const upcoming=events.filter(e=>e.status==='published' && e.date>=today);
+  const planCta=`<button class="btn sm" type="button" data-home-jump="day">${esc(t('homeOpenPlan'))}</button>`;
+  const eventsCta=`<button class="btn sm sec" type="button" data-home-jump="events">${esc(t('homeOpenEvents'))}</button>`;
   return `<div class="home-shell">
     <section class="home-mast" aria-label="Armonia">
       <p class="home-brand">Armonia</p>
       <p class="home-hello">${t('homeHello')}${user?', '+esc(user.name):''}</p>
       <h2>${t('homeOverview')}</h2>
+      <button class="home-primary page-act primary" type="button" data-home-jump="day">${esc(t('homePrimaryCta'))}</button>
     </section>
     <div class="home-bento" role="group" aria-label="${esc(t('homeOverview'))}">
       <button class="bento-tile accent action" type="button" data-home-jump="day">
@@ -9281,28 +9410,28 @@ function viewHome(){
         <b style="font-size:22px">📸</b><span>${esc(t('galleryTitle'))}</span>
       </button>
     </div>
-    <div class="page-actions" role="toolbar">
-      <button class="page-act ghost" type="button" data-page-act="tutorial">📘 ${esc(t('topTutorial'))}</button>
-      <button class="page-act ghost" type="button" id="homeCalendar">📅 ${esc(t('calTitle'))}</button>
-    </div>
     ${shiftPresenceBannerHtml()}
     ${shiftStockCheckBannerHtml()}
     <div class="dashboard-grid">
       ${adminTeamPanel(today)}
       <section class="card"><div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
-        <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState('✅', t('noTasks'))}</div>
+        <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState('✅', t('noTasks'), t('noTasksHint'), planCta)}</div>
       </section>
       <section class="card"><div class="block-h"><span class="t">⚠️ ${t('overdueTasks')}</span><span class="hrs">7</span></div>
         <div class="task-list">${overdue.length||recentlyDone.length?
           overdue.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id,{overdue:true})).join('')+
-          recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):emptyState('🌿', t('noOverdue'))}</div>
+          recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):emptyState('🌿', t('noOverdue'), t('noOverdueHint'))}</div>
       </section>
       <section class="card wide"><div class="block-h"><span class="t">📣 ${t('allEvents')}</span><button class="btn sm sec" id="homeAllEvents" type="button">${t('openEvents')} →</button></div>
-        <div class="task-list">${events.length?events.map(homeEventCard).join(''):emptyState('📣', t('noEvents'))}</div>
+        <div class="task-list">${events.length?events.map(homeEventCard).join(''):emptyState('📣', t('noEvents'), t('noEventsHint'), eventsCta)}</div>
       </section>
       <section class="card wide"><div class="block-h"><span class="t">👤 ${t('unassignedTasks')}</span><span class="hrs">${t('next3Days')}</span></div>
-        <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):emptyState('👤', t('noUnassigned'))}</div>
+        <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):emptyState('👤', t('noUnassigned'), t('noUnassignedHint'), planCta)}</div>
       </section>
+    </div>
+    <div class="home-foot-actions">
+      <button class="page-act ghost" type="button" data-page-act="tutorial">📘 ${esc(t('topTutorial'))}</button>
+      <button class="page-act ghost" type="button" id="homeCalendar">📅 ${esc(t('calTitle'))}</button>
     </div>
   </div>`;
 }
@@ -9324,19 +9453,8 @@ function renderChild(){
   document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
   const tools=document.getElementById('topTools');
   if(tools){
-    tools.hidden=false;
-    tools.innerHTML = [
-      `<button type="button" class="topbtn ${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('myToday')}</button>`,
-      `<button type="button" class="topbtn ${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('myWeek')}</button>`,
-      `<button type="button" class="topbtn ${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('weekEvents')}</button>`,
-      `<button type="button" class="topbtn ${state.childView==='gallery'?'on':''}" data-child-view="gallery">📸 ${t('galleryChildTab')}</button>`,
-      `<button type="button" class="topbtn ${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>`,
-    ].join('');
-    tools.querySelectorAll('[data-child-view]').forEach(b=>b.onclick=()=>{
-      state.childView=b.dataset.childView;
-      if(state.childView==='gallery') refreshGallery({silent:true}).then(()=>renderChild());
-      else renderChild();
-    });
+    tools.hidden=true;
+    tools.replaceChildren();
   }
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='none';
@@ -9354,7 +9472,7 @@ function renderChild(){
   const days = week.map(ds=>{
     const d = new Date(ds+'T12:00:00');
     return `<div class="day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}">
-      <div class="d">${DAY_NAMES[state.lang][dowIdx(d)]}</div><div class="n">${d.getDate()}</div></div>`;
+      <div class="d">${DAY_NAMES[state.lang][dowIdx(d)]}</div><div class="n">${d.getDate()}<i>.${d.getMonth()+1}</i></div></div>`;
   }).join('');
 
   const weekList = week.map(ds=>{
@@ -9369,10 +9487,9 @@ function renderChild(){
       }).join('')}`;
   }).join('') || emptyState('☀️', t('nothingToday'));
 
-  const profile = `<div class="card" style="text-align:center;border:0;background:none;padding:4px 0 10px">
-      <div class="pa avatar" style="width:64px;height:64px;border-radius:50%;margin:0 auto 8px;
-        background:${profileColor(c)};font-size:20px">${esc(profileEmoji(c)||initials(profileName(c)))}</div>
-      <div class="strong" style="font-size:18px">${esc(profileLabel(c))}</div>
+  const profile = `<div class="child-profile">
+      <div class="pa avatar child-profile-ava" style="background:${profileColor(c)}">${esc(profileEmoji(c)||initials(profileName(c)))}</div>
+      <div class="child-profile-name">${esc(profileLabel(c))}</div>
     </div>`;
   const tabs = `<div class="seg child-tabs" id="childTabs">
     <button class="${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('childToday')}</button>
@@ -10059,6 +10176,14 @@ function wire(){
   v.querySelectorAll('.day').forEach(d=>{
     d.onclick = () => { state.date = d.dataset.date; render(); };
   });
+  v.querySelectorAll('[data-jump-day]').forEach(b=>{
+    b.onclick = () => {
+      state.date = b.dataset.jumpDay;
+      state.scheduleView = 'day';
+      feedback('select');
+      render();
+    };
+  });
   v.querySelectorAll('[data-shift]').forEach(b=>{
     b.onclick = () => {
       const d = new Date(state.date+'T12:00:00');
@@ -10068,8 +10193,9 @@ function wire(){
   });
   v.querySelectorAll('[data-open]').forEach(el=>{
     el.onclick = () => {
-      const e = entriesFor(state.date).find(x=>x.id===el.dataset.open);
-      if(e) sheetEntry(e, state.date);
+      const dateStr = el.dataset.entryDate || state.date;
+      const e = entriesFor(dateStr).find(x=>x.id===el.dataset.open);
+      if(e){ state.date = dateStr; sheetEntry(e, dateStr); }
     };
   });
   v.querySelectorAll('[data-remove-entry]').forEach(btn=>{
@@ -10105,10 +10231,14 @@ function wire(){
     };
   });
   v.querySelectorAll('[data-add]').forEach(b=>{
-    b.onclick = () => sheetEntry(null, state.date, {
-      block: b.dataset.add,
-      houseId: b.dataset.house || undefined,
-    });
+    b.onclick = () => {
+      const dateStr = b.dataset.addDate || state.date;
+      if(b.dataset.addDate) state.date = dateStr;
+      sheetEntry(null, dateStr, {
+        block: b.dataset.add,
+        houseId: b.dataset.house || undefined,
+      });
+    };
   });
   v.querySelectorAll('[data-cell]').forEach(td=>{
     const openCell = () => {
@@ -10234,6 +10364,10 @@ function wire(){
   if(stockOpenBoard) stockOpenBoard.onclick=()=>sheetStockBoard('IN');
   const stockQuickFood=v.querySelector('#stockQuickFood');
   if(stockQuickFood) stockQuickFood.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddFood')?.click(), 80); };
+  const stockEmptyClear=v.querySelector('#stockEmptyClear');
+  if(stockEmptyClear) stockEmptyClear.onclick=()=>{ state.stockQuery=''; feedback('toggle'); render(); };
+  const stockEmptyAdd=v.querySelector('#stockEmptyAdd');
+  if(stockEmptyAdd) stockEmptyAdd.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddFood')?.click(), 80); };
   const stockTilesToggle=v.querySelector('#stockTilesToggle');
   if(stockTilesToggle) stockTilesToggle.onclick=()=>{
     state.stockTiles=!state.stockTiles;
@@ -10312,6 +10446,10 @@ function wire(){
   };
   const storeShowDone=v.querySelector('#storeShowDone');
   if(storeShowDone) storeShowDone.onclick=()=>{ state.storeShowDone=!state.storeShowDone; render(); };
+  const storeShowDoneEmpty=v.querySelector('#storeShowDoneEmpty');
+  if(storeShowDoneEmpty) storeShowDoneEmpty.onclick=()=>{ state.storeShowDone=true; render(); };
+  const storeClearSearch=v.querySelector('#storeClearSearch');
+  if(storeClearSearch) storeClearSearch.onclick=()=>{ state.shopQuery=''; render(); };
   v.querySelectorAll('[data-carry]').forEach(b=>{
     b.onclick = () => {
       const e = DB.listEntries.find(x=>x.id===b.dataset.carry);
@@ -11099,7 +11237,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=59',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=61',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);

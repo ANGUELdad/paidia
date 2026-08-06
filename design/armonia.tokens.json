@@ -1,57 +1,35 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "name": "Armonia Thassos",
-  "description": "Figma-ready Aegean crystal design system. Sync into Figma variables once MCP auth works.",
+  "description": "Pine & mineral shell tokens — kept in sync with index.html :root.",
   "color": {
     "ink": { "$value": "#1a2822" },
     "muted": { "$value": "#455851" },
     "mutedSoft": { "$value": "#4a6a74" },
     "meta": { "$value": "#6b8a94" },
-    "line": { "$value": "rgba(10,46,54,0.12)" },
+    "line": { "$value": "rgba(26,40,34,0.12)" },
     "bg": { "$value": "#e9ece8" },
     "bgDeep": { "$value": "#d4dbd5" },
-    "surface": { "$value": "#f4fafb" },
-    "surface2": { "$value": "#eef5f6" },
     "brand": { "$value": "#2a6b52" },
     "brand2": { "$value": "#3d8a6a" },
     "sea": { "$value": "#2f5a63" },
     "sun": { "$value": "#c48a1a" },
-    "in": { "$value": "#0f766e" },
+    "in": { "$value": "#2a6b52" },
     "out": { "$value": "#c2410c" },
-    "warn": { "$value": "#b45309" },
-    "chrome": { "$value": "rgba(6,42,48,0.72)" },
-    "glass": { "$value": "rgba(255,255,255,0.62)" },
-    "glassStrong": { "$value": "rgba(255,255,255,0.82)" },
+    "warn": { "$value": "#a16207" },
+    "chrome": { "$value": "rgba(26,40,34,0.78)" },
+    "glass": { "$value": "rgba(255,255,255,0.64)" },
+    "glassStrong": { "$value": "rgba(255,255,255,0.86)" },
     "markA": { "$value": "#9bc4b0" },
     "markB": { "$value": "#7a9eaa" }
   },
   "radius": {
     "sm": { "$value": "12px" },
     "md": { "$value": "18px" },
-    "dock": { "$value": "24px" },
-    "pill": { "$value": "999px" }
+    "dock": { "$value": "24px" }
   },
-  "space": {
-    "1": { "$value": "4px" },
-    "2": { "$value": "8px" },
-    "3": { "$value": "12px" },
-    "4": { "$value": "16px" },
-    "5": { "$value": "24px" }
-  },
-  "typography": {
-    "display": { "$value": { "fontFamily": "Fraunces", "fontWeight": 800 } },
-    "ui": { "$value": { "fontFamily": "Outfit", "fontWeight": 550 } }
-  },
-  "components": [
-    "ChromeHeader",
-    "DockNav",
-    "Sheet",
-    "Seg",
-    "PageAct",
-    "BentoTile",
-    "TaskRow",
-    "PlanDayChip",
-    "StoreCockpit"
-  ],
-  "screens": ["Gate", "Home", "PlanDay", "Stock", "Shop", "Child"]
+  "font": {
+    "ui": { "$value": "Outfit" },
+    "display": { "$value": "Fraunces" }
+  }
 }
