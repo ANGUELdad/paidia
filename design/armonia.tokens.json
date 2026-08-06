@@ -39,8 +39,8 @@
     "5": { "$value": "24px" }
   },
   "typography": {
-    "display": { "$value": { "fontFamily": "Syne", "fontWeight": 800 } },
-    "ui": { "$value": { "fontFamily": "Figtree", "fontWeight": 550 } }
+    "display": { "$value": { "fontFamily": "Fraunces", "fontWeight": 800 } },
+    "ui": { "$value": { "fontFamily": "Outfit", "fontWeight": 550 } }
   },
   "components": [
     "ChromeHeader",

@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#062a30">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;550;650;750&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -25,7 +25,7 @@
     --bg-deep:#cfe3e7;
     --card:rgba(255,255,255,.78);
     --ink:#062a30;
-    --muted:#3a5a64;
+    --muted:#2f4f58;
     --line:rgba(10,46,54,.12);
     --brand:#0b6b6f;
     --brand-2:#128a94;
@@ -42,8 +42,8 @@
     --glass-strong:rgba(255,255,255,.82);
     --glass-edge:rgba(255,255,255,.55);
     --chrome:rgba(6,42,48,.72);
-    --font-ui:"Figtree",system-ui,sans-serif;
-    --font-display:"Syne",system-ui,sans-serif;
+    --font-ui:"Outfit",system-ui,sans-serif;
+    --font-display:"Fraunces",Georgia,"Times New Roman",serif;
     --safe-t: env(safe-area-inset-top, 0px);
     --safe-b: env(safe-area-inset-bottom, 0px);
     --header-h: 60px;
@@ -51,6 +51,7 @@
     --nav-h: 64px;
     --nav-inset: 10px;
     --nav-total: calc(var(--nav-h) + var(--nav-inset) + var(--safe-b));
+    --rail-w: 0px;
     --dock-h: 0px;
     --chat-h: 0px;
     --fab-size: 52px;
@@ -60,8 +61,12 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
   html{touch-action:manipulation}
   html,body{margin:0; padding:0; background:var(--bg); color:var(--ink);
-    font:15px/1.45 var(--font-ui);
-    overscroll-behavior-x:none}
+    font:16px/1.45 var(--font-ui);
+    overscroll-behavior-x:none;
+    font-optical-sizing:auto}
+  @media(min-width:900px){
+    html,body{font-size:15px}
+  }
   body::before{
     content:""; position:fixed; inset:0; z-index:-2; pointer-events:none;
     background:
@@ -214,7 +219,7 @@
     box-shadow:0 16px 40px rgba(6,42,48,.16), inset 0 1px 0 rgba(255,255,255,.65);
     backdrop-filter:blur(22px) saturate(1.45); -webkit-backdrop-filter:blur(22px) saturate(1.45)}
   nav.dock button{flex:1; border:0; background:none; padding:6px 2px; color:var(--muted);
-    font-size:10.5px; font-weight:650; letter-spacing:-.01em;
+    font-size:12px; font-weight:650; letter-spacing:-.01em;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer;
     min-height:calc(var(--nav-h) - 8px); touch-action:manipulation; border-radius:18px;
     transition:background .18s var(--ease-out), color .18s var(--ease-out), transform .12s ease}
@@ -1186,7 +1191,9 @@
   .stock-chip.on{border-color:#0f766e;background:#ecfdf5;color:#0f766e}
   .stock-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 10px}
   .stock-actions .btn{min-height:44px;border-radius:10px}
-  .stock-toolbar{position:sticky;top:calc(var(--header-h) + 52px);z-index:12;margin-bottom:8px;padding:8px;border:1px solid var(--line);border-radius:14px;background:rgba(248,250,252,.96);backdrop-filter:blur(12px)}
+  .stock-toolbar{position:sticky;top:calc(var(--header-h) + 8px);z-index:12;margin-bottom:8px;padding:8px;border:1px solid var(--line);border-radius:14px;background:rgba(244,250,251,.96);backdrop-filter:blur(12px)}
+  body.layout-desktop .stock-toolbar{top:calc(var(--header-h) + 12px)}
+  body.layout-mobile .stock-toolbar{top:calc(var(--header-h) + 4px)}
   .stock-search{position:relative}.stock-search span{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none}
   .stock-search input{padding-left:36px;padding-right:38px;background:#fff;height:40px}.stock-search button{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:29px;height:29px;border:0;border-radius:50%;background:#e8f1f3;color:#4a6a74;cursor:pointer}
   .stock-categories{display:grid;gap:6px}.stock-category{overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#fff}
@@ -1910,6 +1917,94 @@
   .shop-item .mini-x{color:var(--muted)}
   .cart-step{color:var(--ink)}
 
+  /* ── Adaptive chrome (mobile Filters sheet / desktop expanded) ───── */
+  .adaptive-chrome{display:grid; gap:8px; margin:0 0 12px; position:relative}
+  .adaptive-chrome-summary{
+    display:none; width:100%; min-height:48px; align-items:center; justify-content:space-between;
+    gap:10px; padding:10px 14px; text-align:left; border:1px solid var(--line);
+    border-radius:14px; background:var(--glass-strong); color:var(--ink);
+    box-shadow:var(--shadow); backdrop-filter:blur(10px); cursor:pointer; touch-action:manipulation;
+    font:inherit; font-weight:650}
+  .adaptive-chrome-summary .adaptive-summary-label{
+    font-family:var(--font-display); font-size:15px; font-weight:700; letter-spacing:-.02em}
+  .adaptive-chrome-summary .adaptive-summary-meta{font-size:12px; color:var(--muted); font-weight:600;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:55%}
+  .adaptive-chrome-summary .adaptive-chevron{flex:0 0 auto; font-size:18px; opacity:.55}
+  .adaptive-chrome-panel-head{display:none; align-items:center; justify-content:space-between;
+    gap:8px; margin:0 0 10px}
+  .adaptive-chrome-panel-head b{font-family:var(--font-display); font-size:16px}
+  .adaptive-chrome-done{min-height:44px; min-width:72px; border-radius:12px; border:1px solid var(--line);
+    background:#fff; font-weight:700; cursor:pointer; padding:0 14px}
+  .adaptive-backdrop{display:none}
+
+  body.layout-mobile .adaptive-chrome-summary{display:flex}
+  body.layout-mobile .adaptive-chrome:not(.is-open) .adaptive-chrome-panel{display:none}
+  body.layout-mobile .adaptive-chrome.is-open .adaptive-backdrop{
+    display:block; position:fixed; inset:0; z-index:54; border:0; padding:0; margin:0;
+    background:rgba(6,42,48,.42); backdrop-filter:blur(4px); cursor:pointer}
+  body.layout-mobile .adaptive-chrome.is-open .adaptive-chrome-panel{
+    display:block; position:fixed; left:0; right:0; bottom:0; z-index:55;
+    max-height:min(72dvh,640px); overflow:auto; -webkit-overflow-scrolling:touch;
+    margin:0; padding:14px 14px calc(16px + var(--safe-b));
+    border-radius:24px 24px 0 0; border:1px solid var(--glass-edge); border-bottom:0;
+    background:var(--glass-strong); box-shadow:0 -24px 60px rgba(6,42,48,.28);
+    backdrop-filter:blur(22px) saturate(1.3); -webkit-backdrop-filter:blur(22px) saturate(1.3);
+    animation:adaptiveUp .24s var(--ease-out)}
+  body.layout-mobile .adaptive-chrome.is-open .adaptive-chrome-panel-head{display:flex}
+  body.layout-mobile .adaptive-chrome.is-open .adaptive-chrome-summary .adaptive-chevron{transform:rotate(180deg)}
+  @keyframes adaptiveUp{from{transform:translateY(18px);opacity:.6}to{transform:none;opacity:1}}
+  @media(prefers-reduced-motion:reduce){body.layout-mobile .adaptive-chrome.is-open .adaptive-chrome-panel{animation:none}}
+  body.layout-desktop .adaptive-chrome-summary,
+  body.layout-desktop .adaptive-backdrop,
+  body.layout-desktop .adaptive-chrome-panel-head{display:none!important}
+  body.layout-desktop .adaptive-chrome-panel{display:block!important; position:static!important;
+    max-height:none!important; padding:0!important; border:0!important; background:transparent!important;
+    box-shadow:none!important; backdrop-filter:none!important; animation:none!important}
+  body.layout-desktop .adaptive-chrome.planner-chrome-wrap .adaptive-chrome-panel{
+    display:grid!important; gap:8px; padding:10px 8px!important;
+    background:rgba(238,244,245,.94)!important; border:1px solid var(--plan-line)!important;
+    border-radius:16px!important; box-shadow:0 10px 28px rgba(11,61,74,.08)!important;
+    backdrop-filter:blur(12px)!important}
+  body.layout-mobile .planner-chrome-wrap{margin:0 0 10px}
+  body.layout-mobile header.app-chrome{padding:calc(6px + var(--safe-t)) 12px 8px; min-height:calc(52px + var(--safe-t))}
+  body.layout-mobile{--header-h:52px}
+  body.layout-mobile .store-decision{min-width:44px; width:44px; min-height:44px}
+  body.layout-mobile .seg button, body.layout-mobile .planner-seg button{min-height:46px}
+
+  /* ── Desktop left rail ───────────────────────────────────────────── */
+  body.layout-desktop #app.app-shell{
+    display:grid; grid-template-columns:var(--rail-w, 92px) minmax(0,1fr);
+    grid-template-rows:auto 1fr; max-width:none; min-height:100dvh;
+    padding-bottom:20px; gap:0}
+  body.layout-desktop header.app-chrome{grid-column:2; grid-row:1; position:sticky; top:0}
+  body.layout-desktop main.app-stage{grid-column:2; grid-row:2; max-width:1100px; width:100%;
+    margin:0 auto; padding:18px 20px 28px}
+  body.layout-desktop .bottom-panel{
+    grid-column:1; grid-row:1 / -1; position:sticky; top:0; left:0; right:auto; bottom:auto;
+    height:100dvh; max-width:none; margin:0; padding:12px 8px; pointer-events:auto;
+    align-self:stretch; z-index:30}
+  body.layout-desktop nav.dock{
+    flex-direction:column; height:calc(100dvh - 24px); min-height:0; width:100%;
+    border-radius:20px; padding:10px 6px; gap:4px; justify-content:flex-start}
+  body.layout-desktop nav.dock button{
+    flex:0 0 auto; width:100%; min-height:64px; border-radius:14px; font-size:11px; gap:5px}
+  body.layout-desktop .zoai-fab{
+    right:max(16px, var(--side-gutter));
+    bottom:calc(18px + var(--safe-b))}
+  body.layout-desktop .chat-panel.chat-float{
+    right:max(16px, var(--side-gutter));
+    bottom:calc(86px + var(--safe-b))}
+  body.layout-desktop.mode-child #app.app-shell{grid-template-columns:1fr}
+  body.layout-desktop.mode-child header.app-chrome,
+  body.layout-desktop.mode-child main.app-stage{grid-column:1}
+  body.layout-desktop.store-fullscreen #app.app-shell,
+  body.layout-desktop.matrix-fullscreen #app.app-shell{grid-template-columns:1fr}
+  body.layout-desktop.store-fullscreen header.app-chrome,
+  body.layout-desktop.store-fullscreen main.app-stage,
+  body.layout-desktop.matrix-fullscreen header.app-chrome,
+  body.layout-desktop.matrix-fullscreen main.app-stage{grid-column:1}
+  body.layout-desktop .topbar-tools{flex-wrap:wrap; overflow:visible}
+
   /* ── Nav icons: real SVGs replacing emoji ────────────────────────────
      No fill in the source files, so currentColor follows the nav's
      inactive/active state. Explicit size is REQUIRED — an unsized inline
@@ -1999,6 +2094,6 @@
   } catch (e) {}
 })();
 </script>
-<script src="gate.js?v=48"></script>
+<script src="gate.js?v=49"></script>
 </body>
 </html>

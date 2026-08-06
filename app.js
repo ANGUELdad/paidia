@@ -305,7 +305,8 @@ const T = {
     whoDidWhat:'Wer hat was gemacht', today:'Heute', last7:'Letzte 7 Tage',
     actions:n=>n===1?'Buchung':'Buchungen', noActionsToday:'Heute noch nichts gebucht',
     visibleToAll:'Für alle sichtbar',
-    close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele',
+    close:'Schließen', menuFilters:'Filter', menuDone:'Fertig',
+    childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele',
     gamesTitle:'Spiele', gamesHint:'Längere Runden · ~3–5 Min · Lernen, Wissen, Rechnen & Klassiker',
     gamesPlayTime:'~3–5 Min',
     gameMemory:'Memory', gameMemoryHint:'Finde die Paare · so wenig Züge wie möglich',
@@ -755,7 +756,8 @@ const T = {
     whoDidWhat:'Ποιος έκανε τι', today:'Σήμερα', last7:'Τελευταίες 7 ημέρες',
     actions:n=>n===1?'κίνηση':'κινήσεις', noActionsToday:'Καμία κίνηση σήμερα',
     visibleToAll:'Ορατό σε όλους',
-    close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια',
+    close:'Κλείσιμο', menuFilters:'Φίλτρα', menuDone:'Έτοιμο',
+    childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια',
     gamesTitle:'Παιχνίδια', gamesHint:'Μεγαλύτερες γύρες · ~3–5 λεπτά · Ελληνικά, γνώση, μαθηματικά',
     gamesPlayTime:'~3–5 λεπτά',
     gameMemory:'Μνήμη', gameMemoryHint:'Βρες τα ζευγάρια · όσο λιγότερες κινήσεις',
@@ -3862,9 +3864,11 @@ function viewSchedule(){
       <span class="planner-seg-lbl"><span class="lbl-full">${esc(label)}</span><span class="lbl-short">${esc(shortLabel||label)}</span></span>
     </button>`;
   const eventsShort = state.lang==='el' ? 'Evt' : 'Evt';
-  return `
-    <div class="planner ${sv==='day'?'plan-day':sv==='week'?'plan-week':sv==='shift'?'plan-shift':'plan-events'}">
-      <div class="planner-chrome">
+  const viewLabel = sv==='day'?t('viewDay'):sv==='week'?t('viewWeek'):sv==='shift'?t('viewShift'):t('viewEvents');
+  const houseLabel = !showHouse ? '' :
+    (state.houseFilter ? (planningHouses().find(h=>h.id===state.houseFilter)?.short||'') : t('all'));
+  const summaryMeta = [viewLabel, houseLabel].filter(Boolean).join(' · ');
+  const chromePanel = `
         <div class="seg planner-seg" id="schView" role="tablist" aria-label="${esc(t('filterView'))}">
           ${viewBtn('day','📅',t('viewDay'))}
           ${viewBtn('week','▦',t('viewWeek'))}
@@ -3874,7 +3878,23 @@ function viewSchedule(){
         ${showHouse?`<div class="seg planner-seg planner-seg-house house-selector" id="hFilter" role="tablist" aria-label="${esc(t('filterHouse'))}">
           <button type="button" class="${state.houseFilter===''?'on':''}" data-h="" title="${esc(t('all'))}" aria-label="${esc(t('all'))}">${esc(t('all'))}</button>
           ${planningHouses().map(h=>`<button type="button" class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}" title="${esc(h.name)}" aria-label="${esc(h.name)}">${esc(h.short)}</button>`).join('')}
-        </div>`:''}
+        </div>`:''}`;
+  return `
+    <div class="planner ${sv==='day'?'plan-day':sv==='week'?'plan-week':sv==='shift'?'plan-shift':'plan-events'}">
+      <div class="adaptive-chrome planner-chrome-wrap">
+        <button type="button" class="adaptive-chrome-summary" data-adaptive-toggle aria-expanded="false">
+          <span class="adaptive-summary-label">${esc(t('menuFilters'))}</span>
+          <span class="adaptive-summary-meta">${esc(summaryMeta)}</span>
+          <span class="adaptive-chevron" aria-hidden="true">▾</span>
+        </button>
+        <button type="button" class="adaptive-backdrop" data-adaptive-toggle aria-label="${esc(t('close'))}" tabindex="-1"></button>
+        <div class="adaptive-chrome-panel planner-chrome">
+          <div class="adaptive-chrome-panel-head">
+            <b>${esc(t('menuFilters'))}</b>
+            <button type="button" class="adaptive-chrome-done" data-adaptive-toggle>${esc(t('menuDone'))}</button>
+          </div>
+          ${chromePanel}
+        </div>
       </div>
       ${sv==='day' ? viewScheduleDay()
         : sv==='week' ? viewScheduleWeek()
@@ -4292,18 +4312,21 @@ function viewStock(){
   }).join('');
   const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
   const attention=counts.empty+counts.low;
+  const houseMeta=hid==='all'?t('bothHouses'):(house(hid)?.short||hid);
+  const filterMeta=[houseMeta, state.stockFilter==='all'?t('stockAll'):state.stockFilter==='empty'?t('stockEmpty'):state.stockFilter==='attention'?t('stockAttention'):t('stockAll')].join(' · ');
+  const stockFilters=adaptiveChrome(`${seg}
+    <div class="stock-strip-stats" style="margin-top:8px">
+      <button type="button" class="stock-chip empty ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b>${t('stockEmpty')}</button>
+      <button type="button" class="stock-chip low ${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b>${t('stockAttention')}</button>
+      <button type="button" class="stock-chip ok ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b>${t('stockAll')}</button>
+    </div>
+    ${hid!=='all'?`<div class="page-actions stock-toolbar-actions" style="margin-top:8px">
+      <button class="page-act" type="button" id="stockQuickFood">${t('stockAddFood')}</button>
+      <button class="page-act primary" type="button" id="stockOpenBoard">${t('stockBoard')}</button>
+    </div>`:''}`, filterMeta);
 
-  return seg+`<div class="stock-toolbar">
+  return stockFilters+`<div class="stock-toolbar">
       <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
-      <div class="stock-strip-stats">
-        <button type="button" class="stock-chip empty ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b>${t('stockEmpty')}</button>
-        <button type="button" class="stock-chip low ${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b>${t('stockAttention')}</button>
-        <button type="button" class="stock-chip ok ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b>${t('stockAll')}</button>
-      </div>
-      ${hid!=='all'?`<div class="page-actions stock-toolbar-actions">
-        <button class="page-act" type="button" id="stockQuickFood">${t('stockAddFood')}</button>
-        <button class="page-act primary" type="button" id="stockOpenBoard">${t('stockBoard')}</button>
-      </div>`:''}
     </div>
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
     <div class="stock-categories">${categoryHtml||`<div class="card empty">${t('noStockResults')}</div>`}</div>
@@ -5169,11 +5192,11 @@ function viewShop(){
         <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
       </div>
     </div>
-    <div class="page-actions" role="toolbar" aria-label="${esc(t('shopTitle'))}">
+    ${adaptiveChrome(`<div class="page-actions" role="toolbar" aria-label="${esc(t('shopTitle'))}">
       <button class="page-act primary" type="button" data-page-act="shopAdd">＋ ${esc(t('addProduct'))}</button>
       <button class="page-act" type="button" data-page-act="shopScan">📷 ${esc(t('topScan'))}</button>
       <button class="page-act ghost" type="button" data-page-act="shopHistory">🧾 ${esc(t('topHistory'))}</button>
-    </div>
+    </div>`, t('shopTitle'))}
   </section>`;
 
   // ── Store mode: full-page compact aisle list ──
@@ -6067,12 +6090,12 @@ function viewBook(){
     .filter(l => (!f.employeeId || l.employeeId===f.employeeId) && (!f.type || l.type===f.type))
     .slice().reverse();
   return `
-    <div class="page-actions book-toolbar" role="toolbar">
+    ${adaptiveChrome(`<div class="page-actions book-toolbar" role="toolbar">
       <button class="page-act primary" type="button" data-page-act="shiftFocus">📒 ${esc(t('topShift'))}</button>
       <button class="page-act ${state.bookRange==='today'?'on':''}" type="button" data-page-act="bookToday">${esc(t('today'))}</button>
       <button class="page-act ${state.bookRange==='week'?'on':''}" type="button" data-page-act="bookWeek">${esc(t('last7'))}</button>
       <button class="page-act ghost" type="button" data-page-act="bookFix">${esc(t('topFix'))}</button>
-    </div>
+    </div>`, state.bookRange==='today'?t('today'):t('last7'))}
     ${shiftDiaryCard()}
     ${whoDidWhatCard()}
     <div class="card">
@@ -8323,7 +8346,7 @@ function renderChild(){
   if(zoDismiss) zoDismiss.onclick=e=>{ e.stopPropagation(); dismissZoAiBanner(); render(); };
   if(state.childView==='games') bindChildGames(document.getElementById('view'));
   if(state.childView==='gallery') bindGallery(document.getElementById('view'));
-  scheduleMeasureChrome();
+  syncLayoutMode();
 }
 
 function dynamicHeaderTitle(){
@@ -8711,15 +8734,86 @@ function mountHelpChat(root){
   });
 }
 
+function adaptiveChrome(panelHtml, summaryMeta=''){
+  const meta=summaryMeta?`<span class="adaptive-summary-meta">${esc(summaryMeta)}</span>`:'';
+  return `<div class="adaptive-chrome">
+    <button type="button" class="adaptive-chrome-summary" data-adaptive-toggle aria-expanded="false">
+      <span class="adaptive-summary-label">${esc(t('menuFilters'))}</span>
+      ${meta}
+      <span class="adaptive-chevron" aria-hidden="true">▾</span>
+    </button>
+    <button type="button" class="adaptive-backdrop" data-adaptive-toggle aria-label="${esc(t('close'))}" tabindex="-1"></button>
+    <div class="adaptive-chrome-panel">
+      <div class="adaptive-chrome-panel-head">
+        <b>${esc(t('menuFilters'))}</b>
+        <button type="button" class="adaptive-chrome-done" data-adaptive-toggle>${esc(t('menuDone'))}</button>
+      </div>
+      ${panelHtml}
+    </div>
+  </div>`;
+}
+
+function wireAdaptiveChrome(root=document){
+  root.querySelectorAll('.adaptive-chrome').forEach(box=>{
+    if(box.dataset.adaptiveWired==='1') return;
+    box.dataset.adaptiveWired='1';
+    const summary=box.querySelector('.adaptive-chrome-summary');
+    const setOpen=on=>{
+      box.classList.toggle('is-open', on);
+      document.body.classList.toggle('adaptive-open', on);
+      if(summary) summary.setAttribute('aria-expanded', on?'true':'false');
+    };
+    box.querySelectorAll('[data-adaptive-toggle]').forEach(el=>{
+      el.addEventListener('click', e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        setOpen(!box.classList.contains('is-open'));
+      });
+    });
+  });
+}
+
+function syncLayoutMode(){
+  const desktop=window.matchMedia('(min-width:900px)').matches;
+  document.body.classList.toggle('layout-desktop', desktop);
+  document.body.classList.toggle('layout-mobile', !desktop);
+  if(desktop){
+    document.querySelectorAll('.adaptive-chrome.is-open').forEach(box=>box.classList.remove('is-open'));
+    document.body.classList.remove('adaptive-open');
+  }
+  const rail=document.querySelector('nav.dock')||document.querySelector('nav');
+  if(desktop && rail && rail.style.display!=='none'){
+    document.documentElement.style.setProperty('--rail-w', Math.max(88, Math.ceil(rail.getBoundingClientRect().width||92))+'px');
+  }else{
+    document.documentElement.style.setProperty('--rail-w', '0px');
+  }
+  scheduleMeasureChrome();
+}
+
 function measureChrome(){
   const root=document.documentElement;
   const nav=document.querySelector('nav');
-  const chatPanel=document.getElementById('chatPanel');
   const childMode=document.body.classList.contains('mode-child');
   const storeFs=document.body.classList.contains('store-fullscreen');
   const matrixFs=document.body.classList.contains('matrix-fullscreen');
+  const desktop=document.body.classList.contains('layout-desktop');
   const navHidden=childMode || storeFs || matrixFs || !nav || nav.style.display==='none';
-  const navH=navHidden?0:Math.ceil(nav.getBoundingClientRect().height);
+  let navH=0;
+  if(!navHidden){
+    if(desktop){
+      navH=0;
+      const w=Math.max(88, Math.ceil(nav.getBoundingClientRect().width||92));
+      root.style.setProperty('--rail-w', w+'px');
+      document.body.style.setProperty('--rail-w', w+'px');
+    }else{
+      navH=Math.ceil(nav.getBoundingClientRect().height);
+      root.style.setProperty('--rail-w', '0px');
+      document.body.style.setProperty('--rail-w', '0px');
+    }
+  }else{
+    root.style.setProperty('--rail-w', '0px');
+    document.body.style.setProperty('--rail-w', '0px');
+  }
   const dockEl=document.querySelector('.stock-footer-actions, .store-finish.bottom-dock');
   let dockH=0;
   if(dockEl){
@@ -8728,10 +8822,7 @@ function measureChrome(){
       dockH=Math.ceil(dockEl.getBoundingClientRect().height);
     }
   }
-  // Zo-Ai floats above the content now, so it must not reserve layout space.
-  // Measuring the panel here would pad #app by the panel's full height.
   const chatH=0;
-  // Set on both html and body so class-based body vars cannot override measured values.
   [root, document.body].forEach(el=>{
     el.style.setProperty('--nav-total', `${navH}px`);
     el.style.setProperty('--dock-h', `${dockH}px`);
@@ -8797,11 +8888,12 @@ function render(){
       (s.querySelector('.matrix-toolbar-title')?.textContent||'')===restoreMatrixFs);
     if(shell) enterMatrixFullscreen(shell);
   }
-  scheduleMeasureChrome();
+  syncLayoutMode();
 }
 
 function wire(){
   const v = document.getElementById('view');
+  wireAdaptiveChrome(v);
   v.querySelectorAll('[data-page-act]').forEach(b=>{
     b.onclick=()=>{ feedback('tap'); onTopAction(b.dataset.pageAct); };
   });
@@ -9767,6 +9859,12 @@ document.documentElement.lang = state.lang;
 const helpFabEl=document.getElementById('helpFab');
 if(helpFabEl){ helpFabEl.hidden=true; helpFabEl.onclick=null; }
 window.addEventListener('keydown', event=>{
+  if(event.key==='Escape' && document.body.classList.contains('adaptive-open')){
+    event.preventDefault();
+    document.querySelectorAll('.adaptive-chrome.is-open').forEach(box=>box.classList.remove('is-open'));
+    document.body.classList.remove('adaptive-open');
+    return;
+  }
   if(event.key==='Escape' && document.body.classList.contains('matrix-fullscreen')){
     event.preventDefault();
     exitMatrixFullscreen();
@@ -9776,7 +9874,7 @@ window.addEventListener('keydown', event=>{
     closeChatPanel();
   }
 });
-window.addEventListener('resize', scheduleMeasureChrome);
+window.addEventListener('resize', ()=>{ syncLayoutMode(); });
 window.visualViewport?.addEventListener('resize', scheduleMeasureChrome);
 window.visualViewport?.addEventListener('scroll', scheduleMeasureChrome);
 window.addEventListener('unhandledrejection', event=>{
@@ -9789,6 +9887,7 @@ window.addEventListener('error', event=>{
   toast(t('unexpectedError'),'error');
 });
 localStorage.removeItem('paidia.authSession');
+syncLayoutMode();
 const resetToken=new URLSearchParams(location.search).get('reset');
 if(resetToken){
   openGate();
