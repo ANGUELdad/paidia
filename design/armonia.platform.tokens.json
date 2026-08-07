@@ -1,0 +1,40 @@
+{
+  "color": {
+    "ink": "#1a2822",
+    "muted": "#455851",
+    "bg": "#e9ece8",
+    "brand": "#2a6b52",
+    "brand2": "#3d8a6a",
+    "sea": "#2f5a63",
+    "sun": "#c48a1a",
+    "markA": "#9bc4b0",
+    "markB": "#7a9eaa"
+  },
+  "font": {
+    "ui": "Outfit",
+    "display": "Fraunces"
+  },
+  "radius": {
+    "sm": "12px",
+    "md": "18px",
+    "dock": "24px"
+  },
+  "space": {
+    "pageX": "16px",
+    "section": "16px"
+  },
+  "figma": {
+    "frames": ["Login", "Home", "PlanWeek", "Stock", "Talk", "Kids"],
+    "file": "Armonia Platform (manual export)",
+    "mappedTo": {
+      "Login": "apps/web/src/app/page.tsx",
+      "Home": "apps/web/src/app/home/page.tsx",
+      "PlanWeek": "apps/web/src/app/plan/page.tsx",
+      "Stock": "apps/web/src/app/stock/page.tsx",
+      "Talk": "apps/web/src/app/talk/page.tsx",
+      "Kids": "apps/web/src/app/kids/page.tsx"
+    },
+    "css": "apps/web/src/app/globals.css :root",
+    "note": "Pine/mineral UI — tokens exported here; wire Figma plugin when MCP available"
+  }
+}

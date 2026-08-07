@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id        String   @id
+  name      String
+  mode      String // staff|child
+  role      String?
+  admin     Boolean  @default(false)
+  color     String?
+  email     String?
+  phone     String?
+  pinHash   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  prefs     Prefs?
+  passkeys  Passkey[]
+  sessions  Session[]
+}
+
+model Prefs {
+  id           String  @id @default(cuid())
+  profileId    String  @unique
+  profile      Profile @relation(fields: [profileId], references: [id])
+  nickname     String?
+  emoji        String?
+  color        String?
+  lang         String  @default("de")
+  widgetsJson  String  @default("[]")
+}
+
+model Passkey {
+  id           String   @id @default(cuid())
+  profileId    String
+  profile      Profile  @relation(fields: [profileId], references: [id])
+  credentialId String   @unique
+  publicKey    String
+  label        String?
+  createdAt    DateTime @default(now())
+}
+
+model Session {
+  id        String   @id
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
+  mode      String
+  admin     Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model House {
+  id    String @id
+  name  String
+  short String
+}
+
+model Product {
+  id       String @id
+  nameDe   String
+  nameEl   String
+  unit     String
+  category String
+}
+
+model StockLedger {
+  id        String   @id @default(cuid())
+  houseId   String
+  productId String
+  qty       Float
+  dir       String
+  reason    String?
+  by        String?
+  createdAt DateTime @default(now())
+}
+
+model ListItem {
+  id        String   @id @default(cuid())
+  houseId   String
+  productId String?
+  name      String
+  qty       Float
+  unit      String
+  status    String   @default("open")
+  by        String?
+  createdAt DateTime @default(now())
+}
+
+model ScheduleEntry {
+  id          String   @id @default(cuid())
+  date        String
+  block       String
+  activity    String
+  houseIds    String   @default("[]")
+  employeeIds String   @default("[]")
+  childIds    String   @default("[]")
+  fromTime    String
+  toTime      String
+  note        String?
+  cancelled   Boolean  @default(false)
+  by          String?
+  createdAt   DateTime @default(now())
+}
+
+model ShiftNote {
+  id        String   @id @default(cuid())
+  profileId String
+  date      String
+  text      String
+  updatedAt DateTime @updatedAt
+  @@unique([profileId, date])
+}
+
+model ShiftCheckin {
+  id        String   @id @default(cuid())
+  profileId String
+  date      String
+  shiftId   String
+  status    String
+  reason    String?
+  createdAt DateTime @default(now())
+}
+
+model TalkMessage {
+  id        String   @id @default(cuid())
+  profileId String
+  text      String
+  createdAt DateTime @default(now())
+}
+
+model MeetingNote {
+  id      String   @id @default(cuid())
+  weekKey String   @unique
+  text    String
+  by      String?
+  updatedAt DateTime @updatedAt
+}
+
+model NotificationRule {
+  id       String  @id
+  kind     String  @unique
+  enabled  Boolean @default(true)
+  channels String  @default("[\"local\",\"push\"]")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  profileId String
+  endpoint  String   @unique
+  keysJson  String
+  mode      String
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  type      String
+  profileId String?
+  text      String
+  createdAt DateTime @default(now())
+}
+
+model LearningSignal {
+  id        String   @id @default(cuid())
+  kind      String
+  profileId String?
+  payload   String
+  createdAt DateTime @default(now())
+}
+
+model BuildInfo {
+  id      Int    @id @default(1)
+  version Int
+  label   String
+  changedDe String
+  changedEl String
+}

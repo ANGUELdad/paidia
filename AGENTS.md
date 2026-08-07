@@ -1,12 +1,15 @@
-# Agent entry (Cursor / Claude Code / other)
+# Agent entry (Cursor / Claude Code / other LLM)
 
-Read these **before** opening large source files:
+**Before** opening large source files, read:
 
 1. [docs/agents/SUMMARY.md](docs/agents/SUMMARY.md)
 2. [docs/agents/TOKEN_REDUCE.md](docs/agents/TOKEN_REDUCE.md)
 3. [docs/agents/KNOWLEDGE_MAP.md](docs/agents/KNOWLEDGE_MAP.md)
 4. [docs/agents/MEMORY_MAP.md](docs/agents/MEMORY_MAP.md)
 5. [docs/agents/map.json](docs/agents/map.json) — keyword → files/snippet
+6. [docs/agents/BIOMETRICS.md](docs/agents/BIOMETRICS.md) — Face ID / Android fingerprint
+
+**Never** paste full `app.js` or `server.py` into context.
 
 **Zo-Ai (in-app assistant) runtime knowledge:** [docs/zoai/KNOWLEDGE_MAP.md](docs/zoai/KNOWLEDGE_MAP.md)
 

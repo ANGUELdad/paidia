@@ -14,5 +14,6 @@ Not in the current ship. Tracked so agents do not re-invent half-built push.
 - `/api/health` reports `notifications.webPush: false`
 - Local Notification API + email broadcast work while the PWA/tab can run
 - Kids get local event banners when enabled (same limitation: app open-ish)
+- Admin **Automationen** panel (`sheetAdminAutomations`) toggles local sweeps (shift / stock / late / banner) — not server push
 
 Do not implement VAPID unless this phase is explicitly activated.

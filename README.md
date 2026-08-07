@@ -36,6 +36,11 @@ python3 server.py
 Liste / Plan χρειάζονται επιβεβαίωση (PIN για πρόγραμμα). Ο χάρτης γνώσης για τη Zo-Ai
 είναι στο [`docs/zoai/KNOWLEDGE_MAP.md`](docs/zoai/KNOWLEDGE_MAP.md).
 
+**Coding agents / LLMs:** διάβασε πρώτα [`AGENTS.md`](AGENTS.md) και `docs/agents/`
+(knowledge / memory / token-reduce) — μην φορτώνεις ολόκληρο το `app.js`.
+**Face ID / Android:** [`docs/agents/BIOMETRICS.md`](docs/agents/BIOMETRICS.md)
+(`PAIDIA_WEBAUTHN_ORIGIN` / `RP_ID` στο Vercel). Το login δείχνει πάντα έκδοση + τι άλλαξε.
+
 ## AI εισαγωγή λίστας (§58–§59)
 
 Το **🪄 Εισαγωγή λίστας** δέχεται επικολλημένο κείμενο ή screenshot. Το screenshot

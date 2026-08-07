@@ -27,8 +27,16 @@ __pycache__/
 .paidia-ops.json
 .paidia-auth-overrides.json
 .paidia-pin-hash-backup.json
+apps/api/.armonia-store.json
+apps/api/.armonia-store.tmp
+apps/web/prisma/*.db
+apps/web/prisma/*.db-journal
+apps/web/.next/
 .coverage
 coverage/
 node_modules/
 .vercel
 .env*
+!.env.example
+!**/.env.example
+apps/web/test-results/
