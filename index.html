@@ -26,6 +26,8 @@
     --card:rgba(255,255,255,.82);
     --ink:#1a2822;
     --muted:#455851;
+    --muted-soft:#4a6a74;
+    --meta:#6b8a94;
     --line:rgba(26,40,34,.12);
     --brand:#2a6b52;
     --brand-2:#3d8a6a;
@@ -872,8 +874,10 @@
     overflow:visible; overflow-wrap:anywhere}
   .matrix-cell .cellitem{overflow:visible}
   .matrix-cell:last-child{border-right:0}
-  .matrix-head{position:sticky; top:0; z-index:3; background:#f2f4f1; color:var(--muted);
-    font-size:11px; font-weight:750; text-transform:uppercase; letter-spacing:.045em}
+  .matrix-head{position:sticky; top:0; z-index:3; background:linear-gradient(180deg,#eef5f0,#f2f4f1); color:var(--muted);
+    font-size:11px; font-weight:750; text-transform:none; letter-spacing:.02em}
+  .matrix-head .mh-day{display:block;font-weight:800;color:var(--ink);text-transform:uppercase;letter-spacing:.04em;font-size:10px}
+  .matrix-head .mh-date{display:block;margin-top:2px;font-weight:700;color:var(--sea);font-size:12px;letter-spacing:0}
   .matrix-label{position:sticky; left:0; z-index:2; min-width:0; background:#fff;
     font-weight:700; box-shadow:5px 0 12px rgba(26,40,34,.05)}
   .matrix-row:first-child .matrix-label{z-index:4; background:#f2f4f1}
@@ -1378,17 +1382,17 @@
   .tutorial-progress{display:grid;grid-template-columns:repeat(var(--steps),1fr);gap:6px;margin-bottom:16px}
   .tutorial-progress i{height:5px;border-radius:999px;background:#d5e4e8;transition:background .25s,transform .25s}
   .tutorial-progress i.on{background:linear-gradient(90deg,#3d8a6a,#2f5a63);transform:scaleY(1.18)}
-  .tutorial-card{position:relative;overflow:hidden;min-height:0;padding:20px;border:1px solid #e0e7ff;
+  .tutorial-card{position:relative;overflow:hidden;min-height:0;padding:20px;border:1px solid rgba(42,107,82,.22);
     border-radius:20px;background:linear-gradient(145deg,#f2f4f1,#eef5f0);animation:tutorialIn .28s ease both}
   .tutorial-card::after{content:'';position:absolute;width:180px;height:180px;right:-78px;top:-84px;
-    border-radius:50%;background:rgba(99,102,241,.11);box-shadow:-115px 200px 0 rgba(20,184,166,.07)}
+    border-radius:50%;background:rgba(42,107,82,.1);box-shadow:-115px 200px 0 rgba(47,90,99,.08)}
   .tutorial-icon{position:relative;z-index:1;width:68px;height:68px;display:grid;place-items:center;margin-bottom:20px;
-    border-radius:20px;background:#fff;font-size:32px;box-shadow:0 12px 30px rgba(79,70,229,.13)}
+    border-radius:20px;background:#fff;font-size:32px;box-shadow:0 12px 30px rgba(26,40,34,.1)}
   .tutorial-kicker{position:relative;z-index:1;margin-bottom:6px;color:#2a6b52;font-size:11px;font-weight:850;
     text-transform:uppercase;letter-spacing:.15em}
   .tutorial-card h2{position:relative;z-index:1;margin:0 0 10px;font-size:26px;line-height:1.12;letter-spacing:-.025em}
   .tutorial-card p{position:relative;z-index:1;margin:0;max-width:430px;color:#3a5a64;font-size:13px;line-height:1.55}
-  .tutorial-path{position:relative;z-index:1;display:flex;align-items:center;gap:6px;margin:12px 0 0;padding:8px 10px;border-radius:10px;background:#e0e7ff;color:#3730a3;font-size:11px;font-weight:800}
+  .tutorial-path{position:relative;z-index:1;display:flex;align-items:center;gap:6px;margin:12px 0 0;padding:8px 10px;border-radius:10px;background:#eef5f0;color:#2a6b52;font-size:11px;font-weight:800}
   .tutorial-features{position:relative;z-index:1;counter-reset:tutorial-action;display:grid;gap:6px;margin:10px 0 0;padding:0;list-style:none}
   .tutorial-features li{counter-increment:tutorial-action;display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border:1px solid rgba(203,213,225,.75);border-radius:10px;background:rgba(255,255,255,.82);color:#2d4a52;font-size:11px;line-height:1.45}
   .tutorial-features li::before{content:counter(tutorial-action);display:grid;place-items:center;flex:0 0 21px;width:21px;height:21px;border-radius:6px;background:#2a6b52;color:#fff;font-size:11px;font-weight:850}
@@ -1401,7 +1405,7 @@
     color:#3a5a64;font-weight:700;cursor:pointer}.tutorial-back:disabled{opacity:.35;cursor:default}
   .tutorial-status{min-height:19px;margin-top:8px;text-align:center;color:#b91c1c;font-size:11px}
   .tutorial-status.busy{color:#2a6b52}
-  .help-center-hero{padding:16px;border:1px solid #c7d2fe;border-radius:20px;background:linear-gradient(135deg,#eef5f0,#eef5f0)}
+  .help-center-hero{padding:16px;border:1px solid rgba(42,107,82,.28);border-radius:20px;background:linear-gradient(135deg,#eef5f0,#f3f7f4)}
   .help-center-hero h2{margin:4px 0 5px;font-size:21px}.help-center-hero p{margin:0;color:#4a6a74;font-size:12px}
   .help-center-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
   .help-center-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -1750,7 +1754,7 @@
   .merge-choice label{display:block;padding:8px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:#fff}
   .merge-choice label:has(input:checked){border-color:#60a5fa;background:#eef5f0;color:#2a6b52}.merge-choice input{margin-right:5px}
   .merge-choice b{font-size:11px}.merge-choice small{display:block;margin:4px 0 0 21px;color:#4a6a74;font-size:11px;line-height:1.3}
-  .import-review{margin-top:12px;border:1px solid #c7d2fe;border-radius:14px;overflow:hidden;background:#fff}
+  .import-review{margin-top:12px;border:1px solid rgba(42,107,82,.28);border-radius:14px;overflow:hidden;background:#fff}
   .import-review-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:12px 13px;background:#eef5f0}
   .import-review-body{max-height:min(38vh,340px);overflow:auto;overscroll-behavior:contain}
   .import-review-row{display:grid;grid-template-columns:minmax(0,1fr) 68px 62px 34px;gap:6px;align-items:start;padding:8px 12px;border-top:1px solid #e6ebe7}
@@ -1815,7 +1819,11 @@
   .home-primary:active{transform:scale(.98)}
   .home-foot-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; padding:4px 0 8px}
   .home-foot-actions .page-act{width:auto; min-width:140px}
-  .home-bento{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .home-bento{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px}
+  .home-more{margin-top:4px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.55);padding:0 12px}
+  .home-more>summary{cursor:pointer;list-style:none;padding:12px 2px;font-weight:750;font-size:13px;color:var(--sea)}
+  .home-more>summary::-webkit-details-marker{display:none}
+  .home-more[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}
   .bento-tile{border:1px solid var(--line); background:var(--glass-strong);
     border-radius:14px; padding:12px; text-align:left; cursor:default; min-height:72px;
     display:flex; flex-direction:column; justify-content:flex-end; gap:2px;
@@ -2142,8 +2150,8 @@
   .stock-product.low::before{background:#f59e0b}
   .stock-product.empty{background:#fff7f7;border-color:#f9d3d3}
   .stock-product.empty::before{background:#ef4444}
-  .stock-product.drafting{background:#f5f9ff;border-color:#bfd8fb}
-  .stock-product.drafting::before{background:#2f5a63}
+  .stock-product.drafting{background:#eef5f0;border-color:#9bc4b0}
+  .stock-product.drafting::before{background:#2a6b52}
 
   .shop-item-name,.stock-product-name{
     font-weight:680;font-size:14px;line-height:1.3;letter-spacing:-.01em;
@@ -2572,6 +2580,6 @@
 <script>
 /* Network-first SW + notifications — versioned registration happens in app.js */
 </script>
-<script src="gate.js?v=67"></script>
+<script src="gate.js?v=70"></script>
 </body>
 </html>

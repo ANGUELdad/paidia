@@ -1,28 +1,28 @@
 /* Instant login shell — runs before the heavy app so PIN entry always works. */
 (function () {
   const STAFF = [
-    { id: 'e1', name: 'Dora', role: 'Betreuerin', color: '#a7f3d0' },
-    { id: 'e2', name: 'Karin', role: 'Betreuerin', color: '#bfdbfe' },
-    { id: 'e3', name: 'Dimitris', role: 'Betreuer', color: '#fde68a' },
-    { id: 'e4', name: 'Angelos', role: 'Betreuer', color: '#fbcfe8' },
-    { id: 'e5', name: 'Claudio', role: 'Betreuer', color: '#c7d2fe' },
-    { id: 'e6', name: 'Löhri', role: 'Betreuer', color: '#fed7aa' },
-    { id: 'e7', name: 'Amalia', role: 'Betreuerin', color: '#d9f99d' },
-    { id: 'e8', name: 'Zoi', role: 'Leitung', color: '#f5d0fe' },
+    { id: 'e1', name: 'Dora', role: 'Betreuerin', color: '#9bc4b0' },
+    { id: 'e2', name: 'Karin', role: 'Betreuerin', color: '#7a9eaa' },
+    { id: 'e3', name: 'Dimitris', role: 'Betreuer', color: '#c5ddd0' },
+    { id: 'e4', name: 'Angelos', role: 'Betreuer', color: '#a8c5b8' },
+    { id: 'e5', name: 'Claudio', role: 'Betreuer', color: '#8fb0a0' },
+    { id: 'e6', name: 'Löhri', role: 'Betreuer', color: '#d4c4a0' },
+    { id: 'e7', name: 'Amalia', role: 'Betreuerin', color: '#b8c9a8' },
+    { id: 'e8', name: 'Zoi', role: 'Leitung', color: '#2f5a63' },
   ];
   const CHILDREN = [
-    { id: 'k1', name: 'Simon', color: '#bfdbfe' },
-    { id: 'k2', name: 'Kai', color: '#a7f3d0' },
-    { id: 'k3', name: 'Vincent', color: '#fde68a' },
-    { id: 'k4', name: 'Julian klein', color: '#fbcfe8' },
-    { id: 'k5', name: 'Julian groß', color: '#c7d2fe' },
-    { id: 'k6', name: 'Lea', color: '#fed7aa' },
-    { id: 'k7', name: 'Valeria', color: '#d9f99d' },
-    { id: 'k8', name: 'Jule', color: '#f5d0fe' },
-    { id: 'k9', name: 'Samantha', color: '#99f6e4' },
-    { id: 'k10', name: 'Lilly', color: '#99f6e4' },
-    { id: 'k11', name: 'Zoitsa', color: '#fecaca' },
-    { id: 'k12', name: 'Leonie', color: '#e9d5ff' },
+    { id: 'k1', name: 'Simon', color: '#9bc4b0' },
+    { id: 'k2', name: 'Kai', color: '#7a9eaa' },
+    { id: 'k3', name: 'Vincent', color: '#c5ddd0' },
+    { id: 'k4', name: 'Julian klein', color: '#a8c5b8' },
+    { id: 'k5', name: 'Julian groß', color: '#8fb0a0' },
+    { id: 'k6', name: 'Lea', color: '#d4c4a0' },
+    { id: 'k7', name: 'Valeria', color: '#b8c9a8' },
+    { id: 'k8', name: 'Jule', color: '#6b9a88' },
+    { id: 'k9', name: 'Samantha', color: '#5a8a7a' },
+    { id: 'k10', name: 'Lilly', color: '#7a9eaa' },
+    { id: 'k11', name: 'Zoitsa', color: '#c48a1a' },
+    { id: 'k12', name: 'Leonie', color: '#2f5a63' },
   ];
 
   const gate = document.getElementById('gate');
@@ -32,11 +32,11 @@
   let lang = localStorage.getItem('paidia.lang') || 'de';
   let bootSettled = false;
   const APP_BUILD = {
-    version: 67,
-    label: 'v67',
+    version: 69,
+    label: 'v69',
     changed: {
-      de: 'Agent-Maps · Login-Version · Biometrie · Admin-Mails · Kind-Mitteilungen & Anleitung',
-      el: 'Agent maps · Έκδοση στο login · Biometrics · Admin emails · Ειδοποιήσεις & οδηγίες παιδιών',
+      de: 'UX Home/Plan · Tabellen mit Datum · Talk-Tab · Admin-Automationen · Pine-Cleanup',
+      el: 'UX Home/Plan · Πίνακες με ημερομηνία · Talk · Admin automations · Pine cleanup',
     },
   };
   const copy = {
@@ -53,6 +53,14 @@
       pin: 'PIN eingeben',
       login: 'Anmelden',
       back: '← Zurück',
+      pinFallback: 'Oder PIN',
+      bioFace: 'Face ID',
+      bioFinger: 'Fingerabdruck',
+      bioPasskey: 'Biometrie',
+      bioHint: 'Schnelle Anmeldung auf diesem Gerät',
+      bioFail: 'Biometrie fehlgeschlagen — PIN nutzen',
+      bioUnavailable: 'Biometrie hier nicht verfügbar (HTTPS + Face ID / Fingerabdruck nötig)',
+      bioSetupNeeded: 'Zuerst mit PIN anmelden, dann unter Profil Face ID einrichten',
       wrong: 'Falsche PIN',
       locked: (m) => `Gesperrt · noch ${m} Min.`,
       attempts: (n) => `Noch ${n} Versuche`,
@@ -89,6 +97,14 @@
       pin: 'Βάλε PIN',
       login: 'Είσοδος',
       back: '← Πίσω',
+      pinFallback: 'Ή PIN',
+      bioFace: 'Face ID',
+      bioFinger: 'Δακτυλικό αποτύπωμα',
+      bioPasskey: 'Βιομετρικά',
+      bioHint: 'Γρήγορη είσοδος σε αυτή τη συσκευή',
+      bioFail: 'Αποτυχία βιομετρικών — χρησιμοποίησε PIN',
+      bioUnavailable: 'Τα βιομετρικά δεν είναι διαθέσιμα (HTTPS + Face ID / δακτυλικό)',
+      bioSetupNeeded: 'Πρώτα είσοδος με PIN, μετά Face ID από το Προφίλ',
       wrong: 'Λάθος PIN',
       locked: (m) => `Κλείδωμα · ακόμη ${m} λεπτά`,
       attempts: (n) => `Ακόμη ${n} προσπάθειες`,
@@ -124,7 +140,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=67';
+    script.src = 'app.js?v=70';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -160,11 +176,11 @@
       </div>
       <div class="profiles" style="grid-template-columns:1fr">
         <button class="profile" type="button" data-mode="staff" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-          <div class="pa" style="background:#bfdbfe;margin:0;flex:0 0 auto">👥</div>
+          <div class="pa" style="background:#9bc4b0;margin:0;flex:0 0 auto">👥</div>
           <div><div class="pn" style="font-size:16px">${t('staff')}</div><div class="pr">${t('staffSub')}</div></div>
         </button>
         <button class="profile" type="button" data-mode="child" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-          <div class="pa" style="background:#fde68a;margin:0;flex:0 0 auto">🎈</div>
+          <div class="pa" style="background:#c5ddd0;margin:0;flex:0 0 auto">🎈</div>
           <div><div class="pn" style="font-size:16px">${t('child')}</div><div class="pr">${t('childSub')}</div></div>
         </button>
       </div>
@@ -212,6 +228,74 @@
     });
   }
 
+  function biometricLabel() {
+    const ua = navigator.userAgent || '';
+    if (/iPhone|iPad|iPod/i.test(ua)) return t('bioFace');
+    if (/Android/i.test(ua)) return t('bioFinger');
+    if (/Macintosh|Mac OS/i.test(ua)) return t('bioFace');
+    if (/Windows/i.test(ua)) return 'Windows Hello';
+    return t('bioPasskey');
+  }
+
+  function passkeyCapable() {
+    return window.isSecureContext && !!window.PublicKeyCredential && !!navigator.credentials;
+  }
+
+  const b64ToBytes = (value) => {
+    const base64 = String(value).replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(String(value).length / 4) * 4, '=');
+    return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  };
+  const bytesToB64 = (value) => {
+    if (value === null || value === undefined) return null;
+    const bytes = new Uint8Array(value);
+    let binary = '';
+    bytes.forEach((b) => { binary += String.fromCharCode(b); });
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  };
+  function decodePublicKeyOptions(options) {
+    const out = structuredClone(options);
+    out.challenge = b64ToBytes(out.challenge);
+    if (out.user?.id) out.user.id = b64ToBytes(out.user.id);
+    for (const key of ['allowCredentials', 'excludeCredentials']) {
+      if (out[key]) out[key] = out[key].map((c) => ({ ...c, id: b64ToBytes(c.id) }));
+    }
+    return out;
+  }
+  function publicKeyCredentialJSON(credential) {
+    const response = credential.response;
+    const value = {
+      id: credential.id,
+      rawId: bytesToB64(credential.rawId),
+      type: credential.type,
+      authenticatorAttachment: credential.authenticatorAttachment || null,
+      clientExtensionResults: credential.getClientExtensionResults?.() || {},
+      response: { clientDataJSON: bytesToB64(response.clientDataJSON) },
+    };
+    if (response.attestationObject) value.response.attestationObject = bytesToB64(response.attestationObject);
+    if (response.authenticatorData) value.response.authenticatorData = bytesToB64(response.authenticatorData);
+    if (response.signature) value.response.signature = bytesToB64(response.signature);
+    if ('userHandle' in response) value.response.userHandle = bytesToB64(response.userHandle);
+    if (response.getTransports) value.response.transports = response.getTransports();
+    return value;
+  }
+
+  async function passkeyApi(path, payload) {
+    const response = await fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(payload),
+    });
+    const data = await response.json().catch(() => ({ error: 'Invalid server response' }));
+    if (!response.ok) {
+      const error = new Error(data.error || 'Passkey request failed');
+      error.status = response.status;
+      error.code = data.code;
+      throw error;
+    }
+    return data;
+  }
+
   function renderPin(who, mode) {
     let buf = '';
     let busy = false;
@@ -221,6 +305,8 @@
         <div class="pa" style="background:${safeColor(who.color)}">${initials(who.name)}</div>
         <h3>${esc(who.name)}</h3>
         <div class="sub">${who.role ? esc(who.role) + ' · ' : ''}${t('pin')}</div>
+        <button class="passkey-btn primary-bio" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricLabel())}</b><span class="pk-sub">${esc(t('bioHint'))}</span></span></button>
+        <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
         <div class="pindots" id="gpd"></div>
         <input class="pin-field" id="gPinInput" type="password" inputmode="numeric" pattern="[0-9]*"
           maxlength="6" autocomplete="one-time-code" enterkeyhint="done" aria-label="PIN" value="">
@@ -237,7 +323,8 @@
         <button class="gate-forgot" id="gForgot" type="button">${t('forgot')}</button>
         <div class="muted" style="margin-top:10px;font-size:11.5px">${t('hint')}</div>
         <button class="gate-back" type="button" id="gBack">${t('back')}</button>
-      </div>`;
+      </div>
+      <div class="gate-build" role="status"><b>${esc(APP_BUILD.label)}</b><span>${esc((APP_BUILD.changed && (APP_BUILD.changed[lang] || APP_BUILD.changed.de)) || '')}</span></div>`;
 
     const input = body.querySelector('#gPinInput');
     const errorEl = body.querySelector('#gpErr');
@@ -254,7 +341,25 @@
       loginBtn.disabled = !enabled;
       input.disabled = !enabled;
       pad.querySelectorAll('button').forEach((b) => { b.disabled = !enabled; });
+      const pk = body.querySelector('#gPasskey');
+      if (pk) pk.disabled = !enabled;
     };
+
+    const showPasskey = () => {
+      const button = body.querySelector('#gPasskey');
+      const divider = body.querySelector('#gPinDivider');
+      if (!button || !divider) return;
+      button.hidden = false;
+      button.classList.add('on');
+      divider.hidden = false;
+      divider.style.display = 'flex';
+    };
+    if (passkeyCapable()) {
+      showPasskey();
+      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable?.().then((available) => {
+        if (available) showPasskey();
+      }).catch(() => {});
+    }
 
     const finish = async () => {
       if (busy || succeeded) return;
@@ -315,6 +420,36 @@
       }
     };
 
+    const finishPasskey = async () => {
+      if (busy || succeeded || !passkeyCapable()) return;
+      busy = true;
+      setControlsEnabled(false);
+      errorEl.textContent = '';
+      try {
+        const options = await passkeyApi('/api/auth/passkey/login/options', { mode, profileId: who.id });
+        const publicKey = decodePublicKeyOptions(options.publicKey);
+        const credential = await navigator.credentials.get({ publicKey });
+        await passkeyApi('/api/auth/passkey/login/verify', {
+          ceremonyId: options.ceremonyId,
+          credential: publicKeyCredentialJSON(credential),
+        });
+        succeeded = true;
+        window.__paidiaAuthed = true;
+        try { loadApp(); } catch (error) { location.replace('/?in=' + Date.now()); }
+        return;
+      } catch (error) {
+        if (error.name === 'NotAllowedError') errorEl.textContent = t('bioFail');
+        else if (error.code === 'no_passkey') errorEl.textContent = t('bioSetupNeeded');
+        else if (error.code === 'passkey_unavailable' || error.code === 'configuration') errorEl.textContent = t('bioUnavailable');
+        else errorEl.textContent = t('bioFail');
+      } finally {
+        if (!succeeded) {
+          busy = false;
+          setControlsEnabled(true);
+        }
+      }
+    };
+
     const push = (key) => {
       if (busy || succeeded) return;
       if (key === 'del') buf = buf.slice(0, -1);
@@ -326,6 +461,7 @@
 
     body.querySelector('#gBack').onclick = () => renderProfiles(mode);
     body.querySelector('#gForgot').onclick = () => renderResetRequest(who, mode);
+    body.querySelector('#gPasskey').onclick = finishPasskey;
     pad.onclick = (event) => {
       const button = event.target.closest('button[data-k]');
       if (!button || button.disabled) return;

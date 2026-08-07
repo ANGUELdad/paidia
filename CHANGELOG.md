@@ -1,5 +1,21 @@
 # Changelog
 
+## v69 — 2026-08-06
+
+- UX Phase 1: Home one composition (mast + shift + signals + today; rest under “Mehr”)
+- Plan/matrix day headers show full dates; mobile day chips include year
+- Stock drafting pine (not blue); tutorial/help/import off indigo
+- Talk stays a dedicated dock tab (label “Talk”)
+- Admin Automationen panel for local notification rules (shift / stock / late / banner)
+- Cache `paidia-v69`
+
+## v68 — 2026-08-06
+
+- Expanded agent knowledge / memory / token-reduce maps for all major code areas
+- `docs/agents/BIOMETRICS.md` — iPhone Face ID + Android fingerprint setup
+- Cold-boot `gate.js` Face ID / fingerprint login (primary CTA) + version chip on PIN
+- Login always shows version + what changed (DE/EL)
+
 ## v67 — 2026-08-06
 
 - Agent knowledge / memory / token-reduce maps (`docs/agents/`, `AGENTS.md`)

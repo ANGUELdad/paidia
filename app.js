@@ -4,16 +4,16 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 67,
-  label: 'v67',
+  version: 69,
+  label: 'v69',
   changed: {
-    de: 'Agent-Maps · Login-Version · Biometrie · Admin-Mails · Kind-Mitteilungen & Anleitung',
-    el: 'Agent maps · Έκδοση στο login · Biometrics · Admin emails · Ειδοποιήσεις & οδηγίες παιδιών',
+    de: 'UX Home/Plan · Tabellen mit Datum · Talk-Tab · Admin-Automationen · Pine-Cleanup',
+    el: 'UX Home/Plan · Πίνακες με ημερομηνία · Talk · Admin automations · Pine cleanup',
   },
 };
 const T = {
   de: {
-    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Team',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk',
     titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch',
     logout:'Profil', noUser:'Nicht angemeldet',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Team sprechen', topTutorial:'Tutorial',
@@ -306,7 +306,16 @@ const T = {
     stockDraftClear:'Verwerfen',
     stockDraftNeedReason:'Für Ausgang einen Grund wählen.',
     stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
-    stockDraftPending:'Ausstehend',
+    stockDraftPending:'Noch nicht gespeichert',
+    homeMore:'Mehr heute',
+    homeSignals:'Kurzüberblick',
+    adminAutomations:'Automationen',
+    adminAutomationsHint:'Lokale Mitteilungen steuern (App offen). E-Mail weiter über Broadcast.',
+    autoShiftStart:'Schicht-Start Mitteilung',
+    autoLowStock:'Niedriger Lagerbestand',
+    autoPresenceLate:'Verspätung erinnern',
+    autoBroadcastBanner:'Broadcast als Banner zeigen',
+    autoSaved:'Automationen gespeichert',
     reason:'Grund', newReason:'Neuer Grund', reasonNamePh:'z. B. Spende, Reparatur oder Teamküche',
     saveReason:'Grund hinzufügen', reasonRequired:'Schreibe zuerst einen Namen für den Grund.',
     reasonExists:'Dieser Grund existiert bereits und wurde ausgewählt.', reasonAdded:n=>`„${n}“ wurde gespeichert und ausgewählt.`, reasonRemoved:'Eigener Grund entfernt.',
@@ -654,7 +663,7 @@ const T = {
     pasteScreenshot:'Screenshot einfügen', pickScreenshot:'Screenshot / Foto wählen',
   },
   el: {
-    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Ομάδα',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk',
     titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Ομάδα — συνομιλία', topTutorial:'Tutorial',
@@ -947,7 +956,16 @@ const T = {
     stockDraftClear:'Ακύρωση',
     stockDraftNeedReason:'Για έξοδο διάλεξε λόγο.',
     stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
-    stockDraftPending:'Εκκρεμεί',
+    stockDraftPending:'Δεν αποθηκεύτηκε ακόμη',
+    homeMore:'Περισσότερα σήμερα',
+    homeSignals:'Σύντομη εικόνα',
+    adminAutomations:'Αυτοματισμοί',
+    adminAutomationsHint:'Τοπικές ειδοποιήσεις (ενώ η app είναι ανοιχτή). Email μέσω Broadcast.',
+    autoShiftStart:'Ειδοποίηση έναρξης βάρδιας',
+    autoLowStock:'Χαμηλό απόθεμα',
+    autoPresenceLate:'Υπενθύμιση καθυστέρησης',
+    autoBroadcastBanner:'Broadcast ως banner',
+    autoSaved:'Οι αυτοματισμοί αποθηκεύτηκαν',
     reason:'Λόγος', newReason:'Νέος λόγος', reasonNamePh:'π.χ. δωρεά, επισκευή ή κουζίνα ομάδας',
     saveReason:'Προσθήκη λόγου', reasonRequired:'Γράψε πρώτα ένα όνομα για τον λόγο.',
     reasonExists:'Αυτός ο λόγος υπάρχει ήδη και επιλέχθηκε.', reasonAdded:n=>`Το «${n}» αποθηκεύτηκε και επιλέχθηκε.`, reasonRemoved:'Ο προσαρμοσμένος λόγος αφαιρέθηκε.',
@@ -1731,6 +1749,38 @@ async function pullShared({force=false}={}){
   }finally{ sharedBusy = false; }
 }
 
+/**
+ * Merge our local value for one shared key on top of the server's, per record.
+ *
+ * Dict keys merge by key; arrays merge by `id`. Same id on both sides: ours
+ * wins, since we are the one retrying. Records only the other device has are
+ * preserved — that is the entire point of this function.
+ *
+ * If either side is an array whose records lack ids we cannot merge safely,
+ * so that key alone keeps the old behaviour (ours) rather than guessing.
+ */
+function mergeShared(key, theirs, mine){
+  if(mine === undefined) return theirs;
+  if(theirs === undefined) return mine;
+
+  if(SHARED_DICT_KEYS.has(key)){
+    const a = (theirs && typeof theirs === 'object' && !Array.isArray(theirs)) ? theirs : {};
+    const b = (mine   && typeof mine   === 'object' && !Array.isArray(mine))   ? mine   : {};
+    return {...a, ...b};
+  }
+
+  const A = Array.isArray(theirs) ? theirs : [];
+  const B = Array.isArray(mine)   ? mine   : [];
+  const hasIds = A.every(r => r && r.id !== undefined) &&
+                 B.every(r => r && r.id !== undefined);
+  if(!hasIds) return B;
+
+  const byId = new Map();
+  A.forEach(r => byId.set(r.id, r));
+  B.forEach(r => byId.set(r.id, r));
+  return [...byId.values()];
+}
+
 async function pushShared(retry=false){
   if(state.mode !== 'staff' || !state.user) return false;
   if(sharedBusy) return false;
@@ -1745,10 +1795,15 @@ async function pushShared(retry=false){
     });
     const data = await response.json().catch(()=>null);
     if(response.status === 409 && data){
-      const intended = {};
-      SHARED_KEYS.forEach(k => { intended[k] = payload[k]; });
-      applySharedPayload(data);
-      SHARED_KEYS.forEach(k => { DB[k] = intended[k]; });
+      // Another device wrote first. Adopt its state, then merge our own work
+      // back in PER RECORD. The previous version restored our entire payload
+      // over the server's, so the retry silently destroyed everything the
+      // other device had written — stock, list, handover notes, clock-ins.
+      // See tests/sync-conflict.test.mjs.
+      const mine = {};
+      SHARED_KEYS.forEach(k => { mine[k] = DB[k]; });
+      applySharedPayload(data);            // DB + sharedRevision now match server
+      SHARED_KEYS.forEach(k => { DB[k] = mergeShared(k, DB[k], mine[k]); });
       saveLocal();
       sharedBusy = false;
       if(!retry) return pushShared(true);
@@ -4651,7 +4706,7 @@ function viewScheduleDay(){
     const di = dowIdx(d);
     return `<button type="button" class="plan-day-chip day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}" aria-pressed="${ds===state.date?'true':'false'}" aria-label="${esc(DAY_LONG[state.lang][di])} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}">
       <span class="d">${DAY_NAMES[state.lang][di]}</span>
-      <span class="n">${d.getDate()}<i>.${d.getMonth()+1}</i></span></button>`;
+      <span class="n">${d.getDate()}<i>.${d.getMonth()+1}.${String(d.getFullYear()).slice(2)}</i></span></button>`;
   }).join('');
 
   const blocks = BLOCKS.map((b, bi)=>{
@@ -4705,15 +4760,16 @@ function viewScheduleDay(){
     ${weekNotesCard()}`;
 }
 
-/** Ημερομηνία ημέρας για πίνακες / chips: όνομα + ημερομηνία. */
+/** Ημερομηνία ημέρας για πίνακες / chips: όνομα + πλήρης ημερομηνία. */
 function dayStamp(ds, i=dowIdx(new Date(ds+'T12:00:00'))){
   const d = new Date(ds+'T12:00:00');
   const name = DAY_NAMES[state.lang][i];
-  const date = `${d.getDate()}.${d.getMonth()+1}.`;
-  const full = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+  const date = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+  const short = `${d.getDate()}.${d.getMonth()+1}.`;
+  const full = date;
   const long = DAY_LONG[state.lang][i];
   return {
-    name, date, full, long, i, ds,
+    name, date, short, full, long, i, ds,
     text: `${name} ${date}`,
     headHtml: `<span class="mh-day">${esc(name)}</span><span class="mh-date">${esc(date)}</span>`,
     labelHtml: `<span class="mh-day">${esc(name)}</span><span class="mh-date">${esc(date)}</span>`,
@@ -5129,7 +5185,7 @@ function sheetEntry(e, dateStr, presets = {}){
       <textarea id="fNote" rows="2" placeholder="${t('notePh')}">${esc(e.note||'')}</textarea></label>
 
     <div id="fEventFields" style="display:${linkedEvent?.status==='published'?'block':'none'}">
-      <div class="card" style="border-color:#c4b5fd;background:#faf5ff;margin-bottom:10px">
+      <div class="card" style="border-color:rgba(42,107,82,.28);background:#eef5f0;margin-bottom:10px">
         <div class="strong">📣 ${t('announceEvent')}</div>
         <div class="muted" id="fEventAudience">${T[state.lang].kidsNotified(pickedKids.length)} ${t('announceHint')}</div>
       </div>
@@ -9721,6 +9777,7 @@ function adminTeamPanel(today){
       <button class="btn sm sec" data-admin-go="events">🎉 ${t('adminManageEvents')}</button>
       <button class="btn sm sec" data-admin-go="audit">📖 ${t('adminOpenAudit')}</button>
       <button class="btn sm sec" data-admin-broadcast type="button">✉️ ${t('adminNotifyPanel')}</button>
+      <button class="btn sm sec" data-admin-automations type="button">⚙️ ${t('adminAutomations')}</button>
     </div>
     <div class="admin-alert-strip ${issues.length?'':'clear'}"><span>${issues.length?'⚠️':'✅'}</span><div class="grow"><b>${issues.length?`${issues.length} · ${t('adminWarnings')}`:t('adminAllClear')}</b>
       <div style="margin-top:2px">${t('adminFullControl')}</div></div></div>
@@ -10018,12 +10075,13 @@ function viewHome(){
   const showJournalDuty=journalDue && !shiftStartCard;
   const planCta=`<button class="btn sm" type="button" data-home-jump="day">${esc(t('homeOpenPlan'))}</button>`;
   const eventsCta=`<button class="btn sm sec" type="button" data-home-jump="events">${esc(t('homeOpenEvents'))}</button>`;
+  const primaryLabel = shiftStartCard ? t('homePrimaryCta') : (todayOpen.length ? t('homePrimaryCta') : t('homeOpenPlan'));
   return `<div class="home-shell">
     <section class="home-mast" aria-label="Armonia">
       <p class="home-brand">Armonia</p>
       <p class="home-hello">${t('homeHello')}${user?', '+esc(user.name):''}</p>
       <h2>${t('homeOverview')}</h2>
-      <button class="home-primary page-act primary" type="button" data-home-jump="day">${esc(t('homePrimaryCta'))}</button>
+      <button class="home-primary page-act primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
     </section>
     ${shiftStartCard}
     ${showJournalDuty?`<button class="journal-duty-home" type="button" id="homeWriteBook">
@@ -10032,7 +10090,7 @@ function viewHome(){
       <span class="journal-duty-home-cta">${esc(t('journalDutyCta'))}</span>
     </button>`:''}
     ${teamNoticeBannerHtml()}
-    <div class="home-bento" role="group" aria-label="${esc(t('homeOverview'))}">
+    <div class="home-bento" role="group" aria-label="${esc(t('homeSignals'))}">
       <button class="bento-tile accent action" type="button" data-home-jump="day">
         <b>${todayOpen.length}</b><span>${t('dueToday')}</span>
       </button>
@@ -10042,31 +10100,33 @@ function viewHome(){
       <button class="bento-tile sea action" type="button" data-home-jump="events">
         <b>${upcoming.length}</b><span>${t('eventsSoon')}</span>
       </button>
-      <button class="bento-tile action" id="homeGalleryOpen" type="button">
-        <b style="font-size:22px">📸</b><span>${esc(t('galleryTitle'))}</span>
-      </button>
     </div>
     ${shiftStartCard?'':`${shiftPresenceBannerHtml()}${shiftStockCheckBannerHtml()}`}
-    <div class="dashboard-grid">
-      ${adminTeamPanel(today)}
-      <section class="card"><div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
-        <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState('✅', t('noTasks'), t('noTasksHint'), planCta)}</div>
-      </section>
-      <section class="card"><div class="block-h"><span class="t">⚠️ ${t('overdueTasks')}</span><span class="hrs">7</span></div>
-        <div class="task-list">${overdue.length||recentlyDone.length?
-          overdue.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id,{overdue:true})).join('')+
-          recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):emptyState('🌿', t('noOverdue'), t('noOverdueHint'))}</div>
-      </section>
-      <section class="card wide"><div class="block-h"><span class="t">📣 ${t('allEvents')}</span><button class="btn sm sec" id="homeAllEvents" type="button">${t('openEvents')} →</button></div>
-        <div class="task-list">${events.length?events.map(homeEventCard).join(''):emptyState('📣', t('noEvents'), t('noEventsHint'), eventsCta)}</div>
-      </section>
-      <section class="card wide"><div class="block-h"><span class="t">👤 ${t('unassignedTasks')}</span><span class="hrs">${t('next3Days')}</span></div>
-        <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):emptyState('👤', t('noUnassigned'), t('noUnassignedHint'), planCta)}</div>
-      </section>
-    </div>
+    <section class="card home-today-card" style="margin-top:10px">
+      <div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
+      <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState('✅', t('noTasks'), t('noTasksHint'), planCta)}</div>
+    </section>
+    <details class="home-more">
+      <summary>${esc(t('homeMore'))}</summary>
+      <div class="dashboard-grid" style="margin-top:4px">
+        ${adminTeamPanel(today)}
+        <section class="card"><div class="block-h"><span class="t">⚠️ ${t('overdueTasks')}</span><span class="hrs">7</span></div>
+          <div class="task-list">${overdue.length||recentlyDone.length?
+            overdue.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id,{overdue:true})).join('')+
+            recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):emptyState('🌿', t('noOverdue'), t('noOverdueHint'))}</div>
+        </section>
+        <section class="card wide"><div class="block-h"><span class="t">📣 ${t('allEvents')}</span><button class="btn sm sec" id="homeAllEvents" type="button">${t('openEvents')} →</button></div>
+          <div class="task-list">${events.length?events.map(homeEventCard).join(''):emptyState('📣', t('noEvents'), t('noEventsHint'), eventsCta)}</div>
+        </section>
+        <section class="card wide"><div class="block-h"><span class="t">👤 ${t('unassignedTasks')}</span><span class="hrs">${t('next3Days')}</span></div>
+          <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):emptyState('👤', t('noUnassigned'), t('noUnassignedHint'), planCta)}</div>
+        </section>
+      </div>
+    </details>
     <div class="home-foot-actions">
       <button class="page-act ghost" type="button" data-page-act="tutorial">📘 ${esc(t('topTutorial'))}</button>
       <button class="page-act ghost" type="button" id="homeCalendar">📅 ${esc(t('calTitle'))}</button>
+      <button class="page-act ghost" type="button" id="homeGalleryOpen">📸 ${esc(t('galleryTitle'))}</button>
     </div>
   </div>`;
 }
@@ -10863,6 +10923,10 @@ function wire(){
   v.querySelectorAll('[data-admin-broadcast]').forEach(button=>button.onclick=()=>{
     feedback('open');
     sheetBroadcastEmail();
+  });
+  v.querySelectorAll('[data-admin-automations]').forEach(button=>button.onclick=()=>{
+    feedback('open');
+    sheetAdminAutomations();
   });
   const homeCalendar=v.querySelector('#homeCalendar');
   if(homeCalendar) homeCalendar.onclick=()=>{
@@ -11974,7 +12038,7 @@ function renderResetForm(token){
   gateEl.classList.add('on');
   gateBody.innerHTML=`
     <div class="gate-pin gate-reset">
-      <div class="pa" style="background:#c4b5fd">🔐</div>
+      <div class="pa" style="background:#9bc4b0">🔐</div>
       <h3>${t('resetPinTitle')}</h3>
       <label class="f" style="text-align:left;margin-top:18px"><span>${t('newPin')}</span>
         <input type="password" id="newPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password"></label>
@@ -12080,6 +12144,7 @@ function publishTeamNotice({audience='all', subject='', title='', message=''}={}
   }catch{}
 }
 function activeTeamNotice(){
+  if(!notifAutomations().broadcastBanner) return null;
   const n = DB.profilePrefs && DB.profilePrefs._teamNotice;
   if(!n || typeof n !== 'object' || !n.id) return null;
   if(n.at && (Date.now() - Number(n.at)) > 7*24*60*60*1000) return null;
@@ -12109,6 +12174,43 @@ function dismissTeamNotice(){
   const n = activeTeamNotice();
   if(!n) return;
   setNotifPrefs({seen:{...notifPrefs().seen, ['banner-'+n.id]:'1'}});
+}
+
+function notifAutomations(){
+  const base={shiftStart:true,lowStock:true,presenceLate:true,broadcastBanner:true};
+  try{
+    const raw=JSON.parse(localStorage.getItem('paidia.notifAuto')||'{}')||{};
+    return {...base,...raw};
+  }catch{ return base; }
+}
+function setNotifAutomations(patch){
+  const next={...notifAutomations(),...patch,updatedAt:Date.now()};
+  try{ localStorage.setItem('paidia.notifAuto', JSON.stringify(next)); }catch{}
+  return next;
+}
+function sheetAdminAutomations(){
+  if(!isAdminUser()){toast(t('adminRequired'),'error');return;}
+  const auto=notifAutomations();
+  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:linear-gradient(145deg,#2a6b52,#2f5a63)">⚙️</div>
+    <div class="grow"><div class="muted">ARMONIA</div><h3 style="margin:1px 0">${esc(t('adminAutomations'))}</h3>
+      <div class="muted">${esc(t('adminAutomationsHint'))}</div></div></div>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoShiftStart" ${auto.shiftStart?'checked':''}><span>${esc(t('autoShiftStart'))}</span></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoLowStock" ${auto.lowStock?'checked':''}><span>${esc(t('autoLowStock'))}</span></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoPresenceLate" ${auto.presenceLate?'checked':''}><span>${esc(t('autoPresenceLate'))}</span></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoBroadcastBanner" ${auto.broadcastBanner?'checked':''}><span>${esc(t('autoBroadcastBanner'))}</span></label>
+    <button class="btn" type="button" id="autoSave">${esc(state.lang==='el'?'Αποθήκευση':'Speichern')}</button>
+    <button class="btn sec" type="button" id="autoClose" style="margin-top:8px">${esc(t('close'))}</button>`);
+  sheetEl.querySelector('#autoClose').onclick=()=>closeSheet();
+  sheetEl.querySelector('#autoSave').onclick=()=>{
+    setNotifAutomations({
+      shiftStart:!!sheetEl.querySelector('#autoShiftStart')?.checked,
+      lowStock:!!sheetEl.querySelector('#autoLowStock')?.checked,
+      presenceLate:!!sheetEl.querySelector('#autoPresenceLate')?.checked,
+      broadcastBanner:!!sheetEl.querySelector('#autoBroadcastBanner')?.checked,
+    });
+    toast(t('autoSaved'),'success');
+    closeSheet();
+  };
 }
 
 function notifPrefs(){
@@ -12161,7 +12263,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=67',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=69',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);
@@ -12205,14 +12307,14 @@ function runNotificationSweep({force=false}={}){
       if(bad) attention++;
     });
     const key=`low-${attention}`;
-    if(attention>0 && (force || seen.low!==key)){
+    if(attention>0 && notifAutomations().lowStock && (force || seen.low!==key)){
       showAppNotification(T[state.lang].notifLowStock(attention),{tag:'paidia-low', body:t('headerStock'), data:{url:'./?tab=stock'}});
       setNotifPrefs({seen:{...seen, low:key}});
     }
   }catch{}
   // Shift stock check pending
   try{
-    if(typeof shiftStockCheckPending==='function' && shiftStockCheckPending()){
+    if(notifAutomations().shiftStart && typeof shiftStockCheckPending==='function' && shiftStockCheckPending()){
       if(force || !seen.shiftCheck){
         showAppNotification(t('notifShiftCheck'),{tag:'paidia-shift-check', body:'Kalyvia', data:{url:'./?tab=stock'}});
         setNotifPrefs({seen:{...notifPrefs().seen, shiftCheck:true}});
@@ -12222,7 +12324,9 @@ function runNotificationSweep({force=false}={}){
   // Shift presence / late check-in
   try{
     const active=typeof activeShiftPresence==='function'?activeShiftPresence(state.user.id):null;
-    if(active && !active.checkin){
+    const auto=notifAutomations();
+    const allowPresence = active && !active.checkin && (auto.shiftStart || (active.late && auto.presenceLate));
+    if(allowPresence){
       const key=`presence-${active.dateStr}-${active.shift.id}-${active.late?'late':'soon'}`;
       if(force || seen.presence!==key){
         const label=shiftLabel(active.shift);
