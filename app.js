@@ -2102,6 +2102,22 @@ async function resolveIp(){
 }
 
 /* ── Το Βιβλίο: append-only ── */
+/**
+ * Client-side audit cap.
+ *
+ * `DB.log` lives INSIDE the shared `ops` blob, so every entry makes the whole
+ * payload bigger and every save rewrites all of it. The server caps `log` at
+ * 2500 (OPS_LIST_CAPS), but the client grew without bound and shipped the
+ * full array on every push. mergeShared() now unions log entries on conflict
+ * instead of dropping them, so it grows faster than before.
+ *
+ * NOTE: a stopgap, not retention. Trimming here loses history, which is the
+ * opposite of what an audit trail is for. The real fix is writing entries to
+ * the `security_events` table (own rows, real DELETE-by-age).
+ * See docs/vault/Protokoll.md.
+ */
+const LOG_KEEP = 500;
+
 function logEntry(type, text, extra = {}){
   DB.log.push({
     id: uid(), ts: Date.now(), type,
@@ -2113,6 +2129,7 @@ function logEntry(type, text, extra = {}){
     ua: session.ua,
     ...extra,
   });
+  if(DB.log.length > LOG_KEEP) DB.log = DB.log.slice(-LOG_KEEP);
   save();
 }
 
