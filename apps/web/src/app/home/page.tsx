@@ -20,7 +20,7 @@ type Session = {
 };
 type Due = { kind: string; title: string; body: string; url: string };
 
-const DEFAULT_WIDGETS = ["shift", "tasks", "stock", "journal", "meeting", "events", "calendar"];
+const DEFAULT_WIDGETS = ["shift", "handover", "tasks", "stock", "journal", "meeting", "events", "calendar"];
 
 export default function HomePage() {
   const router = useRouter();
@@ -186,6 +186,7 @@ function label(id: string) {
     (
       {
         shift: "Schicht",
+        handover: "Übergabe",
         tasks: "Aufgaben",
         stock: "Lager",
         journal: "Schichtbuch",
@@ -201,6 +202,7 @@ function hint(id: string) {
     (
       {
         shift: "Präsenz & Start",
+        handover: "Schicht an die nächste Person",
         tasks: "Was heute ansteht",
         stock: "Bestand & Check",
         journal: "Muss geschrieben werden",
@@ -216,6 +218,7 @@ function href(id: string) {
     (
       {
         shift: "/home",
+        handover: "/handover",
         tasks: "/plan",
         stock: "/stock",
         journal: "/book",

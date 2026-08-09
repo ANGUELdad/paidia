@@ -488,6 +488,142 @@ h1, h2, h3, .display {
   display: contents;
 }
 
+/* Shift handover */
+.handover-page {
+  padding-top: 0;
+}
+
+.handover-hero {
+  margin: 0 calc(-1 * max(var(--page-x), env(safe-area-inset-left))) 20px;
+  padding:
+    max(28px, env(safe-area-inset-top))
+    max(var(--page-x), env(safe-area-inset-right))
+    28px
+    max(var(--page-x), env(safe-area-inset-left));
+  background:
+    radial-gradient(ellipse 90% 70% at 100% -10%, rgba(196, 138, 26, 0.28), transparent 55%),
+    radial-gradient(ellipse 75% 55% at -10% 30%, rgba(42, 107, 82, 0.22), transparent 50%),
+    radial-gradient(ellipse 60% 45% at 50% 100%, rgba(47, 90, 99, 0.18), transparent 60%),
+    linear-gradient(168deg, #f0f4f1 0%, #e4ebe5 50%, #d8e0d9 100%);
+  border-bottom: 1px solid var(--line);
+}
+
+.handover-title {
+  margin: 6px 0 0;
+  font-size: clamp(2rem, 6vw, 2.6rem);
+  color: var(--ink);
+}
+
+.handover-lead {
+  margin: 8px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--sea);
+}
+
+.handover-sub {
+  margin: 10px 0 0;
+  max-width: 34ch;
+}
+
+.ribbon {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 16px;
+}
+
+.ribbon-item {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.ribbon-rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ribbon-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 2px solid var(--brand);
+  background: #fff;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.ribbon-line {
+  flex: 1;
+  width: 2px;
+  min-height: 24px;
+  margin-top: 4px;
+  background: linear-gradient(var(--brand), rgba(42, 107, 82, 0.15));
+}
+
+.ribbon-body {
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  padding: 12px 14px;
+}
+
+.ribbon-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ribbon-kind {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sea);
+}
+
+.ribbon-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brand);
+  text-decoration: none;
+}
+
+.ribbon-title {
+  margin: 0;
+  font-size: 1rem;
+  font-family: var(--font-ui);
+  letter-spacing: 0;
+}
+
+.ribbon-text {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.ribbon-item.tone-ok .ribbon-dot {
+  border-color: var(--brand);
+  background: rgba(42, 107, 82, 0.2);
+}
+
+.ribbon-item.tone-warn .ribbon-dot {
+  border-color: var(--sun);
+  background: rgba(196, 138, 26, 0.25);
+}
+
+.ribbon-item.tone-warn .ribbon-body {
+  border-color: rgba(196, 138, 26, 0.35);
+}
+
 @media (max-width: 480px) {
   .tour-actions { grid-template-columns: 1fr; }
   .dock { max-width: 100%; }

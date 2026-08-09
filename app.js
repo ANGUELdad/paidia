@@ -5186,7 +5186,7 @@ function sheetEntry(e, dateStr, presets = {}){
 
     ${entrySec('🎯', t('activity'))}
     <div class="chips" id="fActs" style="margin:-4px 0 12px">
-      ${ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}" type="button">${a.emoji} ${esc(L(a))}</button>`).join('')}
+      ${ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}" type="button">${esc(a.emoji||'')} ${esc(L(a))}</button>`).join('')}
       <button class="chip" id="fNewAct" style="border-style:dashed" type="button">＋ ${t('newActivity')}</button>
     </div>
 
@@ -5234,7 +5234,7 @@ function sheetEntry(e, dateStr, presets = {}){
   function paintActs(){
     const box = sheetEl.querySelector('#fActs');
     box.innerHTML =
-      ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}" type="button">${a.emoji} ${esc(L(a))}</button>`).join('') +
+      ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}" type="button">${esc(a.emoji||'')} ${esc(L(a))}</button>`).join('') +
       `<button class="chip" id="fNewAct" style="border-style:dashed" type="button">＋ ${t('newActivity')}</button>`;
     box.querySelectorAll('.chip[data-a]').forEach(b=>{
       b.onclick = () => { pickedAct = b.dataset.a; feedback('select'); paintActs(); };
