@@ -13,7 +13,7 @@ type Step = {
 
 const STAFF_STEPS: Step[] = [
   { id: "home", title: "Dein Tag", body: "Hier stehen die nächsten Schritte: Präsenz, Erinnerungen, Widgets.", href: "/home", spotlight: "tour-home" },
-  { id: "presence", title: "Ich bin da", body: "Tippe Präsenz — oder melde Verspätung mit Grund.", href: "/home", spotlight: "tour-presence" },
+  { id: "presence", title: "Schicht starten", body: "Tippe „Schicht starten“ — oder melde Verspätung mit Grund.", href: "/home", spotlight: "tour-presence" },
   { id: "plan", title: "Wochenplan", body: "Raster mit echten Daten. Konflikte brauchen einen Override-Grund.", href: "/plan", spotlight: "tour-plan" },
   { id: "stock", title: "Lager", body: "＋/− Bestand. Admins schließen den Lager-Check ab.", href: "/stock", spotlight: "tour-stock" },
   { id: "shop", title: "Liste", body: "Vorschläge aus Vergangenheit — immer bestätigen, nie auto.", href: "/shop", spotlight: "tour-shop" },
@@ -42,6 +42,12 @@ export function GuidedTour({ mode = "staff" }: { mode?: "staff" | "child" }) {
     const done = localStorage.getItem(`armonia.tour.${mode}`);
     if (!done) setOpen(true);
   }, [mode]);
+
+  useEffect(() => {
+    if (!open || !step.spotlight) return;
+    const el = document.querySelector(`[data-tour="${step.spotlight}"]`);
+    if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [open, idx, step.spotlight, path]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

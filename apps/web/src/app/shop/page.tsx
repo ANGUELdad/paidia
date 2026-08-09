@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
+import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { useRequireMode } from "@/lib/session";
 
@@ -39,9 +40,8 @@ export default function ShopPage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   return (
-    <main className="page-pad mx-auto max-w-3xl px-4 pt-6">
-      <h1 className="text-3xl">Einkaufsliste</h1>
-      <p className="text-sm text-[var(--muted)]">Vorschläge aus bisherigen Daten — immer bestätigen.</p>
+    <>
+      <PageShell eyebrow="Liste" title="Einkaufsliste" lead="Vorschläge aus bisherigen Daten — immer bestätigen.">
       {suggestions.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {suggestions.map((s) => (
@@ -65,7 +65,8 @@ export default function ShopPage() {
         ))}
         {!entries.length && <div className="card text-sm text-[var(--muted)]">Liste leer — starte mit einem Vorschlag.</div>}
       </div>
+      </PageShell>
       <Dock />
-    </main>
+    </>
   );
 }

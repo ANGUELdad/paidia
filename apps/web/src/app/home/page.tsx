@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dock } from "@/components/Dock";
 import { GuidedTour } from "@/components/GuidedTour";
-import { PageShell, Grid } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { sweepDueReminders } from "@/lib/reminders";
 
@@ -16,19 +15,16 @@ type Session = {
   profileId?: string;
   nickname?: string;
   mode?: string;
-  widgets?: string[];
 };
 type Due = { kind: string; title: string; body: string; url: string };
-
-const DEFAULT_WIDGETS = ["shift", "handover", "tasks", "stock", "journal", "meeting", "events", "calendar"];
 
 export default function HomePage() {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
   const [due, setDue] = useState<Due[]>([]);
-  const [widgets, setWidgets] = useState<string[]>(DEFAULT_WIDGETS);
   const [presence, setPresence] = useState<{ pending?: boolean } | null>(null);
   const [notice, setNotice] = useState("");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -43,11 +39,6 @@ export default function HomePage() {
           return;
         }
         setSession(s);
-        if (s.widgets?.length) setWidgets(s.widgets);
-        else {
-          const stored = localStorage.getItem("armonia.widgets");
-          if (stored) setWidgets(JSON.parse(stored));
-        }
         const evald = await api<{ due: Due[] }>("/api/notify/evaluate");
         setDue(evald.due || []);
         const p = await api<{ pending?: boolean }>("/api/presence/active");
@@ -63,169 +54,147 @@ export default function HomePage() {
   }, [router]);
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const displayDate = useMemo(
+    () =>
+      new Date(today + "T12:00:00").toLocaleDateString("de-DE", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      }),
+    [today],
+  );
 
   async function checkin(status: "there" | "late") {
+    if (busy) return;
     let reason = "";
     if (status === "late") reason = prompt("Warum zu spät?") || "";
-    await api("/api/presence/checkin", {
-      method: "POST",
-      body: JSON.stringify({ date: today, status, reason }),
-    });
-    setPresence({ pending: false });
-    setNotice(status === "there" ? "Willkommen — du bist da." : "Verspätung notiert.");
-  }
-
-  function moveWidget(id: string, dir: -1 | 1) {
-    setWidgets((prev) => {
-      const i = prev.indexOf(id);
-      if (i < 0) return prev;
-      const j = i + dir;
-      if (j < 0 || j >= prev.length) return prev;
-      const next = [...prev];
-      [next[i], next[j]] = [next[j], next[i]];
-      localStorage.setItem("armonia.widgets", JSON.stringify(next));
-      api("/api/auth/prefs", { method: "POST", body: JSON.stringify({ widgets: next }) }).catch(() => {});
-      return next;
-    });
+    setBusy(true);
+    try {
+      await api("/api/presence/checkin", {
+        method: "POST",
+        body: JSON.stringify({ date: today, status, reason }),
+      });
+      setPresence({ pending: false });
+      setNotice(status === "there" ? "Willkommen — du bist da." : "Verspätung notiert.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (!session) return <main className="page">Laden…</main>;
 
+  const pending = presence?.pending === true;
+  const started = !!presence && presence.pending === false;
+  const firstName = session.nickname || session.name || "";
+  const lead = pending
+    ? "Deine Schicht wartet. Ein Tippen, und du bist im Dienst."
+    : started
+      ? "Schicht läuft. Übergib sauber, wenn du gehst."
+      : "Einen Moment — dein Schicht-Status wird geladen.";
+
   return (
     <>
-      <PageShell
-        eyebrow="Armonia"
-        title={`Hallo${session.nickname || session.name ? `, ${session.nickname || session.name}` : ""}`}
-        lead="Dein Tag — nächste Schritte zuerst."
-        actions={
-          <>
-            <Link className="btn-sec !min-h-10 text-sm" href="/profile" data-testid="link-profile">
-              Profil
-            </Link>
-            {session.admin && (
-              <Link className="btn-sec !min-h-10 text-sm" href="/admin/notify" data-testid="link-admin">
-                Automationen
+      <main className="page shift-page">
+        <header className="shift-hero" data-tour="tour-home">
+          <div className="shift-hero-bar">
+            <p className="eyebrow shift-eyebrow">Armonia · Thassos</p>
+            <div className="shift-hero-links">
+              <Link className="shift-hero-link" href="/profile" data-testid="link-profile">
+                Profil
               </Link>
+              {session.admin && (
+                <Link className="shift-hero-link" href="/admin/notify" data-testid="link-admin">
+                  Automationen
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <p className="shift-date">{displayDate}</p>
+          <h1 className="shift-title">Hallo{firstName ? `, ${firstName}` : ""}</h1>
+          <p className="shift-lead">{lead}</p>
+
+          <div className="shift-cta-row" data-tour="tour-presence" data-testid="presence-card">
+            {pending ? (
+              <>
+                <button
+                  className="shift-cta"
+                  type="button"
+                  disabled={busy}
+                  data-testid="presence-there"
+                  onClick={() => checkin("there")}
+                >
+                  Schicht starten
+                </button>
+                <button
+                  className="shift-cta-ghost"
+                  type="button"
+                  disabled={busy}
+                  data-testid="presence-late"
+                  onClick={() => checkin("late")}
+                >
+                  Zu spät melden
+                </button>
+              </>
+            ) : started ? (
+              <>
+                <Link className="shift-cta" href="/handover" data-testid="cta-handover">
+                  Übergabe vorbereiten
+                </Link>
+                <Link className="shift-cta-ghost" href="/plan">
+                  Tagesplan
+                </Link>
+              </>
+            ) : (
+              <span className="shift-cta shift-cta-wait" aria-hidden>
+                Laden…
+              </span>
             )}
-            <Link className="btn-sec !min-h-10 text-sm" href="/calendar" data-testid="link-calendar">
-              Kalender
-            </Link>
-          </>
-        }
-      >
+          </div>
+        </header>
+
         {notice && (
-          <div className="panel" data-testid="notice">
+          <div className="panel shift-notice" data-testid="notice">
             {notice}
           </div>
         )}
 
-        {presence?.pending && (
-          <section className="panel stack" data-tour="tour-presence" data-testid="presence-card">
-            <h2 className="text-xl">Schicht startet</h2>
-            <p className="muted">Tippe „Ich bin da“ oder melde Verspätung.</p>
-            <div className="row">
-              <button className="btn flex-1" type="button" data-testid="presence-there" onClick={() => checkin("there")}>
-                Ich bin da
-              </button>
-              <button className="btn-sec flex-1" type="button" data-testid="presence-late" onClick={() => checkin("late")}>
-                Zu spät
-              </button>
-            </div>
-          </section>
-        )}
-
-        {due.length > 0 && (
-          <section className="grid-even mb-4">
-            {due.map((d) => (
-              <Link key={d.kind} href={d.url} className="tile" data-testid={`due-${d.kind}`}>
-                <div>
-                  <div className="font-semibold">{d.title}</div>
-                  <div className="muted">{d.body}</div>
-                </div>
-              </Link>
-            ))}
-          </section>
-        )}
-
-        <section className="stack" data-tour="tour-home">
-          <div className="row between">
-            <h2 className="text-lg m-0">Widgets</h2>
-            <span className="muted text-xs">↑↓ sortieren</span>
+        <section className="shift-urgent" aria-label="Was jetzt zählt">
+          <div className="row between shift-urgent-head">
+            <h2 className="text-lg m-0">Jetzt wichtig</h2>
+            {due.length > 0 && <span className="muted text-xs">{due.length} offen</span>}
           </div>
-          <Grid>
-            {widgets.map((id) => (
-              <article key={id} className="tile" data-testid={`widget-${id}`}>
-                <div className="tile-main">
-                  <h3 className="m-0 font-semibold capitalize">{label(id)}</h3>
-                  <p className="muted m-0">{hint(id)}</p>
-                  <Link className="mt-2 inline-block text-sm font-semibold text-[var(--sea)]" href={href(id)}>
-                    Öffnen →
-                  </Link>
-                </div>
-                <div className="stack gap-1">
-                  <button className="btn-sec !min-h-8 !px-2 text-xs" type="button" onClick={() => moveWidget(id, -1)}>
-                    ↑
-                  </button>
-                  <button className="btn-sec !min-h-8 !px-2 text-xs" type="button" onClick={() => moveWidget(id, 1)}>
-                    ↓
-                  </button>
-                </div>
-              </article>
-            ))}
-          </Grid>
+
+          {due.length > 0 ? (
+            <div className="stack">
+              {due.map((d) => (
+                <Link key={d.kind} href={d.url} className="tile shift-alert" data-testid={`due-${d.kind}`}>
+                  <div className="tile-main">
+                    <div className="font-semibold">{d.title}</div>
+                    <div className="muted">{d.body}</div>
+                  </div>
+                  <span className="shift-alert-go" aria-hidden>
+                    →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="panel shift-calm" data-testid="all-clear">
+              <strong>Alles ruhig.</strong>
+              <p className="muted m-0 mt-1">Keine offenen Erinnerungen. Schönen Dienst.</p>
+            </div>
+          )}
+
+          {pending && (
+            <Link className="shift-quiet-link" href="/handover" data-testid="link-handover">
+              Zur Übergabe →
+            </Link>
+          )}
         </section>
-      </PageShell>
+      </main>
       <Dock mode="staff" />
       <GuidedTour mode="staff" />
     </>
-  );
-}
-
-function label(id: string) {
-  return (
-    (
-      {
-        shift: "Schicht",
-        handover: "Übergabe",
-        tasks: "Aufgaben",
-        stock: "Lager",
-        journal: "Schichtbuch",
-        meeting: "Besprechung",
-        events: "Events",
-        calendar: "Kalender",
-      } as Record<string, string>
-    )[id] || id
-  );
-}
-function hint(id: string) {
-  return (
-    (
-      {
-        shift: "Präsenz & Start",
-        handover: "Schicht an die nächste Person",
-        tasks: "Was heute ansteht",
-        stock: "Bestand & Check",
-        journal: "Muss geschrieben werden",
-        meeting: "Team-Notizen der Woche",
-        events: "Kommende Events",
-        calendar: "ICS · Google · Reminder",
-      } as Record<string, string>
-    )[id] || ""
-  );
-}
-function href(id: string) {
-  return (
-    (
-      {
-        shift: "/home",
-        handover: "/handover",
-        tasks: "/plan",
-        stock: "/stock",
-        journal: "/book",
-        meeting: "/talk",
-        events: "/calendar",
-        calendar: "/calendar",
-      } as Record<string, string>
-    )[id] || "/home"
   );
 }

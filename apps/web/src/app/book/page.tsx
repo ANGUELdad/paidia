@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
+import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { useRequireMode } from "@/lib/session";
 
@@ -44,10 +45,9 @@ export default function BookPage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   return (
-    <main className="page-pad mx-auto max-w-3xl px-4 pt-6">
-      <h1 className="text-3xl">Buch</h1>
-      <p className="text-sm text-[var(--muted)]">Schichtbuch — muss geschrieben werden. Unten: was passiert ist.</p>
-      <section className="card mt-4" style={{ backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, rgba(42,107,82,0.12) 28px)", lineHeight: "28px" }}>
+    <>
+      <PageShell eyebrow="Buch" title="Schichtbuch" lead="Muss geschrieben werden. Unten: was passiert ist.">
+      <section className="card" style={{ backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, rgba(42,107,82,0.12) 28px)", lineHeight: "28px" }}>
         <h2 className="text-lg">Schichtbuch {today}</h2>
         <pre className="mt-2 whitespace-pre-wrap text-sm text-[var(--ink)]">{note || "Noch leer — schreib den Tag."}</pre>
         <textarea className="mt-3 w-full rounded-xl border border-[var(--line)] bg-white/90 p-3" rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder="Was ist passiert?" />
@@ -68,7 +68,8 @@ export default function BookPage() {
           ))}
         </div>
       </section>
+      </PageShell>
       <Dock />
-    </main>
+    </>
   );
 }

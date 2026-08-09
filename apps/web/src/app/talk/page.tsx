@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
+import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { useRequireMode } from "@/lib/session";
 
@@ -61,13 +62,8 @@ export default function TalkPage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   return (
-    <main className="page">
-      <header className="top">
-        <div>
-          <p className="eyebrow">Talk</p>
-          <h1>Team chat</h1>
-        </div>
-      </header>
+    <>
+      <PageShell eyebrow="Talk" title="Team-Chat" lead="Nachrichten und Besprechungsnotizen der Woche.">
       <div className="chips">
         {["general", "ops", "kids"].map((t) => (
           <button key={t} className={topic === t ? "chip on" : "chip"} type="button" onClick={() => setTopic(t)}>
@@ -106,7 +102,8 @@ export default function TalkPage() {
           </button>
         </form>
       </section>
+      </PageShell>
       <Dock />
-    </main>
+    </>
   );
 }

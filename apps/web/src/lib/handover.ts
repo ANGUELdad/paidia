@@ -55,7 +55,7 @@ export function buildRibbon(data: HandoverData): RibbonItem[] {
       id: "presence-pending",
       kind: "presence",
       title: "Präsenz",
-      body: "Noch nicht eingecheckt — „Ich bin da“ auf Home.",
+      body: "Noch nicht eingecheckt — „Schicht starten“ auf Home.",
       tone: "warn",
       href: "/home",
     });

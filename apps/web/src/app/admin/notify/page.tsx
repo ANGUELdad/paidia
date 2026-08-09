@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
+import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { useRequireMode } from "@/lib/session";
 
@@ -101,13 +102,8 @@ export default function AdminNotifyPage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   return (
-    <main className="page">
-      <header className="top">
-        <div>
-          <p className="eyebrow">Admin</p>
-          <h1>Automationen</h1>
-        </div>
-      </header>
+    <>
+      <PageShell eyebrow="Admin" title="Automationen" lead="Erinnerungen, Push und Broadcasts — nur für Admins.">
       <section className="panel stack">
         <h2>Reminder catalog</h2>
         <ul className="catalog">
@@ -151,8 +147,9 @@ export default function AdminNotifyPage() {
           </button>
         </form>
       </section>
+      </PageShell>
       <Dock />
-    </main>
+    </>
   );
 }
 

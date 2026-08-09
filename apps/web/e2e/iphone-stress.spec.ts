@@ -39,13 +39,33 @@ test("bad user login then click every dock control", async ({ page }) => {
   await skipToursByDefault(page);
   await loginAsZoi(page);
   await expect(page.getByTestId("dock")).toBeVisible();
+  await expect(page.getByTestId("dock-mehr")).toBeVisible();
 
   const hrefs = await page.locator('[data-testid="dock"] a').evaluateAll((els) =>
     els.map((e) => (e as HTMLAnchorElement).getAttribute("href")).filter(Boolean)
   );
-  expect(hrefs.length).toBeGreaterThan(5);
+  expect(hrefs).toEqual(["/home", "/plan", "/stock", "/zoai"]);
+
+  const dockControls = page.locator('[data-testid="dock"] > *');
+  await expect(dockControls).toHaveCount(5);
 
   for (const href of hrefs) {
+    await page.goto(String(href), { waitUntil: "domcontentloaded" });
+    await dismissTour(page);
+    await expect(page.locator("main, [data-testid='dock']").first()).toBeVisible({ timeout: 10000 });
+  }
+
+  await page.goto("/home", { waitUntil: "domcontentloaded" });
+  await dismissTour(page);
+  await page.getByTestId("dock-mehr").click();
+  await expect(page.getByTestId("more-sheet")).toBeVisible();
+
+  const moreHrefs = await page.locator('[data-testid="more-sheet"] a').evaluateAll((els) =>
+    els.map((e) => (e as HTMLAnchorElement).getAttribute("href")).filter(Boolean)
+  );
+  expect(moreHrefs.length).toBeGreaterThan(0);
+
+  for (const href of moreHrefs) {
     await page.goto(String(href), { waitUntil: "domcontentloaded" });
     await dismissTour(page);
     await expect(page.locator("main, [data-testid='dock']").first()).toBeVisible({ timeout: 10000 });

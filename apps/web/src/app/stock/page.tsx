@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { GuidedTour } from "@/components/GuidedTour";
+import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { useRequireMode } from "@/lib/session";
 
@@ -51,10 +52,9 @@ export default function StockPage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   return (
-    <main className="page-pad mx-auto max-w-3xl px-4 pt-6">
-      <h1 className="text-3xl">Lager</h1>
-      <p className="text-sm text-[var(--muted)]">Bestand führen — Admins: Check mit Sign-off.</p>
-      <div className="mt-4 flex gap-2">
+    <>
+      <PageShell eyebrow="Lager" title="Lager" lead="Bestand führen — Admins: Check mit Sign-off.">
+      <div className="flex gap-2">
         {houses.map((h) => (
           <button key={h.id} type="button" className={`btn-sec !min-h-10 ${houseId === h.id ? "ring-2 ring-[var(--brand)]" : ""}`} onClick={() => setHouseId(h.id)}>{h.name}</button>
         ))}
@@ -79,8 +79,9 @@ export default function StockPage() {
       </div>
       <button className="btn mt-4 w-full" type="button" onClick={signOff}>Lager-Check abschließen</button>
       {msg && <p className="mt-2 text-sm text-[var(--brand)]">{msg}</p>}
+      </PageShell>
       <Dock />
       <GuidedTour />
-    </main>
+    </>
   );
 }

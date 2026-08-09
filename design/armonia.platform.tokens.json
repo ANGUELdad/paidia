@@ -1,30 +1,185 @@
 {
   "color": {
+    "stone50": "#f3f5f2",
+    "stone100": "#e9ece8",
+    "stone200": "#d4dbd5",
+    "stone300": "#c3ccc4",
     "ink": "#1a2822",
     "muted": "#455851",
-    "bg": "#e9ece8",
+    "mutedSoft": "#4a6a74",
+    "meta": "#6b8a94",
+    "line": "rgba(26,40,34,0.12)",
+    "lineStrong": "rgba(26,40,34,0.20)",
     "brand": "#2a6b52",
     "brand2": "#3d8a6a",
+    "pineTint": "rgba(42,107,82,0.10)",
     "sea": "#2f5a63",
+    "seaDeep": "#1a3a42",
     "sun": "#c48a1a",
+    "amberTint": "rgba(196,138,26,0.10)",
+    "in": "#2a6b52",
+    "out": "#c2410c",
+    "warn": "#a16207",
+    "chrome": "rgba(26,40,34,0.90)",
+    "glass": "rgba(255,255,255,0.64)",
+    "glassStrong": "rgba(255,255,255,0.86)",
+    "glassRim": "rgba(255,255,255,0.55)",
     "markA": "#9bc4b0",
     "markB": "#7a9eaa"
+  },
+  "aliases": {
+    "bg": "stone100",
+    "bgDeep": "stone200",
+    "brand": "brand",
+    "brand2": "brand2",
+    "sea": "sea",
+    "sun": "sun"
   },
   "font": {
     "ui": "Outfit",
     "display": "Fraunces"
   },
+  "type": {
+    "displayXl": {
+      "family": "display",
+      "weight": 700,
+      "size": "clamp(2rem, 6vw, 2.75rem)",
+      "lineHeight": 1.08,
+      "letterSpacing": "-0.02em"
+    },
+    "displayLg": {
+      "family": "display",
+      "weight": 700,
+      "size": "clamp(1.75rem, 4vw, 2.1rem)",
+      "lineHeight": 1.12,
+      "letterSpacing": "-0.02em"
+    },
+    "displayMd": {
+      "family": "display",
+      "weight": 600,
+      "size": "1.375rem",
+      "lineHeight": 1.2,
+      "letterSpacing": "-0.01em"
+    },
+    "displaySm": {
+      "family": "display",
+      "weight": 600,
+      "size": "1.125rem",
+      "lineHeight": 1.25,
+      "letterSpacing": "0"
+    },
+    "numeral": {
+      "family": "display",
+      "weight": 700,
+      "size": "1.75rem",
+      "lineHeight": 1,
+      "letterSpacing": "-0.01em"
+    },
+    "bodyLg": {
+      "family": "ui",
+      "weight": 500,
+      "size": "1.05rem",
+      "lineHeight": 1.5
+    },
+    "body": {
+      "family": "ui",
+      "weight": 400,
+      "size": "1rem",
+      "lineHeight": 1.5
+    },
+    "bodySm": {
+      "family": "ui",
+      "weight": 400,
+      "size": "0.9rem",
+      "lineHeight": 1.45
+    },
+    "label": {
+      "family": "ui",
+      "weight": 600,
+      "size": "0.85rem",
+      "lineHeight": 1.3
+    },
+    "caption": {
+      "family": "ui",
+      "weight": 600,
+      "size": "0.8125rem",
+      "lineHeight": 1.35
+    },
+    "eyebrow": {
+      "family": "ui",
+      "weight": 700,
+      "size": "0.6875rem",
+      "lineHeight": 1.3,
+      "letterSpacing": "0.14em",
+      "transform": "uppercase"
+    },
+    "micro": {
+      "family": "ui",
+      "weight": 600,
+      "size": "0.625rem",
+      "lineHeight": 1.2,
+      "letterSpacing": "0.02em"
+    }
+  },
   "radius": {
     "sm": "12px",
     "md": "18px",
-    "dock": "24px"
+    "lg": "20px",
+    "dock": "24px",
+    "pill": "999px"
   },
   "space": {
+    "1": "4px",
+    "2": "8px",
+    "3": "12px",
+    "4": "16px",
+    "5": "20px",
+    "6": "24px",
+    "8": "32px",
+    "10": "40px",
+    "12": "48px",
+    "16": "64px",
+    "20": "80px",
     "pageX": "16px",
-    "section": "16px"
+    "gap": "12px"
+  },
+  "elevation": {
+    "glass1": {
+      "background": "glass",
+      "border": "line",
+      "blur": "10px",
+      "radius": "md"
+    },
+    "glass2": {
+      "background": "glassStrong",
+      "border": "line",
+      "rim": "glassRim",
+      "blur": "16px",
+      "shadow": "0 18px 40px rgba(26,40,34,0.14)",
+      "radius": "lg"
+    },
+    "chrome": {
+      "background": "chrome",
+      "blur": "12px",
+      "radius": "dock"
+    }
+  },
+  "motion": {
+    "fast": "120ms",
+    "base": "220ms",
+    "slow": "380ms",
+    "reveal": "480ms",
+    "staggerSm": "60ms",
+    "staggerMd": "80ms",
+    "easeSettle": "cubic-bezier(0.2, 0.8, 0.2, 1)",
+    "easeTide": "cubic-bezier(0.65, 0, 0.35, 1)"
+  },
+  "focus": {
+    "ring": "2px solid markA",
+    "offset": "2px"
   },
   "figma": {
-    "frames": ["Login", "Home", "PlanWeek", "Stock", "Talk", "Kids"],
+    "frames": ["Login", "Home", "PlanWeek", "Stock", "Talk", "Kids", "Handover"],
     "file": "Armonia Platform (manual export)",
     "mappedTo": {
       "Login": "apps/web/src/app/page.tsx",
@@ -32,9 +187,11 @@
       "PlanWeek": "apps/web/src/app/plan/page.tsx",
       "Stock": "apps/web/src/app/stock/page.tsx",
       "Talk": "apps/web/src/app/talk/page.tsx",
-      "Kids": "apps/web/src/app/kids/page.tsx"
+      "Kids": "apps/web/src/app/kids/page.tsx",
+      "Handover": "apps/web/src/app/handover/page.tsx"
     },
     "css": "apps/web/src/app/globals.css :root",
+    "source": "design/VISUAL_MOTION_SYSTEM.md",
     "note": "Pine/mineral UI — tokens exported here; wire Figma plugin when MCP available"
   }
 }

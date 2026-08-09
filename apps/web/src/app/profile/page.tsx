@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dock } from "@/components/Dock";
+import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { useRequireMode } from "@/lib/session";
 
@@ -72,13 +73,8 @@ export default function ProfilePage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   return (
-    <main className="page">
-      <header className="top">
-        <div>
-          <p className="eyebrow">Profile</p>
-          <h1>{me?.name || "…"}</h1>
-        </div>
-      </header>
+    <>
+      <PageShell eyebrow="Profil" title={me?.name || "…"} lead="Nickname, Emoji und Sprache — nur für dich.">
       <section className="panel stack">
         <form className="stack" onSubmit={save}>
           <label>
@@ -118,7 +114,8 @@ export default function ProfilePage() {
           Log out
         </button>
       </section>
+      </PageShell>
       <Dock mode={mode} />
-    </main>
+    </>
   );
 }

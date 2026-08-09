@@ -78,7 +78,7 @@ export default function HandoverPage() {
     <>
       <main className="page handover-page">
         <header className="handover-hero">
-          <p className="eyebrow">Armonia</p>
+          <p className="eyebrow">Armonia · Thassos</p>
           <h1 className="handover-title">Übergabe</h1>
           <p className="handover-lead">{displayDate}</p>
           <p className="handover-sub muted">
