@@ -199,6 +199,45 @@ def _credential_id_from_response(credential: dict[str, Any]) -> str:
     return _b64url(raw_id)
 
 
+def remove_passkeys(profile_id: str) -> dict[str, Any]:
+    require_passkeys_available()
+    now_ms = int(time.time() * 1000)
+    removed = 0
+
+    def apply(st: dict[str, Any]) -> None:
+        nonlocal removed
+        row = _passkey_row(st, profile_id)
+        removed = len(row.get("credentials") or [])
+        row["credentials"] = []
+        row.pop("registerChallenge", None)
+        row.pop("loginChallenge", None)
+        row["updatedAt"] = now_ms
+        st.setdefault("auditLog", []).append(
+            {
+                "at": now_ms,
+                "type": "PASSKEY_REMOVE",
+                "profileId": profile_id,
+                "text": f"Removed {removed} passkey(s)",
+            }
+        )
+
+    mutate(apply)
+    return {"ok": True, "removed": removed}
+
+
+def list_passkeys(profile_id: str) -> dict[str, Any]:
+    row = _passkey_row(snapshot(), profile_id)
+    credentials = [
+        {
+            "credentialId": c.get("credentialId"),
+            "createdAt": c.get("createdAt"),
+            "lastUsedAt": c.get("lastUsedAt"),
+        }
+        for c in (row.get("credentials") or [])
+    ]
+    return {"ok": True, "count": len(credentials), "credentials": credentials}
+
+
 def verify_authentication(profile_id: str, credential: dict[str, Any], response: Response) -> dict[str, Any]:
     require_passkeys_available()
     settings = get_settings()

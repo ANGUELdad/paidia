@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { getPasskey } from "@/lib/webauthn";
 
 const BUILD = {
   version: 1,
@@ -24,6 +25,8 @@ export default function LoginPage() {
   const [pin, setPin] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [passkeysAvailable, setPasskeysAvailable] = useState(false);
+  const [profilesError, setProfilesError] = useState("");
 
   useEffect(() => {
     api<{ authenticated: boolean; mode?: string }>("/api/auth/session")
@@ -31,13 +34,23 @@ export default function LoginPage() {
         if (s.authenticated) router.replace(s.mode === "child" ? "/kids" : "/home");
       })
       .catch(() => {});
+    api<{ passkeysAvailable?: boolean }>("/api/health")
+      .then((h) => setPasskeysAvailable(Boolean(h.passkeysAvailable)))
+      .catch(() => undefined);
   }, [router]);
 
   async function loadMode(next: "staff" | "child") {
     setMode(next);
     setErr("");
-    const data = await api<{ profiles: Profile[] }>(`/api/auth/profiles?mode=${next}`);
-    setProfiles(data.profiles);
+    setProfilesError("");
+    try {
+      const data = await api<{ profiles: Profile[] }>(`/api/auth/profiles?mode=${next}`);
+      setProfiles(data.profiles);
+      if (!data.profiles?.length) setProfilesError(lang === "el" ? "Δεν υπάρχουν προφίλ" : "Keine Profile geladen");
+    } catch {
+      setProfiles([]);
+      setProfilesError(lang === "el" ? "Φόρτωση απέτυχε" : "Profile konnten nicht geladen werden");
+    }
   }
 
   async function login() {
@@ -53,6 +66,28 @@ export default function LoginPage() {
     } catch {
       setErr(lang === "el" ? "Λάθος PIN" : "Falsche PIN");
       setPin("");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function loginWithPasskey() {
+    if (!who) return;
+    setBusy(true);
+    setErr("");
+    try {
+      const options = await api<Record<string, unknown>>("/api/auth/passkey/login/options", {
+        method: "POST",
+        body: JSON.stringify({ profileId: who.id }),
+      });
+      const credential = await getPasskey(options);
+      const data = await api<{ mode: string }>("/api/auth/passkey/login/verify", {
+        method: "POST",
+        body: JSON.stringify({ profileId: who.id, credential }),
+      });
+      router.replace(data.mode === "child" ? "/kids" : "/home");
+    } catch {
+      setErr(lang === "el" ? "Passkey απέτυχε" : "Passkey fehlgeschlagen");
     } finally {
       setBusy(false);
     }
@@ -83,6 +118,7 @@ export default function LoginPage() {
         <section className="card mt-4">
           <button className="text-sm text-[var(--sea)]" type="button" onClick={() => setMode("pick")}>← {lang === "el" ? "Πίσω" : "Zurück"}</button>
           <h2 className="mt-3 text-2xl">{mode === "child" ? (lang === "el" ? "Παιδιά" : "Kinder") : (lang === "el" ? "Προσωπικό" : "Personal")}</h2>
+          {profilesError && <p className="mt-2 text-sm text-red-600" data-testid="profiles-error">{profilesError}</p>}
           <div className="mt-4 grid grid-cols-2 gap-3">
             {profiles.map((p) => (
               <button
@@ -123,6 +159,17 @@ export default function LoginPage() {
           <button className="btn mt-4 w-full" type="button" data-testid="login-submit" disabled={busy || pin.length < 4} onClick={login}>
             {busy ? "…" : lang === "el" ? "Είσοδος" : "Anmelden"}
           </button>
+          {passkeysAvailable && (
+            <button
+              className="btn-sec mt-2 w-full"
+              type="button"
+              data-testid="passkey-login"
+              disabled={busy}
+              onClick={loginWithPasskey}
+            >
+              {lang === "el" ? "Είσοδος με Passkey" : "Mit Passkey anmelden"}
+            </button>
+          )}
           <p className="mt-3 text-xs text-[var(--muted)]">
             {lang === "el" ? "Μετά: Face ID από Προφίλ" : "Danach: Face ID unter Profil einrichten"}
           </p>

@@ -141,3 +141,83 @@ def test_passkey_register_options_unavailable_or_smoke(client: TestClient):
         assert "challenge" in r.json() or "publicKey" in r.json()
     else:
         assert r.json()["detail"]["code"] == "passkeys_unavailable"
+
+
+def test_calendar_feed_rotate(client: TestClient):
+    login(client)
+    minted = client.post("/api/calendar/feed", json={"mode": "staff", "name": "Ops"})
+    assert minted.status_code == 200, minted.text
+    token = minted.json()["token"]
+    rotated = client.post("/api/calendar/feed/rotate", json={"token": token})
+    assert rotated.status_code == 200, rotated.text
+    new_token = rotated.json()["token"]
+    assert new_token != token
+    assert client.get(f"/api/calendar/feed/{token}.ics").status_code == 404
+    assert client.get(f"/api/calendar/feed/{new_token}.ics").status_code == 200
+
+
+def test_pin_reset_no_enumeration_and_confirm(client: TestClient, monkeypatch):
+    sent: list[str] = []
+
+    def fake_send(to, subject, html=None, text=None):
+        sent.append(to)
+        return {"ok": True, "queued": True, "provider": "test"}
+
+    monkeypatch.setattr("armonia.auth.routes.send_email", fake_send)
+    settings = get_settings()
+    monkeypatch.setattr(settings, "paidia_public_url", "https://armonia.test")
+
+    def set_email(st):
+        st["profiles"]["e8"]["email"] = "zoi@example.test"
+
+    mutate(set_email)
+
+    wrong = client.post(
+        "/api/auth/pin-reset/request",
+        json={"profileId": "e8", "email": "wrong@example.test"},
+    )
+    assert wrong.status_code == 200
+    assert wrong.json()["accepted"] is True
+    assert sent == []
+
+    ok = client.post(
+        "/api/auth/pin-reset/request",
+        json={"profileId": "e8", "email": "zoi@example.test"},
+    )
+    assert ok.status_code == 200
+    assert ok.json()["accepted"] is True
+    assert sent == ["zoi@example.test"]
+    assert store.STATE["pinResetTokens"]
+
+    # Inject a known token for confirm (minted raw token is not returned to clients).
+    store.STATE["pinResetTokens"].clear()
+    raw = "test-reset-token-raw"
+    d = hashlib.sha256(raw.encode()).hexdigest()
+    store.STATE["pinResetTokens"][d] = {
+        "profileId": "e8",
+        "fingerprint": hashlib.sha256((store.STATE["profiles"]["e8"].get("pinHash") or "").encode()).hexdigest()[:32],
+        "exp": 9_999_999_999,
+        "createdAt": 1,
+    }
+    confirm = client.post(
+        "/api/auth/pin-reset/confirm",
+        json={"token": raw, "pin": "777777", "confirmPin": "777777"},
+    )
+    assert confirm.status_code == 200, confirm.text
+    login(client, pin="777777")
+
+
+def test_supermarket_status_and_mode(client: TestClient):
+    login(client)
+    add = client.post("/api/shop/add", json={"name": "Brot", "qty": 1, "houseId": "h1"})
+    assert add.status_code == 200, add.text
+    eid = add.json()["entry"]["id"]
+    mode = client.post("/api/shop/supermarket/mode", json={"enabled": True})
+    assert mode.status_code == 200
+    assert mode.json()["supermarketMode"] is True
+    status = client.post("/api/shop/status", json={"entryId": eid, "status": "bought"})
+    assert status.status_code == 200
+    listed = client.get("/api/shop/supermarket")
+    assert listed.status_code == 200
+    rows = listed.json()["entries"]
+    assert any(r["id"] == eid and r["status"] == "bought" for r in rows)

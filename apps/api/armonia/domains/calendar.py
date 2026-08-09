@@ -42,6 +42,10 @@ class FeedBody(BaseModel):
     name: str = "Armonia calendar"
 
 
+class FeedRotateBody(BaseModel):
+    token: str = Field(min_length=8, max_length=200)
+
+
 def _ics_escape(text: str) -> str:
     return (text or "").replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
 
@@ -207,7 +211,51 @@ def create_feed(body: FeedBody, request: Request) -> dict[str, Any]:
     mutate(apply)
     public_feed = {k: v for k, v in feed.items() if k != "hash"}
     url = str(request.base_url).rstrip("/") + f"/api/calendar/feed/{token}.ics"
-    return {"ok": True, "token": token, "url": url, "feed": public_feed}
+    webcal = url.replace("https://", "webcal://").replace("http://", "webcal://")
+    return {"ok": True, "token": token, "url": url, "webcalUrl": webcal, "feed": public_feed}
+
+
+@router.post("/feed/rotate")
+def rotate_calendar_feed(body: FeedRotateBody, request: Request) -> dict[str, Any]:
+    session = require_staff(request)
+    rate_limit(request, key="calendar-feed-rotate", limit=12, window_sec=60)
+    old_digest = _feed_hash(body.token.strip())
+    state = snapshot()
+    old = (state.get("calendarFeeds") or {}).get(old_digest)
+    if not old or old.get("createdBy") != session["profile_id"]:
+        raise HTTPException(status_code=404, detail={"code": "feed_not_found"})
+    token = secrets.token_urlsafe(32)
+    digest = _feed_hash(token)
+    now_ms = int(time.time() * 1000)
+    feed = {
+        "id": f"cf_{digest[:12]}",
+        "hash": digest,
+        "mode": old.get("mode") or "staff",
+        "name": old.get("name") or "Armonia calendar",
+        "createdBy": session["profile_id"],
+        "createdAt": now_ms,
+        "lastUsedAt": None,
+        "rotatedFrom": old.get("id"),
+    }
+
+    def apply(st: dict[str, Any]) -> None:
+        feeds = st.setdefault("calendarFeeds", {})
+        feeds.pop(old_digest, None)
+        feeds[digest] = feed
+        st.setdefault("auditLog", []).append(
+            {
+                "at": now_ms,
+                "type": "CALENDAR_FEED_ROTATE",
+                "profileId": session["profile_id"],
+                "text": "Rotated calendar feed",
+            }
+        )
+
+    mutate(apply)
+    url = str(request.base_url).rstrip("/") + f"/api/calendar/feed/{token}.ics"
+    webcal = url.replace("https://", "webcal://").replace("http://", "webcal://")
+    public_feed = {k: v for k, v in feed.items() if k != "hash"}
+    return {"ok": True, "token": token, "url": url, "webcalUrl": webcal, "feed": public_feed}
 
 
 @router.get("/feed/{token}.ics")

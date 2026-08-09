@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import hashlib
+import hmac
+import re
+import secrets
 import time
 from typing import Any
 
@@ -11,20 +15,24 @@ from armonia.auth.passkeys import (
     PasskeyProfileBody,
     PasskeyVerifyBody,
     authentication_options,
+    list_passkeys,
     passkeys_available,
     registration_options,
+    remove_passkeys,
     verify_authentication,
     verify_registration,
 )
 from armonia.auth.security import (
     clear_session_cookie,
     current_session,
+    hash_pin,
     mint_session,
     require_session,
     set_session_cookie,
     verify_pin,
 )
 from armonia.config import get_settings
+from armonia.domains.email import send_email
 from armonia.store import mutate, snapshot
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -147,6 +155,129 @@ def passkey_login_verify(body: PasskeyVerifyBody, request: Request, response: Re
     return verify_authentication(profile_id, body.credential, response)
 
 
+class PasskeyRemoveBody(BaseModel):
+    pin: str = Field(min_length=4, max_length=6)
+
+
+@router.get("/passkey/list")
+def passkey_list(request: Request) -> dict[str, Any]:
+    session = require_session(request)
+    return list_passkeys(session["profile_id"])
+
+
+@router.post("/passkey/remove")
+def passkey_remove(body: PasskeyRemoveBody, request: Request) -> dict[str, Any]:
+    rate_limit(request, key="passkey-remove", limit=20, window_sec=60)
+    session = require_session(request)
+    profile = (snapshot().get("profiles") or {}).get(session["profile_id"]) or {}
+    if not verify_pin(profile.get("pinHash"), body.pin, profile.get("pin")):
+        raise HTTPException(status_code=401, detail={"code": "invalid_pin", "error": "PIN required"})
+    return remove_passkeys(session["profile_id"])
+
+
+class PinResetRequestBody(BaseModel):
+    profileId: str = Field(default="", max_length=80)
+    email: str = Field(default="", max_length=320)
+
+
+class PinResetConfirmBody(BaseModel):
+    token: str = Field(default="", max_length=200)
+    pin: str = Field(min_length=4, max_length=6)
+    confirmPin: str = Field(min_length=4, max_length=6)
+
+
+def _pin_fingerprint(pin_hash: str) -> str:
+    return hashlib.sha256((pin_hash or "").encode("utf-8")).hexdigest()[:32]
+
+
+def _mint_reset_token(profile_id: str, pin_hash: str) -> str:
+    raw = secrets.token_urlsafe(32)
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+    now = int(time.time())
+
+    def apply(st: dict[str, Any]) -> None:
+        tokens = st.setdefault("pinResetTokens", {})
+        # Cap token map.
+        if len(tokens) > 200:
+            for key in list(tokens.keys())[:50]:
+                tokens.pop(key, None)
+        tokens[digest] = {
+            "profileId": profile_id,
+            "fingerprint": _pin_fingerprint(pin_hash),
+            "exp": now + 3600,
+            "createdAt": now,
+        }
+
+    mutate(apply)
+    return raw
+
+
+@router.post("/pin-reset/request")
+def pin_reset_request(body: PinResetRequestBody, request: Request) -> dict[str, Any]:
+    """Always return the same message — no email/profile enumeration."""
+    rate_limit(request, key="pin-reset", limit=8, window_sec=60)
+    generic = {
+        "accepted": True,
+        "message": "If the email matches this profile, a reset link will be sent.",
+    }
+    profile_id = body.profileId.strip()
+    email = body.email.strip().lower()
+    if not profile_id or not email:
+        return generic
+    profile = (snapshot().get("profiles") or {}).get(profile_id) or {}
+    stored_email = str(profile.get("email") or "").strip().lower()
+    if not stored_email or not hmac.compare_digest(email, stored_email):
+        return generic
+    settings = get_settings()
+    public = (settings.paidia_public_url or "").rstrip("/")
+    if not public:
+        return generic
+    token = _mint_reset_token(profile_id, str(profile.get("pinHash") or ""))
+    reset_url = f"{public}/?reset={token}"
+    send_email(
+        stored_email,
+        "Armonia PIN Reset",
+        html=f"<p>PIN zurücksetzen: <a href=\"{reset_url}\">{reset_url}</a></p>",
+        text=f"PIN reset: {reset_url}",
+    )
+    return generic
+
+
+@router.post("/pin-reset/confirm")
+def pin_reset_confirm(body: PinResetConfirmBody, request: Request) -> dict[str, Any]:
+    rate_limit(request, key="pin-reset-confirm", limit=12, window_sec=60)
+    if body.pin != body.confirmPin or not re.fullmatch(r"\d{4,6}", body.pin):
+        raise HTTPException(status_code=400, detail={"code": "invalid_pin", "error": "PINs must match (4–6 digits)"})
+    digest = hashlib.sha256(body.token.encode("utf-8")).hexdigest()
+    state = snapshot()
+    row = (state.get("pinResetTokens") or {}).get(digest)
+    if not row or int(row.get("exp") or 0) < int(time.time()):
+        raise HTTPException(status_code=400, detail={"code": "invalid_token", "error": "Reset link invalid or expired"})
+    profile = (state.get("profiles") or {}).get(row["profileId"]) or {}
+    if _pin_fingerprint(str(profile.get("pinHash") or "")) != row.get("fingerprint"):
+        raise HTTPException(status_code=400, detail={"code": "invalid_token", "error": "Reset link invalid or expired"})
+    new_hash = hash_pin(body.pin)
+
+    def apply(st: dict[str, Any]) -> None:
+        p = st.get("profiles", {}).get(row["profileId"])
+        if not p:
+            return
+        p["pinHash"] = new_hash
+        p.pop("pin", None)
+        st.get("pinResetTokens", {}).pop(digest, None)
+        st.setdefault("auditLog", []).append(
+            {
+                "at": int(time.time() * 1000),
+                "type": "PIN_RESET",
+                "profileId": row["profileId"],
+                "text": "PIN reset via email token",
+            }
+        )
+
+    mutate(apply)
+    return {"ok": True}
+
+
 @router.post("/login")
 def login(body: LoginBody, request: Request, response: Response) -> dict[str, Any]:
     rate_limit(request, key="auth", limit=30, window_sec=60)
@@ -170,7 +301,6 @@ def login(body: LoginBody, request: Request, response: Response) -> dict[str, An
         mutate(drop_old)
     # Upgrade plain seed PIN to argon2 hash on successful login
     if not profile.get("pinHash") and profile.get("pin"):
-        from armonia.auth.security import hash_pin
 
         def hash_apply(st: dict[str, Any]) -> None:
             row = st.get("profiles", {}).get(body.profileId)

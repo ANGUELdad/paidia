@@ -7,6 +7,7 @@ import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { setStoredLang, t, type Lang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
+import { createPasskey } from "@/lib/webauthn";
 
 type Me = {
   id: string;
@@ -31,6 +32,13 @@ export default function ProfilePage() {
   const [originOk, setOriginOk] = useState(true);
   const [vapidPublic, setVapidPublic] = useState("");
   const [pushStatus, setPushStatus] = useState("");
+  const [passkeysAvailable, setPasskeysAvailable] = useState(false);
+  const [passkeyCount, setPasskeyCount] = useState(0);
+  const [freshPin, setFreshPin] = useState("");
+  const [passkeyStatus, setPasskeyStatus] = useState("");
+  const [feedUrl, setFeedUrl] = useState("");
+  const [feedToken, setFeedToken] = useState("");
+  const [feedStatus, setFeedStatus] = useState("");
 
   useEffect(() => {
     if (!ready) return;
@@ -64,8 +72,14 @@ export default function ProfilePage() {
         setStoredLang(l);
       })
       .catch(() => router.replace("/"));
-    api<{ vapidPublicKey?: string; notifications?: { webPush?: boolean } }>("/api/health")
-      .then((h) => setVapidPublic((h as { vapidPublicKey?: string }).vapidPublicKey || ""))
+    api<{ vapidPublicKey?: string; passkeysAvailable?: boolean }>("/api/health")
+      .then((h) => {
+        setVapidPublic((h as { vapidPublicKey?: string }).vapidPublicKey || "");
+        setPasskeysAvailable(Boolean((h as { passkeysAvailable?: boolean }).passkeysAvailable));
+      })
+      .catch(() => undefined);
+    api<{ count?: number }>("/api/auth/passkey/list")
+      .then((r) => setPasskeyCount(r.count || 0))
       .catch(() => undefined);
   }, [ready, router]);
 
@@ -89,14 +103,102 @@ export default function ProfilePage() {
       setPushStatus("Push nicht verfügbar");
       return;
     }
-    const reg = await navigator.serviceWorker.register("/sw.js");
-    const ready = await navigator.serviceWorker.ready;
-    const sub = await ready.pushManager.subscribe({
+    const readySw = await navigator.serviceWorker.ready;
+    const sub = await readySw.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: vapidPublic || undefined,
     });
     await api("/api/notify/subscribe", { method: "POST", body: JSON.stringify({ subscription: sub.toJSON() }) });
     setPushStatus("Push aktiv");
+  }
+
+  async function registerPasskey() {
+    if (!freshPin || freshPin.length < 4) {
+      setPasskeyStatus(t("pinIfNeeded", lang));
+      return;
+    }
+    setPasskeyStatus("");
+    try {
+      // Fresh PIN gate before WebAuthn ceremony (server still requires session).
+      await api("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ profileId: me?.id || session?.profileId, mode, pin: freshPin }),
+      });
+      const options = await api<Record<string, unknown>>("/api/auth/passkey/register/options", {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+      const credential = await createPasskey(options);
+      await api("/api/auth/passkey/register/verify", {
+        method: "POST",
+        body: JSON.stringify({ credential }),
+      });
+      setPasskeyCount((n) => n + 1);
+      setFreshPin("");
+      setPasskeyStatus(t("passkeySaved", lang));
+    } catch {
+      setPasskeyStatus(t("passkeyError", lang));
+    }
+  }
+
+  async function removePasskeys() {
+    if (!freshPin || freshPin.length < 4) {
+      setPasskeyStatus(t("pinIfNeeded", lang));
+      return;
+    }
+    try {
+      const r = await api<{ removed: number }>("/api/auth/passkey/remove", {
+        method: "POST",
+        body: JSON.stringify({ pin: freshPin }),
+      });
+      setPasskeyCount(0);
+      setFreshPin("");
+      setPasskeyStatus(`${t("passkeyRemoved", lang)} (${r.removed})`);
+    } catch {
+      setPasskeyStatus(t("passkeyError", lang));
+    }
+  }
+
+  async function mintFeed() {
+    try {
+      const r = await api<{ url: string; webcalUrl?: string; token: string }>("/api/calendar/feed", {
+        method: "POST",
+        body: JSON.stringify({ mode: mode === "child" ? "child" : "staff", name: me?.name || "Armonia" }),
+      });
+      setFeedToken(r.token);
+      setFeedUrl(r.webcalUrl || r.url);
+      setFeedStatus(t("feedReady", lang));
+    } catch {
+      setFeedStatus(t("feedError", lang));
+    }
+  }
+
+  async function rotateFeed() {
+    if (!feedToken) {
+      await mintFeed();
+      return;
+    }
+    try {
+      const r = await api<{ url: string; webcalUrl?: string; token: string }>("/api/calendar/feed/rotate", {
+        method: "POST",
+        body: JSON.stringify({ token: feedToken }),
+      });
+      setFeedToken(r.token);
+      setFeedUrl(r.webcalUrl || r.url);
+      setFeedStatus(t("feedRotated", lang));
+    } catch {
+      setFeedStatus(t("feedError", lang));
+    }
+  }
+
+  async function copyFeed() {
+    if (!feedUrl) return;
+    try {
+      await navigator.clipboard.writeText(feedUrl);
+      setFeedStatus(t("feedCopied", lang));
+    } catch {
+      setFeedStatus(feedUrl);
+    }
   }
 
   if (!ready) return <main className="page">{t("loading")}</main>;
@@ -144,6 +246,52 @@ export default function ProfilePage() {
             </button>
           )}
           {pushStatus && <p className="muted">{pushStatus}</p>}
+
+          {mode === "staff" && originOk && passkeysAvailable && (
+            <div className="stack mt-2" data-testid="passkey-panel">
+              <h3 className="text-base font-semibold">{t("passkeys", lang)}</h3>
+              <p className="muted text-sm">{t("passkeyCount", lang)}: {passkeyCount}</p>
+              <input
+                type="password"
+                inputMode="numeric"
+                maxLength={6}
+                value={freshPin}
+                onChange={(e) => setFreshPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder={t("pinIfNeeded", lang)}
+                data-testid="passkey-pin"
+              />
+              <div className="flex flex-wrap gap-2">
+                <button className="btn-sec" type="button" onClick={registerPasskey} data-testid="passkey-register">
+                  {t("passkeyRegister", lang)}
+                </button>
+                <button className="btn ghost" type="button" onClick={removePasskeys} data-testid="passkey-remove">
+                  {t("passkeyRemove", lang)}
+                </button>
+              </div>
+              {passkeyStatus && <p className="muted text-sm">{passkeyStatus}</p>}
+            </div>
+          )}
+
+          {mode === "staff" && (
+            <div className="stack mt-2" data-testid="ics-panel">
+              <h3 className="text-base font-semibold">{t("calendarFeed", lang)}</h3>
+              <p className="muted text-sm">{t("calendarFeedHint", lang)}</p>
+              <div className="flex flex-wrap gap-2">
+                <button className="btn-sec" type="button" onClick={mintFeed} data-testid="ics-mint">
+                  {t("feedMint", lang)}
+                </button>
+                <button className="btn-sec" type="button" onClick={rotateFeed} data-testid="ics-rotate">
+                  {t("feedRotate", lang)}
+                </button>
+                <button className="btn ghost" type="button" onClick={copyFeed} disabled={!feedUrl} data-testid="ics-copy">
+                  {t("feedCopy", lang)}
+                </button>
+              </div>
+              {feedUrl && <p className="break-all text-xs text-[var(--muted)]">{feedUrl}</p>}
+              {feedStatus && <p className="muted text-sm">{feedStatus}</p>}
+            </div>
+          )}
+
           {status && <p>{status}</p>}
           <p className="muted text-sm">{t("profileSwitch", lang)}</p>
           <button className="btn ghost" type="button" onClick={logout}>

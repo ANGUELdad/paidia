@@ -6,14 +6,15 @@ Cutover is green when every row is ✅ on production data clone.
 - [x] Staff / child dual login
 - [x] PIN argon2 verify + session cookie
 - [x] Profile prefs (nickname/emoji/color/lang/widgets)
-- [x] Biometrics path documented (HTTPS origin); register after PIN *(API routes + health flag; needs WEBAUTHN_ORIGIN)*
+- [x] Biometrics path documented (HTTPS origin); register after PIN *(Profile register/remove + Login Passkey CTA; needs WEBAUTHN_ORIGIN)*
 - [x] Login version/changelog chip
+- [x] PIN reset request/confirm (email, no enumeration)
 
 ## Ops
 - [x] Week matrix with full dates (desktop grid + mobile stack)
 - [x] Double-book validation + override reason
 - [x] Stock adjust + stock-check ritual
-- [x] Shop list + Friday reminders + learning suggestions (confirm only) *(+ reorder + OCR text + Friday tab)*
+- [x] Shop list + Friday reminders + learning suggestions (confirm only) *(+ reorder + OCR text + Friday + Im Supermarkt)*
 - [x] Book journal append/rewrite + audit filters
 - [x] Presence Ich bin da / late why *(in-app late sheet)*
 - [x] Coverage board `/coverage`

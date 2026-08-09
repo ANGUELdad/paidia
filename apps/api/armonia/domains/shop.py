@@ -47,6 +47,15 @@ class OcrBody(BaseModel):
     text: str = ""
 
 
+class StatusBody(BaseModel):
+    entryId: str
+    status: ListStatus
+
+
+class SupermarketModeBody(BaseModel):
+    enabled: bool = True
+
+
 def _upcoming_friday(ref: date | None = None) -> str:
     d = ref or date.today()
     days_ahead = (4 - d.weekday()) % 7
@@ -145,6 +154,44 @@ def shop_done(body: DoneBody, request: Request) -> dict[str, Any]:
 
     mutate(apply)
     return {"ok": True}
+
+
+@router.post("/status")
+def shop_status(body: StatusBody, request: Request) -> dict[str, Any]:
+    session = require_staff(request)
+
+    def apply(st: dict[str, Any]) -> None:
+        for e in st.get("listEntries") or []:
+            if e.get("id") == body.entryId:
+                e["status"] = body.status
+                e["statusBy"] = session["profile_id"]
+                e["statusAt"] = int(time.time() * 1000)
+
+    mutate(apply)
+    return {"ok": True, "entryId": body.entryId, "status": body.status}
+
+
+@router.get("/supermarket")
+def supermarket_list(request: Request) -> dict[str, Any]:
+    require_staff(request)
+    state = snapshot()
+    entries = [
+        e
+        for e in (state.get("listEntries") or [])
+        if e.get("status") in {"open", "bought", "missing", None, ""}
+    ]
+    return {"entries": entries, "supermarketMode": bool(state.get("supermarketMode"))}
+
+
+@router.post("/supermarket/mode")
+def supermarket_mode(body: SupermarketModeBody, request: Request) -> dict[str, Any]:
+    require_staff(request)
+
+    def apply(st: dict[str, Any]) -> None:
+        st["supermarketMode"] = bool(body.enabled)
+
+    mutate(apply)
+    return {"ok": True, "supermarketMode": bool(body.enabled)}
 
 
 @router.get("/suggestions")

@@ -9,7 +9,7 @@ import { api } from "@/lib/api";
 import { getStoredLang, t, type Lang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
 
-type Tab = "list" | "friday" | "suggestions";
+type Tab = "list" | "friday" | "supermarket" | "suggestions";
 
 type ListEntry = {
   id: string;
@@ -37,6 +37,7 @@ type OcrItem = { name: string; qty: number; unit: string };
 const TABS: { id: Tab; label: string }[] = [
   { id: "list", label: "Liste" },
   { id: "friday", label: "Freitag" },
+  { id: "supermarket", label: "Im Supermarkt" },
   { id: "suggestions", label: "Vorschläge" },
 ];
 
@@ -52,6 +53,7 @@ export default function ShopPage() {
   const [ocrText, setOcrText] = useState("");
   const [ocrDraft, setOcrDraft] = useState<OcrItem[]>([]);
   const [busy, setBusy] = useState(false);
+  const [supermarketMode, setSupermarketMode] = useState(false);
 
   async function loadList() {
     const data = await api<{ entries: ListEntry[] }>("/api/shop/list");
@@ -66,6 +68,12 @@ export default function ShopPage() {
     setFridayDate(data.fridayDate || "");
   }
 
+  async function loadSupermarket() {
+    const data = await api<{ entries: ListEntry[]; supermarketMode: boolean }>("/api/shop/supermarket");
+    setEntries(data.entries || []);
+    setSupermarketMode(Boolean(data.supermarketMode));
+  }
+
   async function loadSuggestions() {
     const data = await api<{ items: ReorderItem[] }>("/api/shop/reorder-suggestions");
     setReorderItems(data.items || []);
@@ -73,6 +81,7 @@ export default function ShopPage() {
 
   async function load() {
     if (tab === "friday") await loadFriday();
+    else if (tab === "supermarket") await loadSupermarket();
     else if (tab === "suggestions") await loadSuggestions();
     else await loadList();
   }
@@ -95,6 +104,20 @@ export default function ShopPage() {
   async function done(id: string) {
     await api("/api/shop/done", { method: "POST", body: JSON.stringify({ entryId: id }) });
     await load();
+  }
+
+  async function setStatus(id: string, status: "open" | "bought" | "missing") {
+    await api("/api/shop/status", { method: "POST", body: JSON.stringify({ entryId: id, status }) });
+    await load();
+  }
+
+  async function toggleSupermarketMode() {
+    const next = !supermarketMode;
+    await api("/api/shop/supermarket/mode", {
+      method: "POST",
+      body: JSON.stringify({ enabled: next }),
+    });
+    setSupermarketMode(next);
   }
 
   async function parseOcr() {
@@ -184,7 +207,7 @@ export default function ShopPage() {
         </div>
       )}
 
-      {tab !== "suggestions" && (
+      {tab !== "suggestions" && tab !== "supermarket" && (
         <div className="card mt-4 flex gap-2">
           <input
             className="flex-1 rounded-xl border border-[var(--line)] px-3 py-2"
@@ -195,6 +218,18 @@ export default function ShopPage() {
           />
           <button className="btn" type="button" onClick={() => add(undefined, tab === "friday")}>
             {t("add", lang)}
+          </button>
+        </div>
+      )}
+
+      {tab === "supermarket" && (
+        <div className="card mt-4 flex items-center justify-between gap-3">
+          <div>
+            <div className="font-semibold">{t("supermarket", lang)}</div>
+            <p className="muted text-sm">Gekauft / fehlt markieren — dann erledigen.</p>
+          </div>
+          <button className="btn-sec" type="button" onClick={toggleSupermarketMode} data-testid="supermarket-mode">
+            {supermarketMode ? "Modus an" : "Modus aus"}
           </button>
         </div>
       )}
@@ -262,20 +297,30 @@ export default function ShopPage() {
           )
         ) : entries.length ? (
           entries.map((e) => (
-            <div key={e.id} className="card flex items-center justify-between gap-3">
+            <div key={e.id} className="card flex flex-wrap items-center justify-between gap-3">
               <span className="font-semibold">{e.name}</span>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm text-[var(--muted)]">{e.qty} {e.unit}</span>
-                {e.status && e.status !== "open" && (
-                  <span className="text-xs text-[var(--muted)]">{e.status}</span>
+                {tab === "supermarket" ? (
+                  <>
+                    <button className={`btn-sec !min-h-9 text-sm ${e.status === "bought" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" onClick={() => setStatus(e.id, "bought")}>{t("bought", lang)}</button>
+                    <button className={`btn-sec !min-h-9 text-sm ${e.status === "missing" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" onClick={() => setStatus(e.id, "missing")}>{t("missing", lang)}</button>
+                    <button className="btn-sec !min-h-9 text-sm" type="button" onClick={() => done(e.id)}>OK</button>
+                  </>
+                ) : (
+                  <>
+                    {e.status && e.status !== "open" && (
+                      <span className="text-xs text-[var(--muted)]">{e.status}</span>
+                    )}
+                    <button className="btn-sec !min-h-9 text-sm" type="button" onClick={() => done(e.id)}>Erledigt</button>
+                  </>
                 )}
-                <button className="btn-sec !min-h-9 text-sm" type="button" onClick={() => done(e.id)}>Erledigt</button>
               </div>
             </div>
           ))
         ) : (
           <EmptyState
-            title={tab === "friday" ? "Freitagsliste leer" : "Liste leer"}
+            title={tab === "friday" ? "Freitagsliste leer" : tab === "supermarket" ? "Nichts zum Einkaufen" : "Liste leer"}
             hint={tab === "friday" ? "Artikel für den Einkauf am Freitag hinzufügen." : "Starte mit einem Vorschlag oder eigenem Eintrag."}
           />
         )}

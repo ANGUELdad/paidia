@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     smtp_from: str = ""
     smtp_use_tls: str = "true"
+    paidia_public_url: str = ""
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     max_body_bytes: int = 262_144
 

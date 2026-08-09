@@ -135,6 +135,8 @@ def _empty_state() -> dict[str, Any]:
         "incidents": [],
         "careLogs": [],
         "calendarFeeds": {},
+        "pinResetTokens": {},
+        "supermarketMode": False,
     }
 
 

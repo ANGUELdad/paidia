@@ -33,7 +33,8 @@ apps/web/prisma/*.db
 apps/web/prisma/*.db-journal
 apps/web/.next/
 .coverage
-coverage/
+/coverage/
+htmlcov/
 node_modules/
 .vercel
 .env*

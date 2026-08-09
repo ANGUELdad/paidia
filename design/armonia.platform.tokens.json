@@ -191,7 +191,11 @@
       "Handover": "5:2",
       "ZoAi": "9:2",
       "Kids": "12:2",
-      "Profile": "15:40"
+      "Profile": "15:40",
+      "Coverage": "16:3",
+      "Incidents": "16:15",
+      "Care": "16:27",
+      "KidsGames": "16:39"
     },
     "mappedTo": {
       "Login": "apps/web/src/app/page.tsx",
@@ -200,6 +204,10 @@
       "Stock": "apps/web/src/app/stock/page.tsx",
       "Talk": "apps/web/src/app/talk/page.tsx",
       "Kids": "apps/web/src/app/kids/page.tsx",
+      "Coverage": "apps/web/src/app/coverage/page.tsx",
+      "Incidents": "apps/web/src/app/incidents/page.tsx",
+      "Care": "apps/web/src/app/care/page.tsx",
+      "KidsGames": "apps/web/src/app/kids/games/page.tsx",
       "Handover": "apps/web/src/app/handover/page.tsx",
       "ZoAi": "apps/web/src/app/zoai/page.tsx",
       "Dock": "apps/web/src/components/Dock.tsx",

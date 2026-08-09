@@ -70,6 +70,14 @@ test("bad user login then click every dock control", async ({ page }) => {
     await dismissTour(page);
     await expect(page.locator("main, [data-testid='dock']").first()).toBeVisible({ timeout: 10000 });
   }
+
+  expect(moreHrefs).toEqual(expect.arrayContaining(["/coverage", "/incidents", "/care"]));
+  await page.goto("/coverage", { waitUntil: "domcontentloaded" });
+  await dismissTour(page);
+  await expect(page.locator("main").first()).toBeVisible();
+  await page.goto("/incidents", { waitUntil: "domcontentloaded" });
+  await dismissTour(page);
+  await expect(page.locator("main").first()).toBeVisible();
 });
 
 test("ops stress: stock spam, shop spam, plan conflict, zoai, calendar", async ({ page }) => {
@@ -159,5 +167,7 @@ test("child mode isolated", async ({ page }) => {
   await dismissTour(page);
   await expect(page.getByTestId("dock-lager")).toHaveCount(0);
   await page.getByTestId("dock-spiele").click();
+  await expect(page).toHaveURL(/\/kids\/games/);
   await page.getByRole("button", { name: /Memory/i }).first().click({ force: true });
+  await expect(page.getByText(/Züge|Κινήσεις|Paare|Ζευγάρια/i).first()).toBeVisible({ timeout: 8000 });
 });
