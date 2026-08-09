@@ -73,9 +73,17 @@ export default function AdminNotifyPage() {
       return;
     }
     const reg = await navigator.serviceWorker.register("/sw.js");
-    const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    let key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "";
     if (!key) {
-      setStatus("NEXT_PUBLIC_VAPID_PUBLIC_KEY setzen");
+      try {
+        const h = await api<{ vapidPublicKey?: string }>("/api/health");
+        key = h.vapidPublicKey || "";
+      } catch {
+        key = "";
+      }
+    }
+    if (!key) {
+      setStatus("VAPID-Schlüssel fehlt (Server /api/health)");
       return;
     }
     try {

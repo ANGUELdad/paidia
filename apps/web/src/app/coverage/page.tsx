@@ -225,11 +225,19 @@ export default function CoveragePage() {
                   })}
                 </div>
               ))}
-              {!gaps.length && (
-                <div className="list-row">
+              {!gaps.length && !late.length && (
+                <div className="list-row" style={{ cursor: "default" }}>
                   <div className="list-row__main">
                     <div className="list-row__title">Alle Häuser besetzt</div>
-                    <div className="list-row__meta">Keine offenen Lücken für heute</div>
+                    <div className="list-row__meta">Keine offenen Lücken oder Verspätungen</div>
+                  </div>
+                </div>
+              )}
+              {!gaps.length && late.length > 0 && (
+                <div className="list-row" style={{ cursor: "default" }}>
+                  <div className="list-row__main">
+                    <div className="list-row__title">Häuser belegt</div>
+                    <div className="list-row__meta">{late.length} Verspätung(en) oben beachten</div>
                   </div>
                 </div>
               )}

@@ -210,59 +210,71 @@ export default function ShopPage() {
       )}
 
       {tab !== "suggestions" && tab !== "supermarket" && (
-        <div className="card mt-3 flex flex-wrap gap-2">
-          <input
-            className="min-h-11 min-w-0 flex-1 rounded-[var(--radius-sm)] border border-[var(--line)] px-3"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="z.B. Reis"
-            aria-label="Artikel"
-            onKeyDown={(e) => { if (e.key === "Enter") add(undefined, tab === "friday"); }}
-          />
-          <button className="btn" type="button" onClick={() => add(undefined, tab === "friday")}>
-            {t("add", lang)}
-          </button>
+        <div className="list-panel mt-3">
+          <div className="list-row" style={{ cursor: "default", flexWrap: "wrap", gap: 8 }}>
+            <input
+              className="min-h-11 min-w-0 flex-1 rounded-[var(--radius-sm)] border border-[var(--line)] px-3"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="z.B. Reis"
+              aria-label="Artikel"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") add(undefined, tab === "friday");
+              }}
+            />
+            <button className="btn" type="button" onClick={() => add(undefined, tab === "friday")}>
+              {t("add", lang)}
+            </button>
+          </div>
         </div>
       )}
 
       {tab === "supermarket" && (
-        <div className="card mt-4 flex items-center justify-between gap-3">
-          <div>
-            <div className="font-semibold">{t("supermarket", lang)}</div>
-            <p className="muted text-sm">Gekauft / fehlt markieren — dann erledigen.</p>
+        <div className="list-panel mt-3">
+          <div className="list-sticky">
+            <span>{t("supermarket", lang)}</span>
+            <button className="btn-sec" type="button" style={{ minHeight: 36, fontSize: "0.75rem" }} onClick={toggleSupermarketMode} data-testid="supermarket-mode">
+              {supermarketMode ? "Modus an" : "Modus aus"}
+            </button>
           </div>
-          <button className="btn-sec" type="button" onClick={toggleSupermarketMode} data-testid="supermarket-mode">
-            {supermarketMode ? "Modus an" : "Modus aus"}
-          </button>
+          <div className="list-row" style={{ cursor: "default" }}>
+            <div className="list-row__meta">Gekauft / fehlt markieren — dann erledigen.</div>
+          </div>
         </div>
       )}
 
       {tab === "list" && (
-        <details className="card mt-4">
-          <summary className="cursor-pointer font-semibold">Text importieren (OCR)</summary>
-          <p className="muted mt-2 text-sm">Zeilen wie „Milch 2“ oder „2 kg Reis“ — erst prüfen, dann bestätigen.</p>
-          <textarea
-            className="mt-2 w-full rounded-xl border border-[var(--line)] px-3 py-2"
-            rows={4}
-            value={ocrText}
-            onChange={(e) => setOcrText(e.target.value)}
-            placeholder={"Milch 2\nReis 1 kg\n3 Eier"}
-          />
-          <div className="mt-2 flex flex-wrap gap-2">
-            <button className="btn-sec" type="button" onClick={parseOcr}>Analysieren</button>
-            {ocrDraft.length > 0 && (
-              <button className="btn" type="button" disabled={busy} onClick={applyOcr}>
-                {t("confirm", lang)} ({ocrDraft.length})
+        <details className="list-panel mt-3">
+          <summary className="list-sticky cursor-pointer">Text importieren</summary>
+          <div className="stack p-3">
+            <p className="muted m-0 text-sm">Zeilen wie „Milch 2“ oder „2 kg Reis“ — erst prüfen, dann bestätigen.</p>
+            <textarea
+              className="w-full rounded-[var(--radius-sm)] border border-[var(--line)] px-3 py-2"
+              rows={4}
+              value={ocrText}
+              onChange={(e) => setOcrText(e.target.value)}
+              placeholder={"Milch 2\nReis 1 kg\n3 Eier"}
+            />
+            <div className="row gap-2">
+              <button className="btn-sec" type="button" onClick={parseOcr}>
+                Analysieren
               </button>
+              {ocrDraft.length > 0 && (
+                <button className="btn" type="button" disabled={busy} onClick={applyOcr}>
+                  {t("confirm", lang)} ({ocrDraft.length})
+                </button>
+              )}
+            </div>
+            {ocrDraft.length > 0 && (
+              <ul className="m-0 space-y-1 text-sm">
+                {ocrDraft.map((item, i) => (
+                  <li key={`${item.name}-${i}`}>
+                    {item.qty} {item.unit} — {item.name}
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
-          {ocrDraft.length > 0 && (
-            <ul className="mt-3 space-y-1 text-sm">
-              {ocrDraft.map((item, i) => (
-                <li key={`${item.name}-${i}`}>{item.qty} {item.unit} — {item.name}</li>
-              ))}
-            </ul>
-          )}
         </details>
       )}
 

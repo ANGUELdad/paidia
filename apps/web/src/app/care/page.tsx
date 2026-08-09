@@ -145,51 +145,41 @@ export default function CarePage() {
         )}
         {msg && <p className="text-sm text-[var(--brand)] mb-3">{msg}</p>}
 
-        <section className="panel stack mb-4">
-          <label htmlFor="care-child">
-            Kind
-            <select id="care-child" value={childId} onChange={(e) => setChildId(e.target.value)} data-testid="care-child">
-              {!children.length && <option value="">Keine Kinder</option>}
-              {children.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="list-panel mb-3">
+          <div className="list-sticky">
+            <span>{selectedChild?.name || "Kind"}</span>
+            <span className="muted text-xs">{displayDate}</span>
+          </div>
+          <div className="list-row" style={{ cursor: "default", flexWrap: "wrap", gap: 8 }}>
+            <label className="flex-1 min-w-[140px] m-0" htmlFor="care-child">
+              <span className="sr-only">Kind</span>
+              <select id="care-child" value={childId} onChange={(e) => setChildId(e.target.value)} data-testid="care-child">
+                {!children.length && <option value="">Keine Kinder</option>}
+                {children.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="m-0" htmlFor="care-date">
+              <span className="sr-only">Datum</span>
+              <input
+                id="care-date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                data-testid="care-date"
+              />
+            </label>
+          </div>
+        </div>
 
-          <label htmlFor="care-date">
-            Datum
-            <input
-              id="care-date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              data-testid="care-date"
-            />
-          </label>
-
-          {selectedChild && (
-            <div className="row gap-2 items-center">
-              <div
-                className="grid h-10 w-10 place-items-center rounded-full text-sm font-bold text-white"
-                style={{ background: selectedChild.color || "var(--brand)" }}
-              >
-                {selectedChild.name.slice(0, 2)}
-              </div>
-              <div>
-                <div className="font-semibold">{selectedChild.name}</div>
-                <div className="muted text-sm">{selectedChild.id}</div>
-              </div>
-            </div>
-          )}
-        </section>
-
-        <section className="mb-6" aria-labelledby="care-kinds-title">
-          <h2 id="care-kinds-title" className="display-sm text-[var(--sea)]">
+        <section className="mb-4" aria-labelledby="care-kinds-title">
+          <h2 id="care-kinds-title" className="text-sm font-semibold text-[var(--sea)] m-0 mb-2">
             Eintrag hinzufügen
           </h2>
-          <div className="chips mt-2">
+          <div className="chips">
             {KINDS.map((k) => (
               <button
                 key={k.id}
@@ -204,35 +194,39 @@ export default function CarePage() {
           </div>
 
           {activeKind && (
-            <div className="panel stack mt-3" style={{ background: "var(--pine-tint)" }}>
-              <p className="m-0 font-semibold text-[var(--sea)]">
-                {KIND_LABEL[activeKind]} · {selectedChild?.name}
-              </p>
-              <label htmlFor="care-note">
-                Kurznotiz (optional)
-                <textarea
-                  id="care-note"
-                  rows={2}
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  placeholder="z. B. gut gegessen, müde, fröhlich…"
-                />
-              </label>
-              <div className="row gap-2">
-                <button className="btn flex-1" type="button" disabled={busy} onClick={saveLog}>
-                  {busy ? "Speichern…" : "Speichern"}
-                </button>
-                <button className="btn-sec !min-h-10" type="button" disabled={busy} onClick={() => setActiveKind(null)}>
-                  Abbrechen
-                </button>
+            <div className="list-panel mt-2">
+              <div className="list-sticky">
+                <span>
+                  {KIND_LABEL[activeKind]} · {selectedChild?.name}
+                </span>
+              </div>
+              <div className="stack p-3">
+                <label htmlFor="care-note" className="m-0">
+                  Kurznotiz (optional)
+                  <textarea
+                    id="care-note"
+                    rows={2}
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder="z. B. gut gegessen, müde, fröhlich…"
+                  />
+                </label>
+                <div className="row gap-2">
+                  <button className="btn flex-1" type="button" disabled={busy} onClick={saveLog}>
+                    {busy ? "Speichern…" : "Speichern"}
+                  </button>
+                  <button className="btn-sec !min-h-10" type="button" disabled={busy} onClick={() => setActiveKind(null)}>
+                    Abbrechen
+                  </button>
+                </div>
               </div>
             </div>
           )}
         </section>
 
         <section aria-labelledby="care-logs-title">
-          <h2 id="care-logs-title" className="display-sm text-[var(--sea)]">
-            Heutige Einträge
+          <h2 id="care-logs-title" className="text-sm font-semibold text-[var(--sea)] m-0 mb-2">
+            Einträge
           </h2>
 
           {loading ? (
@@ -243,25 +237,29 @@ export default function CarePage() {
               hint="Wähle oben Mahlzeit, Schlaf, Stimmung oder Medikamente und speichere einen Kurzeintrag."
             />
           ) : (
-            <div className="grid gap-2 mt-3">
+            <div className="list-panel">
+              <div className="list-sticky">
+                <span>{logs.length} Einträge</span>
+              </div>
               {logs.map((log) => {
                 const kind = KINDS.find((k) => k.id === log.kind);
                 return (
-                  <article key={log.id} className="card" style={{ background: "var(--pine-tint)" }} data-testid={`care-log-${log.id}`}>
-                    <div className="row between gap-2">
-                      <span className="font-semibold text-[var(--sea)]">
+                  <div key={log.id} className="list-row" style={{ cursor: "default" }} data-testid={`care-log-${log.id}`}>
+                    <div className="list-row__main">
+                      <div className="list-row__title">
                         {kind?.emoji} {KIND_LABEL[log.kind] || log.kind}
-                      </span>
-                      {log.at ? (
-                        <span className="muted text-xs">{new Date(log.at).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })}</span>
-                      ) : null}
+                      </div>
+                      <div className="list-row__meta">
+                        {log.note || "—"}
+                        {log.by ? ` · ${log.by}` : ""}
+                      </div>
                     </div>
-                    {log.note && <p className="mt-2 mb-0">{log.note}</p>}
-                    <p className="muted text-xs mt-2 m-0">
-                      {log.childName || log.childId}
-                      {log.by ? ` · ${log.by}` : ""}
-                    </p>
-                  </article>
+                    <span className="list-row__trail muted text-xs">
+                      {log.at
+                        ? new Date(log.at).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })
+                        : ""}
+                    </span>
+                  </div>
                 );
               })}
             </div>

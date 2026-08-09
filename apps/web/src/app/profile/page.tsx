@@ -219,8 +219,12 @@ export default function ProfilePage() {
   return (
     <>
       <PageShell eyebrow={t("profile", lang)} title={me?.name || "…"} lead={t("profileLead", lang)}>
-        <section className="panel stack">
-          <form className="stack" onSubmit={save}>
+        <div className="list-panel mb-3">
+          <div className="list-sticky">
+            <span>{t("profile", lang)}</span>
+            <span>{me?.role || mode}</span>
+          </div>
+          <form className="stack p-3" onSubmit={save}>
             <label>
               {t("nickname", lang)}
               <input value={nickname} onChange={(e) => setNickname(e.target.value)} />
@@ -250,20 +254,38 @@ export default function ProfilePage() {
             <button className="btn" type="submit">
               {t("save", lang)}
             </button>
+            {status && <p className="m-0 text-sm text-[var(--brand)]">{status}</p>}
           </form>
-          {!originOk && <p className="warn">{t("biometricsBlocked", lang)}</p>}
-          {originOk && mode === "staff" && <p className="muted">{t("biometricsHint", lang)}</p>}
-          {mode === "staff" && (
-            <button className="btn-sec" type="button" onClick={enablePush} data-testid="enable-push">
-              {t("enablePush", lang)}
-            </button>
-          )}
-          {pushStatus && <p className="muted">{pushStatus}</p>}
+        </div>
 
-          {mode === "staff" && originOk && passkeysAvailable && (
-            <div className="stack mt-2" data-testid="passkey-panel">
-              <h3 className="text-base font-semibold">{t("passkeys", lang)}</h3>
-              <p className="muted text-sm">{t("passkeyCount", lang)}: {passkeyCount}</p>
+        {mode === "staff" && (
+          <div className="list-panel mb-3">
+            <div className="list-sticky">
+              <span>{t("enablePush", lang)}</span>
+            </div>
+            <div className="list-row" style={{ cursor: "default", flexWrap: "wrap", gap: 8 }}>
+              <div className="list-row__main">
+                <div className="list-row__meta">
+                  {!originOk ? t("biometricsBlocked", lang) : t("biometricsHint", lang)}
+                  {pushStatus ? ` · ${pushStatus}` : ""}
+                </div>
+              </div>
+              <button className="btn-sec" type="button" onClick={enablePush} data-testid="enable-push" style={{ minHeight: 40 }}>
+                {t("enablePush", lang)}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {mode === "staff" && originOk && passkeysAvailable && (
+          <div className="list-panel mb-3" data-testid="passkey-panel">
+            <div className="list-sticky">
+              <span>{t("passkeys", lang)}</span>
+              <span>
+                {t("passkeyCount", lang)}: {passkeyCount}
+              </span>
+            </div>
+            <div className="stack p-3">
               <input
                 type="password"
                 inputMode="numeric"
@@ -273,44 +295,47 @@ export default function ProfilePage() {
                 placeholder={t("pinIfNeeded", lang)}
                 data-testid="passkey-pin"
               />
-              <div className="flex flex-wrap gap-2">
-                <button className="btn-sec" type="button" onClick={registerPasskey} data-testid="passkey-register">
+              <div className="row gap-2">
+                <button className="btn-sec flex-1" type="button" onClick={registerPasskey} data-testid="passkey-register">
                   {t("passkeyRegister", lang)}
                 </button>
-                <button className="btn ghost" type="button" onClick={removePasskeys} data-testid="passkey-remove">
+                <button className="btn-sec flex-1" type="button" onClick={removePasskeys} data-testid="passkey-remove">
                   {t("passkeyRemove", lang)}
                 </button>
               </div>
-              {passkeyStatus && <p className="muted text-sm">{passkeyStatus}</p>}
+              {passkeyStatus && <p className="muted text-sm m-0">{passkeyStatus}</p>}
             </div>
-          )}
+          </div>
+        )}
 
-          {mode === "staff" && (
-            <div className="stack mt-2" data-testid="ics-panel">
-              <h3 className="text-base font-semibold">{t("calendarFeed", lang)}</h3>
-              <p className="muted text-sm">{t("calendarFeedHint", lang)}</p>
-              <div className="flex flex-wrap gap-2">
+        {mode === "staff" && (
+          <div className="list-panel mb-3" data-testid="ics-panel">
+            <div className="list-sticky">
+              <span>{t("calendarFeed", lang)}</span>
+            </div>
+            <div className="stack p-3">
+              <p className="muted text-sm m-0">{t("calendarFeedHint", lang)}</p>
+              <div className="row gap-2 flex-wrap">
                 <button className="btn-sec" type="button" onClick={mintFeed} data-testid="ics-mint">
                   {t("feedMint", lang)}
                 </button>
                 <button className="btn-sec" type="button" onClick={rotateFeed} data-testid="ics-rotate">
                   {t("feedRotate", lang)}
                 </button>
-                <button className="btn ghost" type="button" onClick={copyFeed} disabled={!feedUrl} data-testid="ics-copy">
+                <button className="btn-sec" type="button" onClick={copyFeed} disabled={!feedUrl} data-testid="ics-copy">
                   {t("feedCopy", lang)}
                 </button>
               </div>
-              {feedUrl && <p className="break-all text-xs text-[var(--muted)]">{feedUrl}</p>}
-              {feedStatus && <p className="muted text-sm">{feedStatus}</p>}
+              {feedUrl && <p className="break-all text-xs text-[var(--muted)] m-0">{feedUrl}</p>}
+              {feedStatus && <p className="muted text-sm m-0">{feedStatus}</p>}
             </div>
-          )}
+          </div>
+        )}
 
-          {status && <p>{status}</p>}
-          <p className="muted text-sm">{t("profileSwitch", lang)}</p>
-          <button className="btn ghost" type="button" onClick={logout}>
-            {t("logout", lang)}
-          </button>
-        </section>
+        <p className="muted text-sm">{t("profileSwitch", lang)}</p>
+        <button className="btn-sec w-full" type="button" onClick={logout}>
+          {t("logout", lang)}
+        </button>
       </PageShell>
       <Dock mode={mode} />
     </>

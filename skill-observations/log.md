@@ -279,3 +279,54 @@
 **Suggested improvement:** Checklist order: (1) overlay state ownership across route remounts, (2) every `loading`/`busy`/`ready` path must clear or error on empty/fail/hang, (3) modal scroll-lock + dismiss consistency, (4) dock/safe-area occlusion, (5) then CSS overflow/height traps.
 
 **Principle:** For mobile PWAs, stuck UI is more often state-lifecycle and hang/error omission than literal `overflow: hidden` on the document.
+
+### Observation 16: WebKit e2e needs session settle + nav retry
+
+**Status:** OPEN
+**Date:** 2026-08-10
+**Session context:** Signal Compact polish + WebKit e2e green
+**Skill:** Improve ios-pwa-touch-audit / playwright mobile harness notes
+**Type:** open-source
+**Phase/Area:** e2e / WebKit cookie race
+
+**Issue:** Playwright WebKit often interrupted `page.goto` right after PIN login (`Navigation … interrupted by another navigation to "/"`) even when Chromium was green — Set-Cookie / client `useRequireMode` redirect raced the next navigation.
+
+**Suggested improvement:** After login, wait for dock + `GET /api/auth/session` authenticated; wrap staff navigations in retry-on-interrupted helper. Install WebKit explicitly (`npx playwright install webkit`) when adding a WebKit project.
+
+**Principle:** Cookie-auth mobile e2e must settle session readability before chained navigations; Chromium green does not prove WebKit auth timing.
+
+### Observation 17: Signal Compact audit — inventory-first before rewrite
+
+**Status:** OPEN
+**Date:** 2026-08-10
+**Session context:** Read-only UX audit of apps/web + apps/api for Armonia Signal Compact overhaul checklist
+**Skill:** task-observer
+**Type:** internal
+**Phase/Area:** methodology / PWA inventory
+
+**Issue:** A thorough page inventory (Dock/Mehr vs orphan routes, API call matrix, DE-primary gaps) surfaced high-impact gaps faster than reading design tokens alone — e.g. handover→Talk topic invisible, admin Push env mismatch, plan hardcodes, pages with list-row but no detail sheets.
+
+**Suggested improvement:** For mobile PWA UX overhaul tasks, start with route inventory + nav coverage + API call graph before CSS/token polish; rank fixes by "staff can't complete shift ritual" over visual consistency.
+
+**Principle:** Inventory navigation, empty states, and API wiring before visual redesign — broken flows beat polish debt.
+
+### Observation 17: UX overhaul pairs feature fixes with per-route Figma phones
+
+**Status:** OPEN
+**Date:** 2026-08-10
+**Session context:** Signal Compact UX overhaul + every-route Figma
+**Skill:** Improve figma-generate-design / product UI sprint pattern
+**Type:** open-source
+**Phase/Area:** design↔code sync
+
+**Issue:** Shipping dense list UX without a single Figma page of all routes left design drift (empty Login/Home/Plan pages vs live chalk UI). Feature bugs (hardcoded houseIds, missing cancel, admin VAPID) blocked “every feature working” even when screens looked polished.
+
+**Suggested improvement:** For mobile ops PWAs: (1) fix shift-critical API wiring first, (2) create one Figma page with phone frames for every route in the same pass, (3) update tokens JSON frame map immediately.
+
+**Principle:** Visual overhaul and feature correctness are the same sprint — a pretty screen with hardcoded IDs is still broken ops.
+
+### Checkpoint: UX overhaul pass 2 — no new skill observations beyond Observation 17
+
+**Status:** ACK
+**Date:** 2026-08-10
+**Note:** Continued Signal Compact overhaul (stock CAS, login/profile, notify CTAs, Figma sync). Methodology already captured in Observation 17.

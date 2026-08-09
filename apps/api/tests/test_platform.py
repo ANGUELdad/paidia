@@ -75,11 +75,39 @@ def test_schedule_double_book_requires_override(client):
 
 def test_stock_and_shop_learning(client):
     _login(client)
+    snap = client.get("/api/stock/snapshot")
+    assert snap.status_code == 200
+    rev = snap.json().get("revision") or 0
     adj = client.post(
         "/api/stock/adjust",
-        json={"houseId": "h1", "productId": "p_milk", "dir": "OUT", "qty": 2, "reason": "Frühstück"},
+        json={
+            "houseId": "h1",
+            "productId": "p_milk",
+            "dir": "OUT",
+            "qty": 2,
+            "reason": "Frühstück",
+            "expectedRevision": rev,
+        },
     )
     assert adj.status_code == 200
+    assert "revision" in adj.json()
+    conflict = client.post(
+        "/api/stock/adjust",
+        json={
+            "houseId": "h1",
+            "productId": "p_milk",
+            "dir": "IN",
+            "qty": 1,
+            "reason": "stale",
+            "expectedRevision": rev,
+        },
+    )
+    assert conflict.status_code == 409
+    par = client.post(
+        "/api/stock/par",
+        json={"productId": "p_milk", "parLevel": 5, "expectedRevision": adj.json()["revision"]},
+    )
+    assert par.status_code == 200
     add = client.post("/api/shop/add", json={"houseId": "h1", "name": "Milch", "qty": 2})
     assert add.status_code == 200
     sug = client.get("/api/shop/suggestions")

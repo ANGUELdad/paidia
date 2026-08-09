@@ -39,6 +39,10 @@ export default function CalendarPage() {
   const [admin, setAdmin] = useState(false);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [startTime, setStartTime] = useState("10:00");
+  const [endTime, setEndTime] = useState("12:00");
+  const [audience, setAudience] = useState("all");
+  const [eventStatus, setEventStatus] = useState("published");
   const [status, setStatus] = useState("");
   const [rmTitle, setRmTitle] = useState("");
   const [rmAt, setRmAt] = useState("");
@@ -81,16 +85,26 @@ export default function CalendarPage() {
       body: JSON.stringify({
         title,
         date,
-        startTime: "10:00",
-        endTime: "12:00",
-        audience: "all",
-        status: "published",
+        startTime,
+        endTime,
+        audience,
+        status: eventStatus,
         remindMinutes: [60, 15],
       }),
     });
     setTitle("");
     setStatus("Termin gespeichert");
     await load();
+  }
+
+  async function deleteReminder(id: string) {
+    try {
+      await api(`/api/calendar/reminders/${id}`, { method: "DELETE" });
+      setStatus("Erinnerung gelöscht");
+      await load();
+    } catch (e) {
+      setStatus((e as Error).message || "Löschen fehlgeschlagen");
+    }
   }
 
   async function addToGoogle(id: string) {
@@ -160,9 +174,11 @@ export default function CalendarPage() {
         </section>
 
         {admin && (
-          <section className="panel stack mb-3">
-            <h2 className="text-base m-0">Termin anlegen</h2>
-            <form className="stack" onSubmit={createEvent}>
+          <section className="list-panel mb-3">
+            <div className="list-sticky">
+              <span>Termin anlegen</span>
+            </div>
+            <form className="stack p-3" onSubmit={createEvent}>
               <label>
                 Titel
                 <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel" data-testid="event-title" />
@@ -171,16 +187,43 @@ export default function CalendarPage() {
                 Datum
                 <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
               </label>
+              <div className="row gap-2">
+                <label className="flex-1 m-0">
+                  Von
+                  <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} data-testid="event-start" />
+                </label>
+                <label className="flex-1 m-0">
+                  Bis
+                  <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} data-testid="event-end" />
+                </label>
+              </div>
+              <label>
+                Zielgruppe
+                <select value={audience} onChange={(e) => setAudience(e.target.value)} data-testid="event-audience">
+                  <option value="all">Alle</option>
+                  <option value="staff">Personal</option>
+                  <option value="children">Kinder</option>
+                </select>
+              </label>
+              <label>
+                Status
+                <select value={eventStatus} onChange={(e) => setEventStatus(e.target.value)} data-testid="event-status">
+                  <option value="published">Veröffentlicht</option>
+                  <option value="draft">Entwurf</option>
+                </select>
+              </label>
               <button className="btn" type="submit" data-testid="event-save">
-                Veröffentlichen
+                Speichern
               </button>
             </form>
           </section>
         )}
 
-        <section className="panel stack">
-          <h2 className="text-base m-0">Persönliche Erinnerungen</h2>
-          <form className="stack" onSubmit={addReminder}>
+        <section className="list-panel">
+          <div className="list-sticky">
+            <span>Persönliche Erinnerungen</span>
+          </div>
+          <form className="stack p-3" onSubmit={addReminder}>
             <label>
               Titel
               <input value={rmTitle} onChange={(e) => setRmTitle(e.target.value)} placeholder="z.B. Freitagsliste" data-testid="rm-title" />
@@ -193,7 +236,7 @@ export default function CalendarPage() {
               Erinnerung setzen
             </button>
           </form>
-          <div className="list-panel mt-2">
+          <div>
             {[...reminders, ...calendarDue].length ? (
               [...reminders, ...calendarDue].map((r) => (
                 <div key={r.id} className="list-row">
@@ -201,6 +244,11 @@ export default function CalendarPage() {
                     <div className="list-row__title">{r.title}</div>
                     <div className="list-row__meta">{r.at}</div>
                   </div>
+                  {reminders.some((x) => x.id === r.id) ? (
+                    <button type="button" className="btn-sec" style={{ minHeight: 36, fontSize: "0.75rem" }} onClick={() => deleteReminder(r.id)}>
+                      Löschen
+                    </button>
+                  ) : null}
                 </div>
               ))
             ) : (

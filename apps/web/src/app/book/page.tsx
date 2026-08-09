@@ -18,6 +18,17 @@ const FILTERS = [
   { id: "BROADCAST", label: "Rund" },
 ];
 
+const TYPE_DE: Record<string, string> = {
+  STOCK: "Lager",
+  SCHEDULE: "Plan",
+  JOURNAL: "Buch",
+  PRESENCE: "Präsenz",
+  BROADCAST: "Rundsendung",
+  HANDOVER: "Übergabe",
+  INCIDENT: "Vorfall",
+  CARE: "Kind-Tag",
+};
+
 export default function BookPage() {
   const { ready } = useRequireMode("staff");
   const [text, setText] = useState("");
@@ -115,7 +126,7 @@ export default function BookPage() {
             {filtered.map((e, i) => (
               <button key={`${e.type}-${e.at || i}`} type="button" className="list-row" onClick={() => setDetail(e)}>
                 <div className="list-row__main">
-                  <div className="list-row__title">{e.type}</div>
+                  <div className="list-row__title">{TYPE_DE[e.type] || e.type}</div>
                   <div className="list-row__meta">
                     {(e.text || "").slice(0, 80)}
                     {(e.text || "").length > 80 ? "…" : ""}
@@ -166,7 +177,7 @@ export default function BookPage() {
         <div className="more-overlay" role="presentation" onClick={() => setDetail(null)}>
           <div className="more-sheet" role="dialog" aria-modal="true" onClick={(ev) => ev.stopPropagation()}>
             <header className="more-sheet-header">
-              <h2>{detail.type}</h2>
+              <h2>{TYPE_DE[detail.type] || detail.type}</h2>
               <button type="button" className="more-sheet-close" aria-label="Schließen" onClick={() => setDetail(null)}>
                 ✕
               </button>

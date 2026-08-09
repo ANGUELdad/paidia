@@ -19,6 +19,13 @@ class AdjustBody(BaseModel):
     dir: str  # IN|OUT
     qty: float = Field(gt=0)
     reason: str = ""
+    expectedRevision: int | None = None
+
+
+class ParBody(BaseModel):
+    productId: str
+    parLevel: float = Field(ge=0)
+    expectedRevision: int | None = None
 
 
 class CheckBody(BaseModel):
@@ -26,6 +33,11 @@ class CheckBody(BaseModel):
     date: str
     notes: str = ""
     counts: dict[str, float] = Field(default_factory=dict)
+
+
+class RevisionConflict(Exception):
+    def __init__(self, revision: int) -> None:
+        self.revision = revision
 
 
 @router.get("/snapshot")
@@ -49,6 +61,9 @@ def adjust(body: AdjustBody, request: Request) -> dict[str, Any]:
     key = f"{body.houseId}:{body.productId}"
 
     def apply(st: dict[str, Any]) -> None:
+        rev = int(st.get("revision") or 0)
+        if body.expectedRevision is not None and rev != body.expectedRevision:
+            raise RevisionConflict(rev)
         stock = st.setdefault("stock", {})
         cur = float(stock.get(key) or 0)
         delta = body.qty if body.dir == "IN" else -body.qty
@@ -87,8 +102,46 @@ def adjust(body: AdjustBody, request: Request) -> dict[str, Any]:
             }
         )
 
-    mutate(apply)
-    return {"ok": True, "key": key, "qty": (snapshot().get("stock") or {}).get(key)}
+    try:
+        state = mutate(apply)
+    except RevisionConflict as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "revision_conflict", "revision": exc.revision, "error": "Bestand wurde parallel geändert — bitte neu laden"},
+        ) from exc
+    return {
+        "ok": True,
+        "key": key,
+        "qty": (state.get("stock") or {}).get(key),
+        "revision": state.get("revision") or 0,
+    }
+
+
+@router.post("/par")
+def set_par(body: ParBody, request: Request) -> dict[str, Any]:
+    require_staff(request)
+    if not any(p.get("id") == body.productId for p in (snapshot().get("products") or [])):
+        raise HTTPException(status_code=404, detail={"code": "product_not_found"})
+
+    def apply(st: dict[str, Any]) -> None:
+        rev = int(st.get("revision") or 0)
+        if body.expectedRevision is not None and rev != body.expectedRevision:
+            raise RevisionConflict(rev)
+        for p in st.get("products") or []:
+            if p.get("id") == body.productId:
+                p["parLevel"] = float(body.parLevel)
+                return
+        raise RevisionConflict(rev)  # product vanished under lock
+
+    try:
+        state = mutate(apply)
+    except RevisionConflict as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "revision_conflict", "revision": exc.revision, "error": "Bestand wurde parallel geändert — bitte neu laden"},
+        ) from exc
+    product = next((p for p in (state.get("products") or []) if p.get("id") == body.productId), None)
+    return {"ok": True, "product": product, "revision": state.get("revision") or 0}
 
 
 @router.post("/check")

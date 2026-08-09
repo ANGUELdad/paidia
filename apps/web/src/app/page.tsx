@@ -9,8 +9,8 @@ const BUILD = {
   version: 1,
   label: "v1-platform",
   changed: {
-    de: "Neue Plattform · Widgets · Zo-Ai · Automationen · Kids Rewards",
-    el: "Νέα πλατφόρμα · Widgets · Zo-Ai · Automations · Kids rewards",
+    de: "Neue Plattform · Zo-Ai · Automationen · Kids-Belohnungen",
+    el: "Νέα πλατφόρμα · Zo-Ai · Αυτοματισμοί · Kids rewards",
   },
 };
 
@@ -96,83 +96,131 @@ export default function LoginPage() {
   const note = BUILD.changed[lang];
 
   return (
-    <main className="login-shell mx-auto flex min-h-dvh max-w-md flex-col">
-      <div className="mb-6 flex gap-2 self-end">
-        <button className={`btn-sec !min-h-9 !px-3 text-sm ${lang === "de" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" data-testid="lang-de" onClick={() => setLang("de")}>DE</button>
-        <button className={`btn-sec !min-h-9 !px-3 text-sm ${lang === "el" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" data-testid="lang-el" onClick={() => setLang("el")}>ΕΛ</button>
+    <main className="login-shell mx-auto flex min-h-dvh max-w-md flex-col px-4 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
+      <div className="mb-4 flex gap-2 self-end">
+        <button
+          className={`btn-sec !min-h-9 !px-3 text-sm ${lang === "de" ? "ring-2 ring-[var(--brand)]" : ""}`}
+          type="button"
+          data-testid="lang-de"
+          onClick={() => setLang("de")}
+        >
+          DE
+        </button>
+        <button
+          className={`btn-sec !min-h-9 !px-3 text-sm ${lang === "el" ? "ring-2 ring-[var(--brand)]" : ""}`}
+          type="button"
+          data-testid="lang-el"
+          onClick={() => setLang("el")}
+        >
+          ΕΛ
+        </button>
       </div>
 
       {mode === "pick" && (
-        <section className="card mt-4">
-          <div className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--sea)]">Armonia Thassos</div>
-          <h1 className="mt-2 text-3xl">{lang === "el" ? "Ποιος/ποια είσαι;" : "Wer bist du?"}</h1>
-          <p className="mt-2 text-sm text-[var(--muted)]">{lang === "el" ? "Προσωπικό ή παιδιά" : "Personal oder Kinder"}</p>
-          <div className="mt-6 grid gap-3">
-            <button className="btn w-full" type="button" data-testid="enter-staff" onClick={() => loadMode("staff")}>{lang === "el" ? "Προσωπικό" : "Personal"}</button>
-            <button className="btn-sec w-full" type="button" data-testid="enter-child" onClick={() => loadMode("child")}>{lang === "el" ? "Παιδιά" : "Kinder"}</button>
+        <section className="list-panel mt-2">
+          <div className="list-sticky">
+            <span>Armonia Thassos</span>
+            <span>{BUILD.label}</span>
+          </div>
+          <div className="stack p-4">
+            <p className="eyebrow m-0 text-[var(--sea)]">Paidia</p>
+            <h1 className="m-0 text-3xl text-[var(--ink)]">{lang === "el" ? "Ποιος/ποια είσαι;" : "Wer bist du?"}</h1>
+            <p className="m-0 text-sm text-[var(--muted)]">{lang === "el" ? "Προσωπικό ή παιδιά" : "Personal oder Kinder"}</p>
+            <button className="btn w-full" type="button" data-testid="enter-staff" onClick={() => loadMode("staff")}>
+              {lang === "el" ? "Προσωπικό" : "Personal"}
+            </button>
+            <button className="btn-sec w-full" type="button" data-testid="enter-child" onClick={() => loadMode("child")}>
+              {lang === "el" ? "Παιδιά" : "Kinder"}
+            </button>
           </div>
         </section>
       )}
 
       {(mode === "staff" || mode === "child") && (
-        <section className="card mt-4">
-          <button className="text-sm text-[var(--sea)]" type="button" onClick={() => setMode("pick")}>← {lang === "el" ? "Πίσω" : "Zurück"}</button>
-          <h2 className="mt-3 text-2xl">{mode === "child" ? (lang === "el" ? "Παιδιά" : "Kinder") : (lang === "el" ? "Προσωπικό" : "Personal")}</h2>
-          {profilesError && <p className="mt-2 text-sm text-red-600" data-testid="profiles-error">{profilesError}</p>}
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {profiles.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                data-testid={`profile-${p.id}`}
-                className="rounded-2xl border border-[var(--line)] bg-white/90 p-3 text-left"
-                onClick={() => { setWho(p); setMode("pin"); setPin(""); setErr(""); }}
-              >
-                <div className="mb-2 grid h-10 w-10 place-items-center rounded-full text-sm font-bold text-white" style={{ background: p.color || "#2a6b52" }}>
-                  {p.name.slice(0, 2)}
-                </div>
-                <div className="font-semibold">{p.name}</div>
-                <div className="text-xs text-[var(--muted)]">{p.role}</div>
-              </button>
-            ))}
+        <section className="list-panel mt-2">
+          <div className="list-sticky">
+            <button className="text-sm text-[var(--sea)]" type="button" onClick={() => setMode("pick")}>
+              ← {lang === "el" ? "Πίσω" : "Zurück"}
+            </button>
+            <span>{mode === "child" ? (lang === "el" ? "Παιδιά" : "Kinder") : lang === "el" ? "Προσωπικό" : "Personal"}</span>
           </div>
+          {profilesError && (
+            <div className="list-row" style={{ cursor: "default" }}>
+              <div className="list-row__meta text-red-600" data-testid="profiles-error">
+                {profilesError}
+              </div>
+            </div>
+          )}
+          {profiles.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              data-testid={`profile-${p.id}`}
+              className="list-row"
+              onClick={() => {
+                setWho(p);
+                setMode("pin");
+                setPin("");
+                setErr("");
+              }}
+            >
+              <div
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-bold text-white"
+                style={{ background: p.color || "#2a6b52" }}
+              >
+                {p.name.slice(0, 2)}
+              </div>
+              <div className="list-row__main">
+                <div className="list-row__title">{p.name}</div>
+                <div className="list-row__meta">{p.role || p.mode}</div>
+              </div>
+              <span aria-hidden>→</span>
+            </button>
+          ))}
         </section>
       )}
 
       {mode === "pin" && who && (
-        <section className="card mt-4">
-          <button className="text-sm text-[var(--sea)]" type="button" onClick={() => setMode(who.mode as "staff" | "child")}>←</button>
-          <div className="mt-3 grid h-14 w-14 place-items-center rounded-full text-lg font-bold text-white" style={{ background: who.color || "#2a6b52" }}>{who.name.slice(0, 2)}</div>
-          <h2 className="mt-3 text-2xl">{who.name}</h2>
-          <p className="text-sm text-[var(--muted)]">{lang === "el" ? "Βάλε PIN" : "PIN eingeben"}</p>
-          <input
-            className="mt-4 w-full rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-center text-2xl tracking-[0.4em]"
-            inputMode="numeric"
-            maxLength={6}
-            value={pin}
-            data-testid="pin-input"
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-            onKeyDown={(e) => e.key === "Enter" && login()}
-            autoFocus
-          />
-          <div className="mt-2 min-h-5 text-sm text-red-600" data-testid="login-error">{err}</div>
-          <button className="btn mt-4 w-full" type="button" data-testid="login-submit" disabled={busy || pin.length < 4} onClick={login}>
-            {busy ? "…" : lang === "el" ? "Είσοδος" : "Anmelden"}
-          </button>
-          {passkeysAvailable && (
-            <button
-              className="btn-sec mt-2 w-full"
-              type="button"
-              data-testid="passkey-login"
-              disabled={busy}
-              onClick={loginWithPasskey}
-            >
-              {lang === "el" ? "Είσοδος με Passkey" : "Mit Passkey anmelden"}
+        <section className="list-panel mt-2">
+          <div className="list-sticky">
+            <button className="text-sm text-[var(--sea)]" type="button" onClick={() => setMode(who.mode as "staff" | "child")}>
+              ←
             </button>
-          )}
-          <p className="mt-3 text-xs text-[var(--muted)]">
-            {lang === "el" ? "Μετά: Face ID από Προφίλ" : "Danach: Face ID unter Profil einrichten"}
-          </p>
+            <span>{who.name}</span>
+          </div>
+          <div className="stack p-4">
+            <div
+              className="grid h-14 w-14 place-items-center rounded-full text-lg font-bold text-white"
+              style={{ background: who.color || "#2a6b52" }}
+            >
+              {who.name.slice(0, 2)}
+            </div>
+            <p className="m-0 text-sm text-[var(--muted)]">{lang === "el" ? "Βάλε PIN" : "PIN eingeben"}</p>
+            <input
+              className="w-full rounded-[var(--radius-sm)] border border-[var(--line)] bg-white px-4 py-3 text-center text-2xl tracking-[0.4em]"
+              inputMode="numeric"
+              maxLength={6}
+              value={pin}
+              data-testid="pin-input"
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              onKeyDown={(e) => e.key === "Enter" && login()}
+              autoFocus
+            />
+            <div className="min-h-5 text-sm text-red-600" data-testid="login-error">
+              {err}
+            </div>
+            <button className="btn w-full" type="button" data-testid="login-submit" disabled={busy || pin.length < 4} onClick={login}>
+              {busy ? "…" : lang === "el" ? "Είσοδος" : "Anmelden"}
+            </button>
+            {passkeysAvailable && (
+              <button className="btn-sec w-full" type="button" data-testid="passkey-login" disabled={busy} onClick={loginWithPasskey}>
+                {lang === "el" ? "Είσοδος με Passkey" : "Mit Passkey anmelden"}
+              </button>
+            )}
+            <p className="m-0 text-xs text-[var(--muted)]">
+              {lang === "el" ? "Μετά: Face ID από Προφίλ" : "Danach: Face ID unter Profil einrichten"}
+            </p>
+          </div>
         </section>
       )}
 

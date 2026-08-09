@@ -130,9 +130,9 @@ def _evaluate_due(session: dict[str, Any], state: dict[str, Any]) -> list[dict[s
                 due.append(
                     {
                         "kind": "event_publish",
-                        "title": "Events",
+                        "title": "Termine",
                         "body": f"{len(drafts)} Entwürfe unveröffentlicht",
-                        "url": "/plan",
+                        "url": "/calendar",
                         "dedupeKey": f"events-draft:{today}",
                     }
                 )
@@ -141,9 +141,9 @@ def _evaluate_due(session: dict[str, Any], state: dict[str, Any]) -> list[dict[s
             due.append(
                 {
                     "kind": "broadcast",
-                    "title": notice.get("title") or "Broadcast",
+                    "title": notice.get("title") or "Rundsendung",
                     "body": notice.get("subject") or "",
-                    "url": "/home",
+                    "url": "/admin/notify",
                     "dedupeKey": f"broadcast:{notice.get('id')}",
                 }
             )

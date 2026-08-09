@@ -53,17 +53,22 @@ export default function IncidentsPage() {
   const [severity, setSeverity] = useState("medium");
   const [houseId, setHouseId] = useState("h1");
   const [text, setText] = useState("");
-  const [childIdsRaw, setChildIdsRaw] = useState("");
+  const [childIds, setChildIds] = useState<string[]>([]);
+  const [children, setChildren] = useState<Array<{ id: string; name: string }>>([]);
 
   async function load() {
     setLoading(true);
     setError("");
     try {
-      const [list, stock] = await Promise.all([
+      const [list, stock, kids] = await Promise.all([
         api<{ incidents: Incident[] }>("/api/incidents"),
         api<{ houses: House[] }>("/api/stock/snapshot").catch(() => ({ houses: [] as House[] })),
+        api<{ profiles: Array<{ id: string; name: string }> }>("/api/auth/profiles?mode=child").catch(() => ({
+          profiles: [] as Array<{ id: string; name: string }>,
+        })),
       ]);
       setIncidents(list.incidents || []);
+      setChildren(kids.profiles || []);
       if (stock.houses?.length) {
         setHouses(stock.houses);
         setHouseId((prev) => (stock.houses.some((h) => h.id === prev) ? prev : stock.houses[0].id));
@@ -91,17 +96,13 @@ export default function IncidentsPage() {
     setBusy(true);
     setError("");
     setMsg("");
-    const childIds = childIdsRaw
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
     try {
       await api("/api/incidents", {
         method: "POST",
         body: JSON.stringify({ severity, houseId, text: text.trim(), childIds }),
       });
       setText("");
-      setChildIdsRaw("");
+      setChildIds([]);
       setSeverity("medium");
       setComposeOpen(false);
       setMsg("Vorfall gesichert.");
@@ -247,10 +248,25 @@ export default function IncidentsPage() {
                   required
                 />
               </label>
-              <label htmlFor="incident-children">
-                Betroffene Kinder (IDs, kommagetrennt)
-                <input id="incident-children" value={childIdsRaw} onChange={(e) => setChildIdsRaw(e.target.value)} placeholder="z. B. k1, k2" />
-              </label>
+              <fieldset className="stack m-0 border-0 p-0">
+                <legend className="font-semibold">Betroffene Kinder</legend>
+                <div className="chips" id="incident-children">
+                  {children.map((c) => {
+                    const on = childIds.includes(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        className={on ? "chip on" : "chip"}
+                        onClick={() => setChildIds((prev) => (on ? prev.filter((id) => id !== c.id) : [...prev, c.id]))}
+                      >
+                        {c.name}
+                      </button>
+                    );
+                  })}
+                  {!children.length && <span className="muted text-sm">Keine Kinderprofile</span>}
+                </div>
+              </fieldset>
               <button className="btn w-full" type="submit" disabled={busy || !text.trim()}>
                 {busy ? "Speichern…" : "Vorfall sichern"}
               </button>
@@ -271,7 +287,11 @@ export default function IncidentsPage() {
               </button>
             </header>
             <p className="body-sm">{detail.text}</p>
-            {detail.childIds?.length ? <p className="muted text-sm">Kinder: {detail.childIds.join(", ")}</p> : null}
+            {detail.childIds?.length ? (
+              <p className="muted text-sm">
+                Kinder: {detail.childIds.map((id) => children.find((c) => c.id === id)?.name || id).join(", ")}
+              </p>
+            ) : null}
             {detail.createdAt ? (
               <p className="muted text-xs">
                 {new Date(detail.createdAt).toLocaleString("de-DE")}

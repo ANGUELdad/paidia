@@ -47,4 +47,4 @@ Cutover is green when every row is ✅ on production data clone.
 - [x] API pytest green
 - [ ] migrate_ops_to_prisma.py dry-run on clone
 - [x] Legacy PWA frozen under LEGACY.md until cutover
-- [ ] Conflict/revision awareness on stock snapshot
+- [x] Conflict/revision awareness on stock snapshot *(adjust/par send `expectedRevision`; 409 on conflict)*

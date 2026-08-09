@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { GuidedTour } from "@/components/GuidedTour";
-import { EmptyState } from "@/components/EmptyState";
 import { api } from "@/lib/api";
 import { getStoredLang, t, type Lang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
@@ -70,22 +69,32 @@ export default function KidsPage() {
       </header>
 
       {state && (
-        <section className="panel stack">
-          <p>
-            {t("kidsXp", lang)} <strong>{state.xp}</strong> · {t("kidsStreak", lang)}{" "}
-            <strong>{state.streak}</strong>
-          </p>
-          <div className="chips">
-            {(state.badges || []).map((b) => (
-              <span key={b} className="chip on">
-                {BADGE_LABELS[b]?.[lang] || b}
-              </span>
-            ))}
+        <div className="list-panel mb-3">
+          <div className="list-sticky">
+            <span>
+              {t("kidsXp", lang)} {state.xp} · {t("kidsStreak", lang)} {state.streak}
+            </span>
+            <span>{t("kidsBadges", lang)}</span>
           </div>
-        </section>
+          {(state.badges || []).length === 0 ? (
+            <div className="list-row" style={{ cursor: "default" }}>
+              <div className="list-row__main">
+                <div className="list-row__meta">{t("kidsNoBadges", lang)}</div>
+              </div>
+            </div>
+          ) : (
+            <div className="chips" style={{ padding: "10px 12px" }}>
+              {(state.badges || []).map((b) => (
+                <span key={b} className="chip on">
+                  {BADGE_LABELS[b]?.[lang] || b}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
-      <section className="panel stack">
+      <section className="mb-3">
         <p className="eyebrow">{t("kidsMood", lang)}</p>
         <div className="mood-orbs">
           {MOODS.map((m) => (
@@ -103,31 +112,38 @@ export default function KidsPage() {
         {moodMsg && <p className="muted">{moodMsg}</p>}
       </section>
 
-      <section className="panel stack">
-        <p className="eyebrow">{t("kidsEvents", lang)}</p>
+      <div className="list-panel mb-3">
+        <div className="list-sticky">
+          <span>{t("kidsEvents", lang)}</span>
+          <span>{events.length}</span>
+        </div>
         {events.length === 0 ? (
-          <EmptyState title={t("kidsNoEvents", lang)} />
+          <div className="list-row" style={{ cursor: "default" }}>
+            <div className="list-row__main">
+              <div className="list-row__meta">{t("kidsNoEvents", lang)}</div>
+            </div>
+          </div>
         ) : (
-          <ul className="stack">
-            {events.map((ev) => (
-              <li key={ev.id}>
-                <strong>{ev.title}</strong>
-                <span className="muted text-sm block">
+          events.map((ev) => (
+            <div key={ev.id} className="list-row" style={{ cursor: "default" }}>
+              <div className="list-row__main">
+                <div className="list-row__title">{ev.title}</div>
+                <div className="list-row__meta">
                   {ev.date}
                   {ev.startTime ? ` · ${ev.startTime}` : ""}
                   {ev.location ? ` · ${ev.location}` : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
+                </div>
+              </div>
+            </div>
+          ))
         )}
-      </section>
+      </div>
 
-      <section className="panel stack" data-tour="tour-games-link">
+      <section className="stack mb-3" data-tour="tour-games-link">
         <Link className="btn" href="/kids/games">
           {t("kidsToGames", lang)}
         </Link>
-        <p className="muted text-sm">{t("kidsReadonly", lang)}</p>
+        <p className="muted text-sm m-0">{t("kidsReadonly", lang)}</p>
       </section>
 
       <Dock mode="child" />

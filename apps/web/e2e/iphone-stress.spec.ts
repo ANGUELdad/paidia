@@ -24,7 +24,7 @@ async function loginAsZoi(page: import("@playwright/test").Page) {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("enter-staff").click();
   await expect(page.getByTestId("profile-e8")).toBeVisible({ timeout: 15000 });
-  await page.getByTestId("profile-e8").click();
+  await page.getByTestId("profile-e8").click({ force: true });
   await expect(page.getByTestId("pin-input")).toBeVisible({ timeout: 5000 });
   await page.getByTestId("pin-input").fill("000000");
   await page.getByTestId("login-submit").click();
@@ -35,6 +35,37 @@ async function loginAsZoi(page: import("@playwright/test").Page) {
     page.getByTestId("login-submit").click(),
   ]);
   await dismissTour(page);
+  await expect(page.getByTestId("dock")).toBeVisible({ timeout: 10000 });
+  // WebKit can race Set-Cookie vs next navigation — wait until session is readable.
+  await expect
+    .poll(async () => {
+      const r = await page.request.get("/api/auth/session");
+      if (!r.ok()) return false;
+      const j = (await r.json()) as { authenticated?: boolean };
+      return Boolean(j.authenticated);
+    }, { timeout: 10000 })
+    .toBe(true);
+}
+
+/** Navigate while authenticated; retry on WebKit cookie lag / interrupted nav. */
+async function staffGoto(page: import("@playwright/test").Page, path: string) {
+  const escaped = path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await page.goto(path, { waitUntil: "domcontentloaded" });
+    } catch (e) {
+      if (!String(e).includes("interrupted")) throw e;
+      await page.waitForTimeout(250);
+      continue;
+    }
+    const pathname = new URL(page.url()).pathname;
+    if (pathname === path || pathname.startsWith(`${path}/`)) {
+      await dismissTour(page);
+      return;
+    }
+    await page.waitForTimeout(300);
+  }
+  await expect(page).toHaveURL(new RegExp(escaped));
 }
 
 test("bad user login then click every dock control", async ({ page }) => {
@@ -86,22 +117,20 @@ test("ops stress: stock shop plan book zoai calendar admin", async ({ page }) =>
   await skipToursByDefault(page);
   await loginAsZoi(page);
 
-  await page.goto("/stock", { waitUntil: "domcontentloaded" });
-  await dismissTour(page);
+  await staffGoto(page, "/stock");
   for (let i = 0; i < 4; i++) {
     const plus = page.getByRole("button", { name: "＋" }).first();
     if (await plus.isVisible().catch(() => false)) await plus.click({ force: true });
   }
   await page.getByRole("button", { name: /Check abschließen|Lager-Check/ }).click({ force: true });
 
-  await page.goto("/shop", { waitUntil: "domcontentloaded" });
+  await staffGoto(page, "/shop");
   await page.getByPlaceholder("z.B. Reis").fill("!!!@@@###");
   await page.getByRole("button", { name: /Hinzufügen|Προσθήκη|Add/i }).click({ force: true });
   await page.getByPlaceholder("z.B. Reis").fill("Milch");
   await page.getByRole("button", { name: /Hinzufügen|Προσθήκη|Add/i }).click({ force: true });
 
-  await page.goto("/plan", { waitUntil: "domcontentloaded" });
-  await dismissTour(page);
+  await staffGoto(page, "/plan");
   await page.getByRole("button", { name: /Eintrag hinzufügen/ }).click({ force: true });
   await page.getByTestId("plan-activity").fill("Stress A");
   await page.getByTestId("plan-save").click({ force: true });
@@ -113,29 +142,28 @@ test("ops stress: stock shop plan book zoai calendar admin", async ({ page }) =>
     await page.getByTestId("plan-force").click({ force: true });
   }
 
-  await page.goto("/book", { waitUntil: "domcontentloaded" });
+  await staffGoto(page, "/book");
   await page.getByTestId("journal-preview").click({ force: true });
   await page.getByPlaceholder("Was ist passiert?").fill("x".repeat(80));
   await page.getByRole("button", { name: /Eintrag speichern/ }).click({ force: true });
 
-  await page.goto("/talk", { waitUntil: "domcontentloaded" });
+  await staffGoto(page, "/talk");
   await page.getByPlaceholder("Nachricht…").fill("<script>alert(1)</script>");
   await page.getByRole("button", { name: /Senden|Αποστολή/i }).click({ force: true });
 
-  await page.goto("/zoai", { waitUntil: "domcontentloaded" });
+  await staffGoto(page, "/zoai");
   await page.getByPlaceholder("Frag Zo-Ai…").fill("Milch auf Liste");
   await page.getByRole("button", { name: /Senden|Αποστολή/i }).click({ force: true });
   await expect(page.getByTestId("staff-chat-log")).toBeVisible();
   await page.waitForTimeout(400);
 
-  await page.goto("/calendar", { waitUntil: "domcontentloaded" });
-  await dismissTour(page);
+  await staffGoto(page, "/calendar");
   await page.getByTestId("rm-title").fill("Spam reminder");
   const at = new Date(Date.now() + 3600_000).toISOString().slice(0, 16);
   await page.getByTestId("rm-at").fill(at);
   await page.getByTestId("rm-save").click({ force: true });
 
-  await page.goto("/admin/notify", { waitUntil: "domcontentloaded" });
+  await staffGoto(page, "/admin/notify");
   await page.getByRole("button", { name: /Jetzt prüfen|Evaluate/i }).click({ force: true });
   await page.getByRole("button", { name: /Umschalten|Toggle/i }).first().click({ force: true });
 });
@@ -144,20 +172,23 @@ test("presence handover care incidents flow", async ({ page }) => {
   await skipToursByDefault(page);
   await loginAsZoi(page);
 
-  await page.goto("/home", { waitUntil: "domcontentloaded" });
+  await staffGoto(page, "/home");
   const there = page.getByTestId("presence-there");
   if (await there.isVisible({ timeout: 3000 }).catch(() => false)) {
     await there.click({ force: true });
   }
 
-  await page.goto("/incidents", { waitUntil: "domcontentloaded" });
+  await staffGoto(page, "/handover");
+  await expect(page.getByTestId("handover-ribbon")).toBeVisible({ timeout: 10000 });
+
+  await staffGoto(page, "/incidents");
   await page.getByTestId("incident-compose").click({ force: true });
   await expect(page.getByTestId("incident-form")).toBeVisible();
   await page.locator("#incident-text").fill("E2E Vorfall Test");
   await page.getByRole("button", { name: /Vorfall sichern/ }).click({ force: true });
   await expect(page.getByTestId("incident-list")).toBeVisible({ timeout: 8000 });
 
-  await page.goto("/care", { waitUntil: "domcontentloaded" });
+  await staffGoto(page, "/care");
   await expect(page.locator("main").first()).toBeVisible();
   const meal = page.getByRole("button", { name: /Mahlzeit/i });
   if (await meal.isVisible().catch(() => false)) {
