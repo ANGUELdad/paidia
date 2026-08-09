@@ -179,8 +179,20 @@
     "offset": "2px"
   },
   "figma": {
-    "frames": ["Login", "Home", "PlanWeek", "Stock", "Talk", "Kids", "Handover"],
-    "file": "Armonia Platform (manual export)",
+    "file": "Armonia Thassos — App Overhaul",
+    "fileKey": "Olki23ScD9YzGsLctkYCZ3",
+    "url": "https://www.figma.com/design/Olki23ScD9YzGsLctkYCZ3",
+    "frames": {
+      "LoginGate": "2:58",
+      "LoginPin": "3:2",
+      "Home": "5:49",
+      "Plan": "2:63",
+      "Stock": "2:136",
+      "Handover": "5:2",
+      "ZoAi": "9:2",
+      "Kids": "12:2",
+      "Profile": "15:40"
+    },
     "mappedTo": {
       "Login": "apps/web/src/app/page.tsx",
       "Home": "apps/web/src/app/home/page.tsx",
@@ -188,10 +200,13 @@
       "Stock": "apps/web/src/app/stock/page.tsx",
       "Talk": "apps/web/src/app/talk/page.tsx",
       "Kids": "apps/web/src/app/kids/page.tsx",
-      "Handover": "apps/web/src/app/handover/page.tsx"
+      "Handover": "apps/web/src/app/handover/page.tsx",
+      "ZoAi": "apps/web/src/app/zoai/page.tsx",
+      "Dock": "apps/web/src/components/Dock.tsx",
+      "MoreSheet": "apps/web/src/components/MoreSheet.tsx"
     },
     "css": "apps/web/src/app/globals.css :root",
     "source": "design/VISUAL_MOTION_SYSTEM.md",
-    "note": "Pine/mineral UI — tokens exported here; wire Figma plugin when MCP available"
+    "note": "From-scratch overhaul via Figma MCP + apps/web shell (Dock 4+Mehr)"
   }
 }
