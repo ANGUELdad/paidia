@@ -4,6 +4,7 @@ import time
 
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from armonia import __version__
 from armonia.auth.routes import router as auth_router
@@ -31,6 +32,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def limit_request_body(request: Request, call_next):
+    cl = request.headers.get("content-length")
+    if cl:
+        try:
+            size = int(cl)
+        except ValueError:
+            size = 0
+        if size > settings.max_body_bytes:
+            return JSONResponse(status_code=413, content={"error": "payload_too_large", "code": "payload_too_large"})
+    return await call_next(request)
 
 app.include_router(auth_router)
 app.include_router(schedule_router)

@@ -92,16 +92,17 @@ def list_profiles(request: Request, mode: str | None = None) -> dict[str, Any]:
     for p in profiles.values():
         if mode and p.get("mode") != mode:
             continue
-        rows.append(
-            {
-                "id": p["id"],
-                "name": p["name"],
-                "mode": p["mode"],
-                "role": p.get("role"),
-                "admin": bool(p.get("admin")),
-                "color": p.get("color"),
-            }
-        )
+        row = {
+            "id": p["id"],
+            "name": p["name"],
+            "mode": p["mode"],
+            "role": p.get("role"),
+            "color": p.get("color"),
+        }
+        # Admin flag only after authentication (avoids targeting admins pre-login).
+        if session:
+            row["admin"] = bool(p.get("admin"))
+        rows.append(row)
     return {"profiles": rows}
 
 

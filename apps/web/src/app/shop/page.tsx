@@ -39,7 +39,7 @@ export default function ShopPage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-28 pt-6">
+    <main className="page-pad mx-auto max-w-3xl px-4 pt-6">
       <h1 className="text-3xl">Einkaufsliste</h1>
       <p className="text-sm text-[var(--muted)]">Vorschläge aus bisherigen Daten — immer bestätigen.</p>
       {suggestions.length > 0 && (

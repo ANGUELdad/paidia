@@ -82,12 +82,19 @@ def parse_session_token(token: str | None) -> dict[str, Any] | None:
         return None
     if bool(stored.get("admin")) != (admin_s == "1"):
         return None
+    # Authorization always comes from the stored session, never cookie claims alone.
+    try:
+        stored_exp = int(stored.get("expires_at") or exp)
+    except (TypeError, ValueError):
+        stored_exp = exp
+    if stored_exp < time.time():
+        return None
     return {
         "session_id": sid,
-        "profile_id": profile_id,
-        "mode": mode,
-        "admin": admin_s == "1",
-        "expires_at": exp,
+        "profile_id": stored["profile_id"],
+        "mode": stored["mode"],
+        "admin": bool(stored.get("admin")),
+        "expires_at": stored_exp,
     }
 
 

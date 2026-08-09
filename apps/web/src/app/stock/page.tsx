@@ -51,7 +51,7 @@ export default function StockPage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-28 pt-6">
+    <main className="page-pad mx-auto max-w-3xl px-4 pt-6">
       <h1 className="text-3xl">Lager</h1>
       <p className="text-sm text-[var(--muted)]">Bestand führen — Admins: Check mit Sign-off.</p>
       <div className="mt-4 flex gap-2">

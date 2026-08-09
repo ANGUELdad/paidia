@@ -85,7 +85,7 @@ export default function PlanPage() {
           </>
         }
       >
-        <div className="week-scroll" data-tour="tour-plan">
+        <div className="week-scroll hidden md:block" data-tour="tour-plan">
           <div className="week-grid">
             <div className="week-head">Block</div>
             {days.map((d) => {

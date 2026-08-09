@@ -342,12 +342,39 @@ def _auth_onboarding_complete():
     return _json(200, {"completed": True, "version": paidia.ONBOARDING_VERSION})
 
 
+_STATIC_EXACT = frozenset({
+    "",
+    "index.html",
+    "app.js",
+    "gate.js",
+    "sw.js",
+    "manifest.webmanifest",
+})
+_ICON_SUFFIXES = frozenset({".png", ".svg", ".ico", ".webp", ".jpg", ".jpeg"})
+
+
+def _static_allowed(rel: str) -> bool:
+    """Allowlist-only static serving — never expose .env, source, or store files."""
+    rel = (rel or "index.html").lstrip("/")
+    if not rel:
+        return True
+    if any(part.startswith(".") for part in rel.split("/")):
+        return False
+    if ".." in rel.split("/"):
+        return False
+    if rel in _STATIC_EXACT:
+        return True
+    if rel.startswith("icons/") and Path(rel).suffix.lower() in _ICON_SUFFIXES:
+        return True
+    return False
+
+
 def _serve_static(rel: str):
     rel = (rel or "index.html").lstrip("/")
     if not rel or rel.endswith("/"):
         rel = (rel or "") + "index.html"
-    if ".." in rel.split("/"):
-        return _json(400, {"error": "Invalid path"})
+    if not _static_allowed(rel):
+        return _json(404, {"error": "Not found"})
     target = (ROOT / rel).resolve()
     root = ROOT.resolve()
     if root != target and root not in target.parents:
@@ -357,6 +384,7 @@ def _serve_static(rel: str):
         if rel.endswith((".html", ".js", ".webmanifest")):
             response.headers["Cache-Control"] = "no-store"
         return response
+    # Unknown allowlisted path → SPA shell, never arbitrary repo files.
     return send_from_directory(root, "index.html")
 
 

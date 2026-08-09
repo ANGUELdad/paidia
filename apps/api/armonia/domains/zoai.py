@@ -289,6 +289,18 @@ def chat(body: ChatBody, request: Request) -> dict[str, Any]:
     }
 
 
+def _finite_qty(raw: Any, default: float = 1.0, *, lo: float = 0.0, hi: float = 9999.0) -> float | None:
+    try:
+        qty = float(raw if raw is not None else default)
+    except (TypeError, ValueError):
+        return None
+    if qty != qty or qty in (float("inf"), float("-inf")):  # NaN/inf
+        return None
+    if qty < lo or qty > hi:
+        return None
+    return qty
+
+
 @router.post("/apply")
 def apply_actions(body: ApplyBody, request: Request) -> dict[str, Any]:
     session = require_session(request)
@@ -300,7 +312,11 @@ def apply_actions(body: ApplyBody, request: Request) -> dict[str, Any]:
     if not actions:
         return {"ok": False, "error": "no_actions"}
 
-    needs_pin = any(_normalize_action(a).get("type") in PIN_ACTIONS for a in actions)
+    normalized = [_normalize_action(a) for a in actions[:10]]
+    if any(a.get("type") == "broadcast_email" for a in normalized) and not session.get("admin"):
+        raise HTTPException(status_code=403, detail={"code": "admin_required", "error": "Broadcast requires admin"})
+
+    needs_pin = any(a.get("type") in PIN_ACTIONS for a in normalized)
     if needs_pin:
         profile = (snapshot().get("profiles") or {}).get(session["profile_id"]) or {}
         if not body.pin or not verify_pin(profile.get("pinHash"), body.pin, profile.get("pin")):
@@ -311,17 +327,22 @@ def apply_actions(body: ApplyBody, request: Request) -> dict[str, Any]:
 
     def apply(st: dict[str, Any]) -> None:
         nonlocal applied
-        for raw in actions[:10]:
-            action = _normalize_action(raw)
+        from armonia.domains.schedule import BLOCKS, validate_day
+
+        for action in normalized:
             kind = action.get("type")
             if kind == "shop_add":
+                qty = _finite_qty(action.get("qty"), 1.0, lo=0.001, hi=9999.0)
+                if qty is None:
+                    errors.append("bad_qty")
+                    continue
                 st.setdefault("listEntries", []).append(
                     {
                         "id": f"li_{uuid.uuid4().hex[:8]}",
-                        "houseId": action.get("houseId") or "h1",
-                        "name": action.get("name") or action.get("productQuery") or "Item",
-                        "qty": float(action.get("qty") or 1),
-                        "unit": action.get("unit") or "Stk",
+                        "houseId": str(action.get("houseId") or "h1")[:32],
+                        "name": str(action.get("name") or action.get("productQuery") or "Item")[:120],
+                        "qty": qty,
+                        "unit": str(action.get("unit") or "Stk")[:24],
                         "status": "open",
                         "by": session["profile_id"],
                         "at": int(time.time() * 1000),
@@ -342,9 +363,12 @@ def apply_actions(body: ApplyBody, request: Request) -> dict[str, Any]:
                 if not pid:
                     errors.append("product_not_found")
                     continue
+                qty = _finite_qty(action.get("qty"), 0.0, lo=0.0, hi=99999.0)
+                if qty is None:
+                    errors.append("bad_qty")
+                    continue
                 key = f"{action.get('houseId') or 'h1'}:{pid}"
                 cur = float((st.get("stock") or {}).get(key) or 0)
-                qty = float(action.get("qty") or 0)
                 if kind == "stock_set":
                     cur = qty
                 elif action.get("dir") == "OUT":
@@ -365,24 +389,35 @@ def apply_actions(body: ApplyBody, request: Request) -> dict[str, Any]:
                 )
                 applied += 1
             elif kind == "schedule_add":
-                from armonia.domains.schedule import BLOCKS
-
                 block = next((b for b in BLOCKS if b["id"] == (action.get("block") or "morning")), BLOCKS[0])
-                st.setdefault("overrides", []).append(
+                date = str(action.get("date") or time.strftime("%Y-%m-%d"))[:32]
+                entry = {
+                    "id": f"ov_{uuid.uuid4().hex[:10]}",
+                    "date": date,
+                    "block": block["id"],
+                    "activity": (action.get("activity") or "Betreuung")[:80],
+                    "houseIds": list(action.get("houseIds") or ["h1"])[:10],
+                    "employeeIds": list(action.get("employeeIds") or [])[:20],
+                    "childIds": list(action.get("childIds") or [])[:50],
+                    "from": action.get("from") or block["from"],
+                    "to": action.get("to") or block["to"],
+                    "note": str(action.get("note") or "via Zo-Ai")[:500],
+                    "cancelled": False,
+                    "by": session["profile_id"],
+                    "at": int(time.time() * 1000),
+                }
+                day_entries = [e for e in (st.get("overrides") or []) if e.get("date") == date and not e.get("cancelled")]
+                issues = validate_day(date, day_entries + [entry])
+                if any(i.get("code") == "double_book" for i in issues) and not action.get("force"):
+                    errors.append("double_book")
+                    continue
+                st.setdefault("overrides", []).append(entry)
+                st.setdefault("auditLog", []).append(
                     {
-                        "id": f"ov_{uuid.uuid4().hex[:10]}",
-                        "date": action.get("date") or time.strftime("%Y-%m-%d"),
-                        "block": block["id"],
-                        "activity": (action.get("activity") or "Betreuung")[:80],
-                        "houseIds": action.get("houseIds") or ["h1"],
-                        "employeeIds": action.get("employeeIds") or [],
-                        "childIds": action.get("childIds") or [],
-                        "from": action.get("from") or block["from"],
-                        "to": action.get("to") or block["to"],
-                        "note": action.get("note") or "via Zo-Ai",
-                        "cancelled": False,
-                        "by": session["profile_id"],
-                        "at": int(time.time() * 1000),
+                        "at": entry["at"],
+                        "type": "SCHEDULE",
+                        "profileId": session["profile_id"],
+                        "text": f"Zo-Ai plan {date} {entry['activity']}",
                     }
                 )
                 applied += 1

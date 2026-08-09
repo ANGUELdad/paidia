@@ -44,7 +44,7 @@ export default function BookPage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-28 pt-6">
+    <main className="page-pad mx-auto max-w-3xl px-4 pt-6">
       <h1 className="text-3xl">Buch</h1>
       <p className="text-sm text-[var(--muted)]">Schichtbuch — muss geschrieben werden. Unten: was passiert ist.</p>
       <section className="card mt-4" style={{ backgroundImage: "repeating-linear-gradient(transparent, transparent 27px, rgba(42,107,82,0.12) 28px)", lineHeight: "28px" }}>

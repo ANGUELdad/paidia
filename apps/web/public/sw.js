@@ -1,4 +1,19 @@
 /* Armonia PWA service worker — local notifications + Web Push */
+
+function safeAppUrl(url) {
+  const raw = String(url || "/home");
+  if (raw.startsWith("/") && !raw.startsWith("//")) return raw;
+  try {
+    const parsed = new URL(raw, self.location.origin);
+    if (parsed.origin === self.location.origin) {
+      return parsed.pathname + parsed.search + parsed.hash;
+    }
+  } catch (_) {
+    /* ignore */
+  }
+  return "/home";
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
 });
@@ -17,7 +32,7 @@ self.addEventListener("push", (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      data: { url: data.url || "/home" },
+      data: { url: safeAppUrl(data.url) },
       icon: "/icon-192.png",
     })
   );
@@ -26,11 +41,11 @@ self.addEventListener("push", (event) => {
 self.addEventListener("message", (event) => {
   const data = event.data || {};
   if (data.type === "schedule-reminder") {
-    const delay = Math.min(Number(data.delay) || 0, 2147483647);
+    const delay = Math.min(Math.max(Number(data.delay) || 0, 0), 2147483647);
     setTimeout(() => {
       self.registration.showNotification(data.title || "Armonia", {
         body: data.body || "Erinnerung",
-        data: { url: data.url || "/home" },
+        data: { url: safeAppUrl(data.url) },
         icon: "/icon-192.png",
       });
     }, delay);
@@ -39,6 +54,6 @@ self.addEventListener("message", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = (event.notification.data && event.notification.data.url) || "/home";
+  const url = safeAppUrl(event.notification.data && event.notification.data.url);
   event.waitUntil(self.clients.openWindow(url));
 });

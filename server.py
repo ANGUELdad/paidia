@@ -3838,11 +3838,30 @@ class Handler(SimpleHTTPRequestHandler):
             else:
                 self.json_response(403, {"error": "Webhook verification failed"})
             return
-        # Never let browsers/PWAs keep a stale login shell.
-        if parsed.path in {"/", "/index.html", "/app.js", "/gate.js", "/sw.js"} or parsed.path.endswith((".html", ".js", ".css", ".webmanifest")):
-            path = self.translate_path(self.path)
+        # Allowlist-only static assets — never fall through to SimpleHTTPRequestHandler
+        # (that would expose .env, source, SQLite, and store JSON).
+        static_rel = parsed.path.lstrip("/") or "index.html"
+        allowed_exact = {
+            "",
+            "index.html",
+            "app.js",
+            "gate.js",
+            "sw.js",
+            "manifest.webmanifest",
+        }
+        icon_ok = (
+            static_rel.startswith("icons/")
+            and ".." not in static_rel.split("/")
+            and not any(part.startswith(".") for part in static_rel.split("/"))
+            and static_rel.rsplit(".", 1)[-1].lower() in {"png", "svg", "ico", "webp", "jpg", "jpeg"}
+        )
+        if static_rel in allowed_exact or parsed.path == "/" or icon_ok:
+            if parsed.path == "/":
+                static_rel = "index.html"
+            path = os.path.join(os.getcwd(), static_rel)
             if os.path.isdir(path):
-                path = os.path.join(path, "index.html")
+                self.send_error(404, "File not found")
+                return
             try:
                 with open(path, "rb") as file_obj:
                     payload = file_obj.read()
@@ -3859,7 +3878,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(payload)
             return
-        super().do_GET()
+        self.send_error(404, "File not found")
 
     def do_POST(self) -> None:  # noqa: N802
         path = urllib.parse.urlsplit(self.path).path

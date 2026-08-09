@@ -298,9 +298,15 @@ def broadcast(body: BroadcastBody, request: Request) -> dict[str, Any]:
     mutate(apply)
     push_sent = 0
     if also_push:
+        subs = list(snapshot().get("pushSubscriptions") or [])
+        if audience == "staff":
+            subs = [s for s in subs if s.get("mode") == "staff"]
+        elif audience == "children":
+            subs = [s for s in subs if s.get("mode") == "child"]
+        push_url = "/kids" if audience == "children" else "/home"
         push_sent = _try_send_web_push(
-            snapshot().get("pushSubscriptions") or [],
-            {"title": subject, "body": message[:180], "url": "/home", "dedupeKey": f"broadcast:{delivery_id}"},
+            subs,
+            {"title": subject, "body": message[:180], "url": push_url, "dedupeKey": f"broadcast:{delivery_id}"},
         )
     return {
         "ok": True,

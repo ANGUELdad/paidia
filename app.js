@@ -1889,8 +1889,13 @@ const profileName = person => {
   const nick = profilePref(person.id).nickname;
   return (nick && String(nick).trim()) || person.name;
 };
-const profileColor = person => profilePref(person?.id).color || person?.color || '#94a3b8';
-const profileEmoji = person => profilePref(person?.id).emoji || '';
+const safeColor = (value) => /^#[0-9a-fA-F]{3,8}$/.test(String(value || '')) ? String(value) : '#94a3b8';
+const profileColor = person => safeColor(profilePref(person?.id).color || person?.color || '#94a3b8');
+const profileEmoji = person => {
+  const raw = profilePref(person?.id).emoji || '';
+  // Keep short emoji/text only — never raw HTML into innerHTML sinks.
+  return String(raw).replace(/[<>&"'`]/g, '').slice(0, 8);
+};
 const profileLabel = person => {
   const emoji = profileEmoji(person);
   const name = profileName(person);
@@ -4692,7 +4697,7 @@ function entryLine(e, dateStr=state.date){
   return `<div class="plan-entry entry-wrap ${e.cancelled?'is-cancelled':''}" style="--entry-accent:${accent}">
     <button class="plan-entry-main entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-entry-date="${esc(dateStr)}" type="button">
       <div class="top">
-        ${who ? `<div class="avatar" style="background:${who.color}">${initials(who.name)}</div>`
+        ${who ? `<div class="avatar" style="background:${safeColor(who.color)}">${initials(who.name)}</div>`
               : `<span class="emoji">${a?a.emoji:'📝'}</span>`}
         <div class="grow">
           <div class="act">${who ? esc(a?a.emoji+' ':'') : ''}${esc(actLabel(e.activityId))}
@@ -4897,7 +4902,7 @@ function sheetShiftDay(employeeId, day){
     <button class="mini-x seDelete" type="button" aria-label="${esc(t('deleteShift'))}">×</button>
   </div>`;
   openSheet(`<div class="admin-detail-hero">
-      <div class="pa avatar" style="background:${person.color}">${initials(person.name)}</div>
+      <div class="pa avatar" style="background:${safeColor(person.color)}">${initials(person.name)}</div>
       <div><div class="muted">${t('editShiftDay')}</div><h3 style="margin:1px 0">${esc(person.name)}</h3>
         <div class="muted">${esc(stamp.long)} · ${esc(stamp.full)}</div></div>
     </div>
@@ -7617,7 +7622,7 @@ function whoDidWhatCard(rows){
     ${per.length ? `<div class="book-people">${per.map(p=>`
       <button type="button" class="entry book-person" data-book-who="${p.e.id}">
         <div class="top">
-          <div class="avatar" style="background:${p.e.color}">${initials(p.e.name)}</div>
+          <div class="avatar" style="background:${safeColor(p.e.color)}">${initials(p.e.name)}</div>
           <div class="grow">
             <div class="act">${esc(p.e.name)} <span class="muted">· ${p.n} ${T[state.lang].actions(p.n)}</span></div>
             <div class="meta">${Object.entries(p.counts)
@@ -7777,7 +7782,7 @@ function bookFiltersHtml(){
           const n = rangeRows.filter(l=>l.employeeId===e.id).length;
           if(!n && f.employeeId!==e.id) return '';
           return `<button type="button" class="book-chip book-chip-who ${f.employeeId===e.id?'on':''}" data-book-who="${e.id}">
-            <span class="book-chip-av" style="background:${e.color}">${initials(e.name)}</span>${esc(e.name.split(' ')[0])}${n?` · ${n}`:''}
+            <span class="book-chip-av" style="background:${safeColor(e.color)}">${initials(e.name)}</span>${esc(e.name.split(' ')[0])}${n?` · ${n}`:''}
           </button>`;
         }).join('')}
       </div>
@@ -9777,7 +9782,7 @@ function adminTeamPanel(today){
     const done=todayItems.filter(e=>completionFor(today,e.id,person.id)).length;
     const next=nextItems[0];
     return `<button class="admin-person" data-admin-staff="${person.id}" type="button">
-      <div class="admin-person-top"><div class="pa avatar" style="background:${person.color}">${initials(person.name)}</div>
+      <div class="admin-person-top"><div class="pa avatar" style="background:${safeColor(person.color)}">${initials(person.name)}</div>
         <div class="grow"><div class="admin-person-name">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</div>
           <div class="admin-person-role">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div></div>
       <div class="admin-person-stats"><span><b>${todayItems.length}</b>${t('adminToday')}</span><span><b>${nextItems.length}</b>${t('adminNext7')}</span></div>
@@ -9958,7 +9963,7 @@ function sheetAdminStaff(employeeId){
     if(tab==='schedule') state.date=today;
     render();
   };
-  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:${person.color}">${initials(person.name)}</div>
+  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:${safeColor(person.color)}">${initials(person.name)}</div>
       <div class="grow"><div class="muted">${t('adminDetails')}</div><h3 style="margin:1px 0">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</h3>
         <div class="muted">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div></div>
     <div class="admin-detail-stats"><div class="admin-detail-stat"><b>${todayItems.length}</b>${t('adminToday')}</div>
