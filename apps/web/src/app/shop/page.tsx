@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { api } from "@/lib/api";
+import { useRequireMode } from "@/lib/session";
 
 export default function ShopPage() {
+  const { ready } = useRequireMode("staff");
   const [entries, setEntries] = useState<Array<{ id: string; name: string; qty: number; unit: string }>>([]);
   const [name, setName] = useState("");
   const [suggestions, setSuggestions] = useState<Array<{ key: string; score: number }>>([]);
@@ -16,7 +18,10 @@ export default function ShopPage() {
     setSuggestions(s.suggestions || []);
   }
 
-  useEffect(() => { load().catch(console.error); }, []);
+  useEffect(() => {
+    if (!ready) return;
+    load().catch(console.error);
+  }, [ready]);
 
   async function add(n?: string) {
     const value = (n || name).trim();
@@ -30,6 +35,8 @@ export default function ShopPage() {
     await api("/api/shop/done", { method: "POST", body: JSON.stringify({ entryId: id }) });
     await load();
   }
+
+  if (!ready) return <main className="page">Laden…</main>;
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-6">

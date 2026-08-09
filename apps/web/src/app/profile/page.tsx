@@ -1,8 +1,10 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Dock } from "@/components/Dock";
 import { api } from "@/lib/api";
+import { useRequireMode } from "@/lib/session";
 
 type Me = {
   id: string;
@@ -15,6 +17,9 @@ type Me = {
 };
 
 export default function ProfilePage() {
+  const router = useRouter();
+  const { session, ready } = useRequireMode("any");
+  const mode = session?.mode === "child" ? "child" : "staff";
   const [me, setMe] = useState<Me | null>(null);
   const [nickname, setNickname] = useState("");
   const [emoji, setEmoji] = useState("");
@@ -24,6 +29,7 @@ export default function ProfilePage() {
   const [originOk, setOriginOk] = useState(true);
 
   useEffect(() => {
+    if (!ready) return;
     setOriginOk(window.location.protocol === "https:" || window.location.hostname === "localhost");
     api<{ authenticated: boolean; profile?: Me; name?: string; role?: string; nickname?: string; emoji?: string; color?: string; lang?: string }>(
       "/api/auth/me"
@@ -45,9 +51,9 @@ export default function ProfilePage() {
         setLang(p.lang || "de");
       })
       .catch(() => {
-        window.location.href = "/";
+        router.replace("/");
       });
-  }, []);
+  }, [ready, router]);
 
   async function save(e: FormEvent) {
     e.preventDefault();
@@ -60,8 +66,10 @@ export default function ProfilePage() {
 
   async function logout() {
     await api("/api/auth/logout", { method: "POST" });
-    window.location.href = "/";
+    router.replace("/");
   }
+
+  if (!ready) return <main className="page">Laden…</main>;
 
   return (
     <main className="page">
@@ -101,15 +109,16 @@ export default function ProfilePage() {
             WebAuthn needs HTTPS (or localhost). Face ID / fingerprint setup is blocked on this origin.
           </p>
         )}
-        {originOk && (
+        {originOk && mode === "staff" && (
           <p className="muted">Biometrics: register after first PIN on a secure origin (platform authenticator).</p>
         )}
         {status && <p>{status}</p>}
+        <p className="muted text-sm">Profil wechseln: abmelden — neues Profil braucht PIN.</p>
         <button className="btn ghost" type="button" onClick={logout}>
           Log out
         </button>
       </section>
-      <Dock />
+      <Dock mode={mode} />
     </main>
   );
 }

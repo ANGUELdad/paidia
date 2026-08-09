@@ -117,9 +117,9 @@ def test_kids_rewards(client):
     _login(client, "k1", "child", "121212")
     home = client.get("/api/kids/rewards")
     assert home.status_code == 200
-    play = client.post("/api/kids/play", json={"game": "memory", "score": 3})
+    play = client.post("/api/kids/play", json={"game": "memory"})
     assert play.status_code == 200
-    assert play.json()["gained"] >= 1
+    assert play.json()["gained"] == 6
 
 
 def test_child_cannot_apply_zoai(client):

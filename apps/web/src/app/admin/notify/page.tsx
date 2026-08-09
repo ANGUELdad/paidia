@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { api } from "@/lib/api";
+import { useRequireMode } from "@/lib/session";
 
 type Rule = {
   id: string;
@@ -26,6 +27,7 @@ const CATALOG = [
 ];
 
 export default function AdminNotifyPage() {
+  const { ready } = useRequireMode("staff");
   const [rules, setRules] = useState<Rule[]>([]);
   const [due, setDue] = useState<unknown[]>([]);
   const [subject, setSubject] = useState("");
@@ -39,10 +41,11 @@ export default function AdminNotifyPage() {
   }
 
   useEffect(() => {
+    if (!ready) return;
     load().catch(() => {
       window.location.href = "/";
     });
-  }, []);
+  }, [ready]);
 
   async function toggle(rule: Rule) {
     await api(`/api/notify/rules/${rule.id}`, {
@@ -94,6 +97,8 @@ export default function AdminNotifyPage() {
     });
     setStatus(r.ok ? r.preview || "Broadcast queued" : "Failed");
   }
+
+  if (!ready) return <main className="page">Laden…</main>;
 
   return (
     <main className="page">

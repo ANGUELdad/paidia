@@ -5,6 +5,7 @@ import { Dock } from "@/components/Dock";
 import { GuidedTour } from "@/components/GuidedTour";
 import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
+import { useRequireMode } from "@/lib/session";
 
 type Day = {
   date: string;
@@ -20,6 +21,7 @@ function mondayISO(d = new Date()) {
 }
 
 export default function PlanPage() {
+  const { ready } = useRequireMode("staff");
   const [start, setStart] = useState(mondayISO());
   const [days, setDays] = useState<Day[]>([]);
   const [activity, setActivity] = useState("Betreuung");
@@ -33,8 +35,9 @@ export default function PlanPage() {
   }
 
   useEffect(() => {
+    if (!ready) return;
     load().catch(console.error);
-  }, [start]);
+  }, [ready, start]);
 
   async function addEntry(force = false) {
     setWarn("");
@@ -59,6 +62,8 @@ export default function PlanPage() {
       setWarn(issues.map((i) => i.message).join(" · ") || e.message);
     }
   }
+
+  if (!ready) return <main className="page">Laden…</main>;
 
   return (
     <>

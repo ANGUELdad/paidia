@@ -32,9 +32,13 @@ export default function CalendarPage() {
   const [rmAt, setRmAt] = useState("");
 
   async function load() {
-    const s = await api<{ authenticated: boolean; admin?: boolean }>("/api/auth/session");
+    const s = await api<{ authenticated: boolean; admin?: boolean; mode?: string }>("/api/auth/session");
     if (!s.authenticated) {
       window.location.href = "/";
+      return;
+    }
+    if (s.mode === "child") {
+      window.location.href = "/kids";
       return;
     }
     setAdmin(!!s.admin);

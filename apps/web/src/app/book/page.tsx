@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { api } from "@/lib/api";
+import { useRequireMode } from "@/lib/session";
 
 export default function BookPage() {
+  const { ready } = useRequireMode("staff");
   const [text, setText] = useState("");
   const [note, setNote] = useState("");
   const [audit, setAudit] = useState<Array<{ type: string; text: string; at?: number }>>([]);
@@ -13,6 +15,7 @@ export default function BookPage() {
   const [profileId, setProfileId] = useState("");
 
   useEffect(() => {
+    if (!ready) return;
     (async () => {
       const s = await api<{ profileId?: string }>("/api/auth/session");
       if (!s.profileId) return;
@@ -22,7 +25,7 @@ export default function BookPage() {
       const a = await api<{ entries: typeof audit }>("/api/book/audit?range=week");
       setAudit(a.entries || []);
     })().catch(console.error);
-  }, [today]);
+  }, [ready, today]);
 
   async function save() {
     if (!text.trim()) return;
@@ -37,6 +40,8 @@ export default function BookPage() {
   }
 
   const filtered = audit.filter((e) => !filter || e.type === filter || (e.text || "").toLowerCase().includes(filter.toLowerCase()));
+
+  if (!ready) return <main className="page">Laden…</main>;
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-6">

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { api } from "@/lib/api";
+import { useRequireMode } from "@/lib/session";
 
 type Msg = { id: string; author: string; body: string; createdAt: string; text?: string };
 type Note = { id: string; weekKey: string; title: string; body: string };
@@ -17,6 +18,7 @@ function isoWeekKey(d = new Date()) {
 }
 
 export default function TalkPage() {
+  const { ready } = useRequireMode("staff");
   const [topic, setTopic] = useState("general");
   const [messages, setMessages] = useState<Msg[]>([]);
   const [body, setBody] = useState("");
@@ -33,8 +35,9 @@ export default function TalkPage() {
   }
 
   useEffect(() => {
+    if (!ready) return;
     load().catch(() => undefined);
-  }, [topic]);
+  }, [ready, topic]);
 
   async function send(e: FormEvent) {
     e.preventDefault();
@@ -54,6 +57,8 @@ export default function TalkPage() {
     setNoteBody("");
     await load();
   }
+
+  if (!ready) return <main className="page">Laden…</main>;
 
   return (
     <main className="page">

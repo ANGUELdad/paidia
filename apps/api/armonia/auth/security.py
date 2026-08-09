@@ -77,6 +77,11 @@ def parse_session_token(token: str | None) -> dict[str, Any] | None:
     stored = (state.get("sessions") or {}).get(sid)
     if not stored:
         return None
+    # Token fields must match the server-side session record (prevents cookie tampering).
+    if stored.get("profile_id") != profile_id or stored.get("mode") != mode:
+        return None
+    if bool(stored.get("admin")) != (admin_s == "1"):
+        return None
     return {
         "session_id": sid,
         "profile_id": profile_id,
@@ -125,4 +130,11 @@ def require_admin(request: Request) -> dict[str, Any]:
     session = require_staff(request)
     if not session.get("admin"):
         raise HTTPException(status_code=403, detail={"error": "Admin only", "code": "admin_required"})
+    return session
+
+
+def require_child(request: Request) -> dict[str, Any]:
+    session = require_session(request)
+    if session.get("mode") != "child":
+        raise HTTPException(status_code=403, detail={"error": "Child only", "code": "child_required"})
     return session

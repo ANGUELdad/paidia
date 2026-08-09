@@ -78,7 +78,8 @@ def validate_day(date: str, entries: list[dict[str, Any]]) -> list[dict[str, Any
 
 
 @router.get("/meta")
-def schedule_meta() -> dict[str, Any]:
+def schedule_meta(request: Request) -> dict[str, Any]:
+    require_staff(request)
     return {"blocks": BLOCKS}
 
 

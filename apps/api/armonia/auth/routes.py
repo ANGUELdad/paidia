@@ -83,7 +83,10 @@ def auth_session(request: Request) -> dict[str, Any]:
 
 
 @router.get("/profiles")
-def list_profiles(mode: str | None = None) -> dict[str, Any]:
+def list_profiles(request: Request, mode: str | None = None) -> dict[str, Any]:
+    session = current_session(request)
+    if session and session.get("mode") == "child" and mode == "staff":
+        raise HTTPException(status_code=403, detail={"code": "forbidden", "error": "Staff profiles hidden"})
     profiles = snapshot().get("profiles") or {}
     rows = []
     for p in profiles.values():
@@ -106,6 +109,7 @@ def list_profiles(mode: str | None = None) -> dict[str, Any]:
 def login(body: LoginBody, request: Request, response: Response) -> dict[str, Any]:
     rate_limit(request, key="auth", limit=30, window_sec=60)
     assert_not_locked(body.profileId)
+    existing = current_session(request)
     state = snapshot()
     profile = (state.get("profiles") or {}).get(body.profileId)
     if not profile or profile.get("mode") != body.mode:
@@ -115,6 +119,13 @@ def login(body: LoginBody, request: Request, response: Response) -> dict[str, An
         note_login_fail(body.profileId)
         raise HTTPException(status_code=401, detail={"error": "Invalid profile or PIN", "code": "invalid_pin"})
     clear_login_fails(body.profileId)
+    # Profile/mode switch always requires PIN; drop any prior session first.
+    if existing:
+
+        def drop_old(st: dict[str, Any]) -> None:
+            st.get("sessions", {}).pop(existing["session_id"], None)
+
+        mutate(drop_old)
     # Upgrade plain seed PIN to argon2 hash on successful login
     if not profile.get("pinHash") and profile.get("pin"):
         from armonia.auth.security import hash_pin

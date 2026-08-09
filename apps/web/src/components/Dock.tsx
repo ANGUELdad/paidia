@@ -16,8 +16,7 @@ const STAFF = [
 const CHILD = [
   { href: "/kids", label: "Heute" },
   { href: "/kids/games", label: "Spiele" },
-  { href: "/calendar", label: "Termine" },
-  { href: "/zoai", label: "Zo-Ai" },
+  { href: "/kids/zoai", label: "Zo-Ai" },
 ];
 
 export function Dock({ mode = "staff" }: { mode?: "staff" | "child" }) {

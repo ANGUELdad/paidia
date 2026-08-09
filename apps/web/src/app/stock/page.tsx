@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { GuidedTour } from "@/components/GuidedTour";
 import { api } from "@/lib/api";
+import { useRequireMode } from "@/lib/session";
 
 type Product = { id: string; name: { de: string }; unit: string };
 type House = { id: string; name: string };
 
 export default function StockPage() {
+  const { ready } = useRequireMode("staff");
   const [houses, setHouses] = useState<House[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [stock, setStock] = useState<Record<string, number>>({});
@@ -22,7 +24,10 @@ export default function StockPage() {
     setStock(data.stock);
   }
 
-  useEffect(() => { load().catch(console.error); }, []);
+  useEffect(() => {
+    if (!ready) return;
+    load().catch(console.error);
+  }, [ready]);
 
   async function adjust(productId: string, dir: "IN" | "OUT") {
     await api("/api/stock/adjust", {
@@ -42,6 +47,8 @@ export default function StockPage() {
     });
     setMsg("Lager-Check gespeichert ✓");
   }
+
+  if (!ready) return <main className="page">Laden…</main>;
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-28 pt-6">

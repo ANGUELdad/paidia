@@ -141,7 +141,13 @@ def _evaluate_due(session: dict[str, Any], state: dict[str, Any]) -> list[dict[s
             )
     else:
         if rules.get("child_event"):
-            events = [e for e in (state.get("events") or []) if e.get("status") == "published" and e.get("date", "") >= today]
+            events = [
+                e
+                for e in (state.get("events") or [])
+                if e.get("status") == "published"
+                and e.get("audience") in {"children", "all"}
+                and e.get("date", "") >= today
+            ]
             if events:
                 due.append(
                     {

@@ -3,10 +3,12 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { api } from "@/lib/api";
+import { useRequireMode } from "@/lib/session";
 
 type Action = { type: string; payload?: Record<string, unknown> } & Record<string, unknown>;
 
 export default function ZoAiPage() {
+  const { session, ready } = useRequireMode("staff");
   const [text, setText] = useState("");
   const [reply, setReply] = useState("");
   const [actions, setActions] = useState<Action[]>([]);
@@ -15,10 +17,11 @@ export default function ZoAiPage() {
   const [status, setStatus] = useState("");
 
   useEffect(() => {
+    if (!ready) return;
     api("/api/auth/session").catch(() => {
       window.location.href = "/";
     });
-  }, []);
+  }, [ready]);
 
   async function ask(e?: FormEvent) {
     e?.preventDefault();
@@ -74,6 +77,8 @@ export default function ZoAiPage() {
     setStatus(r.ok ? "Applied" : r.error || "Failed");
   }
 
+  if (!ready) return <main className="page">Laden…</main>;
+
   return (
     <main className="page">
       <header className="top">
@@ -100,7 +105,7 @@ export default function ZoAiPage() {
             <small>{status}</small>
           </article>
         )}
-        {actions.length > 0 && (
+        {actions.length > 0 && session?.mode === "staff" && (
           <div className="stack">
             <h2>Confirm actions</h2>
             <input
@@ -123,7 +128,7 @@ export default function ZoAiPage() {
           </div>
         )}
       </section>
-      <Dock />
+      <Dock mode="staff" />
     </main>
   );
 }

@@ -27,7 +27,7 @@ const STAFF_STEPS: Step[] = [
 const CHILD_STEPS: Step[] = [
   { id: "kids", title: "Heute", body: "XP, Streak und Events — keine Staff-Tools.", href: "/kids", spotlight: "tour-kids" },
   { id: "games", title: "Spiele", body: "Memory, Quiz, Calm — belohnen dich.", href: "/kids/games", spotlight: "tour-games" },
-  { id: "zoai", title: "Zo-Ai (safe)", body: "Fragen erlaubt — keine Lager-/Plan-Änderungen.", href: "/zoai", spotlight: "tour-zoai" },
+  { id: "zoai", title: "Zo-Ai (safe)", body: "Fragen erlaubt — keine Lager-/Plan-Änderungen.", href: "/kids/zoai", spotlight: "tour-zoai" },
 ];
 
 export function GuidedTour({ mode = "staff" }: { mode?: "staff" | "child" }) {

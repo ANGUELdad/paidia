@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from armonia.auth.limits import rate_limit
-from armonia.auth.security import require_admin, require_session
+from armonia.auth.security import require_admin, require_session, require_staff
 from armonia.store import mutate, snapshot
 
 router = APIRouter(prefix="/api/calendar", tags=["calendar"])
@@ -79,12 +79,16 @@ def _to_ics(events: list[dict[str, Any]]) -> str:
     return "\r\n".join(lines) + "\r\n"
 
 
+def _child_visible_event(event: dict[str, Any]) -> bool:
+    return event.get("status") == "published" and event.get("audience") in {"children", "all"}
+
+
 @router.get("/events")
 def list_events(request: Request, fromDate: str | None = None, audience: str | None = None) -> dict[str, Any]:
     session = require_session(request)
     events = list(snapshot().get("events") or [])
     if session.get("mode") == "child":
-        events = [e for e in events if e.get("status") == "published" and e.get("audience") in {"children", "all"}]
+        events = [e for e in events if _child_visible_event(e)]
     elif audience:
         events = [e for e in events if e.get("audience") in {audience, "all"}]
     if fromDate:
@@ -149,7 +153,7 @@ def export_ics(request: Request, eventId: str | None = None) -> Response:
     if eventId:
         events = [e for e in events if e.get("id") == eventId]
     if session.get("mode") == "child":
-        events = [e for e in events if e.get("status") == "published" and e.get("audience") in {"children", "all"}]
+        events = [e for e in events if _child_visible_event(e)]
     else:
         events = [e for e in events if e.get("status") in {"published", "draft"}]
     body = _to_ics(events)
@@ -172,7 +176,7 @@ def list_reminders(request: Request) -> dict[str, Any]:
     for e in state.get("events") or []:
         if e.get("date", "") < today:
             continue
-        if session.get("mode") == "child" and e.get("status") != "published":
+        if session.get("mode") == "child" and not _child_visible_event(e):
             continue
         cal.append(
             {
@@ -189,7 +193,7 @@ def list_reminders(request: Request) -> dict[str, Any]:
 
 @router.post("/reminders")
 def add_reminder(body: ReminderBody, request: Request) -> dict[str, Any]:
-    session = require_session(request)
+    session = require_staff(request)
     rate_limit(request, key="reminders", limit=30, window_sec=60)
     row = {
         "id": f"rm_{uuid.uuid4().hex[:10]}",
@@ -226,10 +230,12 @@ def delete_reminder(reminder_id: str, request: Request) -> dict[str, Any]:
 @router.get("/google-link")
 def google_link(request: Request, eventId: str) -> dict[str, Any]:
     """Build Google Calendar template URL (no OAuth required)."""
-    require_session(request)
+    session = require_session(request)
     event = next((e for e in (snapshot().get("events") or []) if e.get("id") == eventId), None)
     if not event:
         raise HTTPException(status_code=404, detail={"code": "not_found"})
+    if session.get("mode") == "child" and not _child_visible_event(event):
+        raise HTTPException(status_code=403, detail={"code": "forbidden", "error": "Event not visible"})
     date = (event.get("date") or "").replace("-", "")
     st = (event.get("startTime") or "10:00").replace(":", "")
     et = (event.get("endTime") or "11:00").replace(":", "")
