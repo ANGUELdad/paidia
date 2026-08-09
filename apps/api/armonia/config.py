@@ -34,6 +34,15 @@ class Settings(BaseSettings):
     vapid_public_key: str = ""
     vapid_private_key: str = ""
     vapid_subject: str = "mailto:admin@armonia.local"
+    resend_api_key: str = ""
+    resend_from: str = ""
+    smtp_host: str = ""
+    smtp_port: str = ""
+    smtp_username: str = ""
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    smtp_use_tls: str = "true"
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     max_body_bytes: int = 262_144
 

@@ -7,6 +7,15 @@ from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 
 from armonia.auth.limits import assert_not_locked, clear_login_fails, note_login_fail, rate_limit
+from armonia.auth.passkeys import (
+    PasskeyProfileBody,
+    PasskeyVerifyBody,
+    authentication_options,
+    passkeys_available,
+    registration_options,
+    verify_authentication,
+    verify_registration,
+)
 from armonia.auth.security import (
     clear_session_cookie,
     current_session,
@@ -34,7 +43,7 @@ def auth_health() -> dict[str, Any]:
     return {
         "ok": True,
         "configuredProfiles": len(state.get("profiles") or {}),
-        "passkeysAvailable": False,  # wired in biometrics module when library present
+        "passkeysAvailable": passkeys_available(),
         "passkeyOrigin": settings.webauthn_origin,
         "passkeyRpId": settings.webauthn_rp_id,
         "durableStorage": True,
@@ -104,6 +113,38 @@ def list_profiles(request: Request, mode: str | None = None) -> dict[str, Any]:
             row["admin"] = bool(p.get("admin"))
         rows.append(row)
     return {"profiles": rows}
+
+
+@router.post("/passkey/register/options")
+def passkey_register_options(request: Request) -> dict[str, Any]:
+    rate_limit(request, key="passkey-register", limit=20, window_sec=60)
+    session = require_session(request)
+    return registration_options(session["profile_id"])
+
+
+@router.post("/passkey/register/verify")
+def passkey_register_verify(body: PasskeyVerifyBody, request: Request) -> dict[str, Any]:
+    rate_limit(request, key="passkey-register", limit=20, window_sec=60)
+    session = require_session(request)
+    return verify_registration(session["profile_id"], body.credential)
+
+
+@router.post("/passkey/login/options")
+def passkey_login_options(body: PasskeyProfileBody, request: Request) -> dict[str, Any]:
+    rate_limit(request, key="passkey-login", limit=30, window_sec=60)
+    profile_id = body.profileId.strip()
+    if not profile_id:
+        raise HTTPException(status_code=400, detail={"code": "missing_profile"})
+    return authentication_options(profile_id)
+
+
+@router.post("/passkey/login/verify")
+def passkey_login_verify(body: PasskeyVerifyBody, request: Request, response: Response) -> dict[str, Any]:
+    rate_limit(request, key="passkey-login", limit=30, window_sec=60)
+    profile_id = body.profileId.strip()
+    if not profile_id:
+        raise HTTPException(status_code=400, detail={"code": "missing_profile"})
+    return verify_authentication(profile_id, body.credential, response)
 
 
 @router.post("/login")

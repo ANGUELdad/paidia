@@ -3,42 +3,47 @@
 Cutover is green when every row is ✅ on production data clone.
 
 ## Auth & shell
-- [ ] Staff / child dual login
-- [ ] PIN argon2 verify + session cookie
-- [ ] Profile prefs (nickname/emoji/color/lang/widgets)
-- [ ] Biometrics path documented (HTTPS origin); register after PIN
-- [ ] Login version/changelog chip
+- [x] Staff / child dual login
+- [x] PIN argon2 verify + session cookie
+- [x] Profile prefs (nickname/emoji/color/lang/widgets)
+- [x] Biometrics path documented (HTTPS origin); register after PIN *(API routes + health flag; needs WEBAUTHN_ORIGIN)*
+- [x] Login version/changelog chip
 
 ## Ops
-- [ ] Week matrix with full dates (desktop grid + mobile stack)
-- [ ] Double-book validation + override reason
-- [ ] Stock adjust + stock-check ritual
-- [ ] Shop list + Friday reminders + learning suggestions (confirm only)
-- [ ] Book journal append/rewrite + audit filters
-- [ ] Presence Ich bin da / late why
+- [x] Week matrix with full dates (desktop grid + mobile stack)
+- [x] Double-book validation + override reason
+- [x] Stock adjust + stock-check ritual
+- [x] Shop list + Friday reminders + learning suggestions (confirm only) *(+ reorder + OCR text + Friday tab)*
+- [x] Book journal append/rewrite + audit filters
+- [x] Presence Ich bin da / late why *(in-app late sheet)*
+- [x] Coverage board `/coverage`
+- [x] Incident log `/incidents`
+- [x] Child care log `/care`
 
 ## Comms & AI
-- [ ] Talk topics + messages
-- [ ] Meeting notes by ISO week key + reminder
-- [ ] Zo-Ai offline/Omni/Groq with variety seed
-- [ ] Structured actions Confirm (+ PIN for schedule/broadcast)
-- [ ] Voice (Web Speech) on Zo-Ai
-- [ ] Admin broadcast email/push/banner preview
+- [x] Talk topics + messages
+- [x] Meeting notes by ISO week key + reminder
+- [x] Zo-Ai offline/Omni/Groq with variety seed
+- [x] Structured actions Confirm (+ PIN for schedule/broadcast) *(human action cards)*
+- [x] Voice (Web Speech) on Zo-Ai
+- [x] Admin broadcast email/push/banner preview *(email when Resend/SMTP configured)*
 
 ## Notifications
-- [ ] Rules for all 9 kinds toggleable in admin UI
-- [ ] Evaluate due list (local)
-- [ ] Web Push subscribe SW + VAPID when keys set
-- [ ] Dedupe keys on due items
+- [x] Rules for all 9 kinds toggleable in admin UI
+- [x] Evaluate due list (local)
+- [x] Web Push subscribe SW + VAPID when keys set
+- [x] Dedupe keys on due items
+- [x] ICS subscribe feed token
 
 ## Experience
-- [ ] Home widgets reorder persisted
-- [ ] Kids XP/streak/badges + games
-- [ ] Child never sees staff ops dock
-- [ ] Knowledge vault + TOKEN_REDUCE usable by agents
+- [x] Home shift command center + urgency + Mehr IA
+- [x] Kids XP/streak/badges + real Memory/Quiz/Calm games + mood
+- [x] Child never sees staff ops dock
+- [x] Knowledge vault + TOKEN_REDUCE usable by agents
+- [x] Shared i18n DE/EL layer (`apps/web/src/lib/i18n.ts`)
 
 ## Hardening
-- [ ] API pytest green
+- [x] API pytest green
 - [ ] migrate_ops_to_prisma.py dry-run on clone
-- [ ] Legacy PWA frozen under legacy/ (or LEGACY.md) until cutover
+- [x] Legacy PWA frozen under LEGACY.md until cutover
 - [ ] Conflict/revision awareness on stock snapshot

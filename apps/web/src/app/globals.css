@@ -716,7 +716,7 @@ textarea:focus:not(:focus-visible) {
   z-index: 60;
   display: grid;
   place-items: end center;
-  padding: var(--space-4) var(--space-4) 100px;
+  padding: var(--space-4) var(--space-4) calc(100px + env(safe-area-inset-bottom));
   background: rgba(26, 40, 34, 0.35);
   backdrop-filter: blur(2px);
   animation: fadeIn var(--motion-base) var(--motion-ease-settle);
@@ -766,16 +766,112 @@ textarea:focus:not(:focus-visible) {
 
 .tour-fab {
   position: fixed;
-  right: 12px;
-  bottom: 88px;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: calc(88px + env(safe-area-inset-bottom));
   z-index: 45;
-  min-height: 40px;
+  min-height: 44px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.92);
   padding: 0 14px;
   font-weight: 700;
   color: var(--sea);
+}
+
+.tour-overlay {
+  padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+}
+
+.empty-state {
+  padding: var(--space-6);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--glass);
+  text-align: center;
+}
+
+.loading-block {
+  padding: var(--space-4);
+}
+
+.skeleton-bar {
+  height: 12px;
+  border-radius: 8px;
+  background: var(--stone-300);
+  margin-bottom: 8px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.skeleton-bar.w-40 { width: 40%; }
+.skeleton-bar.w-64 { width: 64%; }
+
+.skeleton-card {
+  height: 72px;
+  border-radius: var(--radius);
+  background: var(--stone-300);
+  opacity: 0.7;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.9; }
+}
+
+.late-sheet .late-input {
+  width: 100%;
+  min-height: 88px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  padding: 12px;
+  font: inherit;
+}
+
+.login-shell {
+  padding-top: max(2rem, env(safe-area-inset-top));
+  padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.game-card {
+  aspect-ratio: 1;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--glass-strong);
+  font-size: 1.5rem;
+  min-height: 64px;
+}
+
+.game-card.flipped {
+  background: var(--pine-tint);
+  border-color: var(--brand);
+}
+
+.mood-orbs {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mood-orb {
+  flex: 1;
+  min-height: 72px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--glass);
+  font-size: 1.6rem;
+}
+
+.mood-orb.on {
+  background: var(--amber-tint);
+  border-color: var(--sun);
 }
 
 /* Device lab */

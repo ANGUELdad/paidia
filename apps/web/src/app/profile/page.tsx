@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Dock } from "@/components/Dock";
 import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
+import { setStoredLang, t, type Lang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
 
 type Me = {
@@ -25,16 +26,25 @@ export default function ProfilePage() {
   const [nickname, setNickname] = useState("");
   const [emoji, setEmoji] = useState("");
   const [color, setColor] = useState("#1f6b4f");
-  const [lang, setLang] = useState("de");
+  const [lang, setLang] = useState<Lang>("de");
   const [status, setStatus] = useState("");
   const [originOk, setOriginOk] = useState(true);
+  const [vapidPublic, setVapidPublic] = useState("");
+  const [pushStatus, setPushStatus] = useState("");
 
   useEffect(() => {
     if (!ready) return;
     setOriginOk(window.location.protocol === "https:" || window.location.hostname === "localhost");
-    api<{ authenticated: boolean; profile?: Me; name?: string; role?: string; nickname?: string; emoji?: string; color?: string; lang?: string }>(
-      "/api/auth/me"
-    )
+    api<{
+      authenticated: boolean;
+      profile?: Me;
+      name?: string;
+      role?: string;
+      nickname?: string;
+      emoji?: string;
+      color?: string;
+      lang?: string;
+    }>("/api/auth/me")
       .then((r) => {
         const p = r.profile || {
           id: "",
@@ -49,11 +59,14 @@ export default function ProfilePage() {
         setNickname(p.nickname || p.name);
         setEmoji(p.emoji || "🌿");
         setColor(p.color || "#1f6b4f");
-        setLang(p.lang || "de");
+        const l = (p.lang === "el" ? "el" : "de") as Lang;
+        setLang(l);
+        setStoredLang(l);
       })
-      .catch(() => {
-        router.replace("/");
-      });
+      .catch(() => router.replace("/"));
+    api<{ vapidPublicKey?: string; notifications?: { webPush?: boolean } }>("/api/health")
+      .then((h) => setVapidPublic((h as { vapidPublicKey?: string }).vapidPublicKey || ""))
+      .catch(() => undefined);
   }, [ready, router]);
 
   async function save(e: FormEvent) {
@@ -62,7 +75,8 @@ export default function ProfilePage() {
       method: "POST",
       body: JSON.stringify({ nickname, emoji, color, lang }),
     });
-    setStatus("Saved");
+    setStoredLang(lang);
+    setStatus(t("saved", lang));
   }
 
   async function logout() {
@@ -70,50 +84,72 @@ export default function ProfilePage() {
     router.replace("/");
   }
 
-  if (!ready) return <main className="page">Laden…</main>;
+  async function enablePush() {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      setPushStatus("Push nicht verfügbar");
+      return;
+    }
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    const ready = await navigator.serviceWorker.ready;
+    const sub = await ready.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: vapidPublic || undefined,
+    });
+    await api("/api/notify/subscribe", { method: "POST", body: JSON.stringify({ subscription: sub.toJSON() }) });
+    setPushStatus("Push aktiv");
+  }
+
+  if (!ready) return <main className="page">{t("loading")}</main>;
 
   return (
     <>
-      <PageShell eyebrow="Profil" title={me?.name || "…"} lead="Nickname, Emoji und Sprache — nur für dich.">
-      <section className="panel stack">
-        <form className="stack" onSubmit={save}>
-          <label>
-            Nickname
-            <input value={nickname} onChange={(e) => setNickname(e.target.value)} />
-          </label>
-          <label>
-            Emoji
-            <input value={emoji} onChange={(e) => setEmoji(e.target.value)} />
-          </label>
-          <label>
-            Color
-            <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
-          </label>
-          <label>
-            Language
-            <select value={lang} onChange={(e) => setLang(e.target.value)}>
-              <option value="de">Deutsch</option>
-              <option value="el">Ελληνικά</option>
-            </select>
-          </label>
-          <button className="btn" type="submit">
-            Save prefs
+      <PageShell eyebrow={t("profile", lang)} title={me?.name || "…"} lead={t("profileLead", lang)}>
+        <section className="panel stack">
+          <form className="stack" onSubmit={save}>
+            <label>
+              {t("nickname", lang)}
+              <input value={nickname} onChange={(e) => setNickname(e.target.value)} />
+            </label>
+            <label>
+              {t("emoji", lang)}
+              <input value={emoji} onChange={(e) => setEmoji(e.target.value)} />
+            </label>
+            <label>
+              {t("color", lang)}
+              <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+            </label>
+            <label>
+              {t("language", lang)}
+              <select
+                value={lang}
+                onChange={(e) => {
+                  const l = e.target.value as Lang;
+                  setLang(l);
+                  setStoredLang(l);
+                }}
+              >
+                <option value="de">Deutsch</option>
+                <option value="el">Ελληνικά</option>
+              </select>
+            </label>
+            <button className="btn" type="submit">
+              {t("save", lang)}
+            </button>
+          </form>
+          {!originOk && <p className="warn">{t("biometricsBlocked", lang)}</p>}
+          {originOk && mode === "staff" && <p className="muted">{t("biometricsHint", lang)}</p>}
+          {mode === "staff" && (
+            <button className="btn-sec" type="button" onClick={enablePush} data-testid="enable-push">
+              {t("enablePush", lang)}
+            </button>
+          )}
+          {pushStatus && <p className="muted">{pushStatus}</p>}
+          {status && <p>{status}</p>}
+          <p className="muted text-sm">{t("profileSwitch", lang)}</p>
+          <button className="btn ghost" type="button" onClick={logout}>
+            {t("logout", lang)}
           </button>
-        </form>
-        {!originOk && (
-          <p className="warn">
-            WebAuthn needs HTTPS (or localhost). Face ID / fingerprint setup is blocked on this origin.
-          </p>
-        )}
-        {originOk && mode === "staff" && (
-          <p className="muted">Biometrics: register after first PIN on a secure origin (platform authenticator).</p>
-        )}
-        {status && <p>{status}</p>}
-        <p className="muted text-sm">Profil wechseln: abmelden — neues Profil braucht PIN.</p>
-        <button className="btn ghost" type="button" onClick={logout}>
-          Log out
-        </button>
-      </section>
+        </section>
       </PageShell>
       <Dock mode={mode} />
     </>

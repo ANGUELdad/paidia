@@ -40,6 +40,8 @@ PLATFORM_LIST_CAPS = {
     "reminders": 500,
     "pushSubscriptions": 200,
     "zoaiRecent": 100,
+    "incidents": 500,
+    "careLogs": 2000,
 }
 
 HOUSES = [
@@ -82,10 +84,10 @@ def _empty_state() -> dict[str, Any]:
         "sessions": {},
         "houses": HOUSES,
         "products": [
-            {"id": "p_milk", "name": {"de": "Milch", "el": "Γάλα"}, "unit": "L", "category": "fridge"},
-            {"id": "p_eggs", "name": {"de": "Eier", "el": "Αυγά"}, "unit": "Stk", "category": "fridge"},
-            {"id": "p_rice", "name": {"de": "Reis", "el": "Ρύζι"}, "unit": "kg", "category": "pantry"},
-            {"id": "p_pasta", "name": {"de": "Nudeln", "el": "Ζυμαρικά"}, "unit": "kg", "category": "pantry"},
+            {"id": "p_milk", "name": {"de": "Milch", "el": "Γάλα"}, "unit": "L", "category": "fridge", "parLevel": 2},
+            {"id": "p_eggs", "name": {"de": "Eier", "el": "Αυγά"}, "unit": "Stk", "category": "fridge", "parLevel": 2},
+            {"id": "p_rice", "name": {"de": "Reis", "el": "Ρύζι"}, "unit": "kg", "category": "pantry", "parLevel": 2},
+            {"id": "p_pasta", "name": {"de": "Nudeln", "el": "Ζυμαρικά"}, "unit": "kg", "category": "pantry", "parLevel": 2},
         ],
         "stock": {},  # key houseId:productId -> qty
         "listEntries": [],
@@ -130,6 +132,9 @@ def _empty_state() -> dict[str, Any]:
         "zoaiRecent": [],
         "xp": {},
         "reminders": [],
+        "incidents": [],
+        "careLogs": [],
+        "calendarFeeds": {},
     }
 
 

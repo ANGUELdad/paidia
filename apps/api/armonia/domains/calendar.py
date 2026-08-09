@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import secrets
 import time
 import uuid
 from typing import Any
@@ -33,6 +35,11 @@ class ReminderBody(BaseModel):
     at: str  # ISO datetime local
     url: str = "/home"
     kind: str = "custom"
+
+
+class FeedBody(BaseModel):
+    mode: str = "staff"  # staff|child
+    name: str = "Armonia calendar"
 
 
 def _ics_escape(text: str) -> str:
@@ -81,6 +88,10 @@ def _to_ics(events: list[dict[str, Any]]) -> str:
 
 def _child_visible_event(event: dict[str, Any]) -> bool:
     return event.get("status") == "published" and event.get("audience") in {"children", "all"}
+
+
+def _feed_hash(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 @router.get("/events")
@@ -161,6 +172,72 @@ def export_ics(request: Request, eventId: str | None = None) -> Response:
         content=body,
         media_type="text/calendar; charset=utf-8",
         headers={"Content-Disposition": 'attachment; filename="armonia.ics"'},
+    )
+
+
+@router.post("/feed")
+def create_feed(body: FeedBody, request: Request) -> dict[str, Any]:
+    session = require_staff(request)
+    rate_limit(request, key="calendar-feed-mint", limit=12, window_sec=60)
+    token = secrets.token_urlsafe(32)
+    digest = _feed_hash(token)
+    now_ms = int(time.time() * 1000)
+    mode = "child" if body.mode in {"child", "children"} else "staff"
+    feed = {
+        "id": f"cf_{digest[:12]}",
+        "hash": digest,
+        "mode": mode,
+        "name": body.name.strip()[:80] or "Armonia calendar",
+        "createdBy": session["profile_id"],
+        "createdAt": now_ms,
+        "lastUsedAt": None,
+    }
+
+    def apply(st: dict[str, Any]) -> None:
+        st.setdefault("calendarFeeds", {})[digest] = feed
+        st.setdefault("auditLog", []).append(
+            {
+                "at": now_ms,
+                "type": "CALENDAR_FEED",
+                "profileId": session["profile_id"],
+                "text": f"Calendar feed {mode}",
+            }
+        )
+
+    mutate(apply)
+    public_feed = {k: v for k, v in feed.items() if k != "hash"}
+    url = str(request.base_url).rstrip("/") + f"/api/calendar/feed/{token}.ics"
+    return {"ok": True, "token": token, "url": url, "feed": public_feed}
+
+
+@router.get("/feed/{token}.ics")
+def public_feed_ics(token: str, request: Request) -> Response:
+    rate_limit(request, key="calendar-feed", limit=60, window_sec=60)
+    digest = _feed_hash(token)
+    state = snapshot()
+    feed = (state.get("calendarFeeds") or {}).get(digest)
+    if not feed:
+        raise HTTPException(status_code=404, detail={"code": "feed_not_found"})
+    events = list(state.get("events") or [])
+    if feed.get("mode") == "child":
+        events = [e for e in events if _child_visible_event(e)]
+    else:
+        events = [e for e in events if e.get("status") in {"published", "draft"}]
+    events.sort(key=lambda e: (e.get("date") or "", e.get("startTime") or ""))
+    now_ms = int(time.time() * 1000)
+
+    def apply(st: dict[str, Any]) -> None:
+        row = (st.get("calendarFeeds") or {}).get(digest)
+        if row:
+            row["lastUsedAt"] = now_ms
+
+    mutate(apply)
+    body = _to_ics(events)
+    filename = "armonia-kids.ics" if feed.get("mode") == "child" else "armonia.ics"
+    return Response(
+        content=body,
+        media_type="text/calendar; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 

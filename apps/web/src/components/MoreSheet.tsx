@@ -3,36 +3,42 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { t } from "@/lib/i18n";
 
 type LinkItem = { href: string; label: string };
-
 type Group = { title: string; items: LinkItem[] };
 
-const BASE_GROUPS: Group[] = [
-  {
-    title: "Schicht",
-    items: [
-      { href: "/handover", label: "Übergabe" },
-      { href: "/book", label: "Schichtbuch" },
-      { href: "/talk", label: "Talk" },
-    ],
-  },
-  {
-    title: "Versorgung",
-    items: [
-      { href: "/stock", label: "Lager" },
-      { href: "/shop", label: "Liste" },
-    ],
-  },
-  {
-    title: "Termine",
-    items: [{ href: "/calendar", label: "Kalender" }],
-  },
-  {
-    title: "Konto",
-    items: [{ href: "/profile", label: "Profil" }],
-  },
-];
+function buildGroups(admin: boolean): Group[] {
+  const groups: Group[] = [
+    {
+      title: "Schicht",
+      items: [
+        { href: "/handover", label: "Übergabe" },
+        { href: "/coverage", label: t("coverage") },
+        { href: "/incidents", label: t("incidents") },
+        { href: "/care", label: t("careLog") },
+        { href: "/book", label: "Schichtbuch" },
+        { href: "/talk", label: "Talk" },
+      ],
+    },
+    {
+      title: "Versorgung",
+      items: [{ href: "/shop", label: "Liste" }],
+    },
+    {
+      title: "Termine",
+      items: [{ href: "/calendar", label: "Kalender" }],
+    },
+    {
+      title: "Konto",
+      items: [{ href: "/profile", label: "Profil" }],
+    },
+  ];
+  if (admin) {
+    groups.push({ title: "Admin", items: [{ href: "/admin/notify", label: "Automationen" }] });
+  }
+  return groups;
+}
 
 function isLinkActive(path: string, href: string) {
   return path === href || path.startsWith(`${href}/`);
@@ -60,27 +66,20 @@ export function MoreSheet({
 
   if (!open) return null;
 
-  const groups = admin
-    ? [...BASE_GROUPS, { title: "Admin", items: [{ href: "/admin/notify", label: "Automationen" }] }]
-    : BASE_GROUPS;
+  const groups = buildGroups(admin);
 
   return (
-    <div
-      className="more-overlay"
-      role="presentation"
-      onClick={onClose}
-      data-testid="more-overlay"
-    >
+    <div className="more-overlay" role="presentation" onClick={onClose} data-testid="more-overlay">
       <div
         className="more-sheet"
         role="dialog"
         aria-modal="true"
-        aria-label="Mehr"
+        aria-labelledby="more-title"
         data-testid="more-sheet"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="more-sheet-header">
-          <h2>Mehr</h2>
+          <h2 id="more-title">Mehr</h2>
           <button type="button" className="more-sheet-close" onClick={onClose} aria-label="Schließen">
             ✕
           </button>
@@ -110,6 +109,9 @@ export function MoreSheet({
 
 export const MORE_ROUTES = [
   "/handover",
+  "/coverage",
+  "/incidents",
+  "/care",
   "/book",
   "/talk",
   "/shop",

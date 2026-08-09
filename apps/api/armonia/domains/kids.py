@@ -17,12 +17,17 @@ GAME_XP = {"memory": 6, "quiz": 5, "breath": 3}
 PLAY_COOLDOWN_SEC = 45
 DAILY_XP_CAP = 80
 ALLOWED_GAMES = frozenset(GAME_XP)
+ALLOWED_MOODS = frozenset({"sun", "cloud", "rain", "storm"})
 
 
 class PlayBody(BaseModel):
     game: str = "memory"
     # Legacy clients may still send score; it is ignored.
     score: int | None = None
+
+
+class MoodBody(BaseModel):
+    mood: str = "sun"
 
 
 def _xp_row(state: dict[str, Any], profile_id: str) -> dict[str, Any]:
@@ -123,3 +128,26 @@ def play(body: PlayBody, request: Request) -> dict[str, Any]:
     except HTTPException:
         raise
     return {"ok": True, "gained": row.get("gained", gained), "game": game, "xp": row, "state": row}
+
+
+@router.post("/mood")
+def post_mood(body: MoodBody, request: Request) -> dict[str, Any]:
+    rate_limit(request, key="kids-mood", limit=24, window_sec=60)
+    session = require_child(request)
+    mood = (body.mood or "sun").strip().lower()
+    if mood not in ALLOWED_MOODS:
+        raise HTTPException(status_code=400, detail={"code": "bad_mood", "error": "Unknown mood"})
+    today = time.strftime("%Y-%m-%d")
+    row = {
+        "type": "mood",
+        "profileId": session["profile_id"],
+        "date": today,
+        "mood": mood,
+        "at": int(time.time() * 1000),
+    }
+
+    def apply(st: dict[str, Any]) -> None:
+        st.setdefault("learningSignals", []).append(row)
+
+    mutate(apply)
+    return {"ok": True, "mood": mood}

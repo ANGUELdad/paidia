@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
+import { GuidedTour } from "@/components/GuidedTour";
 import { api } from "@/lib/api";
 import { useRequireMode } from "@/lib/session";
 import { actionNeedsPin, describeAction, type ZoAiAction } from "@/lib/zoai-actions";
@@ -51,7 +52,7 @@ export default function ZoAiPage() {
     };
     const SR = w.webkitSpeechRecognition || w.SpeechRecognition;
     if (!SR) {
-      setStatus("Speech recognition not available");
+      setStatus("Spracherkennung nicht verfügbar");
       return;
     }
     const rec = new SR();
@@ -84,10 +85,10 @@ export default function ZoAiPage() {
       <header className="top">
         <div>
           <p className="eyebrow">Zo-Ai</p>
-          <h1>Assistant</h1>
+          <h1>Assistent</h1>
         </div>
       </header>
-      <section className="panel stack">
+      <section className="panel stack" data-tour="tour-zoai">
         <form className="stack" onSubmit={ask}>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder="Frag Zo-Ai…" />
           <div className="row">
@@ -95,7 +96,7 @@ export default function ZoAiPage() {
               Senden
             </button>
             <button className="btn ghost" type="button" onClick={startVoice}>
-              {listening ? "Listening…" : "Mic"}
+              {listening ? "Hört zu…" : "Mikrofon"}
             </button>
           </div>
         </form>
@@ -156,6 +157,7 @@ export default function ZoAiPage() {
         )}
       </section>
       <Dock mode="staff" />
+      <GuidedTour mode="staff" admin={!!session?.admin} />
     </main>
   );
 }

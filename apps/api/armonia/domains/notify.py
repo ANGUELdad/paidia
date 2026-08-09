@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import json
 import time
 import uuid
@@ -11,6 +12,7 @@ from pydantic import BaseModel, Field
 from armonia.auth.limits import rate_limit
 from armonia.auth.security import require_admin, require_session
 from armonia.config import get_settings
+from armonia.domains.email import email_status, send_email
 from armonia.store import mutate, snapshot
 
 router = APIRouter(prefix="/api/notify", tags=["notify"])
@@ -36,6 +38,12 @@ class BroadcastBody(BaseModel):
     lang: str = "de"
     alsoPush: bool = True
     channels: list[str] = Field(default_factory=list)
+
+
+class EmailTestBody(BaseModel):
+    to: str = ""
+    subject: str = "Armonia Test"
+    message: str = "Email delivery is configured."
 
 
 def _normalize_audience(raw: str) -> str:
@@ -257,6 +265,30 @@ def _try_send_web_push(subs: list[dict[str, Any]], payload: dict[str, Any]) -> i
     return sent
 
 
+@router.get("/email/status")
+def notify_email_status(request: Request) -> dict[str, Any]:
+    require_admin(request)
+    return email_status()
+
+
+@router.post("/email/test")
+def notify_email_test(body: EmailTestBody, request: Request) -> dict[str, Any]:
+    session = require_admin(request)
+    profile = (snapshot().get("profiles") or {}).get(session["profile_id"]) or {}
+    to = (body.to or profile.get("email") or "").strip()
+    status = email_status()
+    if status.get("configured") and not to:
+        raise HTTPException(status_code=400, detail={"code": "missing_recipient", "error": "Email recipient required"})
+    message = body.message.strip() or "Email delivery is configured."
+    result = send_email(
+        to,
+        body.subject.strip() or "Armonia Test",
+        html=f"<p>{html.escape(message)}</p>",
+        text=message,
+    )
+    return {**result, "to": to or None, "status": status}
+
+
 @router.post("/broadcast")
 def broadcast(body: BroadcastBody, request: Request) -> dict[str, Any]:
     session = require_admin(request)
@@ -275,6 +307,7 @@ def broadcast(body: BroadcastBody, request: Request) -> dict[str, Any]:
         profiles = profiles[: get_settings().broadcast_max]
     delivery_id = uuid.uuid4().hex[:12]
     also_push = body.alsoPush or "push" in body.channels
+    also_email = "email" in body.channels
 
     def apply(st: dict[str, Any]) -> None:
         st.setdefault("auditLog", []).append(
@@ -308,14 +341,39 @@ def broadcast(body: BroadcastBody, request: Request) -> dict[str, Any]:
             subs,
             {"title": subject, "body": message[:180], "url": push_url, "dedupeKey": f"broadcast:{delivery_id}"},
         )
+    email_attempted = 0
+    email_queued = 0
+    email_failed = 0
+    email_reason: str | None = None
+    if also_email:
+        escaped_subject = html.escape(subject)
+        escaped_message = html.escape(message).replace("\n", "<br>")
+        email_html = f"<h1>{escaped_subject}</h1><p>{escaped_message}</p>"
+        for profile in profiles:
+            to = (profile.get("email") or "").strip()
+            if not to:
+                continue
+            email_attempted += 1
+            result = send_email(to, subject, html=email_html, text=message)
+            if result.get("queued"):
+                email_queued += 1
+            else:
+                email_failed += 1
+                email_reason = email_reason or str(result.get("reason") or "send_failed")
     return {
         "ok": True,
         "sent": len(profiles),
-        "failed": 0,
+        "failed": email_failed,
         "audience": audience,
         "deliveryId": delivery_id,
         "pushQueued": also_push,
         "pushSent": push_sent,
-        "email": "queued_if_configured",
+        "email": {
+            "requested": also_email,
+            "attempted": email_attempted,
+            "queued": email_queued,
+            "failed": email_failed,
+            "reason": email_reason,
+        },
         "preview": f"[{audience}] {subject}: {message[:120]}",
     }

@@ -1,0 +1,209 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+export type Lang = "de" | "el";
+
+const DICT = {
+  de: {
+    loading: "Laden…",
+    save: "Speichern",
+    saved: "Gespeichert",
+    logout: "Abmelden",
+    nickname: "Anzeigename",
+    emoji: "Emoji",
+    color: "Farbe",
+    language: "Sprache",
+    profile: "Profil",
+    profileLead: "Anzeigename, Emoji und Sprache — nur für dich.",
+    profileSwitch: "Profil wechseln: abmelden — neues Profil braucht PIN.",
+    biometricsHint: "Biometrie: nach PIN auf sicherer Origin (HTTPS) einrichten.",
+    biometricsBlocked: "WebAuthn braucht HTTPS (oder localhost). Face ID ist hier blockiert.",
+    emptyDefault: "Noch nichts hier",
+    emptyHint: "Sobald etwas da ist, erscheint es an dieser Stelle.",
+    errorDefault: "Etwas ist schiefgelaufen",
+    lateTitle: "Zu spät melden",
+    lateLead: "Kurz notieren, warum die Schicht später startet.",
+    latePlaceholder: "Grund (optional)",
+    lateSubmit: "Verspätung speichern",
+    cancel: "Abbrechen",
+    assistant: "Assistent",
+    mic: "Mikrofon",
+    listening: "Hört zu…",
+    speechUnavailable: "Spracherkennung nicht verfügbar",
+    confirmActions: "Aktionen bestätigen",
+    confirm: "Bestätigen",
+    pinIfNeeded: "PIN falls nötig",
+    add: "Hinzufügen",
+    kidsPlay: "Spielen & Belohnungen",
+    kidsGames: "Spiele",
+    kidsToday: "Heute",
+    kidsXp: "XP",
+    kidsStreak: "Streak",
+    kidsEvents: "Events",
+    kidsNoEvents: "Keine Events — schau später nochmal.",
+    kidsMood: "Wie fühlst du dich?",
+    kidsMoodSaved: "Danke — gespeichert!",
+    kidsMoodError: "Stimmung konnte nicht gespeichert werden.",
+    kidsToGames: "Zu den Spielen",
+    kidsReadonly: "Zo-Ai ist hier nur zum Fragen. Staff-Tools bleiben verborgen.",
+    gameMemory: "Memory",
+    gameMemoryHint: "Finde alle Paare auf dem Brett.",
+    gameQuiz: "Insel-Quiz",
+    gameQuizHint: "5 Fragen über Thassos & Griechenland.",
+    gameCalm: "Atemreise",
+    gameCalmHint: "30 Sekunden ruhig atmen.",
+    gameBack: "Zurück",
+    gameMoves: "Züge",
+    gamePairs: "Paare",
+    gameWin: "Geschafft!",
+    gameScore: "Punkte",
+    gameQuestion: "Frage",
+    gameLater: "Später nochmal",
+    gameCooldown: "Kurz warten — dann noch ein Spiel.",
+    gameXpGained: "XP erhalten",
+    zoaiKidsLead: "Nur Fragen — keine Änderungen an Lager, Plan oder Liste.",
+    zoaiKidsWelcome: "Hallo! Ich bin Zo-Ai. Frag mich über Spiele, Events oder Thassos.",
+    zoaiKidsPlaceholder: "Was möchtest du wissen?",
+    zoaiKidsSuggest1: "Was habe ich heute?",
+    zoaiKidsSuggest2: "Welches Spiel soll ich spielen?",
+    zoaiKidsSuggest3: "Erzähl mir von Thassos",
+    zoaiKidsSuggest4: "Hilf mir mit Griechisch",
+    meetingNotes: "Besprechungsnotizen",
+    teamChat: "Team-Chat",
+    reminderCatalog: "Erinnerungs-Katalog",
+    toggle: "Umschalten",
+    evaluateNow: "Jetzt prüfen",
+    enablePush: "Web Push aktivieren",
+    broadcast: "Broadcast",
+    subject: "Betreff",
+    body: "Nachricht",
+    send: "Senden",
+    everyone: "Alle",
+    staff: "Personal",
+    children: "Kinder",
+    coverage: "Abdeckung",
+    incidents: "Vorfälle",
+    careLog: "Kind-Tag",
+    reorderAll: "Alles auf die Liste",
+    toList: "Zur Liste",
+    gapReport: "Lücke melden",
+  },
+  el: {
+    loading: "Φόρτωση…",
+    save: "Αποθήκευση",
+    saved: "Αποθηκεύτηκε",
+    logout: "Αποσύνδεση",
+    nickname: "Εμφανιζόμενο όνομα",
+    emoji: "Emoji",
+    color: "Χρώμα",
+    language: "Γλώσσα",
+    profile: "Προφίλ",
+    profileLead: "Όνομα, emoji και γλώσσα — μόνο για σένα.",
+    profileSwitch: "Αλλαγή προφίλ: αποσύνδεση — νέο προφίλ χρειάζεται PIN.",
+    biometricsHint: "Βιομετρικά: μετά το PIN σε ασφαλή προέλευση (HTTPS).",
+    biometricsBlocked: "Το WebAuthn χρειάζεται HTTPS (ή localhost).",
+    emptyDefault: "Δεν υπάρχει τίποτα ακόμα",
+    emptyHint: "Όταν υπάρξουν δεδομένα, θα εμφανιστούν εδώ.",
+    errorDefault: "Κάτι πήγε στραβά",
+    lateTitle: "Καθυστέρηση",
+    lateLead: "Σημείωσε σύντομα γιατί ξεκινά αργότερα η βάρδια.",
+    latePlaceholder: "Λόγος (προαιρετικό)",
+    lateSubmit: "Αποθήκευση καθυστέρησης",
+    cancel: "Ακύρωση",
+    assistant: "Βοηθός",
+    mic: "Μικρόφωνο",
+    listening: "Ακούει…",
+    speechUnavailable: "Η αναγνώριση ομιλίας δεν είναι διαθέσιμη",
+    confirmActions: "Επιβεβαίωση ενεργειών",
+    confirm: "Επιβεβαίωση",
+    pinIfNeeded: "PIN αν χρειάζεται",
+    add: "Προσθήκη",
+    kidsPlay: "Παιχνίδι & ανταμοιβές",
+    kidsGames: "Παιχνίδια",
+    kidsToday: "Σήμερα",
+    kidsXp: "XP",
+    kidsStreak: "Σειρά",
+    kidsEvents: "Εκδηλώσεις",
+    kidsNoEvents: "Δεν υπάρχουν εκδηλώσεις — δες αργότερα.",
+    kidsMood: "Πώς νιώθεις;",
+    kidsMoodSaved: "Ευχαριστώ — αποθηκεύτηκε!",
+    kidsMoodError: "Δεν αποθηκεύτηκε η διάθεση.",
+    kidsToGames: "Στα παιχνίδια",
+    kidsReadonly: "Το Zo-Ai εδώ είναι μόνο για ερωτήσεις.",
+    gameMemory: "Μνήμη",
+    gameMemoryHint: "Βρες όλα τα ζευγάρια.",
+    gameQuiz: "Νησι-κουίζ",
+    gameQuizHint: "5 ερωτήσεις για τη Θάσο.",
+    gameCalm: "Αναπνοή",
+    gameCalmHint: "30 δευτερόλεπτα ήρεμη αναπνοή.",
+    gameBack: "Πίσω",
+    gameMoves: "Κινήσεις",
+    gamePairs: "Ζευγάρια",
+    gameWin: "Τέλεια!",
+    gameScore: "Πόντοι",
+    gameQuestion: "Ερώτηση",
+    gameLater: "Αργότερα",
+    gameCooldown: "Λίγη αναμονή — μετά άλλο παιχνίδι.",
+    gameXpGained: "Κέρδισες XP",
+    zoaiKidsLead: "Μόνο ερωτήσεις — όχι αλλαγές σε αποθήκη ή πρόγραμμα.",
+    zoaiKidsWelcome: "Γεια! Είμαι το Zo-Ai. Ρώτα για παιχνίδια, εκδηλώσεις ή τη Θάσο.",
+    zoaiKidsPlaceholder: "Τι θέλεις να μάθεις;",
+    zoaiKidsSuggest1: "Τι έχω σήμερα;",
+    zoaiKidsSuggest2: "Ποιο παιχνίδι να παίξω;",
+    zoaiKidsSuggest3: "Πες μου για τη Θάσο",
+    zoaiKidsSuggest4: "Βοήθησέ με με ελληνικά",
+    meetingNotes: "Σημειώσεις συνάντησης",
+    teamChat: "Ομαδική συνομιλία",
+    reminderCatalog: "Κατάλογος υπενθυμίσεων",
+    toggle: "Εναλλαγή",
+    evaluateNow: "Έλεγχος τώρα",
+    enablePush: "Ενεργοποίηση Web Push",
+    broadcast: "Ανακοίνωση",
+    subject: "Θέμα",
+    body: "Μήνυμα",
+    send: "Αποστολή",
+    everyone: "Όλοι",
+    staff: "Προσωπικό",
+    children: "Παιδιά",
+    coverage: "Κάλυψη",
+    incidents: "Περιστατικά",
+    careLog: "Ημέρα παιδιού",
+    reorderAll: "Όλα στη λίστα",
+    toList: "Στη λίστα",
+    gapReport: "Αναφορά κενού",
+  },
+} as const;
+
+export type MsgKey = keyof typeof DICT.de;
+
+const LANG_KEY = "armonia.lang";
+
+export function getStoredLang(): Lang {
+  if (typeof window === "undefined") return "de";
+  const v = localStorage.getItem(LANG_KEY);
+  return v === "el" ? "el" : "de";
+}
+
+export function setStoredLang(lang: Lang) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(LANG_KEY, lang);
+  document.documentElement.lang = lang;
+}
+
+export function t(key: MsgKey, lang?: Lang): string {
+  const l = lang || (typeof window !== "undefined" ? getStoredLang() : "de");
+  return DICT[l][key] || DICT.de[key] || key;
+}
+
+export function useLang(): [Lang, (l: Lang) => void] {
+  const [lang, setLangState] = useState<Lang>("de");
+  useEffect(() => {
+    setLangState(getStoredLang());
+  }, []);
+  function setLang(l: Lang) {
+    setStoredLang(l);
+    setLangState(l);
+  }
+  return [lang, setLang];
+}

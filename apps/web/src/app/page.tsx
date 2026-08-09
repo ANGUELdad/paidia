@@ -61,7 +61,7 @@ export default function LoginPage() {
   const note = BUILD.changed[lang];
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-4 pb-10 pt-8">
+    <main className="login-shell mx-auto flex min-h-dvh max-w-md flex-col">
       <div className="mb-6 flex gap-2 self-end">
         <button className={`btn-sec !min-h-9 !px-3 text-sm ${lang === "de" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" data-testid="lang-de" onClick={() => setLang("de")}>DE</button>
         <button className={`btn-sec !min-h-9 !px-3 text-sm ${lang === "el" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" data-testid="lang-el" onClick={() => setLang("el")}>ΕΛ</button>

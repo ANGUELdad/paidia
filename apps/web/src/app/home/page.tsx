@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dock } from "@/components/Dock";
 import { GuidedTour } from "@/components/GuidedTour";
+import { LateReasonSheet } from "@/components/LateReasonSheet";
 import { api } from "@/lib/api";
+import { getStoredLang, setStoredLang, t, type Lang } from "@/lib/i18n";
 import { sweepDueReminders } from "@/lib/reminders";
 
 type Session = {
@@ -15,6 +17,7 @@ type Session = {
   profileId?: string;
   nickname?: string;
   mode?: string;
+  lang?: string;
 };
 type Due = { kind: string; title: string; body: string; url: string };
 
@@ -25,6 +28,8 @@ export default function HomePage() {
   const [presence, setPresence] = useState<{ pending?: boolean } | null>(null);
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lateOpen, setLateOpen] = useState(false);
+  const [lang, setLang] = useState<Lang>("de");
 
   useEffect(() => {
     (async () => {
@@ -38,6 +43,9 @@ export default function HomePage() {
           router.replace("/kids");
           return;
         }
+        const l = (s.lang === "el" ? "el" : getStoredLang()) as Lang;
+        setStoredLang(l);
+        setLang(l);
         setSession(s);
         const evald = await api<{ due: Due[] }>("/api/notify/evaluate");
         setDue(evald.due || []);
@@ -56,18 +64,16 @@ export default function HomePage() {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const displayDate = useMemo(
     () =>
-      new Date(today + "T12:00:00").toLocaleDateString("de-DE", {
+      new Date(today + "T12:00:00").toLocaleDateString(lang === "el" ? "el-GR" : "de-DE", {
         weekday: "long",
         day: "numeric",
         month: "long",
       }),
-    [today],
+    [today, lang],
   );
 
-  async function checkin(status: "there" | "late") {
+  async function checkin(status: "there" | "late", reason = "") {
     if (busy) return;
-    let reason = "";
-    if (status === "late") reason = prompt("Warum zu spät?") || "";
     setBusy(true);
     try {
       await api("/api/presence/checkin", {
@@ -75,13 +81,14 @@ export default function HomePage() {
         body: JSON.stringify({ date: today, status, reason }),
       });
       setPresence({ pending: false });
+      setLateOpen(false);
       setNotice(status === "there" ? "Willkommen — du bist da." : "Verspätung notiert.");
     } finally {
       setBusy(false);
     }
   }
 
-  if (!session) return <main className="page">Laden…</main>;
+  if (!session) return <main className="page">{t("loading", lang)}</main>;
 
   const pending = presence?.pending === true;
   const started = !!presence && presence.pending === false;
@@ -100,7 +107,7 @@ export default function HomePage() {
             <p className="eyebrow shift-eyebrow">Armonia · Thassos</p>
             <div className="shift-hero-links">
               <Link className="shift-hero-link" href="/profile" data-testid="link-profile">
-                Profil
+                {t("profile", lang)}
               </Link>
               {session.admin && (
                 <Link className="shift-hero-link" href="/admin/notify" data-testid="link-admin">
@@ -131,7 +138,7 @@ export default function HomePage() {
                   type="button"
                   disabled={busy}
                   data-testid="presence-late"
-                  onClick={() => checkin("late")}
+                  onClick={() => setLateOpen(true)}
                 >
                   Zu spät melden
                 </button>
@@ -147,7 +154,7 @@ export default function HomePage() {
               </>
             ) : (
               <span className="shift-cta shift-cta-wait" aria-hidden>
-                Laden…
+                {t("loading", lang)}
               </span>
             )}
           </div>
@@ -186,6 +193,21 @@ export default function HomePage() {
             </div>
           )}
 
+          <div className="grid-even-2 mt-3">
+            <Link className="tile" href="/coverage">
+              <div className="tile-main">
+                <div className="font-semibold">{t("coverage", lang)}</div>
+                <div className="muted text-sm">Wer ist da · Lücken</div>
+              </div>
+            </Link>
+            <Link className="tile" href="/incidents">
+              <div className="tile-main">
+                <div className="font-semibold">{t("incidents", lang)}</div>
+                <div className="muted text-sm">Vorfall sichern</div>
+              </div>
+            </Link>
+          </div>
+
           {pending && (
             <Link className="shift-quiet-link" href="/handover" data-testid="link-handover">
               Zur Übergabe →
@@ -194,7 +216,13 @@ export default function HomePage() {
         </section>
       </main>
       <Dock mode="staff" />
-      <GuidedTour mode="staff" />
+      <GuidedTour mode="staff" admin={!!session.admin} />
+      <LateReasonSheet
+        open={lateOpen}
+        busy={busy}
+        onClose={() => setLateOpen(false)}
+        onSubmit={(reason) => checkin("late", reason)}
+      />
     </>
   );
 }

@@ -10,3 +10,5 @@ email-validator>=2.2.0
 pytest>=8.3.0
 # Optional: pywebpush when VAPID keys are configured
 # pywebpush>=2.0.0
+# Optional: webauthn when WEBAUTHN_ORIGIN is configured
+# webauthn>=2.0.0

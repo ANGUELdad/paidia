@@ -7,10 +7,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from armonia import __version__
+from armonia.auth.passkeys import passkeys_available
 from armonia.auth.routes import router as auth_router
 from armonia.config import get_settings
 from armonia.domains.book import router as book_router
 from armonia.domains.calendar import router as calendar_router
+from armonia.domains.care import router as care_router
+from armonia.domains.coverage import router as coverage_router
+from armonia.domains.incidents import router as incidents_router
 from armonia.domains.kids import router as kids_router
 from armonia.domains.notify import router as notify_router
 from armonia.domains.presence import router as presence_router
@@ -57,6 +61,9 @@ app.include_router(notify_router)
 app.include_router(zoai_router)
 app.include_router(kids_router)
 app.include_router(calendar_router)
+app.include_router(coverage_router)
+app.include_router(incidents_router)
+app.include_router(care_router)
 
 meeting_alias = APIRouter(prefix="/api/meeting-notes", tags=["talk"])
 
@@ -97,6 +104,9 @@ def health() -> dict:
         "llmProvider": "omniroute" if omni else ("groq" if settings.groq_api_key else "offline"),
         "omniroute": {"reachable": omni, "baseUrl": settings.omniroute_base_url},
         "notifications": {"local": True, "webPush": bool(settings.vapid_public_key)},
+        "vapidPublicKey": settings.vapid_public_key or "",
+        "passkeysAvailable": passkeys_available(),
+        "emailConfigured": bool(getattr(settings, "resend_api_key", "") or getattr(settings, "smtp_host", "")),
     }
 
 
