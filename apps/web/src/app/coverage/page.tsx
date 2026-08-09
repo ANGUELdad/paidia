@@ -144,34 +144,6 @@ export default function CoveragePage() {
           )}
           {msg && <p className="text-sm text-[var(--brand)] mb-3">{msg}</p>}
 
-          {(gaps.length > 0 || late.length > 0) && !loading && (
-            <div className="grid gap-2 mb-4">
-              {gaps.map((g, i) => (
-                <div key={`gap-${i}`} className="card border-[var(--sun)]" style={{ background: "var(--amber-tint)" }}>
-                  <div className="font-semibold text-[var(--warn)]">Lücke · {g.houseName || g.houseId}</div>
-                  <div className="muted text-sm">
-                    {BLOCK_LABEL[g.block] || g.block}
-                    {g.from && g.to ? ` · ${g.from}–${g.to}` : ""}
-                  </div>
-                  <button
-                    className="btn-sec !min-h-10 mt-2"
-                    type="button"
-                    onClick={() => setReportGap(g)}
-                    data-testid="gap-report-btn"
-                  >
-                    Lücke melden
-                  </button>
-                </div>
-              ))}
-              {late.map((l) => (
-                <div key={l.profileId} className="card border-[var(--sea)]" style={{ background: "var(--pine-tint)" }}>
-                  <div className="font-semibold text-[var(--sea)]">Verspätet · {l.name}</div>
-                  {l.reason && <div className="muted text-sm">{l.reason}</div>}
-                </div>
-              ))}
-            </div>
-          )}
-
           {loading ? (
             <LoadingBlock label="Abdeckung wird geladen…" />
           ) : !data?.houses?.length ? (
@@ -179,89 +151,88 @@ export default function CoveragePage() {
               title="Keine Abdeckungsdaten"
               hint="Für heute sind noch keine Haus-Spuren hinterlegt."
               action={
-                <button className="btn-sec !min-h-10" type="button" onClick={() => load()}>
+                <button className="btn-sec" type="button" onClick={() => load()}>
                   Erneut laden
                 </button>
               }
             />
           ) : (
-            <div className="grid gap-4">
-              {data.houses.map((lane) => (
-                <article key={lane.id} className="panel" data-testid={`lane-${lane.id}`}>
-                  <header className="row between mb-3">
-                    <h2 className="display-sm m-0 text-[var(--sea)]">{lane.name}</h2>
-                    <span className="muted text-xs uppercase tracking-wide">{lane.id}</span>
-                  </header>
-                  <div className="grid gap-2">
-                    {lane.blocks.map((block) => {
-                      const hasGap = block.gap || gaps.some((g) => g.houseId === lane.id && g.block === block.block);
-                      return (
-                        <div
-                          key={block.block}
-                          className={`card ${hasGap ? "border-[var(--sun)]" : ""}`}
-                          style={hasGap ? { background: "var(--amber-tint)" } : undefined}
-                        >
-                          <div className="row between">
-                            <div>
-                              <div className="font-semibold">{BLOCK_LABEL[block.block] || block.block}</div>
-                              <div className="muted text-sm">
-                                {block.from}–{block.to}
-                              </div>
-                            </div>
-                            {hasGap && (
-                              <span className="text-xs font-bold uppercase text-[var(--warn)]">Lücke</span>
-                            )}
-                          </div>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {block.staff.length ? (
-                              block.staff.map((s) => (
-                                <span
-                                  key={s.id}
-                                  className={`chip ${s.status === "late" ? "on" : s.status === "missing" ? "" : ""}`}
-                                  style={
-                                    s.status === "missing"
-                                      ? { borderColor: "var(--out)", color: "var(--out)" }
-                                      : undefined
-                                  }
-                                >
-                                  {s.name}
-                                  {s.status && s.status !== "there" ? ` · ${STATUS_LABEL[s.status] || s.status}` : ""}
-                                </span>
-                              ))
-                            ) : (
-                              <span className="muted text-sm">Niemand eingeteilt</span>
-                            )}
-                          </div>
-                          {hasGap && (
-                            <button
-                              className="btn-sec !min-h-10 mt-3 w-full"
-                              type="button"
-                              onClick={() =>
-                                setReportGap({
-                                  houseId: lane.id,
-                                  houseName: lane.name,
-                                  block: block.block,
-                                  from: block.from,
-                                  to: block.to,
-                                })
-                              }
-                            >
-                              Lücke melden
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
+            <div className="list-panel">
+              {(gaps.length > 0 || late.length > 0) && (
+                <div className="list-sticky">
+                  <span>
+                    {gaps.length} Lücken · {late.length} verspätet
+                  </span>
+                </div>
+              )}
+              {gaps.map((g, i) => (
+                <div key={`gap-${i}`} className="list-row is-gap">
+                  <div className="list-row__main">
+                    <div className="list-row__title">
+                      Lücke · {g.houseName || g.houseId}
+                    </div>
+                    <div className="list-row__meta">
+                      {BLOCK_LABEL[g.block] || g.block}
+                      {g.from && g.to ? ` · ${g.from}–${g.to}` : ""}
+                    </div>
                   </div>
-                </article>
+                  <button className="btn-sec" type="button" data-testid="gap-report-btn" onClick={() => setReportGap(g)}>
+                    Melden
+                  </button>
+                </div>
               ))}
-            </div>
-          )}
-
-          {!loading && data?.houses?.length && gaps.length === 0 && (
-            <div className="panel mt-4" style={{ background: "var(--pine-tint)" }}>
-              <strong>Alle Häuser besetzt.</strong>
-              <p className="muted m-0 mt-1">Keine offenen Lücken für heute.</p>
+              {late.map((l) => (
+                <div key={l.profileId} className="list-row is-warn">
+                  <div className="list-row__main">
+                    <div className="list-row__title">Verspätet · {l.name}</div>
+                    <div className="list-row__meta">{l.reason || "—"}</div>
+                  </div>
+                </div>
+              ))}
+              {data.houses.map((lane) => (
+                <div key={lane.id} data-testid={`lane-${lane.id}`}>
+                  <div className="list-sticky">{lane.name}</div>
+                  {lane.blocks.map((block) => {
+                    const hasGap = block.gap || gaps.some((g) => g.houseId === lane.id && g.block === block.block);
+                    const names = block.staff.map((s) => `${s.name}${s.status && s.status !== "there" ? ` (${STATUS_LABEL[s.status] || s.status})` : ""}`).join(", ");
+                    return (
+                      <div key={block.block} className={`list-row ${hasGap ? "is-gap" : ""}`}>
+                        <div className="list-row__main">
+                          <div className="list-row__title">
+                            {BLOCK_LABEL[block.block] || block.block} · {block.from}–{block.to}
+                          </div>
+                          <div className="list-row__meta">{names || "Niemand eingeteilt"}</div>
+                        </div>
+                        {hasGap && (
+                          <button
+                            className="btn-sec"
+                            type="button"
+                            onClick={() =>
+                              setReportGap({
+                                houseId: lane.id,
+                                houseName: lane.name,
+                                block: block.block,
+                                from: block.from,
+                                to: block.to,
+                              })
+                            }
+                          >
+                            Melden
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+              {!gaps.length && (
+                <div className="list-row">
+                  <div className="list-row__main">
+                    <div className="list-row__title">Alle Häuser besetzt</div>
+                    <div className="list-row__meta">Keine offenen Lücken für heute</div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </section>

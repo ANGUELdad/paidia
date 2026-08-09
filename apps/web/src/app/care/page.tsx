@@ -48,15 +48,31 @@ export default function CarePage() {
   );
 
   async function loadChildren() {
-    const data = await api<{ profiles: ChildProfile[] }>("/api/auth/profiles?mode=child");
-    const list = data.profiles || [];
-    setChildren(list);
-    setChildId((prev) => (prev && list.some((c) => c.id === prev) ? prev : list[0]?.id || ""));
+    setLoading(true);
+    setError("");
+    try {
+      const data = await api<{ profiles: ChildProfile[] }>("/api/auth/profiles?mode=child");
+      const list = data.profiles || [];
+      setChildren(list);
+      const nextId = list[0]?.id || "";
+      setChildId((prev) => (prev && list.some((c) => c.id === prev) ? prev : nextId));
+      if (!list.length) {
+        setLogs([]);
+        setLoading(false);
+      }
+    } catch (e) {
+      setError((e as Error).message);
+      setChildren([]);
+      setChildId("");
+      setLogs([]);
+      setLoading(false);
+    }
   }
 
   async function loadLogs(selectedChild = childId, selectedDate = date) {
     if (!selectedChild) {
       setLogs([]);
+      setLoading(false);
       return;
     }
     setLoading(true);
@@ -76,11 +92,15 @@ export default function CarePage() {
 
   useEffect(() => {
     if (!ready) return;
-    loadChildren().catch((e) => setError((e as Error).message));
+    loadChildren().catch(() => undefined);
   }, [ready]);
 
   useEffect(() => {
-    if (!ready || !childId) return;
+    if (!ready) return;
+    if (!childId) {
+      setLoading(false);
+      return;
+    }
     loadLogs(childId, date).catch(() => undefined);
   }, [ready, childId, date]);
 

@@ -64,6 +64,12 @@ export function MoreSheet({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  useEffect(() => {
+    if (!open) return;
+    document.body.classList.add("sheet-open");
+    return () => document.body.classList.remove("sheet-open");
+  }, [open]);
+
   if (!open) return null;
 
   const groups = buildGroups(admin);

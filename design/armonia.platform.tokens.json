@@ -178,6 +178,7 @@
     "ring": "2px solid markA",
     "offset": "2px"
   },
+  "theme": "signal-compact",
   "figma": {
     "file": "Armonia Thassos — App Overhaul",
     "fileKey": "Olki23ScD9YzGsLctkYCZ3",

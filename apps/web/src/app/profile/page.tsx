@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dock } from "@/components/Dock";
 import { PageShell } from "@/components/PageShell";
-import { api } from "@/lib/api";
+import { api, urlBase64ToUint8Array } from "@/lib/api";
 import { setStoredLang, t, type Lang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
 import { createPasskey } from "@/lib/webauthn";
@@ -103,13 +103,26 @@ export default function ProfilePage() {
       setPushStatus("Push nicht verfügbar");
       return;
     }
-    const readySw = await navigator.serviceWorker.ready;
-    const sub = await readySw.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: vapidPublic || undefined,
-    });
-    await api("/api/notify/subscribe", { method: "POST", body: JSON.stringify({ subscription: sub.toJSON() }) });
-    setPushStatus("Push aktiv");
+    if (!vapidPublic) {
+      setPushStatus("VAPID-Schlüssel fehlt");
+      return;
+    }
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        setPushStatus("Benachrichtigung abgelehnt");
+        return;
+      }
+      const readySw = await navigator.serviceWorker.ready;
+      const sub = await readySw.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublic) as BufferSource,
+      });
+      await api("/api/notify/subscribe", { method: "POST", body: JSON.stringify({ subscription: sub.toJSON() }) });
+      setPushStatus("Push aktiv");
+    } catch {
+      setPushStatus("Push fehlgeschlagen (iOS: App zum Home-Bildschirm?)");
+    }
   }
 
   async function registerPasskey() {

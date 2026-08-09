@@ -36,7 +36,7 @@ function normalizePublicKey(options: Record<string, unknown>): PublicKeyCredenti
       id: typeof c.id === "string" ? b64urlToBuffer(c.id) : c.id,
     }));
   }
-  return out as PublicKeyCredentialCreationOptions;
+  return out as unknown as PublicKeyCredentialCreationOptions;
 }
 
 export function credentialToJson(cred: PublicKeyCredential): Record<string, unknown> {

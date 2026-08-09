@@ -280,7 +280,7 @@ export default function KidsGamesPage() {
                 disabled={card.done || memLock}
                 aria-label={card.open || card.done ? card.emoji : "card"}
               >
-                {card.open || card.done ? card.emoji : "🌊"}
+                {card.open || card.done ? card.emoji : "?"}
               </button>
             ))}
           </div>

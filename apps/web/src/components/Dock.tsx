@@ -34,7 +34,7 @@ export function Dock({ mode = "staff" }: { mode?: "staff" | "child" }) {
 
   return (
     <>
-      <nav className="dock max-w-3xl" aria-label="Main" data-testid="dock">
+      <nav className="dock max-w-3xl" aria-label="Hauptnavigation" data-testid="dock">
         {items.map((item) => (
           <Link
             key={item.href}

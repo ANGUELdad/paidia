@@ -15,6 +15,7 @@ export default function ZoAiPage() {
   const [listening, setListening] = useState(false);
   const [pin, setPin] = useState("");
   const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!ready) return;
@@ -25,18 +26,26 @@ export default function ZoAiPage() {
 
   async function ask(e?: FormEvent) {
     e?.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || busy) return;
+    setBusy(true);
     setStatus("…");
-    const r = await api<{ reply?: string; message?: string; actions: ZoAiAction[]; varietySeed?: string; provider?: string }>(
-      "/api/zoai/chat",
-      {
-        method: "POST",
-        body: JSON.stringify({ text, voice: listening, messages: [{ role: "user", content: text }] }),
-      }
-    );
-    setReply(r.reply || r.message || "");
-    setActions(r.actions || []);
-    setStatus(`${r.provider || "ok"}${r.varietySeed ? ` · seed ${r.varietySeed}` : ""}`);
+    try {
+      const r = await api<{ reply?: string; message?: string; actions: ZoAiAction[]; varietySeed?: string; provider?: string }>(
+        "/api/zoai/chat",
+        {
+          method: "POST",
+          body: JSON.stringify({ text, voice: listening, messages: [{ role: "user", content: text }] }),
+        },
+      );
+      setReply(r.reply || r.message || "");
+      setActions(r.actions || []);
+      setStatus(`${r.provider || "ok"}${r.varietySeed ? ` · seed ${r.varietySeed}` : ""}`);
+      setText("");
+    } catch (err) {
+      setStatus((err as Error).message || "Fehler");
+    } finally {
+      setBusy(false);
+    }
   }
 
   function startVoice() {
@@ -92,8 +101,8 @@ export default function ZoAiPage() {
         <form className="stack" onSubmit={ask}>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder="Frag Zo-Ai…" />
           <div className="row">
-            <button className="btn" type="submit">
-              Senden
+            <button className="btn" type="submit" disabled={busy}>
+              {busy ? "…" : "Senden"}
             </button>
             <button className="btn ghost" type="button" onClick={startVoice}>
               {listening ? "Hört zu…" : "Mikrofon"}

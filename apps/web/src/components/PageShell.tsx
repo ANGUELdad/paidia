@@ -16,10 +16,10 @@ export function PageShell({
   actions?: React.ReactNode;
 }) {
   return (
-    <main className="page">
+    <main className="page" data-theme="signal">
       <header className="top shell-top">
-        <div>
-          <p className="eyebrow">{eyebrow}</p>
+        <div className="min-w-0">
+          <p className="eyebrow">Armonia · {eyebrow}</p>
           <h1 className="shell-title">{title}</h1>
           {lead && <p className="muted shell-lead">{lead}</p>}
         </div>

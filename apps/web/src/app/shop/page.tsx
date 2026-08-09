@@ -184,12 +184,14 @@ export default function ShopPage() {
     <>
       <PageShell eyebrow="Liste" title="Einkaufsliste" lead="Vorschläge aus Bestand und Vergangenheit — immer bestätigen.">
       <div data-tour="tour-shop">
-      <div className="flex flex-wrap gap-2">
+      <div className="seg-bar" role="tablist" aria-label="Listen">
         {TABS.map((tdef) => (
           <button
             key={tdef.id}
             type="button"
-            className={`btn-sec !min-h-10 ${tab === tdef.id ? "ring-2 ring-[var(--brand)]" : ""}`}
+            role="tab"
+            aria-selected={tab === tdef.id}
+            className={`btn-sec ${tab === tdef.id ? "ring-2 ring-[var(--brand)]" : ""}`}
             onClick={() => setTab(tdef.id)}
           >
             {tdef.label}
@@ -208,12 +210,13 @@ export default function ShopPage() {
       )}
 
       {tab !== "suggestions" && tab !== "supermarket" && (
-        <div className="card mt-4 flex gap-2">
+        <div className="card mt-3 flex flex-wrap gap-2">
           <input
-            className="flex-1 rounded-xl border border-[var(--line)] px-3 py-2"
+            className="min-h-11 min-w-0 flex-1 rounded-[var(--radius-sm)] border border-[var(--line)] px-3"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="z.B. Reis"
+            aria-label="Artikel"
             onKeyDown={(e) => { if (e.key === "Enter") add(undefined, tab === "friday"); }}
           />
           <button className="btn" type="button" onClick={() => add(undefined, tab === "friday")}>
@@ -273,47 +276,51 @@ export default function ShopPage() {
         </button>
       )}
 
-      <div className="mt-4 grid gap-2">
+      <div className="list-panel mt-3">
         {tab === "suggestions" ? (
           reorderItems.length ? (
             reorderItems.map((item) => (
-              <div key={`${item.houseId}:${item.productId}`} className="card flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="font-semibold">{item.name}</div>
-                  <div className="text-sm text-[var(--muted)]">
-                    {item.houseName || item.houseId} · Bestand {item.stockQty ?? 0} (Par {item.parLevel ?? 2})
+              <div key={`${item.houseId}:${item.productId}`} className="list-row is-warn">
+                <div className="list-row__main">
+                  <div className="list-row__title">{item.name}</div>
+                  <div className="list-row__meta">
+                    {item.houseName || item.houseId} · Bestand {item.stockQty ?? 0} · Ziel {item.parLevel ?? 2}
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <span className="text-sm text-[var(--muted)]">{item.qty} {item.unit}</span>
-                  <button className="btn-sec !min-h-9 text-sm" type="button" disabled={busy} onClick={() => applyReorder(item)}>
+                <div className="list-row__trail">
+                  <span className="list-row__qty">{item.qty}</span>
+                  <button className="btn-sec" type="button" disabled={busy} onClick={() => applyReorder(item)}>
                     {t("toList", lang)}
                   </button>
                 </div>
               </div>
             ))
           ) : (
-            <EmptyState title="Keine Vorschläge" hint="Alles auf Par-Niveau — gut gemacht." />
+            <div className="list-row">
+              <div className="list-row__meta">Keine Vorschläge — Bestand ok.</div>
+            </div>
           )
         ) : entries.length ? (
           entries.map((e) => (
-            <div key={e.id} className="card flex flex-wrap items-center justify-between gap-3">
-              <span className="font-semibold">{e.name}</span>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm text-[var(--muted)]">{e.qty} {e.unit}</span>
+            <div key={e.id} className={`list-row ${e.status === "missing" ? "is-gap" : e.status === "bought" ? "is-warn" : ""}`}>
+              <div className="list-row__main">
+                <div className="list-row__title">{e.name}</div>
+                <div className="list-row__meta">
+                  {e.qty} {e.unit}
+                  {e.status && e.status !== "open"
+                    ? ` · ${e.status === "bought" ? t("bought", lang) : e.status === "missing" ? t("missing", lang) : e.status}`
+                    : ""}
+                </div>
+              </div>
+              <div className="list-row__trail">
                 {tab === "supermarket" ? (
                   <>
-                    <button className={`btn-sec !min-h-9 text-sm ${e.status === "bought" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" onClick={() => setStatus(e.id, "bought")}>{t("bought", lang)}</button>
-                    <button className={`btn-sec !min-h-9 text-sm ${e.status === "missing" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" onClick={() => setStatus(e.id, "missing")}>{t("missing", lang)}</button>
-                    <button className="btn-sec !min-h-9 text-sm" type="button" onClick={() => done(e.id)}>OK</button>
+                    <button className={`btn-sec ${e.status === "bought" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" onClick={() => setStatus(e.id, "bought")}>{t("bought", lang)}</button>
+                    <button className={`btn-sec ${e.status === "missing" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" onClick={() => setStatus(e.id, "missing")}>{t("missing", lang)}</button>
+                    <button className="btn-sec" type="button" onClick={() => done(e.id)}>Fertig</button>
                   </>
                 ) : (
-                  <>
-                    {e.status && e.status !== "open" && (
-                      <span className="text-xs text-[var(--muted)]">{e.status}</span>
-                    )}
-                    <button className="btn-sec !min-h-9 text-sm" type="button" onClick={() => done(e.id)}>Erledigt</button>
-                  </>
+                  <button className="btn-sec" type="button" onClick={() => done(e.id)}>Erledigt</button>
                 )}
               </div>
             </div>

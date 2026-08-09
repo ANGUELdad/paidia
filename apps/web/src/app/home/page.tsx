@@ -49,8 +49,12 @@ export default function HomePage() {
         setSession(s);
         const evald = await api<{ due: Due[] }>("/api/notify/evaluate");
         setDue(evald.due || []);
-        const p = await api<{ pending?: boolean }>("/api/presence/active");
-        setPresence(p);
+        try {
+          const p = await api<{ pending?: boolean }>("/api/presence/active");
+          setPresence(p && typeof p.pending === "boolean" ? p : { pending: true });
+        } catch {
+          setPresence({ pending: true });
+        }
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker.register("/sw.js").catch(() => undefined);
         }
@@ -168,51 +172,55 @@ export default function HomePage() {
 
         <section className="shift-urgent" aria-label="Was jetzt zählt">
           <div className="row between shift-urgent-head">
-            <h2 className="text-lg m-0">Jetzt wichtig</h2>
+            <h2 className="text-base m-0">Jetzt wichtig</h2>
             {due.length > 0 && <span className="muted text-xs">{due.length} offen</span>}
           </div>
 
-          {due.length > 0 ? (
-            <div className="stack">
-              {due.map((d) => (
-                <Link key={d.kind} href={d.url} className="tile shift-alert" data-testid={`due-${d.kind}`}>
-                  <div className="tile-main">
-                    <div className="font-semibold">{d.title}</div>
-                    <div className="muted">{d.body}</div>
+          <div className="list-panel">
+            {due.length > 0 ? (
+              due.slice(0, 5).map((d) => (
+                <Link key={d.kind} href={d.url} className="list-row is-warn" data-testid={`due-${d.kind}`}>
+                  <div className="list-row__main">
+                    <div className="list-row__title">{d.title}</div>
+                    <div className="list-row__meta">{d.body}</div>
                   </div>
-                  <span className="shift-alert-go" aria-hidden>
+                  <span className="list-row__trail muted" aria-hidden>
                     →
                   </span>
                 </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="panel shift-calm" data-testid="all-clear">
-              <strong>Alles ruhig.</strong>
-              <p className="muted m-0 mt-1">Keine offenen Erinnerungen. Schönen Dienst.</p>
-            </div>
-          )}
-
-          <div className="grid-even-2 mt-3">
-            <Link className="tile" href="/coverage">
-              <div className="tile-main">
-                <div className="font-semibold">{t("coverage", lang)}</div>
-                <div className="muted text-sm">Wer ist da · Lücken</div>
+              ))
+            ) : (
+              <div className="list-row" data-testid="all-clear">
+                <div className="list-row__main">
+                  <div className="list-row__title">Alles ruhig</div>
+                  <div className="list-row__meta">Keine offenen Erinnerungen</div>
+                </div>
               </div>
-            </Link>
-            <Link className="tile" href="/incidents">
-              <div className="tile-main">
-                <div className="font-semibold">{t("incidents", lang)}</div>
-                <div className="muted text-sm">Vorfall sichern</div>
+            )}
+            <Link href="/coverage" className="list-row">
+              <div className="list-row__main">
+                <div className="list-row__title">{t("coverage", lang)}</div>
+                <div className="list-row__meta">Wer ist da · Lücken</div>
               </div>
+              <span aria-hidden>→</span>
             </Link>
+            <Link href="/incidents" className="list-row">
+              <div className="list-row__main">
+                <div className="list-row__title">{t("incidents", lang)}</div>
+                <div className="list-row__meta">Vorfall sichern</div>
+              </div>
+              <span aria-hidden>→</span>
+            </Link>
+            {pending && (
+              <Link className="list-row" href="/handover" data-testid="link-handover">
+                <div className="list-row__main">
+                  <div className="list-row__title">Übergabe</div>
+                  <div className="list-row__meta">Vorbereiten</div>
+                </div>
+                <span aria-hidden>→</span>
+              </Link>
+            )}
           </div>
-
-          {pending && (
-            <Link className="shift-quiet-link" href="/handover" data-testid="link-handover">
-              Zur Übergabe →
-            </Link>
-          )}
         </section>
       </main>
       <Dock mode="staff" />

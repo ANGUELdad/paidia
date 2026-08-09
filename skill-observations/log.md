@@ -220,3 +220,62 @@
 **Suggested improvement:** Prefer root-anchored ignores (`/coverage/`, `htmlcov/`, `.coverage`) for test artifacts. After adding a new first-segment app route, run `git check-ignore -v <path>` once before declaring the feature shipped.
 
 **Principle:** Ignore rules written for tool output directories must be path-anchored; otherwise product folders that share common names (`coverage`, `dist`, `build`, `out`) disappear from version control without an obvious error.
+
+## [2026-08-09T22:22:06Z] episode
+- **Trigger:** read-only visual system inventory for apps/web
+- **Insight:** Token file and globals.css stay aligned on pine/sea/amber, but most screens still render as glass card stacks + text-only dock — brand lives in tokens/heros, not in the default PageShell pattern.
+- **Evidence:** design/armonia.platform.tokens.json mirrors globals.css :root; PageShell/Dock/MoreSheet + .panel/.card dominate secondary routes while only home/handover use branded heroes.
+- **Skill candidate:** none (one-off audit)
+- **Principle candidate:** When auditing a design system, compare token source of truth against the default chrome pattern (shell/dock/cards), not just the hero screens.
+
+### Observation 13: Dense-list audit → shared row primitive gap
+
+**Status:** OPEN
+**Date:** 2026-08-10
+**Session context:** Read-only audit of apps/web table/matrix/dense list UIs for compact mobile redesign specs
+**Skill:** New skill candidate: dense-ops-list-audit (or extend frontend design review)
+**Type:** internal
+**Phase/Area:** Inventory + redesign mapping
+
+**Issue:** Multiple ops screens (stock, shop, coverage, incidents, care, book, calendar, admin notify) independently reimplement bordered `.card` / `.tile` stacks with 16px padding and inline action buttons, with no shared compact row / list→detail pattern. Cross-screen density work will duplicate unless a shared primitive lands first.
+
+**Suggested improvement:** When implementing compact redesigns, introduce one shared `list-row` (or similar) component/CSS in apps/web before per-page rewrites; map swipe secondary actions and sticky section headers as reusable CSS.
+
+**Principle:** Before redesigning N similar list screens, extract the shared density primitive so each screen only owns its data shape and secondary actions.
+
+## 2026-08-10 — Staff home/plan/stock UI pain audit (read-only)
+
+- **Trigger:** Thorough UI pain deep-dive of home/plan/stock + globals (.week-matrix, .dock, .page, .card, .panel)
+- **Insight:** Plan uses live `.week-grid` (min-width 820) while `.week-matrix` in Next globals is an orphan stub; mobile plan buries the week under the add form; stock is unbounded card rows with competing ± / toList / sign-off CTAs; home hero is strong but secondary tiles + alerts reintroduce dashboard clutter below the fold.
+- **Reusable pattern:** For staff ops screens, audit in four buckets (layout / density / table-or-matrix / list→detail) and always recommend a compact list→detail pseudo-structure so redesigns stay comparable across screens.
+- **Skill candidates:** none new (reinforces existing shared list-row primitive observation).
+
+### Observation 14: iOS touch-audit checklist for PWA surfaces
+
+**Status:** OPEN
+**Date:** 2026-08-10
+**Session context:** Read-only audit of apps/web interactive controls for iOS Simulator / touch reliability
+**Skill:** New skill candidate: ios-pwa-touch-audit
+**Type:** open-source
+**Phase/Area:** methodology / mobile QA
+
+**Issue:** A thorough iOS touch audit repeatedly needed the same eight checks (button type, 44px targets, hover-only, z-index/pointer-events vs dock/sheets, Enter/submit, e2e vs routes, WebAuthn/push/file, safe-area under fixed chrome). Without a reusable checklist, findings scatter across ad-hoc greps and false positives (e.g. Chromium+iPhone viewport ≠ WebKit).
+
+**Suggested improvement:** Author a lean skill with a fixed grep/read checklist, severity rubric (blocker vs UX), and an explicit note that Playwright `devices['iPhone 14']` + Chromium does not validate Safari WebAuthn/Push/Speech.
+
+**Principle:** Mobile PWA touch audits should treat platform APIs (WebAuthn, Push, Speech) and hit-target CSS as separate failure classes, and never equate Chromium mobile emulation with WebKit.
+
+### Observation 15: Prefer remount-safe overlay state and hang/error paths in stuck-UI audits
+
+**Status:** OPEN
+**Date:** 2026-08-10
+**Session context:** Read-only audit of apps/web for stuck UI, non-scrollable regions, and interaction traps
+**Skill:** New skill candidate: stuck-ui-audit (or improve future mobile-PWA review checklists)
+**Type:** open-source
+**Phase/Area:** Audit methodology / overlay & loading traps
+
+**Issue:** CSS searches for `overflow:hidden` / `100dvh` alone miss the highest-severity traps: per-page modal components that reset progress on remount (tour stuck at step 1), loading flags never cleared when a dependent fetch is skipped, and fetch helpers with no timeout so `LoadingBlock`/`ready` gates never escalate to an error.
+
+**Suggested improvement:** Checklist order: (1) overlay state ownership across route remounts, (2) every `loading`/`busy`/`ready` path must clear or error on empty/fail/hang, (3) modal scroll-lock + dismiss consistency, (4) dock/safe-area occlusion, (5) then CSS overflow/height traps.
+
+**Principle:** For mobile PWAs, stuck UI is more often state-lifecycle and hang/error omission than literal `overflow: hidden` on the document.
