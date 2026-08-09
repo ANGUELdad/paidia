@@ -3,7 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { PageShell } from "@/components/PageShell";
-import { api } from "@/lib/api";
+import { api, urlBase64ToUint8Array } from "@/lib/api";
+import { getStoredLang, t, type Lang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
 
 type Rule = {
@@ -15,26 +16,30 @@ type Rule = {
   label?: string;
 };
 
-const CATALOG = [
-  "shift_start",
-  "presence_late",
-  "low_stock",
-  "friday_list",
-  "journal_due",
-  "event_publish",
-  "meeting_notes_due",
-  "broadcast",
-  "child_event",
-];
+type DueItem = { kind?: string; title?: string; body?: string; url?: string };
+
+const CATALOG_DE: Record<string, string> = {
+  shift_start: "Schichtstart",
+  presence_late: "Verspätung",
+  low_stock: "Niedriger Bestand",
+  friday_list: "Freitagsliste",
+  journal_due: "Schichtbuch fällig",
+  event_publish: "Event veröffentlicht",
+  meeting_notes_due: "Besprechungsnotizen",
+  broadcast: "Rundsendung",
+  child_event: "Kinder-Termin",
+};
 
 export default function AdminNotifyPage() {
   const { ready } = useRequireMode("staff");
+  const [lang, setLang] = useState<Lang>("de");
   const [rules, setRules] = useState<Rule[]>([]);
-  const [due, setDue] = useState<unknown[]>([]);
+  const [due, setDue] = useState<DueItem[]>([]);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [audience, setAudience] = useState("staff");
   const [status, setStatus] = useState("");
+  const [refOpen, setRefOpen] = useState(false);
 
   async function load() {
     const r = await api<{ rules: Rule[] }>("/api/notify/rules");
@@ -43,6 +48,7 @@ export default function AdminNotifyPage() {
 
   useEffect(() => {
     if (!ready) return;
+    setLang(getStoredLang());
     load().catch(() => {
       window.location.href = "/";
     });
@@ -57,36 +63,39 @@ export default function AdminNotifyPage() {
   }
 
   async function evaluate() {
-    const r = await api<{ due: unknown[] }>("/api/notify/evaluate", { method: "POST" });
+    const r = await api<{ due: DueItem[] }>("/api/notify/evaluate", { method: "POST" });
     setDue(r.due || []);
   }
 
   async function subscribePush() {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      setStatus("Push not supported");
+      setStatus("Push nicht verfügbar");
       return;
     }
     const reg = await navigator.serviceWorker.register("/sw.js");
     const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
     if (!key) {
-      setStatus("Set NEXT_PUBLIC_VAPID_PUBLIC_KEY to enable push subscribe");
+      setStatus("NEXT_PUBLIC_VAPID_PUBLIC_KEY setzen");
       return;
     }
-    const sub = await reg.pushManager
-      .subscribe({
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        setStatus("Benachrichtigung abgelehnt");
+        return;
+      }
+      const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(key),
-      })
-      .catch(() => null);
-    if (!sub) {
-      setStatus("Subscribe failed (need valid VAPID)");
-      return;
+        applicationServerKey: urlBase64ToUint8Array(key) as BufferSource,
+      });
+      await api("/api/notify/subscribe", {
+        method: "POST",
+        body: JSON.stringify({ subscription: sub.toJSON() }),
+      });
+      setStatus("Push aktiv");
+    } catch {
+      setStatus("Push fehlgeschlagen");
     }
-    await api("/api/notify/subscribe", {
-      method: "POST",
-      body: JSON.stringify({ subscription: sub.toJSON() }),
-    });
-    setStatus("Push subscribed");
   }
 
   async function broadcast(e: FormEvent) {
@@ -96,68 +105,104 @@ export default function AdminNotifyPage() {
       method: "POST",
       body: JSON.stringify({ subject, message: body, body, audience: aud, channels: ["email", "push", "banner"] }),
     });
-    setStatus(r.ok ? r.preview || "Broadcast queued" : "Failed");
+    setStatus(r.ok ? r.preview || "Rundsendung in Warteschlange" : "Fehlgeschlagen");
   }
 
-  if (!ready) return <main className="page">Laden…</main>;
+  if (!ready) return <main className="page">{t("loading", lang)}</main>;
 
   return (
     <>
-      <PageShell eyebrow="Admin" title="Automationen" lead="Erinnerungen, Push und Broadcasts — nur für Admins.">
-      <section className="panel stack">
-        <h2>Reminder catalog</h2>
-        <ul className="catalog">
-          {CATALOG.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ul>
-        {rules.map((rule) => (
-          <div key={rule.id} className="row between">
-            <span>
-              {rule.label || rule.type || rule.kind} · {rule.enabled ? "on" : "off"}
-            </span>
-            <button className="btn ghost" type="button" onClick={() => toggle(rule)}>
-              Toggle
+      <PageShell eyebrow="Admin" title="Automationen" lead="Erinnerungen, Push und Rundsendungen.">
+        <section className="list-panel mb-3" data-tour="tour-admin">
+          <div className="list-sticky">
+            <span>{t("reminderCatalog", lang)}</span>
+            <button type="button" className="btn-sec" style={{ minHeight: 36, fontSize: "0.75rem" }} onClick={() => setRefOpen((v) => !v)}>
+              {refOpen ? "Zu" : "Referenz"}
             </button>
           </div>
-        ))}
-        <div className="row">
+          {refOpen &&
+            Object.entries(CATALOG_DE).map(([id, label]) => (
+              <div key={id} className="list-row">
+                <div className="list-row__main">
+                  <div className="list-row__title">{label}</div>
+                  <div className="list-row__meta">{id}</div>
+                </div>
+              </div>
+            ))}
+          {rules.map((rule) => {
+            const kind = rule.kind || rule.type || rule.id;
+            const label = rule.label || CATALOG_DE[kind] || kind;
+            return (
+              <div key={rule.id} className="list-row">
+                <div className="list-row__main">
+                  <div className="list-row__title">{label}</div>
+                  <div className="list-row__meta">
+                    {rule.enabled ? "an" : "aus"}
+                    {rule.schedule ? ` · ${rule.schedule}` : ""}
+                  </div>
+                </div>
+                <button className="btn-sec" type="button" onClick={() => toggle(rule)}>
+                  {t("toggle", lang)}
+                </button>
+              </div>
+            );
+          })}
+        </section>
+
+        <div className="row mb-3">
           <button className="btn" type="button" onClick={evaluate}>
-            Evaluate now
+            {t("evaluateNow", lang)}
           </button>
-          <button className="btn ghost" type="button" onClick={subscribePush}>
-            Enable Web Push
+          <button className="btn-sec" type="button" onClick={subscribePush} data-testid="admin-enable-push">
+            {t("enablePush", lang)}
           </button>
         </div>
-        {due.length > 0 && <pre className="pre">{JSON.stringify(due, null, 2)}</pre>}
-        {status && <p>{status}</p>}
-      </section>
-      <section className="panel stack">
-        <h2>Email / push broadcast</h2>
-        <form className="stack" onSubmit={broadcast}>
-          <select value={audience} onChange={(e) => setAudience(e.target.value)}>
-            <option value="everyone">Everyone</option>
-            <option value="staff">Staff</option>
-            <option value="children">Children</option>
-          </select>
-          <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Subject" />
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="Body" />
-          <button className="btn" type="submit">
-            Send
-          </button>
-        </form>
-      </section>
+
+        {due.length > 0 && (
+          <div className="list-panel mb-3">
+            <div className="list-sticky">
+              <span>Fällig jetzt</span>
+              <span>{due.length}</span>
+            </div>
+            {due.map((d, i) => (
+              <div key={i} className="list-row is-warn">
+                <div className="list-row__main">
+                  <div className="list-row__title">{d.title || d.kind || "Eintrag"}</div>
+                  <div className="list-row__meta">{d.body || d.url || ""}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {status && <p className="muted text-sm mb-3">{status}</p>}
+
+        <section className="panel stack">
+          <h2 className="text-base m-0">{t("broadcast", lang)}</h2>
+          <form className="stack" onSubmit={broadcast}>
+            <label>
+              Empfänger
+              <select value={audience} onChange={(e) => setAudience(e.target.value)} aria-label="Empfänger">
+                <option value="everyone">{t("everyone", lang)}</option>
+                <option value="staff">{t("staff", lang)}</option>
+                <option value="children">{t("children", lang)}</option>
+              </select>
+            </label>
+            <label>
+              {t("subject", lang)}
+              <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder={t("subject", lang)} />
+            </label>
+            <label>
+              {t("body", lang)}
+              <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder={t("body", lang)} />
+            </label>
+            <button className="btn" type="submit">
+              {t("send", lang)}
+            </button>
+          </form>
+        </section>
       </PageShell>
       <Dock />
     </>
   );
-}
-
-function urlBase64ToUint8Array(base64String: string) {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const raw = atob(base64);
-  const out = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; ++i) out[i] = raw.charCodeAt(i);
-  return out;
 }

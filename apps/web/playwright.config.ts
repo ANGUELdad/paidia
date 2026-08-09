@@ -25,7 +25,6 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || "http://127.0.0.1:3000",
     trace: "on-first-retry",
     ...iPhone,
-    browserName: "chromium",
     isMobile: true,
     hasTouch: true,
   },
@@ -35,6 +34,15 @@ export default defineConfig({
       use: {
         ...iPhone,
         browserName: "chromium",
+        isMobile: true,
+        hasTouch: true,
+      },
+    },
+    {
+      name: "iphone-14-webkit",
+      use: {
+        ...iPhone,
+        browserName: "webkit",
         isMobile: true,
         hasTouch: true,
       },

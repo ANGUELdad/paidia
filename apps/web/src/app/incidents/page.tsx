@@ -46,6 +46,9 @@ export default function IncidentsPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [msg, setMsg] = useState("");
+  const [filter, setFilter] = useState<"open" | "all">("open");
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [detail, setDetail] = useState<Incident | null>(null);
 
   const [severity, setSeverity] = useState("medium");
   const [houseId, setHouseId] = useState("h1");
@@ -77,6 +80,11 @@ export default function IncidentsPage() {
     load().catch(() => undefined);
   }, [ready]);
 
+  useEffect(() => {
+    document.body.classList.toggle("sheet-open", composeOpen || !!detail);
+    return () => document.body.classList.remove("sheet-open");
+  }, [composeOpen, detail]);
+
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (!text.trim() || busy) return;
@@ -95,6 +103,7 @@ export default function IncidentsPage() {
       setText("");
       setChildIdsRaw("");
       setSeverity("medium");
+      setComposeOpen(false);
       setMsg("Vorfall gesichert.");
       await load();
     } catch (err) {
@@ -111,6 +120,7 @@ export default function IncidentsPage() {
     try {
       await api(`/api/incidents/${id}/review`, { method: "POST", body: JSON.stringify({}) });
       setMsg("Vorfall als geprüft markiert.");
+      setDetail(null);
       await load();
     } catch (err) {
       setError((err as Error).message || "Prüfung fehlgeschlagen");
@@ -122,162 +132,167 @@ export default function IncidentsPage() {
   if (!ready) return <main className="page">Laden…</main>;
 
   const isAdmin = !!session?.admin;
+  const shown = incidents.filter((inc) => filter === "all" || !inc.status || inc.status === "open");
 
   return (
     <>
-      <PageShell
-        eyebrow="Schicht"
-        title="Vorfälle"
-        lead="Sichere Beobachtungen und Ereignisse — Admins können prüfen und abschließen."
-      >
+      <PageShell eyebrow="Schicht" title="Vorfälle" lead="Liste · Tippen für Details · Melden unten.">
         {error && (
           <div className="warn mb-3" role="alert">
             {error}
           </div>
         )}
-        {msg && <p className="text-sm text-[var(--brand)] mb-3">{msg}</p>}
+        {msg && <p className="muted text-sm mb-2">{msg}</p>}
 
-        <section className="panel stack mb-6" aria-labelledby="incident-form-title">
-          <h2 id="incident-form-title" className="display-sm m-0 text-[var(--sea)]">
-            Vorfall melden
-          </h2>
-          <p className="muted m-0">Schweregrad wählen, Haus und Betroffene angeben, kurz beschreiben.</p>
+        <div className="seg-bar">
+          <button type="button" className={`btn-sec ${filter === "open" ? "ring-2 ring-[var(--brand)]" : ""}`} onClick={() => setFilter("open")}>
+            Offen
+          </button>
+          <button type="button" className={`btn-sec ${filter === "all" ? "ring-2 ring-[var(--brand)]" : ""}`} onClick={() => setFilter("all")}>
+            Alle
+          </button>
+        </div>
 
-          <form className="stack" onSubmit={submit} data-testid="incident-form">
-            <fieldset className="stack">
-              <legend className="font-semibold">Schweregrad</legend>
-              <div className="chips">
-                {SEVERITIES.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className={severity === s.id ? "chip on" : "chip"}
-                    onClick={() => setSeverity(s.id)}
-                    title={s.hint}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-              <p className="muted text-sm m-0">{SEVERITIES.find((s) => s.id === severity)?.hint}</p>
-            </fieldset>
-
-            <label htmlFor="incident-house">
-              Haus
-              <select id="incident-house" value={houseId} onChange={(e) => setHouseId(e.target.value)}>
-                {houses.map((h) => (
-                  <option key={h.id} value={h.id}>
-                    {h.name}
-                  </option>
-                ))}
-                {!houses.length && (
-                  <>
-                    <option value="h1">Kalyvia</option>
-                    <option value="h2">Thalassa</option>
-                  </>
-                )}
-              </select>
-            </label>
-
-            <label htmlFor="incident-text">
-              Was ist passiert?
-              <textarea
-                id="incident-text"
-                rows={4}
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Sachlich beschreiben — wer, was, wann, wo…"
-                required
-              />
-            </label>
-
-            <label htmlFor="incident-children">
-              Betroffene Kinder (IDs, kommagetrennt)
-              <input
-                id="incident-children"
-                value={childIdsRaw}
-                onChange={(e) => setChildIdsRaw(e.target.value)}
-                placeholder="z. B. k1, k2"
-              />
-            </label>
-
-            <button className="btn w-full" type="submit" disabled={busy || !text.trim()}>
-              {busy ? "Speichern…" : "Vorfall sichern"}
-            </button>
-          </form>
-        </section>
-
-        <section aria-labelledby="incident-list-title">
-          <h2 id="incident-list-title" className="display-sm text-[var(--sea)]">
-            Gemeldete Vorfälle
-          </h2>
-
-          {loading ? (
-            <LoadingBlock label="Vorfälle werden geladen…" />
-          ) : !incidents.length ? (
-            <EmptyState
-              title="Noch keine Vorfälle"
-              hint="Melde hier Beobachtungen — sie erscheinen in der Liste und im Audit."
-            />
-          ) : (
-            <div className="grid gap-2 mt-3">
-              {incidents.map((inc) => {
-                const open = !inc.status || inc.status === "open";
-                const sev = SEVERITY_LABEL[inc.severity] || inc.severity;
-                const tone =
-                  inc.severity === "critical" || inc.severity === "high"
-                    ? "var(--amber-tint)"
-                    : "var(--pine-tint)";
-                return (
-                  <article
-                    key={inc.id}
-                    className="card"
-                    style={{ background: tone }}
-                    data-testid={`incident-${inc.id}`}
-                  >
-                    <div className="row between gap-2">
-                      <div>
-                        <span className="font-semibold text-[var(--sea)]">{sev}</span>
-                        <span className="muted text-sm"> · {inc.houseName || inc.houseId}</span>
-                      </div>
-                      <span className="text-xs font-bold uppercase text-[var(--muted)]">
-                        {STATUS_LABEL[inc.status || "open"] || inc.status}
-                      </span>
-                    </div>
-                    <p className="mt-2 mb-1">{inc.text}</p>
-                    {inc.childIds?.length ? (
-                      <p className="muted text-sm m-0">Kinder: {inc.childIds.join(", ")}</p>
-                    ) : null}
-                    {inc.createdAt ? (
-                      <p className="muted text-xs mt-2 m-0">
-                        {new Date(inc.createdAt).toLocaleString("de-DE")}
-                        {inc.createdBy ? ` · ${inc.createdBy}` : ""}
-                      </p>
-                    ) : null}
-                    {isAdmin && open && (
-                      <button
-                        className="btn-sec !min-h-10 mt-3"
-                        type="button"
-                        disabled={busy}
-                        onClick={() => review(inc.id)}
-                        data-testid={`review-${inc.id}`}
-                      >
-                        Als geprüft markieren
-                      </button>
-                    )}
-                    {inc.reviewedAt ? (
-                      <p className="muted text-xs mt-2 m-0">
-                        Geprüft {new Date(inc.reviewedAt).toLocaleString("de-DE")}
-                        {inc.reviewedBy ? ` · ${inc.reviewedBy}` : ""}
-                      </p>
-                    ) : null}
-                  </article>
-                );
-              })}
+        {loading ? (
+          <LoadingBlock label="Vorfälle werden geladen…" />
+        ) : !shown.length ? (
+          <EmptyState title="Noch keine Vorfälle" hint="Melde Beobachtungen — sie erscheinen hier." />
+        ) : (
+          <div className="list-panel" data-testid="incident-list">
+            <div className="list-sticky">
+              <span>{shown.length} Einträge</span>
             </div>
-          )}
-        </section>
+            {shown.map((inc) => {
+              const open = !inc.status || inc.status === "open";
+              const sev = SEVERITY_LABEL[inc.severity] || inc.severity;
+              return (
+                <button
+                  key={inc.id}
+                  type="button"
+                  className={`list-row ${inc.severity === "high" || inc.severity === "critical" ? "is-warn" : ""}`}
+                  data-testid={`incident-${inc.id}`}
+                  onClick={() => setDetail(inc)}
+                >
+                  <div className="list-row__main">
+                    <div className="list-row__title">
+                      {sev} · {inc.houseName || inc.houseId}
+                    </div>
+                    <div className="list-row__meta">
+                      {inc.text.slice(0, 72)}
+                      {inc.text.length > 72 ? "…" : ""}
+                    </div>
+                  </div>
+                  <span className="list-row__trail muted text-xs">
+                    {STATUS_LABEL[inc.status || "open"]}
+                    {open ? " →" : ""}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="sticky-footer">
+          <button className="btn w-full" type="button" data-testid="incident-compose" onClick={() => setComposeOpen(true)}>
+            Vorfall melden
+          </button>
+        </div>
       </PageShell>
+
+      {composeOpen && (
+        <div className="more-overlay" role="presentation" onClick={() => !busy && setComposeOpen(false)}>
+          <div className="more-sheet" role="dialog" aria-modal="true" aria-labelledby="incident-form-title" onClick={(e) => e.stopPropagation()}>
+            <header className="more-sheet-header">
+              <h2 id="incident-form-title">Vorfall melden</h2>
+              <button type="button" className="more-sheet-close" aria-label="Schließen" onClick={() => setComposeOpen(false)}>
+                ✕
+              </button>
+            </header>
+            <form className="stack" onSubmit={submit} data-testid="incident-form">
+              <fieldset className="stack">
+                <legend className="font-semibold">Schweregrad</legend>
+                <div className="chips">
+                  {SEVERITIES.map((s) => (
+                    <button key={s.id} type="button" className={severity === s.id ? "chip on" : "chip"} onClick={() => setSeverity(s.id)}>
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="muted text-sm m-0">{SEVERITIES.find((s) => s.id === severity)?.hint}</p>
+              </fieldset>
+              <label htmlFor="incident-house">
+                Haus
+                <select id="incident-house" value={houseId} onChange={(e) => setHouseId(e.target.value)}>
+                  {houses.map((h) => (
+                    <option key={h.id} value={h.id}>
+                      {h.name}
+                    </option>
+                  ))}
+                  {!houses.length && (
+                    <>
+                      <option value="h1">Kalyvia</option>
+                      <option value="h2">Thalassa</option>
+                    </>
+                  )}
+                </select>
+              </label>
+              <label htmlFor="incident-text">
+                Was ist passiert?
+                <textarea
+                  id="incident-text"
+                  rows={4}
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder="Sachlich beschreiben — wer, was, wann, wo…"
+                  required
+                />
+              </label>
+              <label htmlFor="incident-children">
+                Betroffene Kinder (IDs, kommagetrennt)
+                <input id="incident-children" value={childIdsRaw} onChange={(e) => setChildIdsRaw(e.target.value)} placeholder="z. B. k1, k2" />
+              </label>
+              <button className="btn w-full" type="submit" disabled={busy || !text.trim()}>
+                {busy ? "Speichern…" : "Vorfall sichern"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {detail && (
+        <div className="more-overlay" role="presentation" onClick={() => setDetail(null)}>
+          <div className="more-sheet" role="dialog" aria-modal="true" aria-labelledby="incident-detail-title" onClick={(e) => e.stopPropagation()}>
+            <header className="more-sheet-header">
+              <h2 id="incident-detail-title">
+                {SEVERITY_LABEL[detail.severity] || detail.severity} · {detail.houseName || detail.houseId}
+              </h2>
+              <button type="button" className="more-sheet-close" aria-label="Schließen" onClick={() => setDetail(null)}>
+                ✕
+              </button>
+            </header>
+            <p className="body-sm">{detail.text}</p>
+            {detail.childIds?.length ? <p className="muted text-sm">Kinder: {detail.childIds.join(", ")}</p> : null}
+            {detail.createdAt ? (
+              <p className="muted text-xs">
+                {new Date(detail.createdAt).toLocaleString("de-DE")}
+                {detail.createdBy ? ` · ${detail.createdBy}` : ""}
+              </p>
+            ) : null}
+            {detail.reviewedAt ? (
+              <p className="muted text-xs">
+                Geprüft {new Date(detail.reviewedAt).toLocaleString("de-DE")}
+                {detail.reviewedBy ? ` · ${detail.reviewedBy}` : ""}
+              </p>
+            ) : null}
+            {isAdmin && (!detail.status || detail.status === "open") && (
+              <button className="btn mt-3 w-full" type="button" disabled={busy} onClick={() => review(detail.id)} data-testid={`review-${detail.id}`}>
+                Als geprüft markieren
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <Dock />
     </>
   );

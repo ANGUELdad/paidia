@@ -89,6 +89,18 @@ html {
   overflow-x: clip;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 body {
   font-family: var(--font-ui);
   color: var(--ink);
@@ -260,12 +272,18 @@ textarea:focus:not(:focus-visible) {
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
   min-height: var(--row-h);
   padding: 8px 12px;
+  border: 0;
   border-bottom: 1px solid var(--line);
+  border-radius: 0;
   background: var(--card);
+  text-align: left;
   text-decoration: none;
   color: inherit;
+  font: inherit;
+  cursor: pointer;
   min-width: 0;
 }
 
@@ -735,12 +753,53 @@ button.list-row:active {
   margin-bottom: 12px;
 }
 
+.chat-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: min(62dvh, 560px);
+}
+
+.chat-log {
+  flex: 1 1 auto;
+  min-height: 180px;
+  max-height: min(48dvh, 420px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 2px;
+}
+
+.chat-composer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  background: var(--bg);
+}
+
 .bubble {
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);
   background: var(--pine-tint);
   padding: var(--space-3);
   overflow-wrap: anywhere;
+}
+
+.bubble.user {
+  background: var(--card);
+  align-self: flex-end;
+  max-width: 92%;
+}
+
+.bubble.assistant {
+  align-self: stretch;
 }
 
 .action-card {

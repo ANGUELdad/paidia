@@ -1,5 +1,5 @@
 /**
- * iPhone viewport bad-user + click-all stress harness (Playwright / Chromium).
+ * iPhone viewport bad-user + click-all stress harness (Playwright Chromium + WebKit).
  */
 import { test, expect } from "@playwright/test";
 
@@ -23,7 +23,9 @@ async function skipToursByDefault(page: import("@playwright/test").Page) {
 async function loginAsZoi(page: import("@playwright/test").Page) {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("enter-staff").click();
+  await expect(page.getByTestId("profile-e8")).toBeVisible({ timeout: 15000 });
   await page.getByTestId("profile-e8").click();
+  await expect(page.getByTestId("pin-input")).toBeVisible({ timeout: 5000 });
   await page.getByTestId("pin-input").fill("000000");
   await page.getByTestId("login-submit").click();
   await expect(page.getByTestId("login-error")).toContainText(/PIN|Λάθος/i, { timeout: 5000 });
@@ -80,7 +82,7 @@ test("bad user login then click every dock control", async ({ page }) => {
   await expect(page.locator("main").first()).toBeVisible();
 });
 
-test("ops stress: stock spam, shop spam, plan conflict, zoai, calendar", async ({ page }) => {
+test("ops stress: stock shop plan book zoai calendar admin", async ({ page }) => {
   await skipToursByDefault(page);
   await loginAsZoi(page);
 
@@ -90,16 +92,17 @@ test("ops stress: stock spam, shop spam, plan conflict, zoai, calendar", async (
     const plus = page.getByRole("button", { name: "＋" }).first();
     if (await plus.isVisible().catch(() => false)) await plus.click({ force: true });
   }
-  await page.getByRole("button", { name: /Lager-Check/ }).click({ force: true });
+  await page.getByRole("button", { name: /Check abschließen|Lager-Check/ }).click({ force: true });
 
   await page.goto("/shop", { waitUntil: "domcontentloaded" });
   await page.getByPlaceholder("z.B. Reis").fill("!!!@@@###");
-  await page.getByRole("button", { name: "Add" }).click({ force: true });
+  await page.getByRole("button", { name: /Hinzufügen|Προσθήκη|Add/i }).click({ force: true });
   await page.getByPlaceholder("z.B. Reis").fill("Milch");
-  await page.getByRole("button", { name: "Add" }).click({ force: true });
+  await page.getByRole("button", { name: /Hinzufügen|Προσθήκη|Add/i }).click({ force: true });
 
   await page.goto("/plan", { waitUntil: "domcontentloaded" });
   await dismissTour(page);
+  await page.getByRole("button", { name: /Eintrag hinzufügen/ }).click({ force: true });
   await page.getByTestId("plan-activity").fill("Stress A");
   await page.getByTestId("plan-save").click({ force: true });
   await page.getByTestId("plan-activity").fill("Stress B");
@@ -111,16 +114,18 @@ test("ops stress: stock spam, shop spam, plan conflict, zoai, calendar", async (
   }
 
   await page.goto("/book", { waitUntil: "domcontentloaded" });
-  await page.getByPlaceholder("Was ist passiert?").fill("x".repeat(200));
+  await page.getByTestId("journal-preview").click({ force: true });
+  await page.getByPlaceholder("Was ist passiert?").fill("x".repeat(80));
   await page.getByRole("button", { name: /Eintrag speichern/ }).click({ force: true });
 
   await page.goto("/talk", { waitUntil: "domcontentloaded" });
   await page.getByPlaceholder("Nachricht…").fill("<script>alert(1)</script>");
-  await page.getByRole("button", { name: "Senden" }).click({ force: true });
+  await page.getByRole("button", { name: /Senden|Αποστολή/i }).click({ force: true });
 
   await page.goto("/zoai", { waitUntil: "domcontentloaded" });
   await page.getByPlaceholder("Frag Zo-Ai…").fill("Milch auf Liste");
-  await page.getByRole("button", { name: "Senden" }).click({ force: true });
+  await page.getByRole("button", { name: /Senden|Αποστολή/i }).click({ force: true });
+  await expect(page.getByTestId("staff-chat-log")).toBeVisible();
   await page.waitForTimeout(400);
 
   await page.goto("/calendar", { waitUntil: "domcontentloaded" });
@@ -131,13 +136,41 @@ test("ops stress: stock spam, shop spam, plan conflict, zoai, calendar", async (
   await page.getByTestId("rm-save").click({ force: true });
 
   await page.goto("/admin/notify", { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Evaluate now" }).click({ force: true });
-  await page.getByRole("button", { name: "Toggle" }).first().click({ force: true });
+  await page.getByRole("button", { name: /Jetzt prüfen|Evaluate/i }).click({ force: true });
+  await page.getByRole("button", { name: /Umschalten|Toggle/i }).first().click({ force: true });
+});
+
+test("presence handover care incidents flow", async ({ page }) => {
+  await skipToursByDefault(page);
+  await loginAsZoi(page);
+
+  await page.goto("/home", { waitUntil: "domcontentloaded" });
+  const there = page.getByTestId("presence-there");
+  if (await there.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await there.click({ force: true });
+  }
+
+  await page.goto("/incidents", { waitUntil: "domcontentloaded" });
+  await page.getByTestId("incident-compose").click({ force: true });
+  await expect(page.getByTestId("incident-form")).toBeVisible();
+  await page.locator("#incident-text").fill("E2E Vorfall Test");
+  await page.getByRole("button", { name: /Vorfall sichern/ }).click({ force: true });
+  await expect(page.getByTestId("incident-list")).toBeVisible({ timeout: 8000 });
+
+  await page.goto("/care", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("main").first()).toBeVisible();
+  const meal = page.getByRole("button", { name: /Mahlzeit/i });
+  if (await meal.isVisible().catch(() => false)) {
+    await meal.click({ force: true });
+    const save = page.getByRole("button", { name: /Speichern|Sichern/i });
+    if (await save.isVisible({ timeout: 2000 }).catch(() => false)) await save.click({ force: true });
+  }
 });
 
 test("guided tour advances", async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.removeItem("armonia.tour.staff");
+    sessionStorage.removeItem("armonia.tour.state.staff");
   });
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("enter-staff").click();

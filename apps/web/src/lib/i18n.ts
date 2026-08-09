@@ -75,7 +75,7 @@ const DICT = {
     toggle: "Umschalten",
     evaluateNow: "Jetzt prüfen",
     enablePush: "Web Push aktivieren",
-    broadcast: "Broadcast",
+    broadcast: "Rundsendung",
     subject: "Betreff",
     body: "Nachricht",
     send: "Senden",

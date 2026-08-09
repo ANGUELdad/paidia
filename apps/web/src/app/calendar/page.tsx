@@ -2,8 +2,9 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
+import { EmptyState } from "@/components/EmptyState";
 import { GuidedTour } from "@/components/GuidedTour";
-import { PageShell, Grid } from "@/components/PageShell";
+import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { scheduleLocalReminder } from "@/lib/reminders";
 
@@ -20,6 +21,17 @@ type EventRow = {
 
 type Reminder = { id: string; title: string; at: string; url: string };
 
+const STATUS_DE: Record<string, string> = {
+  published: "Veröffentlicht",
+  draft: "Entwurf",
+};
+
+const AUDIENCE_DE: Record<string, string> = {
+  staff: "Personal",
+  children: "Kinder",
+  all: "Alle",
+};
+
 export default function CalendarPage() {
   const [events, setEvents] = useState<EventRow[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
@@ -30,6 +42,7 @@ export default function CalendarPage() {
   const [status, setStatus] = useState("");
   const [rmTitle, setRmTitle] = useState("");
   const [rmAt, setRmAt] = useState("");
+  const [detail, setDetail] = useState<EventRow | null>(null);
 
   async function load() {
     const s = await api<{ authenticated: boolean; admin?: boolean; mode?: string }>("/api/auth/session");
@@ -55,6 +68,11 @@ export default function CalendarPage() {
     });
   }, []);
 
+  useEffect(() => {
+    document.body.classList.toggle("sheet-open", !!detail);
+    return () => document.body.classList.remove("sheet-open");
+  }, [detail]);
+
   async function createEvent(e: FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
@@ -71,13 +89,17 @@ export default function CalendarPage() {
       }),
     });
     setTitle("");
-    setStatus("Event gespeichert");
+    setStatus("Termin gespeichert");
     await load();
   }
 
   async function addToGoogle(id: string) {
     const r = await api<{ url: string }>(`/api/calendar/google-link?eventId=${id}`);
-    window.open(r.url, "_blank", "noopener,noreferrer");
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      window.location.assign(r.url);
+    } else {
+      window.open(r.url, "_blank", "noopener,noreferrer");
+    }
   }
 
   function downloadIcs(id?: string) {
@@ -94,7 +116,7 @@ export default function CalendarPage() {
     });
     await scheduleLocalReminder(r.reminder.title, r.reminder.at, "/calendar");
     setRmTitle("");
-    setStatus("Erinnerung gesetzt (OS + App)");
+    setStatus("Erinnerung gesetzt");
     await load();
   }
 
@@ -102,47 +124,53 @@ export default function CalendarPage() {
     <>
       <PageShell
         eyebrow="Kalender"
-        title="Termine & Erinnerungen"
-        lead="ICS, Google Calendar, lokale Reminder — alles bestätigbar."
+        title="Termine"
+        lead="Kommende Termine · ICS · Erinnerungen."
         actions={
-          <button type="button" className="btn-sec !min-h-10 text-sm" onClick={() => downloadIcs()} data-testid="ics-all">
-            ICS alle
+          <button type="button" className="btn-sec text-sm" onClick={() => downloadIcs()} data-testid="ics-all">
+            Alle als ICS
           </button>
         }
       >
-        {status && <p className="panel muted">{status}</p>}
+        {status && <p className="muted text-sm mb-2">{status}</p>}
 
-        <section className="panel stack">
-          <h2>Kommende Events</h2>
-          <Grid>
-            {events.map((ev) => (
-              <article key={ev.id} className="tile" data-testid={`event-${ev.id}`}>
-                <div className="tile-main">
-                  <strong>{ev.title}</strong>
-                  <p className="muted">
-                    {ev.date} · {ev.startTime || "—"}–{ev.endTime || "—"} · {ev.status} · {ev.audience}
-                  </p>
+        <section className="list-panel mb-3" data-tour="tour-cal">
+          <div className="list-sticky">
+            <span>Kommende Termine</span>
+            <span>{events.length}</span>
+          </div>
+          {events.length ? (
+            events.map((ev) => (
+              <button key={ev.id} type="button" className="list-row" data-testid={`event-${ev.id}`} onClick={() => setDetail(ev)}>
+                <div className="list-row__main">
+                  <div className="list-row__title">{ev.title}</div>
+                  <div className="list-row__meta">
+                    {ev.date} · {ev.startTime || "—"}–{ev.endTime || "—"} · {STATUS_DE[ev.status] || ev.status} ·{" "}
+                    {AUDIENCE_DE[ev.audience] || ev.audience}
+                  </div>
                 </div>
-                <div className="tile-actions">
-                  <button type="button" className="btn ghost" onClick={() => downloadIcs(ev.id)}>
-                    ICS
-                  </button>
-                  <button type="button" className="btn-sec" onClick={() => addToGoogle(ev.id)}>
-                    Google
-                  </button>
-                </div>
-              </article>
-            ))}
-            {!events.length && <p className="muted">Keine Events.</p>}
-          </Grid>
+                <span aria-hidden>→</span>
+              </button>
+            ))
+          ) : (
+            <div className="list-row">
+              <div className="list-row__meta">Keine Termine.</div>
+            </div>
+          )}
         </section>
 
         {admin && (
-          <section className="panel stack">
-            <h2>Event anlegen</h2>
+          <section className="panel stack mb-3">
+            <h2 className="text-base m-0">Termin anlegen</h2>
             <form className="stack" onSubmit={createEvent}>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel" data-testid="event-title" />
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              <label>
+                Titel
+                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Titel" data-testid="event-title" />
+              </label>
+              <label>
+                Datum
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              </label>
               <button className="btn" type="submit" data-testid="event-save">
                 Veröffentlichen
               </button>
@@ -151,30 +179,65 @@ export default function CalendarPage() {
         )}
 
         <section className="panel stack">
-          <h2>Persönliche Erinnerungen</h2>
+          <h2 className="text-base m-0">Persönliche Erinnerungen</h2>
           <form className="stack" onSubmit={addReminder}>
-            <input value={rmTitle} onChange={(e) => setRmTitle(e.target.value)} placeholder="z.B. Freitagsliste" data-testid="rm-title" />
-            <input type="datetime-local" value={rmAt} onChange={(e) => setRmAt(e.target.value)} data-testid="rm-at" />
+            <label>
+              Titel
+              <input value={rmTitle} onChange={(e) => setRmTitle(e.target.value)} placeholder="z.B. Freitagsliste" data-testid="rm-title" />
+            </label>
+            <label>
+              Zeitpunkt
+              <input type="datetime-local" value={rmAt} onChange={(e) => setRmAt(e.target.value)} data-testid="rm-at" />
+            </label>
             <button className="btn" type="submit" data-testid="rm-save">
-              Reminder setzen
+              Erinnerung setzen
             </button>
           </form>
-          <Grid>
-            {reminders.map((r) => (
-              <div key={r.id} className="tile">
-                <strong>{r.title}</strong>
-                <span className="muted">{r.at}</span>
-              </div>
-            ))}
-            {calendarDue.map((r) => (
-              <div key={r.id} className="tile">
-                <strong>📅 {r.title}</strong>
-                <span className="muted">{r.at}</span>
-              </div>
-            ))}
-          </Grid>
+          <div className="list-panel mt-2">
+            {[...reminders, ...calendarDue].length ? (
+              [...reminders, ...calendarDue].map((r) => (
+                <div key={r.id} className="list-row">
+                  <div className="list-row__main">
+                    <div className="list-row__title">{r.title}</div>
+                    <div className="list-row__meta">{r.at}</div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <EmptyState title="Keine Erinnerungen" hint="Lege oben eine persönliche Erinnerung an." />
+            )}
+          </div>
         </section>
       </PageShell>
+
+      {detail && (
+        <div className="more-overlay" role="presentation" onClick={() => setDetail(null)}>
+          <div className="more-sheet" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <header className="more-sheet-header">
+              <h2>{detail.title}</h2>
+              <button type="button" className="more-sheet-close" aria-label="Schließen" onClick={() => setDetail(null)}>
+                ✕
+              </button>
+            </header>
+            <p className="muted text-sm">
+              {detail.date} · {detail.startTime || "—"}–{detail.endTime || "—"}
+            </p>
+            <p className="muted text-sm">
+              {STATUS_DE[detail.status] || detail.status} · {AUDIENCE_DE[detail.audience] || detail.audience}
+            </p>
+            {detail.notes && <p className="body-sm mt-2">{detail.notes}</p>}
+            <div className="row mt-3">
+              <button type="button" className="btn-sec" onClick={() => downloadIcs(detail.id)}>
+                ICS laden
+              </button>
+              <button type="button" className="btn" onClick={() => addToGoogle(detail.id)}>
+                Google öffnen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Dock />
       <GuidedTour />
     </>
