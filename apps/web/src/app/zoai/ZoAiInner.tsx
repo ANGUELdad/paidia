@@ -84,6 +84,7 @@ export default function ZoAiInner() {
       setStatus(`${r.provider || "ok"}`);
       if (g?.spotlight && g.href && g.title && g.body) {
         setGuideHint(g);
+        // Stay on Zo-Ai so the reply stays readable; coach offers “Zeig mir”.
         guide?.startGuide(
           {
             id: g.spotlight,
@@ -93,6 +94,7 @@ export default function ZoAiInner() {
             body: g.body,
           },
           "zoai",
+          { navigate: false },
         );
       }
     } catch (err) {
@@ -208,10 +210,11 @@ export default function ZoAiInner() {
                     body: guideHint.body,
                   },
                   "zoai",
+                  { navigate: true },
                 );
               }}
             >
-              Nochmal zeigen
+              Zeig mir auf dem Bildschirm
             </button>
           </div>
         )}

@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -14,9 +15,11 @@ import type { GuideTarget } from "@/lib/guide-intents";
 
 type ActiveGuide = GuideTarget & { source?: "tour" | "zoai" | "home" };
 
+type StartOpts = { navigate?: boolean };
+
 type GuideCtx = {
   active: ActiveGuide | null;
-  startGuide: (target: GuideTarget, source?: ActiveGuide["source"]) => void;
+  startGuide: (target: GuideTarget, source?: ActiveGuide["source"], opts?: StartOpts) => void;
   clearGuide: () => void;
 };
 
@@ -37,10 +40,12 @@ export function GuideProvider({ children }: { children: ReactNode }) {
   const path = usePathname();
   const [active, setActive] = useState<ActiveGuide | null>(null);
   const [rect, setRect] = useState<DOMRect | null>(null);
+  const retryRef = useRef(0);
 
   const clearGuide = useCallback(() => {
     setActive(null);
     setRect(null);
+    retryRef.current = 0;
     document.querySelectorAll(".tour-spotlight-target").forEach((el) => {
       el.classList.remove("tour-spotlight-target");
     });
@@ -53,19 +58,22 @@ export function GuideProvider({ children }: { children: ReactNode }) {
     const el = document.querySelector(`[data-tour="${spotlight}"]`) as HTMLElement | null;
     if (!el) {
       setRect(null);
-      return;
+      return false;
     }
     el.classList.add("tour-spotlight-target");
     el.scrollIntoView({ block: "center", behavior: "smooth" });
     setRect(el.getBoundingClientRect());
+    return true;
   }, []);
 
   const startGuide = useCallback(
-    (target: GuideTarget, source: ActiveGuide["source"] = "tour") => {
+    (target: GuideTarget, source: ActiveGuide["source"] = "tour", opts?: StartOpts) => {
+      const navigate = opts?.navigate ?? source !== "zoai";
       setActive({ ...target, source });
-      if (target.href !== path) {
+      retryRef.current = 0;
+      if (navigate && target.href !== path) {
         router.push(target.href);
-      } else {
+      } else if (target.href === path) {
         requestAnimationFrame(() => measure(target.spotlight));
       }
     },
@@ -74,11 +82,28 @@ export function GuideProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!active) return;
-    const t = window.setTimeout(() => measure(active.spotlight), 120);
+    let cancelled = false;
+    retryRef.current = 0;
+
+    const tick = () => {
+      if (cancelled) return;
+      const ok = measure(active.spotlight);
+      if (ok) {
+        retryRef.current = 0;
+        return;
+      }
+      retryRef.current += 1;
+      if (retryRef.current < 20) {
+        window.setTimeout(tick, 100);
+      }
+    };
+
+    const t = window.setTimeout(tick, 80);
     const onResize = () => measure(active.spotlight);
     window.addEventListener("resize", onResize);
     window.addEventListener("scroll", onResize, true);
     return () => {
+      cancelled = true;
       window.clearTimeout(t);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("scroll", onResize, true);
@@ -102,12 +127,14 @@ export function GuideProvider({ children }: { children: ReactNode }) {
       }
     : null;
 
+  const needsGo = !!active && active.href !== path;
+
   return (
     <Ctx.Provider value={value}>
       {children}
       {active && (
         <div className="guide-layer" data-testid="guide-layer" aria-live="polite">
-          <div className="guide-scrim" onClick={clearGuide} />
+          {(hole || !needsGo) && <div className="guide-scrim" onClick={clearGuide} />}
           {hole && (
             <div
               className="guide-hole"
@@ -126,16 +153,16 @@ export function GuideProvider({ children }: { children: ReactNode }) {
               <p className="muted mt-2 mb-0">{active.body}</p>
               <div className="guide-coach-actions">
                 <button type="button" className="btn ghost" onClick={clearGuide} data-testid="guide-dismiss">
-                  Verstanden
+                  {needsGo ? "Später" : "Verstanden"}
                 </button>
-                {active.href !== path && (
+                {needsGo && (
                   <button
                     type="button"
                     className="btn"
                     data-testid="guide-go"
                     onClick={() => router.push(active.href)}
                   >
-                    Dorthin
+                    Zeig mir
                   </button>
                 )}
               </div>
