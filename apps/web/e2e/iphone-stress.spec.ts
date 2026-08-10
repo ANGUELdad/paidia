@@ -200,8 +200,8 @@ test("presence handover care incidents flow", async ({ page }) => {
 
 test("guided tour advances", async ({ page }) => {
   await page.addInitScript(() => {
-    localStorage.removeItem("armonia.tour.staff");
-    sessionStorage.removeItem("armonia.tour.state.staff");
+    localStorage.removeItem("armonia.tour.staff.v3");
+    sessionStorage.removeItem("armonia.tour.state.staff.v3");
   });
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("enter-staff").click();
@@ -213,7 +213,6 @@ test("guided tour advances", async ({ page }) => {
   ]);
   await expect(page.getByTestId("guided-tour")).toBeVisible({ timeout: 8000 });
   await page.getByTestId("tour-next").click({ force: true });
-  await page.getByTestId("tour-go").click({ force: true });
   await page.getByRole("button", { name: "Später" }).click({ force: true });
   await expect(page.getByTestId("tour-reopen")).toBeVisible({ timeout: 5000 });
 });

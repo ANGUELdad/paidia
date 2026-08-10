@@ -108,6 +108,12 @@ export default function HomePage() {
       setPresence({ pending: false });
       setLateOpen(false);
       setNotice(status === "there" ? "Willkommen — du bist da." : "Verspätung notiert.");
+      try {
+        const evald = await api<{ due: Due[] }>("/api/notify/evaluate");
+        setDue((evald.due || []).filter((d) => d.kind !== "shift_start"));
+      } catch {
+        setDue((prev) => prev.filter((d) => d.kind !== "shift_start"));
+      }
     } finally {
       setBusy(false);
     }
@@ -305,7 +311,10 @@ export default function HomePage() {
             </button>
           </form>
           <div className="dawn-chips">
-            {GUIDE_TARGETS.filter((g) => ["presence", "plan", "stock", "zoai"].includes(g.id)).map((g) => (
+            {GUIDE_TARGETS.filter((g) => {
+              if (g.id === "presence" && !pending) return false;
+              return ["presence", "plan", "stock", "zoai"].includes(g.id);
+            }).map((g) => (
               <button
                 key={g.id}
                 type="button"
@@ -318,6 +327,16 @@ export default function HomePage() {
                 {g.title}
               </button>
             ))}
+            {!pending && (
+              <button
+                type="button"
+                className="dawn-chip"
+                data-testid="guide-chip-handover"
+                onClick={() => router.push("/handover")}
+              >
+                Übergabe
+              </button>
+            )}
             <button
               type="button"
               className="dawn-chip dawn-chip-ai"
