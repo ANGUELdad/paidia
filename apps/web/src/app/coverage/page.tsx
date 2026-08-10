@@ -192,9 +192,11 @@ export default function CoveragePage() {
               {data.houses.map((lane) => (
                 <div key={lane.id} data-testid={`lane-${lane.id}`}>
                   <div className="list-sticky">{lane.name}</div>
-                  {lane.blocks.map((block) => {
+                  {(lane.blocks || []).map((block) => {
                     const hasGap = block.gap || gaps.some((g) => g.houseId === lane.id && g.block === block.block);
-                    const names = block.staff.map((s) => `${s.name}${s.status && s.status !== "there" ? ` (${STATUS_LABEL[s.status] || s.status})` : ""}`).join(", ");
+                    const names = (block.staff || [])
+                      .map((s) => `${s.name}${s.status && s.status !== "there" ? ` (${STATUS_LABEL[s.status] || s.status})` : ""}`)
+                      .join(", ");
                     return (
                       <div key={block.block} className={`list-row ${hasGap ? "is-gap" : ""}`}>
                         <div className="list-row__main">
@@ -223,6 +225,11 @@ export default function CoveragePage() {
                       </div>
                     );
                   })}
+                  {!(lane.blocks || []).length && (
+                    <div className="list-row" style={{ cursor: "default" }}>
+                      <div className="list-row__meta">Keine Blöcke für dieses Haus</div>
+                    </div>
+                  )}
                 </div>
               ))}
               {!gaps.length && !late.length && (
