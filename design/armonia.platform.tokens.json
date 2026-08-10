@@ -229,6 +229,13 @@
     },
     "css": "apps/web/src/app/globals.css :root",
     "source": "design/VISUAL_MOTION_SYSTEM.md",
-    "note": "Signal Compact (Design C): chalk canvas, dense list-row, list→detail sheets; Figma page 20 mirrors every product route"
+    "note": "Signal Compact (Design C / Option B): chalk canvas, dense list-row, list→detail sheets; Figma page 20 mirrors every product route",
+    "optionsFile": {
+      "fileKey": "FF1z3faHih8HrhUFa3pHkZ",
+      "url": "https://www.figma.com/design/FF1z3faHih8HrhUFa3pHkZ",
+      "selected": "B",
+      "selectedName": "Signal Compact",
+      "previewProject": "paidia-platform"
+    }
   }
 }
