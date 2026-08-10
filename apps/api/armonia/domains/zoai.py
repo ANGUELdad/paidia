@@ -33,7 +33,11 @@ When the user asks how/where to do something, also answer with a concrete UI pat
 PIN_ACTIONS = {"schedule_add", "broadcast_email", "event_announce"}
 
 GUIDE_RULES: list[tuple[str, dict[str, str]]] = [
-    (r"schicht\s*start|präsenz|anwesend|check.?in|zu\s*spät|verspät", {
+    (r"schichtbuch|\bbuch\b|journal|audit", {
+        "href": "/book", "spotlight": "tour-book", "title": "Schichtbuch",
+        "body": "Pflicht-Eintrag für die Schicht. Audit zeigt, was passiert ist.",
+    }),
+    (r"(?<!\w)schicht(?!buch)|präsenz|anwesend|check.?in|zu\s*spät|verspät|\bstarte?\b", {
         "href": "/home", "spotlight": "tour-presence", "title": "Schicht starten",
         "body": "Tippe „Schicht starten“ auf Heute — oder melde Verspätung mit Grund.",
     }),
@@ -60,10 +64,6 @@ GUIDE_RULES: list[tuple[str, dict[str, str]]] = [
     (r"\btalk\b|chat|besprechung", {
         "href": "/talk", "spotlight": "tour-talk", "title": "Talk",
         "body": "Team-Chat und Besprechungsnotizen der ISO-Woche.",
-    }),
-    (r"schichtbuch|\bbuch\b|journal|audit", {
-        "href": "/book", "spotlight": "tour-book", "title": "Schichtbuch",
-        "body": "Pflicht-Eintrag für die Schicht. Audit zeigt, was passiert ist.",
     }),
     (r"kalender|termin|ics", {
         "href": "/calendar", "spotlight": "tour-cal", "title": "Kalender",

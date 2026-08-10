@@ -93,14 +93,14 @@ export const GUIDE_TARGETS: GuideTarget[] = [
 ];
 
 const RULES: { re: RegExp; id: string }[] = [
-  { re: /schicht\s*start|präsenz|anwesend|check.?in|zu\s*spät|verspät/i, id: "presence" },
+  { re: /schichtbuch|\bbuch\b|journal|audit/i, id: "book" },
+  { re: /(?<![\wäöü])schicht(?!buch)|präsenz|anwesend|check.?in|zu\s*spät|verspät|\bstarte?\b/i, id: "presence" },
   { re: /jetzt\s*wichtig|was\s*jetzt|nächste\s*aufgabe/i, id: "now" },
   { re: /wochenplan|tagesplan|\bplan\b|schedule|block/i, id: "plan" },
   { re: /lager|bestand|vorrat|milch|stock/i, id: "stock" },
   { re: /einkauf|liste|shop|einkaufen/i, id: "shop" },
   { re: /zo.?ai|assistent|ki\b|frage\s*stellen/i, id: "zoai" },
   { re: /\btalk\b|chat|besprechung|notiz/i, id: "talk" },
-  { re: /schichtbuch|\bbuch\b|journal|audit/i, id: "book" },
   { re: /kalender|termin|ics/i, id: "calendar" },
   { re: /heute|home|start\s*bildschirm|übersicht/i, id: "home" },
 ];
