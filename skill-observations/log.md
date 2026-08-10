@@ -330,3 +330,74 @@
 **Status:** ACK
 **Date:** 2026-08-10
 **Note:** Continued Signal Compact overhaul (stock CAS, login/profile, notify CTAs, Figma sync). Methodology already captured in Observation 17.
+
+## 2026-08-10 — Figma mockups shipped without visual QA
+
+- **Trigger:** User rejected overhaul board as an "atrocity" ("don't you have eyes?").
+- **Insight:** Plugin API layout bugs (`resize` locking FIXED height, SPACE_BETWEEN leaving dead voids, HUG sheet at bottom) produce frames that look "done" in metadata but fail as UI. Shipping Figma options without downloading/reading screenshots is how empty phones reach the user.
+- **Reusable pattern:** After every `use_figma` screen build: (1) `screenshot()` or `get_screenshot`, (2) actually inspect the image, (3) reject if >~20% empty band or clipped text, (4) only then share the link.
+- **Skill candidates:** strengthen figma-generate-design / agent habit — "screenshot-before-share" gate for design deliverables.
+
+## 2026-08-10
+
+### Observation 18: Playwright isVisible does not wait for live SPA content
+
+**Status:** OPEN
+**Date:** 2026-08-10
+**Session context:** Live deployment smoke test of paidia-platform.vercel.app staff login
+**Skill:** New skill candidate: live-spa-smoke-testing
+**Type:** open-source
+**Phase/Area:** Browser automation waits
+
+**Issue:** First live run marked staff profiles FAIL because locator.isVisible({ timeout }) returned immediately on an empty list while /api/auth/profiles was still in flight. A follow-up using waitFor({ state: 'visible' }) correctly passed once the API responded.
+
+**Suggested improvement:** For SPA/live smoke checklists, require waitFor (or expect.toBeVisible) rather than isVisible; treat cold-start API latency as expected and assert eventual UI, not immediate DOM.
+
+**Principle:** In browser automation, visibility helpers that do not wait produce false negatives on async-loaded UI — prefer waiting assertions for remote deployments with cold starts.
+
+### Observation: live Zo-Ai guide probes must assert guide-layer, not chat bubbles
+
+**Date:** 2026-08-10
+**Trigger:** Live probe against paidia-platform.vercel.app after guide mapping fix
+**Skill:** e2e / live probe methodology
+**Issue:** `scripts/live-zoai-guide-probe.mjs` waited for `.bubble.assistant` after guideAsk; production starts the guide layer and navigates to the spotlight route, so chat bubbles never appear and the probe false-failed despite correct API `guide` payloads.
+**Suggested improvement:** Assert `guide-layer` / coach copy / network `guide.spotlight` (and optional URL) as the primary success criteria for how-to asks; treat chat bubbles as secondary when the flow is guide-first.
+
+
+### Observation 19: Live SPA screenshots before data settle false-fail empty states
+
+**Status:** OPEN
+**Date:** 2026-08-10
+**Session context:** LIVE staff dock smoke on paidia-platform.vercel.app
+**Skill:** live-spa-smoke-testing
+**Type:** open-source
+**Phase/Area:** Async content settlement
+
+**Issue:** Immediate screenshots after `domcontentloaded` on `/stock` showed “Keine Artikel in diesem Filter” and marked +/- FAIL; `/handover`/`/coverage`/`/incidents` looked stuck on skeleton loaders. After waiting for stock rows / loader text to clear (~0.5–2s), all settled green and stock +/- worked via API+UI.
+
+**Suggested improvement:** Smoke checklist must (1) wait for route-specific ready selectors or absence of loading copy, (2) distinguish “empty after settle” from “still loading”, (3) treat missing loading UI that reuses empty-state copy as a product bug.
+
+**Principle:** For live SPA smoke, assert settled content — never judge PASS/FAIL from the first paint after navigation.
+
+## 2026-08-10 — Live guide mapping retest after redeploy
+
+**Trigger:** User asked for PASS/FAIL after redeploying fixed guide mapping for «Wie starte ich die Schicht?» → tour-presence.
+
+**Observation:** Production verification of Zo-Ai guide mapping is most reliable via authenticated platform proxy `POST /api/zoai/chat` (assert `guide.spotlight`) plus a short UI poll for `guide-layer`/`zoai-guide-hint`, not by waiting solely on `.bubble.assistant` (offline/LLM latency causes false FAIL). Login against live profiles is flaky — retry profile list load.
+
+**Suggested improvement:** Prefer spotlight-field assertions in live probes; treat assistant bubble as soft signal.
+
+### Observation 20: Live guide QA must assert coach/nav not chat bubbles
+
+**Status:** OPEN
+**Date:** 2026-08-10
+**Session context:** Live Zo-Ai guide probe against paidia-platform.vercel.app
+**Skill:** New skill candidate: live-pwa-guide-visual-qa
+**Type:** open-source
+**Phase/Area:** Visual QA / Playwright against guided overlays
+
+**Issue:** First probe failed waiting for `.bubble.assistant` after `guideAsk`. `startGuide` navigates to the target route and remounts away from chat, so bubbles never stay visible even when the guide coach on /home, /stock, or /plan is correct. Separately, Playwright `fill()` on the home ask input sometimes left React `askDraft` empty and navigated to bare `/zoai`.
+
+**Suggested improvement:** For guide how-to flows, assert network `guide` payload + `guide-layer`/`guide-coach` (or destination route), not chat bubbles. Prefer `guideAsk` deep links over controlled-input fill for asks.
+
+**Principle:** When a product action navigates away from the surface that produced it, assert the destination UI — not the ephemeral source chrome.
