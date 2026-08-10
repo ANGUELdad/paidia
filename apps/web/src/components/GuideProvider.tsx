@@ -60,6 +60,12 @@ export function GuideProvider({ children }: { children: ReactNode }) {
       setRect(null);
       return false;
     }
+    // Skip zero-size / not-yet-laid-out targets (common right after route change).
+    const r = el.getBoundingClientRect();
+    if (r.width < 8 || r.height < 8) {
+      setRect(null);
+      return false;
+    }
     el.classList.add("tour-spotlight-target");
     el.scrollIntoView({ block: "center", behavior: "smooth" });
     setRect(el.getBoundingClientRect());
@@ -70,6 +76,7 @@ export function GuideProvider({ children }: { children: ReactNode }) {
     (target: GuideTarget, source: ActiveGuide["source"] = "tour", opts?: StartOpts) => {
       const navigate = opts?.navigate ?? source !== "zoai";
       setActive({ ...target, source });
+      setRect(null);
       retryRef.current = 0;
       if (navigate && target.href !== path) {
         router.push(target.href);
@@ -83,6 +90,7 @@ export function GuideProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!active) return;
     let cancelled = false;
+    let timer = 0;
     retryRef.current = 0;
 
     const tick = () => {
@@ -93,18 +101,27 @@ export function GuideProvider({ children }: { children: ReactNode }) {
         return;
       }
       retryRef.current += 1;
-      if (retryRef.current < 20) {
-        window.setTimeout(tick, 100);
+      if (retryRef.current < 40) {
+        timer = window.setTimeout(tick, 75);
       }
     };
 
-    const t = window.setTimeout(tick, 80);
+    timer = window.setTimeout(tick, 50);
     const onResize = () => measure(active.spotlight);
     window.addEventListener("resize", onResize);
     window.addEventListener("scroll", onResize, true);
+
+    const mo = new MutationObserver(() => {
+      if (!cancelled && !document.querySelector(".tour-spotlight-target")) {
+        measure(active.spotlight);
+      }
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+
     return () => {
       cancelled = true;
-      window.clearTimeout(t);
+      window.clearTimeout(timer);
+      mo.disconnect();
       window.removeEventListener("resize", onResize);
       window.removeEventListener("scroll", onResize, true);
     };
@@ -117,12 +134,12 @@ export function GuideProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({ active, startGuide, clearGuide }), [active, startGuide, clearGuide]);
 
-  const pad = 8;
+  const pad = 10;
   const hole = rect
     ? {
-        top: Math.max(8, rect.top - pad),
-        left: Math.max(8, rect.left - pad),
-        width: rect.width + pad * 2,
+        top: Math.max(4, rect.top - pad),
+        left: Math.max(4, rect.left - pad),
+        width: Math.min((typeof window !== "undefined" ? window.innerWidth : 390) - 8, rect.width + pad * 2),
         height: rect.height + pad * 2,
       }
     : null;
@@ -134,16 +151,22 @@ export function GuideProvider({ children }: { children: ReactNode }) {
       {children}
       {active && (
         <div className="guide-layer" data-testid="guide-layer" aria-live="polite">
-          {(hole || !needsGo) && <div className="guide-scrim" onClick={clearGuide} />}
+          {/* Dim via hole box-shadow only — a full scrim would cover the cutout. */}
+          {!hole && !needsGo && <div className="guide-scrim" onClick={clearGuide} />}
+          {!hole && needsGo && <div className="guide-scrim guide-scrim-soft" />}
           {hole && (
-            <div
+            <button
+              type="button"
               className="guide-hole"
+              aria-label="Hervorgehobener Bereich"
+              data-testid="guide-hole"
               style={{
                 top: hole.top,
                 left: hole.left,
                 width: hole.width,
                 height: hole.height,
               }}
+              onClick={clearGuide}
             />
           )}
           {active.source !== "tour" && (

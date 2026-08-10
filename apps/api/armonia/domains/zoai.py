@@ -341,8 +341,14 @@ def chat(body: ChatBody, request: Request) -> dict[str, Any]:
         msg = str(exc)
         if msg == "missing_llm_key" or msg.startswith("all_providers_failed"):
             hint, offline_actions = _offline_action_hint(user_text or "", role)
+            guide = _infer_guide(user_text or "")
             if offline_actions:
                 content = hint
+            elif guide:
+                content = (
+                    f"{guide.get('title')}: {guide.get('body')} "
+                    f"Tippe „Zeig mir“ in der Führung, wenn du den Bildschirm sehen willst."
+                )
             else:
                 content = random.choice(
                     [
@@ -354,7 +360,6 @@ def chat(body: ChatBody, request: Request) -> dict[str, Any]:
             provider = "offline"
             actions = offline_actions if role != "child" else []
             visible = content
-            guide = _infer_guide(user_text or "")
 
             def apply_offline(st: dict[str, Any]) -> None:
                 recent_list = st.setdefault("zoaiRecent", [])
