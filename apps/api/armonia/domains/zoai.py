@@ -39,7 +39,7 @@ GUIDE_RULES: list[tuple[str, dict[str, str]]] = [
     }),
     (r"(?<!\w)schicht(?!buch)|präsenz|anwesend|check.?in|zu\s*spät|verspät|\bstarte?\b", {
         "href": "/home", "spotlight": "tour-presence", "title": "Schicht starten",
-        "body": "Tippe „Schicht starten“ auf Heute — oder melde Verspätung mit Grund.",
+        "body": "Oben auf Heute: „Schicht starten“ oder Verspätung. Läuft die Schicht schon: Übergabe / Tagesplan.",
     }),
     (r"jetzt\s*wichtig|was\s*jetzt|nächste\s*aufgabe", {
         "href": "/home", "spotlight": "tour-now", "title": "Jetzt",

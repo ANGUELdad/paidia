@@ -15,7 +15,7 @@ export const GUIDE_TARGETS: GuideTarget[] = [
     href: "/home",
     spotlight: "tour-presence",
     title: "Schicht starten",
-    body: "Tippe „Schicht starten“ auf Heute — oder melde Verspätung mit Grund.",
+    body: "Oben auf Heute: „Schicht starten“ oder Verspätung. Läuft die Schicht schon: Übergabe / Tagesplan.",
     ask: "Wie starte ich meine Schicht?",
   },
   {
