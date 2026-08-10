@@ -12,22 +12,40 @@ from typing import Any
 
 from argon2 import PasswordHasher
 
+from armonia.env_aliases import apply_env_aliases
+
+apply_env_aliases()
+
 _LOCK = threading.RLock()
 _DEFAULT_STORE = Path(__file__).resolve().parent.parent / ".armonia-store.json"
 # Vercel serverless FS is read-only except /tmp — keep warm-instance continuity there.
 _DATA_PATH = Path(os.environ.get("ARMONIA_STORE_PATH") or ("/tmp/.armonia-store.json" if os.environ.get("VERCEL") else _DEFAULT_STORE))
 _PIN_HASHER = PasswordHasher()
 
-# Dev seed PINs — hashed at seed time; plaintext is not persisted in the store.
+# Display meta + optional local-dev seed PINs (used only when PAIDIA_AUTH_USERS_JSON is absent).
 SEED_PROFILES = [
     {"id": "e1", "name": "Dora", "mode": "staff", "role": "Betreuerin", "admin": False, "color": "#9bc4b0", "pin": "111111"},
     {"id": "e2", "name": "Karin", "mode": "staff", "role": "Betreuerin", "admin": False, "color": "#7a9eaa", "pin": "222222"},
     {"id": "e3", "name": "Dimitris", "mode": "staff", "role": "Betreuer", "admin": True, "color": "#c5ddd0", "pin": "333333"},
     {"id": "e4", "name": "Angelos", "mode": "staff", "role": "Betreuer", "admin": True, "color": "#a8c5b8", "pin": "444444"},
+    {"id": "e5", "name": "Claudio", "mode": "staff", "role": "Betreuer", "admin": False, "color": "#8fb0a0", "pin": "555555"},
+    {"id": "e6", "name": "Löhri", "mode": "staff", "role": "Betreuer", "admin": False, "color": "#d4c4a0", "pin": "666666"},
+    {"id": "e7", "name": "Amalia", "mode": "staff", "role": "Betreuerin", "admin": False, "color": "#b8c9a8", "pin": "777777"},
     {"id": "e8", "name": "Zoi", "mode": "staff", "role": "Leitung", "admin": True, "color": "#2f5a63", "pin": "888888"},
     {"id": "k1", "name": "Simon", "mode": "child", "role": "Kind", "admin": False, "color": "#9bc4b0", "pin": "121212"},
     {"id": "k2", "name": "Kai", "mode": "child", "role": "Kind", "admin": False, "color": "#7a9eaa", "pin": "131313"},
+    {"id": "k3", "name": "Vincent", "mode": "child", "role": "Kind", "admin": False, "color": "#c5ddd0", "pin": "141414"},
+    {"id": "k4", "name": "Julian klein", "mode": "child", "role": "Kind", "admin": False, "color": "#a8c5b8", "pin": "151515"},
+    {"id": "k5", "name": "Julian groß", "mode": "child", "role": "Kind", "admin": False, "color": "#8fb0a0", "pin": "161616"},
+    {"id": "k6", "name": "Lea", "mode": "child", "role": "Kind", "admin": False, "color": "#d4c4a0", "pin": "171717"},
+    {"id": "k7", "name": "Valeria", "mode": "child", "role": "Kind", "admin": False, "color": "#b8c9a8", "pin": "181818"},
+    {"id": "k8", "name": "Jule", "mode": "child", "role": "Kind", "admin": False, "color": "#6b9a88", "pin": "191919"},
+    {"id": "k9", "name": "Samantha", "mode": "child", "role": "Kind", "admin": False, "color": "#5a8a7a", "pin": "202020"},
+    {"id": "k10", "name": "Lilly", "mode": "child", "role": "Kind", "admin": False, "color": "#7a9eaa", "pin": "212121"},
+    {"id": "k11", "name": "Zoitsa", "mode": "child", "role": "Kind", "admin": False, "color": "#c48a1a", "pin": "222222"},
+    {"id": "k12", "name": "Leonie", "mode": "child", "role": "Kind", "admin": False, "color": "#2f5a63", "pin": "232323"},
 ]
+_SEED_BY_ID = {p["id"]: p for p in SEED_PROFILES}
 
 PLATFORM_LIST_CAPS = {
     "listEntries": 4000,
@@ -60,6 +78,82 @@ def _seed_profile_row(p: dict[str, Any]) -> dict[str, Any]:
     row["phone"] = ""
     row["pinHash"] = _PIN_HASHER.hash(str(pin)) if pin else None
     return row
+
+
+def _parse_auth_users_json() -> dict[str, dict[str, Any]]:
+    raw = (os.environ.get("PAIDIA_AUTH_USERS_JSON") or "").strip()
+    if not raw:
+        return {}
+    if (raw.startswith('"') and raw.endswith('"')) or (raw.startswith("'") and raw.endswith("'")):
+        raw = raw[1:-1]
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    out: dict[str, dict[str, Any]] = {}
+    for pid, rec in data.items():
+        if not isinstance(rec, dict):
+            continue
+        pin_hash = str(rec.get("pin_hash") or "").strip()
+        if not pin_hash:
+            continue
+        out[str(pid)] = {
+            "pin_hash": pin_hash,
+            "mode": "child" if rec.get("mode") == "child" else "staff",
+            "email": str(rec.get("email") or "").strip().lower(),
+            "phone": str(rec.get("phone") or "").strip(),
+        }
+    return out
+
+
+def _admin_ids() -> set[str]:
+    raw = (os.environ.get("PAIDIA_ADMIN_PROFILE_IDS") or "e3,e4,e8").strip()
+    return {x.strip() for x in raw.split(",") if x.strip()}
+
+
+def _apply_auth_env(state: dict[str, Any]) -> bool:
+    """Overlay PAIDIA_AUTH_USERS_JSON pin hashes / emails onto profiles."""
+    users = _parse_auth_users_json()
+    if not users:
+        return False
+    changed = False
+    profiles = state.setdefault("profiles", {})
+    admins = _admin_ids()
+    for pid, rec in users.items():
+        seed = _SEED_BY_ID.get(pid) or {
+            "id": pid,
+            "name": pid,
+            "mode": rec["mode"],
+            "role": "Kind" if rec["mode"] == "child" else "Betreuer",
+            "admin": pid in admins,
+            "color": "#2f5a63",
+        }
+        row = profiles.get(pid)
+        if not row:
+            row = _seed_profile_row(seed)
+            profiles[pid] = row
+            changed = True
+        if row.get("pinHash") != rec["pin_hash"]:
+            row["pinHash"] = rec["pin_hash"]
+            changed = True
+        row.pop("pin", None)
+        if rec["email"] and row.get("email") != rec["email"]:
+            row["email"] = rec["email"]
+            changed = True
+        if rec["phone"] and row.get("phone") != rec["phone"]:
+            row["phone"] = rec["phone"]
+            changed = True
+        mode = rec["mode"]
+        if row.get("mode") != mode:
+            row["mode"] = mode
+            changed = True
+        want_admin = pid in admins
+        if bool(row.get("admin")) != want_admin:
+            row["admin"] = want_admin
+            changed = True
+    return changed
 
 
 def _trim_lists(state: dict[str, Any]) -> None:
@@ -171,11 +265,14 @@ def _upgrade_profile_pins(state: dict[str, Any]) -> bool:
 
 
 def load_state() -> dict[str, Any]:
+    apply_env_aliases()
     with _LOCK:
         if _DATA_PATH.exists():
             try:
                 state = json.loads(_DATA_PATH.read_text(encoding="utf-8"))
-                if _upgrade_profile_pins(state):
+                changed = _upgrade_profile_pins(state)
+                changed = _apply_auth_env(state) or changed
+                if changed:
                     _persist(state)
                 return state
             except (OSError, json.JSONDecodeError):
@@ -185,6 +282,7 @@ def load_state() -> dict[str, Any]:
         for h in HOUSES:
             for p in state["products"]:
                 state["stock"][f"{h['id']}:{p['id']}"] = 4
+        _apply_auth_env(state)
         _persist(state)
         return state
 

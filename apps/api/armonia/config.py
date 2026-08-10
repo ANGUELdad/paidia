@@ -1,15 +1,30 @@
 from __future__ import annotations
 
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from armonia.env_aliases import apply_env_aliases
 
 DEFAULT_SESSION_SECRET = "dev-change-me-armonia-session-secret-32b"
 _DEV_ENVS = frozenset({"development", "dev", "test", "local"})
 
+# Root + apps/api .env files (PAIDIA_* secrets live at repo root).
+_ENV_FILES = (
+    Path(__file__).resolve().parents[3] / ".env",
+    Path(__file__).resolve().parents[3] / ".env.local",
+    Path(__file__).resolve().parents[2] / ".env",
+    Path(__file__).resolve().parents[2] / ".env.local",
+)
+
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=tuple(str(p) for p in _ENV_FILES if p.is_file()),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     app_name: str = "Armonia API"
     environment: str = "development"
@@ -44,6 +59,8 @@ class Settings(BaseSettings):
     smtp_from: str = ""
     smtp_use_tls: str = "true"
     paidia_public_url: str = ""
+    paidia_admin_profile_ids: str = "e3,e4,e8"
+    paidia_auth_users_json: str = ""
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     max_body_bytes: int = 262_144
 
@@ -60,6 +77,7 @@ def _assert_production_safe(settings: Settings) -> None:
 
 @lru_cache
 def get_settings() -> Settings:
+    apply_env_aliases()
     settings = Settings()
     _assert_production_safe(settings)
     return settings

@@ -21,8 +21,24 @@ def hash_pin(pin: str) -> str:
     return ph.hash(pin)
 
 
+def _verify_pbkdf2(pin: str, encoded: str) -> bool:
+    try:
+        algorithm, iterations, salt_hex, digest_hex = encoded.split("$", 3)
+        if algorithm != "pbkdf2_sha256":
+            return False
+        candidate = hashlib.pbkdf2_hmac(
+            "sha256", pin.encode(), bytes.fromhex(salt_hex), int(iterations)
+        ).hex()
+        return hmac.compare_digest(candidate, digest_hex)
+    except (ValueError, TypeError):
+        return False
+
+
 def verify_pin(pin_hash: str | None, pin: str, fallback_plain: str | None = None) -> bool:
+    """Accept argon2 (v2 seeds) and pbkdf2_sha256 (PAIDIA_AUTH_USERS_JSON)."""
     if pin_hash:
+        if str(pin_hash).startswith("pbkdf2_sha256$"):
+            return _verify_pbkdf2(pin, str(pin_hash))
         try:
             return ph.verify(pin_hash, pin)
         except VerifyMismatchError:
