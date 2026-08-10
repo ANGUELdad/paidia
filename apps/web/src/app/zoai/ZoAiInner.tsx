@@ -83,19 +83,9 @@ export default function ZoAiInner() {
       setActions(nextActions);
       setStatus(`${r.provider || "ok"}`);
       if (g?.spotlight && g.href && g.title && g.body) {
+        // Hint only — auto spotlight on the wrong page paints a full scrim
+        // that blocks “Zeig mir” and the chat. User starts guide explicitly.
         setGuideHint(g);
-        // Stay on Zo-Ai so the reply stays readable; coach offers “Zeig mir”.
-        guide?.startGuide(
-          {
-            id: g.spotlight,
-            href: g.href,
-            spotlight: g.spotlight,
-            title: g.title,
-            body: g.body,
-          },
-          "zoai",
-          { navigate: false },
-        );
       }
     } catch (err) {
       const msg = (err as Error).message || "Fehler";

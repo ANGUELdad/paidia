@@ -136,19 +136,23 @@ export function GuideProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({ active, startGuide, clearGuide }), [active, startGuide, clearGuide]);
   const needsGo = !!active && active.href !== path;
+  // No cutout yet / wrong page: never trap clicks under a solid dimmer
+  const scrimBlocks = !!holeStyle && !needsGo;
 
   return (
     <Ctx.Provider value={value}>
       {children}
       {active && (
         <div className="guide-layer" data-testid="guide-layer" aria-live="polite">
-          <div
-            className={`guide-scrim${holeStyle ? " guide-scrim-cut" : ""}`}
-            data-testid="guide-hole"
-            style={holeStyle || undefined}
-            // Tour owns dismiss via Später/Weiter — don't clear mid-step
-            onClick={active.source === "tour" ? undefined : clearGuide}
-          />
+          {scrimBlocks ? (
+            <div
+              className="guide-scrim guide-scrim-cut"
+              data-testid="guide-hole"
+              style={holeStyle || undefined}
+              // Tour owns dismiss via Später/Weiter — don't clear mid-step
+              onClick={active.source === "tour" ? undefined : clearGuide}
+            />
+          ) : null}
           {active.source !== "tour" && (
             <div className="guide-coach" role="dialog" aria-label="Bildschirmführung">
               <p className="eyebrow">{active.source === "zoai" ? "Zo-Ai führt dich" : "Führung"}</p>
