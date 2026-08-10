@@ -75,26 +75,33 @@ def parse_session_token(token: str | None) -> dict[str, Any] | None:
         return None
     state = snapshot()
     stored = (state.get("sessions") or {}).get(sid)
-    if not stored:
-        return None
-    # Token fields must match the server-side session record (prevents cookie tampering).
-    if stored.get("profile_id") != profile_id or stored.get("mode") != mode:
-        return None
-    if bool(stored.get("admin")) != (admin_s == "1"):
-        return None
-    # Authorization always comes from the stored session, never cookie claims alone.
-    try:
-        stored_exp = int(stored.get("expires_at") or exp)
-    except (TypeError, ValueError):
-        stored_exp = exp
-    if stored_exp < time.time():
-        return None
+    admin = admin_s == "1"
+    if stored:
+        # Token fields must match the server-side session record (prevents cookie tampering).
+        if stored.get("profile_id") != profile_id or stored.get("mode") != mode:
+            return None
+        if bool(stored.get("admin")) != admin:
+            return None
+        try:
+            stored_exp = int(stored.get("expires_at") or exp)
+        except (TypeError, ValueError):
+            stored_exp = exp
+        if stored_exp < time.time():
+            return None
+        return {
+            "session_id": sid,
+            "profile_id": stored["profile_id"],
+            "mode": stored["mode"],
+            "admin": bool(stored.get("admin")),
+            "expires_at": stored_exp,
+        }
+    # Serverless / multi-instance: store may be ephemeral. Trust HMAC + expiry only.
     return {
         "session_id": sid,
-        "profile_id": stored["profile_id"],
-        "mode": stored["mode"],
-        "admin": bool(stored.get("admin")),
-        "expires_at": stored_exp,
+        "profile_id": profile_id,
+        "mode": mode,
+        "admin": admin,
+        "expires_at": exp,
     }
 
 

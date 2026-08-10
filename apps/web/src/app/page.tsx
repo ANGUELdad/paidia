@@ -47,9 +47,14 @@ export default function LoginPage() {
       const data = await api<{ profiles: Profile[] }>(`/api/auth/profiles?mode=${next}`);
       setProfiles(data.profiles);
       if (!data.profiles?.length) setProfilesError(lang === "el" ? "Δεν υπάρχουν προφίλ" : "Keine Profile geladen");
-    } catch {
+    } catch (e) {
       setProfiles([]);
-      setProfilesError(lang === "el" ? "Φόρτωση απέτυχε" : "Profile konnten nicht geladen werden");
+      const msg = e instanceof Error ? e.message : "";
+      if (/unreachable|502|fetch|Zeitüberschreitung/i.test(msg)) {
+        setProfilesError(lang === "el" ? "API μη διαθέσιμο" : "API nicht erreichbar — Deploy prüfen");
+      } else {
+        setProfilesError(lang === "el" ? "Φόρτωση απέτυχε" : "Profile konnten nicht geladen werden");
+      }
     }
   }
 
@@ -63,8 +68,13 @@ export default function LoginPage() {
         body: JSON.stringify({ profileId: who.id, mode: who.mode, pin }),
       });
       router.replace(data.mode === "child" ? "/kids" : "/home");
-    } catch {
-      setErr(lang === "el" ? "Λάθος PIN" : "Falsche PIN");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      if (/unreachable|502|Zeitüberschreitung/i.test(msg)) {
+        setErr(lang === "el" ? "API μη διαθέσιμο" : "API nicht erreichbar");
+      } else {
+        setErr(lang === "el" ? "Λάθος PIN" : "Falsche PIN");
+      }
       setPin("");
     } finally {
       setBusy(false);

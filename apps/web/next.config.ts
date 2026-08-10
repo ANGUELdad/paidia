@@ -1,16 +1,8 @@
 import type { NextConfig } from "next";
 
-const API = process.env.ARMONIA_API_PROXY || "http://127.0.0.1:8000";
-
+/** API is proxied at runtime via `src/app/api/[...path]/route.ts` (ARMONIA_API_PROXY). */
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${API}/api/:path*`,
-      },
-    ];
-  },
+  // Avoid baking a localhost rewrite that breaks Vercel (`DNS_HOSTNAME_RESOLVED_PRIVATE`).
 };
 
 export default nextConfig;

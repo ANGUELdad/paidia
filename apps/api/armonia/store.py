@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import threading
 import time
 from copy import deepcopy
@@ -12,7 +13,9 @@ from typing import Any
 from argon2 import PasswordHasher
 
 _LOCK = threading.RLock()
-_DATA_PATH = Path(__file__).resolve().parent.parent / ".armonia-store.json"
+_DEFAULT_STORE = Path(__file__).resolve().parent.parent / ".armonia-store.json"
+# Vercel serverless FS is read-only except /tmp — keep warm-instance continuity there.
+_DATA_PATH = Path(os.environ.get("ARMONIA_STORE_PATH") or ("/tmp/.armonia-store.json" if os.environ.get("VERCEL") else _DEFAULT_STORE))
 _PIN_HASHER = PasswordHasher()
 
 # Dev seed PINs — hashed at seed time; plaintext is not persisted in the store.
@@ -190,9 +193,14 @@ def _persist(state: dict[str, Any]) -> None:
     _trim_lists(state)
     state["updatedAt"] = int(time.time() * 1000)
     raw = json.dumps(state, ensure_ascii=False, indent=2, allow_nan=False)
-    tmp = _DATA_PATH.with_suffix(".tmp")
-    tmp.write_text(raw, encoding="utf-8")
-    tmp.replace(_DATA_PATH)
+    try:
+        _DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tmp = _DATA_PATH.with_suffix(".tmp")
+        tmp.write_text(raw, encoding="utf-8")
+        tmp.replace(_DATA_PATH)
+    except OSError:
+        # Serverless / read-only FS — keep in-memory state only.
+        pass
 
 
 STATE = load_state()
