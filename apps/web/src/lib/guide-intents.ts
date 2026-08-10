@@ -108,14 +108,15 @@ const RULES: { re: RegExp; id: string }[] = [
 export function resolveGuideIntent(text: string): GuideTarget | null {
   const q = text.trim();
   if (!q) return null;
-  const how = /wie|how|wo\s*(finde|sehe|öffne)|zeig|erklä|help|hilfe|\?/i.test(q);
+  // Only coach the screen for how-to / where questions — never hijack action asks.
+  const how = /wie|how|wo\s*(finde|sehe|öffne)|zeig\s+mir|erklä|help|hilfe|\?/i.test(q);
+  if (!how) return null;
   for (const rule of RULES) {
     if (rule.re.test(q)) {
-      const target = GUIDE_TARGETS.find((t) => t.id === rule.id) || null;
-      if (target && (how || rule.id !== "home")) return target;
+      return GUIDE_TARGETS.find((t) => t.id === rule.id) || null;
     }
   }
-  return how ? GUIDE_TARGETS.find((t) => t.id === "home") || null : null;
+  return GUIDE_TARGETS.find((t) => t.id === "home") || null;
 }
 
 export const TOUR_DONE_KEY = {

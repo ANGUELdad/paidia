@@ -28,6 +28,7 @@ export default function StockPage() {
   const [filter, setFilter] = useState<"all" | "low">("all");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [detailId, setDetailId] = useState<string | null>(null);
   const [parDraft, setParDraft] = useState("");
@@ -50,6 +51,8 @@ export default function StockPage() {
       }
     } catch (e) {
       setError((e as Error).message || "Lager konnte nicht geladen werden");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -287,11 +290,15 @@ export default function StockPage() {
                 </div>
               </button>
             ))}
-            {!rows.length && (
+            {loading ? (
+              <div className="list-row" style={{ cursor: "default" }} data-testid="stock-loading">
+                <div className="list-row__meta">Laden…</div>
+              </div>
+            ) : !rows.length ? (
               <div className="list-row" style={{ cursor: "default" }}>
                 <div className="list-row__meta">Keine Artikel in diesem Filter.</div>
               </div>
-            )}
+            ) : null}
           </div>
 
           <div className="sticky-footer">

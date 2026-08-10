@@ -78,19 +78,19 @@ def _infer_guide(user_text: str) -> dict[str, str] | None:
     q = (user_text or "").strip()
     if not q:
         return None
-    how = re.search(r"wie|how|wo\s*(finde|sehe|öffne)|zeig|erklä|help|hilfe|\?", q, re.I)
+    # Only for how-to / where questions — never hijack action asks ("Milch auf Liste").
+    how = re.search(r"wie|how|wo\s*(finde|sehe|öffne)|zeig\s+mir|erklä|help|hilfe|\?", q, re.I)
+    if not how:
+        return None
     for pattern, target in GUIDE_RULES:
         if re.search(pattern, q, re.I):
-            if how or target["spotlight"] != "tour-home":
-                return dict(target)
-    if how:
-        return {
-            "href": "/home",
-            "spotlight": "tour-home",
-            "title": "Heute",
-            "body": "Dein Tagesstart: Präsenz, was jetzt zählt, und Zo-Ai fragen.",
-        }
-    return None
+            return dict(target)
+    return {
+        "href": "/home",
+        "spotlight": "tour-home",
+        "title": "Heute",
+        "body": "Dein Tagesstart: Präsenz, was jetzt zählt, und Zo-Ai fragen.",
+    }
 
 
 class ChatBody(BaseModel):
@@ -104,6 +104,33 @@ class ApplyBody(BaseModel):
     actions: list[dict[str, Any]] = Field(default_factory=list)
     action: dict[str, Any] | None = None
     pin: str | None = None
+
+
+def _offline_action_hint(user_text: str, role: str) -> tuple[str, list[dict[str, Any]]]:
+    """Deterministic offline helpers so actionable asks still get confirm cards."""
+    import re
+
+    q = (user_text or "").strip()
+    if role == "child":
+        return (f"Offline: Ich kann gerade nur erklären. Frage: „{q[:80]}“", [])
+    m = re.search(
+        r"(?:setz|füg|add|auf\s+(?:die\s+)?liste|einkauf)[^\w]{0,12}([A-Za-zÄÖÜäöüß][\wÄÖÜäöüß\-]{1,40})"
+        r"|([A-Za-zÄÖÜäöüß][\wÄÖÜäöüß\-]{1,40})\s+(?:auf\s+(?:die\s+)?liste|zum\s+einkauf)",
+        q,
+        re.I,
+    )
+    if m:
+        name = (m.group(1) or m.group(2) or "").strip()
+        if name and name.lower() not in {"bitte", "mal", "etwas", "was"}:
+            action = {"type": "shop_add", "houseId": "h1", "name": name.capitalize(), "qty": 1}
+            return (
+                f"Offline-Vorschlag: „{name.capitalize()}“ auf die Einkaufsliste — bitte bestätigen.",
+                [action],
+            )
+    return (
+        f"Offline: Für „{q[:80]}“ — öffne Lager/Liste und bestätige selbst. ({uuid.uuid4().hex[:6]})",
+        [],
+    )
 
 
 def _read_knowledge(role: str) -> str:
@@ -313,13 +340,37 @@ def chat(body: ChatBody, request: Request) -> dict[str, Any]:
     except RuntimeError as exc:
         msg = str(exc)
         if msg == "missing_llm_key" or msg.startswith("all_providers_failed"):
-            angles = [
-                f"Offline: Für „{user_text[:80]}“ — öffne Lager/Liste und bestätige selbst. ({uuid.uuid4().hex[:6]})",
-                f"Ohne LLM: prüfe Schichtbuch & Präsenz. Frage: {user_text[:60]}",
-                f"Lokaler Tipp: Notiz unter Talk speichern. ({seed[-8:]})",
-            ]
-            content = random.choice(angles)
+            hint, offline_actions = _offline_action_hint(user_text or "", role)
+            if offline_actions:
+                content = hint
+            else:
+                content = random.choice(
+                    [
+                        hint,
+                        f"Ohne LLM: prüfe Schichtbuch & Präsenz. Frage: {(user_text or '')[:60]}",
+                        f"Lokaler Tipp: Notiz unter Talk speichern. ({seed[-8:]})",
+                    ]
+                )
             provider = "offline"
+            actions = offline_actions if role != "child" else []
+            visible = content
+            guide = _infer_guide(user_text or "")
+
+            def apply_offline(st: dict[str, Any]) -> None:
+                recent_list = st.setdefault("zoaiRecent", [])
+                recent_list.append(visible[:80])
+                st["zoaiRecent"] = recent_list[-20:]
+
+            mutate(apply_offline)
+            return {
+                "message": visible,
+                "reply": visible,
+                "actions": actions,
+                "guide": guide,
+                "provider": provider,
+                "role": role,
+                "varietySeed": seed.split(".", 1)[0].replace("Variety seed ", ""),
+            }
         else:
             raise HTTPException(status_code=502, detail={"code": "provider"}) from exc
     except Exception as exc:
