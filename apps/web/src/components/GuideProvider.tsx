@@ -73,8 +73,10 @@ export function GuideProvider({ children }: { children: ReactNode }) {
     const left = Math.max(0, r.left - pad);
     const right = Math.min(window.innerWidth, r.right + pad);
     const bottom = Math.min(window.innerHeight, r.bottom + pad);
-    // Even-odd polygon: full screen with rectangular hole
-    const clip = `polygon(evenodd, 0% 0%, 0% 100%, 100% 100%, 100% 0%, 0% 0%, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px ${top}px)`;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    // Even-odd polygon in px only — mixed %/px holes fail in some WebKits
+    const clip = `polygon(evenodd, 0px 0px, 0px ${vh}px, ${vw}px ${vh}px, ${vw}px 0px, 0px 0px, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px ${top}px)`;
     setHoleStyle({
       clipPath: clip,
       WebkitClipPath: clip,
@@ -144,7 +146,8 @@ export function GuideProvider({ children }: { children: ReactNode }) {
             className={`guide-scrim${holeStyle ? " guide-scrim-cut" : ""}`}
             data-testid="guide-hole"
             style={holeStyle || undefined}
-            onClick={clearGuide}
+            // Tour owns dismiss via Später/Weiter — don't clear mid-step
+            onClick={active.source === "tour" ? undefined : clearGuide}
           />
           {active.source !== "tour" && (
             <div className="guide-coach" role="dialog" aria-label="Bildschirmführung">

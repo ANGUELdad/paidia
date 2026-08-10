@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useGuideOptional } from "@/components/GuideProvider";
 import { GUIDE_TARGETS, TOUR_DONE_KEY, type GuideTarget } from "@/lib/guide-intents";
@@ -64,6 +64,10 @@ export function GuidedTour({ mode = "staff", admin = false }: { mode?: "staff" |
   const router = useRouter();
   const path = usePathname();
   const guide = useGuideOptional();
+  // Ref avoids re-running the spotlight effect when GuideProvider's context
+  // identity changes (clearGuide → new value → startGuide again → stuck scrim).
+  const guideRef = useRef(guide);
+  guideRef.current = guide;
   const steps = useMemo(() => {
     const base = mode === "child" ? CHILD_STEPS : STAFF_STEPS;
     return base.filter((s) => !s.adminOnly || admin);
@@ -71,6 +75,7 @@ export function GuidedTour({ mode = "staff", admin = false }: { mode?: "staff" |
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
   const [hydrated, setHydrated] = useState(false);
+  const wasOpen = useRef(false);
   const step = steps[idx] || steps[0];
   const doneKey = TOUR_DONE_KEY[mode];
 
@@ -108,8 +113,16 @@ export function GuidedTour({ mode = "staff", admin = false }: { mode?: "staff" |
       router.push(step.href);
       return;
     }
-    guide?.startGuide(step, "tour");
-  }, [open, idx, step, path, router, guide]);
+    guideRef.current?.startGuide(step, "tour");
+  }, [open, idx, step, path, router]);
+
+  // Guarantee scrim dies when tour closes (Später / Fertig / Escape).
+  useEffect(() => {
+    if (wasOpen.current && !open) {
+      guideRef.current?.clearGuide();
+    }
+    wasOpen.current = open;
+  }, [open]);
 
   useEffect(() => {
     document.body.classList.toggle("sheet-open", open);
@@ -130,8 +143,8 @@ export function GuidedTour({ mode = "staff", admin = false }: { mode?: "staff" |
   function finish() {
     localStorage.setItem(doneKey, "1");
     sessionStorage.removeItem(storageKey(mode));
-    guide?.clearGuide();
     setOpen(false);
+    guideRef.current?.clearGuide();
   }
 
   function next() {
