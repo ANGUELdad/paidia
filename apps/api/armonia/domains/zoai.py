@@ -347,15 +347,14 @@ def chat(body: ChatBody, request: Request) -> dict[str, Any]:
             elif guide:
                 content = (
                     f"{guide.get('title')}: {guide.get('body')} "
-                    f"Tippe „Zeig mir“ in der Führung, wenn du den Bildschirm sehen willst."
+                    "Tippe „Zeig mir auf dem Bildschirm“, dann folge dem markierten Bereich."
                 )
+            elif hint:
+                content = hint
             else:
-                content = random.choice(
-                    [
-                        hint,
-                        f"Ohne LLM: prüfe Schichtbuch & Präsenz. Frage: {(user_text or '')[:60]}",
-                        f"Lokaler Tipp: Notiz unter Talk speichern. ({seed[-8:]})",
-                    ]
+                content = (
+                    f"Offline: Für „{(user_text or '')[:80]}“ — nutze Heute, Plan, Lager oder Liste. "
+                    f"Frag mit „Wie…?“, dann führe ich dich. ({uuid.uuid4().hex[:5]})"
                 )
             provider = "offline"
             actions = offline_actions if role != "child" else []

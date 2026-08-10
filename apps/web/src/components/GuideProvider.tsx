@@ -14,7 +14,6 @@ import { usePathname, useRouter } from "next/navigation";
 import type { GuideTarget } from "@/lib/guide-intents";
 
 type ActiveGuide = GuideTarget & { source?: "tour" | "zoai" | "home" };
-
 type StartOpts = { navigate?: boolean };
 
 type GuideCtx = {
@@ -35,40 +34,51 @@ export function useGuideOptional() {
   return useContext(Ctx);
 }
 
+function clearSpotlightClass() {
+  document.querySelectorAll(".tour-spotlight-target").forEach((el) => {
+    el.classList.remove("tour-spotlight-target");
+  });
+}
+
 export function GuideProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const path = usePathname();
   const [active, setActive] = useState<ActiveGuide | null>(null);
-  const [rect, setRect] = useState<DOMRect | null>(null);
-  const retryRef = useRef(0);
+  const [holeStyle, setHoleStyle] = useState<React.CSSProperties | null>(null);
+  const tries = useRef(0);
 
   const clearGuide = useCallback(() => {
     setActive(null);
-    setRect(null);
-    retryRef.current = 0;
-    document.querySelectorAll(".tour-spotlight-target").forEach((el) => {
-      el.classList.remove("tour-spotlight-target");
-    });
+    setHoleStyle(null);
+    tries.current = 0;
+    clearSpotlightClass();
   }, []);
 
   const measure = useCallback((spotlight: string) => {
-    document.querySelectorAll(".tour-spotlight-target").forEach((el) => {
-      el.classList.remove("tour-spotlight-target");
-    });
+    clearSpotlightClass();
     const el = document.querySelector(`[data-tour="${spotlight}"]`) as HTMLElement | null;
     if (!el) {
-      setRect(null);
+      setHoleStyle(null);
       return false;
     }
-    // Skip zero-size / not-yet-laid-out targets (common right after route change).
     const r = el.getBoundingClientRect();
-    if (r.width < 8 || r.height < 8) {
-      setRect(null);
+    if (r.width < 4 || r.height < 4) {
+      setHoleStyle(null);
       return false;
     }
     el.classList.add("tour-spotlight-target");
     el.scrollIntoView({ block: "center", behavior: "smooth" });
-    setRect(el.getBoundingClientRect());
+    const pad = 10;
+    const top = Math.max(0, r.top - pad);
+    const left = Math.max(0, r.left - pad);
+    const right = Math.min(window.innerWidth, r.right + pad);
+    const bottom = Math.min(window.innerHeight, r.bottom + pad);
+    // Even-odd polygon: full screen with rectangular hole
+    const clip = `polygon(evenodd, 0% 0%, 0% 100%, 100% 100%, 100% 0%, 0% 0%, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px ${top}px)`;
+    setHoleStyle({
+      clipPath: clip,
+      WebkitClipPath: clip,
+    } as React.CSSProperties);
     return true;
   }, []);
 
@@ -76,45 +86,35 @@ export function GuideProvider({ children }: { children: ReactNode }) {
     (target: GuideTarget, source: ActiveGuide["source"] = "tour", opts?: StartOpts) => {
       const navigate = opts?.navigate ?? source !== "zoai";
       setActive({ ...target, source });
-      setRect(null);
-      retryRef.current = 0;
-      if (navigate && target.href !== path) {
-        router.push(target.href);
-      } else if (target.href === path) {
-        requestAnimationFrame(() => measure(target.spotlight));
-      }
+      setHoleStyle(null);
+      tries.current = 0;
+      if (navigate && target.href !== path) router.push(target.href);
     },
-    [measure, path, router],
+    [path, router],
   );
 
   useEffect(() => {
     if (!active) return;
     let cancelled = false;
     let timer = 0;
-    retryRef.current = 0;
+    tries.current = 0;
 
     const tick = () => {
       if (cancelled) return;
-      const ok = measure(active.spotlight);
-      if (ok) {
-        retryRef.current = 0;
+      if (measure(active.spotlight)) {
+        tries.current = 0;
         return;
       }
-      retryRef.current += 1;
-      if (retryRef.current < 40) {
-        timer = window.setTimeout(tick, 75);
-      }
+      tries.current += 1;
+      if (tries.current < 50) timer = window.setTimeout(tick, 80);
     };
 
-    timer = window.setTimeout(tick, 50);
+    timer = window.setTimeout(tick, 30);
     const onResize = () => measure(active.spotlight);
     window.addEventListener("resize", onResize);
     window.addEventListener("scroll", onResize, true);
-
     const mo = new MutationObserver(() => {
-      if (!cancelled && !document.querySelector(".tour-spotlight-target")) {
-        measure(active.spotlight);
-      }
+      if (!cancelled) measure(active.spotlight);
     });
     mo.observe(document.body, { childList: true, subtree: true });
 
@@ -133,17 +133,6 @@ export function GuideProvider({ children }: { children: ReactNode }) {
   }, [active]);
 
   const value = useMemo(() => ({ active, startGuide, clearGuide }), [active, startGuide, clearGuide]);
-
-  const pad = 10;
-  const hole = rect
-    ? {
-        top: Math.max(4, rect.top - pad),
-        left: Math.max(4, rect.left - pad),
-        width: Math.min((typeof window !== "undefined" ? window.innerWidth : 390) - 8, rect.width + pad * 2),
-        height: rect.height + pad * 2,
-      }
-    : null;
-
   const needsGo = !!active && active.href !== path;
 
   return (
@@ -151,24 +140,12 @@ export function GuideProvider({ children }: { children: ReactNode }) {
       {children}
       {active && (
         <div className="guide-layer" data-testid="guide-layer" aria-live="polite">
-          {/* Dim via hole box-shadow only — a full scrim would cover the cutout. */}
-          {!hole && !needsGo && <div className="guide-scrim" onClick={clearGuide} />}
-          {!hole && needsGo && <div className="guide-scrim guide-scrim-soft" />}
-          {hole && (
-            <button
-              type="button"
-              className="guide-hole"
-              aria-label="Hervorgehobener Bereich"
-              data-testid="guide-hole"
-              style={{
-                top: hole.top,
-                left: hole.left,
-                width: hole.width,
-                height: hole.height,
-              }}
-              onClick={clearGuide}
-            />
-          )}
+          <div
+            className={`guide-scrim${holeStyle ? " guide-scrim-cut" : ""}`}
+            data-testid="guide-hole"
+            style={holeStyle || undefined}
+            onClick={clearGuide}
+          />
           {active.source !== "tour" && (
             <div className="guide-coach" role="dialog" aria-label="Bildschirmführung">
               <p className="eyebrow">{active.source === "zoai" ? "Zo-Ai führt dich" : "Führung"}</p>
@@ -178,16 +155,11 @@ export function GuideProvider({ children }: { children: ReactNode }) {
                 <button type="button" className="btn ghost" onClick={clearGuide} data-testid="guide-dismiss">
                   {needsGo ? "Später" : "Verstanden"}
                 </button>
-                {needsGo && (
-                  <button
-                    type="button"
-                    className="btn"
-                    data-testid="guide-go"
-                    onClick={() => router.push(active.href)}
-                  >
+                {needsGo ? (
+                  <button type="button" className="btn" data-testid="guide-go" onClick={() => router.push(active.href)}>
                     Zeig mir
                   </button>
-                )}
+                ) : null}
               </div>
             </div>
           )}
