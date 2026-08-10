@@ -10,13 +10,10 @@ import os
 import sys
 from pathlib import Path
 
-# src → dst: only fill dst when unset/empty so explicit v2 names still win.
-_ALIASES: tuple[tuple[str, str], ...] = (
+# Always prefer these legacy names when set (shared secrets / passwords).
+_FORCE_ALIASES: tuple[tuple[str, str], ...] = (
     ("PAIDIA_SESSION_SECRET", "SESSION_SECRET"),
     ("PAIDIA_COOKIE_SECURE", "COOKIE_SECURE"),
-    ("PAIDIA_WEBAUTHN_ORIGIN", "WEBAUTHN_ORIGIN"),
-    ("PAIDIA_WEBAUTHN_RP_ID", "WEBAUTHN_RP_ID"),
-    ("PAIDIA_WEBAUTHN_RP_NAME", "WEBAUTHN_RP_NAME"),
     ("PAIDIA_LLM_PROVIDER", "LLM_PROVIDER"),
     ("GROQ_CHAT_MODEL", "CHAT_MODEL"),
     ("GROQ_CHAT_MODEL", "GROQ_MODEL"),
@@ -24,6 +21,14 @@ _ALIASES: tuple[tuple[str, str], ...] = (
     ("SMTP_STARTTLS", "SMTP_USE_TLS"),
     ("POSTGRES_URL", "DATABASE_URL"),
     ("POSTGRES_PRISMA_URL", "DATABASE_URL"),
+)
+
+# Origin/RP must stay project-specific (platform vs legacy site) — fill only if empty.
+_FILL_ALIASES: tuple[tuple[str, str], ...] = (
+    ("PAIDIA_WEBAUTHN_ORIGIN", "WEBAUTHN_ORIGIN"),
+    ("PAIDIA_WEBAUTHN_RP_ID", "WEBAUTHN_RP_ID"),
+    ("PAIDIA_WEBAUTHN_RP_NAME", "WEBAUTHN_RP_NAME"),
+    ("PAIDIA_PUBLIC_URL", "PAIDIA_PUBLIC_URL"),
 )
 
 _ENV_FILES = (
@@ -62,8 +67,11 @@ def _load_dotenv_files() -> None:
 
 def apply_env_aliases() -> None:
     _load_dotenv_files()
-    # Legacy PAIDIA_* / Neon names are the source of truth when present.
-    for src, dst in _ALIASES:
+    for src, dst in _FORCE_ALIASES:
         val = (os.environ.get(src) or "").strip()
         if val:
+            os.environ[dst] = val
+    for src, dst in _FILL_ALIASES:
+        val = (os.environ.get(src) or "").strip()
+        if val and not (os.environ.get(dst) or "").strip():
             os.environ[dst] = val
