@@ -27,9 +27,70 @@ Emit optional JSON actions in a fenced block:
  {"type":"broadcast_email","audience":"staff","subject":"Hinweis","message":"..."}]
 ```
 Staff/admin only. Never invent PINs. Child: no actions. Schedule/broadcast need Confirm + PIN.
+When the user asks how/where to do something, also answer with a concrete UI path (Heute, Plan, Lager, Zo-Ai).
 """
 
 PIN_ACTIONS = {"schedule_add", "broadcast_email", "event_announce"}
+
+GUIDE_RULES: list[tuple[str, dict[str, str]]] = [
+    (r"schicht\s*start|präsenz|anwesend|check.?in|zu\s*spät|verspät", {
+        "href": "/home", "spotlight": "tour-presence", "title": "Schicht starten",
+        "body": "Tippe „Schicht starten“ auf Heute — oder melde Verspätung mit Grund.",
+    }),
+    (r"jetzt\s*wichtig|was\s*jetzt|nächste\s*aufgabe", {
+        "href": "/home", "spotlight": "tour-now", "title": "Jetzt",
+        "body": "Die wichtigste nächste Aufgabe — zuerst erledigen.",
+    }),
+    (r"wochenplan|tagesplan|\bplan\b|schedule|block", {
+        "href": "/plan", "spotlight": "tour-plan", "title": "Wochenplan",
+        "body": "Tag wählen, Blöcke prüfen. Änderungen brauchen Confirm + PIN.",
+    }),
+    (r"lager|bestand|vorrat|milch|stock", {
+        "href": "/stock", "spotlight": "tour-stock", "title": "Lager",
+        "body": "＋/− Bestand. Niedrige Artikel auf die Einkaufsliste setzen.",
+    }),
+    (r"einkauf|liste|shop|einkaufen", {
+        "href": "/shop", "spotlight": "tour-shop", "title": "Einkaufsliste",
+        "body": "Vorschläge prüfen — immer bestätigen, nie automatisch.",
+    }),
+    (r"zo.?ai|assistent", {
+        "href": "/zoai", "spotlight": "tour-zoai", "title": "Zo-Ai",
+        "body": "Frag auf Deutsch oder Griechisch. Aktionen nur nach Confirm.",
+    }),
+    (r"\btalk\b|chat|besprechung", {
+        "href": "/talk", "spotlight": "tour-talk", "title": "Talk",
+        "body": "Team-Chat und Besprechungsnotizen der ISO-Woche.",
+    }),
+    (r"schichtbuch|\bbuch\b|journal|audit", {
+        "href": "/book", "spotlight": "tour-book", "title": "Schichtbuch",
+        "body": "Pflicht-Eintrag für die Schicht. Audit zeigt, was passiert ist.",
+    }),
+    (r"kalender|termin|ics", {
+        "href": "/calendar", "spotlight": "tour-cal", "title": "Kalender",
+        "body": "Termine, ICS und Erinnerungen.",
+    }),
+]
+
+
+def _infer_guide(user_text: str) -> dict[str, str] | None:
+    import re
+
+    q = (user_text or "").strip()
+    if not q:
+        return None
+    how = re.search(r"wie|how|wo\s*(finde|sehe|öffne)|zeig|erklä|help|hilfe|\?", q, re.I)
+    for pattern, target in GUIDE_RULES:
+        if re.search(pattern, q, re.I):
+            if how or target["spotlight"] != "tour-home":
+                return dict(target)
+    if how:
+        return {
+            "href": "/home",
+            "spotlight": "tour-home",
+            "title": "Heute",
+            "body": "Dein Tagesstart: Präsenz, was jetzt zählt, und Zo-Ai fragen.",
+        }
+    return None
 
 
 class ChatBody(BaseModel):
@@ -272,6 +333,7 @@ def chat(body: ChatBody, request: Request) -> dict[str, Any]:
 
     actions = _parse_actions(content, role)
     visible = content.split("```paidia-action")[0].strip() or content
+    guide = _infer_guide(user_text or "")
 
     def apply(st: dict[str, Any]) -> None:
         recent_list = st.setdefault("zoaiRecent", [])
@@ -283,6 +345,7 @@ def chat(body: ChatBody, request: Request) -> dict[str, Any]:
         "message": visible,
         "reply": visible,
         "actions": actions,
+        "guide": guide,
         "provider": provider,
         "role": role,
         "varietySeed": seed.split(".", 1)[0].replace("Variety seed ", ""),

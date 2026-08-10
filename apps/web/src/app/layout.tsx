@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit } from "next/font/google";
+import { Fraunces, Outfit } from "next/font/google";
+import { GuideProvider } from "@/components/GuideProvider";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import "./globals.css";
 
-/** Design C — Signal Compact: single geometric sans for speed */
+/** Marble Dawn — Fraunces display + Outfit UI */
 const outfit = Outfit({ subsets: ["latin", "latin-ext"], variable: "--font-ui" });
+const fraunces = Fraunces({ subsets: ["latin", "latin-ext"], variable: "--font-display" });
 
 export const metadata: Metadata = {
   title: "Armonia Thassos",
@@ -14,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f7f8f7",
+  themeColor: "#f6f1ea",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -22,10 +24,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className={outfit.variable} data-theme="signal">
+    <html lang="de" className={`${outfit.variable} ${fraunces.variable}`} data-theme="marble-dawn">
       <body className="min-h-dvh bg-[var(--bg)] text-[var(--ink)] antialiased">
         <ServiceWorkerRegister />
-        {children}
+        <GuideProvider>{children}</GuideProvider>
       </body>
     </html>
   );

@@ -15,8 +15,8 @@ async function dismissTour(page: import("@playwright/test").Page) {
 
 async function skipToursByDefault(page: import("@playwright/test").Page) {
   await page.addInitScript(() => {
-    localStorage.setItem("armonia.tour.staff", "1");
-    localStorage.setItem("armonia.tour.child", "1");
+    localStorage.setItem("armonia.tour.staff.v3", "1");
+    localStorage.setItem("armonia.tour.child.v3", "1");
   });
 }
 

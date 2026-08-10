@@ -91,6 +91,7 @@ export default function BookPage() {
   return (
     <>
       <PageShell eyebrow="Buch" title="Schichtbuch" lead="Kurzer Tagesstand · Audit als dichte Liste.">
+        <div data-tour="tour-book">
         {error && <p className="warn">{error}</p>}
 
         <div className="list-panel mb-3">
@@ -141,6 +142,7 @@ export default function BookPage() {
         ) : (
           <EmptyState title="Kein Audit" hint="Noch keine Einträge für diesen Filter." />
         )}
+        </div>
       </PageShell>
 
       {journalOpen && (
