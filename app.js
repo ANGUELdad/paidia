@@ -5226,10 +5226,10 @@ function sheetEntry(e, dateStr, presets = {}){
     ${e.source==='template' ? `
       <div class="seg" id="fScope">
         <button class="on" data-s="override" type="button">${t('scopeToday')}</button>
-        <button data-s="template" type="button">${t('scopeTemplate')}</button>
+        ${isAdminUser() ? `<button data-s="template" type="button">${t('scopeTemplate')}</button>` : ''}
       </div>
       <div class="muted" id="scopeHint" style="margin:-6px 0 12px">${t('scopeTodayHint')}</div>
-      <div class="muted" style="margin:-6px 0 12px">${t('adminOnly')}</div>` : ''}
+      ${isAdminUser() ? '' : `<div class="muted" style="margin:-6px 0 12px">${t('adminOnly')}</div>`}` : ''}
 
     <button class="btn" id="fSave">💾 ${t('saveWithPin')}</button>
     ${!isNew && !e.cancelled ? `<button class="btn sec" id="fCancel" style="margin-top:8px">🗑 ${t('cancelToday')}</button>` : ''}
@@ -10116,6 +10116,7 @@ function viewHome(){
       <span class="grow"><b>${esc(t('journalDutyHome'))}</b><small>${esc(t('bookJournalHint'))}</small></span>
       <span class="journal-duty-home-cta">${esc(t('journalDutyCta'))}</span>
     </button>`:''}
+    ${zoAiBannerHtml()}
     ${teamNoticeBannerHtml()}
     <div class="home-bento" role="group" aria-label="${esc(t('homeSignals'))}">
       <button class="bento-tile accent action" type="button" data-home-jump="day">
@@ -10386,7 +10387,7 @@ function onTopAction(id){
   feedback('tap');
   if(id==='tutorial'){ openAppTutorial(); return; }
   if(id==='addEntry'){ sheetEntry(null, state.date); return; }
-  if(id==='shopScan'){ document.getElementById('btnReceipt')?.click() || sheetImportList(); return; }
+  if(id==='shopScan'){ sheetReceipt(); return; }
   if(id==='shopHistory'){ sheetShoppingHistory(); return; }
   if(id==='shiftFocus'){
     state.bookPane='shift';
