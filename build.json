@@ -1,8 +1,8 @@
 {
-  "version": 70,
-  "label": "v70",
+  "version": 71,
+  "label": "v71",
   "changed": {
-    "de": "Login-Gate · Marble Dawn / Pine · Marken-Hero · helles Glas",
-    "el": "Πύλη εισόδου · Marble Dawn / Pine · Brand hero · φωτεινό γυαλί"
+    "de": "QA-Fixes \u00b7 Gate/Logout \u00b7 build.json \u00b7 SW \u00b7 WhatsApp \u00b7 PIN-Reset",
+    "el": "QA \u03b4\u03b9\u03bf\u03c1\u03b8\u03ce\u03c3\u03b5\u03b9\u03c2 \u00b7 Gate/Logout \u00b7 build.json \u00b7 SW \u00b7 WhatsApp \u00b7 PIN-Reset"
   }
 }

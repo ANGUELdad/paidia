@@ -32,11 +32,11 @@
   let lang = localStorage.getItem('paidia.lang') || 'de';
   let bootSettled = false;
   const APP_BUILD = {
-    version: 70,
-    label: 'v70',
+    version: 71,
+    label: 'v71',
     changed: {
-      de: 'Login-Gate · Marble Dawn / Pine · Marken-Hero · helles Glas',
-      el: 'Πύλη εισόδου · Marble Dawn / Pine · Brand hero · φωτεινό γυαλί',
+      de: 'QA-Fixes · Gate/Logout · build.json · SW · WhatsApp · PIN-Reset',
+      el: 'QA διορθώσεις · Gate/Logout · build.json · SW · WhatsApp · PIN-Reset',
     },
   };
   const copy = {
@@ -152,7 +152,7 @@
       return;
     }
     const script = document.createElement('script');
-    script.src = 'app.js?v=74';
+    script.src = 'app.js?v=75';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);

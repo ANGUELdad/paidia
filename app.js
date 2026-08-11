@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 70,
-  label: 'v70',
+  version: 71,
+  label: 'v71',
   changed: {
-    de: 'Login-Gate · Marble Dawn / Pine · Marken-Hero · helles Glas',
-    el: 'Πύλη εισόδου · Marble Dawn / Pine · Brand hero · φωτεινό γυαλί',
+    de: 'QA-Fixes · Gate/Logout · build.json · SW · WhatsApp · PIN-Reset',
+    el: 'QA διορθώσεις · Gate/Logout · build.json · SW · WhatsApp · PIN-Reset',
   },
 };
 const T = {
@@ -12304,7 +12304,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=74',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=75',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);

@@ -2140,6 +2140,16 @@ def pin_reset_status() -> dict:
     localish = any(x in configured for x in ("127.0.0.1", "localhost", "0.0.0.0")) if configured else True
     if os.environ.get("VERCEL") == "1":
         public_ok = bool(configured and not localish)
+        # Fall back to Vercel's own production/deployment host when PUBLIC_URL is missing
+        # from the function runtime (env sync gaps) so PIN-reset UI is not stuck off.
+        if not public_ok:
+            vercel_host = (
+                os.environ.get("VERCEL_PROJECT_PRODUCTION_URL")
+                or os.environ.get("VERCEL_URL")
+                or ""
+            ).strip()
+            if vercel_host and not any(x in vercel_host for x in ("127.0.0.1", "localhost", "0.0.0.0")):
+                public_ok = True
     else:
         public_ok = True
     return {
