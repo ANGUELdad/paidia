@@ -40,48 +40,76 @@ function clearSpotlightClass() {
   });
 }
 
+function nearCenter(r: DOMRect) {
+  const mid = r.top + r.height / 2;
+  const viewMid = window.innerHeight / 2;
+  return Math.abs(mid - viewMid) < window.innerHeight * 0.28;
+}
+
 export function GuideProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const path = usePathname();
   const [active, setActive] = useState<ActiveGuide | null>(null);
   const [holeStyle, setHoleStyle] = useState<React.CSSProperties | null>(null);
   const tries = useRef(0);
+  const lastSpot = useRef("");
+  const scrolledFor = useRef("");
+  const lastClip = useRef("");
+  const measuring = useRef(false);
 
   const clearGuide = useCallback(() => {
     setActive(null);
     setHoleStyle(null);
     tries.current = 0;
+    lastSpot.current = "";
+    scrolledFor.current = "";
+    lastClip.current = "";
     clearSpotlightClass();
   }, []);
 
-  const measure = useCallback((spotlight: string) => {
-    clearSpotlightClass();
-    const el = document.querySelector(`[data-tour="${spotlight}"]`) as HTMLElement | null;
-    if (!el) {
-      setHoleStyle(null);
-      return false;
+  const measure = useCallback((spotlight: string, opts?: { scroll?: boolean }) => {
+    if (measuring.current) return false;
+    measuring.current = true;
+    try {
+      const el = document.querySelector(`[data-tour="${spotlight}"]`) as HTMLElement | null;
+      if (!el) {
+        setHoleStyle(null);
+        return false;
+      }
+      const r = el.getBoundingClientRect();
+      if (r.width < 4 || r.height < 4) {
+        setHoleStyle(null);
+        return false;
+      }
+      if (!el.classList.contains("tour-spotlight-target")) {
+        clearSpotlightClass();
+        el.classList.add("tour-spotlight-target");
+      }
+      // scrollIntoView + scroll listener was a feedback loop that froze the UI
+      if (opts?.scroll && scrolledFor.current !== spotlight && !nearCenter(r)) {
+        scrolledFor.current = spotlight;
+        el.scrollIntoView({ block: "center", behavior: "auto" });
+      }
+      const pad = 10;
+      const top = Math.max(0, r.top - pad);
+      const left = Math.max(0, r.left - pad);
+      const right = Math.min(window.innerWidth, r.right + pad);
+      const bottom = Math.min(window.innerHeight, r.bottom + pad);
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const clip = `polygon(evenodd, 0px 0px, 0px ${vh}px, ${vw}px ${vh}px, ${vw}px 0px, 0px 0px, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px ${top}px)`;
+      if (clip !== lastClip.current) {
+        lastClip.current = clip;
+        setHoleStyle({
+          clipPath: clip,
+          WebkitClipPath: clip,
+        } as React.CSSProperties);
+      }
+      lastSpot.current = spotlight;
+      return true;
+    } finally {
+      measuring.current = false;
     }
-    const r = el.getBoundingClientRect();
-    if (r.width < 4 || r.height < 4) {
-      setHoleStyle(null);
-      return false;
-    }
-    el.classList.add("tour-spotlight-target");
-    el.scrollIntoView({ block: "center", behavior: "smooth" });
-    const pad = 10;
-    const top = Math.max(0, r.top - pad);
-    const left = Math.max(0, r.left - pad);
-    const right = Math.min(window.innerWidth, r.right + pad);
-    const bottom = Math.min(window.innerHeight, r.bottom + pad);
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    // Even-odd polygon in px only — mixed %/px holes fail in some WebKits
-    const clip = `polygon(evenodd, 0px 0px, 0px ${vh}px, ${vw}px ${vh}px, ${vw}px 0px, 0px 0px, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px ${top}px)`;
-    setHoleStyle({
-      clipPath: clip,
-      WebkitClipPath: clip,
-    } as React.CSSProperties);
-    return true;
   }, []);
 
   const startGuide = useCallback(
@@ -90,6 +118,8 @@ export function GuideProvider({ children }: { children: ReactNode }) {
       setActive({ ...target, source });
       setHoleStyle(null);
       tries.current = 0;
+      scrolledFor.current = "";
+      lastClip.current = "";
       if (navigate && target.href !== path) router.push(target.href);
     },
     [path, router],
@@ -99,33 +129,39 @@ export function GuideProvider({ children }: { children: ReactNode }) {
     if (!active) return;
     let cancelled = false;
     let timer = 0;
+    let debounce = 0;
     tries.current = 0;
 
     const tick = () => {
       if (cancelled) return;
-      if (measure(active.spotlight)) {
+      if (measure(active.spotlight, { scroll: true })) {
         tries.current = 0;
         return;
       }
       tries.current += 1;
-      if (tries.current < 50) timer = window.setTimeout(tick, 80);
+      if (tries.current < 40) timer = window.setTimeout(tick, 100);
     };
 
-    timer = window.setTimeout(tick, 30);
-    const onResize = () => measure(active.spotlight);
-    window.addEventListener("resize", onResize);
-    window.addEventListener("scroll", onResize, true);
-    const mo = new MutationObserver(() => {
-      if (!cancelled) measure(active.spotlight);
-    });
+    const schedule = () => {
+      window.clearTimeout(debounce);
+      debounce = window.setTimeout(() => {
+        if (!cancelled) measure(active.spotlight, { scroll: false });
+      }, 120);
+    };
+
+    timer = window.setTimeout(tick, 40);
+    window.addEventListener("resize", schedule);
+    window.addEventListener("scroll", schedule, { passive: true, capture: true });
+    const mo = new MutationObserver(schedule);
     mo.observe(document.body, { childList: true, subtree: true });
 
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
+      window.clearTimeout(debounce);
       mo.disconnect();
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onResize, true);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule, true);
     };
   }, [active, path, measure]);
 
@@ -136,7 +172,6 @@ export function GuideProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo(() => ({ active, startGuide, clearGuide }), [active, startGuide, clearGuide]);
   const needsGo = !!active && active.href !== path;
-  // No cutout yet / wrong page: never trap clicks under a solid dimmer
   const scrimBlocks = !!holeStyle && !needsGo;
 
   return (
@@ -149,7 +184,6 @@ export function GuideProvider({ children }: { children: ReactNode }) {
               className="guide-scrim guide-scrim-cut"
               data-testid="guide-hole"
               style={holeStyle || undefined}
-              // Tour owns dismiss via Später/Weiter — don't clear mid-step
               onClick={active.source === "tour" ? undefined : clearGuide}
             />
           ) : null}

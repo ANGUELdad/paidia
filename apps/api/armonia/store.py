@@ -312,13 +312,20 @@ def load_state() -> dict[str, Any]:
         return state
 
 
+_LAST_REFRESH_MS = 0
+_REFRESH_TTL_MS = 2_500
+_DURABLE_HEALTH_CACHE: tuple[float, bool] | None = None
+
+
 def _persist(state: dict[str, Any]) -> None:
+    global _LAST_REFRESH_MS
     _trim_lists(state)
     state["updatedAt"] = int(time.time() * 1000)
     try:
         from armonia.durable import save_state_blob
 
         save_state_blob(state)
+        _LAST_REFRESH_MS = int(time.time() * 1000)
     except Exception:
         pass
     raw = json.dumps(state, ensure_ascii=False, indent=2, allow_nan=False)
@@ -332,14 +339,24 @@ def _persist(state: dict[str, Any]) -> None:
         pass
 
 
-def _refresh_from_durable() -> None:
-    """Pull newer remote revision into memory (multi-instance / cold start)."""
+def _refresh_from_durable(*, force: bool = False) -> None:
+    """Pull newer remote revision into memory (multi-instance / cold start).
+
+    Cached briefly so a single request that calls snapshot() many times
+    does not pay a Neon round-trip per call (was ~1–3s each → app felt frozen).
+    """
+    global _LAST_REFRESH_MS
+    now = int(time.time() * 1000)
+    if not force and _LAST_REFRESH_MS and now - _LAST_REFRESH_MS < _REFRESH_TTL_MS:
+        return
     try:
         from armonia.durable import durable_available, load_state_blob
 
         if not durable_available():
+            _LAST_REFRESH_MS = now
             return
         remote = load_state_blob()
+        _LAST_REFRESH_MS = now
         if not isinstance(remote, dict) or not remote.get("profiles"):
             return
         if int(remote.get("revision") or 0) >= int(STATE.get("revision") or 0):
@@ -347,19 +364,26 @@ def _refresh_from_durable() -> None:
             STATE.update(remote)
             _apply_auth_env(STATE)
     except Exception:
-        pass
+        _LAST_REFRESH_MS = now
 
 
 STATE = load_state()
+_LAST_REFRESH_MS = int(time.time() * 1000)
 
 
 def durable_storage_ok() -> bool:
+    global _DURABLE_HEALTH_CACHE
+    now = time.time()
+    if _DURABLE_HEALTH_CACHE and now - _DURABLE_HEALTH_CACHE[0] < 30:
+        return _DURABLE_HEALTH_CACHE[1]
     try:
         from armonia.durable import health as durable_health
 
-        return bool(durable_health().get("ok"))
+        ok = bool(durable_health().get("ok"))
     except Exception:
-        return False
+        ok = False
+    _DURABLE_HEALTH_CACHE = (now, ok)
+    return ok
 
 
 def get_state() -> dict[str, Any]:
@@ -369,7 +393,7 @@ def get_state() -> dict[str, Any]:
 
 def mutate(fn) -> dict[str, Any]:
     with _LOCK:
-        _refresh_from_durable()
+        _refresh_from_durable(force=True)
         fn(STATE)
         STATE["revision"] = int(STATE.get("revision") or 0) + 1
         _persist(STATE)
@@ -378,5 +402,5 @@ def mutate(fn) -> dict[str, Any]:
 
 def snapshot() -> dict[str, Any]:
     with _LOCK:
-        _refresh_from_durable()
+        _refresh_from_durable(force=False)
         return deepcopy(STATE)

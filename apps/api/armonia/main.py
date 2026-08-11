@@ -96,12 +96,9 @@ def health() -> dict:
         omni = False
     durable = durable_storage_ok()
     storage_meta: dict = {"ok": durable, "backend": "postgres" if durable else "memory"}
-    try:
-        from armonia.durable import health as durable_health
-
-        storage_meta = durable_health()
-    except Exception:
-        pass
+    # Avoid a second Neon round-trip on every health poll — cache lives in durable_storage_ok
+    if durable:
+        storage_meta = {"ok": True, "backend": "postgres"}
     return {
         "ok": True,
         "version": __version__,

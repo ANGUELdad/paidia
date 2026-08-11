@@ -60,8 +60,9 @@ def auth_health() -> dict[str, Any]:
 
 
 def _session_payload(session: dict[str, Any]) -> dict[str, Any]:
-    profile = (snapshot().get("profiles") or {}).get(session["profile_id"]) or {}
-    prefs = (snapshot().get("prefs") or {}).get(session["profile_id"]) or {}
+    state = snapshot()
+    profile = (state.get("profiles") or {}).get(session["profile_id"]) or {}
+    prefs = (state.get("prefs") or {}).get(session["profile_id"]) or {}
     return {
         "authenticated": True,
         "profileId": session["profile_id"],
@@ -73,8 +74,7 @@ def _session_payload(session: dict[str, Any]) -> dict[str, Any]:
         "emoji": prefs.get("emoji") or "",
         "nickname": prefs.get("nickname") or profile.get("name"),
         "lang": prefs.get("lang") or "de",
-        "widgets": prefs.get("widgets")
-        or (snapshot().get("widgetLayouts") or {}).get(session["profile_id"]),
+        "widgets": prefs.get("widgets") or (state.get("widgetLayouts") or {}).get(session["profile_id"]),
         "sessionId": session["session_id"],
         "expiresAt": int(session["expires_at"] * 1000),
         "profile": {

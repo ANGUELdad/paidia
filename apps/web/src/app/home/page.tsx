@@ -53,14 +53,12 @@ export default function HomePage() {
         setStoredLang(l);
         setLang(l);
         setSession(s);
-        const evald = await api<{ due: Due[] }>("/api/notify/evaluate");
+        const [evald, p] = await Promise.all([
+          api<{ due: Due[] }>("/api/notify/evaluate"),
+          api<{ pending?: boolean }>("/api/presence/active").catch(() => ({ pending: true })),
+        ]);
         setDue(evald.due || []);
-        try {
-          const p = await api<{ pending?: boolean }>("/api/presence/active");
-          setPresence(p && typeof p.pending === "boolean" ? p : { pending: true });
-        } catch {
-          setPresence({ pending: true });
-        }
+        setPresence(p && typeof p.pending === "boolean" ? p : { pending: true });
         if ("serviceWorker" in navigator) {
           navigator.serviceWorker.register("/sw.js").catch(() => undefined);
         }
