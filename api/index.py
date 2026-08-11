@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hmac
+import json
 import os
 import re
 import sys
@@ -342,6 +344,56 @@ def _auth_onboarding_complete():
     return _json(200, {"completed": True, "version": paidia.ONBOARDING_VERSION})
 
 
+def _whatsapp_health():
+    """Mirror server.py GET /api/whatsapp/health via shared config helpers."""
+    config = paidia.whatsapp_config()
+    return _json(200, {
+        "ok": True,
+        "configured": bool(config["access_token"] and config["phone_number_id"]),
+        "sendEnabled": config["send_enabled"],
+        "webhookConfigured": bool(config["verify_token"]),
+        "signatureVerification": bool(config["app_secret"]),
+        "businessAccountConfigured": bool(config["business_account_id"]),
+        "recipientProfiles": len(paidia.whatsapp_recipients()),
+        "graphVersion": paidia.WHATSAPP_GRAPH_VERSION,
+        "eventTemplate": config["event_template"],
+    })
+
+
+def _whatsapp_webhook():
+    """Mirror server.py GET+POST /api/whatsapp/webhook (verify + signed ack)."""
+    if request.method == "GET":
+        config = paidia.whatsapp_config()
+        mode = request.args.get("hub.mode", "")
+        token = request.args.get("hub.verify_token", "")
+        challenge = request.args.get("hub.challenge", "")
+        if (
+            mode == "subscribe"
+            and config["verify_token"]
+            and hmac.compare_digest(token, config["verify_token"])
+        ):
+            response = make_response(challenge, 200)
+            response.headers["Content-Type"] = "text/plain; charset=utf-8"
+            response.headers["Cache-Control"] = "no-store"
+            return response
+        return _json(403, {"error": "Webhook verification failed"})
+
+    raw = request.get_data(cache=True) or b""
+    if not raw or len(raw) > paidia.MAX_BODY:
+        return _json(400, {"error": "Invalid webhook payload"})
+    try:
+        value = json.loads(raw)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        value = None
+    if not isinstance(value, dict):
+        return _json(400, {"error": "Invalid webhook payload"})
+    bridge = _FlaskHandlerBridge()
+    if not paidia.Handler.whatsapp_signature_valid(bridge, raw):
+        return _json(401, {"error": "Invalid webhook signature"})
+    # Acknowledge quickly. Delivery/read payloads are intentionally not persisted.
+    return _json(200, {"received": True})
+
+
 _STATIC_EXACT = frozenset({
     "",
     "index.html",
@@ -441,6 +493,14 @@ def entry(flask_path: str = ""):
         "/api/auth/onboarding/complete",
     }:
         return _auth_onboarding_complete()
+
+    if request.method == "GET" and api in {"/whatsapp/health", "/api/whatsapp/health"}:
+        return _whatsapp_health()
+    if request.method in {"GET", "POST"} and api in {
+        "/whatsapp/webhook",
+        "/api/whatsapp/webhook",
+    }:
+        return _whatsapp_webhook()
 
     handler_routes = {
         "/auth/profile/email": ("handle_profile_email", True),
