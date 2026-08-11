@@ -24,7 +24,7 @@ from armonia.domains.shop_stock import router as stock_router
 from armonia.domains.talk import MeetingBody, get_meeting, save_meeting
 from armonia.domains.talk import router as talk_router
 from armonia.domains.zoai import router as zoai_router
-from armonia.store import snapshot
+from armonia.store import snapshot, durable_storage_ok
 
 app = FastAPI(title="Armonia API", version=__version__)
 settings = get_settings()
@@ -94,12 +94,21 @@ def health() -> dict:
         omni = _omni_reachable()
     except Exception:
         omni = False
+    durable = durable_storage_ok()
+    storage_meta: dict = {"ok": durable, "backend": "postgres" if durable else "memory"}
+    try:
+        from armonia.durable import health as durable_health
+
+        storage_meta = durable_health()
+    except Exception:
+        pass
     return {
         "ok": True,
         "version": __version__,
         "platform": "armonia-v2",
         "revision": state.get("revision") or 0,
-        "durableStorage": True,
+        "durableStorage": durable,
+        "storage": storage_meta,
         "aiConfigured": bool(settings.groq_api_key) or omni,
         "llmProvider": "omniroute" if omni else ("groq" if settings.groq_api_key else "offline"),
         "omniroute": {"reachable": omni, "baseUrl": settings.omniroute_base_url},

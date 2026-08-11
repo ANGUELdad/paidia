@@ -33,7 +33,7 @@ from armonia.auth.security import (
 )
 from armonia.config import get_settings
 from armonia.domains.email import send_email
-from armonia.store import mutate, snapshot
+from armonia.store import mutate, snapshot, durable_storage_ok
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -54,7 +54,7 @@ def auth_health() -> dict[str, Any]:
         "passkeysAvailable": passkeys_available(),
         "passkeyOrigin": settings.webauthn_origin,
         "passkeyRpId": settings.webauthn_rp_id,
-        "durableStorage": True,
+        "durableStorage": durable_storage_ok(),
         "platform": "armonia-v2",
     }
 
@@ -263,6 +263,7 @@ def pin_reset_confirm(body: PinResetConfirmBody, request: Request) -> dict[str, 
         if not p:
             return
         p["pinHash"] = new_hash
+        p["pinOverride"] = True
         p.pop("pin", None)
         st.get("pinResetTokens", {}).pop(digest, None)
         st.setdefault("auditLog", []).append(

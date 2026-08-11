@@ -71,12 +71,15 @@ HOUSES = [
 ]
 
 
-def _seed_profile_row(p: dict[str, Any]) -> dict[str, Any]:
+def _seed_profile_row(p: dict[str, Any], *, hash_plain: bool = True) -> dict[str, Any]:
     row = {k: v for k, v in p.items() if k != "pin"}
     pin = p.get("pin")
     row["email"] = ""
     row["phone"] = ""
-    row["pinHash"] = _PIN_HASHER.hash(str(pin)) if pin else None
+    if hash_plain and pin:
+        row["pinHash"] = _PIN_HASHER.hash(str(pin))
+    else:
+        row["pinHash"] = None
     return row
 
 
@@ -114,7 +117,7 @@ def _admin_ids() -> set[str]:
 
 
 def _apply_auth_env(state: dict[str, Any]) -> bool:
-    """Overlay PAIDIA_AUTH_USERS_JSON pin hashes / emails onto profiles."""
+    """Overlay PAIDIA_AUTH_USERS_JSON — never clobber an explicit PIN override."""
     users = _parse_auth_users_json()
     if not users:
         return False
@@ -132,12 +135,14 @@ def _apply_auth_env(state: dict[str, Any]) -> bool:
         }
         row = profiles.get(pid)
         if not row:
-            row = _seed_profile_row(seed)
+            row = _seed_profile_row(seed, hash_plain=False)
             profiles[pid] = row
             changed = True
-        if row.get("pinHash") != rec["pin_hash"]:
-            row["pinHash"] = rec["pin_hash"]
-            changed = True
+        # Respect runtime PIN resets / profile PIN changes
+        if not row.get("pinOverride"):
+            if row.get("pinHash") != rec["pin_hash"]:
+                row["pinHash"] = rec["pin_hash"]
+                changed = True
         row.pop("pin", None)
         if rec["email"] and row.get("email") != rec["email"]:
             row["email"] = rec["email"]
@@ -152,6 +157,10 @@ def _apply_auth_env(state: dict[str, Any]) -> bool:
         want_admin = pid in admins
         if bool(row.get("admin")) != want_admin:
             row["admin"] = want_admin
+            changed = True
+    # Drop known seed plaintext when env auth is authoritative
+    for row in profiles.values():
+        if row.pop("pin", None) is not None:
             changed = True
     return changed
 
@@ -173,10 +182,13 @@ def _trim_lists(state: dict[str, Any]) -> None:
 
 
 def _empty_state() -> dict[str, Any]:
+    env_auth = bool(_parse_auth_users_json())
     return {
         "revision": 0,
         "updatedAt": int(time.time() * 1000),
-        "profiles": {p["id"]: _seed_profile_row(p) for p in SEED_PROFILES},
+        "profiles": {
+            p["id"]: _seed_profile_row(p, hash_plain=not env_auth) for p in SEED_PROFILES
+        },
         "passkeys": {},
         "sessions": {},
         "houses": HOUSES,
@@ -264,21 +276,34 @@ def _upgrade_profile_pins(state: dict[str, Any]) -> bool:
     return changed
 
 
+def _prepare(state: dict[str, Any]) -> dict[str, Any]:
+    changed = _upgrade_profile_pins(state)
+    changed = _apply_auth_env(state) or changed
+    if changed:
+        _persist(state)
+    return state
+
+
 def load_state() -> dict[str, Any]:
     apply_env_aliases()
     with _LOCK:
+        # 1) Neon / Postgres (survives cold starts)
+        try:
+            from armonia.durable import load_state_blob
+
+            remote = load_state_blob()
+            if isinstance(remote, dict) and remote.get("profiles"):
+                return _prepare(remote)
+        except Exception:
+            pass
+        # 2) Local /tmp file (dev + warm instance)
         if _DATA_PATH.exists():
             try:
                 state = json.loads(_DATA_PATH.read_text(encoding="utf-8"))
-                changed = _upgrade_profile_pins(state)
-                changed = _apply_auth_env(state) or changed
-                if changed:
-                    _persist(state)
-                return state
+                return _prepare(state)
             except (OSError, json.JSONDecodeError):
                 pass
         state = _empty_state()
-        # seed stock
         for h in HOUSES:
             for p in state["products"]:
                 state["stock"][f"{h['id']}:{p['id']}"] = 4
@@ -290,6 +315,12 @@ def load_state() -> dict[str, Any]:
 def _persist(state: dict[str, Any]) -> None:
     _trim_lists(state)
     state["updatedAt"] = int(time.time() * 1000)
+    try:
+        from armonia.durable import save_state_blob
+
+        save_state_blob(state)
+    except Exception:
+        pass
     raw = json.dumps(state, ensure_ascii=False, indent=2, allow_nan=False)
     try:
         _DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -297,11 +328,38 @@ def _persist(state: dict[str, Any]) -> None:
         tmp.write_text(raw, encoding="utf-8")
         tmp.replace(_DATA_PATH)
     except OSError:
-        # Serverless / read-only FS — keep in-memory state only.
+        # Serverless without durable DB — keep in-memory only.
+        pass
+
+
+def _refresh_from_durable() -> None:
+    """Pull newer remote revision into memory (multi-instance / cold start)."""
+    try:
+        from armonia.durable import durable_available, load_state_blob
+
+        if not durable_available():
+            return
+        remote = load_state_blob()
+        if not isinstance(remote, dict) or not remote.get("profiles"):
+            return
+        if int(remote.get("revision") or 0) >= int(STATE.get("revision") or 0):
+            STATE.clear()
+            STATE.update(remote)
+            _apply_auth_env(STATE)
+    except Exception:
         pass
 
 
 STATE = load_state()
+
+
+def durable_storage_ok() -> bool:
+    try:
+        from armonia.durable import health as durable_health
+
+        return bool(durable_health().get("ok"))
+    except Exception:
+        return False
 
 
 def get_state() -> dict[str, Any]:
@@ -311,6 +369,7 @@ def get_state() -> dict[str, Any]:
 
 def mutate(fn) -> dict[str, Any]:
     with _LOCK:
+        _refresh_from_durable()
         fn(STATE)
         STATE["revision"] = int(STATE.get("revision") or 0) + 1
         _persist(STATE)
@@ -319,4 +378,5 @@ def mutate(fn) -> dict[str, Any]:
 
 def snapshot() -> dict[str, Any]:
     with _LOCK:
+        _refresh_from_durable()
         return deepcopy(STATE)
