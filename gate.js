@@ -32,16 +32,18 @@
   let lang = localStorage.getItem('paidia.lang') || 'de';
   let bootSettled = false;
   const APP_BUILD = {
-    version: 69,
-    label: 'v69',
+    version: 70,
+    label: 'v70',
     changed: {
-      de: 'UX Home/Plan · Tabellen mit Datum · Talk-Tab · Admin-Automationen · Pine-Cleanup',
-      el: 'UX Home/Plan · Πίνακες με ημερομηνία · Talk · Admin automations · Pine cleanup',
+      de: 'Login-Gate · Marble Dawn / Pine · Marken-Hero · helles Glas',
+      el: 'Πύλη εισόδου · Marble Dawn / Pine · Brand hero · φωτεινό γυαλί',
     },
   };
   const copy = {
     de: {
       brand: 'Gemeinsam durch den Tag',
+      name: 'Armonia',
+      place: 'Thassos',
       title: 'Armonia Thassos',
       who: 'Wer bist du?',
       staff: 'Personal',
@@ -86,6 +88,8 @@
     },
     el: {
       brand: 'Μαζί μέσα στην ημέρα',
+      name: 'Armonia',
+      place: 'Θάσος',
       title: 'Armonia Thassos',
       who: 'Ποιος/ποια είσαι;',
       staff: 'Προσωπικό',
@@ -138,12 +142,32 @@
 
   function loadApp() {
     window.__paidiaAuthed = true;
-    if (document.querySelector('script[data-paidia-app]')) return;
+    if (document.querySelector('script[data-paidia-app]')) {
+      // App already loaded (e.g. logout → re-login): hand off to session restore.
+      try {
+        window.dispatchEvent(new CustomEvent('paidia-gate-auth'));
+      } catch (error) {
+        location.replace('/?in=' + Date.now());
+      }
+      return;
+    }
     const script = document.createElement('script');
-    script.src = 'app.js?v=73';
+    script.src = 'app.js?v=74';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
+  }
+
+  function syncLang() {
+    lang = localStorage.getItem('paidia.lang') || lang || 'de';
+    document.documentElement.lang = lang;
+  }
+
+  /** Re-show Marble Dawn entrance (logout / failed session / lang switch). */
+  function open() {
+    syncLang();
+    gate.classList.add('on');
+    renderEntrance();
   }
 
   function langSwitch() {
@@ -165,23 +189,27 @@
   }
 
   function renderEntrance() {
+    syncLang();
     const note = (APP_BUILD.changed && (APP_BUILD.changed[lang] || APP_BUILD.changed.de)) || '';
     body.innerHTML = `
       ${langSwitch()}
       <div class="gate-head">
         <div class="mark" aria-hidden="true">A</div>
-        <div class="brand-kicker">${t('brand')}</div>
-        <h2>${t('title')}</h2>
-        <p>${t('who')}</p>
+        <h1 class="gate-brand">${t('name')}</h1>
+        <p class="gate-place">${t('place')}</p>
+        <p class="gate-tagline">${t('brand')}</p>
+        <p class="gate-who">${t('who')}</p>
       </div>
-      <div class="profiles" style="grid-template-columns:1fr">
-        <button class="profile" type="button" data-mode="staff" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-          <div class="pa" style="background:#9bc4b0;margin:0;flex:0 0 auto">👥</div>
-          <div><div class="pn" style="font-size:16px">${t('staff')}</div><div class="pr">${t('staffSub')}</div></div>
+      <div class="gate-roles">
+        <button class="gate-role" type="button" data-mode="staff">
+          <span class="gate-role-icon staff" aria-hidden="true">P</span>
+          <span class="gate-role-copy"><span class="pn">${t('staff')}</span><span class="pr">${t('staffSub')}</span></span>
+          <span class="gate-role-chev" aria-hidden="true">›</span>
         </button>
-        <button class="profile" type="button" data-mode="child" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-          <div class="pa" style="background:#c5ddd0;margin:0;flex:0 0 auto">🎈</div>
-          <div><div class="pn" style="font-size:16px">${t('child')}</div><div class="pr">${t('childSub')}</div></div>
+        <button class="gate-role" type="button" data-mode="child">
+          <span class="gate-role-icon child" aria-hidden="true">K</span>
+          <span class="gate-role-copy"><span class="pn">${t('child')}</span><span class="pr">${t('childSub')}</span></span>
+          <span class="gate-role-chev" aria-hidden="true">›</span>
         </button>
       </div>
       <div class="gate-build" role="status"><b>${esc(APP_BUILD.label)}</b><span>${esc(note)}</span></div>`;
@@ -205,8 +233,8 @@
     body.innerHTML = `
       ${langSwitch()}
       <div class="gate-head">
-        <div class="mark">${mode === 'child' ? '🎈' : '👥'}</div>
-        <div class="brand-kicker">Armonia Thassos</div>
+        <div class="mark" aria-hidden="true">${mode === 'child' ? 'K' : 'P'}</div>
+        <p class="brand-kicker">${t('name')} · ${t('place')}</p>
         <h2>${mode === 'child' ? t('child') : t('staff')}</h2>
         <p>${t('pick')}</p>
       </div>
@@ -305,12 +333,12 @@
         <div class="pa" style="background:${safeColor(who.color)}">${initials(who.name)}</div>
         <h3>${esc(who.name)}</h3>
         <div class="sub">${who.role ? esc(who.role) + ' · ' : ''}${t('pin')}</div>
-        <button class="passkey-btn primary-bio" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricLabel())}</b><span class="pk-sub">${esc(t('bioHint'))}</span></span></button>
+        <button class="passkey-btn primary-bio" id="gPasskey" type="button" hidden><span><b>${esc(biometricLabel())}</b><span class="pk-sub">${esc(t('bioHint'))}</span></span></button>
         <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
         <div class="pindots" id="gpd"></div>
         <input class="pin-field" id="gPinInput" type="password" inputmode="numeric" pattern="[0-9]*"
           maxlength="6" autocomplete="one-time-code" enterkeyhint="done" aria-label="PIN" value="">
-        <div id="gpErr" style="min-height:18px;color:#f87171;font-size:12.5px" role="alert"></div>
+        <div id="gpErr" style="min-height:18px;color:#c2410c;font-size:12.5px" role="alert"></div>
         <div class="pinpad" id="gPinpad" role="group" aria-label="PIN">
           ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join('')}
           <button type="button" data-k="del" aria-label="Backspace">⌫</button>
@@ -640,6 +668,6 @@
     }
   }
 
-  window.PaidiaGate = { start, loadApp, renderResetForm, renderResetRequest };
+  window.PaidiaGate = { start, open, loadApp, renderEntrance, renderResetForm, renderResetRequest };
   start();
 })();

@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 69,
-  label: 'v69',
+  version: 70,
+  label: 'v70',
   changed: {
-    de: 'UX Home/Plan · Tabellen mit Datum · Talk-Tab · Admin-Automationen · Pine-Cleanup',
-    el: 'UX Home/Plan · Πίνακες με ημερομηνία · Talk · Admin automations · Pine cleanup',
+    de: 'Login-Gate · Marble Dawn / Pine · Marken-Hero · helles Glas',
+    el: 'Πύλη εισόδου · Marble Dawn / Pine · Brand hero · φωτεινό γυαλί',
   },
 };
 const T = {
@@ -2409,7 +2409,10 @@ async function restoreServerSession(){
   }catch(error){ console.error('session restore failed',error); }
   // Keep "Laden…" until we know restore failed — then show the gate.
   if(!gateEl.classList.contains('on')) openGate();
-  else if(!gateBody.querySelector('[data-mode]') && !gateBody.querySelector('.gate-pin')) renderEntrance();
+  else if(!gateBody.querySelector('[data-mode]') && !gateBody.querySelector('.gate-role') && !gateBody.querySelector('.gate-pin')){
+    if(window.PaidiaGate?.renderEntrance) window.PaidiaGate.renderEntrance();
+    else renderEntrance();
+  }
   return false;
 }
 
@@ -2431,7 +2434,9 @@ function setLang(l){
   if(!document.body.classList.contains('auth-pending')) render();
   if(gateEl.classList.contains('on')){
     // Keep the user on the login shell; refresh copy via entrance.
-    if(state.user||state.child) render(); else renderEntrance();
+    if(state.user||state.child) render();
+    else if(window.PaidiaGate?.renderEntrance) window.PaidiaGate.renderEntrance();
+    else renderEntrance();
   }
 }
 
@@ -11786,7 +11791,16 @@ function stopPinKeyboard(){
   }
 }
 
-function openGate(){ closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); renderEntrance(); }
+function openGate(){
+  closeSheet();
+  stopPinKeyboard();
+  if(window.PaidiaGate?.open){
+    window.PaidiaGate.open();
+    return;
+  }
+  gateEl.classList.add('on');
+  renderEntrance();
+}
 function closeGate(){ stopPinKeyboard(); gateEl.classList.remove('on'); }
 
 /** Βήμα 1 — δύο ξεχωριστές είσοδοι: Προσωπικό / Παιδιά (§31.3). */
@@ -12083,7 +12097,9 @@ function renderResetForm(token){
       state.user=null;state.child=null;state.mode='staff';session.sessionId=null;
       document.body.classList.add('auth-pending');
       document.getElementById('app').hidden=true;
-      renderEntrance();toast(t('pinChanged'),'success',5200);
+      if(window.PaidiaGate?.renderEntrance) window.PaidiaGate.renderEntrance();
+      else renderEntrance();
+      toast(t('pinChanged'),'success',5200);
     }catch(error){setStatus(status,(error.message==='storage'||error.message==='507')?t('errStorage'):t('invalidReset'),'error');}
     finally{button.disabled=false;}
   };
@@ -12129,6 +12145,8 @@ window.addEventListener('error', event=>{
 });
 localStorage.removeItem('paidia.authSession');
 syncLayoutMode();
+// gate.js re-login after logout (app already loaded) → hydrate session.
+window.addEventListener('paidia-gate-auth', () => { restoreServerSession(); });
 const resetToken=new URLSearchParams(location.search).get('reset');
 if(resetToken){
   openGate();
@@ -12285,7 +12303,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=69',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=74',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);
