@@ -3841,6 +3841,8 @@ class Handler(SimpleHTTPRequestHandler):
         # Allowlist-only static assets — never fall through to SimpleHTTPRequestHandler
         # (that would expose .env, source, SQLite, and store JSON).
         static_rel = parsed.path.lstrip("/") or "index.html"
+        if static_rel == "favicon.ico":
+            static_rel = "icons/favicon-32.png"
         allowed_exact = {
             "",
             "index.html",
@@ -3848,6 +3850,7 @@ class Handler(SimpleHTTPRequestHandler):
             "gate.js",
             "sw.js",
             "manifest.webmanifest",
+            "build.json",
         }
         icon_ok = (
             static_rel.startswith("icons/")

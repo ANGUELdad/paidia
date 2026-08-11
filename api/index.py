@@ -349,6 +349,7 @@ _STATIC_EXACT = frozenset({
     "gate.js",
     "sw.js",
     "manifest.webmanifest",
+    "build.json",
 })
 _ICON_SUFFIXES = frozenset({".png", ".svg", ".ico", ".webp", ".jpg", ".jpeg"})
 
@@ -373,6 +374,9 @@ def _serve_static(rel: str):
     rel = (rel or "index.html").lstrip("/")
     if not rel or rel.endswith("/"):
         rel = (rel or "") + "index.html"
+    # Browser default favicon request → real PNG icon.
+    if rel == "favicon.ico":
+        rel = "icons/favicon-32.png"
     if not _static_allowed(rel):
         return _json(404, {"error": "Not found"})
     target = (ROOT / rel).resolve()
@@ -381,9 +385,12 @@ def _serve_static(rel: str):
         return _json(400, {"error": "Invalid path"})
     if target.is_file():
         response = send_from_directory(root, rel)
-        if rel.endswith((".html", ".js", ".webmanifest")):
+        if rel.endswith((".html", ".js", ".webmanifest", ".json")):
             response.headers["Cache-Control"] = "no-store"
         return response
+    # Missing allowlisted icon → real 404 (not SPA shell).
+    if rel.startswith("icons/"):
+        return _json(404, {"error": "Not found"})
     # Unknown allowlisted path → SPA shell, never arbitrary repo files.
     return send_from_directory(root, "index.html")
 
