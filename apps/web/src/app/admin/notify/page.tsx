@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
+import { GuidedTour } from "@/components/GuidedTour";
 import { PageShell } from "@/components/PageShell";
 import { api, urlBase64ToUint8Array } from "@/lib/api";
 import { getStoredLang, t, type Lang } from "@/lib/i18n";
@@ -31,7 +32,7 @@ const CATALOG_DE: Record<string, string> = {
 };
 
 export default function AdminNotifyPage() {
-  const { ready } = useRequireMode("staff");
+  const { session, ready } = useRequireMode("staff");
   const [lang, setLang] = useState<Lang>("de");
   const [rules, setRules] = useState<Rule[]>([]);
   const [due, setDue] = useState<DueItem[]>([]);
@@ -211,6 +212,7 @@ export default function AdminNotifyPage() {
         </section>
       </PageShell>
       <Dock />
+      <GuidedTour mode="staff" admin={!!session?.admin} />
     </>
   );
 }

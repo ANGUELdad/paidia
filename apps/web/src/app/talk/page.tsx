@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { EmptyState } from "@/components/EmptyState";
+import { GuidedTour } from "@/components/GuidedTour";
 import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
 import { useRequireMode } from "@/lib/session";
@@ -248,6 +249,7 @@ export default function TalkPage() {
       )}
 
       <Dock />
+      <GuidedTour />
     </>
   );
 }
