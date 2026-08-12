@@ -32,16 +32,18 @@
   let lang = localStorage.getItem('paidia.lang') || 'de';
   let bootSettled = false;
   const APP_BUILD = {
-    version: 69,
-    label: 'v69',
+    version: 76,
+    label: 'v76',
     changed: {
-      de: 'UX Home/Plan · Tabellen mit Datum · Talk-Tab · Admin-Automationen · Pine-Cleanup',
-      el: 'UX Home/Plan · Πίνακες με ημερομηνία · Talk · Admin automations · Pine cleanup',
+      de: 'Spotlight-Guide · Kalender ICS/Feed · Easy/Pro · Button-Fixes',
+      el: 'Spotlight-οδηγός · Ημερολόγιο ICS/Feed · Easy/Pro · Διορθώσεις κουμπιών',
     },
   };
   const copy = {
     de: {
       brand: 'Gemeinsam durch den Tag',
+      name: 'Armonia',
+      place: 'Thassos',
       title: 'Armonia Thassos',
       who: 'Wer bist du?',
       staff: 'Personal',
@@ -86,6 +88,8 @@
     },
     el: {
       brand: 'Μαζί μέσα στην ημέρα',
+      name: 'Armonia',
+      place: 'Θάσος',
       title: 'Armonia Thassos',
       who: 'Ποιος/ποια είσαι;',
       staff: 'Προσωπικό',
@@ -138,12 +142,27 @@
 
   function loadApp() {
     window.__paidiaAuthed = true;
-    if (document.querySelector('script[data-paidia-app]')) return;
+    if (document.querySelector('script[data-paidia-app]')) {
+      window.dispatchEvent(new CustomEvent('paidia-gate-auth'));
+      return;
+    }
     const script = document.createElement('script');
-    script.src = 'app.js?v=73';
+    script.src = 'app.js?v=76';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
+  }
+
+  function syncLang() {
+    lang = localStorage.getItem('paidia.lang') || lang || 'de';
+    document.documentElement.lang = lang;
+  }
+
+  /** Re-show Marble Dawn entrance (logout / failed session / lang switch). */
+  function open() {
+    syncLang();
+    gate.classList.add('on');
+    renderEntrance();
   }
 
   function langSwitch() {
@@ -165,23 +184,27 @@
   }
 
   function renderEntrance() {
+    syncLang();
     const note = (APP_BUILD.changed && (APP_BUILD.changed[lang] || APP_BUILD.changed.de)) || '';
     body.innerHTML = `
       ${langSwitch()}
       <div class="gate-head">
         <div class="mark" aria-hidden="true">A</div>
-        <div class="brand-kicker">${t('brand')}</div>
-        <h2>${t('title')}</h2>
-        <p>${t('who')}</p>
+        <h1 class="gate-brand">${t('name')}</h1>
+        <p class="gate-place">${t('place')}</p>
+        <p class="gate-tagline">${t('brand')}</p>
+        <p class="gate-who">${t('who')}</p>
       </div>
-      <div class="profiles" style="grid-template-columns:1fr">
-        <button class="profile" type="button" data-mode="staff" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-          <div class="pa" style="background:#9bc4b0;margin:0;flex:0 0 auto">👥</div>
-          <div><div class="pn" style="font-size:16px">${t('staff')}</div><div class="pr">${t('staffSub')}</div></div>
+      <div class="gate-roles">
+        <button class="gate-role" type="button" data-mode="staff">
+          <span class="gate-role-icon staff" aria-hidden="true">P</span>
+          <span class="gate-role-copy"><span class="pn">${t('staff')}</span><span class="pr">${t('staffSub')}</span></span>
+          <span class="gate-role-chev" aria-hidden="true">›</span>
         </button>
-        <button class="profile" type="button" data-mode="child" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-          <div class="pa" style="background:#c5ddd0;margin:0;flex:0 0 auto">🎈</div>
-          <div><div class="pn" style="font-size:16px">${t('child')}</div><div class="pr">${t('childSub')}</div></div>
+        <button class="gate-role" type="button" data-mode="child">
+          <span class="gate-role-icon child" aria-hidden="true">K</span>
+          <span class="gate-role-copy"><span class="pn">${t('child')}</span><span class="pr">${t('childSub')}</span></span>
+          <span class="gate-role-chev" aria-hidden="true">›</span>
         </button>
       </div>
       <div class="gate-build" role="status"><b>${esc(APP_BUILD.label)}</b><span>${esc(note)}</span></div>`;
@@ -205,8 +228,8 @@
     body.innerHTML = `
       ${langSwitch()}
       <div class="gate-head">
-        <div class="mark">${mode === 'child' ? '🎈' : '👥'}</div>
-        <div class="brand-kicker">Armonia Thassos</div>
+        <div class="mark" aria-hidden="true">${mode === 'child' ? 'K' : 'P'}</div>
+        <p class="brand-kicker">${t('name')} · ${t('place')}</p>
         <h2>${mode === 'child' ? t('child') : t('staff')}</h2>
         <p>${t('pick')}</p>
       </div>
@@ -640,6 +663,6 @@
     }
   }
 
-  window.PaidiaGate = { start, loadApp, renderResetForm, renderResetRequest };
+  window.PaidiaGate = { start, open, loadApp, renderEntrance, renderResetForm, renderResetRequest };
   start();
 })();

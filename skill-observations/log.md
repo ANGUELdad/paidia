@@ -407,3 +407,230 @@
 - **Trigger:** QA of Marble Dawn home + Zo-Ai screen guide.
 - **Insight:** German how-to phrasing (“Wie starte ich die Schicht?”) does not match `schicht\s*start`. Intent maps need verb/noun either order, and more-specific targets (Schichtbuch) must win over substring matches (Schicht).
 - **Reusable pattern:** For guide/intent routers, put longer/more-specific patterns first; test with real user phrasing, not only keyword lists.
+
+## Episode — 2026-08-10 — Visual QA spotlight measure race
+
+- **Context:** Live visual QA on paidia-platform.vercel.app (staff Zoi); Playwright screenshots of home / Wochenplan guide / Zo-Ai.
+- **Friction:** Guide coach appeared but spotlight hole never rendered; DOM showed `[data-tour]` present while `.guide-hole` / `.tour-spotlight-target` absent.
+- **Insight:** `GuideProvider.measure` is scheduled once on `active`/`path` (120ms). Targets that mount later (page `ready` / async data) are missed with no retry/observer — looks like a “dim void” with no cutout. Pair guide start with MutationObserver or re-measure on layout effects when the spotlight selector appears.
+- **Reuse:** For guide/spotlight QA, assert both coach UI and `.guide-hole` + `.tour-spotlight-target`, not only navigation + coach copy.
+
+## Episode — 2026-08-10 — Stuck guide scrim after Später
+
+- **Context:** User “this shit doesnt work”; live paidia-platform after Marble Dawn guide work.
+- **Friction:** Tour finish left a full-screen guide-hole blocking chips/dock. Root: GuidedTour effect depended on GuideProvider context identity, so clearGuide re-triggered startGuide. Second bug: Zo-Ai auto-startGuide on wrong page painted solid scrim over “Zeig mir”.
+- **Insight:** Spotlight/tour context values that include `active` must not be effect deps for “start spotlight”; use refs. Never show a blocking scrim without a measured cutout on the current route.
+- **Reuse:** For overlay tutors, assert dismiss clears layer (layer count 0) and that off-route coach never uses pointer-events:auto full scrim.
+
+## Episode — 2026-08-10 — Wire PAIDIA_* env into v2 API
+
+- **Context:** User: use env variables already there for passwords and etc.
+- **Friction:** paidia-api used hardcoded seed PINs (argon2) while production secrets lived in PAIDIA_AUTH_USERS_JSON (pbkdf2) + SMTP/session on the legacy Vercel project / root .env.
+- **Insight:** New stacks must alias legacy env names and verify the legacy hash format; sync secrets onto the new Vercel project or cold starts keep fake seeds.
+- **Reuse:** When splitting a monolith deploy, copy auth env first and assert login against env hashes (seed PIN should fail if overlay worked).
+
+### Observation 21: V2 API store ignores Neon DATABASE_URL after auth JSON wiring
+
+**Status:** OPEN
+**Date:** 2026-08-11
+**Session context:** Read-only audit of apps/api Armonia v2 auth + store post PAIDIA_AUTH_USERS_JSON
+**Skill:** New skill candidate: dual-stack cutover audit
+**Type:** open-source
+**Phase/Area:** durable store vs env auth overlay
+
+**Issue:** After wiring PAIDIA_AUTH_USERS_JSON into the FastAPI store, DATABASE_URL/Neon aliases exist in config/env_aliases but store.py still persists only to /tmp JSON. PIN resets and sessions therefore cannot survive cold starts, and env pin hashes reclobber local pinHash on reload.
+
+**Suggested improvement:** Checklist: (1) does the new stack call the same durable DB keys as legacy, (2) do env auth overlays respect override precedence, (3) are health durableStorage flags evidence-based.
+
+**Principle:** Wiring env secrets into a new stack is not cutover-complete until the durable store path used by production is the same path the new API mutates.
+
+## Episode — 2026-08-11 — Neon-backed Armonia store
+
+- **Context:** User “Improve it” after env PIN wiring.
+- **Friction:** DATABASE_URL was on paidia-api but store still used /tmp; health lied `durableStorage: true`.
+- **Insight:** Aliasing env is not enough — verify the runtime actually reads/writes the durable backend; assert health fields against a real round-trip.
+- **Reuse:** When improving “env is there”, check consumers of each secret (DB URL → store, SMTP → email send result, auth JSON → verify hash format).
+
+## Episode — 2026-08-11 — Lag from Neon-per-snapshot + guide scroll loop
+
+- **Context:** User: hella laggy and buggy.
+- **Friction:** Every `snapshot()` reloaded Neon (~1–3s); home chained 3 API calls; guide `scrollIntoView(smooth)` + scroll listener re-measured forever.
+- **Insight:** Durable reads need TTL coalescing inside a request/warm instance; spatial tutors must not scroll on every measure.
+- **Reuse:** After wiring a remote store, benchmark `snapshot()` call count × RTT before shipping.
+
+## 2026-08-11 — armonia-thassos gate redesign
+- Pattern: legacy gate CSS was dark (`#121c18`) while app shell already used Marble Dawn / pine; auth-pending forced the clash.
+- Fix: unify gate to light mineral glass, brand-hero Fraunces, role CTAs without emoji; bump build/cache.
+- Deploy target: root Vercel project `paidia` → armonia-thassos.vercel.app
+
+## 2026-08-12
+
+### Observation 22: Legacy PWA dead-UI audit methodology
+
+**Status:** OPEN
+**Date:** 2026-08-12
+**Session context:** Read-only audit of index.html / gate.js / app.js for unwired controls
+**Skill:** New skill candidate: static-spa-control-audit
+**Type:** open-source
+**Phase/Area:** methodology
+
+**Issue:** In apps where most UI is JS-templated into a shell, grepping only static HTML IDs misses almost all dead buttons. Dual login shells (instant gate + post-load gate) also create false "wired" confidence unless logout/re-entry paths are compared to the redesigned entrance.
+
+**Suggested improvement:** For shell+JS-rendered PWAs: (1) extract button ids/data-* from template literals, (2) require a selector/#id or dataset handler, (3) separately diff pre-bundle vs post-load gate/render paths, (4) flag functions that build HTML but are never interpolated.
+
+**Principle:** When UI is mostly runtime-rendered, audit the template graph and re-entry paths, not only the static shell markup.
+
+### Observation 23: Dual login shells need an explicit public bridge
+
+**Status:** OPEN
+**Date:** 2026-08-12
+**Session context:** Fix dual-login-gate (gate.js Marble Dawn vs app.js legacy renderEntrance)
+**Skill:** New skill candidate: dual-shell-ui-handoff
+**Type:** open-source
+**Phase/Area:** progressive boot / gate handoff
+
+**Issue:** Cold start used a redesigned gate.js shell, but after app.js loaded, logout/openGate called app.js renderEntrance() and repainted a second legacy UI. Re-login via gate.js also no-op'd loadApp() when the app script tag already existed.
+
+**Suggested improvement:** When a lightweight boot shell and a heavy app both own the same surface, require a small public API (open/render/onAuth) plus an explicit already-loaded handoff event; never let the heavy bundle silently reimplement the shell.
+
+**Principle:** Progressive-boot UIs need a one-way ownership contract: the first shell owns re-entry visuals, and the heavy app must call into it (or reload) rather than painting a duplicate path.
+
+### Observation 24: Keep dual static allowlists in sync (Vercel + local)
+
+**Status:** OPEN
+**Date:** 2026-08-12
+**Session context:** P1 production fixes for build.json allowlist, SW cache, icon 404s
+**Skill:** New skill candidate: dual-runtime static parity
+**Type:** internal
+**Phase/Area:** static asset serving (api/index.py vs server.py)
+
+**Issue:** PAIDIA serves static assets from two parallel allowlists (`_STATIC_EXACT` in `api/index.py` for Vercel, `allowed_exact` in `server.py` for local). A production bug (missing `build.json` on Vercel) can exist while local still appears fine if only one list is updated.
+
+**Suggested improvement:** When changing either static allowlist, rewrite rule, Cache-Control pattern, or missing-file 404 behavior, always patch the sibling path in the same commit and mention both in the PR summary.
+
+**Principle:** Dual-runtime apps need allowlist/static-serving changes applied as a pair; treat unpaired updates as incomplete.
+
+### Observation 25: click() || fallback always takes fallback
+
+**Status:** OPEN
+**Date:** 2026-08-12
+**Session context:** P1 UX wiring fixes in legacy app.js (shopScan)
+**Skill:** New skill candidate: spa-chrome-collision-audit
+**Type:** open-source
+**Phase/Area:** event wiring / falsy return values
+
+**Issue:** `el?.click() || fallback()` always runs fallback because `HTMLElement.click()` returns `undefined` (falsy), even when the click handler ran successfully. shopScan opened import instead of receipt for this reason.
+
+**Suggested improvement:** In chrome/wiring audits, flag `?.click() ||` and prefer direct function calls over synthesizing clicks when the target action is known.
+
+**Principle:** Never chain `element.click()` into a boolean/or fallback — void methods always look like failure.
+
+### Observation 26: Port both Handler methods and inline do_* API routes
+
+**Status:** OPEN
+**Date:** 2026-08-12
+**Session context:** WhatsApp health/webhook Vercel parity
+**Skill:** Extends dual-runtime static parity → API route parity
+**Type:** internal
+**Phase/Area:** api/index.py vs server.py route surface
+
+**Issue:** `/api/whatsapp/event` and `/test` were already wrapped via `_call_handler`, but `/health` and `/webhook` lived only as inline branches in `Handler.do_GET`/`do_POST`, so Vercel silently 404'd Meta verify/health while local worked.
+
+**Suggested improvement:** When auditing Vercel vs local API parity, grep both `handle_*` methods and `do_GET`/`do_POST` path strings; port any path present in only one runtime.
+
+**Principle:** Dual-runtime route parity must cover inline path handlers, not only named Handler methods already in `handler_routes`.
+
+## 2026-08-12 — Playwright staff-tab QA against live Marble Dawn gate
+- Observed: legacy gate selectors drifted to `button.gate-role` + `h1.gate-brand`; old `button.profile[data-mode=staff]` timed out.
+- Skill candidate: keep QA selectors dual-path (legacy profile + Marble Dawn gate-role) when UI is mid-redesign.
+- Confidence: high
+
+### Observation 27: Local Playwright QA needs auth overrides for QA PIN file
+
+**Status:** OPEN
+**Date:** 2026-08-12
+**Session context:** Playwright staff e4 stock/shop click-test against local :5173
+**Skill:** New skill candidate: paidia-local-qa-auth
+**Type:** internal
+**Phase/Area:** Local QA / auth bootstrap
+
+**Issue:** `/tmp/paidia-qa-pin` matches `/tmp/paidia-qa-overrides.json` for e4 but not the default `.env` PAIDIA_AUTH_USERS_JSON hash. Without `PAIDIA_AUTH_OVERRIDES_PATH=/tmp/paidia-qa-overrides.json` (or equivalent), staff login fails with attempts remaining. Also, Playwright `waitForSelector` on `nav [data-tab]` while `body.auth-pending` matches hidden nav and times out; gate-scoped selectors are required. PIN entry must use pinpad `data-k` (fill alone can race 6-digit auto-submit).
+
+**Suggested improvement:** Document a short local QA bootstrap: start server with QA overrides path, read PIN from `/tmp/paidia-qa-pin` without echoing, gate-first login via pinpad, then tab flows.
+
+**Principle:** When a QA secret file is provided, verify it against the running auth source (env vs overrides vs DB) before treating login failures as product bugs.
+
+## 2026-08-12 — multi-agent QA fleet on armonia-thassos
+- Pattern: parallel explore agents found dual-gate + static allowlist gaps faster than single pass; branch fragmentation lost fixes until rebase onto one qa branch.
+- Fix: unify on cursor/qa-fleet-fixes-d9bd, Playwright staff tabs passed (login→all docks→Zo-Ai→security→Marble Dawn logout).
+- Remaining: production click-login needs real PINs; Drive still unconfigured; WhatsApp sendEnabled depends on tokens.
+
+## 2026-08-12 — Playwright local QA auth overrides
+
+- **Trigger:** friction
+- **Context:** Local click-test needed QA PINs via `/tmp/paidia-qa-overrides.json` while process auth is loaded only at startup; mid-run server on :5173 was flaky/down.
+- **Observation:** Gate PIN auto-submits at 6 digits (`buf.length === 6 → finish()`); Playwright must not also click `#gLogin` or it times out on disabled/loading button. Dauerhaft (`#fScope [data-s=template]`) only appears when editing `source==='template'` entries—not on new/extra cards.
+- **Suggested skill impact:** update — local QA / Playwright login helpers
+- **Confidence:** high
+- **Status:** pending-review
+
+## 2026-08-12 — legacy QA/guide/calendar/EasyPro implementation
+- Starting full plan on branch cursor/legacy-qa-guide-calendar-easypro
+
+## 2026-08-12 — Admin permission gate inventory
+
+- **Trigger:** Investigate why admins cannot edit/add everything (permissions/role gates).
+- **Insight:** Live site (armonia-thassos.vercel.app) is legacy PWA; admin is solely `profile_id in PAIDIA_ADMIN_PROFILE_IDS` from login — empty/wrong env yields admin:false and cascades through every isAdminUser/require_admin gate. Local employees[].admin is overwritten by server login response.
+- **Skill implication:** Permission audits should always start at session mint + env admin ID source before cataloging UI gates.
+- **Evidence:** server.py:439-442,651; app.js:2291,2209; apps/api store.py _apply_auth_env only syncs admin when AUTH_USERS_JSON is set.
+
+## 2026-08-12 — Admin/staff add-edit UX audit
+
+- **Trigger:** friction
+- **Context:** Read-only audit of apps/web admin/staff add+edit sheets vs legacy app.js askPin/closeSheet flows.
+- **Observation:** `askPin(..., {requirePin:true})` replaces the parent sheet via `openZoAiPinConfirm`→`openSheet`; any same-handler `closeSheet()` after `askPin` (e.g. `#helpProposeConfirm`) dismisses the PIN UI before entry. Post-PIN callbacks that re-read form DOM (broadcast `#broadcastAlsoBanner`) also fail because the form was already replaced.
+- **Suggested skill impact:** update — sheet/PIN sequencing checklist for staff mutation audits
+- **Confidence:** high
+- **Status:** pending-review
+
+## 2026-08-12 — transcript archaeology for admin edit/add
+
+- **Trigger:** friction
+- **Context:** Parent asked to extract admin edit/add failure history from Cursor transcripts + STATUS/CHANGELOG/docs; parallel fix agents already running.
+- **Observation:** Paidia Cursor `agent-transcripts/` only has `ab7dc302` (Aug 4) plus today’s Aug 12 swarm. No Aug 9–11 Cursor threads. Claude session `cf713ba5` ends ~Aug 3–4. Cross-check sibling finals + `git log` + `docs/zoai` vs `knowledge/zoai` to reconstruct remaining gaps; don’t assume date-filtered Cursor folders exist.
+- **Suggested skill impact:** new — “sparse transcript corpora” search pattern
+- **Confidence:** high
+- **Status:** pending-review
+
+## 2026-08-12 — Plan/schedule admin template + edit
+
+- **Trigger:** friction
+- **Context:** Fixing apps/web Plan UI so admins can add/edit including permanent template; session.admin unused on plan page; schedule API append-only and ignored template merge.
+- **Observation:** Admin-gated features need both (1) UI reading `session.admin` from `useRequireMode` and (2) API that actually persists/reads the gated domain (here: `asTemplate` + weekday `day` + `entries_for_date` merge). Shipping only the API flag or only a hidden button leaves the feature dead.
+- **Suggested skill impact:** update — admin mutation checklist: session flag → visible control → write path → read-path merge/list
+- **Confidence:** high
+- **Status:** pending-review
+
+## 2026-08-12 — Zo-Ai dual-stack action allowlist parity
+
+- **Trigger:** friction
+- **Context:** Admin could not propose/apply full edit/add mutations via Zo-Ai; v2 `zoai.py` `_parse_actions` allowed set lagged legacy `server.py` / docs.
+- **Observation:** Dual-stack Zo-Ai (legacy PWA + apps/api) needs one shared allowlist matrix: staff types, admin-only types, PIN types, and `{"actions":[...]}` vs bare-array parse. Shipping describe/UI without parse+apply for the same types leaves confirm cards empty or `unsupported:*`. Also: never `closeSheet()` after `askPin(..., {requirePin:true})` — PIN UI replaces the sheet.
+- **Suggested skill impact:** update — dual-stack Zo-Ai mutation checklist (parse → describe → pin → apply → persist)
+- **Confidence:** high
+- **Status:** OPEN
+
+## 2026-08-12 — Admin edit/add root-cause fix
+
+- **Trigger:** FINALLY FIX admin can edit/add everything.
+- **Insight:** Empty PAIDIA_ADMIN_PROFILE_IDS demotes all admins; client must also hard-allow e3/e4/e8; shifts must be in OPS_KEYS; Dauerhaft must exist on *new* entries; session admin must be re-resolved live; Neon persist must not silent-fail on Vercel.
+- **Skill implication:** Permission bugs — start at env admin ID source + session mint + shared-ops key whitelist before UI gates.
+- **Evidence:** server.py ADMIN_PROFILE_IDS fallback; app.js coerceAdminFlag; store._sync_admin_flags; security.parse live admin; OPS shifts.
+
+## 2026-08-12 — Spotlight guide MO + calendar POST allowlist
+
+- **Trigger:** Phase 5 smoke hung after startSpotlightGuide; feed POST 404
+- **Observation:** MutationObserver with `attributes:true` on body feedback-loops when measuring toggles `.guide-spotlight-target`. Disconnect after first successful hole; observe childList only. Local `server.py` do_POST has an early allowlist set — new routes like `/api/calendar/feed` must be added there or they 404 before the handler.
+- **Suggested skill impact:** update — PWA guide measure guard; Flask/stdlib POST allowlist checklist
+- **Confidence:** high
+- **Status:** pending-review

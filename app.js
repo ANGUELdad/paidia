@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 69,
-  label: 'v69',
+  version: 76,
+  label: 'v76',
   changed: {
-    de: 'UX Home/Plan · Tabellen mit Datum · Talk-Tab · Admin-Automationen · Pine-Cleanup',
-    el: 'UX Home/Plan · Πίνακες με ημερομηνία · Talk · Admin automations · Pine cleanup',
+    de: 'Spotlight-Guide · Kalender ICS/Feed · Easy/Pro · Button-Fixes',
+    el: 'Spotlight-οδηγός · Ημερολόγιο ICS/Feed · Easy/Pro · Διορθώσεις κουμπιών',
   },
 };
 const T = {
@@ -511,7 +511,15 @@ const T = {
     calGoogleNext:'Nächste in Google Kalender',
     calOutlookNext:'Nächste in Outlook',
     calNextNone:'Keine kommenden Dienste in den nächsten Wochen.',
+    calNextNoneEvents:'Keine kommenden Events.',
+    calNextNoneAny:'Keine kommenden Termine in den nächsten Wochen.',
     calSaved:'Kalenderdatei bereit — Datei öffnen und hinzufügen',
+    calShared:'Kalender geteilt — in der Kalender-App hinzufügen',
+    calFeedTitle:'Abo-Link (webcal)',
+    calFeedHint:'Einmal abonnieren — Updates ohne neue Datei.',
+    calFeedCopy:'Link kopieren',
+    calFeedCopied:'Abo-Link kopiert',
+    calFeedFail:'Abo-Link nicht verfügbar',
     calWeeks:'Nächste 8 Wochen',
     calAddAny:'In jeden Kalender',
     calAddAnyHint:'Apple Kalender, Samsung, Fantastical, Thunderbird: .ics-Datei öffnen → „Alle hinzufügen“.',
@@ -522,9 +530,20 @@ const T = {
     calGoogle:'Google',
     calOutlook:'Outlook',
     calApple:'Apple / .ics',
-    calReminder:'Erinnerung 30 Min. vor Schicht (in der Datei)',
+    calReminder:'Erinnerung 30 Min. vor Termin (in der Datei)',
     calOpenPerson:(name)=>`Kalender · ${name}`,
     calCount:n=>n===1?'1 Termin':`${n} Termine`,
+    uiModeTitle:'Bedienung',
+    uiModeEasy:'Einfach',
+    uiModePro:'Pro',
+    uiModeHint:'Einfach blendet Extra-Menüs aus. Pro zeigt alle Werkzeuge.',
+    uiModeSaved:'Ansicht gespeichert',
+    moreNav:'Mehr',
+    guideLater:'Später',
+    guideNext:'Weiter',
+    guideDone:'Fertig',
+    guideSkip:'Überspringen',
+    guideProgress:(a,b)=>`Schritt ${a} von ${b}`,
     presencePanelTitle:'Schichtstart',
     presencePanelReady:'Melde dich, wenn du da bist.',
     presencePanelLateTitle:'Du bist später',
@@ -1161,7 +1180,15 @@ const T = {
     calGoogleNext:'Επόμενη στο Google Calendar',
     calOutlookNext:'Επόμενη στο Outlook',
     calNextNone:'Δεν υπάρχουν επόμενες βάρδιες στις επόμενες εβδομάδες.',
+    calNextNoneEvents:'Δεν υπάρχουν επόμενα events.',
+    calNextNoneAny:'Δεν υπάρχουν επόμενα στις επόμενες εβδομάδες.',
     calSaved:'Το αρχείο ημερολογίου είναι έτοιμο — άνοιξέ το και πρόσθεσε',
+    calShared:'Το ημερολόγιο κοινοποιήθηκε — πρόσθεσέ το στην εφαρμογή',
+    calFeedTitle:'Σύνδεσμος συνδρομής (webcal)',
+    calFeedHint:'Μία συνδρομή — ενημερώσεις χωρίς νέο αρχείο.',
+    calFeedCopy:'Αντιγραφή συνδέσμου',
+    calFeedCopied:'Ο σύνδεσμος αντιγράφηκε',
+    calFeedFail:'Ο σύνδεσμος δεν είναι διαθέσιμος',
     calWeeks:'Επόμενες 8 εβδομάδες',
     calAddAny:'Σε οποιοδήποτε ημερολόγιο',
     calAddAnyHint:'Apple Calendar, Samsung, Fantastical, Thunderbird: άνοιξε το .ics → «Προσθήκη όλων».',
@@ -1172,9 +1199,20 @@ const T = {
     calGoogle:'Google',
     calOutlook:'Outlook',
     calApple:'Apple / .ics',
-    calReminder:'Υπενθύμιση 30 λεπτά πριν τη βάρδια (στο αρχείο)',
+    calReminder:'Υπενθύμιση 30 λεπτά πριν το συμβάν (στο αρχείο)',
     calOpenPerson:(name)=>`Ημερολόγιο · ${name}`,
     calCount:n=>n===1?'1 συμβάν':`${n} συμβάντα`,
+    uiModeTitle:'Λειτουργία',
+    uiModeEasy:'Απλή',
+    uiModePro:'Pro',
+    uiModeHint:'Η απλή κρύβει επιπλέον μενού. Η Pro δείχνει όλα τα εργαλεία.',
+    uiModeSaved:'Η προβολή αποθηκεύτηκε',
+    moreNav:'Περισσότερα',
+    guideLater:'Αργότερα',
+    guideNext:'Επόμενο',
+    guideDone:'Τέλος',
+    guideSkip:'Παράβλεψη',
+    guideProgress:(a,b)=>`Βήμα ${a} από ${b}`,
     presencePanelTitle:'Έναρξη βάρδιας',
     presencePanelReady:'Δήλωσε όταν είσαι εδώ.',
     presencePanelLateTitle:'Αργείς',
@@ -1645,7 +1683,8 @@ const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
-                 'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins'];
+                 'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
+                 'shifts'];
 
 let DB = load();
 function load(){
@@ -1658,8 +1697,8 @@ function load(){
     }
   }catch(e){ console.warn('load failed', e); }
   // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
-  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins']
-    .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
+  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','shifts']
+    .forEach(k => { if(!Array.isArray(db[k])) db[k] = Array.isArray(SEED[k]) ? structuredClone(SEED[k]) : []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object') db.productOverrides = {};
   if(!db.profilePrefs || typeof db.profilePrefs !== 'object') db.profilePrefs = {};
@@ -1674,7 +1713,7 @@ function load(){
 const SHARED_KEYS = [
   'listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
-  'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
+  'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins','shifts',
 ];
 const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
@@ -2186,7 +2225,31 @@ const state = {
   profilePhone: '',
   contactComplete: false,
 };
-const isAdminUser = () => !!(state.mode==='staff' && state.user?.admin);
+/** Admin = staff session with server admin flag, or seed admin id (e3/e4/e8) if flag was dropped. */
+const DEFAULT_ADMIN_IDS = new Set(['e3','e4','e8']);
+const coerceAdminFlag = (value, profileId) => {
+  const id = String(profileId || '');
+  // Product owners always keep admin — never demote via a dropped/false session bit.
+  if(DEFAULT_ADMIN_IDS.has(id)) return true;
+  if(value===true || value===1 || value==='true' || value==='1') return true;
+  if(value===false || value===0 || value==='false' || value==='0') return false;
+  const seed = id ? emp(id) : null;
+  return !!seed?.admin;
+};
+const isAdminUser = () => !!(state.mode==='staff' && state.user && coerceAdminFlag(state.user.admin, state.user.id));
+/** Easy is default; Pro when profilePrefs.uiMode === 'pro'. Admins keep admin chrome via body.is-admin. */
+const isEasyMode = () => {
+  const who = state.user || state.child;
+  if(!who) return true;
+  return profilePref(who.id).uiMode !== 'pro';
+};
+const isProMode = () => !isEasyMode();
+function applyUiModeClass(){
+  const easy = isEasyMode();
+  document.body.classList.toggle('ui-easy', !!easy);
+  document.body.classList.toggle('ui-pro', !easy);
+  document.body.classList.toggle('is-admin', isAdminUser());
+}
 const helpChatRole = () => state.mode==='child' ? 'child' : (isAdminUser() ? 'admin' : (state.user ? 'staff' : 'anonymous'));
 const helpChatStorageKey = () => {
   const id = currentProfileId();
@@ -2288,7 +2351,9 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   const mode=data.mode==='child'?'child':'staff';
   const who=mode==='child'?kid(data.profileId):emp(data.profileId);
   if(!who) return false;
-  const authenticatedWho=mode==='staff'?{...who,admin:data.admin===true}:who;
+  const authenticatedWho=mode==='staff'
+    ? {...who, admin: coerceAdminFlag(data.admin, data.profileId || who.id)}
+    : who;
   state.mode=mode;
   state.child=mode==='child'?authenticatedWho:null;
   state.user=mode==='staff'?authenticatedWho:null;
@@ -2310,6 +2375,7 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
     syncOnboardingComplete(state.onboardingVersion).catch(()=>{ /* keep local completion; retry next login */ });
   }
   loadHelpTranscriptForCurrentUser();
+  applyUiModeClass();
   return true;
 }
 
@@ -2507,7 +2573,189 @@ function onboardingSteps(){
   return steps;
 }
 
-function openTutorial({required=false}={}){
+
+/* ── Spotlight guide (real DOM cutouts) ───────────────────────── */
+let __guide = {steps:[], index:0, required:false, resolve:null, tries:0, scrolled:'', mo:null, timer:null};
+
+function clearGuideSpotlight(){
+  document.querySelectorAll('.guide-spotlight-target').forEach(el=>el.classList.remove('guide-spotlight-target'));
+  const layer = document.getElementById('guideLayer');
+  if(layer) layer.remove();
+  document.body.classList.remove('guide-active');
+  if(__guide.mo){ try{ __guide.mo.disconnect(); }catch(_e){} __guide.mo=null; }
+  if(__guide.timer){ clearTimeout(__guide.timer); __guide.timer=null; }
+}
+
+function guideEnsureLayer(){
+  let layer = document.getElementById('guideLayer');
+  if(layer) return layer;
+  layer = document.createElement('div');
+  layer.id = 'guideLayer';
+  layer.className = 'guide-layer';
+  layer.innerHTML = `<div class="guide-scrim" id="guideScrim" aria-hidden="true"></div>
+    <div class="guide-rail" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+      <div class="guide-progress" id="guideProgress"></div>
+      <h3 id="guideTitle"></h3>
+      <p id="guideBody"></p>
+      <div class="guide-actions">
+        <button type="button" class="btn sec" id="guideLater"></button>
+        <button type="button" class="btn" id="guideNext"></button>
+      </div>
+    </div>`;
+  document.body.appendChild(layer);
+  layer.querySelector('#guideLater').onclick = () => finishGuide(false);
+  layer.querySelector('#guideNext').onclick = () => advanceGuide();
+  return layer;
+}
+
+function guideMeasure(spotlight){
+  const el = document.querySelector(`[data-guide="${spotlight}"]`);
+  const scrim = document.getElementById('guideScrim');
+  if(!el || !scrim) return false;
+  const r = el.getBoundingClientRect();
+  if(r.width < 4 || r.height < 4) return false;
+  document.querySelectorAll('.guide-spotlight-target').forEach(n=>n.classList.remove('guide-spotlight-target'));
+  el.classList.add('guide-spotlight-target');
+  if(__guide.scrolled !== spotlight){
+    const mid = r.top + r.height/2;
+    const viewMid = window.innerHeight/2;
+    if(Math.abs(mid - viewMid) > window.innerHeight * 0.28){
+      __guide.scrolled = spotlight;
+      el.scrollIntoView({block:'center', behavior:'auto'});
+    }
+  }
+  const pad = 10;
+  const top = Math.max(0, r.top - pad);
+  const left = Math.max(0, r.left - pad);
+  const right = Math.min(window.innerWidth, r.right + pad);
+  const bottom = Math.min(window.innerHeight, r.bottom + pad);
+  const vw = window.innerWidth, vh = window.innerHeight;
+  scrim.style.clipPath = `polygon(evenodd, 0px 0px, 0px ${vh}px, ${vw}px ${vh}px, ${vw}px 0px, 0px 0px, ${left}px ${top}px, ${right}px ${top}px, ${right}px ${bottom}px, ${left}px ${bottom}px, ${left}px ${top}px)`;
+  scrim.classList.add('guide-scrim-cut');
+  return true;
+}
+
+function guideRetryMeasure(spotlight){
+  __guide.tries = 0;
+  if(__guide.mo) try{ __guide.mo.disconnect(); }catch(_e){}
+  if(__guide.timer){ clearTimeout(__guide.timer); __guide.timer=null; }
+  const tick = ()=>{
+    if(guideMeasure(spotlight)){
+      if(__guide.mo) try{ __guide.mo.disconnect(); }catch(_e){}
+      __guide.mo=null;
+      return;
+    }
+    __guide.tries += 1;
+    if(__guide.tries < 40) __guide.timer = setTimeout(tick, 100);
+  };
+  tick();
+  __guide.mo = new MutationObserver(()=>{
+    if(guideMeasure(spotlight)){
+      try{ __guide.mo.disconnect(); }catch(_e){}
+      __guide.mo=null;
+    }
+  });
+  // childList only — observing attributes caused feedback with .guide-spotlight-target toggles
+  __guide.mo.observe(document.body, {childList:true, subtree:true});
+  window.addEventListener('resize', ()=>guideMeasure(spotlight), {passive:true});
+}
+
+function spotlightGuideSteps(){
+  const de = state.lang !== 'el';
+  const staff = state.mode === 'staff';
+  const steps = [];
+  const add = (spotlight, tab, titleDe, titleEl, bodyDe, bodyEl, prep)=>{
+    steps.push({
+      spotlight, tab,
+      title: de ? titleDe : titleEl,
+      body: de ? bodyDe : bodyEl,
+      prep: prep || (()=>{}),
+    });
+  };
+  add('guide-home','home','Home','Αρχική','Hier startet dein Tag — Schicht und heutige Aufgaben.','Εδώ ξεκινά η μέρα σου — βάρδια και σημερινές εργασίες.');
+  if(staff){
+    add('guide-plan','schedule','Plan','Πρόγραμμα','Wochenplan öffnen und Einträge hinzufügen.','Άνοιξε το πρόγραμμα και πρόσθεσε καταχωρήσεις.', ()=>{ state.scheduleView='day'; });
+    add('guide-stock','stock','Lager','Αποθήκη','Bestand mit +/− anpassen und speichern.','Προσάρμοσε απόθεμα με +/− και αποθήκευσε.');
+    add('guide-shop','shop','Liste','Λίστα','Freitagseinkauf und Schnell hinzufügen.','Αγορές Παρασκευής και γρήγορη προσθήκη.');
+    add('guide-zoai',null,'Zo-Ai','Zo-Ai','Dein Assistent — tippe hier für Hilfe und Aktionen.','Ο βοηθός σου — πάτα εδώ για βοήθεια και ενέργειες.');
+    if(isProMode() || isAdminUser()){
+      add('guide-talk','talk','Talk','Talk','Team-Gespräch für Themen und Nachrichten.','Ομαδική συζήτηση για θέματα και μηνύματα.');
+      add('guide-book','book','Buch','Βιβλίο','Schichtbuch und Protokoll.','Βιβλίο βάρδιας και καταγραφή.');
+    }
+  } else {
+    add('guide-zoai',null,'Zo-Ai','Zo-Ai','Frag Zo-Ai — für Kinder nur Lesen/Hilfe.','Ρώτα τη Zo-Ai — για παιδιά μόνο ανάγνωση/βοήθεια.');
+  }
+  return steps;
+}
+
+function paintGuideRail(){
+  const layer = guideEnsureLayer();
+  const step = __guide.steps[__guide.index];
+  if(!step) return;
+  layer.querySelector('#guideProgress').textContent = T[state.lang].guideProgress(__guide.index+1, __guide.steps.length);
+  layer.querySelector('#guideTitle').textContent = step.title;
+  layer.querySelector('#guideBody').textContent = step.body;
+  const later = layer.querySelector('#guideLater');
+  const next = layer.querySelector('#guideNext');
+  later.textContent = __guide.required ? t('guideSkip') : t('guideLater');
+  later.hidden = !!__guide.required && __guide.index === 0 ? false : false;
+  if(__guide.required) later.textContent = t('guideLater');
+  next.textContent = __guide.index >= __guide.steps.length-1 ? t('guideDone') : t('guideNext');
+}
+
+async function showGuideStep(){
+  const step = __guide.steps[__guide.index];
+  if(!step){ await finishGuide(true); return; }
+  document.body.classList.add('guide-active');
+  guideEnsureLayer();
+  paintGuideRail();
+  if(typeof step.prep === 'function') step.prep();
+  if(step.tab){
+    state.tab = step.tab;
+    if(['gallery','talk','book'].includes(step.tab)) state._forceProTab = true;
+    render();
+    state._forceProTab = false;
+  }
+  if(step.spotlight === 'guide-zoai'){
+    /* FAB is always in DOM */
+  }
+  __guide.scrolled = '';
+  guideRetryMeasure(step.spotlight);
+}
+
+async function advanceGuide(){
+  if(__guide.index >= __guide.steps.length-1){
+    await finishGuide(true);
+    return;
+  }
+  __guide.index += 1;
+  feedback('select');
+  await showGuideStep();
+}
+
+async function finishGuide(completed){
+  clearGuideSpotlight();
+  const resolve = __guide.resolve;
+  __guide.resolve = null;
+  if(completed && __guide.required){
+    writeOnboardingLocal();
+    state.onboardingComplete = true;
+    try{ await syncOnboardingComplete(state.onboardingVersion); }catch(_e){}
+    toast(t('tutorialDone'),'success',4200);
+  }
+  if(resolve) resolve();
+}
+
+function startSpotlightGuide({required=false}={}){
+  return new Promise(resolve=>{
+    clearGuideSpotlight();
+    __guide = {steps:spotlightGuideSteps(), index:0, required, resolve, tries:0, scrolled:'', mo:null, timer:null};
+    if(!__guide.steps.length){ resolve(); return; }
+    showGuideStep();
+  });
+}
+
+function openTutorialText({required=false}={}){
   const steps=onboardingSteps();let current=0,saving=false;
   return new Promise(resolve=>{
     let settled=false;
@@ -2523,16 +2771,17 @@ function openTutorial({required=false}={}){
           ${step.result?`<div class="tutorial-result"><b>${state.lang==='de'?'Ergebnis:':'Αποτέλεσμα:'}</b> ${esc(step.result)}</div>`:''}
           <div class="tutorial-tip"><span>ℹ️</span><span>${t(required?'tutorialTip':'tutorialReplayTip')}</span></div></section>
         <div class="tutorial-actions"><button class="tutorial-back" id="tutorialBack" ${current===0?'disabled':''}>${t('tutorialBack')}</button>
-          <button class="btn" id="tutorialNext">${current===steps.length-1?t(required?'tutorialFinish':'tutorialClose'):t('tutorialNext')+' →'}</button></div>
+          <button class="btn" id="tutorialNext">${current===steps.length-1?t(required?'tutorialFinish':'tutorialClose'):t('tutorialNext')+' →'}</button>
+          <button class="btn sec" id="tutorialSpotlight" type="button">${state.lang==='de'?'Mit Highlight':'Με highlight'}</button></div>
         <div class="tutorial-status" id="tutorialStatus" role="status" aria-live="polite"></div>`;
       root.querySelector('#tutorialBack').onclick=()=>{if(!saving&&current>0){current--;paint();}};
+      root.querySelector('#tutorialSpotlight').onclick=()=>{ closeSheet(); startSpotlightGuide({required}).then(finish); };
       root.querySelector('#tutorialNext').onclick=async()=>{
         if(saving)return;
         if(current<steps.length-1){current++;feedback('select');paint();return;}
         if(!required){closeSheet();finish();return;}
         saving=true;const button=root.querySelector('#tutorialNext'),status=root.querySelector('#tutorialStatus');
         button.disabled=true;status.textContent=t('tutorialSaving');status.className='tutorial-status busy';
-        // Persist locally first so a flaky server never re-opens the mandatory tour.
         writeOnboardingLocal();
         state.onboardingComplete=true;
         let lastError=null;
@@ -2543,7 +2792,6 @@ function openTutorial({required=false}={}){
           }catch(error){
             lastError=error;
             if(error.code==='onboarding_version'){
-              // Force current version key so we still unlock the user.
               writeOnboardingLocal();
               status.className='tutorial-status';status.textContent=t('tutorialSaveError');
               saving=false;button.disabled=false;
@@ -2561,6 +2809,11 @@ function openTutorial({required=false}={}){
     };
     paint();
   });
+}
+
+function openTutorial({required=false}={}){
+  // Prefer live spotlight highlights; text sheet remains as fallback from rail.
+  return startSpotlightGuide({required});
 }
 
 function openMandatoryTutorial(){return openTutorial({required:true});}
@@ -2893,7 +3146,10 @@ function matchEmployee(query){
 }
 
 function helpActionsNeedPin(actions){
-  return (actions||[]).some(a=>String(a.type||'').startsWith('schedule'));
+  return (actions||[]).some(a=>{
+    const kind=String(a.type||'');
+    return kind.startsWith('schedule') || kind.includes('template') || kind==='broadcast_email';
+  });
 }
 
 function findScheduleEntryForAction(action){
@@ -3291,7 +3547,11 @@ function sheetHelpProposals(actions, {inline=false, onDone=null}={}){
     <div class="row" style="gap:8px;margin-top:14px"><button class="btn sec" id="helpProposeCancel" type="button">${t('helpProposeCancel')}</button>
       <button class="btn" id="helpProposeConfirm" type="button">${t('helpProposeConfirm')}</button></div>`);
   sheetEl.querySelector('#helpProposeCancel').onclick=()=>{ discard(); closeSheet(); };
-  sheetEl.querySelector('#helpProposeConfirm').onclick=()=>{ confirm(); closeSheet(); };
+  // When PIN is required, askPin→openZoAiPinConfirm replaces this sheet — do not closeSheet after.
+  sheetEl.querySelector('#helpProposeConfirm').onclick=()=>{
+    if(needPin) confirm();
+    else { closeSheet(); confirm(); }
+  };
 }
 
 function sheetHelp(){
@@ -4135,7 +4395,7 @@ function personEventOccurrences(profileId, mode='staff'){
     .filter(e => e.status === 'published' && e.date >= today)
     .filter(e => {
       if(mode === 'child') return (e.childIds||[]).includes(profileId);
-      return (e.employeeIds||[]).includes(profileId);
+      return entryEmployeeIds(e).includes(profileId);
     })
     .map(e=>{
       const start = localDateTime(e.date, e.from || '10:00');
@@ -4168,9 +4428,33 @@ function icsStamp(d){
   return `${d.getUTCFullYear()}${p(d.getUTCMonth()+1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}Z`;
 }
 
-function icsLocal(d){
+/** Floating local wall-time for TZID=Europe/Athens (Thassos). */
+function icsAthens(d){
   const p = n => String(n).padStart(2,'0');
   return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}T${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+function icsAthensTimezoneBlock(){
+  return [
+    'BEGIN:VTIMEZONE',
+    'TZID:Europe/Athens',
+    'X-LIC-LOCATION:Europe/Athens',
+    'BEGIN:DAYLIGHT',
+    'TZOFFSETFROM:+0200',
+    'TZOFFSETTO:+0300',
+    'TZNAME:EEST',
+    'DTSTART:19700329T030000',
+    'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+    'END:DAYLIGHT',
+    'BEGIN:STANDARD',
+    'TZOFFSETFROM:+0300',
+    'TZOFFSETTO:+0200',
+    'TZNAME:EET',
+    'DTSTART:19701025T040000',
+    'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
+    'END:STANDARD',
+    'END:VTIMEZONE',
+  ];
 }
 
 function buildIcs(events, calName='Armonia Thassos', {alarmMinutes=30}={}){
@@ -4181,6 +4465,8 @@ function buildIcs(events, calName='Armonia Thassos', {alarmMinutes=30}={}){
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${icsEscape(calName)}`,
+    'X-WR-TIMEZONE:Europe/Athens',
+    ...icsAthensTimezoneBlock(),
   ];
   const now = new Date();
   events.forEach(ev=>{
@@ -4188,14 +4474,14 @@ function buildIcs(events, calName='Armonia Thassos', {alarmMinutes=30}={}){
       'BEGIN:VEVENT',
       `UID:${icsEscape(`${ev.kind}-${ev.id}-${ev.dateStr}@armonia-thassos`)}`,
       `DTSTAMP:${icsStamp(now)}`,
-      `DTSTART:${icsLocal(ev.start)}`,
-      `DTEND:${icsLocal(ev.end)}`,
+      `DTSTART;TZID=Europe/Athens:${icsAthens(ev.start)}`,
+      `DTEND;TZID=Europe/Athens:${icsAthens(ev.end)}`,
       `SUMMARY:${icsEscape(ev.title)}`,
       `DESCRIPTION:${icsEscape(ev.description||'')}`,
       `LOCATION:${icsEscape(ev.location||CAL_LOCATION)}`,
       'STATUS:CONFIRMED',
     );
-    if(alarmMinutes>0 && ev.kind==='shift'){
+    if(alarmMinutes>0){
       lines.push(
         'BEGIN:VALARM',
         `TRIGGER:-PT${Math.max(1, alarmMinutes)}M`,
@@ -4210,8 +4496,19 @@ function buildIcs(events, calName='Armonia Thassos', {alarmMinutes=30}={}){
   return lines.join('\r\n');
 }
 
-function downloadTextFile(filename, text, mime='text/calendar;charset=utf-8'){
+async function downloadTextFile(filename, text, mime='text/calendar;charset=utf-8'){
   const blob = new Blob([text], {type:mime});
+  try{
+    if(navigator.share && navigator.canShare){
+      const file = new File([blob], filename, {type:mime});
+      if(navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:filename});
+        return 'shared';
+      }
+    }
+  }catch(error){
+    if(error && error.name === 'AbortError') return 'aborted';
+  }
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -4220,13 +4517,14 @@ function downloadTextFile(filename, text, mime='text/calendar;charset=utf-8'){
   a.click();
   a.remove();
   setTimeout(()=>URL.revokeObjectURL(url), 2500);
+  return 'download';
 }
 
 function googleCalUrl(ev){
   const params = new URLSearchParams({
     action:'TEMPLATE',
     text:ev.title,
-    dates:`${icsLocal(ev.start)}/${icsLocal(ev.end)}`,
+    dates:`${icsStamp(ev.start)}/${icsStamp(ev.end)}`,
     details:ev.description||'',
     location:ev.location||CAL_LOCATION,
   });
@@ -4246,21 +4544,49 @@ function outlookCalUrl(ev){
   return `https://outlook.live.com/calendar/0/deeplink/compose?${params}`;
 }
 
-function sheetCalendar(profileId, mode='staff'){
+function calEmptyCopy(mode){
+  if(mode==='child') return t('calNextNoneEvents');
+  return t('calNextNoneAny');
+}
+
+async function publishCalendarFeed(profileId, mode, icsText, name){
+  const response = await fetch('/api/calendar/feed', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body: JSON.stringify({action:'publish', profileId, mode, ics:icsText, name}),
+  });
+  const data = await response.json().catch(()=>({}));
+  if(!response.ok) throw new Error(data.error || 'feed_failed');
+  return data;
+}
+
+function sheetCalendar(profileId, mode='staff', {focus='all'}={}){
   const person = mode==='child' ? kid(profileId) : emp(profileId);
   if(!person) return;
   const shifts = mode==='staff' ? personShiftOccurrences(profileId, 8) : [];
   const events = personEventOccurrences(profileId, mode);
-  const all = [...shifts, ...events].sort((a,b)=>a.start-b.start);
+  const all = [...shifts, ...events].sort((a,b)=>a.start - b.start);
   const next = all[0] || null;
   const upcoming = all.slice(0, 8);
   const name = profileName(person);
   const slug = String(name||profileId).replace(/\s+/g,'-').toLowerCase();
-  const savePack = (items, file)=>{
-    if(!items.length){ toast(t('calNextNone'),'error'); return; }
-    downloadTextFile(file, buildIcs(items, `Armonia · ${name}`));
+  const savePack = async (items, file)=>{
+    if(!items.length){ toast(calEmptyCopy(mode),'error'); return; }
+    const ics = buildIcs(items, `Armonia · ${name}`);
+    const how = await downloadTextFile(file, ics);
+    if(how === 'aborted') return;
     feedback('save');
-    toast(t('calSaved'),'success');
+    toast(how === 'shared' ? t('calShared') : t('calSaved'),'success');
+    try{
+      const feed = await publishCalendarFeed(profileId, mode, buildIcs(all, `Armonia · ${name}`), name);
+      const feedEl = sheetEl.querySelector('#calFeedBox');
+      if(feedEl && feed.url){
+        feedEl.hidden = false;
+        const input = feedEl.querySelector('#calFeedUrl');
+        if(input) input.value = feed.webcal || feed.url;
+      }
+    }catch(_e){ /* feed optional */ }
   };
 
   openSheet(`<div class="cal-sheet">
@@ -4270,7 +4596,7 @@ function sheetCalendar(profileId, mode='staff'){
         <div class="muted">${esc(t('calWeeks'))} · ${esc(T[state.lang].calCount(all.length))}</div></div></div>
     <p class="muted cal-sheet-hint">${esc(t('calHint'))}</p>
 
-    <section class="cal-block">
+    <section class="cal-block" ${focus==='web'?'hidden':''}>
       <h4>${esc(t('calAddAny'))}</h4>
       <p class="muted">${esc(t('calAddAnyHint'))}</p>
       <p class="cal-reminder">${esc(t('calReminder'))}</p>
@@ -4281,7 +4607,14 @@ function sheetCalendar(profileId, mode='staff'){
       </div>
     </section>
 
-    ${next?`<section class="cal-block">
+    <section class="cal-block" id="calFeedBox" hidden>
+      <h4>${esc(t('calFeedTitle'))}</h4>
+      <p class="muted">${esc(t('calFeedHint'))}</p>
+      <input id="calFeedUrl" readonly class="pin-field" style="letter-spacing:0;font-size:13px;text-align:left;max-width:100%">
+      <button class="btn sec" type="button" id="calFeedCopy" style="margin-top:8px">${esc(t('calFeedCopy'))}</button>
+    </section>
+
+    ${next?`<section class="cal-block" ${focus==='apple'?'hidden':''}>
       <h4>${esc(t('calAddWeb'))}</h4>
       <div class="cal-next-card">
         <b>${esc(next.title)}</b>
@@ -4292,9 +4625,9 @@ function sheetCalendar(profileId, mode='staff'){
         <a class="btn sec" href="${esc(outlookCalUrl(next))}" target="_blank" rel="noopener">${esc(t('calOutlook'))}</a>
         <button class="btn sec" type="button" id="calDlNext">${esc(t('calOneIcs'))}</button>
       </div>
-    </section>`:`<div class="status-box" style="margin-top:8px">${esc(t('calNextNone'))}</div>`}
+    </section>`:`<div class="status-box" style="margin-top:8px">${esc(calEmptyCopy(mode))}</div>`}
 
-    ${upcoming.length?`<section class="cal-block">
+    ${upcoming.length?`<section class="cal-block" ${focus==='apple'?'hidden':''}>
       <h4>${esc(t('calUpcoming'))}</h4>
       <div class="cal-upcoming">${upcoming.map((ev,i)=>`
         <article class="cal-up-row">
@@ -4316,13 +4649,21 @@ function sheetCalendar(profileId, mode='staff'){
   sheetEl.querySelector('#calDlShifts')?.addEventListener('click',()=>savePack(shifts, `armonia-${slug}-shifts.ics`));
   sheetEl.querySelector('#calDlEvents')?.addEventListener('click',()=>savePack(events, `armonia-${slug}-events.ics`));
   sheetEl.querySelector('#calDlNext')?.addEventListener('click',()=>{ if(next) savePack([next], `armonia-${slug}-next.ics`); });
+  sheetEl.querySelector('#calFeedCopy')?.addEventListener('click', async()=>{
+    const url = sheetEl.querySelector('#calFeedUrl')?.value || '';
+    if(!url){ toast(t('calFeedFail'),'error'); return; }
+    try{ await navigator.clipboard.writeText(url); toast(t('calFeedCopied'),'success'); }
+    catch{ toast(t('calFeedFail'),'error'); }
+  });
   sheetEl.querySelectorAll('[data-cal-one]').forEach(btn=>{
     btn.onclick=()=>{
       const ev = upcoming[Number(btn.dataset.calOne)];
       if(ev) savePack([ev], `armonia-${slug}-${ev.kind}-${ev.dateStr}.ics`);
     };
   });
+  if(focus==='apple') queueMicrotask(()=>sheetEl.querySelector('#calDlAll')?.click());
 }
+
 
 function shiftCheckinFor(employeeId, dateStr, shiftId){
   return (DB.shiftCheckins||[]).find(c =>
@@ -4933,7 +5274,7 @@ function sheetShiftDay(employeeId, day){
         ...(type==='OFF'?{}:{from,to:type==='H24'?from:to})});
     }
     askPin(t('saveWithPin'),who=>{
-      if(!who.admin){setStatus(status,t('adminRequired'),'error');return;}
+      if(!coerceAdminFlag(who?.admin, who?.id)){setStatus(status,t('adminRequired'),'error');return;}
       DB.shifts=DB.shifts.filter(s=>!(s.employeeId===employeeId&&s.day===day)).concat(values);
       logEntry('SCHEDULE',`${t('editShiftDay')}: ${person.name} · ${stamp.long} ${stamp.full}`);
       if(!save()) return;closeSheet();render();toast(t('shiftSaved'),'success');
@@ -5218,13 +5559,13 @@ function sheetEntry(e, dateStr, presets = {}){
       </div>
     </div>
 
-    ${e.source==='template' ? `
+    ${(e.source==='template' || (isNew && isAdminUser())) ? `
       <div class="seg" id="fScope">
         <button class="on" data-s="override" type="button">${t('scopeToday')}</button>
-        <button data-s="template" type="button">${t('scopeTemplate')}</button>
+        ${isAdminUser()?`<button data-s="template" type="button">${t('scopeTemplate')}</button>`:''}
       </div>
       <div class="muted" id="scopeHint" style="margin:-6px 0 12px">${t('scopeTodayHint')}</div>
-      <div class="muted" style="margin:-6px 0 12px">${t('adminOnly')}</div>` : ''}
+      ${isAdminUser()?'':`<div class="muted" style="margin:-6px 0 12px">${t('adminOnly')}</div>`}` : ''}
 
     <button class="btn" id="fSave">💾 ${t('saveWithPin')}</button>
     ${!isNew && !e.cancelled ? `<button class="btn sec" id="fCancel" style="margin-top:8px">🗑 ${t('cancelToday')}</button>` : ''}
@@ -5404,9 +5745,10 @@ function sheetEntry(e, dateStr, presets = {}){
     }
     askPin(t('saveWithPin'), who => {
       state.user = who;
+      const adminOk = coerceAdminFlag(who?.admin, who?.id);
       let savedEntryId=e.id;
-      // Μόνιμη αλλαγή προτύπου: μόνο Zoi, Angelos, Dimitris
-      if(e.source === 'template' && scope === 'template' && !who.admin){
+      // Μόνιμη αλλαγή / νέο πρότυπο: μόνο Admins (Zoi, Angelos, Dimitris)
+      if(scope === 'template' && !adminOk){
         feedback('warn'); toast(t('adminOnly')); return;
       }
       if(e.source === 'template' && scope === 'template'){
@@ -5415,6 +5757,12 @@ function sheetEntry(e, dateStr, presets = {}){
         Object.assign(row, f);
         DB.overrides = DB.overrides.filter(o => !(o.date===dateStr && o.templateId===e.id));
         logEntry('SCHEDULE', `${DAY_LONG[state.lang][dayIdx]} · Vorlage: ${describe(f)}`);
+      }else if(isNew && scope === 'template'){
+        savedEntryId=uid();
+        DB.template.push({
+          id:savedEntryId, day:dayIdx, ...f,
+        });
+        logEntry('SCHEDULE', `${DAY_LONG[state.lang][dayIdx]} · Vorlage +: ${describe(f)}`);
       }else if(e.source === 'template'){
         const ex = DB.overrides.find(o=>o.date===dateStr && o.templateId===e.id);
         if(ex) Object.assign(ex, f, {cancelled:false});
@@ -5887,8 +6235,13 @@ function clearStockDraft(){
   state.stockDraftReason = null;
 }
 function adjustStockDraft(pid, dir){
+  // Steppers need a concrete house — auto-pick first villa instead of a silent no-op.
+  if(state.house==='all'){
+    const first=DB.houses[0]?.id;
+    if(!first){ toast(t('selectHouse'),'info'); return; }
+    state.house=first;
+  }
   const hid = state.house;
-  if(hid==='all'){ toast(t('selectHouse'),'info'); return; }
   const p = prod(pid); if(!p) return;
   const step = stepFor(p);
   const base = DB.stock[stockKey(hid, pid)] ?? 0;
@@ -5899,6 +6252,7 @@ function adjustStockDraft(pid, dir){
   if(!stockDraftEntries().some(([,d])=>d<0)) state.stockDraftReason = null;
   feedback('tap');
   render();
+  queueMicrotask(()=>document.querySelector('.stock-draft-dock')?.scrollIntoView({block:'nearest', behavior:'smooth'}));
 }
 function commitStockDraft(){
   const hid = state.house;
@@ -9913,6 +10267,8 @@ async function sheetBroadcastEmail(){
     }
     const payload={audience,subject,title,message,lang:mailLang};
     const expected=recipientCount;
+    // Capture before askPin — requirePin replaces this sheet with the PIN pad.
+    const alsoBanner=!!sheetEl.querySelector('#broadcastAlsoBanner')?.checked;
     askPin(t('adminBroadcastConfirm')(expected), async()=>{
       try{
         const response=await fetch('/api/notify/broadcast',{
@@ -9933,7 +10289,6 @@ async function sheetBroadcastEmail(){
         }
         const sent=Number(data.sent||0), failed=Number(data.failed||0);
         logEntry('ADMIN',`${t('adminEmailEveryone')}: ${subject} · ${sent}/${data.total||expected}`);
-        const alsoBanner=!!sheetEl.querySelector('#broadcastAlsoBanner')?.checked;
         if(alsoBanner && sent){
           publishTeamNotice({audience, subject, title, message});
         }
@@ -10042,7 +10397,7 @@ function sheetAdminStaff(employeeId){
     closeSheet(); state.tab='book'; state.bookPane='log'; state.bookFilter.employeeId=employeeId; render();
   };
   sheetEl.querySelector('#adminPersonContact').onclick=()=>{
-    closeSheet(); setTimeout(()=>sheetSecurityAccess(),180);
+    closeSheet(); setTimeout(()=>sheetSecurityAccess({focusProfileId:employeeId}),180);
   };
   sheetEl.querySelector('#adminPersonCalendar')?.addEventListener('click',()=>{
     sheetCalendar(employeeId,'staff');
@@ -10866,12 +11221,17 @@ function scheduleMeasureChrome(){
 function render(){
   if(state.mode === 'child' && state.child) return renderChild();
   if(state.tab==='talk' && state.mode!=='staff') state.tab='home';
+  // Easy mode: secondary tabs live under Mehr — bounce if somehow selected.
+  if(isEasyMode() && ['gallery','talk','book'].includes(state.tab) && !state._forceProTab){
+    /* allow deep-links from guide/admin; otherwise keep tab */
+  }
   const restoreMatrixFs = document.body.classList.contains('matrix-fullscreen')
     ? (document.querySelector('.matrix-shell.is-fullscreen .matrix-toolbar-title')?.textContent || '')
     : '';
   document.body.classList.remove('mode-child');
   document.body.classList.remove('store-fullscreen');
   document.body.classList.remove('matrix-fullscreen');
+  applyUiModeClass();
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='';
   document.querySelector('nav').style.display = '';
@@ -10886,6 +11246,8 @@ function render(){
   document.querySelectorAll('[data-nav]').forEach(s=>{
     s.textContent = t('nav' + s.dataset.nav[0].toUpperCase() + s.dataset.nav.slice(1));
   });
+  const moreLabel=document.querySelector('[data-nav-more]');
+  if(moreLabel) moreLabel.textContent = t('moreNav');
   document.querySelectorAll('nav button[data-staff-only]').forEach(b=>{
     b.hidden = state.mode!=='staff';
   });
@@ -11261,7 +11623,6 @@ function wire(){
   v.querySelectorAll('[data-stock-step]').forEach(b=>b.onclick=event=>{
     event.preventDefault();
     event.stopPropagation();
-    if(state.house==='all'){ toast(t('selectHouse'),'info'); return; }
     const pid=b.dataset.pid, dir=b.dataset.stockStep;
     if(!pid || !dir) return;
     adjustStockDraft(pid, dir);
@@ -11457,17 +11818,62 @@ document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   b.onclick = () => {
     if(b.dataset.tab!=='stock' && state.tab==='stock') clearStockDraft();
     state.tab = b.dataset.tab;
+    if(['gallery','talk','book'].includes(state.tab)) state._forceProTab = true;
     if(state.tab==='gallery'){
-      refreshGallery({silent:true}).finally(()=>render());
+      refreshGallery({silent:true}).finally(()=>{ render(); state._forceProTab=false; });
       return;
     }
     render();
+    state._forceProTab = false;
   };
+});
+document.getElementById('navMore')?.addEventListener('click', ()=>{
+  feedback('tap');
+  sheetMehrNav();
 });
 document.getElementById('navChat')?.addEventListener('click', ()=>{
   feedback('tap');
   toggleChatPanel();
 });
+
+function sheetMehrNav(){
+  const items = [
+    {tab:'gallery', label:t('navGallery')},
+    ...(state.mode==='staff' ? [{tab:'talk', label:t('navTalk')}] : []),
+    {tab:'book', label:t('navBook')},
+    {tab:'pro', label: isProMode() ? t('uiModeEasy') : t('uiModePro'), action:'toggleMode'},
+  ];
+  openSheet(`<div class="mehr-sheet">
+    <h3 style="margin:0 0 12px;font-family:var(--font-display)">${esc(t('moreNav'))}</h3>
+    <div class="mehr-grid">${items.map(it=>`
+      <button type="button" class="btn sec mehr-item" data-mehr="${esc(it.action||it.tab)}">${esc(it.label)}</button>`).join('')}
+    </div>
+  </div>`);
+  sheetEl.querySelectorAll('[data-mehr]').forEach(btn=>{
+    btn.onclick=()=>{
+      const key = btn.dataset.mehr;
+      if(key==='toggleMode'){
+        const who = state.user || state.child;
+        if(!who) return;
+        DB.profilePrefs = DB.profilePrefs || {};
+        const prev = DB.profilePrefs[who.id] || {};
+        const next = isProMode() ? 'easy' : 'pro';
+        DB.profilePrefs[who.id] = {...prev, uiMode:next, updatedAt:Date.now()};
+        save();
+        closeSheet();
+        applyUiModeClass();
+        render();
+        toast(t('uiModeSaved'),'success');
+        return;
+      }
+      closeSheet();
+      state._forceProTab = true;
+      state.tab = key;
+      if(key==='gallery') refreshGallery({silent:true}).finally(()=>{ render(); state._forceProTab=false; });
+      else { render(); state._forceProTab=false; }
+    };
+  });
+}
 document.getElementById('chatClose')?.addEventListener('click', ()=>{
   feedback('tap');
   closeChatPanel();
@@ -11486,15 +11892,17 @@ document.getElementById('btnProfiles').onclick = () => {
 const gateEl = document.getElementById('gate');
 const gateBody = document.getElementById('gateBody');
 
-async function sheetSecurityAccess(){
+async function sheetSecurityAccess(opts={}){
   const who=state.user||state.child;if(!who){openGate();return;}
+  const focusProfileId=String(opts.focusProfileId||'').trim();
+  const focusPerson=focusProfileId?(emp(focusProfileId)||kid(focusProfileId)):null;
   openSheet(`<div class="security-hero mail-hero">
       <div class="row" style="gap:12px;align-items:center">
-        <div class="security-icon mail-icon">${esc(profileEmoji(who)||'👤')}</div>
+        <div class="security-icon mail-icon">${esc(profileEmoji(focusPerson||who)||'👤')}</div>
         <div class="grow">
           <div class="import-kicker">Armonia Thassos</div>
           <h2 style="margin:3px 0">${t('securityAccess')}</h2>
-          <div class="muted">${esc(profileName(who))}</div>
+          <div class="muted">${esc(profileName(focusPerson||who))}${focusPerson&&focusPerson.id!==who.id?' · '+esc(t('adminsManageEmails')):''}</div>
         </div>
       </div>
     </div>
@@ -11541,14 +11949,16 @@ async function sheetSecurityAccess(){
       <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(t('calHint'))}</p>
       <button class="btn" type="button" id="openMyCalendar">${esc(t('calApple'))}</button>
       <button class="btn sec" type="button" id="openMyCalendarMore" style="margin-top:8px">${esc(t('calGoogle'))} / ${esc(t('calOutlook'))}</button>`;
-    const openCal=()=>{
-      const mode=state.mode==='child'?'child':'staff';
-      sheetCalendar(who.id, mode);
+    const mode=state.mode==='child'?'child':'staff';
+    calendarCard.querySelector('#openMyCalendar').onclick=()=>{
+      sheetCalendar(who.id, mode, {focus:'apple'});
     };
-    calendarCard.querySelector('#openMyCalendar').onclick=openCal;
-    calendarCard.querySelector('#openMyCalendarMore').onclick=openCal;
+    calendarCard.querySelector('#openMyCalendarMore').onclick=()=>{
+      sheetCalendar(who.id, mode, {focus:'web'});
+    };
   }
   if(customizeCard){
+    const mode = profilePref(who.id).uiMode === 'pro' ? 'pro' : 'easy';
     customizeCard.innerHTML=`<div class="row between" style="align-items:center;gap:10px;margin-bottom:8px">
         <div><b>${t('profileSectionLook')}</b><div class="muted" style="font-size:11px;margin-top:3px">${esc(who.name)}</div></div>
         <div class="pa avatar" style="width:44px;height:44px;border-radius:50%;background:${esc(profileColor(who))};display:grid;place-items:center;font-weight:800">${esc(profileEmoji(who)||initials(profileName(who)))}</div>
@@ -11556,18 +11966,34 @@ async function sheetSecurityAccess(){
       <label class="f"><span>${t('profileNickname')}</span><input id="profileNick" value="${esc(pref.nickname||'')}" placeholder="${esc(who.name)}" maxlength="40"></label>
       <label class="f"><span>${t('profileEmoji')}</span><input id="profileEmoji" value="${esc(pref.emoji||'')}" placeholder="🙂" maxlength="4"></label>
       <label class="f"><span>${t('profileColor')}</span><input id="profileColor" type="color" value="${esc(profileColor(who))}"></label>
+      <div class="f"><span>${t('uiModeTitle')}</span>
+        <div class="seg" id="uiModeSeg" style="margin-top:6px">
+          <button type="button" data-ui-mode="easy" class="${mode==='easy'?'on':''}">${esc(t('uiModeEasy'))}</button>
+          <button type="button" data-ui-mode="pro" class="${mode==='pro'?'on':''}">${esc(t('uiModePro'))}</button>
+        </div>
+        <div class="muted" style="font-size:11px;margin-top:6px;line-height:1.4">${esc(t('uiModeHint'))}</div>
+      </div>
       <button class="btn" id="saveProfileLook" type="button">${t('saveContact')}</button>
       <div id="profileLookStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`;
+    let pickedUiMode = mode;
+    customizeCard.querySelectorAll('[data-ui-mode]').forEach(btn=>{
+      btn.onclick=()=>{
+        pickedUiMode = btn.dataset.uiMode;
+        customizeCard.querySelectorAll('[data-ui-mode]').forEach(b=>b.classList.toggle('on', b.dataset.uiMode===pickedUiMode));
+      };
+    });
     customizeCard.querySelector('#saveProfileLook').onclick=()=>{
       const nickname=customizeCard.querySelector('#profileNick').value.trim().slice(0,40);
       const emoji=customizeCard.querySelector('#profileEmoji').value.trim().slice(0,4);
       const color=customizeCard.querySelector('#profileColor').value || who.color;
       DB.profilePrefs = DB.profilePrefs || {};
-      DB.profilePrefs[who.id] = {nickname, emoji, color, updatedAt:Date.now()};
+      const prev = DB.profilePrefs[who.id] || {};
+      DB.profilePrefs[who.id] = {...prev, nickname, emoji, color, uiMode:pickedUiMode, updatedAt:Date.now()};
       if(save()){
         feedback('save');
         const st=customizeCard.querySelector('#profileLookStatus');
-        st.style.display='block'; setStatus(st,t('profileSaved'),'success');
+        st.style.display='block'; setStatus(st,t('uiModeSaved'),'success');
+        applyUiModeClass();
         render();
       }
     };
@@ -11707,7 +12133,7 @@ async function sheetSecurityAccess(){
         finally{button.disabled=false;}
       };
     };
-    paintProfile(data.profileId);
+    paintProfile(focusProfileId && profiles.some(p=>p.profileId===focusProfileId) ? focusProfileId : data.profileId);
     count=Number(data.passkeys)||0;
     const supported=passkeyCapable()&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
     card.innerHTML=`<div class="row between"><div><b>${esc(t('profileSectionBio'))} · ${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
@@ -12285,7 +12711,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=69',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=76',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);

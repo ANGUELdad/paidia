@@ -173,6 +173,7 @@ if os.environ.get("VERCEL") == "1":
     GALLERY_STATE_PATH = _tmp / "gallery.json"
     OPS_STATE_PATH = _tmp / "ops.json"
     AUTH_OVERRIDES_PATH = _tmp / "auth-overrides.json"
+    CALENDAR_FEEDS_PATH = _tmp / "calendar-feeds.json"
 ONBOARDING_VERSION = 2
 TALK_MESSAGE_LIMIT = 200
 TALK_TOPIC_LIMIT = 120
@@ -214,8 +215,13 @@ OPS_KEYS = (
     "shiftNotes",
     "stockChecks",
     "shiftCheckins",
+    # Admin shift-matrix edits (Dienste) — was missing, so saves never survived /api/ops.
+    "shifts",
 )
 OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks"}
+CALENDAR_FEEDS_PATH = Path(os.environ.get("PAIDIA_CALENDAR_FEEDS_PATH", ".paidia-calendar-feeds.json"))
+if os.environ.get("VERCEL") == "1":
+    CALENDAR_FEEDS_PATH = Path("/tmp/paidia") / "calendar-feeds.json"
 OPS_LIST_CAPS = {
     "listEntries": 4000,
     "shoppingTrips": 4000,
@@ -231,6 +237,7 @@ OPS_LIST_CAPS = {
     "customReasons": 200,
     "customActivities": 300,
     "template": 2000,
+    "shifts": 2000,
 }
 def resolve_webauthn_origin() -> str:
     explicit = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", "").strip()
@@ -436,10 +443,12 @@ def load_auth_users() -> dict[str, dict]:
 
 
 AUTH_USERS = load_auth_users()
-ADMIN_PROFILE_IDS = {
+_ADMIN_FROM_ENV = {
     value.strip() for value in os.environ.get("PAIDIA_ADMIN_PROFILE_IDS", "e3,e4,e8").split(",")
     if value.strip()
 }
+# Empty/whitespace env must not demote every admin — fall back to Zoi/Angelos/Dimitris.
+ADMIN_PROFILE_IDS = _ADMIN_FROM_ENV or {"e3", "e4", "e8"}
 
 
 def load_auth_overrides() -> dict[str, dict]:
@@ -2134,6 +2143,75 @@ def email_delivery_status() -> dict:
     return {"configured": True, "provider": providers[0], "providers": providers}
 
 
+
+def _load_calendar_feeds() -> dict:
+    key = "calendar_feeds"
+    stored = _db_get(key) if paidia_db else None
+    if isinstance(stored, dict):
+        return stored
+    try:
+        data = json.loads(CALENDAR_FEEDS_PATH.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return {}
+
+
+def _save_calendar_feeds(feeds: dict) -> None:
+    key = "calendar_feeds"
+    if paidia_db:
+        try:
+            _db_set(key, feeds)
+        except Exception:
+            pass
+    try:
+        CALENDAR_FEEDS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tmp = CALENDAR_FEEDS_PATH.with_name(CALENDAR_FEEDS_PATH.name + ".tmp")
+        tmp.write_text(json.dumps(feeds), encoding="utf-8")
+        os.replace(tmp, CALENDAR_FEEDS_PATH)
+    except OSError:
+        pass
+
+
+def publish_calendar_feed(body: dict, session: dict | None, headers=None) -> tuple[int, dict]:
+    if not session:
+        return 401, {"error": "Authentication required", "code": "auth_required"}
+    ics = str(body.get("ics") or "")
+    if not ics.startswith("BEGIN:VCALENDAR"):
+        return 400, {"error": "Invalid ICS", "code": "invalid_ics"}
+    if len(ics) > 900_000:
+        return 413, {"error": "ICS too large", "code": "too_large"}
+    profile_id = str(body.get("profileId") or session.get("profile_id") or "").strip()
+    mode = str(body.get("mode") or session.get("mode") or "staff").strip()
+    if profile_id != session.get("profile_id") and not session.get("admin"):
+        return 403, {"error": "Forbidden", "code": "forbidden"}
+    feeds = _load_calendar_feeds()
+    seed = f"{profile_id}:{mode}:{os.environ.get('PAIDIA_SESSION_SECRET', 'paidia')[:24]}"
+    token = hashlib.sha256(seed.encode()).hexdigest()[:32]
+    feeds[token] = {
+        "profileId": profile_id,
+        "mode": mode,
+        "name": str(body.get("name") or "Armonia")[:80],
+        "ics": ics,
+        "updatedAt": int(time.time() * 1000),
+    }
+    _save_calendar_feeds(feeds)
+    base = public_base_url(headers).rstrip("/")
+    https_url = f"{base}/api/calendar/feed/{token}.ics"
+    webcal = https_url.replace("https://", "webcal://").replace("http://", "webcal://")
+    return 200, {"ok": True, "token": token, "url": https_url, "webcal": webcal}
+
+
+def calendar_feed_ics(token: str) -> tuple[int, str, str]:
+    token = (token or "").strip().replace(".ics", "")
+    if not token or len(token) < 16:
+        return 404, "Not found", "text/plain; charset=utf-8"
+    feeds = _load_calendar_feeds()
+    record = feeds.get(token)
+    if not isinstance(record, dict) or not record.get("ics"):
+        return 404, "Not found", "text/plain; charset=utf-8"
+    return 200, str(record["ics"]), "text/calendar; charset=utf-8"
+
+
 def pin_reset_status() -> dict:
     delivery = email_delivery_status()
     configured = (os.environ.get("PAIDIA_PUBLIC_URL") or "").rstrip("/")
@@ -2570,7 +2648,7 @@ def profile_email_directory() -> list[dict]:
             "mode": user.get("mode") or "staff",
             "name": user.get("name") or profile_id,
             "email": email,
-            "admin": bool(user.get("admin")),
+            "admin": (user.get("mode") or "staff") == "staff" and profile_id in ADMIN_PROFILE_IDS,
         })
     return rows
 
@@ -2918,10 +2996,12 @@ HELP_PROMPT_ADMIN = HELP_PROMPT_BASE + """
 
 ROLE: ADMIN
 You help admins with full operational + management control:
-Everything staff can do, PLUS Admin Center, permanent schedule template, shift editing,
+Everything staff can do (stock, shop, day schedule_add/update/cancel, shift_note, open_tab),
+PLUS Admin Center, permanent schedule template, shift editing,
 managing events, audit corrections, other profiles' contact details, security overview.
+Never refuse an authenticated admin a staff-capable mutation — only template/broadcast/event_announce are admin-exclusive.
 
-FOOD / STOCK / SHOPPING / DAY SCHEDULE: same staff action types.
+FOOD / STOCK / SHOPPING / DAY SCHEDULE: same staff action types — admins may propose all of them.
 
 PERMANENT TEMPLATE (admin only):
 - schedule_template_add: {type, day:0-6 (Mon=0…Sun=6), block, houseId?, employeeId?, activityQuery|activityId, from?, to?, note?}
@@ -3188,7 +3268,8 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
             action: dict = {"type": kind}
             for key in (
                 "houseId", "productQuery", "name", "dir", "unit", "reason",
-                "date", "block", "employeeId", "activityId", "activityQuery",
+                "date", "block", "employeeId", "employeeQuery",
+                "activityId", "activityQuery",
                 "entryId", "from", "to", "note", "text", "tab",
                 "audience", "subject", "title", "message",
             ):
@@ -3815,6 +3896,17 @@ class Handler(SimpleHTTPRequestHandler):
                 since = 0
             self.json_response(200, get_ops(since))
             return
+        if parsed.path.startswith("/api/calendar/feed/") and parsed.path.endswith(".ics"):
+            token = parsed.path[len("/api/calendar/feed/"):]
+            status, body, ctype = calendar_feed_ics(token)
+            raw = body.encode("utf-8") if isinstance(body, str) else body
+            self.send_response(status)
+            self.send_header("Content-Type", ctype)
+            self.send_header("Content-Length", str(len(raw)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(raw)
+            return
         if parsed.path == "/api/whatsapp/health":
             config = whatsapp_config()
             self.json_response(200, {
@@ -3848,7 +3940,10 @@ class Handler(SimpleHTTPRequestHandler):
             "gate.js",
             "sw.js",
             "manifest.webmanifest",
+            "build.json",
         }
+        if static_rel == "favicon.ico":
+            static_rel = "icons/favicon-32.png"
         icon_ok = (
             static_rel.startswith("icons/")
             and ".." not in static_rel.split("/")
@@ -3899,6 +3994,7 @@ class Handler(SimpleHTTPRequestHandler):
             "/api/notify/event-email",
             "/api/notify/broadcast",
             "/api/notify/broadcast-preview",
+            "/api/calendar/feed",
             "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
             "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
             "/api/auth/passkey/login/options", "/api/auth/passkey/login/verify", "/api/auth/passkey/remove",
@@ -3985,6 +4081,11 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
             status, payload = put_ops(body, session)
+            self.json_response(status, payload)
+            return
+        if path == "/api/calendar/feed":
+            session = self.current_auth_session()
+            status, payload = publish_calendar_feed(body, session, headers=self.headers)
             self.json_response(status, payload)
             return
 

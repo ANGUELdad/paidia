@@ -349,6 +349,7 @@ _STATIC_EXACT = frozenset({
     "gate.js",
     "sw.js",
     "manifest.webmanifest",
+    "build.json",
 })
 _ICON_SUFFIXES = frozenset({".png", ".svg", ".ico", ".webp", ".jpg", ".jpeg"})
 
@@ -373,6 +374,8 @@ def _serve_static(rel: str):
     rel = (rel or "index.html").lstrip("/")
     if not rel or rel.endswith("/"):
         rel = (rel or "") + "index.html"
+    if rel == "favicon.ico":
+        rel = "icons/favicon-32.png"
     if not _static_allowed(rel):
         return _json(404, {"error": "Not found"})
     target = (ROOT / rel).resolve()
@@ -381,10 +384,11 @@ def _serve_static(rel: str):
         return _json(400, {"error": "Invalid path"})
     if target.is_file():
         response = send_from_directory(root, rel)
-        if rel.endswith((".html", ".js", ".webmanifest")):
+        if rel.endswith((".html", ".js", ".webmanifest", ".json")):
             response.headers["Cache-Control"] = "no-store"
         return response
-    # Unknown allowlisted path → SPA shell, never arbitrary repo files.
+    if rel.startswith("icons/"):
+        return _json(404, {"error": "Not found"})
     return send_from_directory(root, "index.html")
 
 
@@ -530,6 +534,21 @@ def entry(flask_path: str = ""):
             return _json(401, {"error": "Authentication required", "code": "auth_required"})
         status, payload = paidia.put_ops(_body(), session)
         return _json(status, payload)
+
+    if request.method == "POST" and api in {"/calendar/feed", "/api/calendar/feed"}:
+        session = _session_from_request()
+        status, payload = paidia.publish_calendar_feed(_body(), session, headers=request.headers)
+        return _json(status, payload)
+
+    if request.method == "GET" and (
+        api.startswith("/calendar/feed/") or api.startswith("/api/calendar/feed/")
+    ):
+        token = api.rsplit("/", 1)[-1]
+        status, body, ctype = paidia.calendar_feed_ics(token)
+        response = make_response(body, status)
+        response.headers["Content-Type"] = ctype
+        response.headers["Cache-Control"] = "no-store"
+        return response
 
     if request.method == "POST" and api in {"/ai-shopping", "/api/ai-shopping"}:
         session = _session_from_request()

@@ -1,5 +1,13 @@
 # Changelog
 
+## v76 — 2026-08-12
+
+- Spotlight guide with clip-path hole + `data-guide` targets (replaces text-only tour as primary)
+- Calendar: durable shifts, Apple ICS/share vs Google/Outlook deeplinks, Athens TZ, webcal feed API
+- Easy / Pro UI density (`profilePrefs.uiMode`) with 4+Mehr dock in Easy
+- Stock draft dock reliability; SW cache `paidia-v76`
+- Platform: GuidedTour mounted on talk / book / admin notify
+
 ## v69 — 2026-08-06
 
 - UX Phase 1: Home one composition (mast + shift + signals + today; rest under “Mehr”)
