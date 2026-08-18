@@ -78,9 +78,6 @@
 
   --focus-ring: 2px solid var(--brand);
   --focus-offset: 2px;
-
-  --font-ui: var(--font-ui), system-ui, sans-serif;
-  --font-display: var(--font-display), Georgia, "Times New Roman", serif;
 }
 
 body {
