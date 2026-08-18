@@ -3,39 +3,39 @@
 @tailwind utilities;
 
 :root {
-  /* Marble Dawn — warm sand, pine, soft sheet */
-  --stone-50: #f6f1ea;
-  --bg: #f6f1ea;
-  --bg-deep: #ebe3d6;
-  --stone-300: #ddd4c6;
+  /* Thassos quarry — stone canvas, pine, sea, amber note */
+  --stone-50: #f3f5f2;
+  --bg: #e9ece8;
+  --bg-deep: #d4dbd5;
+  --stone-300: #c3ccc4;
 
-  --ink: #2e3834;
-  --muted: #6b726c;
-  --muted-soft: #7a847c;
-  --meta: #8a918a;
-  --line: rgba(46, 56, 52, 0.12);
-  --line-strong: rgba(46, 56, 52, 0.2);
+  --ink: #1a2822;
+  --muted: #455851;
+  --muted-soft: #4a6a74;
+  --meta: #6b8a94;
+  --line: rgba(26, 40, 34, 0.12);
+  --line-strong: rgba(26, 40, 34, 0.2);
 
-  --brand: #38574f;
-  --brand-2: #4a6f64;
-  --pine-tint: rgba(56, 87, 79, 0.1);
-  --sea: #3d5c56;
-  --sea-deep: #2a403c;
-  --sun: #c49a4a;
-  --amber-tint: rgba(196, 154, 74, 0.16);
+  --brand: #2a6b52;
+  --brand-2: #3d8a6a;
+  --pine-tint: rgba(42, 107, 82, 0.1);
+  --sea: #2f5a63;
+  --sea-deep: #1a3a42;
+  --sun: #c48a1a;
+  --amber-tint: rgba(196, 138, 26, 0.12);
 
-  --in: #38574f;
-  --out: #b45309;
+  --in: #2a6b52;
+  --out: #c2410c;
   --warn: #a16207;
 
-  --glass: #ffffff;
-  --glass-strong: #ffffff;
-  --glass-rim: transparent;
-  --chrome: #2e3834;
-  --card: #ffffff;
+  --glass: rgba(255, 255, 255, 0.64);
+  --glass-strong: rgba(255, 255, 255, 0.86);
+  --glass-rim: rgba(255, 255, 255, 0.55);
+  --chrome: rgba(26, 40, 34, 0.9);
+  --card: var(--glass-strong);
 
-  --mark-a: #38574f;
-  --mark-b: #3d5c56;
+  --mark-a: #9bc4b0;
+  --mark-b: #7a9eaa;
 
   --radius-sm: 12px;
   --radius: 16px;
@@ -56,16 +56,16 @@
   --space-20: 72px;
   --gap: var(--space-2);
   --page-x: 14px;
-  --row-h: 44px;
+  --row-h: 48px;
   --hit: 44px;
-  --dock-h: 58px;
-  --dock-gap: 2.5rem;
+  --dock-h: 64px;
+  --dock-gap: 18px;
   --dock-clear: calc(var(--dock-h) + var(--dock-gap) + env(safe-area-inset-bottom, 0px));
 
-  --shadow-glass-2: 0 1px 0 rgba(20, 32, 28, 0.06);
-  --blur-glass-1: 0;
-  --blur-glass-2: 0;
-  --blur-chrome: 8px;
+  --shadow-glass-2: 0 10px 28px rgba(26, 40, 34, 0.08), 0 1px 0 var(--glass-rim) inset;
+  --blur-glass-1: 12px;
+  --blur-glass-2: 18px;
+  --blur-chrome: 16px;
 
   --motion-fast: 100ms;
   --motion-base: 180ms;
@@ -87,10 +87,18 @@ body {
   font-family: var(--font-ui);
   color: var(--ink);
   background:
-    radial-gradient(120% 80% at 50% -10%, rgba(255, 255, 255, 0.7), transparent 55%),
-    linear-gradient(180deg, #f8f4ee 0%, var(--bg) 42%, #f1ebe2 100%);
+    radial-gradient(ellipse 100% 60% at 110% -8%, rgba(196, 138, 26, 0.16), transparent 52%),
+    radial-gradient(ellipse 80% 55% at -15% 25%, rgba(42, 107, 82, 0.14), transparent 48%),
+    radial-gradient(ellipse 55% 40% at 50% 110%, rgba(47, 90, 99, 0.1), transparent 55%),
+    linear-gradient(168deg, #f3f5f2 0%, #e6ebe6 45%, #d5dbd4 100%);
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-wrap: pretty;
+}
+
+h1, h2, .shell-title, .dawn-title {
+  text-wrap: balance;
 }
 
 * {
@@ -221,7 +229,9 @@ textarea:focus:not(:focus-visible) {
 .tile {
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--card);
+  background: var(--glass-strong);
+  box-shadow: var(--shadow-glass-2);
+  backdrop-filter: blur(var(--blur-glass-1));
 }
 
 .card,
@@ -237,12 +247,14 @@ textarea:focus:not(:focus-visible) {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm);
-  padding: 0 14px;
+  padding: 0 16px;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
   transition:
     transform var(--motion-fast) var(--motion-ease-settle),
+    background-color var(--motion-base) var(--motion-ease-settle),
+    box-shadow var(--motion-base) var(--motion-ease-settle),
     opacity var(--motion-fast) var(--motion-ease-settle);
 }
 
@@ -250,8 +262,10 @@ textarea:focus:not(:focus-visible) {
 .list-panel {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--card);
+  background: var(--glass-strong);
   overflow: hidden;
+  box-shadow: var(--shadow-glass-2);
+  backdrop-filter: blur(var(--blur-glass-1));
 }
 
 .list-sticky {
@@ -470,53 +484,69 @@ button.list-row:active {
   background: var(--brand);
   color: #fff;
   border: none;
+  box-shadow: 0 8px 18px rgba(42, 107, 82, 0.22);
 }
 
 .btn:disabled {
   opacity: 0.45;
+  box-shadow: none;
 }
 
 .btn-sec,
 .btn.ghost {
-  background: var(--card);
+  background: var(--glass-strong);
   color: var(--ink);
   border: 1px solid var(--line);
 }
 
 .dock {
   position: fixed;
-  bottom: 0;
-  inset-inline: 0;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  inset-inline: 12px;
   z-index: 40;
   margin-inline: auto;
   display: flex;
-  max-width: 48rem;
-  gap: 0;
-  border-top: 1px solid var(--line);
+  max-width: 28rem;
+  gap: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   background: var(--chrome);
-  padding: 4px 4px max(6px, env(safe-area-inset-bottom));
+  backdrop-filter: blur(var(--blur-chrome));
+  padding: 6px;
   color: #fff;
-  border-radius: 0;
+  border-radius: 22px;
+  box-shadow: 0 12px 36px rgba(26, 40, 34, 0.28);
 }
 
-.dock a {
+.dock a,
+.dock button {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  border-radius: 12px;
-  padding: 10px 2px;
+  gap: 3px;
+  border-radius: 16px;
+  padding: 8px 2px 6px;
   font-size: 10px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.01em;
+  color: rgba(255, 255, 255, 0.72);
   text-decoration: none;
   min-width: 0;
-  min-height: var(--hit);
+  min-height: 52px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-.dock a span {
+.dock a svg,
+.dock button svg {
+  display: block;
+}
+
+.dock a span,
+.dock button span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -525,35 +555,8 @@ button.list-row:active {
 
 .dock a.active,
 .dock button.active {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.14);
   color: #fff;
-}
-
-.dock button {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  border-radius: 12px;
-  padding: 10px 2px;
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.78);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  min-width: 0;
-  min-height: var(--hit);
-  font-family: inherit;
-}
-
-.dock button span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
 }
 
 /* Mehr bottom sheet */
@@ -570,16 +573,17 @@ button.list-row:active {
 }
 
 .more-sheet {
-  margin: 0 8px calc(var(--dock-h) + max(8px, env(safe-area-inset-bottom, 0px)));
+  margin: 0 8px calc(var(--dock-h) + max(14px, env(safe-area-inset-bottom, 0px)));
   border-radius: var(--radius-lg);
   border: 1px solid var(--line);
-  background: var(--card);
-  padding: 12px;
+  background: var(--glass-strong);
+  backdrop-filter: blur(var(--blur-glass-2));
+  padding: 14px;
   max-height: 70dvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  box-shadow: 0 -4px 20px rgba(20, 32, 28, 0.12);
+  box-shadow: 0 -8px 32px rgba(26, 40, 34, 0.16);
   animation: riseIn 0.2s ease;
 }
 
@@ -1228,6 +1232,7 @@ button.list-row:active {
   flex: 1 1 auto;
   background: var(--brand);
   color: #fff;
+  box-shadow: 0 8px 18px rgba(42, 107, 82, 0.22);
 }
 
 .dawn-cta-ghost {
@@ -1314,11 +1319,13 @@ a.dawn-day {
 }
 
 .dawn-card {
-  background: var(--card);
+  background: var(--glass-strong);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 16px;
   margin-bottom: 12px;
+  box-shadow: var(--shadow-glass-2);
+  backdrop-filter: blur(var(--blur-glass-1));
 }
 
 .dawn-kicker {
@@ -1491,6 +1498,56 @@ a.dawn-day {
   padding-bottom: max(2.5rem, env(safe-area-inset-bottom));
   padding-left: max(1rem, env(safe-area-inset-left));
   padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+.login-mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, var(--mark-a), var(--mark-b));
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(26, 40, 34, 0.12);
+}
+
+.login-word {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 8vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.login-place {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sea);
+}
+
+.pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 4px 0 8px;
+}
+
+.pin-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--stone-300);
+}
+
+.pin-dot.on {
+  background: var(--brand);
 }
 
 .game-board {

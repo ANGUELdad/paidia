@@ -8,10 +8,10 @@ import { getPasskey } from "@/lib/webauthn";
 
 const BUILD = {
   version: 1,
-  label: "v1-platform",
+  label: "v2-thassos",
   changed: {
-    de: "Neue Plattform · Zo-Ai · Automationen · Kids-Belohnungen",
-    el: "Νέα πλατφόρμα · Zo-Ai · Αυτοματισμοί · Ανταμοιβές παιδιών",
+    de: "Thassos-Glas · Icon-Dock · schnellere Schicht",
+    el: "Γυαλί Θάσου · Dock εικονιδίων · γρηγορότερη βάρδια",
   },
 };
 
@@ -113,8 +113,8 @@ export default function LoginPage() {
   const note = BUILD.changed[lang];
 
   return (
-    <main className="login-shell mx-auto flex min-h-dvh max-w-md flex-col px-4 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))]">
-      <div className="mb-4 flex gap-2 self-end">
+    <main className="login-shell mx-auto flex min-h-dvh max-w-md flex-col">
+      <div className="mb-6 flex gap-2 self-end">
         <button
           className={`btn-sec !min-h-9 !px-3 text-sm ${lang === "de" ? "ring-2 ring-[var(--brand)]" : ""}`}
           type="button"
@@ -133,16 +133,20 @@ export default function LoginPage() {
         </button>
       </div>
 
+      <header className="mb-6 stack" style={{ gap: 8 }}>
+        <div className="login-mark" aria-hidden>
+          A
+        </div>
+        <h1 className="login-word">Armonia</h1>
+        <p className="login-place">Thassos</p>
+      </header>
+
       {mode === "pick" && (
-        <section className="list-panel mt-2">
-          <div className="list-sticky">
-            <span>Armonia Thassos</span>
-            <span>{BUILD.label}</span>
-          </div>
+        <section className="list-panel">
           <div className="stack p-4">
-            <p className="eyebrow m-0 text-[var(--sea)]">Paidia</p>
-            <h1 className="m-0 text-2xl text-[var(--ink)]">{lang === "el" ? "Ποιος/ποια είσαι;" : "Wer bist du?"}</h1>
-            <p className="m-0 text-sm text-[var(--muted)]">{lang === "el" ? "Προσωπικό ή παιδιά" : "Personal oder Kinder"}</p>
+            <p className="eyebrow m-0">{BUILD.label}</p>
+            <h2 className="m-0 text-xl text-[var(--ink)]">{lang === "el" ? "Ποιος/ποια είσαι;" : "Wer bist du?"}</h2>
+            <p className="m-0 text-sm text-[var(--muted)]">{lang === "el" ? "Προσωπικό ή παιδιά — ένα PIN." : "Personal oder Kinder — eine PIN."}</p>
             <button className="btn w-full" type="button" data-testid="enter-staff" onClick={() => loadMode("staff")}>
               {t("staff", lang)}
             </button>
@@ -213,6 +217,11 @@ export default function LoginPage() {
               {who.name.slice(0, 2)}
             </div>
             <p className="m-0 text-sm text-[var(--muted)]">{lang === "el" ? "Βάλε PIN" : "PIN eingeben"}</p>
+            <div className="pin-dots" aria-hidden>
+              {[0, 1, 2, 3, 4, 5].map((i) => (
+                <span key={i} className={`pin-dot${i < pin.length ? " on" : ""}`} />
+              ))}
+            </div>
             <input
               className="w-full rounded-[var(--radius-sm)] border border-[var(--line)] bg-white px-4 py-3 text-center text-2xl tracking-[0.4em]"
               inputMode="numeric"
