@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 69,
-  label: 'v69',
+  version: 74,
+  label: 'v74',
   changed: {
-    de: 'UX Home/Plan · Tabellen mit Datum · Talk-Tab · Admin-Automationen · Pine-Cleanup',
-    el: 'UX Home/Plan · Πίνακες με ημερομηνία · Talk · Admin automations · Pine cleanup',
+    de: 'Momente ein Tipp · Zo-Ai Groq-Modelle · Pooler-DB-Hinweis',
+    el: 'Momente ένα κλικ · μοντέλα Zo-Ai Groq · υπόδειξη pooler DB',
   },
 };
 const T = {
@@ -11458,6 +11458,8 @@ document.querySelectorAll('nav button[data-tab]').forEach(b=>{
     if(b.dataset.tab!=='stock' && state.tab==='stock') clearStockDraft();
     state.tab = b.dataset.tab;
     if(state.tab==='gallery'){
+      state.galleryLoading = true;
+      render();
       refreshGallery({silent:true}).finally(()=>render());
       return;
     }
@@ -12285,7 +12287,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=69',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=74',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);

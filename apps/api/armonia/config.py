@@ -9,6 +9,17 @@ from armonia.env_aliases import apply_env_aliases
 
 DEFAULT_SESSION_SECRET = "dev-change-me-armonia-session-secret-32b"
 _DEV_ENVS = frozenset({"development", "dev", "test", "local"})
+_GROQ_RETIRED = {
+    "llama-3.3-70b-versatile": "openai/gpt-oss-120b",
+    "llama-3.1-8b-instant": "openai/gpt-oss-20b",
+    "llama-3.1-70b-versatile": "openai/gpt-oss-120b",
+    "llama-3.3-70b-specdec": "openai/gpt-oss-120b",
+}
+
+
+def _live_groq_model(raw: str, fallback: str) -> str:
+    name = (raw or "").strip() or fallback
+    return _GROQ_RETIRED.get(name, name)
 
 # Root + apps/api .env files (PAIDIA_* secrets live at repo root).
 _ENV_FILES = (
@@ -35,7 +46,8 @@ class Settings(BaseSettings):
     webauthn_rp_id: str = "localhost"
     webauthn_rp_name: str = "Armonia Thassos"
     groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "openai/gpt-oss-120b"
+    groq_ocr_model: str = "qwen/qwen3.6-27b"
     omniroute_base_url: str = "http://127.0.0.1:4000"
     omniroute_api_key: str = "local"
     omniroute_models: str = "openai/gpt-oss-120b,llama-3.3-70b,gemma2-9b,qwen2.5-72b"
@@ -79,5 +91,8 @@ def _assert_production_safe(settings: Settings) -> None:
 def get_settings() -> Settings:
     apply_env_aliases()
     settings = Settings()
+    settings.groq_model = _live_groq_model(settings.groq_model, "openai/gpt-oss-120b")
+    settings.groq_ocr_model = _live_groq_model(settings.groq_ocr_model, "qwen/qwen3.6-27b")
+    settings.chat_model = _live_groq_model(settings.chat_model, "openai/gpt-oss-120b")
     _assert_production_safe(settings)
     return settings

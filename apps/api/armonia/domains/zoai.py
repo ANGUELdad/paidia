@@ -238,7 +238,7 @@ def _llm_chat(messages: list[dict[str, str]]) -> tuple[str, str]:
             content = _post_chat(
                 "https://api.groq.com/openai/v1/chat/completions",
                 settings.groq_api_key,
-                settings.groq_model or "llama-3.3-70b-versatile",
+                settings.groq_model or "openai/gpt-oss-120b",
                 messages,
             )
             return content, "groq"

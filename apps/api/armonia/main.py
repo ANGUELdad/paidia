@@ -107,6 +107,12 @@ def health() -> dict:
         "durableStorage": durable,
         "storage": storage_meta,
         "aiConfigured": bool(settings.groq_api_key) or omni,
+        "ai": {
+            "configured": bool(settings.groq_api_key) or omni,
+            "provider": "omniroute" if omni else ("groq" if settings.groq_api_key else "offline"),
+            "chat": {"model": settings.chat_model or settings.groq_model, "ok": bool(settings.groq_api_key) or omni},
+            "ocr": {"model": settings.groq_ocr_model, "ok": bool(settings.groq_api_key)},
+        },
         "llmProvider": "omniroute" if omni else ("groq" if settings.groq_api_key else "offline"),
         "omniroute": {"reachable": omni, "baseUrl": settings.omniroute_base_url},
         "notifications": {"local": True, "webPush": bool(settings.vapid_public_key)},

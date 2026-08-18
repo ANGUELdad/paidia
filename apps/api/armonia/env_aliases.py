@@ -23,6 +23,9 @@ _FORCE_ALIASES: tuple[tuple[str, str], ...] = (
     ("POSTGRES_PRISMA_URL", "DATABASE_URL"),
 )
 
+# Direct db.<ref>.supabase.co:5432 (and unpooled Neon) fail on Vercel (no IPv6).
+# DATABASE_URL must be aws-0-<region>.pooler.supabase.com:6543 or a Neon *-pooler* host.
+
 # Origin/RP must stay project-specific (platform vs legacy site) — fill only if empty.
 _FILL_ALIASES: tuple[tuple[str, str], ...] = (
     ("PAIDIA_WEBAUTHN_ORIGIN", "WEBAUTHN_ORIGIN"),

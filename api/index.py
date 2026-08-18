@@ -414,6 +414,7 @@ def entry(flask_path: str = ""):
             "flask_path": flask_path,
             "request_path": request.path,
             "aiConfigured": bool(os.environ.get("GROQ_API_KEY", "").strip()),
+            "ai": paidia.llm_health(),
             "chatModel": paidia.CHAT_MODEL,
             "ocrModel": paidia.OCR_MODEL,
             "database": _db_health(),

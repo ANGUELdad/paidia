@@ -1,5 +1,12 @@
 # Changelog
 
+## v74 — 2026-08-19
+
+- Momente tab paints immediately (skeleton) then refreshes in the background
+- Groq chat remaps retired `llama-3.3-70b-versatile` → `openai/gpt-oss-120b`; OCR stays `qwen/qwen3.6-27b`
+- `/api/health` reports per-model Groq catalog status and refuses direct (IPv6) Postgres hosts
+- Cache `paidia-v74`
+
 ## v69 — 2026-08-06
 
 - UX Phase 1: Home one composition (mast + shift + signals + today; rest under “Mehr”)

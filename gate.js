@@ -32,11 +32,11 @@
   let lang = localStorage.getItem('paidia.lang') || 'de';
   let bootSettled = false;
   const APP_BUILD = {
-    version: 69,
-    label: 'v69',
+    version: 74,
+    label: 'v74',
     changed: {
-      de: 'UX Home/Plan · Tabellen mit Datum · Talk-Tab · Admin-Automationen · Pine-Cleanup',
-      el: 'UX Home/Plan · Πίνακες με ημερομηνία · Talk · Admin automations · Pine cleanup',
+      de: 'Momente ein Tipp · Zo-Ai Groq-Modelle · Pooler-DB-Hinweis',
+      el: 'Momente ένα κλικ · μοντέλα Zo-Ai Groq · υπόδειξη pooler DB',
     },
   };
   const copy = {
@@ -140,7 +140,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=73';
+    script.src = 'app.js?v=74';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);

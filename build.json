@@ -1,8 +1,8 @@
 {
-  "version": 69,
-  "label": "v69",
+  "version": 74,
+  "label": "v74",
   "changed": {
-    "de": "UX Home/Plan · Tabellen mit Datum · Talk-Tab · Admin-Automationen · Pine-Cleanup",
-    "el": "UX Home/Plan · Πίνακες με ημερομηνία · Talk · Admin automations · Pine cleanup"
+    "de": "Momente ein Tipp · Zo-Ai Groq-Modelle · Pooler-DB-Hinweis",
+    "el": "Momente ένα κλικ · μοντέλα Zo-Ai Groq · υπόδειξη pooler DB"
   }
 }

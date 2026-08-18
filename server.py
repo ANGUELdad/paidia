@@ -100,15 +100,31 @@ def load_env(path: str = ".env") -> None:
 load_env()
 HOST = os.environ.get("PAIDIA_HOST", "127.0.0.1")
 PORT = int(os.environ.get("PAIDIA_PORT", "5173"))
-OCR_MODEL = os.environ.get("GROQ_OCR_MODEL", "qwen/qwen3.6-27b")
-CHAT_MODEL = os.environ.get("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
+# Groq retired llama-3.3-70b-versatile / llama-3.1-8b-instant on 2026-08-16.
+_GROQ_RETIRED = {
+    "llama-3.3-70b-versatile": "openai/gpt-oss-120b",
+    "llama-3.1-8b-instant": "openai/gpt-oss-20b",
+    "llama-3.1-70b-versatile": "openai/gpt-oss-120b",
+    "llama-3.3-70b-specdec": "openai/gpt-oss-120b",
+}
+
+
+def _live_groq_model(raw: str | None, fallback: str) -> str:
+    name = (raw or "").strip() or fallback
+    return _GROQ_RETIRED.get(name, name)
+
+
+OCR_MODEL = _live_groq_model(os.environ.get("GROQ_OCR_MODEL"), "qwen/qwen3.6-27b")
+CHAT_MODEL = _live_groq_model(os.environ.get("GROQ_CHAT_MODEL"), "openai/gpt-oss-120b")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODELS_URL = "https://api.groq.com/openai/v1/models"
 # OmniRoute (local OpenAI-compatible gateway) — preferred for Zo-Ai when reachable.
 OMNIROUTE_BASE_URL = os.environ.get("OMNIROUTE_BASE_URL", "http://127.0.0.1:20128").rstrip("/")
 OMNIROUTE_API_KEY = os.environ.get("OMNIROUTE_API_KEY", "").strip()
 OMNIROUTE_CHAT_MODEL = os.environ.get("OMNIROUTE_CHAT_MODEL", "auto/best-reasoning")
 PAIDIA_LLM_PROVIDER = os.environ.get("PAIDIA_LLM_PROVIDER", "auto").strip().lower()  # auto|groq|omniroute
 _OMNI_REACHABLE_CACHE: dict[str, float | bool] = {"ok": False, "checked": 0.0}
+_GROQ_CATALOG_CACHE: dict[str, Any] = {"at": 0.0, "ids": None, "error": None}
 MAX_BODY = 12 * 1024 * 1024
 WHATSAPP_GRAPH_VERSION = os.environ.get("WHATSAPP_GRAPH_VERSION", "v23.0")
 WHATSAPP_GRAPH_URL = "https://graph.facebook.com"
@@ -3310,6 +3326,60 @@ def omniroute_reachable(timeout: float = 0.35) -> bool:
     return ok
 
 
+def groq_model_catalog(timeout: float = 4.0) -> tuple[set[str] | None, str | None]:
+    """GET Groq /v1/models — cached 60s. Used by /api/health, not chat."""
+    now = time.time()
+    if now - float(_GROQ_CATALOG_CACHE.get("at") or 0) < 60 and _GROQ_CATALOG_CACHE.get("ids") is not None:
+        return set(_GROQ_CATALOG_CACHE["ids"]), _GROQ_CATALOG_CACHE.get("error")
+    key = os.environ.get("GROQ_API_KEY", "").strip()
+    if not key:
+        return None, "GROQ_API_KEY missing"
+    try:
+        req = urllib.request.Request(
+            GROQ_MODELS_URL,
+            headers={"Authorization": f"Bearer {key}", "User-Agent": "PAIDIA/1.0"},
+            method="GET",
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as result:
+            payload = json.loads(result.read().decode("utf-8") or "{}")
+        ids = {str(row.get("id") or "") for row in (payload.get("data") or []) if row.get("id")}
+        _GROQ_CATALOG_CACHE["ids"] = ids
+        _GROQ_CATALOG_CACHE["error"] = None
+        _GROQ_CATALOG_CACHE["at"] = now
+        return ids, None
+    except Exception as exc:  # noqa: BLE001
+        err = str(exc)[:160]
+        _GROQ_CATALOG_CACHE["ids"] = None
+        _GROQ_CATALOG_CACHE["error"] = err
+        _GROQ_CATALOG_CACHE["at"] = now
+        return None, err
+
+
+def llm_health() -> dict:
+    """Per-model Groq status for /api/health (not a bare aiConfigured boolean)."""
+    groq_key = bool(os.environ.get("GROQ_API_KEY", "").strip())
+    omni_ok = omniroute_reachable() if PAIDIA_LLM_PROVIDER in {"auto", "omniroute"} else False
+    catalog, catalog_error = groq_model_catalog() if groq_key else (None, "GROQ_API_KEY missing")
+
+    def probe(model: str) -> dict:
+        if omni_ok and not groq_key:
+            return {"model": model, "ok": True, "via": "omniroute"}
+        if not groq_key:
+            return {"model": model, "ok": False, "error": "GROQ_API_KEY missing"}
+        if catalog is None:
+            return {"model": model, "ok": False, "error": catalog_error or "catalog_unavailable"}
+        ok = model in catalog
+        return {"model": model, "ok": ok, **({} if ok else {"error": "not_in_groq_catalog"})}
+
+    provider, _, _, chat_model = resolve_llm_endpoint()
+    return {
+        "configured": groq_key or omni_ok,
+        "provider": provider,
+        "chat": probe(chat_model),
+        "ocr": probe(OCR_MODEL),
+    }
+
+
 def resolve_llm_endpoint(prefer: str | None = None) -> tuple[str, str, str, str]:
     """Return (provider, url, api_key, model)."""
     choice = (prefer or PAIDIA_LLM_PROVIDER or "auto").strip().lower()
@@ -3695,6 +3765,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "ok": True,
                 "driveConfigured": bool(paidia_drive and paidia_drive.drive_configured()),
                 "aiConfigured": bool(os.environ.get("GROQ_API_KEY")) or omni_ok,
+                "ai": llm_health(),
                 "llmProvider": provider,
                 "omniroute": {
                     "baseUrl": OMNIROUTE_BASE_URL,

@@ -27,6 +27,43 @@ DATABASE_URL = (
     or ""
 ).strip()
 
+# Vercel has no IPv6 egress. Direct db.<ref>.supabase.co:5432 and unpooled Neon
+# hosts resolve to IPv6 and fail with "Cannot assign requested address".
+POOLER_REQUIRED_HINT = (
+    "DATABASE_URL is a direct (non-pooled) host. Vercel cannot open IPv6 sockets. "
+    "Use an IPv4 pooler: Supabase Transaction mode "
+    "postgresql://postgres.<PROJECT_REF>:<PASSWORD>@aws-0-<REGION>.pooler.supabase.com:6543/postgres?sslmode=require "
+    "or a Neon pooled host that contains '-pooler' (not db.<ref>.supabase.co:5432 / ep-*.neon.tech:5432)."
+)
+
+
+def postgres_pooler_error(url: str) -> str | None:
+    """Return a hard error if this Postgres URL will fail on Vercel (direct / IPv6)."""
+    raw = (url or "").strip()
+    if not raw.lower().startswith(("postgres://", "postgresql://")):
+        return None
+    parsed = urlparse(raw)
+    host = (parsed.hostname or "").lower()
+    port = parsed.port or 5432
+    if "pooler.supabase.com" in host:
+        return None
+    if "neon.tech" in host and "pooler" in host:
+        return None
+    if host.startswith("db.") and host.endswith("supabase.co"):
+        return POOLER_REQUIRED_HINT
+    if host.endswith("neon.tech") and "pooler" not in host:
+        return POOLER_REQUIRED_HINT
+    if port == 5432 and ("supabase.co" in host or host.endswith("neon.tech")):
+        return POOLER_REQUIRED_HINT
+    return None
+
+
+def assert_pooled_database_url(url: str | None = None) -> None:
+    """Startup assertion: refuse direct Postgres hosts that Vercel cannot reach."""
+    err = postgres_pooler_error(url if url is not None else DATABASE_URL)
+    if err:
+        raise RuntimeError(err)
+
 def _default_sqlite_path() -> Path:
     if os.environ.get("VERCEL") == "1":
         path = Path("/tmp/paidia/paidia.db")
@@ -64,6 +101,7 @@ def connect() -> Iterator[Any]:
         import psycopg
         from psycopg.rows import dict_row
 
+        assert_pooled_database_url(DATABASE_URL)
         conn = psycopg.connect(DATABASE_URL, connect_timeout=8, row_factory=dict_row)
         try:
             yield conn
@@ -246,6 +284,17 @@ def append_security_event(event: str, profile_id: str | None, ip: str | None, de
 
 def health() -> dict:
     try:
+        if using_postgres():
+            host = urlparse(DATABASE_URL).hostname or ""
+            err = postgres_pooler_error(DATABASE_URL)
+            if err:
+                return {
+                    "ok": False,
+                    "backend": "postgres",
+                    "host": host,
+                    "poolerRequired": True,
+                    "error": err,
+                }
         init_schema()
         with connect() as conn:
             if using_postgres():
@@ -258,7 +307,7 @@ def health() -> dict:
                 host = str(_sqlite_path())
         return {"ok": True, "backend": backend, "host": host}
     except Exception as exc:  # noqa: BLE001 — surface to health endpoint
-        return {"ok": False, "backend": "postgres" if using_postgres() else "sqlite", "error": str(exc)[:200]}
+        return {"ok": False, "backend": "postgres" if using_postgres() else "sqlite", "error": str(exc)[:400]}
 
 
 # Well-known keys used by server.py

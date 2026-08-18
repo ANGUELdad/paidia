@@ -31,6 +31,40 @@ def _database_url() -> str:
     ).strip()
 
 
+POOLER_REQUIRED_HINT = (
+    "DATABASE_URL is a direct (non-pooled) host. Vercel cannot open IPv6 sockets. "
+    "Use an IPv4 pooler: Supabase Transaction mode "
+    "postgresql://postgres.<PROJECT_REF>:<PASSWORD>@aws-0-<REGION>.pooler.supabase.com:6543/postgres?sslmode=require "
+    "or a Neon pooled host that contains '-pooler'."
+)
+
+
+def postgres_pooler_error(url: str) -> str | None:
+    raw = (url or "").strip()
+    if not raw.lower().startswith(("postgres://", "postgresql://")):
+        return None
+    parsed = urlparse(raw)
+    host = (parsed.hostname or "").lower()
+    port = parsed.port or 5432
+    if "pooler.supabase.com" in host:
+        return None
+    if "neon.tech" in host and "pooler" in host:
+        return None
+    if host.startswith("db.") and host.endswith("supabase.co"):
+        return POOLER_REQUIRED_HINT
+    if host.endswith("neon.tech") and "pooler" not in host:
+        return POOLER_REQUIRED_HINT
+    if port == 5432 and ("supabase.co" in host or host.endswith("neon.tech")):
+        return POOLER_REQUIRED_HINT
+    return None
+
+
+def assert_pooled_database_url(url: str | None = None) -> None:
+    err = postgres_pooler_error(url if url is not None else _database_url())
+    if err:
+        raise RuntimeError(err)
+
+
 def using_postgres() -> bool:
     url = _database_url().lower()
     return url.startswith("postgres://") or url.startswith("postgresql://")
@@ -45,6 +79,7 @@ def _connect() -> Iterator[Any]:
     import psycopg
     from psycopg.rows import dict_row
 
+    assert_pooled_database_url()
     conn = psycopg.connect(_database_url(), connect_timeout=8, row_factory=dict_row)
     try:
         yield conn
@@ -111,13 +146,17 @@ def health() -> dict[str, Any]:
     if not using_postgres():
         return {"ok": False, "backend": "memory", "error": "DATABASE_URL not set"}
     try:
+        url = _database_url()
+        host = urlparse(url).hostname or ""
+        err = postgres_pooler_error(url)
+        if err:
+            return {"ok": False, "backend": "postgres", "host": host, "poolerRequired": True, "error": err}
         init_schema()
         with _connect() as conn:
             conn.execute("SELECT 1")
-        host = urlparse(_database_url()).hostname or ""
         return {"ok": True, "backend": "postgres", "host": host}
     except Exception as exc:  # noqa: BLE001
-        return {"ok": False, "backend": "postgres", "error": str(exc)[:200]}
+        return {"ok": False, "backend": "postgres", "error": str(exc)[:400]}
 
 
 def load_state_blob() -> dict[str, Any] | None:
