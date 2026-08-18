@@ -3,39 +3,43 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { t } from "@/lib/i18n";
+import { t, type Lang } from "@/lib/i18n";
 
-type LinkItem = { href: string; label: string };
+type LinkItem = { href: string; label: string; testId: string };
 type Group = { title: string; items: LinkItem[] };
 
-function buildGroups(admin: boolean): Group[] {
+function buildGroups(admin: boolean, lang: Lang): Group[] {
+  const el = lang === "el";
   const groups: Group[] = [
     {
-      title: "Schicht",
+      title: el ? "Βάρδια" : "Schicht",
       items: [
-        { href: "/handover", label: "Übergabe" },
-        { href: "/coverage", label: t("coverage") },
-        { href: "/incidents", label: t("incidents") },
-        { href: "/care", label: t("careLog") },
-        { href: "/book", label: "Schichtbuch" },
-        { href: "/talk", label: "Talk" },
+        { href: "/handover", label: el ? "Παράδοση" : "Übergabe", testId: "more-übergabe" },
+        { href: "/coverage", label: t("coverage", lang), testId: "more-abdeckung" },
+        { href: "/incidents", label: t("incidents", lang), testId: "more-vorfälle" },
+        { href: "/care", label: t("careLog", lang), testId: "more-kind-tag" },
+        { href: "/book", label: el ? "Βιβλίο βάρδιας" : "Schichtbuch", testId: "more-schichtbuch" },
+        { href: "/talk", label: "Talk", testId: "more-talk" },
       ],
     },
     {
-      title: "Versorgung",
-      items: [{ href: "/shop", label: "Liste" }],
+      title: el ? "Προμήθεια" : "Versorgung",
+      items: [{ href: "/shop", label: el ? "Λίστα" : "Liste", testId: "more-liste" }],
     },
     {
-      title: "Termine",
-      items: [{ href: "/calendar", label: "Kalender" }],
+      title: el ? "Ραντεβού" : "Termine",
+      items: [{ href: "/calendar", label: el ? "Ημερολόγιο" : "Kalender", testId: "more-kalender" }],
     },
     {
-      title: "Konto",
-      items: [{ href: "/profile", label: "Profil" }],
+      title: el ? "Λογαριασμός" : "Konto",
+      items: [{ href: "/profile", label: t("profile", lang), testId: "more-profil" }],
     },
   ];
   if (admin) {
-    groups.push({ title: "Admin", items: [{ href: "/admin/notify", label: "Automationen" }] });
+    groups.push({
+      title: "Admin",
+      items: [{ href: "/admin/notify", label: el ? "Αυτοματισμοί" : "Automationen", testId: "more-automationen" }],
+    });
   }
   return groups;
 }
@@ -48,12 +52,15 @@ export function MoreSheet({
   open,
   onClose,
   admin = false,
+  lang = "de",
 }: {
   open: boolean;
   onClose: () => void;
   admin?: boolean;
+  lang?: Lang;
 }) {
   const path = usePathname();
+  const el = lang === "el";
 
   useEffect(() => {
     if (!open) return;
@@ -72,7 +79,7 @@ export function MoreSheet({
 
   if (!open) return null;
 
-  const groups = buildGroups(admin);
+  const groups = buildGroups(admin, lang);
 
   return (
     <div className="more-overlay" role="presentation" onClick={onClose} data-testid="more-overlay">
@@ -85,8 +92,8 @@ export function MoreSheet({
         onClick={(e) => e.stopPropagation()}
       >
         <header className="more-sheet-header">
-          <h2 id="more-title">Mehr</h2>
-          <button type="button" className="more-sheet-close" onClick={onClose} aria-label="Schließen">
+          <h2 id="more-title">{el ? "Περισσότερα" : "Mehr"}</h2>
+          <button type="button" className="more-sheet-close" onClick={onClose} aria-label={t("cancel", lang)}>
             ✕
           </button>
         </header>
@@ -99,7 +106,7 @@ export function MoreSheet({
                   key={item.href}
                   href={item.href}
                   className={isLinkActive(path, item.href) ? "active" : ""}
-                  data-testid={`more-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                  data-testid={item.testId}
                   onClick={onClose}
                 >
                   {item.label}

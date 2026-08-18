@@ -23,7 +23,17 @@ type Session = {
 };
 type Due = { kind: string; title: string; body: string; url: string };
 
-const WEEKDAYS_DE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const WEEKDAYS: Record<Lang, string[]> = {
+  de: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+  el: ["Δε", "Τρ", "Τε", "Πε", "Πα", "Σα", "Κυ"],
+};
+
+function greet(lang: Lang, name: string) {
+  const h = new Date().getHours();
+  const el = lang === "el";
+  const base = el ? (h < 17 ? "Καλημέρα" : "Καλησπέρα") : h < 12 ? "Guten Morgen" : h < 18 ? "Guten Tag" : "Guten Abend";
+  return name ? `${base}, ${name}` : base;
+}
 
 export default function HomePage() {
   const router = useRouter();
@@ -73,7 +83,7 @@ export default function HomePage() {
   const week = useMemo(() => {
     const base = new Date(today + "T12:00:00");
     const day = (base.getDay() + 6) % 7; // Mon=0
-    return WEEKDAYS_DE.map((label, i) => {
+    return WEEKDAYS[lang].map((label, i) => {
       const d = new Date(base);
       d.setDate(base.getDate() - day + i);
       return {
@@ -83,7 +93,7 @@ export default function HomePage() {
         active: i === day,
       };
     });
-  }, [today]);
+  }, [today, lang]);
 
   const displayDate = useMemo(
     () =>
@@ -105,7 +115,15 @@ export default function HomePage() {
       });
       setPresence({ pending: false });
       setLateOpen(false);
-      setNotice(status === "there" ? "Willkommen — du bist da." : "Verspätung notiert.");
+      setNotice(
+        status === "there"
+          ? lang === "el"
+            ? "Καλώς ήρθες — είσαι εδώ."
+            : "Willkommen — du bist da."
+          : lang === "el"
+            ? "Η καθυστέρηση καταγράφηκε."
+            : "Verspätung notiert.",
+      );
       try {
         const evald = await api<{ due: Due[] }>("/api/notify/evaluate");
         setDue((evald.due || []).filter((d) => d.kind !== "shift_start"));
@@ -133,6 +151,14 @@ export default function HomePage() {
   const firstName = session.nickname || session.name || "";
   const topDue = due[0];
   const lowStock = due.find((d) => d.kind === "low_stock");
+  const el = lang === "el";
+
+  const chipLabel: Record<string, string> = {
+    presence: el ? "Έναρξη βάρδιας" : "Schicht starten",
+    plan: el ? "Πλάνο" : "Wochenplan",
+    stock: el ? "Αποθήκη" : "Lager",
+    zoai: "Zo-Ai",
+  };
 
   return (
     <>
@@ -146,19 +172,23 @@ export default function HomePage() {
               </Link>
               {session.admin && (
                 <Link className="dawn-link" href="/admin/notify" data-testid="link-admin">
-                  Admin
+                  {el ? "Διαχείριση" : "Admin"}
                 </Link>
               )}
             </div>
           </div>
           <p className="dawn-date">{displayDate}</p>
-          <h1 className="dawn-title">Guten Morgen{firstName ? `, ${firstName}` : ""}</h1>
+          <h1 className="dawn-title">{greet(lang, firstName)}</h1>
           <p className="dawn-lead">
             {pending
-              ? "Starte die Schicht — ein Tippen genügt."
+              ? el
+                ? "Ξεκίνα τη βάρδια — ένα πάτημα."
+                : "Starte die Schicht — ein Tippen genügt."
               : started
-                ? "Schicht läuft. Frag Zo-Ai oder folge der Führung."
-                : "Status wird geladen…"}
+                ? el
+                  ? "Η βάρδια τρέχει. Ρώτα τη Zo-Ai."
+                  : "Schicht läuft. Frag Zo-Ai oder folge der Führung."
+                : t("loading", lang)}
           </p>
 
           <div className="dawn-cta-row" data-tour="tour-presence" data-testid="presence-card">
@@ -171,7 +201,7 @@ export default function HomePage() {
                   data-testid="presence-there"
                   onClick={() => checkin("there")}
                 >
-                  Schicht starten
+                  {el ? "Έναρξη βάρδιας" : "Schicht starten"}
                 </button>
                 <button
                   className="dawn-cta-ghost"
@@ -180,16 +210,16 @@ export default function HomePage() {
                   data-testid="presence-late"
                   onClick={() => setLateOpen(true)}
                 >
-                  Zu spät melden
+                  {t("lateTitle", lang)}
                 </button>
               </>
             ) : started ? (
               <>
                 <Link className="dawn-cta" href="/handover" data-testid="cta-handover">
-                  Übergabe
+                  {el ? "Παράδοση" : "Übergabe"}
                 </Link>
                 <Link className="dawn-cta-ghost" href="/plan">
-                  Tagesplan
+                  {el ? "Ημερήσιο πλάνο" : "Tagesplan"}
                 </Link>
               </>
             ) : (
@@ -206,17 +236,24 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="dawn-week" aria-label="Woche" data-tour="tour-week">
+        <div className="dawn-week" aria-label={el ? "Εβδομάδα" : "Woche"} data-tour="tour-week">
           {week.map((d) => (
-            <div key={d.iso} className={`dawn-day${d.active ? " is-active" : ""}`}>
+            <Link
+              key={d.iso}
+              href={`/plan?day=${d.iso}`}
+              className={`dawn-day w-full min-h-[var(--row-h)]${d.active ? " is-active" : ""}`}
+              data-testid={`week-day-${d.iso}`}
+              aria-current={d.active ? "date" : undefined}
+              aria-label={`${d.label} ${d.iso}`}
+            >
               <span>{d.label}</span>
               <strong>{d.date}</strong>
-            </div>
+            </Link>
           ))}
         </div>
 
-        <section className="dawn-card" data-tour="tour-now" aria-label="Jetzt">
-          <p className="dawn-kicker">JETZT</p>
+        <section className="dawn-card" data-tour="tour-now" aria-label={el ? "Τώρα" : "Jetzt"}>
+          <p className="dawn-kicker">{el ? "ΤΩΡΑ" : "JETZT"}</p>
           {topDue ? (
             <Link href={topDue.url} className="dawn-now-link" data-testid={`due-${topDue.kind}`}>
               <h2 className="dawn-now-title">{topDue.title}</h2>
@@ -224,16 +261,22 @@ export default function HomePage() {
             </Link>
           ) : (
             <div data-testid="all-clear">
-              <h2 className="dawn-now-title">Alles ruhig</h2>
-              <p className="dawn-now-meta">Keine offenen Erinnerungen — gut so.</p>
+              <h2 className="dawn-now-title">{el ? "Όλα ήσυχα" : "Alles ruhig"}</h2>
+              <p className="dawn-now-meta">
+                {el ? "Καμία ανοιχτή υπενθύμιση — καλά." : "Keine offenen Erinnerungen — gut so."}
+              </p>
             </div>
           )}
         </section>
 
-        <section className="dawn-section" aria-label="Heute">
+        <section className="dawn-section" aria-label={el ? "Σήμερα" : "Heute"}>
           <div className="row between">
-            <h2 className="dawn-section-title">HEUTE</h2>
-            {due.length > 1 && <span className="muted text-xs">{due.length} offen</span>}
+            <h2 className="dawn-section-title">{el ? "ΣΗΜΕΡΑ" : "HEUTE"}</h2>
+            {due.length > 1 && (
+              <span className="muted text-xs">
+                {due.length} {el ? "ανοιχτά" : "offen"}
+              </span>
+            )}
           </div>
           <div className="list-panel dawn-list">
             {due.slice(0, 4).map((d) => (
@@ -250,45 +293,40 @@ export default function HomePage() {
             <Link href="/coverage" className="list-row">
               <div className="list-row__main">
                 <div className="list-row__title">{t("coverage", lang)}</div>
-                <div className="list-row__meta">Wer ist da · Lücken</div>
+                <div className="list-row__meta">{el ? "Ποιος είναι εδώ · κενά" : "Wer ist da · Lücken"}</div>
               </div>
               <span aria-hidden>→</span>
             </Link>
             <Link href="/incidents" className="list-row">
               <div className="list-row__main">
                 <div className="list-row__title">{t("incidents", lang)}</div>
-                <div className="list-row__meta">Vorfall sichern</div>
+                <div className="list-row__meta">{el ? "Καταγραφή συμβάντος" : "Vorfall sichern"}</div>
               </div>
               <span aria-hidden>→</span>
             </Link>
             <Link className="list-row" href="/handover" data-testid="link-handover">
               <div className="list-row__main">
-                <div className="list-row__title">Übergabe</div>
-                <div className="list-row__meta">Vorbereiten</div>
+                <div className="list-row__title">{el ? "Παράδοση" : "Übergabe"}</div>
+                <div className="list-row__meta">{el ? "Προετοιμασία" : "Vorbereiten"}</div>
               </div>
               <span aria-hidden>→</span>
             </Link>
           </div>
         </section>
 
-        {(lowStock || due.length >= 0) && (
-          <Link
-            href="/stock"
-            className="dawn-alert"
-            data-tour="tour-stock-alert"
-            data-testid="stock-alert"
-          >
-            <span className="dawn-alert-label">Lager</span>
-            <div>
-              <strong>{lowStock ? lowStock.title : "Bestand prüfen"}</strong>
-              <p>{lowStock ? lowStock.body : "Kurzer Blick lohnt sich"}</p>
-            </div>
-          </Link>
-        )}
+        <Link href="/stock" className="dawn-alert" data-tour="tour-stock-alert" data-testid="stock-alert">
+          <span className="dawn-alert-label">{el ? "Αποθήκη" : "Lager"}</span>
+          <div>
+            <strong>{lowStock ? lowStock.title : el ? "Έλεγχος αποθέματος" : "Bestand prüfen"}</strong>
+            <p>{lowStock ? lowStock.body : el ? "Μια γρήγορη ματιά αξίζει" : "Kurzer Blick lohnt sich"}</p>
+          </div>
+        </Link>
 
-        <section className="dawn-card dawn-zoai" data-tour="tour-ask" aria-label="Zo-Ai fragen">
-          <p className="dawn-kicker">ZO-AI · FRAGEN & FÜHREN</p>
-          <p className="dawn-zoai-lead">Frag, wie etwas geht — Zo-Ai erklärt und zeigt den Bildschirm.</p>
+        <section className="dawn-card dawn-zoai" data-tour="tour-ask" aria-label={el ? "Ρώτα τη Zo-Ai" : "Zo-Ai fragen"}>
+          <p className="dawn-kicker">{el ? "ZO-AI · ΕΡΩΤΗΣΕΙΣ" : "ZO-AI · FRAGEN & FÜHREN"}</p>
+          <p className="dawn-zoai-lead">
+            {el ? "Ρώτα πώς γίνεται κάτι — η Zo-Ai εξηγεί." : "Frag, wie etwas geht — Zo-Ai erklärt und zeigt den Bildschirm."}
+          </p>
           <form
             className="dawn-ask-form"
             onSubmit={(e) => {
@@ -300,12 +338,12 @@ export default function HomePage() {
               className="dawn-ask-input"
               value={askDraft}
               onChange={(e) => setAskDraft(e.target.value)}
-              placeholder="z.B. Wie starte ich die Schicht?"
+              placeholder={el ? "π.χ. Πώς ξεκινώ τη βάρδια;" : "z.B. Wie starte ich die Schicht?"}
               data-testid="home-ask-input"
-              aria-label="Frage an Zo-Ai"
+              aria-label={el ? "Ερώτηση στη Zo-Ai" : "Frage an Zo-Ai"}
             />
             <button className="dawn-cta" type="submit" data-testid="home-ask-submit">
-              Fragen
+              {el ? "Ερώτηση" : "Fragen"}
             </button>
           </form>
           <div className="dawn-chips">
@@ -322,7 +360,7 @@ export default function HomePage() {
                   guide?.startGuide(g, "home");
                 }}
               >
-                {g.title}
+                {chipLabel[g.id] || g.title}
               </button>
             ))}
             {!pending && (
@@ -332,16 +370,16 @@ export default function HomePage() {
                 data-testid="guide-chip-handover"
                 onClick={() => router.push("/handover")}
               >
-                Übergabe
+                {el ? "Παράδοση" : "Übergabe"}
               </button>
             )}
             <button
               type="button"
               className="dawn-chip dawn-chip-ai"
               data-testid="guide-chip-ask"
-              onClick={() => askZoAi("Wie nutze ich Zo-Ai und die Führung?")}
+              onClick={() => askZoAi(el ? "Πώς χρησιμοποιώ τη Zo-Ai και την καθοδήγηση;" : "Wie nutze ich Zo-Ai und die Führung?")}
             >
-              Frag Zo-Ai
+              {el ? "Ρώτα τη Zo-Ai" : "Frag Zo-Ai"}
             </button>
           </div>
         </section>

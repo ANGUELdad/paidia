@@ -57,7 +57,10 @@
   --gap: var(--space-2);
   --page-x: 14px;
   --row-h: 44px;
+  --hit: 44px;
   --dock-h: 58px;
+  --dock-gap: 2.5rem;
+  --dock-clear: calc(var(--dock-h) + var(--dock-gap) + env(safe-area-inset-bottom, 0px));
 
   --shadow-glass-2: 0 1px 0 rgba(20, 32, 28, 0.06);
   --blur-glass-1: 0;
@@ -229,14 +232,15 @@ textarea:focus:not(:focus-visible) {
 .btn,
 .btn-sec {
   display: inline-flex;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: var(--hit);
+  min-width: var(--hit);
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm);
   padding: 0 14px;
   font-weight: 600;
   font-size: 0.9rem;
+  cursor: pointer;
   transition:
     transform var(--motion-fast) var(--motion-ease-settle),
     opacity var(--motion-fast) var(--motion-ease-settle);
@@ -267,6 +271,11 @@ textarea:focus:not(:focus-visible) {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--sea);
+}
+
+summary.list-sticky {
+  min-height: var(--hit);
+  cursor: pointer;
 }
 
 .list-row {
@@ -383,6 +392,11 @@ button.list-row:active {
   color: var(--brand);
 }
 
+.day-chip:active {
+  background: var(--pine-tint);
+  transform: scale(0.98);
+}
+
 .day-chip.on strong {
   color: var(--brand);
 }
@@ -398,14 +412,14 @@ button.list-row:active {
 
 .seg-bar .btn-sec {
   flex: 0 0 auto;
-  min-height: 40px;
+  min-height: var(--hit);
   padding: 0 12px;
   font-size: 0.8rem;
 }
 
 .sticky-footer {
   position: sticky;
-  bottom: calc(var(--dock-h) + env(safe-area-inset-bottom) + 8px);
+  bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px) + 8px);
   z-index: 6;
   display: flex;
   flex-wrap: wrap;
@@ -422,8 +436,8 @@ button.list-row:active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: var(--hit);
+  min-width: var(--hit);
   padding: 10px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);
@@ -440,7 +454,15 @@ button.list-row:active {
 }
 
 .btn:active,
-.btn-sec:active {
+.btn-sec:active,
+.chip:active,
+.dawn-cta:active,
+.dawn-cta-ghost:active,
+.dawn-chip:active,
+.dawn-day:active,
+.day-chip:active,
+.shift-cta:active,
+.shift-cta-ghost:active {
   transform: scale(0.98);
 }
 
@@ -491,7 +513,7 @@ button.list-row:active {
   color: rgba(255, 255, 255, 0.78);
   text-decoration: none;
   min-width: 0;
-  min-height: 44px;
+  min-height: var(--hit);
 }
 
 .dock a span {
@@ -523,7 +545,7 @@ button.list-row:active {
   border: none;
   cursor: pointer;
   min-width: 0;
-  min-height: 44px;
+  min-height: var(--hit);
   font-family: inherit;
 }
 
@@ -548,7 +570,7 @@ button.list-row:active {
 }
 
 .more-sheet {
-  margin: 0 8px calc(var(--dock-h) + max(8px, env(safe-area-inset-bottom)));
+  margin: 0 8px calc(var(--dock-h) + max(8px, env(safe-area-inset-bottom, 0px)));
   border-radius: var(--radius-lg);
   border: 1px solid var(--line);
   background: var(--card);
@@ -584,8 +606,8 @@ button.list-row:active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
+  min-width: var(--hit);
+  min-height: var(--hit);
   border-radius: 12px;
   border: 1px solid var(--line);
   background: rgba(42, 107, 82, 0.08);
@@ -620,7 +642,7 @@ button.list-row:active {
 .more-links a {
   display: flex;
   align-items: center;
-  min-height: 44px;
+  min-height: var(--hit);
   padding: 10px 14px;
   border-radius: 14px;
   font-weight: 600;
@@ -650,12 +672,12 @@ button.list-row:active {
   padding:
     max(16px, env(safe-area-inset-top))
     max(var(--page-x), env(safe-area-inset-right))
-    calc(var(--dock-h) + 2.5rem + env(safe-area-inset-bottom))
+    var(--dock-clear)
     max(var(--page-x), env(safe-area-inset-left));
 }
 
 .page-pad {
-  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+  padding-bottom: var(--dock-clear);
   padding-left: max(1rem, env(safe-area-inset-left));
   padding-right: max(1rem, env(safe-area-inset-right));
 }
@@ -776,12 +798,13 @@ button.list-row:active {
 
 .chat-composer {
   position: sticky;
-  bottom: 0;
+  bottom: calc(var(--dock-h) + env(safe-area-inset-bottom, 0px));
   z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding-top: 8px;
+  padding-bottom: 8px;
   background: var(--bg);
 }
 
@@ -961,7 +984,7 @@ button.list-row:active {
   z-index: 60;
   display: grid;
   place-items: end center;
-  padding: var(--space-4) var(--space-4) calc(100px + env(safe-area-inset-bottom));
+  padding: var(--space-4) var(--space-4) var(--dock-clear);
   background: rgba(26, 40, 34, 0.35);
   backdrop-filter: blur(2px);
   animation: fadeIn var(--motion-base) var(--motion-ease-settle);
@@ -1005,17 +1028,19 @@ button.list-row:active {
   background: transparent;
   color: var(--muted);
   font-size: 13px;
-  min-height: 44px;
+  min-height: var(--hit);
   padding: 10px;
+  cursor: pointer;
 }
 
 .tour-fab {
   position: fixed;
   left: max(12px, env(safe-area-inset-left));
   right: auto;
-  bottom: calc(var(--dock-h) + 14px + env(safe-area-inset-bottom));
+  bottom: calc(var(--dock-h) + 12px + env(safe-area-inset-bottom, 0px));
   z-index: 35;
-  min-height: 44px;
+  min-height: var(--hit);
+  cursor: pointer;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);
   background: var(--card);
@@ -1033,7 +1058,7 @@ button.list-row:active {
   z-index: 55;
   display: grid;
   place-items: end center;
-  padding: 12px 12px calc(72px + env(safe-area-inset-bottom));
+  padding: 12px 12px var(--dock-clear);
   pointer-events: none;
 }
 
@@ -1072,7 +1097,7 @@ button.list-row:active {
   position: absolute;
   left: 12px;
   right: 12px;
-  bottom: calc(72px + env(safe-area-inset-bottom));
+  bottom: var(--dock-clear);
   margin: 0 auto;
   max-width: 28rem;
   pointer-events: auto;
@@ -1111,7 +1136,7 @@ button.list-row:active {
 /* Marble Dawn home */
 .dawn-page {
   padding-top: max(8px, env(safe-area-inset-top));
-  padding-bottom: calc(var(--dock-h) + 28px);
+  padding-bottom: var(--dock-clear);
 }
 
 .dawn-hero {
@@ -1140,7 +1165,7 @@ button.list-row:active {
 }
 
 .dawn-link {
-  min-height: 40px;
+  min-height: var(--hit);
   display: inline-flex;
   align-items: center;
   padding: 0 10px;
@@ -1188,13 +1213,15 @@ button.list-row:active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
+  min-height: var(--hit);
   padding: 0 18px;
   border-radius: 16px;
   font-weight: 700;
   text-decoration: none;
   border: none;
   font-family: var(--font-ui);
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--motion-ease-settle);
 }
 
 .dawn-cta {
@@ -1231,13 +1258,40 @@ button.list-row:active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px 2px;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: var(--hit);
+  min-width: 0;
+  padding: 6px 2px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid transparent;
+  font: inherit;
   font-size: 11px;
+  font-weight: 600;
   color: var(--muted);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  text-decoration: none;
+  transition:
+    transform var(--motion-fast) var(--motion-ease-settle),
+    background-color var(--motion-fast) var(--motion-ease-settle),
+    border-color var(--motion-fast) var(--motion-ease-settle);
+}
+
+button.dawn-day,
+a.dawn-day {
+  font-family: inherit;
+}
+
+.dawn-day:hover {
+  border-color: var(--line);
+}
+
+.dawn-day:active {
+  background: var(--pine-tint);
 }
 
 .dawn-day strong {
@@ -1248,6 +1302,11 @@ button.list-row:active {
 .dawn-day.is-active {
   background: var(--brand);
   color: #fff;
+  border-color: var(--brand);
+}
+
+.dawn-day.is-active:active {
+  background: var(--sea-deep);
 }
 
 .dawn-day.is-active strong {
@@ -1356,14 +1415,20 @@ button.list-row:active {
 }
 
 .dawn-chip {
-  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--hit);
   padding: 0 12px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: var(--bg);
   color: var(--ink);
+  font-family: inherit;
   font-size: 12px;
   font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--motion-fast) var(--motion-ease-settle);
 }
 
 .dawn-chip-ai {
@@ -1373,7 +1438,7 @@ button.list-row:active {
 }
 
 .tour-overlay {
-  padding-bottom: calc(100px + env(safe-area-inset-bottom)) !important;
+  padding-bottom: var(--dock-clear) !important;
 }
 
 .empty-state {
@@ -1541,31 +1606,84 @@ button.list-row:active {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes tideReveal {
+  from {
+    clip-path: inset(100% 0 0 0);
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tide,
+.tide-reveal,
+[data-motion="tide"] {
+  animation: tideReveal var(--motion-reveal) var(--motion-ease-tide) both;
+}
+
+a.btn-sec {
+  min-height: var(--hit) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .tour-overlay {
-    animation: fadeIn var(--motion-fast) var(--motion-ease-settle);
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
-  .tour-card {
-    animation: fadeIn var(--motion-fast) var(--motion-ease-settle);
+  .tour-overlay,
+  .tour-card,
+  .more-overlay,
+  .more-sheet,
+  .tour-spotlight-target,
+  .ribbon-item,
+  .skeleton-bar,
+  .skeleton-card,
+  .tide,
+  .tide-reveal,
+  [data-motion="tide"] {
+    animation: none !important;
+    animation-delay: 0s !important;
   }
 
-  .tour-progress {
-    transition: none;
-  }
-
+  .tour-progress,
   .btn,
-  .btn-sec {
-    transition: opacity var(--motion-fast) var(--motion-ease-settle);
+  .btn-sec,
+  .chip,
+  .dawn-cta,
+  .dawn-cta-ghost,
+  .dawn-chip,
+  .dawn-day,
+  .day-chip,
+  .shift-cta,
+  .shift-cta-ghost,
+  .ribbon-body,
+  .more-links a,
+  .tide,
+  .tide-reveal,
+  [data-motion="tide"] {
+    transition: none !important;
   }
 
   .btn:active,
-  .btn-sec:active {
-    transform: none;
-  }
-
-  .ribbon-item {
-    animation: none;
+  .btn-sec:active,
+  .chip:active,
+  .dawn-cta:active,
+  .dawn-cta-ghost:active,
+  .dawn-chip:active,
+  .dawn-day:active,
+  .day-chip:active,
+  .shift-cta:active,
+  .shift-cta-ghost:active {
+    transform: none !important;
   }
 }
 
@@ -1767,7 +1885,7 @@ button.list-row:active {
 .shift-hero-link {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;
+  min-height: var(--hit);
   padding: 8px 12px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);
@@ -1812,7 +1930,7 @@ button.list-row:active {
   flex: 1 1 auto;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: var(--hit);
   padding: 0 18px;
   border-radius: var(--radius-sm);
   border: none;
@@ -1838,7 +1956,7 @@ button.list-row:active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: var(--hit);
   padding: 0 16px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);

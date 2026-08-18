@@ -17,15 +17,42 @@ export type AppSession = {
   widgets?: string[];
 };
 
+/** Shared in-flight fetch so Dock + useRequireMode do not double-hit /api/auth/session. */
+let inflight: Promise<AppSession> | null = null;
+
+function asSession(raw: unknown): AppSession {
+  if (!raw || typeof raw !== "object") return { authenticated: false };
+  const s = raw as AppSession;
+  return { ...s, authenticated: Boolean(s.authenticated) };
+}
+
+function loadSession(): Promise<AppSession> {
+  if (inflight) return inflight;
+  inflight = api<AppSession>("/api/auth/session")
+    .then(asSession)
+    .catch(() => ({ authenticated: false }))
+    .finally(() => {
+      inflight = null;
+    });
+  return inflight;
+}
+
 export function useSession() {
   const [session, setSession] = useState<AppSession | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api<AppSession>("/api/auth/session")
-      .then((s) => setSession(s))
-      .catch(() => setSession({ authenticated: false }))
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    loadSession()
+      .then((s) => {
+        if (!cancelled) setSession(s);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return { session, loading };

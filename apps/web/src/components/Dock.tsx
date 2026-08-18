@@ -4,21 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useSession } from "@/lib/session";
+import { t, useLang } from "@/lib/i18n";
 import { isMoreRoute, MoreSheet } from "./MoreSheet";
 
-const STAFF = [
-  { href: "/home", label: "Heute" },
-  { href: "/plan", label: "Plan" },
-  { href: "/stock", label: "Lager" },
-  { href: "/zoai", label: "Zo-Ai" },
-];
-
-const CHILD = [
-  { href: "/kids", label: "Heute" },
-  { href: "/kids/games", label: "Spiele" },
-  { href: "/kids/zoai", label: "Zo-Ai" },
-  { href: "/profile", label: "Ich" },
-];
+type DockItem = { href: string; label: string; testId: string };
 
 function isActive(path: string, href: string) {
   if (href === "/home") return path === "/home";
@@ -29,19 +18,30 @@ function isActive(path: string, href: string) {
 export function Dock({ mode = "staff" }: { mode?: "staff" | "child" }) {
   const path = usePathname();
   const { session } = useSession();
+  const [lang] = useLang();
   const [moreOpen, setMoreOpen] = useState(false);
-  const items = mode === "child" ? CHILD : STAFF;
+  const el = lang === "el";
+
+  const items: DockItem[] =
+    mode === "child"
+      ? [
+          { href: "/kids", label: t("kidsToday", lang), testId: "dock-heute" },
+          { href: "/kids/games", label: t("kidsGames", lang), testId: "dock-spiele" },
+          { href: "/kids/zoai", label: "Zo-Ai", testId: "dock-zo-ai" },
+          { href: "/profile", label: el ? "Εγώ" : "Ich", testId: "dock-ich" },
+        ]
+      : [
+          { href: "/home", label: el ? "Σήμερα" : "Heute", testId: "dock-heute" },
+          { href: "/plan", label: el ? "Πλάνο" : "Plan", testId: "dock-plan" },
+          { href: "/stock", label: el ? "Αποθήκη" : "Lager", testId: "dock-lager" },
+          { href: "/zoai", label: "Zo-Ai", testId: "dock-zo-ai" },
+        ];
 
   return (
     <>
-      <nav className="dock max-w-3xl" aria-label="Hauptnavigation" data-testid="dock">
+      <nav className="dock max-w-3xl" aria-label={el ? "Κύρια πλοήγηση" : "Hauptnavigation"} data-testid="dock">
         {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={isActive(path, item.href) ? "active" : ""}
-            data-testid={`dock-${item.label.toLowerCase()}`}
-          >
+          <Link key={item.href} href={item.href} className={isActive(path, item.href) ? "active" : ""} data-testid={item.testId}>
             <span>{item.label}</span>
           </Link>
         ))}
@@ -54,12 +54,12 @@ export function Dock({ mode = "staff" }: { mode?: "staff" | "child" }) {
             aria-haspopup="dialog"
             onClick={() => setMoreOpen(true)}
           >
-            <span>Mehr</span>
+            <span>{el ? "Περισσότερα" : "Mehr"}</span>
           </button>
         )}
       </nav>
       {mode === "staff" && (
-        <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} admin={!!session?.admin} />
+        <MoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} admin={!!session?.admin} lang={lang} />
       )}
     </>
   );

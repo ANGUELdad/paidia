@@ -5,6 +5,7 @@ import { Dock } from "@/components/Dock";
 import { EmptyState, LoadingBlock } from "@/components/EmptyState";
 import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
+import { t, useLang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
 
 type House = { id: string; name: string };
@@ -13,33 +14,94 @@ type Incident = {
   id: string;
   severity: string;
   houseId: string;
-  houseName?: string;
   text: string;
   childIds?: string[];
-  status?: string;
-  createdAt?: number;
-  createdBy?: string;
+  staffIds?: string[];
+  reviewed?: boolean;
+  at?: number;
+  by?: string;
   reviewedAt?: number;
   reviewedBy?: string;
+  date?: string;
 };
 
 const SEVERITIES = [
-  { id: "low", label: "Gering", hint: "Beobachtung, kein akuter Handlungsbedarf" },
-  { id: "medium", label: "Mittel", hint: "Team sollte informiert werden" },
-  { id: "high", label: "Hoch", hint: "Sofortige Aufmerksamkeit nötig" },
-  { id: "critical", label: "Kritisch", hint: "Leitung / Admin sofort" },
+  { id: "low", de: "Gering", el: "Χαμηλή", hintDe: "Beobachtung, kein akuter Handlungsbedarf", hintEl: "Παρατήρηση, χωρίς άμεση ενέργεια" },
+  { id: "med", de: "Mittel", el: "Μεσαία", hintDe: "Team sollte informiert werden", hintEl: "Η ομάδα πρέπει να ενημερωθεί" },
+  { id: "high", de: "Hoch", el: "Υψηλή", hintDe: "Sofortige Aufmerksamkeit nötig", hintEl: "Άμεση προσοχή" },
 ] as const;
 
-const SEVERITY_LABEL: Record<string, string> = Object.fromEntries(SEVERITIES.map((s) => [s.id, s.label]));
-
-const STATUS_LABEL: Record<string, string> = {
-  open: "Offen",
-  reviewed: "Geprüft",
-  closed: "Abgeschlossen",
-};
+const COPY = {
+  de: {
+    eyebrow: "Schicht",
+    title: "Vorfälle",
+    lead: "Liste · Tippen für Details · Melden unten.",
+    open: "Offen",
+    all: "Alle",
+    loadingData: "Vorfälle werden geladen…",
+    emptyTitle: "Noch keine Vorfälle",
+    emptyHint: "Melde Beobachtungen — sie erscheinen hier.",
+    retry: "Erneut laden",
+    loadFail: "Vorfälle konnten nicht geladen werden",
+    saveFail: "Speichern fehlgeschlagen",
+    reviewFail: "Prüfung fehlgeschlagen",
+    saved: "Vorfall gesichert.",
+    reviewed: "Vorfall als geprüft markiert.",
+    compose: "Vorfall melden",
+    formTitle: "Vorfall melden",
+    severity: "Schweregrad",
+    house: "Haus",
+    noHouses: "Keine Häuser geladen",
+    what: "Was ist passiert?",
+    whatPh: "Sachlich beschreiben — wer, was, wann, wo…",
+    kids: "Betroffene Kinder",
+    noKids: "Keine Kinderprofile",
+    save: "Vorfall sichern",
+    saving: "Speichern…",
+    markReviewed: "Als geprüft markieren",
+    close: "Schließen",
+    kidsLabel: "Kinder",
+    statusReviewed: "Geprüft",
+    entries: (n: number) => `${n} Einträge`,
+  },
+  el: {
+    eyebrow: "Βάρδια",
+    title: "Περιστατικά",
+    lead: "Λίστα · πάτημα για λεπτομέρειες · αναφορά κάτω.",
+    open: "Ανοιχτά",
+    all: "Όλα",
+    loadingData: "Φόρτωση περιστατικών…",
+    emptyTitle: "Δεν υπάρχουν περιστατικά",
+    emptyHint: "Καταχώρισε παρατηρήσεις — εμφανίζονται εδώ.",
+    retry: "Ξανά φόρτωση",
+    loadFail: "Τα περιστατικά δεν φορτώθηκαν",
+    saveFail: "Η αποθήκευση απέτυχε",
+    reviewFail: "Ο έλεγχος απέτυχε",
+    saved: "Το περιστατικό αποθηκεύτηκε.",
+    reviewed: "Το περιστατικό σημάνθηκε ως ελεγμένο.",
+    compose: "Αναφορά περιστατικού",
+    formTitle: "Αναφορά περιστατικού",
+    severity: "Σοβαρότητα",
+    house: "Σπίτι",
+    noHouses: "Δεν φορτώθηκαν σπίτια",
+    what: "Τι συνέβη;",
+    whatPh: "Περιγραφή με γεγονότα — ποιος, τι, πότε, πού…",
+    kids: "Παιδιά που επηρεάζονται",
+    noKids: "Δεν υπάρχουν προφίλ παιδιών",
+    save: "Αποθήκευση περιστατικού",
+    saving: "Αποθήκευση…",
+    markReviewed: "Σήμανση ως ελεγμένο",
+    close: "Κλείσιμο",
+    kidsLabel: "Παιδιά",
+    statusReviewed: "Ελεγμένο",
+    entries: (n: number) => `${n} καταχωρίσεις`,
+  },
+} as const;
 
 export default function IncidentsPage() {
   const { session, ready } = useRequireMode("staff");
+  const [lang] = useLang();
+  const c = COPY[lang];
   const [houses, setHouses] = useState<House[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,14 +112,24 @@ export default function IncidentsPage() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [detail, setDetail] = useState<Incident | null>(null);
 
-  const [severity, setSeverity] = useState("medium");
-  const [houseId, setHouseId] = useState("h1");
+  const [severity, setSeverity] = useState<(typeof SEVERITIES)[number]["id"]>("med");
+  const [houseId, setHouseId] = useState("");
   const [text, setText] = useState("");
   const [childIds, setChildIds] = useState<string[]>([]);
   const [children, setChildren] = useState<Array<{ id: string; name: string }>>([]);
 
-  async function load() {
-    setLoading(true);
+  function houseName(id: string) {
+    return houses.find((h) => h.id === id)?.name || id;
+  }
+
+  function sevLabel(id: string) {
+    const s = SEVERITIES.find((x) => x.id === id);
+    if (!s) return id;
+    return lang === "el" ? s.el : s.de;
+  }
+
+  async function load(quiet = false) {
+    if (!quiet) setLoading(true);
     setError("");
     try {
       const [list, stock, kids] = await Promise.all([
@@ -69,12 +141,11 @@ export default function IncidentsPage() {
       ]);
       setIncidents(list.incidents || []);
       setChildren(kids.profiles || []);
-      if (stock.houses?.length) {
-        setHouses(stock.houses);
-        setHouseId((prev) => (stock.houses.some((h) => h.id === prev) ? prev : stock.houses[0].id));
-      }
+      const hs = stock.houses || [];
+      setHouses(hs);
+      setHouseId((prev) => (hs.some((h) => h.id === prev) ? prev : hs[0]?.id || ""));
     } catch (e) {
-      setError((e as Error).message || "Vorfälle konnten nicht geladen werden");
+      setError((e as Error).message || c.loadFail);
     } finally {
       setLoading(false);
     }
@@ -83,6 +154,7 @@ export default function IncidentsPage() {
   useEffect(() => {
     if (!ready) return;
     load().catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
 
   useEffect(() => {
@@ -92,7 +164,7 @@ export default function IncidentsPage() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    if (!text.trim() || busy) return;
+    if (!text.trim() || !houseId || busy) return;
     setBusy(true);
     setError("");
     setMsg("");
@@ -103,12 +175,12 @@ export default function IncidentsPage() {
       });
       setText("");
       setChildIds([]);
-      setSeverity("medium");
+      setSeverity("med");
       setComposeOpen(false);
-      setMsg("Vorfall gesichert.");
-      await load();
+      setMsg(c.saved);
+      await load(true);
     } catch (err) {
-      setError((err as Error).message || "Speichern fehlgeschlagen");
+      setError((err as Error).message || c.saveFail);
     } finally {
       setBusy(false);
     }
@@ -120,24 +192,26 @@ export default function IncidentsPage() {
     setError("");
     try {
       await api(`/api/incidents/${id}/review`, { method: "POST", body: JSON.stringify({}) });
-      setMsg("Vorfall als geprüft markiert.");
+      setMsg(c.reviewed);
       setDetail(null);
-      await load();
+      await load(true);
     } catch (err) {
-      setError((err as Error).message || "Prüfung fehlgeschlagen");
+      setError((err as Error).message || c.reviewFail);
     } finally {
       setBusy(false);
     }
   }
 
-  if (!ready) return <main className="page">Laden…</main>;
+  if (!ready) return <main className="page">{t("loading")}</main>;
 
   const isAdmin = !!session?.admin;
-  const shown = incidents.filter((inc) => filter === "all" || !inc.status || inc.status === "open");
+  const shown = incidents.filter((inc) => filter === "all" || !inc.reviewed);
+  const hint = SEVERITIES.find((s) => s.id === severity);
+  const locale = lang === "el" ? "el-GR" : "de-DE";
 
   return (
     <>
-      <PageShell eyebrow="Schicht" title="Vorfälle" lead="Liste · Tippen für Details · Melden unten.">
+      <PageShell eyebrow={c.eyebrow} title={c.title} lead={c.lead}>
         {error && (
           <div className="warn mb-3" role="alert">
             {error}
@@ -147,36 +221,43 @@ export default function IncidentsPage() {
 
         <div className="seg-bar">
           <button type="button" className={`btn-sec ${filter === "open" ? "ring-2 ring-[var(--brand)]" : ""}`} onClick={() => setFilter("open")}>
-            Offen
+            {c.open}
           </button>
           <button type="button" className={`btn-sec ${filter === "all" ? "ring-2 ring-[var(--brand)]" : ""}`} onClick={() => setFilter("all")}>
-            Alle
+            {c.all}
           </button>
         </div>
 
         {loading ? (
-          <LoadingBlock label="Vorfälle werden geladen…" />
+          <LoadingBlock label={c.loadingData} />
         ) : !shown.length ? (
-          <EmptyState title="Noch keine Vorfälle" hint="Melde Beobachtungen — sie erscheinen hier." />
+          <EmptyState
+            title={c.emptyTitle}
+            hint={c.emptyHint}
+            action={
+              <button className="btn-sec" type="button" onClick={() => load()}>
+                {c.retry}
+              </button>
+            }
+          />
         ) : (
           <div className="list-panel" data-testid="incident-list">
             <div className="list-sticky">
-              <span>{shown.length} Einträge</span>
+              <span>{c.entries(shown.length)}</span>
             </div>
             {shown.map((inc) => {
-              const open = !inc.status || inc.status === "open";
-              const sev = SEVERITY_LABEL[inc.severity] || inc.severity;
+              const open = !inc.reviewed;
               return (
                 <button
                   key={inc.id}
                   type="button"
-                  className={`list-row ${inc.severity === "high" || inc.severity === "critical" ? "is-warn" : ""}`}
+                  className={`list-row ${inc.severity === "high" ? "is-warn" : ""}`}
                   data-testid={`incident-${inc.id}`}
                   onClick={() => setDetail(inc)}
                 >
                   <div className="list-row__main">
                     <div className="list-row__title">
-                      {sev} · {inc.houseName || inc.houseId}
+                      {sevLabel(inc.severity)} · {houseName(inc.houseId)}
                     </div>
                     <div className="list-row__meta">
                       {inc.text.slice(0, 72)}
@@ -184,7 +265,7 @@ export default function IncidentsPage() {
                     </div>
                   </div>
                   <span className="list-row__trail muted text-xs">
-                    {STATUS_LABEL[inc.status || "open"]}
+                    {inc.reviewed ? c.statusReviewed : c.open}
                     {open ? " →" : ""}
                   </span>
                 </button>
@@ -195,7 +276,7 @@ export default function IncidentsPage() {
 
         <div className="sticky-footer">
           <button className="btn w-full" type="button" data-testid="incident-compose" onClick={() => setComposeOpen(true)}>
-            Vorfall melden
+            {c.compose}
           </button>
         </div>
       </PageShell>
@@ -204,71 +285,66 @@ export default function IncidentsPage() {
         <div className="more-overlay" role="presentation" onClick={() => !busy && setComposeOpen(false)}>
           <div className="more-sheet" role="dialog" aria-modal="true" aria-labelledby="incident-form-title" onClick={(e) => e.stopPropagation()}>
             <header className="more-sheet-header">
-              <h2 id="incident-form-title">Vorfall melden</h2>
-              <button type="button" className="more-sheet-close" aria-label="Schließen" onClick={() => setComposeOpen(false)}>
+              <h2 id="incident-form-title">{c.formTitle}</h2>
+              <button type="button" className="more-sheet-close" aria-label={c.close} onClick={() => setComposeOpen(false)}>
                 ✕
               </button>
             </header>
             <form className="stack" onSubmit={submit} data-testid="incident-form">
               <fieldset className="stack">
-                <legend className="font-semibold">Schweregrad</legend>
+                <legend className="font-semibold">{c.severity}</legend>
                 <div className="chips">
                   {SEVERITIES.map((s) => (
                     <button key={s.id} type="button" className={severity === s.id ? "chip on" : "chip"} onClick={() => setSeverity(s.id)}>
-                      {s.label}
+                      {lang === "el" ? s.el : s.de}
                     </button>
                   ))}
                 </div>
-                <p className="muted text-sm m-0">{SEVERITIES.find((s) => s.id === severity)?.hint}</p>
+                <p className="muted text-sm m-0">{hint ? (lang === "el" ? hint.hintEl : hint.hintDe) : ""}</p>
               </fieldset>
               <label htmlFor="incident-house">
-                Haus
-                <select id="incident-house" value={houseId} onChange={(e) => setHouseId(e.target.value)}>
+                {c.house}
+                <select id="incident-house" value={houseId} onChange={(e) => setHouseId(e.target.value)} required>
+                  {!houses.length && <option value="">{c.noHouses}</option>}
                   {houses.map((h) => (
                     <option key={h.id} value={h.id}>
                       {h.name}
                     </option>
                   ))}
-                  {!houses.length && (
-                    <>
-                      <option value="h1">Kalyvia</option>
-                      <option value="h2">Thalassa</option>
-                    </>
-                  )}
                 </select>
               </label>
               <label htmlFor="incident-text">
-                Was ist passiert?
+                {c.what}
                 <textarea
                   id="incident-text"
                   rows={4}
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder="Sachlich beschreiben — wer, was, wann, wo…"
+                  placeholder={c.whatPh}
                   required
                 />
               </label>
               <fieldset className="stack m-0 border-0 p-0">
-                <legend className="font-semibold">Betroffene Kinder</legend>
+                <legend className="font-semibold">{c.kids}</legend>
                 <div className="chips" id="incident-children">
-                  {children.map((c) => {
-                    const on = childIds.includes(c.id);
+                  {children.map((ch) => {
+                    const on = childIds.includes(ch.id);
                     return (
                       <button
-                        key={c.id}
+                        key={ch.id}
                         type="button"
                         className={on ? "chip on" : "chip"}
-                        onClick={() => setChildIds((prev) => (on ? prev.filter((id) => id !== c.id) : [...prev, c.id]))}
+                        onClick={() => setChildIds((prev) => (on ? prev.filter((id) => id !== ch.id) : [...prev, ch.id]))}
                       >
-                        {c.name}
+                        {ch.name}
                       </button>
                     );
                   })}
-                  {!children.length && <span className="muted text-sm">Keine Kinderprofile</span>}
+                  {!children.length && <span className="muted text-sm">{c.noKids}</span>}
                 </div>
               </fieldset>
-              <button className="btn w-full" type="submit" disabled={busy || !text.trim()}>
-                {busy ? "Speichern…" : "Vorfall sichern"}
+              <button className="btn w-full" type="submit" disabled={busy || !text.trim() || !houseId}>
+                {busy ? c.saving : c.save}
               </button>
             </form>
           </div>
@@ -280,33 +356,33 @@ export default function IncidentsPage() {
           <div className="more-sheet" role="dialog" aria-modal="true" aria-labelledby="incident-detail-title" onClick={(e) => e.stopPropagation()}>
             <header className="more-sheet-header">
               <h2 id="incident-detail-title">
-                {SEVERITY_LABEL[detail.severity] || detail.severity} · {detail.houseName || detail.houseId}
+                {sevLabel(detail.severity)} · {houseName(detail.houseId)}
               </h2>
-              <button type="button" className="more-sheet-close" aria-label="Schließen" onClick={() => setDetail(null)}>
+              <button type="button" className="more-sheet-close" aria-label={c.close} onClick={() => setDetail(null)}>
                 ✕
               </button>
             </header>
             <p className="body-sm">{detail.text}</p>
             {detail.childIds?.length ? (
               <p className="muted text-sm">
-                Kinder: {detail.childIds.map((id) => children.find((c) => c.id === id)?.name || id).join(", ")}
+                {c.kidsLabel}: {detail.childIds.map((id) => children.find((ch) => ch.id === id)?.name || id).join(", ")}
               </p>
             ) : null}
-            {detail.createdAt ? (
+            {detail.at ? (
               <p className="muted text-xs">
-                {new Date(detail.createdAt).toLocaleString("de-DE")}
-                {detail.createdBy ? ` · ${detail.createdBy}` : ""}
+                {new Date(detail.at).toLocaleString(locale)}
+                {detail.by ? ` · ${detail.by}` : ""}
               </p>
             ) : null}
             {detail.reviewedAt ? (
               <p className="muted text-xs">
-                Geprüft {new Date(detail.reviewedAt).toLocaleString("de-DE")}
+                {c.markReviewed} {new Date(detail.reviewedAt).toLocaleString(locale)}
                 {detail.reviewedBy ? ` · ${detail.reviewedBy}` : ""}
               </p>
             ) : null}
-            {isAdmin && (!detail.status || detail.status === "open") && (
+            {isAdmin && !detail.reviewed && (
               <button className="btn mt-3 w-full" type="button" disabled={busy} onClick={() => review(detail.id)} data-testid={`review-${detail.id}`}>
-                Als geprüft markieren
+                {c.markReviewed}
               </button>
             )}
           </div>

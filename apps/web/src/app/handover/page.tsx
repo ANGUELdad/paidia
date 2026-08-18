@@ -13,19 +13,65 @@ import {
   loadHandoverSession,
   type RibbonItem,
 } from "@/lib/handover";
+import { t, useLang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
 
-const KIND_LABEL: Record<RibbonItem["kind"], string> = {
-  presence: "Präsenz",
-  plan: "Plan",
-  stock: "Lager",
-  shop: "Liste",
-  journal: "Buch",
-  notify: "Hinweis",
+const KIND: Record<RibbonItem["kind"], { de: string; el: string }> = {
+  presence: { de: "Präsenz", el: "Παρουσία" },
+  plan: { de: "Plan", el: "Πρόγραμμα" },
+  stock: { de: "Lager", el: "Αποθήκη" },
+  shop: { de: "Liste", el: "Λίστα" },
+  journal: { de: "Buch", el: "Βιβλίο" },
+  notify: { de: "Hinweis", el: "Ειδοποίηση" },
 };
+
+const COPY = {
+  de: {
+    eyebrow: "Schicht",
+    title: "Übergabe",
+    lead: (d: string) => `${d} — Status für die nächste Betreuung.`,
+    extra: "Zusatz für die Übergabe",
+    extraPh: "Besonderes für die nächste Schicht…",
+    complete: "Übergabe abschließen",
+    saving: "Speichern…",
+    doneTitle: "Übergabe gespeichert",
+    doneMeta: "Eintrag im Schichtbuch und Talk · Übergabe.",
+    emptyTitle: "Keine Übergabe-Daten",
+    emptyHint: "Präsenz, Plan und Lager erscheinen hier, sobald verfügbar.",
+    retry: "Erneut laden",
+    loadFail: "Laden fehlgeschlagen",
+    saveFail: "Speichern fehlgeschlagen",
+    noProfile: "Kein Profil",
+    loadingData: "Lade Schichtdaten…",
+    ribbon: "Übergabe-Liste",
+    status: "Status",
+  },
+  el: {
+    eyebrow: "Βάρδια",
+    title: "Παράδοση",
+    lead: (d: string) => `${d} — κατάσταση για την επόμενη φροντίδα.`,
+    extra: "Σημείωση για την παράδοση",
+    extraPh: "Κάτι ιδιαίτερο για την επόμενη βάρδια…",
+    complete: "Ολοκλήρωση παράδοσης",
+    saving: "Αποθήκευση…",
+    doneTitle: "Η παράδοση αποθηκεύτηκε",
+    doneMeta: "Καταχώριση στο βιβλίο βάρδιας και Talk · Παράδοση.",
+    emptyTitle: "Δεν υπάρχουν δεδομένα παράδοσης",
+    emptyHint: "Παρουσία, πρόγραμμα και αποθήκη εμφανίζονται εδώ όταν υπάρχουν.",
+    retry: "Ξανά φόρτωση",
+    loadFail: "Η φόρτωση απέτυχε",
+    saveFail: "Η αποθήκευση απέτυχε",
+    noProfile: "Δεν υπάρχει προφίλ",
+    loadingData: "Φόρτωση δεδομένων βάρδιας…",
+    ribbon: "Λίστα παράδοσης",
+    status: "Κατάσταση",
+  },
+} as const;
 
 export default function HandoverPage() {
   const { session, ready } = useRequireMode("staff");
+  const [lang] = useLang();
+  const c = COPY[lang];
   const [ribbon, setRibbon] = useState<RibbonItem[]>([]);
   const [extra, setExtra] = useState("");
   const [loading, setLoading] = useState(true);
@@ -35,26 +81,35 @@ export default function HandoverPage() {
 
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const displayDate = useMemo(
-    () => new Date(today + "T12:00:00").toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" }),
-    [today],
+    () =>
+      new Date(today + "T12:00:00").toLocaleDateString(lang === "el" ? "el-GR" : "de-DE", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      }),
+    [today, lang],
   );
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    try {
+      const s = await loadHandoverSession();
+      if (!s.profileId) throw new Error(c.noProfile);
+      const data = await fetchHandoverData(today, s.profileId);
+      setRibbon(buildRibbon(data));
+    } catch (e) {
+      setError((e as Error).message || c.loadFail);
+      setRibbon([]);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     if (!ready) return;
-    (async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const s = await loadHandoverSession();
-        if (!s.profileId) throw new Error("Kein Profil");
-        const data = await fetchHandoverData(today, s.profileId);
-        setRibbon(buildRibbon(data));
-      } catch (e) {
-        setError((e as Error).message || "Laden fehlgeschlagen");
-      } finally {
-        setLoading(false);
-      }
-    })();
+    load().catch(() => undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reload on session/date
   }, [ready, today]);
 
   async function submit() {
@@ -68,17 +123,17 @@ export default function HandoverPage() {
       setDone(true);
       setExtra("");
     } catch (e) {
-      setError((e as Error).message || "Speichern fehlgeschlagen");
+      setError((e as Error).message || c.saveFail);
     } finally {
       setBusy(false);
     }
   }
 
-  if (!ready) return <main className="page">Laden…</main>;
+  if (!ready) return <main className="page">{t("loading")}</main>;
 
   return (
     <>
-      <PageShell eyebrow="Schicht" title="Übergabe" lead={`${displayDate} — Status für die nächste Betreuung.`}>
+      <PageShell eyebrow={c.eyebrow} title={c.title} lead={c.lead(displayDate)}>
         {error && (
           <div className="warn mb-3" role="alert">
             {error}
@@ -89,30 +144,39 @@ export default function HandoverPage() {
           <div className="list-panel mb-3" data-testid="handover-done">
             <div className="list-row" style={{ cursor: "default" }}>
               <div className="list-row__main">
-                <div className="list-row__title">Übergabe gespeichert</div>
-                <div className="list-row__meta">Eintrag im Schichtbuch und Talk · Übergabe.</div>
+                <div className="list-row__title">{c.doneTitle}</div>
+                <div className="list-row__meta">{c.doneMeta}</div>
               </div>
             </div>
           </div>
         )}
 
         {loading ? (
-          <LoadingBlock label="Lade Schichtdaten…" />
+          <LoadingBlock label={c.loadingData} />
         ) : !ribbon.length ? (
-          <EmptyState title="Keine Übergabe-Daten" hint="Präsenz, Plan und Lager erscheinen hier, sobald verfügbar." />
+          <EmptyState
+            title={c.emptyTitle}
+            hint={c.emptyHint}
+            action={
+              <button className="btn-sec" type="button" onClick={() => load()}>
+                {c.retry}
+              </button>
+            }
+          />
         ) : (
-          <div className="list-panel mb-3" data-testid="handover-ribbon" aria-label="Übergabe-Liste">
+          <div className="list-panel mb-3" data-testid="handover-ribbon" aria-label={c.ribbon}>
             <div className="list-sticky">
-              <span>Status</span>
+              <span>{c.status}</span>
               <span>{ribbon.length}</span>
             </div>
             {ribbon.map((item) => {
               const rowClass = item.tone === "warn" ? "list-row is-warn" : "list-row";
+              const kind = KIND[item.kind][lang];
               const body = (
                 <>
                   <div className="list-row__main">
                     <div className="list-row__title">
-                      {KIND_LABEL[item.kind]} · {item.title}
+                      {kind} · {item.title}
                     </div>
                     <div className="list-row__meta">{item.body}</div>
                   </div>
@@ -133,13 +197,13 @@ export default function HandoverPage() {
         )}
 
         <label htmlFor="handover-extra" className="block mb-3">
-          Zusatz für die Übergabe
+          {c.extra}
           <textarea
             id="handover-extra"
             rows={3}
             value={extra}
             onChange={(e) => setExtra(e.target.value)}
-            placeholder="Besonderes für die nächste Schicht…"
+            placeholder={c.extraPh}
             data-testid="handover-extra"
           />
         </label>
@@ -148,11 +212,11 @@ export default function HandoverPage() {
           <button
             className="btn w-full"
             type="button"
-            disabled={loading || busy || !ribbon.length}
+            disabled={loading || busy || (!ribbon.length && !extra.trim())}
             onClick={submit}
             data-testid="handover-complete"
           >
-            {busy ? "Speichern…" : "Übergabe abschließen"}
+            {busy ? c.saving : c.complete}
           </button>
         </div>
       </PageShell>

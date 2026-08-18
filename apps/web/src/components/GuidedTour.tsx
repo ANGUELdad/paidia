@@ -107,19 +107,29 @@ export function GuidedTour({ mode = "staff", admin = false }: { mode?: "staff" |
     sessionStorage.setItem(storageKey(mode), JSON.stringify({ idx, open }));
   }, [hydrated, idx, open, mode, doneKey]);
 
+  const foreignSource = guide?.active?.source;
+
   useEffect(() => {
-    if (!open || !step) return;
+    if (!open) return;
+    if (foreignSource && foreignSource !== "tour") setOpen(false);
+  }, [foreignSource, open]);
+
+  useEffect(() => {
+    if (!open || !step || !hydrated) return;
+    if (guideRef.current?.active?.source && guideRef.current.active.source !== "tour") return;
     if (step.href !== path) {
-      router.push(step.href);
+      // Stay put if the user left (Zo-Ai deep link, dock). Weiter/Zurück navigate.
       return;
     }
     guideRef.current?.startGuide(step, "tour");
-  }, [open, idx, step, path, router]);
+  }, [open, idx, step, path, router, hydrated]);
 
-  // Guarantee scrim dies when tour closes (Später / Fertig / Escape).
+  // Guarantee scrim dies when tour closes (Später / Fertig / Escape) — but not if Zo-Ai owns the spotlight.
   useEffect(() => {
     if (wasOpen.current && !open) {
-      guideRef.current?.clearGuide();
+      if (guideRef.current?.active?.source === "tour") {
+        guideRef.current.clearGuide();
+      }
     }
     wasOpen.current = open;
   }, [open]);
@@ -144,7 +154,9 @@ export function GuidedTour({ mode = "staff", admin = false }: { mode?: "staff" |
     localStorage.setItem(doneKey, "1");
     sessionStorage.removeItem(storageKey(mode));
     setOpen(false);
-    guideRef.current?.clearGuide();
+    if (guideRef.current?.active?.source === "tour") {
+      guideRef.current.clearGuide();
+    }
   }
 
   function next() {
@@ -152,12 +164,18 @@ export function GuidedTour({ mode = "staff", admin = false }: { mode?: "staff" |
       finish();
       return;
     }
-    setIdx(idx + 1);
+    const nextIdx = idx + 1;
+    setIdx(nextIdx);
+    const dest = steps[nextIdx];
+    if (dest && dest.href !== path) router.push(dest.href);
   }
 
   function prev() {
     if (idx <= 0) return;
-    setIdx(idx - 1);
+    const nextIdx = idx - 1;
+    setIdx(nextIdx);
+    const dest = steps[nextIdx];
+    if (dest && dest.href !== path) router.push(dest.href);
   }
 
   function askAi() {

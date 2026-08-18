@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
+import { getStoredLang, setStoredLang, t, type Lang } from "@/lib/i18n";
 import { getPasskey } from "@/lib/webauthn";
 
 const BUILD = {
@@ -10,7 +11,7 @@ const BUILD = {
   label: "v1-platform",
   changed: {
     de: "Neue Plattform · Zo-Ai · Automationen · Kids-Belohnungen",
-    el: "Νέα πλατφόρμα · Zo-Ai · Αυτοματισμοί · Kids rewards",
+    el: "Νέα πλατφόρμα · Zo-Ai · Αυτοματισμοί · Ανταμοιβές παιδιών",
   },
 };
 
@@ -18,7 +19,7 @@ type Profile = { id: string; name: string; mode: string; role?: string; color?: 
 
 export default function LoginPage() {
   const router = useRouter();
-  const [lang, setLang] = useState<"de" | "el">("de");
+  const [lang, setLang] = useState<Lang>("de");
   const [mode, setMode] = useState<"pick" | "staff" | "child" | "pin">("pick");
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [who, setWho] = useState<Profile | null>(null);
@@ -29,6 +30,7 @@ export default function LoginPage() {
   const [profilesError, setProfilesError] = useState("");
 
   useEffect(() => {
+    setLang(getStoredLang());
     api<{ authenticated: boolean; mode?: string }>("/api/auth/session")
       .then((s) => {
         if (s.authenticated) router.replace(s.mode === "child" ? "/kids" : "/home");
@@ -38,6 +40,11 @@ export default function LoginPage() {
       .then((h) => setPasskeysAvailable(Boolean(h.passkeysAvailable)))
       .catch(() => undefined);
   }, [router]);
+
+  function switchLang(next: Lang) {
+    setLang(next);
+    setStoredLang(next);
+  }
 
   async function loadMode(next: "staff" | "child") {
     setMode(next);
@@ -112,7 +119,7 @@ export default function LoginPage() {
           className={`btn-sec !min-h-9 !px-3 text-sm ${lang === "de" ? "ring-2 ring-[var(--brand)]" : ""}`}
           type="button"
           data-testid="lang-de"
-          onClick={() => setLang("de")}
+          onClick={() => switchLang("de")}
         >
           DE
         </button>
@@ -120,7 +127,7 @@ export default function LoginPage() {
           className={`btn-sec !min-h-9 !px-3 text-sm ${lang === "el" ? "ring-2 ring-[var(--brand)]" : ""}`}
           type="button"
           data-testid="lang-el"
-          onClick={() => setLang("el")}
+          onClick={() => switchLang("el")}
         >
           ΕΛ
         </button>
@@ -134,13 +141,13 @@ export default function LoginPage() {
           </div>
           <div className="stack p-4">
             <p className="eyebrow m-0 text-[var(--sea)]">Paidia</p>
-            <h1 className="m-0 text-3xl text-[var(--ink)]">{lang === "el" ? "Ποιος/ποια είσαι;" : "Wer bist du?"}</h1>
+            <h1 className="m-0 text-2xl text-[var(--ink)]">{lang === "el" ? "Ποιος/ποια είσαι;" : "Wer bist du?"}</h1>
             <p className="m-0 text-sm text-[var(--muted)]">{lang === "el" ? "Προσωπικό ή παιδιά" : "Personal oder Kinder"}</p>
             <button className="btn w-full" type="button" data-testid="enter-staff" onClick={() => loadMode("staff")}>
-              {lang === "el" ? "Προσωπικό" : "Personal"}
+              {t("staff", lang)}
             </button>
             <button className="btn-sec w-full" type="button" data-testid="enter-child" onClick={() => loadMode("child")}>
-              {lang === "el" ? "Παιδιά" : "Kinder"}
+              {t("children", lang)}
             </button>
           </div>
         </section>
@@ -152,7 +159,7 @@ export default function LoginPage() {
             <button className="text-sm text-[var(--sea)]" type="button" onClick={() => setMode("pick")}>
               ← {lang === "el" ? "Πίσω" : "Zurück"}
             </button>
-            <span>{mode === "child" ? (lang === "el" ? "Παιδιά" : "Kinder") : lang === "el" ? "Προσωπικό" : "Personal"}</span>
+            <span>{mode === "child" ? t("children", lang) : t("staff", lang)}</span>
           </div>
           {profilesError && (
             <div className="list-row" style={{ cursor: "default" }}>
@@ -182,7 +189,7 @@ export default function LoginPage() {
               </div>
               <div className="list-row__main">
                 <div className="list-row__title">{p.name}</div>
-                <div className="list-row__meta">{p.role || p.mode}</div>
+                <div className="list-row__meta">{p.role || (p.mode === "child" ? t("children", lang) : t("staff", lang))}</div>
               </div>
               <span aria-hidden>→</span>
             </button>
@@ -224,7 +231,7 @@ export default function LoginPage() {
             </button>
             {passkeysAvailable && (
               <button className="btn-sec w-full" type="button" data-testid="passkey-login" disabled={busy} onClick={loginWithPasskey}>
-                {lang === "el" ? "Είσοδος με Passkey" : "Mit Passkey anmelden"}
+                {t("passkeyLogin", lang)}
               </button>
             )}
             <p className="m-0 text-xs text-[var(--muted)]">
@@ -234,7 +241,7 @@ export default function LoginPage() {
         </section>
       )}
 
-      <div className="mt-auto pt-8 text-center text-xs text-[var(--muted)]">
+      <div className="mt-auto pt-6 text-center text-xs text-[var(--muted)]">
         <b className="mr-2 uppercase tracking-wider text-[var(--brand)]">{BUILD.label}</b>
         <span>{note}</span>
       </div>

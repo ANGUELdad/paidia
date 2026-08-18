@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Dock } from "@/components/Dock";
-import { EmptyState } from "@/components/EmptyState";
+import { EmptyState, LoadingBlock } from "@/components/EmptyState";
 import { GuidedTour } from "@/components/GuidedTour";
 import { PageShell } from "@/components/PageShell";
 import { api } from "@/lib/api";
@@ -10,6 +10,7 @@ import { getStoredLang, t, type Lang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
 
 type Tab = "list" | "friday" | "supermarket" | "suggestions";
+type House = { id: string; name: string };
 
 type ListEntry = {
   id: string;
@@ -33,32 +34,147 @@ type ReorderItem = {
 };
 
 type OcrItem = { name: string; qty: number; unit: string };
+type Suggestion = { key: string; score: number; houseId?: string };
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "list", label: "Liste" },
-  { id: "friday", label: "Freitag" },
-  { id: "supermarket", label: "Im Supermarkt" },
-  { id: "suggestions", label: "Vorschläge" },
-];
+const HOUSE_KEY = "armonia.activeHouse";
+
+const COPY = {
+  de: {
+    eyebrow: "Liste",
+    title: "Einkaufsliste",
+    lead: "Liste, Freitag, Supermarkt, Vorschläge — Text einfügen prüfen, dann übernehmen.",
+    houses: "Häuser",
+    list: "Liste",
+    friday: "Freitag",
+    supermarket: "Im Supermarkt",
+    suggestions: "Vorschläge",
+    article: "Artikel",
+    placeholder: "z.B. Reis",
+    emptyList: "Liste leer",
+    emptyFriday: "Freitagsliste leer",
+    emptyMarket: "Nichts zum Einkaufen",
+    emptySuggest: "Keine Vorschläge — Bestand ok.",
+    hintList: "Starte mit einem Vorschlag, eigenem Eintrag oder Text einfügen.",
+    hintFriday: "Artikel für den Einkauf am Freitag hinzufügen.",
+    hintMarket: "Gekauft / fehlt markieren — dann erledigen.",
+    modeOn: "Modus an",
+    modeOff: "Modus aus",
+    done: "Erledigt",
+    finish: "Fertig",
+    ocrTitle: "Text einfügen",
+    ocrLabel: "Einkaufstext — eine Zeile pro Artikel (kein Kamera-Scan)",
+    ocrHint: "Zeilen wie „Milch 2“ oder „2 kg Reis“ — erst Analysieren, dann Auf Liste übernehmen.",
+    ocrParse: "Analysieren",
+    ocrApply: "Auf Liste übernehmen",
+    ocrEmpty: "Keine Zeilen erkannt — Text prüfen.",
+    ocrNeedHouse: "Zuerst ein Haus wählen.",
+    loadFail: "Liste konnte nicht geladen werden",
+    addFail: "Hinzufügen fehlgeschlagen",
+    noneHouse: "Kein Haus geladen.",
+    fridayPrefix: "Freitag",
+    stock: "Bestand",
+    par: "Ziel",
+  },
+  el: {
+    eyebrow: "Λίστα",
+    title: "Λίστα αγορών",
+    lead: "Λίστα, Παρασκευή, σούπερ μάρκετ, προτάσεις — επικόλληση κειμένου, έλεγχος, εφαρμογή.",
+    houses: "Σπίτια",
+    list: "Λίστα",
+    friday: "Παρασκευή",
+    supermarket: "Στο σούπερ μάρκετ",
+    suggestions: "Προτάσεις",
+    article: "Είδος",
+    placeholder: "π.χ. ρύζι",
+    emptyList: "Άδεια λίστα",
+    emptyFriday: "Άδεια λίστα Παρασκευής",
+    emptyMarket: "Τίποτα για αγορά",
+    emptySuggest: "Χωρίς προτάσεις — το απόθεμα είναι εντάξει.",
+    hintList: "Ξεκίνα με πρόταση, δικό σου είδος ή επικόλληση κειμένου.",
+    hintFriday: "Πρόσθεσε είδη για την αγορά της Παρασκευής.",
+    hintMarket: "Σήμανε αγοράστηκε / λείπει — μετά ολοκλήρωση.",
+    modeOn: "Λειτουργία ενεργή",
+    modeOff: "Λειτουργία κλειστή",
+    done: "Έγινε",
+    finish: "Τέλος",
+    ocrTitle: "Επικόλληση κειμένου",
+    ocrLabel: "Κείμενο λίστας — μία γραμμή ανά είδος (χωρίς κάμερα)",
+    ocrHint: "Γραμμές όπως «Γάλα 2» ή «2 kg ρύζι» — πρώτα Ανάλυση, μετά Στη λίστα.",
+    ocrParse: "Ανάλυση",
+    ocrApply: "Στη λίστα",
+    ocrEmpty: "Δεν αναγνωρίστηκαν γραμμές — έλεγξε το κείμενο.",
+    ocrNeedHouse: "Διάλεξε πρώτα σπίτι.",
+    loadFail: "Η λίστα δεν φορτώθηκε",
+    addFail: "Η προσθήκη απέτυχε",
+    noneHouse: "Δεν φορτώθηκε σπίτι.",
+    fridayPrefix: "Παρασκευή",
+    stock: "Απόθεμα",
+    par: "Στόχος",
+  },
+} as const;
+
+function readStoredHouse(): string {
+  if (typeof window === "undefined") return "";
+  return sessionStorage.getItem(HOUSE_KEY) || "";
+}
+
+function writeStoredHouse(id: string) {
+  if (typeof window === "undefined" || !id) return;
+  sessionStorage.setItem(HOUSE_KEY, id);
+}
+
+function pickHouseId(houses: House[], prev: string) {
+  const stored = readStoredHouse();
+  if (stored && houses.some((h) => h.id === stored)) return stored;
+  if (prev && houses.some((h) => h.id === prev)) return prev;
+  return houses[0]?.id || "";
+}
 
 export default function ShopPage() {
   const { ready } = useRequireMode("staff");
   const [lang, setLang] = useState<Lang>("de");
   const [tab, setTab] = useState<Tab>("list");
+  const [houses, setHouses] = useState<House[]>([]);
+  const [houseId, setHouseId] = useState("");
   const [entries, setEntries] = useState<ListEntry[]>([]);
   const [fridayDate, setFridayDate] = useState("");
   const [reorderItems, setReorderItems] = useState<ReorderItem[]>([]);
-  const [suggestions, setSuggestions] = useState<Array<{ key: string; score: number; houseId?: string }>>([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [name, setName] = useState("");
   const [ocrText, setOcrText] = useState("");
   const [ocrDraft, setOcrDraft] = useState<OcrItem[]>([]);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [msg, setMsg] = useState("");
   const [supermarketMode, setSupermarketMode] = useState(false);
+
+  const c = COPY[lang];
+  const canAct = !busy;
+  const houseName = (id?: string) => houses.find((h) => h.id === id)?.name || id || "";
+
+  const tabs: { id: Tab; label: string }[] = [
+    { id: "list", label: c.list },
+    { id: "friday", label: c.friday },
+    { id: "supermarket", label: c.supermarket },
+    { id: "suggestions", label: c.suggestions },
+  ];
+
+  async function loadHouses() {
+    const data = await api<{ houses: House[] }>("/api/stock/snapshot");
+    const next = data.houses || [];
+    setHouses(next);
+    setHouseId((prev) => {
+      const id = pickHouseId(next, prev);
+      if (id) writeStoredHouse(id);
+      return id;
+    });
+  }
 
   async function loadList() {
     const data = await api<{ entries: ListEntry[] }>("/api/shop/list");
     setEntries(data.entries || []);
-    const s = await api<{ suggestions: typeof suggestions }>("/api/shop/suggestions");
+    const s = await api<{ suggestions: Suggestion[] }>("/api/shop/suggestions");
     setSuggestions(s.suggestions || []);
   }
 
@@ -80,63 +196,160 @@ export default function ShopPage() {
   }
 
   async function load() {
-    if (tab === "friday") await loadFriday();
-    else if (tab === "supermarket") await loadSupermarket();
-    else if (tab === "suggestions") await loadSuggestions();
-    else await loadList();
+    setError("");
+    try {
+      if (tab === "friday") await loadFriday();
+      else if (tab === "supermarket") await loadSupermarket();
+      else if (tab === "suggestions") await loadSuggestions();
+      else await loadList();
+    } catch (e) {
+      setError((e as Error).message || c.loadFail);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
     if (!ready) return;
     setLang(getStoredLang());
+    loadHouses().catch(() => setError(c.noneHouse));
+  }, [ready]);
+
+  useEffect(() => {
+    if (!ready) return;
+    setLoading(true);
     load().catch(console.error);
   }, [ready, tab]);
 
-  async function add(n?: string, friday = false) {
+  function selectHouse(id: string) {
+    setHouseId(id);
+    writeStoredHouse(id);
+  }
+
+  async function ensureHouse(preferred?: string): Promise<string> {
+    if (preferred && houses.some((h) => h.id === preferred)) return preferred;
+    if (houseId && houses.some((h) => h.id === houseId)) return houseId;
+    const data = await api<{ houses: House[] }>("/api/stock/snapshot");
+    const next = data.houses || [];
+    if (next.length) setHouses(next);
+    if (preferred && next.some((h) => h.id === preferred)) {
+      setHouseId(preferred);
+      writeStoredHouse(preferred);
+      return preferred;
+    }
+    const id = pickHouseId(next, houseId);
+    if (id) {
+      setHouseId(id);
+      writeStoredHouse(id);
+    }
+    return id;
+  }
+
+  async function add(n?: string, friday = false, hid?: string) {
     const value = (n || name).trim();
     if (!value) return;
-    const path = friday ? "/api/shop/friday/add" : "/api/shop/add";
-    await api(path, { method: "POST", body: JSON.stringify({ name: value, qty: 1, houseId: "h1" }) });
-    setName("");
-    await load();
+    setBusy(true);
+    setError("");
+    try {
+      const house = await ensureHouse(hid);
+      if (!house) {
+        setError(c.ocrNeedHouse);
+        return;
+      }
+      const path = friday ? "/api/shop/friday/add" : "/api/shop/add";
+      await api(path, { method: "POST", body: JSON.stringify({ name: value, qty: 1, houseId: house }) });
+      setName("");
+      await load();
+    } catch (e) {
+      setError((e as Error).message || c.addFail);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function done(id: string) {
-    await api("/api/shop/done", { method: "POST", body: JSON.stringify({ entryId: id }) });
-    await load();
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api("/api/shop/done", { method: "POST", body: JSON.stringify({ entryId: id }) });
+      await load();
+    } catch (e) {
+      setError((e as Error).message || c.addFail);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function setStatus(id: string, status: "open" | "bought" | "missing") {
-    await api("/api/shop/status", { method: "POST", body: JSON.stringify({ entryId: id, status }) });
-    await load();
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api("/api/shop/status", { method: "POST", body: JSON.stringify({ entryId: id, status }) });
+      await load();
+    } catch (e) {
+      setError((e as Error).message || c.addFail);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function toggleSupermarketMode() {
+    if (busy) return;
     const next = !supermarketMode;
-    await api("/api/shop/supermarket/mode", {
-      method: "POST",
-      body: JSON.stringify({ enabled: next }),
-    });
-    setSupermarketMode(next);
+    setBusy(true);
+    setError("");
+    try {
+      await api("/api/shop/supermarket/mode", {
+        method: "POST",
+        body: JSON.stringify({ enabled: next }),
+      });
+      setSupermarketMode(next);
+    } catch (e) {
+      setError((e as Error).message || c.addFail);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function parseOcr() {
-    const data = await api<{ items: OcrItem[] }>("/api/shop/ocr", {
-      method: "POST",
-      body: JSON.stringify({ text: ocrText }),
-    });
-    setOcrDraft(data.items || []);
+    const text = ocrText.trim();
+    if (!text || busy) return;
+    setBusy(true);
+    setError("");
+    setMsg("");
+    try {
+      const data = await api<{ items: OcrItem[] }>("/api/shop/ocr", {
+        method: "POST",
+        body: JSON.stringify({ text: ocrText }),
+      });
+      const items = data.items || [];
+      setOcrDraft(items);
+      if (!items.length) setError(c.ocrEmpty);
+    } catch (e) {
+      setOcrDraft([]);
+      setError((e as Error).message || c.ocrEmpty);
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function applyOcr() {
-    if (!ocrDraft.length) return;
+    if (!ocrDraft.length || busy) return;
     setBusy(true);
+    setError("");
     try {
+      const house = await ensureHouse();
+      if (!house) {
+        setError(c.ocrNeedHouse);
+        return;
+      }
       await api("/api/shop/reorder-apply", {
         method: "POST",
         body: JSON.stringify({
           items: ocrDraft.map((item) => ({
-            houseId: "h1",
+            houseId: house,
             name: item.name,
             qty: item.qty,
             unit: item.unit,
@@ -145,206 +358,294 @@ export default function ShopPage() {
       });
       setOcrText("");
       setOcrDraft([]);
+      setMsg(`${ocrDraft.length} ${c.list}`);
       setTab("list");
+      await loadList();
+    } catch (e) {
+      setError((e as Error).message || c.addFail);
     } finally {
       setBusy(false);
     }
   }
 
   async function applyReorder(item: ReorderItem) {
+    if (busy) return;
     setBusy(true);
+    setError("");
     try {
       await api("/api/shop/reorder-apply", {
         method: "POST",
         body: JSON.stringify({ items: [item] }),
       });
       await loadSuggestions();
+    } catch (e) {
+      setError((e as Error).message || c.addFail);
     } finally {
       setBusy(false);
     }
   }
 
   async function applyAllReorder() {
-    if (!reorderItems.length) return;
+    if (!reorderItems.length || busy) return;
     setBusy(true);
+    setError("");
     try {
       await api("/api/shop/reorder-apply", {
         method: "POST",
         body: JSON.stringify({ items: reorderItems }),
       });
       await loadSuggestions();
+    } catch (e) {
+      setError((e as Error).message || c.addFail);
     } finally {
       setBusy(false);
     }
   }
 
-  if (!ready) return <main className="page">Laden…</main>;
+  if (!ready) return <main className="page">{t("loading", lang)}</main>;
 
   return (
     <>
-      <PageShell eyebrow="Liste" title="Einkaufsliste" lead="Vorschläge aus Bestand und Vergangenheit — immer bestätigen.">
-      <div data-tour="tour-shop">
-      <div className="seg-bar" role="tablist" aria-label="Listen">
-        {TABS.map((tdef) => (
-          <button
-            key={tdef.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === tdef.id}
-            className={`btn-sec ${tab === tdef.id ? "ring-2 ring-[var(--brand)]" : ""}`}
-            onClick={() => setTab(tdef.id)}
-          >
-            {tdef.label}
-          </button>
-        ))}
-      </div>
-
-      {tab === "list" && suggestions.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {suggestions.map((s) => (
-            <button key={s.key} type="button" className="btn-sec !min-h-9 text-sm" onClick={() => add(s.key)}>
-              ＋ {s.key}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {tab !== "suggestions" && tab !== "supermarket" && (
-        <div className="list-panel mt-3">
-          <div className="list-row" style={{ cursor: "default", flexWrap: "wrap", gap: 8 }}>
-            <input
-              className="min-h-11 min-w-0 flex-1 rounded-[var(--radius-sm)] border border-[var(--line)] px-3"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="z.B. Reis"
-              aria-label="Artikel"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") add(undefined, tab === "friday");
-              }}
-            />
-            <button className="btn" type="button" onClick={() => add(undefined, tab === "friday")}>
-              {t("add", lang)}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {tab === "supermarket" && (
-        <div className="list-panel mt-3">
-          <div className="list-sticky">
-            <span>{t("supermarket", lang)}</span>
-            <button className="btn-sec" type="button" style={{ minHeight: 36, fontSize: "0.75rem" }} onClick={toggleSupermarketMode} data-testid="supermarket-mode">
-              {supermarketMode ? "Modus an" : "Modus aus"}
-            </button>
-          </div>
-          <div className="list-row" style={{ cursor: "default" }}>
-            <div className="list-row__meta">Gekauft / fehlt markieren — dann erledigen.</div>
-          </div>
-        </div>
-      )}
-
-      {tab === "list" && (
-        <details className="list-panel mt-3">
-          <summary className="list-sticky cursor-pointer">Text importieren</summary>
-          <div className="stack p-3">
-            <p className="muted m-0 text-sm">Zeilen wie „Milch 2“ oder „2 kg Reis“ — erst prüfen, dann bestätigen.</p>
-            <textarea
-              className="w-full rounded-[var(--radius-sm)] border border-[var(--line)] px-3 py-2"
-              rows={4}
-              value={ocrText}
-              onChange={(e) => setOcrText(e.target.value)}
-              placeholder={"Milch 2\nReis 1 kg\n3 Eier"}
-            />
-            <div className="row gap-2">
-              <button className="btn-sec" type="button" onClick={parseOcr}>
-                Analysieren
-              </button>
-              {ocrDraft.length > 0 && (
-                <button className="btn" type="button" disabled={busy} onClick={applyOcr}>
-                  {t("confirm", lang)} ({ocrDraft.length})
+      <PageShell eyebrow={c.eyebrow} title={c.title} lead={c.lead}>
+        <div data-tour="tour-shop">
+          {houses.length > 0 && (
+            <div className="seg-bar" aria-label={c.houses}>
+              {houses.map((h) => (
+                <button
+                  key={h.id}
+                  type="button"
+                  className={`btn-sec ${houseId === h.id ? "ring-2 ring-[var(--brand)]" : ""}`}
+                  disabled={busy}
+                  onClick={() => selectHouse(h.id)}
+                >
+                  {h.name}
                 </button>
-              )}
+              ))}
             </div>
-            {ocrDraft.length > 0 && (
-              <ul className="m-0 space-y-1 text-sm">
-                {ocrDraft.map((item, i) => (
-                  <li key={`${item.name}-${i}`}>
-                    {item.qty} {item.unit} — {item.name}
-                  </li>
-                ))}
-              </ul>
-            )}
+          )}
+
+          <div className="seg-bar" role="tablist" aria-label={c.title}>
+            {tabs.map((tdef) => (
+              <button
+                key={tdef.id}
+                type="button"
+                role="tab"
+                aria-selected={tab === tdef.id}
+                className={`btn-sec ${tab === tdef.id ? "ring-2 ring-[var(--brand)]" : ""}`}
+                disabled={busy}
+                onClick={() => setTab(tdef.id)}
+              >
+                {tdef.label}
+              </button>
+            ))}
           </div>
-        </details>
-      )}
 
-      {tab === "friday" && fridayDate && (
-        <p className="muted mt-3 text-sm">Freitag: {fridayDate}</p>
-      )}
+          {error && (
+            <p className="warn" role="alert">
+              {error}
+            </p>
+          )}
+          {msg && <p className="muted text-sm">{msg}</p>}
 
-      {tab === "suggestions" && reorderItems.length > 0 && (
-        <button className="btn mt-4 w-full" type="button" disabled={busy} onClick={applyAllReorder}>
-          {t("reorderAll", lang)}
-        </button>
-      )}
+          {tab === "list" && suggestions.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {suggestions.map((s) => (
+                <button
+                  key={s.key}
+                  type="button"
+                  className="btn-sec !min-h-9 text-sm"
+                  disabled={!canAct}
+                  onClick={() => add(s.key, false, s.houseId)}
+                >
+                  ＋ {s.key}
+                </button>
+              ))}
+            </div>
+          )}
 
-      <div className="list-panel mt-3">
-        {tab === "suggestions" ? (
-          reorderItems.length ? (
-            reorderItems.map((item) => (
-              <div key={`${item.houseId}:${item.productId}`} className="list-row is-warn">
-                <div className="list-row__main">
-                  <div className="list-row__title">{item.name}</div>
-                  <div className="list-row__meta">
-                    {item.houseName || item.houseId} · Bestand {item.stockQty ?? 0} · Ziel {item.parLevel ?? 2}
-                  </div>
-                </div>
-                <div className="list-row__trail">
-                  <span className="list-row__qty">{item.qty}</span>
-                  <button className="btn-sec" type="button" disabled={busy} onClick={() => applyReorder(item)}>
-                    {t("toList", lang)}
+          {tab !== "suggestions" && tab !== "supermarket" && (
+            <div className="list-panel mt-3">
+              <div className="list-row" style={{ cursor: "default", flexWrap: "wrap", gap: 8 }}>
+                <input
+                  className="min-h-11 min-w-0 flex-1 rounded-[var(--radius-sm)] border border-[var(--line)] px-3"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="z.B. Reis"
+                  aria-label={c.article}
+                  disabled={busy}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") add(undefined, tab === "friday");
+                  }}
+                />
+                <button className="btn" type="button" disabled={busy} onClick={() => add(undefined, tab === "friday")}>
+                  {t("add", lang)}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {tab === "supermarket" && (
+            <div className="list-panel mt-3">
+              <div className="list-sticky">
+                <span>{t("supermarket", lang)}</span>
+                <button
+                  className="btn-sec"
+                  type="button"
+                  style={{ minHeight: 36, fontSize: "0.75rem" }}
+                  disabled={busy}
+                  onClick={toggleSupermarketMode}
+                  data-testid="supermarket-mode"
+                >
+                  {supermarketMode ? c.modeOn : c.modeOff}
+                </button>
+              </div>
+              <div className="list-row" style={{ cursor: "default" }}>
+                <div className="list-row__meta">{c.hintMarket}</div>
+              </div>
+            </div>
+          )}
+
+          {tab === "list" && (
+            <section className="list-panel mt-3" aria-labelledby="shop-ocr-title">
+              <div className="list-sticky">
+                <span id="shop-ocr-title">{c.ocrTitle}</span>
+              </div>
+              <div className="stack p-3">
+                <label className="muted m-0 text-sm" htmlFor="shop-ocr-text">
+                  {c.ocrLabel}
+                </label>
+                <p className="muted m-0 text-sm">{c.ocrHint}</p>
+                <textarea
+                  id="shop-ocr-text"
+                  data-testid="shop-ocr-text"
+                  className="w-full rounded-[var(--radius-sm)] border border-[var(--line)] px-3 py-2"
+                  rows={4}
+                  value={ocrText}
+                  disabled={busy}
+                  onChange={(e) => setOcrText(e.target.value)}
+                  placeholder={"Milch 2\nReis 1 kg\n3 Eier"}
+                />
+                <div className="row gap-2">
+                  <button
+                    className="btn-sec"
+                    type="button"
+                    data-testid="shop-ocr-parse"
+                    disabled={busy || !ocrText.trim()}
+                    onClick={parseOcr}
+                  >
+                    {c.ocrParse}
+                  </button>
+                  <button
+                    className="btn"
+                    type="button"
+                    data-testid="shop-ocr-apply"
+                    disabled={busy || !ocrDraft.length}
+                    onClick={applyOcr}
+                  >
+                    {c.ocrApply} {ocrDraft.length ? `(${ocrDraft.length})` : ""}
                   </button>
                 </div>
-              </div>
-            ))
-          ) : (
-            <div className="list-row">
-              <div className="list-row__meta">Keine Vorschläge — Bestand ok.</div>
-            </div>
-          )
-        ) : entries.length ? (
-          entries.map((e) => (
-            <div key={e.id} className={`list-row ${e.status === "missing" ? "is-gap" : e.status === "bought" ? "is-warn" : ""}`}>
-              <div className="list-row__main">
-                <div className="list-row__title">{e.name}</div>
-                <div className="list-row__meta">
-                  {e.qty} {e.unit}
-                  {e.status && e.status !== "open"
-                    ? ` · ${e.status === "bought" ? t("bought", lang) : e.status === "missing" ? t("missing", lang) : e.status}`
-                    : ""}
-                </div>
-              </div>
-              <div className="list-row__trail">
-                {tab === "supermarket" ? (
-                  <>
-                    <button className={`btn-sec ${e.status === "bought" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" onClick={() => setStatus(e.id, "bought")}>{t("bought", lang)}</button>
-                    <button className={`btn-sec ${e.status === "missing" ? "ring-2 ring-[var(--brand)]" : ""}`} type="button" onClick={() => setStatus(e.id, "missing")}>{t("missing", lang)}</button>
-                    <button className="btn-sec" type="button" onClick={() => done(e.id)}>Fertig</button>
-                  </>
-                ) : (
-                  <button className="btn-sec" type="button" onClick={() => done(e.id)}>Erledigt</button>
+                {ocrDraft.length > 0 && (
+                  <ul className="m-0 space-y-1 text-sm">
+                    {ocrDraft.map((item, i) => (
+                      <li key={`${item.name}-${i}`}>
+                        {item.qty} {item.unit} — {item.name}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
-            </div>
-          ))
-        ) : (
-          <EmptyState
-            title={tab === "friday" ? "Freitagsliste leer" : tab === "supermarket" ? "Nichts zum Einkaufen" : "Liste leer"}
-            hint={tab === "friday" ? "Artikel für den Einkauf am Freitag hinzufügen." : "Starte mit einem Vorschlag oder eigenem Eintrag."}
-          />
-        )}
-      </div>
-      </div>
+            </section>
+          )}
+
+          {tab === "friday" && fridayDate && <p className="muted mt-3 text-sm">{c.fridayPrefix}: {fridayDate}</p>}
+
+          {tab === "suggestions" && reorderItems.length > 0 && (
+            <button className="btn mt-4 w-full" type="button" disabled={busy} onClick={applyAllReorder}>
+              {t("reorderAll", lang)}
+            </button>
+          )}
+
+          <div className="list-panel mt-3">
+            {loading ? (
+              <LoadingBlock label={t("loading", lang)} />
+            ) : tab === "suggestions" ? (
+              reorderItems.length ? (
+                reorderItems.map((item) => (
+                  <div key={`${item.houseId}:${item.productId}`} className="list-row is-warn" style={{ cursor: "default" }}>
+                    <div className="list-row__main">
+                      <div className="list-row__title">{item.name}</div>
+                      <div className="list-row__meta">
+                        {item.houseName || houseName(item.houseId)} · {c.stock} {item.stockQty ?? 0} · {c.par} {item.parLevel ?? 2}
+                      </div>
+                    </div>
+                    <div className="list-row__trail">
+                      <span className="list-row__qty">{item.qty}</span>
+                      <button className="btn-sec" type="button" disabled={busy} onClick={() => applyReorder(item)}>
+                        {t("toList", lang)}
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <EmptyState title={c.emptySuggest} />
+              )
+            ) : entries.length ? (
+              entries.map((e) => (
+                <div
+                  key={e.id}
+                  className={`list-row ${e.status === "missing" ? "is-gap" : e.status === "bought" ? "is-warn" : ""}`}
+                  style={{ cursor: "default" }}
+                >
+                  <div className="list-row__main">
+                    <div className="list-row__title">{e.name}</div>
+                    <div className="list-row__meta">
+                      {e.qty} {e.unit}
+                      {e.houseId ? ` · ${houseName(e.houseId)}` : ""}
+                      {e.status && e.status !== "open"
+                        ? ` · ${e.status === "bought" ? t("bought", lang) : e.status === "missing" ? t("missing", lang) : e.status}`
+                        : ""}
+                    </div>
+                  </div>
+                  <div className="list-row__trail">
+                    {tab === "supermarket" ? (
+                      <>
+                        <button
+                          className={`btn-sec ${e.status === "bought" ? "ring-2 ring-[var(--brand)]" : ""}`}
+                          type="button"
+                          disabled={busy}
+                          onClick={() => setStatus(e.id, "bought")}
+                        >
+                          {t("bought", lang)}
+                        </button>
+                        <button
+                          className={`btn-sec ${e.status === "missing" ? "ring-2 ring-[var(--brand)]" : ""}`}
+                          type="button"
+                          disabled={busy}
+                          onClick={() => setStatus(e.id, "missing")}
+                        >
+                          {t("missing", lang)}
+                        </button>
+                        <button className="btn-sec" type="button" disabled={busy} onClick={() => done(e.id)}>
+                          {c.finish}
+                        </button>
+                      </>
+                    ) : (
+                      <button className="btn-sec" type="button" disabled={busy} onClick={() => done(e.id)}>
+                        {c.done}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <EmptyState
+                title={tab === "friday" ? c.emptyFriday : tab === "supermarket" ? c.emptyMarket : c.emptyList}
+                hint={tab === "friday" ? c.hintFriday : c.hintList}
+              />
+            )}
+          </div>
+        </div>
       </PageShell>
       <Dock />
       <GuidedTour />

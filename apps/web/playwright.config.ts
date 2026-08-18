@@ -1,6 +1,11 @@
+import path from "path";
 import { defineConfig, devices } from "@playwright/test";
 
 const iPhone = devices["iPhone 14"];
+const repoRoot = path.join(__dirname, "../..");
+const python = process.platform === "win32"
+  ? path.join(repoRoot, ".venv", "Scripts", "python.exe")
+  : path.join(repoRoot, ".venv", "bin", "python");
 
 export default defineConfig({
   testDir: "./e2e",
@@ -9,7 +14,9 @@ export default defineConfig({
   retries: 0,
   webServer: [
     {
-      command: "cd ../../apps/api && PYTHONPATH=. ../../.venv/bin/uvicorn armonia.main:app --host 127.0.0.1 --port 8000",
+      command: `"${python}" -m uvicorn armonia.main:app --host 127.0.0.1 --port 8000`,
+      cwd: path.join(repoRoot, "apps", "api"),
+      env: { ...process.env, PYTHONPATH: path.join(repoRoot, "apps", "api") },
       url: "http://127.0.0.1:8000/api/health",
       reuseExistingServer: true,
       timeout: 60_000,

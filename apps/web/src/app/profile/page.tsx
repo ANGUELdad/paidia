@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Dock } from "@/components/Dock";
 import { PageShell } from "@/components/PageShell";
 import { api, urlBase64ToUint8Array } from "@/lib/api";
@@ -20,7 +19,6 @@ type Me = {
 };
 
 export default function ProfilePage() {
-  const router = useRouter();
   const { session, ready } = useRequireMode("any");
   const mode = session?.mode === "child" ? "child" : "staff";
   const [me, setMe] = useState<Me | null>(null);
@@ -39,6 +37,7 @@ export default function ProfilePage() {
   const [feedUrl, setFeedUrl] = useState("");
   const [feedToken, setFeedToken] = useState("");
   const [feedStatus, setFeedStatus] = useState("");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (!ready) return;
@@ -46,6 +45,7 @@ export default function ProfilePage() {
     api<{
       authenticated: boolean;
       profile?: Me;
+      profileId?: string;
       name?: string;
       role?: string;
       nickname?: string;
@@ -55,7 +55,7 @@ export default function ProfilePage() {
     }>("/api/auth/me")
       .then((r) => {
         const p = r.profile || {
-          id: "",
+          id: r.profileId || "",
           name: r.name || "",
           role: r.role || "",
           nickname: r.nickname,
@@ -63,6 +63,7 @@ export default function ProfilePage() {
           color: r.color,
           lang: r.lang,
         };
+        if (!p.id) p.id = r.profileId || session?.profileId || "";
         setMe(p);
         setNickname(p.nickname || p.name);
         setEmoji(p.emoji || "🌿");
@@ -71,46 +72,64 @@ export default function ProfilePage() {
         setLang(l);
         setStoredLang(l);
       })
-      .catch(() => router.replace("/"));
-    api<{ vapidPublicKey?: string; passkeysAvailable?: boolean }>("/api/health")
-      .then((h) => {
-        setVapidPublic((h as { vapidPublicKey?: string }).vapidPublicKey || "");
-        setPasskeysAvailable(Boolean((h as { passkeysAvailable?: boolean }).passkeysAvailable));
+      .catch(() => {
+        window.location.replace("/");
+      });
+    Promise.all([
+      api<{ vapidPublicKey?: string; passkeysAvailable?: boolean }>("/api/health"),
+      api<{ passkeysAvailable?: boolean }>("/api/auth/health").catch(() => ({ passkeysAvailable: false })),
+    ])
+      .then(([h, authH]) => {
+        setVapidPublic(h.vapidPublicKey || "");
+        setPasskeysAvailable(Boolean(h.passkeysAvailable || authH.passkeysAvailable));
       })
       .catch(() => undefined);
     api<{ count?: number }>("/api/auth/passkey/list")
       .then((r) => setPasskeyCount(r.count || 0))
       .catch(() => undefined);
-  }, [ready, router]);
+  }, [ready, session?.profileId]);
 
   async function save(e: FormEvent) {
     e.preventDefault();
-    await api("/api/auth/prefs", {
-      method: "POST",
-      body: JSON.stringify({ nickname, emoji, color, lang }),
-    });
-    setStoredLang(lang);
-    setStatus(t("saved", lang));
+    if (busy) return;
+    setBusy(true);
+    setStatus("");
+    try {
+      await api("/api/auth/prefs", {
+        method: "POST",
+        body: JSON.stringify({ nickname, emoji, color, lang }),
+      });
+      setStoredLang(lang);
+      setStatus(t("saved", lang));
+    } catch (err) {
+      setStatus((err as Error).message || t("errorDefault", lang));
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function logout() {
-    await api("/api/auth/logout", { method: "POST" });
-    router.replace("/");
+    try {
+      await api("/api/auth/logout", { method: "POST" });
+    } catch {
+      /* still leave — cookie is cleared server-side when possible */
+    }
+    window.location.replace("/");
   }
 
   async function enablePush() {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      setPushStatus("Push nicht verfügbar");
+      setPushStatus(lang === "el" ? "Το Push δεν είναι διαθέσιμο" : "Push nicht verfügbar");
       return;
     }
     if (!vapidPublic) {
-      setPushStatus("VAPID-Schlüssel fehlt");
+      setPushStatus(lang === "el" ? "Λείπει το κλειδί VAPID" : "VAPID-Schlüssel fehlt");
       return;
     }
     try {
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
-        setPushStatus("Benachrichtigung abgelehnt");
+        setPushStatus(lang === "el" ? "Ειδοποιήσεις απορρίφθηκαν" : "Benachrichtigung abgelehnt");
         return;
       }
       const readySw = await navigator.serviceWorker.ready;
@@ -119,9 +138,9 @@ export default function ProfilePage() {
         applicationServerKey: urlBase64ToUint8Array(vapidPublic) as BufferSource,
       });
       await api("/api/notify/subscribe", { method: "POST", body: JSON.stringify({ subscription: sub.toJSON() }) });
-      setPushStatus("Push aktiv");
+      setPushStatus(lang === "el" ? "Push ενεργό" : "Push aktiv");
     } catch {
-      setPushStatus("Push fehlgeschlagen (iOS: App zum Home-Bildschirm?)");
+      setPushStatus(lang === "el" ? "Αποτυχία Push" : "Push fehlgeschlagen (iOS: App zum Home-Bildschirm?)");
     }
   }
 
@@ -132,7 +151,6 @@ export default function ProfilePage() {
     }
     setPasskeyStatus("");
     try {
-      // Fresh PIN gate before WebAuthn ceremony (server still requires session).
       await api("/api/auth/login", {
         method: "POST",
         body: JSON.stringify({ profileId: me?.id || session?.profileId, mode, pin: freshPin }),
@@ -205,7 +223,10 @@ export default function ProfilePage() {
   }
 
   async function copyFeed() {
-    if (!feedUrl) return;
+    if (!feedUrl) {
+      setFeedStatus(t("feedError", lang));
+      return;
+    }
     try {
       await navigator.clipboard.writeText(feedUrl);
       setFeedStatus(t("feedCopied", lang));
@@ -251,10 +272,14 @@ export default function ProfilePage() {
                 <option value="el">Ελληνικά</option>
               </select>
             </label>
-            <button className="btn" type="submit">
+            <button className="btn" type="submit" disabled={busy}>
               {t("save", lang)}
             </button>
-            {status && <p className="m-0 text-sm text-[var(--brand)]">{status}</p>}
+            {status && (
+              <p className="m-0 text-sm text-[var(--brand)]" aria-live="polite">
+                {status}
+              </p>
+            )}
           </form>
         </div>
 
@@ -277,7 +302,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {mode === "staff" && originOk && passkeysAvailable && (
+        {originOk && passkeysAvailable && (
           <div className="list-panel mb-3" data-testid="passkey-panel">
             <div className="list-sticky">
               <span>{t("passkeys", lang)}</span>
@@ -333,7 +358,7 @@ export default function ProfilePage() {
         )}
 
         <p className="muted text-sm">{t("profileSwitch", lang)}</p>
-        <button className="btn-sec w-full" type="button" onClick={logout}>
+        <button className="btn-sec w-full" type="button" onClick={logout} data-testid="logout">
           {t("logout", lang)}
         </button>
       </PageShell>

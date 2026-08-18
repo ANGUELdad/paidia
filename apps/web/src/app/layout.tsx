@@ -11,8 +11,16 @@ const fraunces = Fraunces({ subsets: ["latin", "latin-ext"], variable: "--font-d
 export const metadata: Metadata = {
   title: "Armonia Thassos",
   description: "Care-ops PWA Armonia Thassos — Betreuung, Plan und Vorrat",
+  applicationName: "Armonia",
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, title: "Armonia", statusBarStyle: "default" },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {

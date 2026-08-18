@@ -1,4 +1,4 @@
-/* Armonia PWA service worker — local notifications + Web Push */
+/* Armonia PWA service worker — local notifications + Web Push (no app precache) */
 
 function safeAppUrl(url) {
   const raw = String(url || "/home");
@@ -55,5 +55,16 @@ self.addEventListener("message", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const url = safeAppUrl(event.notification.data && event.notification.data.url);
-  event.waitUntil(self.clients.openWindow(url));
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ("focus" in client) {
+          client.focus();
+          if ("navigate" in client) return client.navigate(url);
+          return undefined;
+        }
+      }
+      return self.clients.openWindow(url);
+    })
+  );
 });

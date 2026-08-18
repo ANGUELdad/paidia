@@ -12,6 +12,8 @@ type Screen = "lobby" | "memory" | "quiz" | "breath";
 
 type MemCard = { id: number; emoji: string; pair: number; open: boolean; done: boolean };
 
+type XpState = { xp: number; streak?: number; badges?: string[] };
+
 const MEMORY_EMOJIS = ["🌊", "☀️", "🐚", "🐙", "🐟", "⭐", "🍋", "⛵"];
 
 const QUIZ_BANK = [
@@ -60,6 +62,9 @@ export default function KidsGamesPage() {
   const [screen, setScreen] = useState<Screen>("lobby");
   const [msg, setMsg] = useState("");
   const [claiming, setClaiming] = useState(false);
+  const [xpState, setXpState] = useState<XpState | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [deck, setDeck] = useState<MemCard[]>([]);
   const [moves, setMoves] = useState(0);
@@ -76,36 +81,58 @@ export default function KidsGamesPage() {
   const breathDoneRef = useRef(false);
 
   const quizQuestions = useMemo(() => QUIZ_BANK, []);
+  const claimingRef = useRef(false);
 
   const claimReward = useCallback(
     async (game: string) => {
-      if (claiming) return;
+      if (claimingRef.current) return;
+      claimingRef.current = true;
       setClaiming(true);
       try {
-        const r = await api<{ gained: number; state: { xp: number } }>("/api/kids/play", {
+        const r = await api<{ gained: number; state?: XpState; xp?: XpState }>("/api/kids/play", {
           method: "POST",
           body: JSON.stringify({ game }),
         });
-        setMsg(`+${r.gained} ${t("gameXpGained", lang)} · ${r.state?.xp ?? "?"} ${t("kidsXp", lang)}`);
+        const next = r.state || r.xp;
+        if (next) setXpState(next);
+        setMsg(`+${r.gained} ${t("gameXpGained", lang)} · ${next?.xp ?? "?"} ${t("kidsXp", lang)}`);
       } catch (e) {
         const err = e as Error & { status?: number };
         const text = err.message || "";
         setMsg(text.toLowerCase().includes("later") || err.status === 429 ? t("gameCooldown", lang) : text || t("gameLater", lang));
       } finally {
+        claimingRef.current = false;
         setClaiming(false);
       }
     },
-    [claiming, lang],
+    [lang],
   );
   const claimRef = useRef(claimReward);
   claimRef.current = claimReward;
 
+  async function loadRewards() {
+    setLoading(true);
+    setError("");
+    try {
+      const r = await api<{ state?: XpState; xp?: XpState }>("/api/kids/rewards");
+      setXpState(r.state || r.xp || { xp: 0, streak: 0, badges: [] });
+    } catch (e) {
+      const err = e as Error & { status?: number };
+      if (err.status === 401) {
+        window.location.href = "/";
+        return;
+      }
+      setError(err.message || t("errorDefault", lang));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (!ready) return;
     setLang(getStoredLang());
-    api("/api/kids/rewards").catch(() => {
-      window.location.href = "/";
-    });
+    void loadRewards();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
 
   useEffect(() => {
@@ -181,7 +208,7 @@ export default function KidsGamesPage() {
           setPairs((p) => {
             const newPairs = p + 1;
             if (newPairs >= MEMORY_EMOJIS.length) {
-              window.setTimeout(() => void claimReward("memory"), 400);
+              window.setTimeout(() => void claimRef.current("memory"), 400);
             }
             return newPairs;
           });
@@ -209,7 +236,7 @@ export default function KidsGamesPage() {
       const next = quizIdx + 1;
       if (next >= quizQuestions.length) {
         setQuizIdx(next);
-        void claimReward("quiz");
+        void claimRef.current("quiz");
       } else {
         setQuizIdx(next);
         setQuizLock(false);
@@ -220,6 +247,7 @@ export default function KidsGamesPage() {
   if (!ready) return <main className="page kids">{t("loading", lang)}</main>;
 
   const qPack = quizQuestions[quizIdx] ? (lang === "el" ? quizQuestions[quizIdx].el : quizQuestions[quizIdx].de) : null;
+  const memoryWon = pairs >= MEMORY_EMOJIS.length && deck.length > 0;
 
   return (
     <main className="page kids" data-tour="tour-games">
@@ -237,8 +265,23 @@ export default function KidsGamesPage() {
 
       {screen === "lobby" && (
         <section className="panel stack">
+          {loading && !xpState && <p className="muted m-0">{t("loading", lang)}</p>}
+          {error && (
+            <div className="warn" role="alert">
+              <p className="m-0">{t("errorDefault", lang)}</p>
+              <button className="btn ghost mt-2" type="button" onClick={() => void loadRewards()}>
+                {t("kidsGames", lang)}
+              </button>
+            </div>
+          )}
+          {xpState && (
+            <p className="muted m-0">
+              {t("kidsXp", lang)} {xpState.xp}
+              {xpState.streak != null ? ` · ${t("kidsStreak", lang)} ${xpState.streak}` : ""}
+            </p>
+          )}
           {msg && <p className="muted">{msg}</p>}
-          <button className="btn" type="button" onClick={startMemory}>
+          <button className="btn" type="button" onClick={startMemory} aria-label="Memory">
             <strong>{t("gameMemory", lang)}</strong>
             <span className="muted text-sm block mt-1">{t("gameMemoryHint", lang)}</span>
           </button>
@@ -264,12 +307,16 @@ export default function KidsGamesPage() {
               {pairs}/{MEMORY_EMOJIS.length}
             </strong>
           </p>
-          {pairs >= MEMORY_EMOJIS.length && (
+          {memoryWon && (
             <p>
               <strong>{t("gameWin", lang)}</strong>
             </p>
           )}
-          {msg && <p className="muted">{msg}</p>}
+          {msg && (
+            <p className="muted" role="status">
+              {msg}
+            </p>
+          )}
           <div className="game-board">
             {deck.map((card, i) => (
               <button
@@ -277,13 +324,18 @@ export default function KidsGamesPage() {
                 type="button"
                 className={`game-card${card.open || card.done ? " flipped" : ""}`}
                 onClick={() => flipCard(i)}
-                disabled={card.done || memLock}
+                disabled={card.done || memLock || memoryWon}
                 aria-label={card.open || card.done ? card.emoji : "card"}
               >
                 {card.open || card.done ? card.emoji : "?"}
               </button>
             ))}
           </div>
+          {memoryWon && (
+            <button className="btn" type="button" onClick={startMemory} disabled={claiming}>
+              {t("gameMemory", lang)}
+            </button>
+          )}
         </section>
       )}
 
@@ -311,8 +363,15 @@ export default function KidsGamesPage() {
           <p>
             <strong>{t("gameWin", lang)}</strong> — {quizScore}/{quizQuestions.length}
           </p>
-          {msg && <p className="muted">{msg}</p>}
-          <button className="btn" type="button" onClick={backToLobby}>
+          {msg && (
+            <p className="muted" role="status">
+              {msg}
+            </p>
+          )}
+          <button className="btn" type="button" onClick={startQuiz}>
+            {t("gameQuiz", lang)}
+          </button>
+          <button className="btn ghost" type="button" onClick={backToLobby}>
             {t("gameBack", lang)}
           </button>
         </section>
@@ -340,7 +399,16 @@ export default function KidsGamesPage() {
               <strong>{t("gameWin", lang)}</strong>
             </p>
           )}
-          {msg && <p className="muted">{msg}</p>}
+          {msg && (
+            <p className="muted" role="status">
+              {msg}
+            </p>
+          )}
+          {breathLeft <= 0 && (
+            <button className="btn" type="button" onClick={startBreath} disabled={claiming}>
+              {t("gameCalm", lang)}
+            </button>
+          )}
         </section>
       )}
 

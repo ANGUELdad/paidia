@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Dock } from "@/components/Dock";
 import { GuidedTour } from "@/components/GuidedTour";
 import { EmptyState } from "@/components/EmptyState";
@@ -10,14 +10,52 @@ import { api } from "@/lib/api";
 import { resolveGuideIntent } from "@/lib/guide-intents";
 import { getStoredLang, t, type Lang } from "@/lib/i18n";
 import { useRequireMode } from "@/lib/session";
-import { actionNeedsPin, describeAction, type ZoAiAction } from "@/lib/zoai-actions";
+import {
+  actionNeedsPin,
+  actionStr,
+  describeAction,
+  isNavigateAction,
+  type ZoAiAction,
+} from "@/lib/zoai-actions";
 
 type Msg = { role: "user" | "assistant"; text: string; meta?: string; actions?: ZoAiAction[] };
 type GuidePayload = { href?: string; spotlight?: string; title?: string; body?: string };
 
+function pinSafeStatus(raw: string) {
+  if (/pin/i.test(raw)) return "PIN erforderlich";
+  return raw;
+}
+
+async function applyShopFallback(action: ZoAiAction): Promise<boolean> {
+  const type = action.type || "";
+  const name = (actionStr(action, "name") || actionStr(action, "productQuery")).trim();
+  const houseId = actionStr(action, "houseId", "h1");
+  if (type === "want_bought" && name) {
+    await api("/api/shop/friday/add", {
+      method: "POST",
+      body: JSON.stringify({ houseId, name, qty: 1 }),
+    });
+    return true;
+  }
+  if (type === "shop_remove" && name) {
+    const list = await api<{ entries?: { id: string; name?: string; houseId?: string }[] }>("/api/shop/list");
+    const q = name.toLowerCase();
+    const hit = (list.entries || []).find((e) => {
+      const n = (e.name || "").toLowerCase();
+      if (!n.includes(q) && q && !q.includes(n)) return false;
+      return !houseId || !e.houseId || e.houseId === houseId;
+    });
+    if (!hit) return false;
+    await api("/api/shop/done", { method: "POST", body: JSON.stringify({ entryId: hit.id }) });
+    return true;
+  }
+  return false;
+}
+
 export default function ZoAiInner() {
   const { session, ready } = useRequireMode("staff");
   const guide = useGuideOptional();
+  const router = useRouter();
   const search = useSearchParams();
   const [lang, setLang] = useState<Lang>("de");
   const [text, setText] = useState("");
@@ -43,6 +81,25 @@ export default function ZoAiInner() {
     const el = logRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, actions, busy]);
+
+  function beginGuide(g: GuidePayload, navigate: boolean) {
+    if (!g.href || !g.spotlight || !g.title || !g.body) return;
+    if (guide) {
+      guide.startGuide(
+        {
+          id: g.spotlight,
+          href: g.href,
+          spotlight: g.spotlight,
+          title: g.title,
+          body: g.body,
+        },
+        "zoai",
+        { navigate },
+      );
+      return;
+    }
+    if (navigate) router.push(g.href);
+  }
 
   async function runAsk(value: string) {
     if (!value.trim() || busy) return;
@@ -83,14 +140,14 @@ export default function ZoAiInner() {
       setActions(nextActions);
       setStatus(`${r.provider || "ok"}`);
       if (g?.spotlight && g.href && g.title && g.body) {
-        // Hint only — auto spotlight on the wrong page paints a full scrim
-        // that blocks “Zeig mir” and the chat. User starts guide explicitly.
         setGuideHint(g);
+        const here = window.location.pathname;
+        if (g.href === here) beginGuide(g, false);
       }
     } catch (err) {
       const msg = (err as Error).message || "Fehler";
-      setStatus(msg);
-      setMessages((m) => [...m, { role: "assistant", text: msg }]);
+      setStatus(pinSafeStatus(msg));
+      setMessages((m) => [...m, { role: "assistant", text: pinSafeStatus(msg) }]);
     } finally {
       setBusy(false);
     }
@@ -134,6 +191,7 @@ export default function ZoAiInner() {
       const said = ev.results[0][0].transcript;
       setText(said);
       setListening(false);
+      void runAsk(said);
     };
     rec.onend = () => setListening(false);
     rec.onerror = () => {
@@ -144,13 +202,51 @@ export default function ZoAiInner() {
     rec.start();
   }
 
+  function dropAction(action: ZoAiAction) {
+    setActions((list) => list.filter((a) => a !== action));
+    setPin("");
+  }
+
   async function apply(action: ZoAiAction) {
+    if (isNavigateAction(action)) {
+      const card = describeAction(action);
+      if (card.href) router.push(card.href);
+      dropAction(action);
+      setStatus("Geöffnet");
+      return;
+    }
     const needsPin = actionNeedsPin(action);
-    const r = await api<{ ok: boolean; error?: string }>("/api/zoai/apply", {
-      method: "POST",
-      body: JSON.stringify({ action, actions: [action], pin: needsPin ? pin : undefined }),
-    });
-    setStatus(r.ok ? "Übernommen" : r.error || "Fehlgeschlagen");
+    try {
+      const r = await api<{ ok: boolean; error?: string }>("/api/zoai/apply", {
+        method: "POST",
+        body: JSON.stringify({ action, actions: [action], pin: needsPin ? pin : undefined }),
+      });
+      if (r.ok) {
+        dropAction(action);
+        setStatus("Übernommen");
+        return;
+      }
+      if (await applyShopFallback(action).catch(() => false)) {
+        dropAction(action);
+        setStatus("Übernommen");
+        return;
+      }
+      setStatus(pinSafeStatus(r.error || "Fehlgeschlagen"));
+    } catch (err) {
+      if (await applyShopFallback(action).catch(() => false)) {
+        dropAction(action);
+        setStatus("Übernommen");
+        return;
+      }
+      setStatus(pinSafeStatus((err as Error).message || "Fehlgeschlagen"));
+    }
+  }
+
+  function onComposerKey(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      void runAsk(text.trim());
+    }
   }
 
   const anyPinRequired = actions.some(actionNeedsPin);
@@ -189,20 +285,7 @@ export default function ZoAiInner() {
               type="button"
               className="btn mt-3"
               data-testid="zoai-guide-again"
-              onClick={() => {
-                if (!guideHint.href || !guideHint.spotlight || !guideHint.title || !guideHint.body) return;
-                guide?.startGuide(
-                  {
-                    id: guideHint.spotlight,
-                    href: guideHint.href,
-                    spotlight: guideHint.spotlight,
-                    title: guideHint.title,
-                    body: guideHint.body,
-                  },
-                  "zoai",
-                  { navigate: true },
-                );
-              }}
+              onClick={() => beginGuide(guideHint, true)}
             >
               Zeig mir auf dem Bildschirm
             </button>
@@ -218,6 +301,7 @@ export default function ZoAiInner() {
                 <input
                   type="password"
                   inputMode="numeric"
+                  autoComplete="off"
                   placeholder="PIN"
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
@@ -235,17 +319,28 @@ export default function ZoAiInner() {
                       <p className="action-card-sentence">{card.sentence}</p>
                       {card.chips.length > 0 && (
                         <div className="action-card-chips">
-                          {card.chips.map((c) => (
-                            <span key={`${c.label}-${c.value}`} className="action-card-chip">
-                              <strong>{c.label}</strong> {c.value}
-                            </span>
-                          ))}
+                          {card.chips.map((c) =>
+                            c.href ? (
+                              <button
+                                key={`${c.label}-${c.value}`}
+                                type="button"
+                                className="action-card-chip"
+                                onClick={() => router.push(c.href!)}
+                              >
+                                <strong>{c.label}</strong> {c.value}
+                              </button>
+                            ) : (
+                              <span key={`${c.label}-${c.value}`} className="action-card-chip">
+                                <strong>{c.label}</strong> {c.value}
+                              </span>
+                            ),
+                          )}
                         </div>
                       )}
                       {needsPin && !pin && <p className="action-card-pin">PIN erforderlich</p>}
                     </div>
                     <button className="btn" type="button" disabled={needsPin && !pin.trim()} onClick={() => apply(action)}>
-                      {t("confirm", lang)}
+                      {card.navigateOnly ? (lang === "el" ? "Άνοιγμα" : "Öffnen") : t("confirm", lang)}
                     </button>
                   </div>
                 </article>
@@ -262,15 +357,16 @@ export default function ZoAiInner() {
             id="zoai-input"
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={onComposerKey}
             rows={2}
-            placeholder="Wie starte ich die Schicht?"
+            placeholder="Frag Zo-Ai…"
             data-testid="zoai-input"
           />
           <div className="row">
             <button className="btn" type="submit" disabled={busy || !text.trim()} data-testid="zoai-send">
               {busy ? "…" : t("send", lang)}
             </button>
-            <button className="btn-sec" type="button" onClick={startVoice}>
+            <button className="btn-sec" type="button" onClick={startVoice} disabled={busy}>
               {listening ? t("listening", lang) : t("mic", lang)}
             </button>
           </div>

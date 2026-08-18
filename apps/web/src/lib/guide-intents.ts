@@ -93,23 +93,24 @@ export const GUIDE_TARGETS: GuideTarget[] = [
 ];
 
 const RULES: { re: RegExp; id: string }[] = [
-  { re: /schichtbuch|\bbuch\b|journal|audit/i, id: "book" },
-  { re: /(?<![\wäöü])schicht(?!buch)|präsenz|anwesend|check.?in|zu\s*spät|verspät|\bstarte?\b/i, id: "presence" },
-  { re: /jetzt\s*wichtig|was\s*jetzt|nächste\s*aufgabe/i, id: "now" },
-  { re: /wochenplan|tagesplan|\bplan\b|schedule|block/i, id: "plan" },
-  { re: /lager|bestand|vorrat|milch|stock/i, id: "stock" },
-  { re: /einkauf|liste|shop|einkaufen/i, id: "shop" },
-  { re: /zo.?ai|assistent|ki\b|frage\s*stellen/i, id: "zoai" },
-  { re: /\btalk\b|chat|besprechung|notiz/i, id: "talk" },
-  { re: /kalender|termin|ics/i, id: "calendar" },
-  { re: /heute|home|start\s*bildschirm|übersicht/i, id: "home" },
+  { re: /schichtbuch|\bbuch\b|journal|audit|βιβλίο|ημερολόγιο\s*βάρδιας/i, id: "book" },
+  { re: /(?<![\wäöü])schicht(?!buch)|präsenz|anwesend|check.?in|zu\s*spät|verspät|\bstarte?\b|βάρδια|παρουσία|καθυστέρ|ξεκίνα/i, id: "presence" },
+  { re: /jetzt\s*wichtig|was\s*jetzt|nächste\s*aufgabe|τι\s*τώρα|επόμενη\s*εργασία/i, id: "now" },
+  { re: /wochenplan|tagesplan|\bplan\b|schedule|block|πρόγραμμα|εβδομάδα/i, id: "plan" },
+  { re: /lager|bestand|vorrat|milch|stock|αποθήκη|απόθεμα/i, id: "stock" },
+  { re: /einkauf|liste|shop|einkaufen|λίστα|ψώνια/i, id: "shop" },
+  { re: /zo.?ai|assistent|ki\b|frage\s*stellen|führung|βοηθός/i, id: "zoai" },
+  { re: /\btalk\b|chat|besprechung|notiz|συνομιλία|σημείωση/i, id: "talk" },
+  { re: /kalender|termin|ics|ημερολόγιο|ραντεβού/i, id: "calendar" },
+  { re: /heute|home|start\s*bildschirm|übersicht|σήμερα|αρχική/i, id: "home" },
 ];
 
 export function resolveGuideIntent(text: string): GuideTarget | null {
   const q = text.trim();
   if (!q) return null;
-  // Only coach the screen for how-to / where questions — never hijack action asks.
-  const how = /wie|how|wo\s*(finde|sehe|öffne)|zeig\s+mir|erklä|help|hilfe|\?/i.test(q);
+  // How-to / where questions (DE/EL). Greek questions often end with `;`.
+  const how =
+    /wie|how|wo\s*(finde|sehe|öffne)|zeig\s+mir|erklä|help|hilfe|\?|πώς|πως|πού|που\s+|δείξ|βοήθεια|;/i.test(q);
   if (!how) return null;
   for (const rule of RULES) {
     if (rule.re.test(q)) {

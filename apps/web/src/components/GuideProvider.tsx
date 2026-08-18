@@ -85,7 +85,6 @@ export function GuideProvider({ children }: { children: ReactNode }) {
         clearSpotlightClass();
         el.classList.add("tour-spotlight-target");
       }
-      // scrollIntoView + scroll listener was a feedback loop that froze the UI
       if (opts?.scroll && scrolledFor.current !== spotlight && !nearCenter(r)) {
         scrolledFor.current = spotlight;
         el.scrollIntoView({ block: "center", behavior: "auto" });
@@ -169,6 +168,15 @@ export function GuideProvider({ children }: { children: ReactNode }) {
     document.body.classList.toggle("guide-active", !!active);
     return () => document.body.classList.remove("guide-active");
   }, [active]);
+
+  useEffect(() => {
+    if (!active || active.source === "tour") return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") clearGuide();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [active, clearGuide]);
 
   const value = useMemo(() => ({ active, startGuide, clearGuide }), [active, startGuide, clearGuide]);
   const needsGo = !!active && active.href !== path;

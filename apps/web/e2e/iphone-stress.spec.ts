@@ -20,6 +20,29 @@ async function skipToursByDefault(page: import("@playwright/test").Page) {
   });
 }
 
+async function loginAsAngelos(page: import("@playwright/test").Page) {
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.getByTestId("enter-staff").click();
+  await expect(page.getByTestId("profile-e4")).toBeVisible({ timeout: 15000 });
+  await page.getByTestId("profile-e4").click({ force: true });
+  await expect(page.getByTestId("pin-input")).toBeVisible({ timeout: 5000 });
+  await page.getByTestId("pin-input").fill("444444");
+  await Promise.all([
+    page.waitForURL(/\/home/, { timeout: 15000 }),
+    page.getByTestId("login-submit").click(),
+  ]);
+  await dismissTour(page);
+  await expect(page.getByTestId("dock")).toBeVisible({ timeout: 10000 });
+  await expect
+    .poll(async () => {
+      const r = await page.request.get("/api/auth/session");
+      if (!r.ok()) return false;
+      const j = (await r.json()) as { authenticated?: boolean; name?: string; admin?: boolean };
+      return Boolean(j.authenticated && j.admin);
+    }, { timeout: 10000 })
+    .toBe(true);
+}
+
 async function loginAsZoi(page: import("@playwright/test").Page) {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("enter-staff").click();
@@ -215,6 +238,68 @@ test("guided tour advances", async ({ page }) => {
   await page.getByTestId("tour-next").click({ force: true });
   await page.getByRole("button", { name: "Später" }).click({ force: true });
   await expect(page.getByTestId("tour-reopen")).toBeVisible({ timeout: 5000 });
+});
+
+const MEHR_ROUTES = [
+  "/handover",
+  "/coverage",
+  "/incidents",
+  "/care",
+  "/book",
+  "/talk",
+  "/shop",
+  "/calendar",
+  "/profile",
+  "/admin/notify",
+];
+
+test("angelos click every dock and mehr control", async ({ page }) => {
+  await skipToursByDefault(page);
+  await loginAsAngelos(page);
+
+  await expect(page.getByTestId("dock")).toBeVisible();
+  await expect(page.getByTestId("dock-mehr")).toBeVisible();
+  await expect(page.getByTestId("home-ask-submit")).toBeVisible();
+
+  const weekDay = page.locator('[data-testid^="week-day-"]').first();
+  if (await weekDay.isVisible().catch(() => false)) {
+    await weekDay.click({ force: true });
+    await expect(page).toHaveURL(/\/plan/);
+    await staffGoto(page, "/home");
+  }
+
+  await expect(page.getByTestId("dock-heute")).toBeVisible({ timeout: 10000 });
+  await expect(page.getByTestId("dock-plan")).toBeVisible();
+  await expect(page.getByTestId("dock-lager")).toBeVisible();
+  await expect(page.getByTestId("dock-zo-ai")).toBeVisible();
+
+  const hrefs = await page.locator('[data-testid="dock"] a').evaluateAll((els) =>
+    els.map((e) => (e as HTMLAnchorElement).getAttribute("href")).filter(Boolean),
+  );
+  expect(hrefs).toEqual(["/home", "/plan", "/stock", "/zoai"]);
+
+  for (const href of hrefs) {
+    await staffGoto(page, String(href));
+    await expect(page.locator("main, [data-testid='dock']").first()).toBeVisible({ timeout: 10000 });
+  }
+
+  await staffGoto(page, "/home");
+  await page.getByTestId("dock-mehr").click();
+  await expect(page.getByTestId("more-sheet")).toBeVisible();
+  await expect(page.getByTestId("more-sheet").locator("a[href='/admin/notify']")).toBeVisible();
+
+  const moreHrefs = await page.locator('[data-testid="more-sheet"] a').evaluateAll((els) =>
+    els.map((e) => (e as HTMLAnchorElement).getAttribute("href")).filter(Boolean),
+  );
+  for (const route of MEHR_ROUTES) {
+    expect(moreHrefs).toContain(route);
+  }
+
+  for (const href of moreHrefs) {
+    await staffGoto(page, String(href));
+    await expect(page.locator("main").first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId("dock")).toBeVisible();
+  }
 });
 
 test("child mode isolated", async ({ page }) => {

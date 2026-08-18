@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { GuidedTour } from "@/components/GuidedTour";
 import { EmptyState } from "@/components/EmptyState";
@@ -40,10 +40,11 @@ export default function KidsZoAiPage() {
     setMessages((m) => [...m, { role: "user", text: value }]);
     setText("");
     try {
-      const r = await api<{ reply?: string; message?: string; provider?: string }>("/api/zoai/chat", {
+      const r = await api<{ reply?: string; message?: string; provider?: string; actions?: unknown[] }>("/api/zoai/chat", {
         method: "POST",
         body: JSON.stringify({ text: value, messages: [{ role: "user", content: value }] }),
       });
+      // Chat only — never render or apply staff actions even if the API sends them.
       setMessages((m) => [
         ...m,
         { role: "assistant", text: r.reply || r.message || "", meta: r.provider || "ok" },
@@ -61,6 +62,13 @@ export default function KidsZoAiPage() {
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     ask();
+  }
+
+  function onKey(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      ask();
+    }
   }
 
   if (!ready) return <main className="page kids">{t("loading", lang)}</main>;
@@ -103,6 +111,7 @@ export default function KidsZoAiPage() {
             id="kids-zoai-input"
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={onKey}
             rows={2}
             placeholder={t("zoaiKidsPlaceholder", lang)}
           />
