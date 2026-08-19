@@ -182,7 +182,7 @@ export default function ShopPage() {
 
   return (
     <>
-      <PageShell eyebrow="Liste" title="Einkaufsliste" lead="Vorschläge aus Bestand und Vergangenheit — immer bestätigen.">
+      <PageShell eyebrow="Liste" title="Einkaufsliste" lead="Vorschläge aus Bestand und Vergangenheit — immer bestätigen." back="/home">
       <div data-tour="tour-shop">
       <div className="seg-bar" role="tablist" aria-label="Listen">
         {TABS.map((tdef) => (

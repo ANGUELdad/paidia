@@ -206,18 +206,19 @@ export default function StockPage() {
     }
   }
 
-  if (!ready) return <main className="page">Laden…</main>;
+  if (!ready) return <main className="page">{t("loading", lang)}</main>;
 
   return (
     <>
-      <PageShell eyebrow="Lager" title="Lager" lead="Liste tippen · Ziel & Menge im Detail · Check unten.">
+      <PageShell eyebrow={t("navLager", lang)} title={t("stockTitle", lang)} lead={lang === "el" ? "Αγγίξτε στοιχείο · λεπτομέρειες στο φύλλο" : "Liste tippen · Ziel & Menge im Detail · Check unten."}>
         <div data-tour="tour-stock">
-          <div className="seg-bar" aria-label="Häuser">
+          <div className="seg-bar" aria-label={lang === "el" ? "Σπίτια" : "Häuser"}>
             {houses.map((h) => (
               <button
                 key={h.id}
                 type="button"
                 className={`btn-sec ${houseId === h.id ? "ring-2 ring-[var(--brand)]" : ""}`}
+                aria-current={houseId === h.id ? "true" : undefined}
                 onClick={() => setHouseId(h.id)}
               >
                 {h.name}
@@ -226,10 +227,10 @@ export default function StockPage() {
           </div>
           <div className="seg-bar">
             <button type="button" className={`btn-sec ${filter === "all" ? "ring-2 ring-[var(--brand)]" : ""}`} onClick={() => setFilter("all")}>
-              Alle
+              {t("stockAll", lang)}
             </button>
             <button type="button" className={`btn-sec ${filter === "low" ? "ring-2 ring-[var(--brand)]" : ""}`} onClick={() => setFilter("low")}>
-              Niedrig ({lowItems.length})
+              {t("stockLow", lang)} ({lowItems.length})
             </button>
           </div>
           {error && (
@@ -292,11 +293,11 @@ export default function StockPage() {
             ))}
             {loading ? (
               <div className="list-row" style={{ cursor: "default" }} data-testid="stock-loading">
-                <div className="list-row__meta">Laden…</div>
+                <div className="list-row__meta">{t("loading", lang)}</div>
               </div>
             ) : !rows.length ? (
-              <div className="list-row" style={{ cursor: "default" }}>
-                <div className="list-row__meta">Keine Artikel in diesem Filter.</div>
+              <div className="list-row" style={{ cursor: "default" }} data-testid="stock-empty">
+                <div className="list-row__meta">{lang === "el" ? "Κανένα αντικείμενο σε αυτό το φίλτρο." : "Keine Artikel in diesem Filter."}</div>
               </div>
             ) : null}
           </div>
@@ -308,7 +309,7 @@ export default function StockPage() {
               </button>
             )}
             <button className="btn flex-1" type="button" disabled={busy} onClick={signOff}>
-              Check abschließen
+              {lang === "el" ? "Ολοκλήρωση ελέγχου" : "Check abschließen"}
             </button>
           </div>
         </div>
@@ -319,27 +320,27 @@ export default function StockPage() {
           <div className="more-sheet" role="dialog" aria-modal="true" onClick={(ev) => ev.stopPropagation()}>
             <header className="more-sheet-header">
               <h2>{productName(detail, lang)}</h2>
-              <button type="button" className="more-sheet-close" aria-label="Schließen" onClick={() => setDetailId(null)}>
+              <button type="button" className="more-sheet-close" aria-label={lang === "el" ? "Κλείσιμο" : "Schließen"} onClick={() => setDetailId(null)}>
                 ✕
               </button>
             </header>
             <p className="muted text-sm m-0">
-              {houses.find((h) => h.id === houseId)?.name || houseId} · Bestand {detailQty} {detail.unit} · Ziel {detailPar}
+              {houses.find((h) => h.id === houseId)?.name || houseId} · {lang === "el" ? "Απόθεμα" : "Bestand"} {detailQty} {detail.unit} · {t("stockPar", lang)} {detailPar}
             </p>
             <div className="row gap-2 mt-3">
               <button className="btn-sec flex-1" type="button" disabled={busy} onClick={() => adjust(detail.id, "OUT")}>
-                − Abgang
+                − {lang === "el" ? "Εξερχόμενο" : "Abgang"}
               </button>
               <button className="btn flex-1" type="button" disabled={busy} onClick={() => adjust(detail.id, "IN")}>
-                ＋ Zugang
+                ＋ {lang === "el" ? "Εισερχόμενο" : "Zugang"}
               </button>
             </div>
             <button className="btn-sec w-full mt-2" type="button" disabled={busy} onClick={() => addToList(detail)}>
-              Auf Einkaufsliste
+              {t("toList", lang)}
             </button>
             <form className="stack mt-3" onSubmit={savePar}>
               <label>
-                Zielmenge (par)
+                {t("stockPar", lang)}
                 <input
                   type="number"
                   min={0}

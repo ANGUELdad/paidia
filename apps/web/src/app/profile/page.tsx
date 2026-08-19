@@ -218,7 +218,7 @@ export default function ProfilePage() {
 
   return (
     <>
-      <PageShell eyebrow={t("profile", lang)} title={me?.name || "…"} lead={t("profileLead", lang)}>
+      <PageShell eyebrow={t("profile", lang)} title={me?.name || "…"} lead={t("profileLead", lang)} back={mode === "child" ? "/kids" : "/home"}>
         <div className="list-panel mb-3">
           <div className="list-sticky">
             <span>{t("profile", lang)}</span>

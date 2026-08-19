@@ -3,39 +3,54 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { t } from "@/lib/i18n";
+import { getStoredLang } from "@/lib/i18n";
+import { Icon } from "./Icon";
 
-type LinkItem = { href: string; label: string };
-type Group = { title: string; items: LinkItem[] };
+type LinkItem = { href: string; labelDe: string; labelEl: string; icon: Parameters<typeof Icon>[0]["name"] };
+type Group = { titleDe: string; titleEl: string; items: LinkItem[] };
 
 function buildGroups(admin: boolean): Group[] {
   const groups: Group[] = [
     {
-      title: "Schicht",
+      titleDe: "Schicht",
+      titleEl: "Βάρδια",
       items: [
-        { href: "/handover", label: "Übergabe" },
-        { href: "/coverage", label: t("coverage") },
-        { href: "/incidents", label: t("incidents") },
-        { href: "/care", label: t("careLog") },
-        { href: "/book", label: "Schichtbuch" },
-        { href: "/talk", label: "Talk" },
+        { href: "/handover",  labelDe: "Übergabe",    labelEl: "Παράδοση",      icon: "handover"  },
+        { href: "/coverage",  labelDe: "Abdeckung",   labelEl: "Κάλυψη",        icon: "coverage"  },
+        { href: "/incidents", labelDe: "Vorfälle",    labelEl: "Περιστατικά",   icon: "incident"  },
+        { href: "/care",      labelDe: "Kind-Tag",    labelEl: "Ημέρα παιδιού", icon: "care"      },
+        { href: "/book",      labelDe: "Schichtbuch", labelEl: "Βιβλίο",        icon: "book"      },
+        { href: "/talk",      labelDe: "Talk",        labelEl: "Talk",           icon: "talk"      },
       ],
     },
     {
-      title: "Versorgung",
-      items: [{ href: "/shop", label: "Liste" }],
+      titleDe: "Versorgung",
+      titleEl: "Εφοδιασμός",
+      items: [
+        { href: "/shop", labelDe: "Liste", labelEl: "Λίστα", icon: "shop" },
+      ],
     },
     {
-      title: "Termine",
-      items: [{ href: "/calendar", label: "Kalender" }],
+      titleDe: "Termine",
+      titleEl: "Ημερολόγιο",
+      items: [
+        { href: "/calendar", labelDe: "Kalender", labelEl: "Ημερολόγιο", icon: "calendar" },
+      ],
     },
     {
-      title: "Konto",
-      items: [{ href: "/profile", label: "Profil" }],
+      titleDe: "Konto",
+      titleEl: "Λογαριασμός",
+      items: [
+        { href: "/profile", labelDe: "Profil", labelEl: "Προφίλ", icon: "profile" },
+      ],
     },
   ];
   if (admin) {
-    groups.push({ title: "Admin", items: [{ href: "/admin/notify", label: "Automationen" }] });
+    groups.push({
+      titleDe: "Admin",
+      titleEl: "Admin",
+      items: [{ href: "/admin/notify", labelDe: "Automationen", labelEl: "Αυτοματισμοί", icon: "admin" }],
+    });
   }
   return groups;
 }
@@ -54,6 +69,7 @@ export function MoreSheet({
   admin?: boolean;
 }) {
   const path = usePathname();
+  const lang = getStoredLang();
 
   useEffect(() => {
     if (!open) return;
@@ -75,7 +91,12 @@ export function MoreSheet({
   const groups = buildGroups(admin);
 
   return (
-    <div className="more-overlay" role="presentation" onClick={onClose} data-testid="more-overlay">
+    <div
+      className="more-overlay"
+      role="presentation"
+      onClick={onClose}
+      data-testid="more-overlay"
+    >
       <div
         className="more-sheet"
         role="dialog"
@@ -85,24 +106,35 @@ export function MoreSheet({
         onClick={(e) => e.stopPropagation()}
       >
         <header className="more-sheet-header">
-          <h2 id="more-title">Mehr</h2>
-          <button type="button" className="more-sheet-close" onClick={onClose} aria-label="Schließen">
-            ✕
+          <h2 id="more-title">{lang === "el" ? "Περισσότερα" : "Mehr"}</h2>
+          <button
+            type="button"
+            className="more-sheet-close"
+            onClick={onClose}
+            aria-label={lang === "el" ? "Κλείσιμο" : "Schließen"}
+          >
+            <Icon name="close" size={16} />
           </button>
         </header>
         {groups.map((group) => (
-          <section key={group.title} className="more-group">
-            <h3 className="more-group-title">{group.title}</h3>
+          <section key={group.titleDe} className="more-group">
+            <h3 className="more-group-title">
+              {lang === "el" ? group.titleEl : group.titleDe}
+            </h3>
             <div className="more-links">
               {group.items.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={isLinkActive(path, item.href) ? "active" : ""}
-                  data-testid={`more-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                  data-testid={`more-${item.labelDe.toLowerCase().replace(/\s+/g, "-")}`}
                   onClick={onClose}
+                  aria-current={isLinkActive(path, item.href) ? "page" : undefined}
                 >
-                  {item.label}
+                  <span className="more-link-icon">
+                    <Icon name={item.icon} size={18} />
+                  </span>
+                  {lang === "el" ? item.labelEl : item.labelDe}
                 </Link>
               ))}
             </div>

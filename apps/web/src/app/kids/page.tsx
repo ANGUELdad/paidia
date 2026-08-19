@@ -12,10 +12,10 @@ type State = { xp: number; streak: number; badges: string[]; lastPlayAt?: string
 type KidEvent = { id: string; title: string; date: string; startTime?: string; location?: string };
 
 const MOODS = [
-  { id: "sun", emoji: "☀️" },
-  { id: "cloud", emoji: "⛅" },
-  { id: "rain", emoji: "🌧️" },
-  { id: "storm", emoji: "⛈️" },
+  { id: "sun",   emoji: "☀️",  labelDe: "Super",   labelEl: "Τέλεια" },
+  { id: "cloud", emoji: "⛅",  labelDe: "OK",       labelEl: "Εντάξει" },
+  { id: "rain",  emoji: "🌧️", labelDe: "Nicht gut", labelEl: "Άσχημα" },
+  { id: "storm", emoji: "⛈️", labelDe: "Schwer",   labelEl: "Δύσκολα" },
 ];
 
 const BADGE_LABELS: Record<string, { de: string; el: string }> = {
@@ -103,9 +103,11 @@ export default function KidsPage() {
               type="button"
               className={`mood-orb${mood === m.id ? " on" : ""}`}
               onClick={() => postMood(m.id)}
-              aria-label={m.id}
+              aria-label={lang === "el" ? m.labelEl : m.labelDe}
+              aria-pressed={mood === m.id}
             >
-              {m.emoji}
+              <span aria-hidden>{m.emoji}</span>
+              <span className="mood-orb-label">{lang === "el" ? m.labelEl : m.labelDe}</span>
             </button>
           ))}
         </div>

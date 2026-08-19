@@ -8,20 +8,30 @@ export function PageShell({
   lead,
   children,
   actions,
+  back,
 }: {
   eyebrow: string;
   title: string;
   lead?: string;
   children: React.ReactNode;
   actions?: React.ReactNode;
+  /** Optional back-link href shown before the eyebrow */
+  back?: string;
 }) {
   return (
-    <main className="page" data-theme="signal">
-      <header className="top shell-top">
-        <div className="min-w-0">
+    <main className="page">
+      <header className="shell-header">
+        {back && (
+          <Link href={back} className="shell-back" aria-label="Zurück">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
+              <path d="M11 14L6 9l5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </Link>
+        )}
+        <div className="min-w-0 flex-1">
           <p className="eyebrow">Armonia · {eyebrow}</p>
           <h1 className="shell-title">{title}</h1>
-          {lead && <p className="muted shell-lead">{lead}</p>}
+          {lead && <p className="shell-lead">{lead}</p>}
         </div>
         {actions && <div className="shell-actions">{actions}</div>}
       </header>

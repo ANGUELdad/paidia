@@ -137,7 +137,7 @@ export default function CarePage() {
 
   return (
     <>
-      <PageShell eyebrow="Schicht" title="Kind-Tag" lead={`Pflege-Notizen für ${displayDate}.`}>
+      <PageShell eyebrow="Schicht" title="Kind-Tag" lead={`Pflege-Notizen für ${displayDate}.`} back="/home">
         {error && (
           <div className="warn mb-3" role="alert">
             {error}

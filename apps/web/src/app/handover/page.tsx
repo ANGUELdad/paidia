@@ -78,7 +78,7 @@ export default function HandoverPage() {
 
   return (
     <>
-      <PageShell eyebrow="Schicht" title="Übergabe" lead={`${displayDate} — Status für die nächste Betreuung.`}>
+      <PageShell eyebrow="Schicht" title="Übergabe" lead={`${displayDate}`} back="/home">
         {error && (
           <div className="warn mb-3" role="alert">
             {error}
@@ -86,75 +86,80 @@ export default function HandoverPage() {
         )}
 
         {done && (
-          <div className="list-panel mb-3" data-testid="handover-done">
-            <div className="list-row" style={{ cursor: "default" }}>
-              <div className="list-row__main">
-                <div className="list-row__title">Übergabe gespeichert</div>
-                <div className="list-row__meta">Eintrag im Schichtbuch und Talk · Übergabe.</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {loading ? (
-          <LoadingBlock label="Lade Schichtdaten…" />
-        ) : !ribbon.length ? (
-          <EmptyState title="Keine Übergabe-Daten" hint="Präsenz, Plan und Lager erscheinen hier, sobald verfügbar." />
-        ) : (
-          <div className="list-panel mb-3" data-testid="handover-ribbon" aria-label="Übergabe-Liste">
-            <div className="list-sticky">
-              <span>Status</span>
-              <span>{ribbon.length}</span>
-            </div>
-            {ribbon.map((item) => {
-              const rowClass = item.tone === "warn" ? "list-row is-warn" : "list-row";
-              const body = (
-                <>
-                  <div className="list-row__main">
-                    <div className="list-row__title">
-                      {KIND_LABEL[item.kind]} · {item.title}
-                    </div>
-                    <div className="list-row__meta">{item.body}</div>
-                  </div>
-                  {item.href ? <span aria-hidden>→</span> : null}
-                </>
-              );
-              return item.href ? (
-                <Link key={item.id} href={item.href} className={rowClass} data-testid={`ribbon-${item.kind}`}>
-                  {body}
-                </Link>
-              ) : (
-                <div key={item.id} className={rowClass} style={{ cursor: "default" }} data-testid={`ribbon-${item.kind}`}>
-                  {body}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <label htmlFor="handover-extra" className="block mb-3">
-          Zusatz für die Übergabe
-          <textarea
-            id="handover-extra"
-            rows={3}
-            value={extra}
-            onChange={(e) => setExtra(e.target.value)}
-            placeholder="Besonderes für die nächste Schicht…"
-            data-testid="handover-extra"
+          <EmptyState
+            title="Übergabe gespeichert"
+            hint="Eintrag im Schichtbuch und Talk · Übergabe."
+            action={
+              <Link href="/home" className="btn-sec">
+                ← Zurück
+              </Link>
+            }
           />
-        </label>
+        )}
 
-        <div className="sticky-footer">
-          <button
-            className="btn w-full"
-            type="button"
-            disabled={loading || busy || !ribbon.length}
-            onClick={submit}
-            data-testid="handover-complete"
-          >
-            {busy ? "Speichern…" : "Übergabe abschließen"}
-          </button>
-        </div>
+        {!done && (
+          <>
+            {loading ? (
+              <LoadingBlock label="Lade Schichtdaten…" />
+            ) : !ribbon.length ? (
+              <EmptyState title="Keine Übergabe-Daten" hint="Präsenz, Plan und Lager erscheinen hier, sobald verfügbar." />
+            ) : (
+              <div className="list-panel mb-3" data-testid="handover-ribbon" aria-label="Übergabe-Liste">
+                <div className="list-sticky">
+                  <span>Status</span>
+                  <span>{ribbon.length}</span>
+                </div>
+                {ribbon.map((item) => {
+                  const rowClass = item.tone === "warn" ? "list-row is-warn" : "list-row";
+                  const body = (
+                    <>
+                      <div className="list-row__main">
+                        <div className="list-row__title">
+                          {KIND_LABEL[item.kind]} · {item.title}
+                        </div>
+                        <div className="list-row__meta">{item.body}</div>
+                      </div>
+                      {item.href ? <span aria-hidden>→</span> : null}
+                    </>
+                  );
+                  return item.href ? (
+                    <Link key={item.id} href={item.href} className={rowClass} data-testid={`ribbon-${item.kind}`}>
+                      {body}
+                    </Link>
+                  ) : (
+                    <div key={item.id} className={rowClass} style={{ cursor: "default" }} data-testid={`ribbon-${item.kind}`}>
+                      {body}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <label htmlFor="handover-extra" className="block mb-3">
+              Zusatz für die Übergabe
+              <textarea
+                id="handover-extra"
+                rows={3}
+                value={extra}
+                onChange={(e) => setExtra(e.target.value)}
+                placeholder="Besonderes für die nächste Schicht…"
+                data-testid="handover-extra"
+              />
+            </label>
+
+            <div className="sticky-footer">
+              <button
+                className="btn w-full"
+                type="button"
+                disabled={loading || busy || !ribbon.length}
+                onClick={submit}
+                data-testid="handover-complete"
+              >
+                {busy ? "Speichern…" : "Übergabe abschließen"}
+              </button>
+            </div>
+          </>
+        )}
       </PageShell>
       <Dock />
     </>

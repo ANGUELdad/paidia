@@ -140,6 +140,7 @@ export default function CalendarPage() {
         eyebrow="Kalender"
         title="Termine"
         lead="Kommende Termine · ICS · Erinnerungen."
+        back="/home"
         actions={
           <button type="button" className="btn-sec text-sm" onClick={() => downloadIcs()} data-testid="ics-all">
             Alle als ICS

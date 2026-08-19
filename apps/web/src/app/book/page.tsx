@@ -88,9 +88,10 @@ export default function BookPage() {
 
   if (!ready) return <main className="page">Laden…</main>;
 
+
   return (
     <>
-      <PageShell eyebrow="Buch" title="Schichtbuch" lead="Kurzer Tagesstand · Audit als dichte Liste.">
+      <PageShell eyebrow="Buch" title="Schichtbuch" lead="Kurzer Tagesstand · Audit als dichte Liste." back="/home">
         <div data-tour="tour-book">
         {error && <p className="warn">{error}</p>}
 

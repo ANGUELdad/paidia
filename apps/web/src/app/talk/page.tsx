@@ -109,7 +109,7 @@ export default function TalkPage() {
 
   return (
     <>
-      <PageShell eyebrow="Talk" title="Team-Chat" lead="Nachrichten und Besprechungsnotizen der Woche.">
+      <PageShell eyebrow="Talk" title="Team-Chat" lead="Nachrichten und Besprechungsnotizen der Woche." back="/home">
         <div data-tour="tour-talk">
         {error && (
           <div className="warn mb-3" role="alert">

@@ -620,6 +620,7 @@ button.list-row:active {
 .more-links a {
   display: flex;
   align-items: center;
+  gap: 10px;
   min-height: 44px;
   padding: 10px 14px;
   border-radius: 14px;
@@ -630,6 +631,18 @@ button.list-row:active {
   background: rgba(255, 255, 255, 0.6);
   border: 1px solid transparent;
   transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.more-link-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--bg-deep);
+  color: var(--sea);
 }
 
 .more-links a:hover,
@@ -666,13 +679,27 @@ button.list-row:active {
     radial-gradient(ellipse 60% 35% at 0% 20%, rgba(42, 107, 82, 0.18), transparent 45%);
 }
 
-.shell-top {
+.shell-header {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: space-between;
   gap: var(--gap);
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.shell-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--sea);
+  text-decoration: none;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .shell-title {
@@ -683,7 +710,8 @@ button.list-row:active {
 .shell-lead {
   margin-top: 4px;
   max-width: 42ch;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
+  color: var(--muted);
 }
 
 .shell-actions {
@@ -1466,6 +1494,19 @@ button.list-row:active {
   border: 1px solid var(--line);
   background: var(--card);
   font-size: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.mood-orb-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  line-height: 1;
 }
 
 .mood-orb.on {
@@ -1555,16 +1596,37 @@ button.list-row:active {
   }
 
   .btn,
-  .btn-sec {
+  .btn-sec,
+  .shift-cta,
+  .shift-cta-ghost,
+  .dawn-cta,
+  .dawn-cta-ghost {
     transition: opacity var(--motion-fast) var(--motion-ease-settle);
   }
 
   .btn:active,
-  .btn-sec:active {
+  .btn-sec:active,
+  .shift-cta:active,
+  .shift-cta-ghost:active,
+  .dawn-cta:active,
+  .dawn-cta-ghost:active {
     transform: none;
   }
 
   .ribbon-item {
+    animation: none;
+  }
+
+  .dawn-hero,
+  .login-hero {
+    animation: none;
+  }
+
+  .more-overlay {
+    animation: none;
+  }
+
+  .more-sheet {
     animation: none;
   }
 }
@@ -1904,6 +1966,84 @@ button.list-row:active {
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
+}
+
+/* ── Login Dawn ─────────────────────────────────────────────────── */
+.login-dawn {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  max-width: 26rem;
+  margin-inline: auto;
+  padding:
+    max(2.5rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(2.5rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+
+.login-dawn-header {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 2rem;
+}
+
+.login-dawn-hero {
+  margin-bottom: 2rem;
+  animation: riseIn var(--motion-reveal) var(--motion-ease-tide);
+}
+
+.login-dawn-wordmark {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
+
+.login-dawn-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 8vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  color: var(--ink);
+}
+
+.login-dawn-lead {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.login-dawn-note {
+  margin-top: auto;
+  padding-top: 2rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.login-dawn-version {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brand);
+  margin-right: 6px;
+}
+
+/* ── Shell (inner-page) back-compat ─────────────────────────────── */
+.shell-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin-bottom: 16px;
 }
 
 @media (max-width: 480px) {

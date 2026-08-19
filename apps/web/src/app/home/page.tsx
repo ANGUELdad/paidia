@@ -24,6 +24,7 @@ type Session = {
 type Due = { kind: string; title: string; body: string; url: string };
 
 const WEEKDAYS_DE = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+const WEEKDAYS_EL = ["Δε", "Τρ", "Τε", "Πε", "Πα", "Σά", "Κυ"];
 
 export default function HomePage() {
   const router = useRouter();
@@ -73,7 +74,8 @@ export default function HomePage() {
   const week = useMemo(() => {
     const base = new Date(today + "T12:00:00");
     const day = (base.getDay() + 6) % 7; // Mon=0
-    return WEEKDAYS_DE.map((label, i) => {
+    const labels = lang === "el" ? WEEKDAYS_EL : WEEKDAYS_DE;
+    return labels.map((label, i) => {
       const d = new Date(base);
       d.setDate(base.getDate() - day + i);
       return {
@@ -83,7 +85,7 @@ export default function HomePage() {
         active: i === day,
       };
     });
-  }, [today]);
+  }, [today, lang]);
 
   const displayDate = useMemo(
     () =>
@@ -105,7 +107,7 @@ export default function HomePage() {
       });
       setPresence({ pending: false });
       setLateOpen(false);
-      setNotice(status === "there" ? "Willkommen — du bist da." : "Verspätung notiert.");
+      setNotice(status === "there" ? t("homeWelcomeThere", lang) : t("homeWelcomeLate", lang));
       try {
         const evald = await api<{ due: Due[] }>("/api/notify/evaluate");
         setDue((evald.due || []).filter((d) => d.kind !== "shift_start"));
@@ -133,6 +135,8 @@ export default function HomePage() {
   const firstName = session.nickname || session.name || "";
   const topDue = due[0];
   const lowStock = due.find((d) => d.kind === "low_stock");
+  // Only show the stock alert if there is an actual low-stock item in the due list
+  const showStockAlert = !!lowStock;
 
   return (
     <>
@@ -152,13 +156,15 @@ export default function HomePage() {
             </div>
           </div>
           <p className="dawn-date">{displayDate}</p>
-          <h1 className="dawn-title">Guten Morgen{firstName ? `, ${firstName}` : ""}</h1>
+          <h1 className="dawn-title">
+            {t("homeGreeting", lang)}{firstName ? `, ${firstName}` : ""}
+          </h1>
           <p className="dawn-lead">
             {pending
-              ? "Starte die Schicht — ein Tippen genügt."
+              ? t("homeShiftPending", lang)
               : started
-                ? "Schicht läuft. Frag Zo-Ai oder folge der Führung."
-                : "Status wird geladen…"}
+                ? t("homeShiftRunning", lang)
+                : t("homeStatusLoading", lang)}
           </p>
 
           <div className="dawn-cta-row" data-tour="tour-presence" data-testid="presence-card">
@@ -171,7 +177,7 @@ export default function HomePage() {
                   data-testid="presence-there"
                   onClick={() => checkin("there")}
                 >
-                  Schicht starten
+                  {t("homeShiftStart", lang)}
                 </button>
                 <button
                   className="dawn-cta-ghost"
@@ -180,16 +186,16 @@ export default function HomePage() {
                   data-testid="presence-late"
                   onClick={() => setLateOpen(true)}
                 >
-                  Zu spät melden
+                  {t("homeShiftLate", lang)}
                 </button>
               </>
             ) : started ? (
               <>
                 <Link className="dawn-cta" href="/handover" data-testid="cta-handover">
-                  Übergabe
+                  {t("handoverTitle", lang)}
                 </Link>
                 <Link className="dawn-cta-ghost" href="/plan">
-                  Tagesplan
+                  {t("homePlan", lang)}
                 </Link>
               </>
             ) : (
@@ -206,17 +212,24 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="dawn-week" aria-label="Woche" data-tour="tour-week">
+        {/* Week strip — clicking a day goes to /plan?date=YYYY-MM-DD */}
+        <div className="dawn-week" aria-label={lang === "el" ? "Εβδομάδα" : "Woche"} data-tour="tour-week">
           {week.map((d) => (
-            <div key={d.iso} className={`dawn-day${d.active ? " is-active" : ""}`}>
+            <Link
+              key={d.iso}
+              href={`/plan?date=${d.iso}`}
+              className={`dawn-day${d.active ? " is-active" : ""}`}
+              aria-label={`${d.label} ${d.date}`}
+              aria-current={d.active ? "date" : undefined}
+            >
               <span>{d.label}</span>
               <strong>{d.date}</strong>
-            </div>
+            </Link>
           ))}
         </div>
 
-        <section className="dawn-card" data-tour="tour-now" aria-label="Jetzt">
-          <p className="dawn-kicker">JETZT</p>
+        <section className="dawn-card" data-tour="tour-now" aria-label={t("homeJetzt", lang)}>
+          <p className="dawn-kicker">{t("homeJetzt", lang)}</p>
           {topDue ? (
             <Link href={topDue.url} className="dawn-now-link" data-testid={`due-${topDue.kind}`}>
               <h2 className="dawn-now-title">{topDue.title}</h2>
@@ -224,71 +237,76 @@ export default function HomePage() {
             </Link>
           ) : (
             <div data-testid="all-clear">
-              <h2 className="dawn-now-title">Alles ruhig</h2>
-              <p className="dawn-now-meta">Keine offenen Erinnerungen — gut so.</p>
+              <h2 className="dawn-now-title">{t("homeAllClear", lang)}</h2>
+              <p className="dawn-now-meta">{t("homeAllClearMeta", lang)}</p>
             </div>
           )}
         </section>
 
-        <section className="dawn-section" aria-label="Heute">
+        <section className="dawn-section" aria-label={t("homeHeute", lang)}>
           <div className="row between">
-            <h2 className="dawn-section-title">HEUTE</h2>
-            {due.length > 1 && <span className="muted text-xs">{due.length} offen</span>}
+            <h2 className="dawn-section-title">{t("homeHeute", lang).toUpperCase()}</h2>
+            {due.length > 1 && (
+              <span className="muted text-xs">{due.length} offen</span>
+            )}
           </div>
           <div className="list-panel dawn-list">
             {due.slice(0, 4).map((d) => (
-              <Link key={d.kind} href={d.url} className="list-row is-warn" data-testid={`due-row-${d.kind}`}>
+              <Link
+                key={d.kind}
+                href={d.url}
+                className="list-row is-warn"
+                data-testid={`due-row-${d.kind}`}
+              >
                 <div className="list-row__main">
                   <div className="list-row__title">{d.title}</div>
                   <div className="list-row__meta">{d.body}</div>
                 </div>
-                <span className="muted" aria-hidden>
-                  →
-                </span>
+                <span className="muted" aria-hidden>→</span>
               </Link>
             ))}
             <Link href="/coverage" className="list-row">
               <div className="list-row__main">
                 <div className="list-row__title">{t("coverage", lang)}</div>
-                <div className="list-row__meta">Wer ist da · Lücken</div>
+                <div className="list-row__meta">{lang === "el" ? "Ποιος είναι εδώ · Κενά" : "Wer ist da · Lücken"}</div>
               </div>
               <span aria-hidden>→</span>
             </Link>
             <Link href="/incidents" className="list-row">
               <div className="list-row__main">
                 <div className="list-row__title">{t("incidents", lang)}</div>
-                <div className="list-row__meta">Vorfall sichern</div>
+                <div className="list-row__meta">{lang === "el" ? "Περιστατικό καταγραφή" : "Vorfall sichern"}</div>
               </div>
               <span aria-hidden>→</span>
             </Link>
             <Link className="list-row" href="/handover" data-testid="link-handover">
               <div className="list-row__main">
-                <div className="list-row__title">Übergabe</div>
-                <div className="list-row__meta">Vorbereiten</div>
+                <div className="list-row__title">{t("handoverTitle", lang)}</div>
+                <div className="list-row__meta">{lang === "el" ? "Προετοιμασία" : "Vorbereiten"}</div>
               </div>
               <span aria-hidden>→</span>
             </Link>
           </div>
         </section>
 
-        {(lowStock || due.length >= 0) && (
+        {showStockAlert && (
           <Link
             href="/stock"
             className="dawn-alert"
             data-tour="tour-stock-alert"
             data-testid="stock-alert"
           >
-            <span className="dawn-alert-label">Lager</span>
+            <span className="dawn-alert-label">{t("homeLager", lang)}</span>
             <div>
-              <strong>{lowStock ? lowStock.title : "Bestand prüfen"}</strong>
-              <p>{lowStock ? lowStock.body : "Kurzer Blick lohnt sich"}</p>
+              <strong>{lowStock!.title}</strong>
+              <p>{lowStock!.body}</p>
             </div>
           </Link>
         )}
 
-        <section className="dawn-card dawn-zoai" data-tour="tour-ask" aria-label="Zo-Ai fragen">
-          <p className="dawn-kicker">ZO-AI · FRAGEN & FÜHREN</p>
-          <p className="dawn-zoai-lead">Frag, wie etwas geht — Zo-Ai erklärt und zeigt den Bildschirm.</p>
+        <section className="dawn-card dawn-zoai" data-tour="tour-ask" aria-label="Zo-Ai">
+          <p className="dawn-kicker">ZO-AI · {lang === "el" ? "ΕΡΩΤΉΣΕΙΣ & ΟΔΉΓΗΣΗ" : "FRAGEN & FÜHREN"}</p>
+          <p className="dawn-zoai-lead">{t("homeZoAiLead", lang)}</p>
           <form
             className="dawn-ask-form"
             onSubmit={(e) => {
@@ -300,12 +318,12 @@ export default function HomePage() {
               className="dawn-ask-input"
               value={askDraft}
               onChange={(e) => setAskDraft(e.target.value)}
-              placeholder="z.B. Wie starte ich die Schicht?"
+              placeholder={t("homeZoAiPlaceholder", lang)}
               data-testid="home-ask-input"
-              aria-label="Frage an Zo-Ai"
+              aria-label={lang === "el" ? "Ερώτηση στο Zo-Ai" : "Frage an Zo-Ai"}
             />
             <button className="dawn-cta" type="submit" data-testid="home-ask-submit">
-              Fragen
+              {t("homeZoAiFragen", lang)}
             </button>
           </form>
           <div className="dawn-chips">
@@ -332,16 +350,22 @@ export default function HomePage() {
                 data-testid="guide-chip-handover"
                 onClick={() => router.push("/handover")}
               >
-                Übergabe
+                {t("navHandover", lang)}
               </button>
             )}
             <button
               type="button"
               className="dawn-chip dawn-chip-ai"
               data-testid="guide-chip-ask"
-              onClick={() => askZoAi("Wie nutze ich Zo-Ai und die Führung?")}
+              onClick={() =>
+                askZoAi(
+                  lang === "el"
+                    ? "Πώς να χρησιμοποιήσω το Zo-Ai;"
+                    : "Wie nutze ich Zo-Ai und die Führung?",
+                )
+              }
             >
-              Frag Zo-Ai
+              {lang === "el" ? "Ρώτα Zo-Ai" : "Frag Zo-Ai"}
             </button>
           </div>
         </section>

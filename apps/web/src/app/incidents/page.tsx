@@ -137,7 +137,7 @@ export default function IncidentsPage() {
 
   return (
     <>
-      <PageShell eyebrow="Schicht" title="Vorfälle" lead="Liste · Tippen für Details · Melden unten.">
+      <PageShell eyebrow="Schicht" title="Vorfälle" lead="Liste · Tippen für Details · Melden unten." back="/home">
         {error && (
           <div className="warn mb-3" role="alert">
             {error}

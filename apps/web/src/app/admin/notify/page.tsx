@@ -120,7 +120,7 @@ export default function AdminNotifyPage() {
 
   return (
     <>
-      <PageShell eyebrow="Admin" title="Automationen" lead="Erinnerungen, Push und Rundsendungen.">
+      <PageShell eyebrow="Admin" title="Automationen" lead="Erinnerungen, Push und Rundsendungen." back="/home">
         <section className="list-panel mb-3" data-tour="tour-admin">
           <div className="list-sticky">
             <span>{t("reminderCatalog", lang)}</span>

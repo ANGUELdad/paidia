@@ -135,6 +135,7 @@ export default function CoveragePage() {
         eyebrow="Schicht"
         title="Abdeckung"
         lead={`${displayDate} — wer ist in welchem Haus?`}
+        back="/home"
       >
         <section data-tour="tour-coverage">
           {error && (

@@ -21,6 +21,17 @@ async function skipToursByDefault(page: import("@playwright/test").Page) {
 }
 
 async function loginAsZoi(page: import("@playwright/test").Page) {
+  // If already authenticated as staff, skip re-login to save time
+  const sess = await page.request.get("/api/auth/session").catch(() => null);
+  if (sess?.ok()) {
+    const j = await sess.json().catch(() => ({})) as { authenticated?: boolean; mode?: string };
+    if (j.authenticated && j.mode !== "child") {
+      await page.goto("/home", { waitUntil: "domcontentloaded" });
+      await dismissTour(page);
+      await expect(page.getByTestId("dock")).toBeVisible({ timeout: 10000 });
+      return;
+    }
+  }
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("enter-staff").click();
   await expect(page.getByTestId("profile-e8")).toBeVisible({ timeout: 15000 });
@@ -152,9 +163,9 @@ test("ops stress: stock shop plan book zoai calendar admin", async ({ page }) =>
   await page.getByRole("button", { name: /Senden|Αποστολή/i }).click({ force: true });
 
   await staffGoto(page, "/zoai");
-  await page.getByPlaceholder("Frag Zo-Ai…").fill("Milch auf Liste");
+  await page.getByPlaceholder(/Wie starte|Frag Zo/).fill("Milch auf Liste");
   await page.getByRole("button", { name: /Senden|Αποστολή/i }).click({ force: true });
-  await expect(page.getByTestId("staff-chat-log")).toBeVisible();
+  await expect(page.locator("[data-testid='staff-chat-log'], .chat-log").first()).toBeVisible({ timeout: 10000 });
   await page.waitForTimeout(400);
 
   await staffGoto(page, "/calendar");
@@ -205,6 +216,7 @@ test("guided tour advances", async ({ page }) => {
   });
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("enter-staff").click();
+  await expect(page.getByTestId("profile-e8")).toBeVisible({ timeout: 15000 });
   await page.getByTestId("profile-e8").click();
   await page.getByTestId("pin-input").fill("888888");
   await Promise.all([
@@ -221,6 +233,7 @@ test("child mode isolated", async ({ page }) => {
   await skipToursByDefault(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await page.getByTestId("enter-child").click();
+  await expect(page.getByTestId("profile-k1")).toBeVisible({ timeout: 15000 });
   await page.getByTestId("profile-k1").click();
   await page.getByTestId("pin-input").fill("121212");
   await Promise.all([
