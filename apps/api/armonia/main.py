@@ -13,6 +13,7 @@ from armonia.config import get_settings
 from armonia.domains.book import router as book_router
 from armonia.domains.calendar import router as calendar_router
 from armonia.domains.care import router as care_router
+from armonia.domains.entries import router as entries_router
 from armonia.domains.coverage import router as coverage_router
 from armonia.domains.incidents import router as incidents_router
 from armonia.domains.kids import router as kids_router
@@ -64,6 +65,7 @@ app.include_router(calendar_router)
 app.include_router(coverage_router)
 app.include_router(incidents_router)
 app.include_router(care_router)
+app.include_router(entries_router)
 
 meeting_alias = APIRouter(prefix="/api/meeting-notes", tags=["talk"])
 

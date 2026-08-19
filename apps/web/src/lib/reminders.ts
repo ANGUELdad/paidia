@@ -13,28 +13,31 @@ export async function scheduleLocalReminder(title: string, atIso: string, url = 
   const perm = await ensureNotifPermission();
   const when = new Date(atIso).getTime();
   const delay = Math.max(0, when - Date.now());
-  const payload = { title, body: "Armonia Erinnerung", url, at: atIso };
-  const key = `armonia.rm.${when}.${title}`;
+  const body = "Armonia Erinnerung";
+  const payload = { title, body, url, at: atIso };
+  const key = `armonia.rm.${when}.${encodeURIComponent(title).slice(0, 40)}`;
   localStorage.setItem(key, JSON.stringify(payload));
 
+  if ("serviceWorker" in navigator) {
+    const reg = await navigator.serviceWorker.ready.catch(() => null);
+    if (reg?.active) {
+      reg.active.postMessage({ type: "schedule-reminder", ...payload, delay });
+      return { ok: true, delay, via: "sw" };
+    }
+  }
+
+  // Fallback: browser Notification (no click navigation on some platforms)
   if (perm === "granted") {
     window.setTimeout(() => {
       try {
-        new Notification(title, { body: "Armonia Erinnerung", data: { url } });
+        new Notification(title, { body, data: { url } });
       } catch {
         /* ignore */
       }
     }, Math.min(delay, 2147483647));
   }
 
-  if ("serviceWorker" in navigator) {
-    const reg = await navigator.serviceWorker.ready.catch(() => null);
-    if (reg) {
-      // Best-effort show later via SW message
-      reg.active?.postMessage({ type: "schedule-reminder", ...payload, delay });
-    }
-  }
-  return { ok: true, delay };
+  return { ok: true, delay, via: "notification" };
 }
 
 export function sweepDueReminders() {

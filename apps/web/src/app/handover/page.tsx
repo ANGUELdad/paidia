@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Dock } from "@/components/Dock";
 import { EmptyState, LoadingBlock } from "@/components/EmptyState";
 import { PageShell } from "@/components/PageShell";
+import { api } from "@/lib/api";
 import {
   buildHandoverSummary,
   buildRibbon,
@@ -45,6 +46,9 @@ const COPY = {
     loadingData: "Lade Schichtdaten…",
     ribbon: "Übergabe-Liste",
     status: "Status",
+    draftBtn: "Entwurf erstellen",
+    drafting: "Entwurf wird erstellt…",
+    draftFail: "Entwurf konnte nicht erstellt werden",
   },
   el: {
     eyebrow: "Βάρδια",
@@ -65,6 +69,9 @@ const COPY = {
     loadingData: "Φόρτωση δεδομένων βάρδιας…",
     ribbon: "Λίστα παράδοσης",
     status: "Κατάσταση",
+    draftBtn: "Δημιουργία πρόχειρου",
+    drafting: "Δημιουργία πρόχειρου…",
+    draftFail: "Δεν ήταν δυνατή η δημιουργία πρόχειρου",
   },
 } as const;
 
@@ -76,6 +83,7 @@ export default function HandoverPage() {
   const [extra, setExtra] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [drafting, setDrafting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
 
@@ -126,6 +134,36 @@ export default function HandoverPage() {
       setError((e as Error).message || c.saveFail);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function draftHandover() {
+    if (drafting || busy) return;
+    setDrafting(true);
+    setError("");
+    try {
+      const ribbonSummary = ribbon
+        .map((item) => `${KIND[item.kind][lang]}: ${item.title} — ${item.body}`)
+        .join("\n");
+      const systemPrompt =
+        lang === "el"
+          ? `Είσαι βοηθός παράδοσης βάρδιας. Με βάση τα παρακάτω δεδομένα βάρδιας, γράψε ένα σύντομο πρόχειρο παράδοσης (3-6 προτάσεις) για την επόμενη βάρδια. Χρησιμοποίησε μόνο τα δεδομένα που σου δίνονται.\n\nΔεδομένα βάρδιας (${today}):\n${ribbonSummary}`
+          : `Du bist ein Schichtübergabe-Assistent. Basierend auf den folgenden Schichtdaten schreibe einen kurzen Übergabe-Entwurf (3-6 Sätze) für die nächste Betreuung. Verwende nur die angegebenen Daten.\n\nSchichtdaten (${today}):\n${ribbonSummary}`;
+      const res = await api<{ reply?: string; message?: string }>("/api/zoai/chat", {
+        method: "POST",
+        body: JSON.stringify({
+          messages: [{ role: "user", content: systemPrompt }],
+          mode: "handover_draft",
+        }),
+      });
+      const draft = res.reply || res.message || "";
+      if (draft) {
+        setExtra((prev) => (prev ? prev + "\n\n" + draft : draft));
+      }
+    } catch (e) {
+      setError((e as Error).message || c.draftFail);
+    } finally {
+      setDrafting(false);
     }
   }
 
@@ -195,6 +233,18 @@ export default function HandoverPage() {
             })}
           </div>
         )}
+
+        <div className="mb-2">
+          <button
+            type="button"
+            className="btn-sec"
+            disabled={loading || drafting || busy || !ribbon.length}
+            onClick={draftHandover}
+            data-testid="handover-draft"
+          >
+            {drafting ? c.drafting : c.draftBtn}
+          </button>
+        </div>
 
         <label htmlFor="handover-extra" className="block mb-3">
           {c.extra}

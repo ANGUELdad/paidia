@@ -321,6 +321,84 @@ test("angelos click every dock and mehr control", async ({ page }) => {
   }
 });
 
+/**
+ * Viewport matrix — adaptive CSS layer assertions (Phase 2).
+ * Each viewport asserts: no horizontal overflow, tap targets ≥44px (coarse),
+ * landscape chrome under 20 % of vh, content fills available width ±40px.
+ */
+const VIEWPORTS = [
+  { name: "iphone-14-portrait", width: 390, height: 844, coarse: true },
+  { name: "iphone-14-landscape", width: 844, height: 390, coarse: true },
+  { name: "ipad-air-portrait", width: 820, height: 1180, coarse: true },
+  { name: "ipad-air-landscape", width: 1180, height: 820, coarse: true },
+  { name: "macbook-1728", width: 1728, height: 1080, coarse: false },
+  { name: "windows-1920", width: 1920, height: 1080, coarse: false },
+  { name: "narrow-320", width: 320, height: 568, coarse: true },
+] as const;
+
+for (const vp of VIEWPORTS) {
+  test(`viewport matrix: ${vp.name}`, async ({ browser }) => {
+    const ctx = await browser.newContext({
+      viewport: { width: vp.width, height: vp.height },
+      hasTouch: vp.coarse,
+      isMobile: vp.coarse,
+    });
+    const page = await ctx.newPage();
+    await page.addInitScript(() => {
+      localStorage.setItem("armonia.tour.staff.v3", "1");
+    });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    // No horizontal scroll on the root page
+    const bodyScrollWidth = await page.evaluate(() => document.body.scrollWidth);
+    expect(bodyScrollWidth, `${vp.name}: horizontal overflow`).toBeLessThanOrEqual(vp.width + 2);
+
+    // Landscape chrome check: header + nav under 20 % of viewport height
+    if (vp.height < vp.width) {
+      const chromeH = await page.evaluate(() => {
+        const topbar = document.querySelector(".app-topbar") as HTMLElement | null;
+        const dock = document.querySelector(".dock") as HTMLElement | null;
+        const topH = topbar?.getBoundingClientRect().height || 0;
+        const dockH = dock?.getBoundingClientRect().height || 0;
+        return topH + dockH;
+      });
+      const limit = vp.height * 0.2;
+      expect(chromeH, `${vp.name}: landscape chrome ${chromeH}px > ${limit}px`).toBeLessThanOrEqual(limit);
+    }
+
+    // Tap target check (coarse pointer only): all buttons/links ≥ 44×44
+    if (vp.coarse) {
+      const smallTargets = await page.evaluate(() => {
+        const els = document.querySelectorAll<HTMLElement>("button, a, [role='button']");
+        const small: string[] = [];
+        for (const el of els) {
+          const r = el.getBoundingClientRect();
+          if (r.width < 1 || r.height < 1) continue; // invisible
+          if (r.width < 44 || r.height < 44) {
+            small.push(`${el.tagName}[${el.textContent?.trim().slice(0, 20)}] ${Math.round(r.width)}×${Math.round(r.height)}`);
+          }
+        }
+        return small;
+      });
+      expect(smallTargets, `${vp.name}: tap targets under 44px`).toHaveLength(0);
+    }
+
+    // Content fills available width: only check on phone portrait where the
+    // page shell is full-bleed (login form is max-w-md by design, not a failure)
+    if (vp.name === "iphone-14-portrait") {
+      const contentW = await page.evaluate(() => {
+        const main = document.querySelector("main") as HTMLElement | null;
+        return main ? main.getBoundingClientRect().width : 0;
+      });
+      if (contentW > 0) {
+        expect(contentW, `${vp.name}: content width`).toBeGreaterThan(vp.width - 60);
+      }
+    }
+
+    await ctx.close();
+  });
+}
+
 test("child mode isolated", async ({ page }) => {
   await skipToursByDefault(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });

@@ -74,6 +74,8 @@ const COPY = {
     fridayPrefix: "Freitag",
     stock: "Bestand",
     par: "Ziel",
+    loadMore: "Mehr laden",
+    showingOf: (shown: number, total: number) => `${shown} von ${total}`,
   },
   el: {
     eyebrow: "Λίστα",
@@ -110,8 +112,12 @@ const COPY = {
     fridayPrefix: "Παρασκευή",
     stock: "Απόθεμα",
     par: "Στόχος",
+    loadMore: "Περισσότερα",
+    showingOf: (shown: number, total: number) => `${shown} από ${total}`,
   },
 } as const;
+
+const SHOP_PAGE_SIZE = 30;
 
 function readStoredHouse(): string {
   if (typeof window === "undefined") return "";
@@ -146,6 +152,7 @@ export default function ShopPage() {
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [shopVisible, setShopVisible] = useState(SHOP_PAGE_SIZE);
   const [msg, setMsg] = useState("");
   const [supermarketMode, setSupermarketMode] = useState(false);
 
@@ -433,7 +440,7 @@ export default function ShopPage() {
                 aria-selected={tab === tdef.id}
                 className={`btn-sec ${tab === tdef.id ? "ring-2 ring-[var(--brand)]" : ""}`}
                 disabled={busy}
-                onClick={() => setTab(tdef.id)}
+                onClick={() => { setTab(tdef.id); setShopVisible(SHOP_PAGE_SIZE); }}
               >
                 {tdef.label}
               </button>
@@ -591,7 +598,13 @@ export default function ShopPage() {
                 <EmptyState title={c.emptySuggest} />
               )
             ) : entries.length ? (
-              entries.map((e) => (
+              <>
+              {entries.length > SHOP_PAGE_SIZE && (
+                <div className="list-sticky">
+                  <span className="muted text-xs">{c.showingOf(Math.min(shopVisible, entries.length), entries.length)}</span>
+                </div>
+              )}
+              {entries.slice(0, shopVisible).map((e) => (
                 <div
                   key={e.id}
                   className={`list-row ${e.status === "missing" ? "is-gap" : e.status === "bought" ? "is-warn" : ""}`}
@@ -637,7 +650,15 @@ export default function ShopPage() {
                     )}
                   </div>
                 </div>
-              ))
+              ))}
+              {shopVisible < entries.length && (
+                <div className="p-3 text-center">
+                  <button type="button" className="btn-sec" onClick={() => setShopVisible((n) => n + SHOP_PAGE_SIZE)}>
+                    {c.loadMore} ({entries.length - shopVisible})
+                  </button>
+                </div>
+              )}
+              </>
             ) : (
               <EmptyState
                 title={tab === "friday" ? c.emptyFriday : tab === "supermarket" ? c.emptyMarket : c.emptyList}

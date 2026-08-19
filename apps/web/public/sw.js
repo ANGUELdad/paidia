@@ -63,12 +63,11 @@ self.addEventListener("notificationclick", (event) => {
   const url = safeAppUrl(event.notification.data && event.notification.data.url);
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if ("focus" in client) {
-          client.focus();
-          if ("navigate" in client) return client.navigate(url);
-          return undefined;
-        }
+      // Prefer a client that is already on our origin
+      const focusable = clientList.find((c) => "focus" in c);
+      if (focusable) {
+        const nav = focusable.navigate ? focusable.navigate(url) : Promise.resolve();
+        return Promise.resolve(nav).then(() => focusable.focus()).catch(() => self.clients.openWindow(url));
       }
       return self.clients.openWindow(url);
     })

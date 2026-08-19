@@ -264,6 +264,13 @@ def _try_send_web_push(subs: list[dict[str, Any]], payload: dict[str, Any]) -> i
     return sent
 
 
+@router.get("/email/preview")
+def notify_email_preview(request: Request) -> dict[str, Any]:
+    require_admin(request)
+    html = email_shell("Test", "Hallo Armonia-Team", lang="de")
+    return {"ok": True, "html": html}
+
+
 @router.get("/email/status")
 def notify_email_status(request: Request) -> dict[str, Any]:
     require_admin(request)
@@ -344,19 +351,25 @@ def broadcast(body: BroadcastBody, request: Request) -> dict[str, Any]:
     email_queued = 0
     email_failed = 0
     email_reason: str | None = None
+    email_configured: bool | None = None
     if also_email:
-        email_html = email_shell(subject, message, lang=body.lang or "de")
-        for profile in profiles:
-            to = (profile.get("email") or "").strip()
-            if not to:
-                continue
-            email_attempted += 1
-            result = send_email(to, subject, html=email_html, text=message)
-            if result.get("queued"):
-                email_queued += 1
-            else:
-                email_failed += 1
-                email_reason = email_reason or str(result.get("reason") or "send_failed")
+        status = email_status()
+        email_configured = bool(status.get("configured"))
+        if not email_configured:
+            email_reason = "not_configured"
+        else:
+            email_html = email_shell(subject, message, lang=body.lang or "de")
+            for profile in profiles:
+                to = (profile.get("email") or "").strip()
+                if not to:
+                    continue
+                email_attempted += 1
+                result = send_email(to, subject, html=email_html, text=message)
+                if result.get("queued"):
+                    email_queued += 1
+                else:
+                    email_failed += 1
+                    email_reason = email_reason or str(result.get("reason") or "send_failed")
     return {
         "ok": True,
         "sent": len(profiles),
@@ -367,6 +380,7 @@ def broadcast(body: BroadcastBody, request: Request) -> dict[str, Any]:
         "pushSent": push_sent,
         "email": {
             "requested": also_email,
+            "configured": email_configured,
             "attempted": email_attempted,
             "queued": email_queued,
             "failed": email_failed,

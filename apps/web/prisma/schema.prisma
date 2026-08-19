@@ -177,6 +177,52 @@ model LearningSignal {
   createdAt DateTime @default(now())
 }
 
+// ---------------------------------------------------------------------------
+// Entry — append-only unified records spine
+// Replaces the five separate note shapes (shiftNotes, incidents, careLogs,
+// handoverNotes, meetingNotes) with one auditable model.
+//
+// Migration SQL (run manually — do NOT apply to production automatically):
+//
+// CREATE TABLE IF NOT EXISTS "Entry" (
+//   "id"                TEXT      NOT NULL PRIMARY KEY,
+//   "kind"              TEXT      NOT NULL,
+//   "authorProfileId"   TEXT      NOT NULL,
+//   "houseId"           TEXT,
+//   "childProfileId"    TEXT,
+//   "tags"              TEXT      NOT NULL DEFAULT '[]',
+//   "body"              TEXT      NOT NULL,
+//   "attachments"       TEXT,
+//   "serverCreatedAt"   DATETIME  NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+//   "clientRef"         TEXT,
+//   "archivedAt"        DATETIME
+// );
+// CREATE INDEX IF NOT EXISTS "Entry_kind_idx"              ON "Entry"("kind");
+// CREATE INDEX IF NOT EXISTS "Entry_authorProfileId_idx"   ON "Entry"("authorProfileId");
+// CREATE INDEX IF NOT EXISTS "Entry_childProfileId_idx"    ON "Entry"("childProfileId");
+// CREATE INDEX IF NOT EXISTS "Entry_houseId_idx"           ON "Entry"("houseId");
+// CREATE UNIQUE INDEX IF NOT EXISTS "Entry_clientRef_key"  ON "Entry"("clientRef");
+// ---------------------------------------------------------------------------
+model Entry {
+  id              String    @id @default(uuid())
+  // journal | incident | care | handover | meeting | note
+  kind            String
+  authorProfileId String
+  houseId         String?
+  childProfileId  String?
+  // JSON-encoded string[]; Prisma stores as TEXT in SQLite
+  tags            String    @default("[]")
+  body            String
+  // JSONB in Postgres; TEXT in SQLite — store as JSON string
+  attachments     String?
+  // Stamped by the server on write — never accept from client
+  serverCreatedAt DateTime  @default(now())
+  // Optional idempotency key supplied by client for dedup
+  clientRef       String?   @unique
+  // Soft-archive: null = active; non-null = archived
+  archivedAt      DateTime?
+}
+
 model BuildInfo {
   id      Int    @id @default(1)
   version Int

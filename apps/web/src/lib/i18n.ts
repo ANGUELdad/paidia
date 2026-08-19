@@ -203,6 +203,12 @@ const DICT = {
     campusLead: "Notizen und Module — klar wie ein 2026-Campus.",
     notifications: "Mitteilungen",
     systemNotify: "System-Mitteilungen erlauben",
+    regulatoryTitle: "Schicht-Checkliste",
+    regulatoryLead: "Bitte alle Punkte bestätigen, bevor die Schicht startet.",
+    regulatorySkip: "Später (10 Min)",
+    regulatoryConfirm: "Schicht starten",
+    regulatoryReminder: "Regulatorische Prüfung ausstehend",
+    notifPrompt: "Schicht-Erinnerungen aktivieren",
   },
   el: {
     loading: "Φόρτωση…",
@@ -402,8 +408,31 @@ const DICT = {
     campusLead: "Σημειώσεις και ενότητες — σαν campus του 2026.",
     notifications: "Ειδοποιήσεις",
     systemNotify: "Ειδοποιήσεις συστήματος",
+    regulatoryTitle: "Λίστα ελέγχου βάρδιας",
+    regulatoryLead: "Επιβεβαίωσε όλα τα σημεία πριν ξεκινήσεις.",
+    regulatorySkip: "Αργότερα (10 λεπτά)",
+    regulatoryConfirm: "Έναρξη βάρδιας",
+    regulatoryReminder: "Εκκρεμής ρυθμιστικός έλεγχος",
+    notifPrompt: "Ενεργοποίηση υπενθυμίσεων βάρδιας",
   },
 } as const;
+
+export const REGULATORY_ITEMS: Record<Lang, string[]> = {
+  de: [
+    "Medikamentenprotokoll geprüft",
+    "Übergabeprotokoll gelesen",
+    "Notfallkontakte erreichbar",
+    "Aufsichtspflicht besetzt",
+    "Hygienestandards bekannt",
+  ],
+  el: [
+    "Medication log checked",
+    "Handover notes read",
+    "Emergency contacts reachable",
+    "Supervision covered",
+    "Hygiene standards acknowledged",
+  ],
+};
 
 export type MsgKey = keyof typeof DICT.de;
 

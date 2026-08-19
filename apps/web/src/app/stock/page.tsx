@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { EmptyState, LoadingBlock } from "@/components/EmptyState";
 import { GuidedTour } from "@/components/GuidedTour";
@@ -13,6 +13,7 @@ type Product = { id: string; name: { de: string; el?: string }; unit: string; pa
 type House = { id: string; name: string };
 
 const DEFAULT_PAR = 2;
+const PAGE_SIZE = 30;
 const HOUSE_KEY = "armonia.activeHouse";
 
 const COPY = {
@@ -50,6 +51,8 @@ const COPY = {
     onList: "auf die Liste",
     nOnList: "Artikel auf die Liste",
     signOff: "Check abschließen",
+    loadMore: "Mehr laden",
+    showingOf: (shown: number, total: number) => `${shown} von ${total} Artikeln`,
   },
   el: {
     eyebrow: "Αποθήκη",
@@ -85,6 +88,8 @@ const COPY = {
     onList: "στη λίστα",
     nOnList: "είδη στη λίστα",
     signOff: "Lager-Check",
+    loadMore: "Περισσότερα",
+    showingOf: (shown: number, total: number) => `${shown} από ${total} είδη`,
   },
 } as const;
 
@@ -124,6 +129,8 @@ export default function StockPage() {
   const [error, setError] = useState("");
   const [detailId, setDetailId] = useState<string | null>(null);
   const [parDraft, setParDraft] = useState("");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const listRef = useRef<HTMLDivElement>(null);
 
   const c = COPY[lang];
 
@@ -184,6 +191,8 @@ export default function StockPage() {
   const lowItems = useMemo(() => allRows.filter((r) => r.low), [allRows]);
   const emptyCount = useMemo(() => allRows.filter((r) => r.empty).length, [allRows]);
   const rows = filter === "low" ? lowItems : allRows;
+  const visibleRows = rows.slice(0, visibleCount);
+  const hasMore = visibleCount < rows.length;
   const detail = detailId ? products.find((p) => p.id === detailId) : null;
   const detailQty = detail && houseId ? Number(stock[`${houseId}:${detail.id}`] || 0) : 0;
   const detailPar = detail ? detail.parLevel ?? DEFAULT_PAR : DEFAULT_PAR;
@@ -197,6 +206,7 @@ export default function StockPage() {
     setHouseId(id);
     writeStoredHouse(id);
     setDetailId(null);
+    setVisibleCount(PAGE_SIZE);
   }
 
   async function ensureHouse(): Promise<string> {
@@ -381,12 +391,24 @@ export default function StockPage() {
               ))}
             </div>
           )}
+          {!loading && emptyCount > 0 && (
+            <div
+              className="warn"
+              role="alert"
+              aria-live="polite"
+              data-testid="stock-anomaly-banner"
+            >
+              {lang === "el"
+                ? `${emptyCount} είδη υπό μηδέν ή χωρίς απόθεμα`
+                : `${emptyCount} Artikel leer oder unter Mindestbestand`}
+            </div>
+          )}
           <div className="seg-bar">
             <button
               type="button"
               className={`btn-sec ${filter === "all" ? "ring-2 ring-[var(--brand)]" : ""}`}
               disabled={busy}
-              onClick={() => setFilter("all")}
+              onClick={() => { setFilter("all"); setVisibleCount(PAGE_SIZE); }}
             >
               {c.all}
             </button>
@@ -394,7 +416,7 @@ export default function StockPage() {
               type="button"
               className={`btn-sec ${filter === "low" ? "ring-2 ring-[var(--brand)]" : ""}`}
               disabled={busy}
-              onClick={() => setFilter("low")}
+              onClick={() => { setFilter("low"); setVisibleCount(PAGE_SIZE); }}
             >
               {c.low} ({lowItems.length}
               {emptyCount ? ` · ${emptyCount} ${c.empty}` : ""})
@@ -414,14 +436,17 @@ export default function StockPage() {
           ) : !products.length ? (
             <EmptyState title={c.noneProducts} />
           ) : (
-            <div className="list-panel">
+            <div className="list-panel" ref={listRef}>
               <div className="list-sticky">
                 <span>
                   {c.items} · rev {revision}
+                  {rows.length > PAGE_SIZE && (
+                    <span className="muted text-xs"> · {c.showingOf(visibleRows.length, rows.length)}</span>
+                  )}
                 </span>
                 <span>{c.qty}</span>
               </div>
-              {rows.map(({ product: p, qty, par, low, empty }) => (
+              {visibleRows.map(({ product: p, qty, par, low, empty }) => (
                 <div key={p.id} className={`list-row ${empty ? "is-gap" : low ? "is-warn" : ""}`} data-testid={`stock-row-${p.id}`}>
                   <div
                     className="list-row__main"
@@ -460,10 +485,11 @@ export default function StockPage() {
                       className="btn"
                       type="button"
                       style={{ minWidth: 44 }}
+                      aria-label={c.inn}
                       disabled={busy}
                       onClick={() => adjust(p.id, "IN")}
                     >
-                      ＋
+                      <span aria-hidden>＋</span>
                     </button>
                   </div>
                 </div>
@@ -471,6 +497,17 @@ export default function StockPage() {
               {!rows.length ? (
                 <EmptyState title={c.noneFilter} hint={c.lead} />
               ) : null}
+              {hasMore && (
+                <div className="p-3 text-center">
+                  <button
+                    type="button"
+                    className="btn-sec"
+                    onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+                  >
+                    {c.loadMore} ({rows.length - visibleCount})
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

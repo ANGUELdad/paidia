@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import { Dock } from "@/components/Dock";
 import { GuidedTour } from "@/components/GuidedTour";
 import { LateReasonSheet } from "@/components/LateReasonSheet";
+import { RegulatorySheet, hadRegulatoryCheckToday } from "@/components/RegulatorySheet";
 import { useGuideOptional } from "@/components/GuideProvider";
 import { api } from "@/lib/api";
 import { GUIDE_TARGETS } from "@/lib/guide-intents";
 import { getStoredLang, setStoredLang, t, type Lang } from "@/lib/i18n";
-import { sweepDueReminders } from "@/lib/reminders";
+import { ensureNotifPermission, scheduleLocalReminder, sweepDueReminders } from "@/lib/reminders";
 
 type Session = {
   authenticated: boolean;
@@ -46,6 +47,8 @@ export default function HomePage() {
   const [lateOpen, setLateOpen] = useState(false);
   const [lang, setLang] = useState<Lang>("de");
   const [askDraft, setAskDraft] = useState("");
+  const [regulatoryOpen, setRegulatoryOpen] = useState(false);
+  const [notifDismissed, setNotifDismissed] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -73,6 +76,10 @@ export default function HomePage() {
           navigator.serviceWorker.register("/sw.js").catch(() => undefined);
         }
         sweepDueReminders();
+        // Open regulatory sheet if returning via notification link
+        if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("regulatory") === "1") {
+          setRegulatoryOpen(true);
+        }
       } catch {
         router.replace("/");
       }
@@ -111,7 +118,7 @@ export default function HomePage() {
     try {
       await api("/api/presence/checkin", {
         method: "POST",
-        body: JSON.stringify({ date: today, status, reason }),
+        body: JSON.stringify({ date: today, status, reason, regulatoryChecked: true }),
       });
       setPresence({ pending: false });
       setLateOpen(false);
@@ -133,6 +140,34 @@ export default function HomePage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function handleShiftStart() {
+    if (!hadRegulatoryCheckToday()) {
+      setRegulatoryOpen(true);
+    } else {
+      checkin("there");
+    }
+  }
+
+  async function onRegulatoryConfirmed() {
+    setRegulatoryOpen(false);
+    await checkin("there");
+    // Schedule journal reminder for end of shift
+    const perm = typeof window !== "undefined" ? (window.Notification?.permission ?? "default") : "default";
+    if (perm === "granted") {
+      const endOfShift = new Date();
+      endOfShift.setHours(18, 0, 0, 0);
+      if (endOfShift.getTime() < Date.now()) {
+        endOfShift.setTime(Date.now() + 8 * 60 * 60 * 1000);
+      }
+      scheduleLocalReminder(lang === "el" ? "Σχόλιο βάρδιας" : "Schichtbuch ausfüllen", endOfShift.toISOString(), "/book").catch(() => undefined);
+    }
+  }
+
+  async function activateNotifications() {
+    const perm = await ensureNotifPermission();
+    if (perm === "granted") setNotifDismissed(true);
   }
 
   function askZoAi(question?: string) {
@@ -199,7 +234,7 @@ export default function HomePage() {
                   type="button"
                   disabled={busy}
                   data-testid="presence-there"
-                  onClick={() => checkin("there")}
+                  onClick={handleShiftStart}
                 >
                   {el ? "Έναρξη βάρδιας" : "Schicht starten"}
                 </button>
@@ -228,6 +263,28 @@ export default function HomePage() {
               </span>
             )}
           </div>
+
+          {pending && !notifDismissed && typeof window !== "undefined" && window.Notification?.permission === "default" && (
+            <div style={{ marginTop: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <button
+                type="button"
+                className="dawn-chip"
+                onClick={activateNotifications}
+                data-testid="notif-prompt"
+              >
+                🔔 {t("notifPrompt", lang)}
+              </button>
+              <button
+                type="button"
+                className="dawn-chip-close"
+                aria-label={t("cancel", lang)}
+                onClick={() => setNotifDismissed(true)}
+                style={{ fontSize: "0.8rem", opacity: 0.6 }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
         </header>
 
         {notice && (
@@ -398,6 +455,13 @@ export default function HomePage() {
         busy={busy}
         onClose={() => setLateOpen(false)}
         onSubmit={(reason) => checkin("late", reason)}
+      />
+      <RegulatorySheet
+        open={regulatoryOpen}
+        lang={lang}
+        busy={busy}
+        onConfirm={onRegulatoryConfirmed}
+        onClose={() => setRegulatoryOpen(false)}
       />
     </>
   );

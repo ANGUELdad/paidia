@@ -21,7 +21,7 @@ class IncidentBody(BaseModel):
     staffIds: list[str] = Field(default_factory=list)
     severity: str = "med"
     text: str = Field(min_length=1, max_length=2000)
-    date: str | None = None
+    # date field removed — server stamps the calendar day to prevent backdating
 
 
 @router.get("")
@@ -40,7 +40,7 @@ def create_incident(body: IncidentBody, request: Request) -> dict[str, Any]:
     row = {
         "id": f"inc_{uuid.uuid4().hex[:10]}",
         "at": int(time.time() * 1000),
-        "date": body.date or time.strftime("%Y-%m-%d"),
+        "date": time.strftime("%Y-%m-%d"),
         "houseId": body.houseId,
         "childIds": list(body.childIds)[:20],
         "staffIds": list(body.staffIds)[:20],

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Dock } from "@/components/Dock";
 import { EmptyState, LoadingBlock } from "@/components/EmptyState";
 import { PageShell } from "@/components/PageShell";
@@ -59,6 +59,10 @@ const COPY = {
     close: "Schließen",
     loadingData: "Buch wird geladen…",
     noProfile: "Kein Profil",
+    micStart: "Spracheingabe starten",
+    micStop: "Aufnahme stoppen",
+    micUnavailable: "Spracheingabe nicht verfügbar",
+    micListening: "Zuhören…",
   },
   el: {
     eyebrow: "Βιβλίο",
@@ -82,8 +86,35 @@ const COPY = {
     close: "Κλείσιμο",
     loadingData: "Φόρτωση βιβλίου…",
     noProfile: "Δεν υπάρχει προφίλ",
+    micStart: "Έναρξη υπαγόρευσης",
+    micStop: "Διακοπή εγγραφής",
+    micUnavailable: "Η υπαγόρευση δεν διατίθεται",
+    micListening: "Ακούω…",
   },
 } as const;
+
+// Minimal SpeechRecognition type shim (not in lib.dom by default in all TS versions)
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognitionInstance;
+    webkitSpeechRecognition?: new () => SpeechRecognitionInstance;
+  }
+}
+interface SpeechRecognitionInstance extends EventTarget {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start(): void;
+  stop(): void;
+  onresult: ((e: { results: { [i: number]: { [j: number]: { transcript: string } } } }) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+}
+
+function getSpeechRecognition(): (new () => SpeechRecognitionInstance) | null {
+  if (typeof window === "undefined") return null;
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
 
 export default function BookPage() {
   const { ready } = useRequireMode("staff");
@@ -98,6 +129,9 @@ export default function BookPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [micListening, setMicListening] = useState(false);
+  const micRef = useRef<SpeechRecognitionInstance | null>(null);
+  const micAvailable = typeof window !== "undefined" && !!getSpeechRecognition();
   const today = new Date().toISOString().slice(0, 10);
   const [profileId, setProfileId] = useState("");
   const locale = lang === "el" ? "el-GR" : "de-DE";
@@ -159,6 +193,29 @@ export default function BookPage() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function toggleMic() {
+    if (!micAvailable) return;
+    if (micListening) {
+      micRef.current?.stop();
+      setMicListening(false);
+      return;
+    }
+    const SR = getSpeechRecognition()!;
+    const rec = new SR();
+    rec.lang = lang === "el" ? "el-GR" : "de-DE";
+    rec.continuous = false;
+    rec.interimResults = false;
+    rec.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setText((prev) => (prev ? prev + " " + transcript : transcript));
+    };
+    rec.onend = () => setMicListening(false);
+    rec.onerror = () => setMicListening(false);
+    micRef.current = rec;
+    rec.start();
+    setMicListening(true);
   }
 
   const filtered = useMemo(
@@ -269,14 +326,47 @@ export default function BookPage() {
             <form className="stack" onSubmit={save}>
               <label>
                 {c.newEntry}
-                <textarea
-                  className="w-full rounded-[var(--radius-sm)] border border-[var(--line)] bg-white p-3"
-                  rows={4}
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  placeholder={c.whatPh}
-                  aria-label={c.whatPh}
-                />
+                <div style={{ position: "relative" }}>
+                  <textarea
+                    className="w-full rounded-[var(--radius-sm)] border border-[var(--line)] bg-white p-3"
+                    rows={4}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder={micListening ? c.micListening : c.whatPh}
+                    aria-label={c.whatPh}
+                    style={{ paddingRight: micAvailable ? "3rem" : undefined }}
+                  />
+                  {micAvailable && (
+                    <button
+                      type="button"
+                      aria-label={micListening ? c.micStop : c.micStart}
+                      aria-pressed={micListening}
+                      onClick={toggleMic}
+                      style={{
+                        position: "absolute",
+                        right: "0.5rem",
+                        bottom: "0.5rem",
+                        background: micListening ? "var(--brand)" : "transparent",
+                        border: "1px solid var(--line)",
+                        borderRadius: "50%",
+                        width: 36,
+                        height: 36,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        color: micListening ? "#fff" : "var(--ink)",
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.8">
+                        <rect x="9" y="2" width="6" height="12" rx="3" />
+                        <path d="M5 10a7 7 0 0 0 14 0" />
+                        <line x1="12" y1="19" x2="12" y2="22" />
+                        <line x1="9" y1="22" x2="15" y2="22" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </label>
               <button className="btn" type="submit" disabled={!text.trim() || !profileId || busy}>
                 {busy ? c.saving : c.save}
