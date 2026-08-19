@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import html
 import json
 import time
 import uuid
@@ -12,7 +11,7 @@ from pydantic import BaseModel, Field
 from armonia.auth.limits import rate_limit
 from armonia.auth.security import require_admin, require_session
 from armonia.config import get_settings
-from armonia.domains.email import email_status, send_email
+from armonia.domains.email import email_shell, email_status, send_email
 from armonia.store import mutate, snapshot
 
 router = APIRouter(prefix="/api/notify", tags=["notify"])
@@ -283,7 +282,7 @@ def notify_email_test(body: EmailTestBody, request: Request) -> dict[str, Any]:
     result = send_email(
         to,
         body.subject.strip() or "Armonia Test",
-        html=f"<p>{html.escape(message)}</p>",
+        html=email_shell(body.subject.strip() or "Armonia Test", message, lang="de"),
         text=message,
     )
     return {**result, "to": to or None, "status": status}
@@ -346,9 +345,7 @@ def broadcast(body: BroadcastBody, request: Request) -> dict[str, Any]:
     email_failed = 0
     email_reason: str | None = None
     if also_email:
-        escaped_subject = html.escape(subject)
-        escaped_message = html.escape(message).replace("\n", "<br>")
-        email_html = f"<h1>{escaped_subject}</h1><p>{escaped_message}</p>"
+        email_html = email_shell(subject, message, lang=body.lang or "de")
         for profile in profiles:
             to = (profile.get("email") or "").strip()
             if not to:

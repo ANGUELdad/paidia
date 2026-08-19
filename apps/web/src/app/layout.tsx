@@ -32,7 +32,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de" className={`${outfit.variable} ${fraunces.variable}`} data-theme="marble-dawn">
+    <html lang="de" className={`${outfit.variable} ${fraunces.variable}`} data-theme="marble-dawn" data-form="phone">
       <body className="min-h-dvh bg-[var(--bg)] text-[var(--ink)] antialiased">
         <ServiceWorkerRegister />
         <GuideProvider>{children}</GuideProvider>

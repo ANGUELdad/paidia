@@ -198,6 +198,11 @@ const DICT = {
     status: "Status",
     tour: "Tour",
     understood: "Verstanden",
+    pages: "Seiten",
+    campus: "Campus",
+    campusLead: "Notizen und Module — klar wie ein 2026-Campus.",
+    notifications: "Mitteilungen",
+    systemNotify: "System-Mitteilungen erlauben",
   },
   el: {
     loading: "Φόρτωση…",
@@ -392,6 +397,11 @@ const DICT = {
     status: "Κατάσταση",
     tour: "Περιήγηση",
     understood: "Κατάλαβα",
+    pages: "Σελίδες",
+    campus: "Campus",
+    campusLead: "Σημειώσεις και ενότητες — σαν campus του 2026.",
+    notifications: "Ειδοποιήσεις",
+    systemNotify: "Ειδοποιήσεις συστήματος",
   },
 } as const;
 

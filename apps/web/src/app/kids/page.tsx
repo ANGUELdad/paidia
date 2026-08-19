@@ -90,10 +90,15 @@ export default function KidsPage() {
 
   return (
     <main className="page kids" data-tour="tour-kids">
-      <header className="top">
+      <header className="top kids-hero">
         <div>
           <p className="eyebrow">{t("kidsToday", lang)}</p>
-          <h1>{t("kidsPlay", lang)}</h1>
+          <h1 className="kids-title">{t("kidsPlay", lang)}</h1>
+          <p className="muted m-0">{lang === "el" ? "Παίξε, κέρδισε, λάμψε." : "Spiel, sammle, strahle."}</p>
+        </div>
+        <div className="xp-ring" aria-label={`${t("kidsXp", lang)} ${state?.xp ?? 0}`}>
+          <b>{state?.xp ?? 0}</b>
+          <span>XP</span>
         </div>
       </header>
 
@@ -189,7 +194,7 @@ export default function KidsPage() {
       )}
 
       <section className="stack mb-3" data-tour="tour-games-link">
-        <Link className="btn" href="/kids/games">
+        <Link className="btn kids-play-cta" href="/kids/games">
           {t("kidsToGames", lang)}
         </Link>
         <p className="muted text-sm m-0">{t("kidsReadonly", lang)}</p>

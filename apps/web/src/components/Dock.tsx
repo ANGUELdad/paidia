@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { useSession } from "@/lib/session";
 import { t, useLang } from "@/lib/i18n";
+import { AppChrome } from "./AppChrome";
 import { isMoreRoute, MoreSheet } from "./MoreSheet";
 import { IconGames, IconHome, IconMe, IconMore, IconPlan, IconSpark, IconStock } from "./icons";
 
@@ -40,6 +41,7 @@ export function Dock({ mode = "staff" }: { mode?: "staff" | "child" }) {
 
   return (
     <>
+      <AppChrome mode={mode} />
       <nav className="dock max-w-3xl" aria-label={el ? "Κύρια πλοήγηση" : "Hauptnavigation"} data-testid="dock">
         {items.map((item) => (
           <Link

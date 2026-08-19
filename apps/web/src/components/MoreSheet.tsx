@@ -4,45 +4,9 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { t, type Lang } from "@/lib/i18n";
+import { GROUP_LABEL, navLabel, visibleNav, type NavItem } from "@/lib/nav";
 
-type LinkItem = { href: string; label: string; testId: string };
-type Group = { title: string; items: LinkItem[] };
-
-function buildGroups(admin: boolean, lang: Lang): Group[] {
-  const el = lang === "el";
-  const groups: Group[] = [
-    {
-      title: el ? "Βάρδια" : "Schicht",
-      items: [
-        { href: "/handover", label: el ? "Παράδοση" : "Übergabe", testId: "more-übergabe" },
-        { href: "/coverage", label: t("coverage", lang), testId: "more-abdeckung" },
-        { href: "/incidents", label: t("incidents", lang), testId: "more-vorfälle" },
-        { href: "/care", label: t("careLog", lang), testId: "more-kind-tag" },
-        { href: "/book", label: el ? "Βιβλίο βάρδιας" : "Schichtbuch", testId: "more-schichtbuch" },
-        { href: "/talk", label: "Talk", testId: "more-talk" },
-      ],
-    },
-    {
-      title: el ? "Προμήθεια" : "Versorgung",
-      items: [{ href: "/shop", label: el ? "Λίστα" : "Liste", testId: "more-liste" }],
-    },
-    {
-      title: el ? "Ραντεβού" : "Termine",
-      items: [{ href: "/calendar", label: el ? "Ημερολόγιο" : "Kalender", testId: "more-kalender" }],
-    },
-    {
-      title: el ? "Λογαριασμός" : "Konto",
-      items: [{ href: "/profile", label: t("profile", lang), testId: "more-profil" }],
-    },
-  ];
-  if (admin) {
-    groups.push({
-      title: "Admin",
-      items: [{ href: "/admin/notify", label: el ? "Αυτοματισμοί" : "Automationen", testId: "more-automationen" }],
-    });
-  }
-  return groups;
-}
+const DOCK_HREFS = new Set(["/home", "/plan", "/stock", "/zoai"]);
 
 function isLinkActive(path: string, href: string) {
   return path === href || path.startsWith(`${href}/`);
@@ -79,7 +43,8 @@ export function MoreSheet({
 
   if (!open) return null;
 
-  const groups = buildGroups(admin, lang);
+  const extras = visibleNav({ mode: "staff", admin }).filter((item) => !DOCK_HREFS.has(item.href));
+  const groups = Array.from(new Set(extras.map((item) => item.group)));
 
   return (
     <div className="more-overlay" role="presentation" onClick={onClose} data-testid="more-overlay">
@@ -98,20 +63,22 @@ export function MoreSheet({
           </button>
         </header>
         {groups.map((group) => (
-          <section key={group.title} className="more-group">
-            <h3 className="more-group-title">{group.title}</h3>
+          <section key={group} className="more-group">
+            <h3 className="more-group-title">{lang === "el" ? GROUP_LABEL[group].el : GROUP_LABEL[group].de}</h3>
             <div className="more-links">
-              {group.items.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={isLinkActive(path, item.href) ? "active" : ""}
-                  data-testid={item.testId}
-                  onClick={onClose}
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {extras
+                .filter((item: NavItem) => item.group === group)
+                .map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={isLinkActive(path, item.href) ? "active" : ""}
+                    data-testid={item.testId}
+                    onClick={onClose}
+                  >
+                    {navLabel(item, lang)}
+                  </Link>
+                ))}
             </div>
           </section>
         ))}
@@ -129,6 +96,7 @@ export const MORE_ROUTES = [
   "/talk",
   "/shop",
   "/calendar",
+  "/campus",
   "/profile",
   "/admin",
 ];

@@ -34,6 +34,10 @@ self.addEventListener("push", (event) => {
       body: data.body,
       data: { url: safeAppUrl(data.url) },
       icon: "/icon-192.png",
+      badge: "/icon-192.png",
+      lang: "de",
+      tag: data.kind || "armonia",
+      renotify: true,
     })
   );
 });
@@ -47,6 +51,8 @@ self.addEventListener("message", (event) => {
         body: data.body || "Erinnerung",
         data: { url: safeAppUrl(data.url) },
         icon: "/icon-192.png",
+        badge: "/icon-192.png",
+        tag: "armonia-reminder",
       });
     }, delay);
   }

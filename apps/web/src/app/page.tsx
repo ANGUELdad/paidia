@@ -8,10 +8,10 @@ import { getPasskey } from "@/lib/webauthn";
 
 const BUILD = {
   version: 1,
-  label: "v2-thassos",
+  label: "v2-campus",
   changed: {
-    de: "Thassos-Glas · Icon-Dock · schnellere Schicht",
-    el: "Γυαλί Θάσου · Dock εικονιδίων · γρηγορότερη βάρδια",
+    de: "Campus · Seitenwahl · jedes Display füllt",
+    el: "Campus · επιλογή σελίδας · γεμίζει κάθε οθόνη",
   },
 };
 

@@ -258,6 +258,15 @@ export default function AdminNotifyPage() {
               {t("send", lang)}
             </button>
           </form>
+          {(subject || body) && (
+            <div className="email-preview" aria-hidden>
+              <div className="email-preview-mark">A</div>
+              <p className="email-preview-kicker">Armonia Thassos</p>
+              <b>{subject || t("subject", lang)}</b>
+              <p>{body || t("body", lang)}</p>
+              <span className="email-preview-chip">{lang === "el" ? "Άνοιγμα Armonia" : "Armonia öffnen"}</span>
+            </div>
+          )}
         </section>
       </PageShell>
       <Dock />

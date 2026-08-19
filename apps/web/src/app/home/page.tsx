@@ -311,6 +311,13 @@ export default function HomePage() {
               </div>
               <span aria-hidden>→</span>
             </Link>
+            <Link className="list-row" href="/campus" data-testid="link-campus">
+              <div className="list-row__main">
+                <div className="list-row__title">Campus</div>
+                <div className="list-row__meta">{el ? "Σημειώσεις και ενότητες" : "Notizen und Module"}</div>
+              </div>
+              <span aria-hidden>→</span>
+            </Link>
           </div>
         </section>
 
