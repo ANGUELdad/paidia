@@ -6120,9 +6120,9 @@ function viewHome(){
       <div class="muted">${t('homeHello')}${user?', '+esc(user.name):''}</div>
       <h2>${t('homeOverview')}</h2>
       <div class="home-stats">
-        <div class="home-stat"><b>${todayOpen.length}</b><span>${t('dueToday')}</span></div>
-        <div class="home-stat"><b>${overdue.length}</b><span>${t('overdue')}</span></div>
-        <div class="home-stat"><b>${upcoming.length}</b><span>${t('eventsSoon')}</span></div>
+        <div class="home-stat stat-due"><b>${todayOpen.length}</b><span>${t('dueToday')}</span></div>
+        <div class="home-stat stat-overdue"><b>${overdue.length}</b><span>${t('overdue')}</span></div>
+        <div class="home-stat stat-events"><b>${upcoming.length}</b><span>${t('eventsSoon')}</span></div>
       </div>
     </div>
     ${user?`<button class="notification-card" id="homeTalkOpen" type="button">
@@ -6289,6 +6289,23 @@ function render(){
   document.getElementById('who').textContent = state.user
     ? profileLabel(state.user) + ' · ' + L(state.user.role) : t('noUser');
   if(isAdminUser()) document.getElementById('who').innerHTML += ' <span class="admin-badge">ADMIN</span>';
+  // header date subtitle
+  const hdrDateEl = document.getElementById('hdrDate');
+  if (hdrDateEl) {
+    const now = new Date();
+    const DAY_LONG_HDR = {
+      de: ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],
+      el: ['Κυριακή','Δευτέρα','Τρίτη','Τετάρτη','Πέμπτη','Παρασκευή','Σάββατο']
+    };
+    const MON = {
+      de: ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],
+      el: ['Ιαν','Φεβ','Μαρ','Απρ','Μαϊ','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ']
+    };
+    const lg = state.lang || 'de';
+    hdrDateEl.textContent = (DAY_LONG_HDR[lg]||DAY_LONG_HDR.de)[now.getDay()] + ', '
+      + now.getDate() + '. ' + (MON[lg]||MON.de)[now.getMonth()];
+  }
+
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   document.getElementById('btnUser').textContent = t('logout');
   document.getElementById('btnProfiles').textContent = '↔';
