@@ -154,9 +154,28 @@ test("ops stress: stock shop plan book zoai calendar admin", async ({ page }) =>
   await page.getByRole("button", { name: /Hinzufügen|Προσθήκη|Add/i }).click({ force: true });
 
   await staffGoto(page, "/plan");
-  await page.getByRole("button", { name: /Eintrag hinzufügen/ }).click({ force: true });
+  // Wait for week data to load (plan-ready appears once days[] is populated and loading=false)
+  await expect(page.getByTestId("plan-ready")).toBeAttached({ timeout: 20000 });
+  // Button is now enabled (was disabled during loading); click via JS to bypass pointer capture
+  await page.evaluate(() => {
+    const btn = Array.from(document.querySelectorAll("button")).find(
+      (b) => /Eintrag hinzuf/.test(b.textContent || ""),
+    );
+    btn?.click();
+  });
+  await expect(page.getByTestId("plan-composer")).toBeAttached({ timeout: 8000 });
+  // Scroll input into view within the sheet (may be below fold on mobile)
+  await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="plan-activity"]');
+    if (el) el.scrollIntoView({ block: "nearest" });
+  });
   await page.getByTestId("plan-activity").fill("Stress A");
   await page.getByTestId("plan-save").click({ force: true });
+  await expect(page.getByTestId("plan-composer")).toBeAttached({ timeout: 8000 });
+  await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="plan-activity"]');
+    if (el) el.scrollIntoView({ block: "nearest" });
+  });
   await page.getByTestId("plan-activity").fill("Stress B");
   await page.getByTestId("plan-save").click({ force: true });
   const override = page.getByTestId("plan-override");

@@ -68,6 +68,8 @@ const COPY = {
     loading: "Plan wird geladen…",
     close: "Schließen",
     weekDays: "Wochentage",
+    prevWeek: "Vorherige Woche",
+    nextWeek: "Nächste Woche",
     doubleBook: "Person in überlappenden Blöcken",
     houseGap: "Nicht alle Häuser sind abgedeckt",
   },
@@ -105,6 +107,8 @@ const COPY = {
     loading: "Το πρόγραμμα φορτώνεται…",
     close: "Κλείσιμο",
     weekDays: "Ημέρες",
+    prevWeek: "Προηγούμενη εβδομάδα",
+    nextWeek: "Επόμενη εβδομάδα",
     doubleBook: "Άτομο σε επικαλυπτόμενα μπλοκ",
     houseGap: "Δεν καλύπτονται όλα τα σπίτια",
   },
@@ -376,14 +380,14 @@ function PlanPageInner() {
         lead={copy.lead}
         actions={
           <>
-            <button className="btn-sec" type="button" data-testid="week-prev" onClick={() => shiftWeek(-7)}>
-              ←
+            <button className="btn-sec" type="button" data-testid="week-prev" aria-label={copy.prevWeek} onClick={() => shiftWeek(-7)}>
+              <span aria-hidden>←</span>
             </button>
             <button className="btn-sec" type="button" data-testid="week-today" onClick={goToday}>
               {copy.today}
             </button>
-            <button className="btn-sec" type="button" data-testid="week-next" onClick={() => shiftWeek(7)}>
-              →
+            <button className="btn-sec" type="button" data-testid="week-next" aria-label={copy.nextWeek} onClick={() => shiftWeek(7)}>
+              <span aria-hidden>→</span>
             </button>
           </>
         }
@@ -493,8 +497,8 @@ function PlanPageInner() {
           />
         )}
 
-        <div className="sticky-footer">
-          <button className="btn w-full" type="button" onClick={() => openComposer()} disabled={busy}>
+        <div className="sticky-footer" data-testid={!loading && days.length > 0 ? "plan-ready" : undefined}>
+          <button className="btn w-full" type="button" onClick={() => openComposer()} disabled={busy || loading}>
             {copy.add}
           </button>
         </div>
@@ -557,7 +561,7 @@ function PlanPageInner() {
       </PageShell>
 
       {composerOpen && day && (
-        <div className="more-overlay" role="presentation" onClick={closeComposer}>
+        <div className="more-overlay" role="presentation" data-testid="plan-composer" onClick={closeComposer}>
           <div className="more-sheet" role="dialog" aria-modal="true" onClick={(ev) => ev.stopPropagation()}>
             <header className="more-sheet-header">
               <h2>
