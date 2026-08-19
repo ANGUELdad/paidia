@@ -251,7 +251,22 @@ const T = {
     whoDidWhat:'Wer hat was gemacht', today:'Heute', last7:'Letzte 7 Tage',
     actions:n=>n===1?'Buchung':'Buchungen', noActionsToday:'Heute noch nichts gebucht',
     visibleToAll:'Für alle sichtbar',
-    close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele',
+    close:'Schließen', childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele', childRewards:'Belohnungen',
+    rewardsTitle:'Aufgaben & Belohnungen', rewardsHero:'Dein Fortschritt',
+    choresDue:'Heutige Aufgaben', choresDone:'Erledigte Aufgaben', choresAll:'Alle Aufgaben',
+    choreSubmitProof:'Aufgabe einreichen', chorePhotoHint:'Foto machen oder beschreiben, was du getan hast',
+    choreProofLabel:'Beweis eingeben…', choreProofPh:'z. B. «Ich habe das Zimmer aufgeräumt und das Bett gemacht»',
+    choreAiChecking:'AI prüft deine Aufgabe…', choreAiApproved:'Super! Aufgabe bestätigt ✓',
+    choreAiRejected:'Nicht ganz — probier es nochmal!', choreAiError:'Konnte nicht prüfen. Warte auf Betreuer.',
+    choreSubmit:'Einreichen', choreDone:'Erledigt ✓', chorePending:'In Prüfung…',
+    choreXpEarned:n=>`+${n} ⭐ verdient!`, choreAlreadyDone:'Heute schon erledigt',
+    xpLevel:n=>`Level ${n}`, xpNextLevel:'bis nächstes Level',
+    leaderboard:'Rangliste', leaderboardMe:'(du)',
+    levelNames:['Starter','Entdecker','Held','Champion','Legende'],
+    adminRewards:'Aufgaben-Zentrale', adminPendingReview:'Warten auf Prüfung',
+    adminApprove:'Genehmigen', adminReject:'Ablehnen', adminNoReviews:'Keine offenen Einreichungen',
+    adminAddChore:'Aufgabe hinzufügen', adminChoreTitle:'Aufgaben-Titel', adminChoreXp:'XP-Punkte',
+    adminChoreSaved:'Aufgabe gespeichert', adminChosenKids:'Für wen?',
     gamesTitle:'Spiele', gamesHint:'Kleine Spiele für zwischendurch',
     gameMemory:'Memory', gameMemoryHint:'Finde die Paare',
     gameTac:'XO', gameTacHint:'3 in einer Reihe',
@@ -588,7 +603,22 @@ const T = {
     whoDidWhat:'Ποιος έκανε τι', today:'Σήμερα', last7:'Τελευταίες 7 ημέρες',
     actions:n=>n===1?'κίνηση':'κινήσεις', noActionsToday:'Καμία κίνηση σήμερα',
     visibleToAll:'Ορατό σε όλους',
-    close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια',
+    close:'Κλείσιμο', childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια', childRewards:'Βραβεία',
+    rewardsTitle:'Αποστολές & Βραβεία', rewardsHero:'Η πρόοδός σου',
+    choresDue:'Αποστολές σήμερα', choresDone:'Ολοκληρωμένες', choresAll:'Όλες οι αποστολές',
+    choreSubmitProof:'Υποβολή αποστολής', chorePhotoHint:'Τράβηξε φωτογραφία ή γράψε τι έκανες',
+    choreProofLabel:'Γράψε την απόδειξη…', choreProofPh:'π.χ. «Τακτοποίησα το δωμάτιό μου και έστρωσα το κρεβάτι»',
+    choreAiChecking:'Το AI ελέγχει…', choreAiApproved:'Μπράβο! Αποστολή επιβεβαιώθηκε ✓',
+    choreAiRejected:'Όχι ακριβώς — δοκίμασε ξανά!', choreAiError:'Δεν ήταν δυνατός ο έλεγχος. Περίμενε τον φροντιστή.',
+    choreSubmit:'Υποβολή', choreDone:'Ολοκληρώθηκε ✓', chorePending:'Σε έλεγχο…',
+    choreXpEarned:n=>`+${n} ⭐ κερδίθηκαν!`, choreAlreadyDone:'Ήδη ολοκληρώθηκε σήμερα',
+    xpLevel:n=>`Επίπεδο ${n}`, xpNextLevel:'για το επόμενο επίπεδο',
+    leaderboard:'Κατάταξη', leaderboardMe:'(εσύ)',
+    levelNames:['Αρχάριος','Εξερευνητής','Ήρωας','Πρωταθλητής','Θρύλος'],
+    adminRewards:'Κέντρο αποστολών', adminPendingReview:'Αναμένει έλεγχο',
+    adminApprove:'Έγκριση', adminReject:'Απόρριψη', adminNoReviews:'Καμία εκκρεμής υποβολή',
+    adminAddChore:'Προσθήκη αποστολής', adminChoreTitle:'Τίτλος', adminChoreXp:'Πόντοι XP',
+    adminChoreSaved:'Αποστολή αποθηκεύτηκε', adminChosenKids:'Για ποιον;',
     gamesTitle:'Παιχνίδια', gamesHint:'Μικρά παιχνίδια για διάλειμμα',
     gameMemory:'Μνήμη', gameMemoryHint:'Βρες τα ζευγάρια',
     gameTac:'XO', gameTacHint:'3 στη σειρά',
@@ -756,6 +786,24 @@ const SEED = {
 
   events: [],
   taskCompletions: [],
+
+  /* ── Reward & Chore System ──
+     chores: list of available chores staff can assign to kids
+     choreSubmissions: kid's submitted proof, pending/approved/rejected
+     xpLog: immutable log of earned XP events per kid */
+  chores: [
+    {id:'ch1', emoji:'🛏️', de:'Bett machen',         el:'Στρώσιμο κρεβατιού',   xp:10, kidIds:null, daily:true},
+    {id:'ch2', emoji:'🧹', de:'Zimmer aufräumen',     el:'Τακτοποίηση δωματίου', xp:15, kidIds:null, daily:true},
+    {id:'ch3', emoji:'🍽️', de:'Tisch abräumen',       el:'Μαζέψιμο τραπεζιού',  xp:10, kidIds:null, daily:true},
+    {id:'ch4', emoji:'🦷', de:'Zähne putzen',         el:'Βούρτσισμα δοντιών',   xp:5,  kidIds:null, daily:true},
+    {id:'ch5', emoji:'👟', de:'Schuhe wegräumen',     el:'Τακτοποίηση παπουτσιών',xp:5, kidIds:null, daily:true},
+    {id:'ch6', emoji:'🌱', de:'Blumen gießen',        el:'Πότισμα λουλουδιών',   xp:10, kidIds:null, daily:false},
+    {id:'ch7', emoji:'🐕', de:'Tiere füttern',        el:'Ταΐσμα ζώων',          xp:15, kidIds:null, daily:true},
+    {id:'ch8', emoji:'📚', de:'Bücher aufräumen',     el:'Τακτοποίηση βιβλίων',  xp:10, kidIds:null, daily:false},
+    {id:'ch9', emoji:'🛁', de:'Baden / Duschen',      el:'Μπάνιο / Ντους',       xp:5,  kidIds:null, daily:true},
+  ],
+  choreSubmissions: [],
+  xpLog: [],
 
   /* Λόγοι κίνησης αποθέματος (§10.4). Presets + «άλλο» + προσθήκη νέου. */
   reasons: [
@@ -997,7 +1045,8 @@ const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories',
-                 'customActivities', 'customReasons', 'profilePrefs'];
+                 'customActivities', 'customReasons', 'profilePrefs',
+                 'chores', 'choreSubmissions', 'xpLog'];
 
 let DB = load();
 function load(){
@@ -1021,7 +1070,7 @@ function load(){
 }
 
 /** Shared across all staff devices — lists, stock, custom catalogue. */
-const SHARED_KEYS = ['listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons','profilePrefs'];
+const SHARED_KEYS = ['listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons','profilePrefs','chores','choreSubmissions','xpLog'];
 const SHARED_DICT_KEYS = new Set(['stock','profilePrefs']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
 let sharedPushTimer = null;
@@ -5411,6 +5460,278 @@ function childGamesView(){
   return childGamesLobby();
 }
 
+/* ── Reward & Chore helpers ── */
+const XP_LEVELS = [0, 50, 120, 250, 450, 700, 1000, 1400, 1900, 2500];
+function kidXp(kidId){
+  return (DB.xpLog||[]).filter(x=>x.kidId===kidId).reduce((s,x)=>s+x.xp,0);
+}
+function kidLevel(xp){
+  let lv=0;
+  for(let i=0;i<XP_LEVELS.length;i++){ if(xp>=XP_LEVELS[i]) lv=i; }
+  return lv;
+}
+function kidLevelName(lv){
+  const names = t('levelNames');
+  return names[Math.min(lv, names.length-1)];
+}
+function choreForKid(chore, kidId){
+  if(!chore.kidIds || chore.kidIds.length===0) return true;
+  return chore.kidIds.includes(kidId);
+}
+function choreLabel(ch){ return state.lang==='el' ? ch.el : ch.de; }
+function choreDoneToday(choreId, kidId){
+  const today = iso(new Date());
+  return (DB.choreSubmissions||[]).some(s=>s.choreId===choreId && s.kidId===kidId && s.date===today && s.status==='approved');
+}
+function chorePendingToday(choreId, kidId){
+  const today = iso(new Date());
+  return (DB.choreSubmissions||[]).some(s=>s.choreId===choreId && s.kidId===kidId && s.date===today && s.status==='pending');
+}
+function grantXp(kidId, choreId, xp, submissionId){
+  const log = DB.xpLog || (DB.xpLog=[]);
+  log.push({id:'xp'+Date.now(), kidId, choreId, xp, submissionId, ts:Date.now()});
+}
+
+/* ── Child rewards view ── */
+function childRewardsView(kidId){
+  const c = kid(kidId);
+  const xp = kidXp(kidId);
+  const lv = kidLevel(xp);
+  const lvName = kidLevelName(lv);
+  const nextXp = XP_LEVELS[Math.min(lv+1, XP_LEVELS.length-1)];
+  const curXp = XP_LEVELS[lv];
+  const pct = lv >= XP_LEVELS.length-1 ? 100 : Math.round(((xp-curXp)/(nextXp-curXp))*100);
+  const today = iso(new Date());
+  const myChores = (DB.chores||[]).filter(ch=>choreForKid(ch,kidId));
+
+  const hero = `<div class="rewards-hero">
+    <span class="level-badge">🏅 ${t('xpLevel')(lv)} · ${lvName}</span>
+    <div class="xp-name">${esc(c.name)}</div>
+    <div class="xp-sub">${xp} XP gesamt</div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-row"><span class="xp-cur">${xp} XP</span>
+        ${lv < XP_LEVELS.length-1 ? `<span class="xp-next">${nextXp - xp} ${t('xpNextLevel')}</span>`:'<span class="xp-next">MAX 🏆</span>'}
+      </div>
+      <div class="xp-bar"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+    </div>
+  </div>`;
+
+  const dueChores = myChores.filter(ch=>ch.daily && !choreDoneToday(ch.id,kidId));
+  const doneChores = myChores.filter(ch=>choreDoneToday(ch.id,kidId));
+
+  const choreCard = (ch, interactive) => {
+    const done = choreDoneToday(ch.id,kidId);
+    const pending = chorePendingToday(ch.id,kidId);
+    const cls = done ? 'done' : pending ? 'pending-review' : '';
+    const action = (!done && !pending && interactive) ? `data-chore-submit="${ch.id}"` : '';
+    return `<div class="chore-card ${cls}" ${action} role="${action?'button':'listitem'}" tabindex="${action?0:-1}">
+      <div class="chore-icon" style="background:${c.color||'#e0f2fe'}">${ch.emoji}</div>
+      <div class="chore-body">
+        <div class="chore-title">${esc(choreLabel(ch))}</div>
+        <div class="chore-meta">${done?t('choreDone'):pending?t('chorePending'):t('choreSubmitProof')}</div>
+      </div>
+      <div class="chore-xp">${ch.xp}</div>
+    </div>`;
+  };
+
+  const leaderboardHtml = (() => {
+    const board = DB.children.map(k=>({k, xp:kidXp(k.id)}))
+      .sort((a,b)=>b.xp-a.xp).slice(0,8);
+    const medals = ['🥇','🥈','🥉'];
+    return `<div class="reward-leaderboard">
+      ${board.map((entry,i)=>{
+        const isMe = entry.k.id === kidId;
+        const rankCls = i<3?['gold','silver','bronze'][i]:'';
+        return `<div class="lb-row${isMe?' me':''}">
+          <div class="lb-rank ${rankCls}">${medals[i]||i+1}</div>
+          <div class="lb-avatar" style="background:${entry.k.color||'#e0f2fe'}">${esc(initials(entry.k.name))}</div>
+          <div class="lb-name">${esc(entry.k.name)}${isMe?` <span class="pill sun">${t('leaderboardMe')}</span>`:''}</div>
+          <div class="lb-xp">⭐ ${entry.xp}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  })();
+
+  return `
+    ${hero}
+    ${dueChores.length ? `<div class="reward-section-h">☀️ ${t('choresDue')}</div>
+      ${dueChores.map(ch=>choreCard(ch,true)).join('')}` : ''}
+    ${doneChores.length ? `<div class="reward-section-h">✅ ${t('choresDone')}</div>
+      ${doneChores.map(ch=>choreCard(ch,false)).join('')}` : ''}
+    <div class="reward-section-h">🏆 ${t('leaderboard')}</div>
+    ${leaderboardHtml}
+    ${!dueChores.length && !doneChores.length ? `<div class="reward-empty"><div class="re-icon">🎉</div>${t('adminNoReviews')}</div>` : ''}
+  `;
+}
+
+/* ── Chore submission sheet ── */
+async function openChoreSubmitSheet(choreId, kidId){
+  const ch = (DB.chores||[]).find(c=>c.id===choreId);
+  if(!ch) return;
+  const c = kid(kidId);
+  let photoDataUrl = null;
+
+  const render = (aiState='idle', aiMsg='') => {
+    const aiHtml = aiState==='idle' ? '' : aiState==='checking'
+      ? `<div class="ai-verdict checking"><div class="ai-verdict-icon">🤖</div><div>${t('choreAiChecking')}</div></div>`
+      : aiState==='ok'
+      ? `<div class="ai-verdict ok"><div class="ai-verdict-icon">✅</div><div>${t('choreAiApproved')}</div></div>`
+      : aiState==='fail'
+      ? `<div class="ai-verdict fail"><div class="ai-verdict-icon">❌</div><div>${esc(aiMsg)||t('choreAiRejected')}</div></div>`
+      : `<div class="ai-verdict checking"><div class="ai-verdict-icon">⚠️</div><div>${t('choreAiError')}</div></div>`;
+
+    document.getElementById('sheet').innerHTML = `
+      <button class="sheet-close" id="sheetClose" type="button">×</button>
+      <div style="padding:14px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="width:52px;height:52px;border-radius:14px;background:${c.color||'#e0f2fe'};display:grid;place-items:center;font-size:28px">${ch.emoji}</div>
+          <div><div style="font-size:16px;font-weight:700">${esc(choreLabel(ch))}</div>
+            <div class="muted" style="font-size:13px">${t('choreSubmitProof')} · ⭐ ${ch.xp} XP</div></div>
+        </div>
+        <p style="font-size:13px;color:var(--text-secondary);margin:0 0 10px">${t('chorePhotoHint')}</p>
+        ${photoDataUrl ? `<img class="chore-photo-thumb" src="${photoDataUrl}" alt="proof">` : ''}
+        <div class="chore-verify-area" id="chorePhotoArea" role="button" tabindex="0">
+          <div class="cva-icon">📷</div>
+          <div class="cva-label">${photoDataUrl ? t('imageReady') : t('pickScreenshot')}</div>
+          <input type="file" id="choreFileInput" accept="image/*" capture="environment" style="display:none">
+        </div>
+        <label class="f" style="margin-top:10px">
+          <span>${t('choreProofLabel')}</span>
+          <textarea id="choreProofText" placeholder="${t('choreProofPh')}" rows="3" style="resize:none;font-size:15px"></textarea>
+        </label>
+        ${aiHtml}
+        <button class="btn" id="choreSubmitBtn" type="button" style="margin-top:10px" ${aiState==='checking'?'disabled':''}>
+          ${aiState==='ok' ? t('choreDone') : t('choreSubmit')}
+        </button>
+      </div>`;
+
+    document.getElementById('sheetClose').onclick = ()=>closeSheet();
+    const photoArea = document.getElementById('chorePhotoArea');
+    const fileInput = document.getElementById('choreFileInput');
+    photoArea.onclick = ()=>fileInput.click();
+    fileInput.onchange = async(e)=>{
+      const file = e.target.files[0]; if(!file) return;
+      photoDataUrl = await new Promise(res=>{const r=new FileReader();r.onload=ev=>res(ev.target.result);r.readAsDataURL(file);});
+      render(aiState, aiMsg);
+    };
+    document.getElementById('choreSubmitBtn').onclick = async()=>{
+      const proofText = (document.getElementById('choreProofText')||{}).value || '';
+      if(aiState==='ok'){
+        finalizeChoreApproval(choreId, kidId, ch.xp, proofText, photoDataUrl);
+        return;
+      }
+      if(!proofText.trim() && !photoDataUrl){ toast(t('choreProofLabel')); return; }
+      render('checking');
+      const approved = await aiCheckChore(ch, proofText, photoDataUrl);
+      if(approved===true){
+        render('ok');
+        setTimeout(()=>{ finalizeChoreApproval(choreId, kidId, ch.xp, proofText, photoDataUrl); },900);
+      } else if(approved===false){
+        render('fail', '');
+        submitPendingReview(choreId, kidId, proofText, photoDataUrl);
+      } else {
+        render('error');
+        submitPendingReview(choreId, kidId, proofText, photoDataUrl);
+      }
+    };
+  };
+  openSheet();
+  render();
+}
+
+async function aiCheckChore(chore, proofText, photoDataUrl){
+  try {
+    const resp = await fetch('/api/chore-verify', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        choreName: state.lang==='de' ? chore.de : chore.el,
+        proofText: proofText || (photoDataUrl ? t('imageReady') : ''),
+        lang: state.lang
+      })
+    });
+    if(!resp.ok) return null;
+    const data = await resp.json();
+    return data.approved === true;
+  } catch(e){ return null; }
+}
+
+function submitPendingReview(choreId, kidId, proofText, photoDataUrl){
+  const subs = DB.choreSubmissions || (DB.choreSubmissions=[]);
+  subs.push({
+    id:'sub'+Date.now(), choreId, kidId,
+    date: iso(new Date()), proofText,
+    photoThumb: photoDataUrl ? photoDataUrl.slice(0,200)+'…' : null,
+    status:'pending', ts: Date.now()
+  });
+  save();
+}
+
+function finalizeChoreApproval(choreId, kidId, xp, proofText, photoDataUrl){
+  const subs = DB.choreSubmissions || (DB.choreSubmissions=[]);
+  const subId = 'sub'+Date.now();
+  subs.push({id:subId, choreId, kidId, date:iso(new Date()), proofText,
+    photoThumb: photoDataUrl ? photoDataUrl.slice(0,200)+'…' : null,
+    status:'approved', ts:Date.now()});
+  grantXp(kidId, choreId, xp, subId);
+  save();
+  closeSheet();
+  toast(t('choreXpEarned')(xp));
+  feedback('success');
+  render();
+}
+
+/* ── Admin: pending chore reviews ── */
+function viewAdminRewardCenter(){
+  const pending = (DB.choreSubmissions||[]).filter(s=>s.status==='pending')
+    .sort((a,b)=>b.ts-a.ts);
+
+  const rows = pending.map(s=>{
+    const ch = (DB.chores||[]).find(c=>c.id===s.choreId);
+    const k = kid(s.kidId);
+    if(!ch||!k) return '';
+    return `<div class="admin-chore-row" data-sub="${s.id}">
+      <div>
+        <div style="font-size:14px;font-weight:700">${ch.emoji} ${esc(k.name)} — ${esc(choreLabel(ch))}</div>
+        <div class="muted" style="font-size:12px">${s.date} · ⭐${ch.xp} XP</div>
+        ${s.proofText ? `<div style="font-size:12px;color:var(--text-secondary);margin-top:3px;font-style:italic">"${esc(s.proofText)}"</div>` : ''}
+      </div>
+      <div class="admin-chore-verdict">
+        <button class="verdict-approve" data-verdict="approve" data-sub="${s.id}" type="button" title="${t('adminApprove')}">✓</button>
+        <button class="verdict-reject" data-verdict="reject" data-sub="${s.id}" type="button" title="${t('adminReject')}">✗</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="card">
+    <h2>⭐ ${t('adminRewards')}</h2>
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px">${t('adminPendingReview')}: ${pending.length}</div>
+    ${pending.length ? `<div style="border:1px solid var(--border-subtle);border-radius:12px;overflow:hidden">${rows}</div>`
+      : `<div class="reward-empty"><div class="re-icon">🎉</div>${t('adminNoReviews')}</div>`}
+  </div>`;
+}
+
+function bindAdminRewardCenter(root){
+  root.querySelectorAll('[data-verdict]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const subId = btn.dataset.sub;
+      const action = btn.dataset.verdict;
+      const sub = (DB.choreSubmissions||[]).find(s=>s.id===subId);
+      if(!sub) return;
+      sub.status = action==='approve' ? 'approved' : 'rejected';
+      if(action==='approve'){
+        const ch = (DB.chores||[]).find(c=>c.id===sub.choreId);
+        if(ch) grantXp(sub.kidId, sub.choreId, ch.xp, subId);
+        toast(t('adminApprove')+' ✓');
+      } else {
+        toast(t('adminReject'));
+      }
+      save();
+      render();
+    };
+  });
+}
+
 function bindChildGames(root){
   root.querySelectorAll('[data-game]').forEach(btn=>{
     btn.onclick=()=>{ feedback('select'); startChildGame(btn.dataset.game); };
@@ -5667,6 +5988,7 @@ function adminTeamPanel(today){
       ${done?`<div class="muted" style="margin-top:5px">✓ ${done} ${t('adminDone')}</div>`:''}
     </button>`;
   }).join('');
+  const rewardCenter = viewAdminRewardCenter();
   return `<section class="card admin-center">
     <div class="admin-center-head"><div><div class="brand-kicker">ARMONIA THASSOS</div><h2>👑 ${t('adminCenter')}</h2>
       <div class="muted">${t('adminOverview')}</div></div><div class="admin-crown">🛡️</div></div>
@@ -5679,7 +6001,8 @@ function adminTeamPanel(today){
     <div class="admin-alert-strip ${issues.length?'':'clear'}"><span>${issues.length?'⚠️':'✅'}</span><div class="grow"><b>${issues.length?`${issues.length} · ${t('adminWarnings')}`:t('adminAllClear')}</b>
       <div style="margin-top:2px">${t('adminFullControl')}</div></div></div>
     <div class="admin-team-grid">${team}</div>
-  </section>`;
+  </section>
+  ${rewardCenter}`;
 }
 
 function sheetAdminStaff(employeeId){
@@ -5873,6 +6196,7 @@ function renderChild(){
     </div>`;
   const tabs = `<div class="seg child-tabs" id="childTabs">
     <button class="${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('childToday')}</button>
+    <button class="${state.childView==='rewards'?'on':''}" data-child-view="rewards">⭐ ${t('childRewards')}</button>
     <button class="${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('childEvents')}${childUpcomingEvents.length?` <span class="nav-badge">${childUpcomingEvents.length}</span>`:''}</button>
     <button class="${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('childWeek')}</button>
     <button class="${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>
@@ -5888,6 +6212,7 @@ function renderChild(){
     ${childEventsFor(c.id).filter(e=>e.date===state.date).map(childEventCard).join('')}`;
   const weekView = `<div class="card"><h2>${t('myWeek')}</h2>${weekList}</div>`;
   const viewBody = state.childView==='today' ? todayView
+    : state.childView==='rewards' ? childRewardsView(c.id)
     : state.childView==='events' ? childEventsView(c.id)
     : state.childView==='games' ? childGamesView()
     : weekView;
@@ -5910,6 +6235,11 @@ function renderChild(){
   const eventNotice=document.getElementById('view').querySelector('#childEventNotice');
   if(eventNotice) eventNotice.onclick=()=>{state.childView='events';render();};
   if(state.childView==='games') bindChildGames(document.getElementById('view'));
+  if(state.childView==='rewards'){
+    document.getElementById('view').querySelectorAll('[data-chore-submit]').forEach(card=>{
+      card.onclick=()=>openChoreSubmitSheet(card.dataset.choreSubmit, c.id);
+    });
+  }
   scheduleMeasureChrome();
 }
 
@@ -5995,6 +6325,7 @@ function wire(){
   const v = document.getElementById('view');
 
   v.querySelectorAll('[data-admin-staff]').forEach(button=>button.onclick=()=>sheetAdminStaff(button.dataset.adminStaff));
+  bindAdminRewardCenter(v);
   v.querySelectorAll('[data-admin-go]').forEach(button=>button.onclick=()=>{
     const destination=button.dataset.adminGo;
     if(destination==='audit'){state.tab='book';state.bookRange='week';}

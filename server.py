@@ -1751,6 +1751,55 @@ def run_chat(body: dict, api_key: str, session: dict | None = None) -> tuple[int
         return (504 if code == "timeout" else 502), {"error": "Help chat failed", "code": code}
 
 
+def run_chore_verify(body: dict, api_key: str) -> tuple[int, dict]:
+    """AI verifier for kids' chore proof submissions."""
+    chore_name = body.get("choreName", "the chore")
+    proof_text = body.get("proofText", "")
+    lang = body.get("lang", "de")
+
+    if lang == "el":
+        system_msg = (
+            f"Είσαι ένας φιλικός βοηθός για ένα παιδικό κέντρο στη Θάσο (Armonia Thassos). "
+            f"Ένα παιδί λέει ότι ολοκλήρωσε αυτή την αποστολή: \"{chore_name}\". "
+            f"Η απόδειξή του: \"{proof_text}\". "
+            "Απάντησε ΜΟΝΟ με ένα JSON αντικείμενο: "
+            "{\"approved\": true/false, \"reason\": \"σύντομη φιλική εξήγηση στα ελληνικά\"}. "
+            "Να είσαι ενθαρρυντικός. Αν η απόδειξη φαίνεται λογική για ένα παιδί, έγκρινέ τη."
+        )
+    else:
+        system_msg = (
+            f"Du bist ein freundlicher Helfer für ein Kinderbetreuungszentrum auf Thassos (Armonia Thassos). "
+            f"Ein Kind behauptet, diese Aufgabe erledigt zu haben: \"{chore_name}\". "
+            f"Sein Beweis: \"{proof_text}\". "
+            "Antworte NUR mit einem JSON-Objekt: "
+            "{\"approved\": true/false, \"reason\": \"kurze freundliche Erklärung auf Deutsch\"}. "
+            "Sei ermutigend. Wenn der Beweis für ein Kind plausibel klingt, genehmige ihn."
+        )
+
+    messages = [
+        {"role": "system", "content": system_msg},
+        {"role": "user", "content": f"Aufgabe: {chore_name}\nBeweis: {proof_text}"},
+    ]
+    try:
+        response = groq_completion(api_key, {
+            "model": CHAT_MODEL,
+            "messages": messages,
+            "temperature": 0.2,
+            "max_completion_tokens": 150,
+        }, timeout=30)
+        raw = completion_text(response)
+        import re as _re
+        match = _re.search(r"\{[\s\S]*?\}", raw)
+        if match:
+            parsed = json.loads(match.group(0))
+            approved = bool(parsed.get("approved", False))
+            reason = str(parsed.get("reason", ""))
+            return 200, {"approved": approved, "reason": reason}
+        return 200, {"approved": False, "reason": raw[:200]}
+    except Exception as exc:
+        return 502, {"error": str(exc), "code": "provider"}
+
+
 def groq_completion(api_key: str, request_body: dict, timeout: int = 90) -> dict:
     """Call Groq and transparently retry short, recoverable rate limits."""
     for attempt in range(2):
@@ -2189,6 +2238,13 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/ai-shopping":
             status, payload = run_shopping(body, api_key)
+            self.json_response(status, payload)
+            return
+        if path == "/api/chore-verify":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = run_chore_verify(body, api_key)
             self.json_response(status, payload)
             return
         self.json_response(404, {"error": "Not found"})
