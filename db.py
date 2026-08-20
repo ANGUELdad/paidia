@@ -98,11 +98,23 @@ def _sqlite_path() -> Path:
 @contextmanager
 def connect() -> Iterator[Any]:
     if using_postgres():
+        import socket
         import psycopg
         from psycopg.rows import dict_row
 
         assert_pooled_database_url(DATABASE_URL)
-        conn = psycopg.connect(DATABASE_URL, connect_timeout=8, row_factory=dict_row)
+        # Vercel serverless has no IPv6 egress. Prefer an A (IPv4) address so
+        # psycopg does not waste the connect timeout on AAAA failures first.
+        kwargs: dict[str, Any] = {"connect_timeout": 8, "row_factory": dict_row}
+        try:
+            host = urlparse(DATABASE_URL).hostname
+            if host:
+                infos = socket.getaddrinfo(host, None, socket.AF_INET, socket.SOCK_STREAM)
+                if infos:
+                    kwargs["hostaddr"] = infos[0][4][0]
+        except OSError:
+            pass
+        conn = psycopg.connect(DATABASE_URL, **kwargs)
         try:
             yield conn
             conn.commit()
