@@ -1739,6 +1739,59 @@ def run_quiz(body: dict, api_key: str) -> tuple[int, dict]:
         }
 
 
+def run_chore_verify(body: dict, api_key: str) -> tuple[int, dict]:
+    """AI verifier for kids' chore proof submissions."""
+    chore_name = str(body.get("choreName") or "the chore").strip()[:120]
+    proof_text = str(body.get("proofText") or "").strip()[:800]
+    lang = str(body.get("lang") or "de").strip()[:8] or "de"
+
+    if lang == "el":
+        system_msg = (
+            f"Είσαι ένας φιλικός βοηθός για ένα παιδικό κέντρο στη Θάσο (Armonia Thassos). "
+            f"Ένα παιδί λέει ότι ολοκλήρωσε αυτή την αποστολή: \"{chore_name}\". "
+            f"Η απόδειξή του: \"{proof_text}\". "
+            "Απάντησε ΜΟΝΟ με ένα JSON αντικείμενο: "
+            "{\"approved\": true/false, \"reason\": \"σύντομη φιλική εξήγηση στα ελληνικά\"}. "
+            "Να είσαι ενθαρρυντικός. Αν η απόδειξη φαίνεται λογική για ένα παιδί, έγκρινέ τη."
+        )
+    else:
+        system_msg = (
+            f"Du bist ein freundlicher Helfer für ein Kinderbetreuungszentrum auf Thassos (Armonia Thassos). "
+            f"Ein Kind behauptet, diese Aufgabe erledigt zu haben: \"{chore_name}\". "
+            f"Sein Beweis: \"{proof_text}\". "
+            "Antworte NUR mit einem JSON-Objekt: "
+            "{\"approved\": true/false, \"reason\": \"kurze freundliche Erklärung auf Deutsch\"}. "
+            "Sei ermutigend. Wenn der Beweis für ein Kind plausibel klingt, genehmige ihn."
+        )
+
+    request_body = {
+        "model": CHAT_MODEL,
+        "messages": [
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": f"Aufgabe: {chore_name}\nBeweis: {proof_text}"},
+        ],
+        "temperature": 0.2,
+        "max_completion_tokens": 150,
+    }
+    try:
+        response, provider = llm_completion(request_body, timeout=30)
+        raw = completion_text(response)
+        match = re.search(r"\{[\s\S]*?\}", raw)
+        if match:
+            parsed = json.loads(match.group(0))
+            approved = bool(parsed.get("approved", False))
+            reason = str(parsed.get("reason", ""))
+            return 200, {"approved": approved, "reason": reason, "provider": provider}
+        return 200, {"approved": False, "reason": raw[:200], "provider": provider}
+    except RuntimeError as exc:
+        if str(exc) == "missing_llm_key":
+            return 503, {"error": "AI is not configured", "code": "ai_not_configured"}
+        return 502, {"error": str(exc), "code": "provider"}
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError) as exc:
+        code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+        return (504 if code == "timeout" else 502), {"error": str(exc), "code": code}
+
+
 CAPTION_PROMPT = (
     "You write short, warm, kid-safe photo captions for a camp Moments gallery "
     "(Armonia Thassos, ages 6–12). Return ONLY JSON: "
@@ -3966,6 +4019,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path not in {
             "/api/ai-shopping", "/api/chat", "/api/learn", "/api/quiz", "/api/gallery/caption",
+            "/api/chore-verify",
             "/api/talk", "/api/gallery", "/api/ops", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/notify/event-email",
             "/api/notify/broadcast",
@@ -4105,6 +4159,19 @@ class Handler(SimpleHTTPRequestHandler):
                 status, payload = run_quiz(body, api_key)
             else:
                 status, payload = run_gallery_caption(body, api_key)
+            self.json_response(status, payload)
+            return
+        if path == "/api/chore-verify":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            if not api_key and not omniroute_reachable() and PAIDIA_LLM_PROVIDER != "omniroute":
+                self.json_response(503, {
+                    "error": "AI is not configured",
+                    "setup": "Set GROQ_API_KEY or start OmniRoute (OMNIROUTE_BASE_URL)",
+                })
+                return
+            status, payload = run_chore_verify(body, api_key)
             self.json_response(status, payload)
             return
         if not api_key:

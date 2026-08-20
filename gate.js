@@ -33,7 +33,7 @@
   let bootSettled = false;
   const APP_BUILD = {
     version: 74,
-    label: 'v74',
+    label: 'v75',
     changed: {
       de: 'Momente ein Tipp · Zo-Ai Groq-Modelle · Pooler-DB-Hinweis',
       el: 'Momente ένα κλικ · μοντέλα Zo-Ai Groq · υπόδειξη pooler DB',
@@ -140,7 +140,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=74';
+    script.src = 'app.js?v=75';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);

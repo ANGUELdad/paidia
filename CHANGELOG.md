@@ -1,5 +1,13 @@
 # Changelog
 
+## v75 — 2026-08-20
+
+- Shop hub: Plan / Mitnehmen, Auto aus Lager, take-list by aisle
+- Schedule calendar month view + `#schedule/calendar` deep link + ICS export
+- Kids rewards/chores (⭐ tab) with AI verify + admin Aufgaben-Zentrale
+- Game win XP grants; notification quiet hours, lead time, app badge, Friday shop reminder
+- Cache `paidia-v75`
+
 ## v74 — 2026-08-19
 
 - Momente tab paints immediately (skeleton) then refreshes in the background

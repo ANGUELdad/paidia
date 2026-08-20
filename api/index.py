@@ -583,6 +583,20 @@ def entry(flask_path: str = ""):
             status, payload = paidia.run_gallery_caption(body, api_key)
         return _json(status, payload)
 
+    if request.method == "POST" and api in {"/chore-verify", "/api/chore-verify"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        api_key = os.environ.get("GROQ_API_KEY", "").strip()
+        if not api_key and not getattr(paidia, "omniroute_reachable", lambda: False)():
+            return _json(503, {
+                "error": "AI is not configured",
+                "code": "configuration",
+                "setup": "Set GROQ_API_KEY (or OMNIROUTE_BASE_URL for local OmniRoute)",
+            })
+        status, payload = paidia.run_chore_verify(_body(), api_key or None)
+        return _json(status, payload)
+
     if request.method in {"GET", "HEAD"}:
         static_rel = path.lstrip("/") or "index.html"
         if static_rel.startswith("api/"):

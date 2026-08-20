@@ -5,7 +5,7 @@
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
   version: 74,
-  label: 'v74',
+  label: 'v75',
   changed: {
     de: 'Momente ein Tipp · Zo-Ai Groq-Modelle · Pooler-DB-Hinweis',
     el: 'Momente ένα κλικ · μοντέλα Zo-Ai Groq · υπόδειξη pooler DB',
@@ -20,7 +20,8 @@ const T = {
     topAdd:'＋ Eintrag', topIn:'＋ Ein', topOut:'− Aus', topBoard:'Bewegung', topFood:'＋ Ware',
     topShop:'Liste', topScan:'Scan', topHistory:'Verlauf', topShift:'Schicht', topFix:'Korrektur',
     topDay:'Tag', topWeek:'Woche', topEvents:'Events', topBoth:'Beide Häuser',
-    headerHome:'Armonia · Home', headerScheduleDay:'Plan · Tag', headerScheduleWeek:'Plan · Woche',
+    headerHome:'Armonia · Home',     headerScheduleDay:'Plan · Tag', headerScheduleWeek:'Plan · Woche',
+    headerScheduleCalendar:'Plan · Kalender',
     headerScheduleEvents:'Plan · Events', headerStock:'Lager', headerStockAll:'Lager · beide Häuser',
     headerShop:'Einkauf', headerBook:'Buch & Schicht', headerGallery:'Große Momente', headerTalk:'Team-Gespräch',
     galleryTitle:'Große Momente', galleryHint:'Fotos von schönen Momenten — für Kinder und Team',
@@ -315,6 +316,7 @@ const T = {
     autoLowStock:'Niedriger Lagerbestand',
     autoPresenceLate:'Verspätung erinnern',
     autoBroadcastBanner:'Broadcast als Banner zeigen',
+    autoFridayShop:'Freitag-Einkauf erinnern',
     autoSaved:'Automationen gespeichert',
     reason:'Grund', newReason:'Neuer Grund', reasonNamePh:'z. B. Spende, Reparatur oder Teamküche',
     saveReason:'Grund hinzufügen', reasonRequired:'Schreibe zuerst einen Namen für den Grund.',
@@ -366,6 +368,13 @@ const T = {
     importedToFriday:d=>`Liste für Freitag, ${d}, gespeichert`, noFridayItems:'Für diesen Freitag gibt es noch keine Liste.',
     noFridayItemsHint:'Tippe oben ein Produkt ein, oder importiere Text/Screenshot. Später jederzeit ergänzen.',
     fridayActive:'Einkauf läuft', fridayPlanned:'Geplant', fridayCompleted:'Abgeschlossen',
+    shopPlan:'Planen', shopTake:'Mitnehmen', shopTakeHint:'Kompakt nach Gang — was mitnehmen',
+    shopTakeEmptyHint:'Unter Planen Produkte hinzufügen oder Auto aus Lager nutzen.',
+    shopAutoFill:'Auto aus Lager', shopAutoFilled:n=>`${n} Produkte ergänzt`,
+    stockQuickList:'Alles Wenige → Liste', stockQuickListShort:'Wenige',
+    stockAddedLow:n=>`${n} auf Einkaufsliste`,
+    viewCalendar:'Kalender', calPrev:'‹', calNext:'›',
+    exportCalendar:'Kalender exportieren (.ics)', upcomingEvents:'Kommende Events',
     pasteList:'Liste einfügen oder tippen',
     pastePh:'Nutella 2, Milch light 2, Wasser groß 4, Nektarinen 10–12',
     readIt:'🪄 Einlesen', shootList:'📷 Liste fotografieren',
@@ -399,7 +408,22 @@ const T = {
     actions:n=>n===1?'Buchung':'Buchungen', noActionsToday:'Heute noch nichts gebucht',
     visibleToAll:'Für alle sichtbar',
     close:'Schließen', menuFilters:'Filter', menuDone:'Fertig',
-    childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele',
+    childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele', childRewards:'Belohnungen',
+    rewardsTitle:'Aufgaben & Belohnungen', rewardsHero:'Dein Fortschritt',
+    choresDue:'Heutige Aufgaben', choresDone:'Erledigte Aufgaben', choresAll:'Alle Aufgaben',
+    choreSubmitProof:'Aufgabe einreichen', chorePhotoHint:'Foto machen oder beschreiben, was du getan hast',
+    choreProofLabel:'Beweis eingeben…', choreProofPh:'z. B. «Ich habe das Zimmer aufgeräumt und das Bett gemacht»',
+    choreAiChecking:'AI prüft deine Aufgabe…', choreAiApproved:'Super! Aufgabe bestätigt ✓',
+    choreAiRejected:'Nicht ganz — probier es nochmal!', choreAiError:'Konnte nicht prüfen. Warte auf Betreuer.',
+    choreSubmit:'Einreichen', choreDone:'Erledigt ✓', chorePending:'In Prüfung…',
+    choreXpEarned:n=>`+${n} ⭐ verdient!`, choreAlreadyDone:'Heute schon erledigt',
+    xpLevel:n=>`Level ${n}`, xpNextLevel:'bis nächstes Level', xpTotal:n=>`${n} XP gesamt`,
+    leaderboard:'Rangliste', leaderboardMe:'(du)',
+    levelNames:['Starter','Entdecker','Held','Champion','Legende'],
+    adminRewards:'Aufgaben-Zentrale', adminPendingReview:'Warten auf Prüfung',
+    adminApprove:'Genehmigen', adminReject:'Ablehnen', adminNoReviews:'Keine offenen Einreichungen',
+    adminAddChore:'Aufgabe hinzufügen', adminChoreTitle:'Aufgaben-Titel', adminChoreXp:'XP-Punkte',
+    adminChoreSaved:'Aufgabe gespeichert', adminChosenKids:'Für wen?',
     gamesTitle:'Spiele', gamesHint:'Längere Runden · ~3–5 Min · Lernen, Wissen, Rechnen & Klassiker',
     gamesPlayTime:'~3–5 Min',
     gameMemory:'Memory', gameMemoryHint:'Finde die Paare · so wenig Züge wie möglich',
@@ -450,6 +474,7 @@ const T = {
     gameLearnAi:'KI zufällig', gameLearnAiLoading:'KI lädt…', gameLearnAiFail:'KI nicht erreichbar — lokale Karten',
     gameLearnCorrect:'Richtig!', gameLearnWrong:'Nicht ganz —', gameLearnHearts:'Leben',
     gameLearnRound:'Runde', gameLearnDone:'Lektion geschafft!', gameLearnXp:'XP',
+    gameXpEarned:n=>`+${n} ⭐ Bonus!`, gameStreak:n=>`${n} Tage Serie`,
     gameQuizHintPlay:'Tippe die richtige Antwort', gameQuizTopic:'Thema',
     gameMathHintPlay:'Rechne schnell und tippe die richtige Zahl',
     gameMathPlus:'Plus', gameMathMinus:'Minus', gameMathTimes:'Mal',
@@ -503,6 +528,9 @@ const T = {
     notifShiftStart:t=>`Schicht beginnt · ${t}`,
     notifShiftLate:t=>`Schicht gestartet — bitte Anwesenheit melden · ${t}`,
     notifTest:'Test-Mitteilung von Armonia',
+    notifQuietStart:'Ruhezeit von', notifQuietEnd:'Ruhezeit bis', notifLeadMinutes:'Vorlauf (Minuten)',
+    notifUpcomingEvent:t=>`Event gleich · ${t}`, notifUpcomingTask:t=>`Aufgabe gleich · ${t}`,
+    notifFridayShop:n=>`Freitagseinkauf · ${n} offen`,
     calTitle:'Mein Kalender',
     calHint:'Ein Klick — Dienste und Events in Apple, Google, Outlook oder jeden anderen Kalender.',
     calDownloadAll:'Alles als .ics (Apple & alle Apps)',
@@ -670,7 +698,8 @@ const T = {
     topAdd:'＋ Εγγραφή', topIn:'＋ Εισ', topOut:'− Έξ', topBoard:'Κίνηση', topFood:'＋ Είδος',
     topShop:'Λίστα', topScan:'Σάρωση', topHistory:'Ιστορικό', topShift:'Βάρδια', topFix:'Διόρθωση',
     topDay:'Ημέρα', topWeek:'Εβδομάδα', topEvents:'Events', topBoth:'Και τα δύο',
-    headerHome:'Armonia · Αρχική', headerScheduleDay:'Πρόγραμμα · Ημέρα', headerScheduleWeek:'Πρόγραμμα · Εβδομάδα',
+    headerHome:'Armonia · Αρχική',     headerScheduleDay:'Πρόγραμμα · Ημέρα', headerScheduleWeek:'Πρόγραμμα · Εβδομάδα',
+    headerScheduleCalendar:'Πρόγραμμα · Ημερολόγιο',
     headerScheduleEvents:'Πρόγραμμα · Events', headerStock:'Αποθήκη', headerStockAll:'Αποθήκη · όλα',
     headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια', headerGallery:'Μεγάλες στιγμές', headerTalk:'Συνομιλία ομάδας',
     galleryTitle:'Μεγάλες στιγμές', galleryHint:'Φωτογραφίες ωραίων στιγμών — για παιδιά και ομάδα',
@@ -965,6 +994,7 @@ const T = {
     autoLowStock:'Χαμηλό απόθεμα',
     autoPresenceLate:'Υπενθύμιση καθυστέρησης',
     autoBroadcastBanner:'Broadcast ως banner',
+    autoFridayShop:'Υπενθύμιση ψωνίων Παρασκευής',
     autoSaved:'Οι αυτοματισμοί αποθηκεύτηκαν',
     reason:'Λόγος', newReason:'Νέος λόγος', reasonNamePh:'π.χ. δωρεά, επισκευή ή κουζίνα ομάδας',
     saveReason:'Προσθήκη λόγου', reasonRequired:'Γράψε πρώτα ένα όνομα για τον λόγο.',
@@ -1016,6 +1046,13 @@ const T = {
     importedToFriday:d=>`Η λίστα για την Παρασκευή ${d} αποθηκεύτηκε`, noFridayItems:'Δεν υπάρχει ακόμη λίστα για αυτή την Παρασκευή.',
     noFridayItemsHint:'Γράψε πάνω ένα προϊόν, ή εισήγαγε κείμενο/screenshot. Μπορείς να συμπληρώνεις ανά πάσα στιγμή.',
     fridayActive:'Τα ψώνια τρέχουν', fridayPlanned:'Προγραμματισμένη', fridayCompleted:'Ολοκληρωμένη',
+    shopPlan:'Σχεδιασμός', shopTake:'Παίρνω', shopTakeHint:'Συμπαγής λίστα ανά διάδρομο — τι παίρνω',
+    shopTakeEmptyHint:'Πρόσθεσε προϊόντα στον Σχεδιασμό ή χρησιμοποίησε Αυτόματα από αποθήκη.',
+    shopAutoFill:'Αυτόματα από αποθήκη', shopAutoFilled:n=>`${n} προϊόντα προστέθηκαν`,
+    stockQuickList:'Όλα τα λίγα → λίστα', stockQuickListShort:'Λίγα',
+    stockAddedLow:n=>`${n} στη λίστα`,
+    viewCalendar:'Ημερολόγιο', calPrev:'‹', calNext:'›',
+    exportCalendar:'Εξαγωγή ημερολογίου (.ics)', upcomingEvents:'Επόμενα events',
     pasteList:'Επικόλλησε ή γράψε τη λίστα',
     pastePh:'Γάλα 2, Ψωμί 4, Ντομάτες 3 kg, Νεκταρίνια 10–12',
     readIt:'🪄 Ανάγνωση', shootList:'📷 Φωτογράφισε τη λίστα',
@@ -1049,7 +1086,22 @@ const T = {
     actions:n=>n===1?'κίνηση':'κινήσεις', noActionsToday:'Καμία κίνηση σήμερα',
     visibleToAll:'Ορατό σε όλους',
     close:'Κλείσιμο', menuFilters:'Φίλτρα', menuDone:'Έτοιμο',
-    childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια',
+    childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια', childRewards:'Βραβεία',
+    rewardsTitle:'Αποστολές & Βραβεία', rewardsHero:'Η πρόοδός σου',
+    choresDue:'Αποστολές σήμερα', choresDone:'Ολοκληρωμένες', choresAll:'Όλες οι αποστολές',
+    choreSubmitProof:'Υποβολή αποστολής', chorePhotoHint:'Τράβηξε φωτογραφία ή γράψε τι έκανες',
+    choreProofLabel:'Γράψε την απόδειξη…', choreProofPh:'π.χ. «Τακτοποίησα το δωμάτιό μου και έστρωσα το κρεβάτι»',
+    choreAiChecking:'Το AI ελέγχει…', choreAiApproved:'Μπράβο! Αποστολή επιβεβαιώθηκε ✓',
+    choreAiRejected:'Όχι ακριβώς — δοκίμασε ξανά!', choreAiError:'Δεν ήταν δυνατός ο έλεγχος. Περίμενε τον φροντιστή.',
+    choreSubmit:'Υποβολή', choreDone:'Ολοκληρώθηκε ✓', chorePending:'Σε έλεγχο…',
+    choreXpEarned:n=>`+${n} ⭐ κερδίθηκαν!`, choreAlreadyDone:'Ήδη ολοκληρώθηκε σήμερα',
+    xpLevel:n=>`Επίπεδο ${n}`, xpNextLevel:'για το επόμενο επίπεδο', xpTotal:n=>`${n} XP σύνολο`,
+    leaderboard:'Κατάταξη', leaderboardMe:'(εσύ)',
+    levelNames:['Αρχάριος','Εξερευνητής','Ήρωας','Πρωταθλητής','Θρύλος'],
+    adminRewards:'Κέντρο αποστολών', adminPendingReview:'Αναμένει έλεγχο',
+    adminApprove:'Έγκριση', adminReject:'Απόρριψη', adminNoReviews:'Καμία εκκρεμής υποβολή',
+    adminAddChore:'Προσθήκη αποστολής', adminChoreTitle:'Τίτλος', adminChoreXp:'Πόντοι XP',
+    adminChoreSaved:'Αποστολή αποθηκεύτηκε', adminChosenKids:'Για ποιον;',
     gamesTitle:'Παιχνίδια', gamesHint:'Μεγαλύτερες γύρες · ~3–5 λεπτά · Ελληνικά, γνώση, μαθηματικά',
     gamesPlayTime:'~3–5 λεπτά',
     gameMemory:'Μνήμη', gameMemoryHint:'Βρες τα ζευγάρια · όσο λιγότερες κινήσεις',
@@ -1100,6 +1152,7 @@ const T = {
     gameLearnAi:'AI τυχαία', gameLearnAiLoading:'Το AI φορτώνει…', gameLearnAiFail:'AI μη διαθέσιμο — τοπικές κάρτες',
     gameLearnCorrect:'Σωστά!', gameLearnWrong:'Όχι ακριβώς —', gameLearnHearts:'Ζωές',
     gameLearnRound:'Γύρος', gameLearnDone:'Μάθημα ολοκληρώθηκε!', gameLearnXp:'XP',
+    gameXpEarned:n=>`+${n} ⭐ μπόνους!`, gameStreak:n=>`${n} μέρες σερί`,
     gameQuizHintPlay:'Πάτα τη σωστή απάντηση', gameQuizTopic:'Θέμα',
     gameMathHintPlay:'Υπολόγισε γρήγορα και πάτα τον σωστό αριθμό',
     gameMathPlus:'Πρόσθεση', gameMathMinus:'Αφαίρεση', gameMathTimes:'Πολλαπλασιασμός',
@@ -1153,6 +1206,10 @@ const T = {
     notifShiftStart:t=>`Η βάρδια ξεκινά · ${t}`,
     notifShiftLate:t=>`Η βάρδια ξεκίνησε — δήλωσε παρουσία · ${t}`,
     notifTest:'Δοκιμαστική ειδοποίηση Armonia',
+    notifQuietStart:'Ώρα ησυχίας από', notifQuietEnd:'Ώρα ησυχίας έως', notifLeadMinutes:'Προειδοποίηση (λεπτά)',
+    notifUpcomingEvent:t=>`Event σύντομα · ${t}`, notifUpcomingTask:t=>`Εργασία σύντομα · ${t}`,
+    notifFridayShop:n=>`Ψώνια Παρασκευής · ${n} ανοιχτά`,
+    autoFridayShop:'Υπενθύμιση ψωνίων Παρασκευής',
     calTitle:'Το ημερολόγιό μου',
     calHint:'Με ένα πάτημα — βάρδιες και events σε Apple, Google, Outlook ή οποιοδήποτε ημερολόγιο.',
     calDownloadAll:'Όλα ως .ics (Apple & όλες οι εφαρμογές)',
@@ -1391,6 +1448,20 @@ const SEED = {
 
   events: [],
   taskCompletions: [],
+
+  /* Reward & chore system — chores: staff-assignable tasks; choreSubmissions: kid proof queue */
+  chores: [
+    {id:'ch1', emoji:'🛏️', de:'Bett machen',         el:'Στρώσιμο κρεβατιού',   xp:10, kidIds:null, daily:true},
+    {id:'ch2', emoji:'🧹', de:'Zimmer aufräumen',     el:'Τακτοποίηση δωματίου', xp:15, kidIds:null, daily:true},
+    {id:'ch3', emoji:'🍽️', de:'Tisch abräumen',       el:'Μαζέψιμο τραπεζιού',  xp:10, kidIds:null, daily:true},
+    {id:'ch4', emoji:'🦷', de:'Zähne putzen',         el:'Βούρτσισμα δοντιών',   xp:5,  kidIds:null, daily:true},
+    {id:'ch5', emoji:'👟', de:'Schuhe wegräumen',     el:'Τακτοποίηση παπουτσιών',xp:5, kidIds:null, daily:true},
+    {id:'ch6', emoji:'🌱', de:'Blumen gießen',        el:'Πότισμα λουλουδιών',   xp:10, kidIds:null, daily:false},
+    {id:'ch7', emoji:'🐕', de:'Tiere füttern',        el:'Ταΐσμα ζώων',          xp:15, kidIds:null, daily:true},
+    {id:'ch8', emoji:'📚', de:'Bücher aufräumen',     el:'Τακτοποίηση βιβλίων',  xp:10, kidIds:null, daily:false},
+    {id:'ch9', emoji:'🛁', de:'Baden / Duschen',      el:'Μπάνιο / Ντους',       xp:5,  kidIds:null, daily:true},
+  ],
+  choreSubmissions: [],
 
   /* Λόγοι κίνησης αποθέματος (§10.4). Presets + «άλλο» + προσθήκη νέου. */
   reasons: [
@@ -1638,6 +1709,8 @@ const SEED = {
   shiftNotes: {},
   stockChecks: [],
   shiftCheckins: [],
+  xpLog: [],
+  gameStats: {},
 };
 
 /* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
@@ -1645,7 +1718,8 @@ const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
-                 'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins'];
+                 'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
+                 'chores', 'choreSubmissions', 'xpLog', 'gameStats'];
 
 let DB = load();
 function load(){
@@ -1675,6 +1749,7 @@ const SHARED_KEYS = [
   'listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
   'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
+  'xpLog','gameStats',
 ];
 const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
@@ -2158,6 +2233,8 @@ const state = {
   child: null,
   house: 'h1',
   shopFriday: fridayFor(),
+  shopPanel: 'plan',
+  calendarMonth: null,
   stockFilter: 'all',
   stockQuery: '',
   stockOpenCategories: null,
@@ -4547,6 +4624,47 @@ function consumePresenceDeepLink(){
     return true;
   }catch{ return false; }
 }
+
+const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk'];
+const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
+
+function routeFromHash(){
+  const raw = (location.hash || '').replace(/^#/, '').trim();
+  if(!raw) return null;
+  const parts = raw.split('/').filter(Boolean);
+  const tab = parts[0];
+  if(!ROUTE_TABS.includes(tab)) return null;
+  const route = {tab};
+  if(tab === 'schedule' && parts[1] && ROUTE_SCHEDULE_VIEWS.includes(parts[1])) route.scheduleView = parts[1];
+  return route;
+}
+
+function applyRouteFromHash(){
+  const route = routeFromHash();
+  if(!route) return false;
+  state.tab = route.tab;
+  if(route.scheduleView) state.scheduleView = route.scheduleView;
+  if(state.tab === 'schedule' && state.scheduleView === 'calendar' && !state.calendarMonth){
+    state.calendarMonth = iso(new Date()).slice(0, 7) + '-01';
+  }
+  return true;
+}
+
+function hashForState(){
+  if(state.tab === 'schedule' && state.scheduleView === 'calendar') return '#schedule/calendar';
+  if(state.tab === 'schedule' && state.scheduleView === 'events') return '#schedule/events';
+  if(state.tab === 'shop') return '#shop';
+  if(state.tab === 'stock') return '#stock';
+  return '';
+}
+
+function syncLocationHash(){
+  if(document.body.classList.contains('auth-pending')) return;
+  try{
+    const next = hashForState();
+    if(location.hash !== next) history.replaceState({}, '', location.pathname + location.search + next);
+  }catch{}
+}
 function openPresenceFromSignal(){
   if(state.mode!=='staff' || !state.user) return;
   state.tab='home';
@@ -5076,6 +5194,116 @@ function weekNotesCard(){
   </div>`;
 }
 
+function calendarMarkersForMonth(y, m){
+  const markers = new Map();
+  const pad = n=>String(n).padStart(2,'0');
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = y+'-'+pad(m+1)+'-'+pad(d);
+    const entries = entriesFor(ds).filter(e=>!e.cancelled);
+    const events = DB.events.filter(e=>e.status==='published' && e.date===ds);
+    if(entries.length || events.length){
+      markers.set(ds, {tasks:entries.length, events:events.length});
+    }
+  }
+  return markers;
+}
+
+function calendarMonthGrid(year, month, markers){
+  const first = new Date(year, month, 1);
+  const startDow = (first.getDay()+6)%7;
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const pad = n=>String(n).padStart(2,'0');
+  const cells = [];
+  for(let i=0;i<startDow;i++) cells.push(null);
+  for(let d=1;d<=daysInMonth;d++){
+    const ds = year+'-'+pad(month+1)+'-'+pad(d);
+    cells.push({d, ds, mark: markers.get(ds)});
+  }
+  return cells;
+}
+
+function exportScheduleCalendarIcs(){
+  const items = [];
+  DB.events.filter(e=>e.status==='published').forEach(e=>{
+    const [hh,mm] = String(e.from||'10:00').split(':').map(Number);
+    const start = new Date(e.date+'T'+String(hh||10).padStart(2,'0')+':'+String(mm||0).padStart(2,'0')+':00');
+    const end = new Date(start.getTime()+7200000);
+    items.push({
+      id:e.id, kind:'event', dateStr:e.date, title:(e.emoji||'📣')+' '+(e.title||e.name||'Event'),
+      description:[e.description,e.bring? t('bring')+': '+e.bring:''].filter(Boolean).join('\n'),
+      location:e.location||'', start, end,
+    });
+  });
+  for(let i=0;i<21;i++){
+    const d = new Date(); d.setDate(d.getDate()+i);
+    const ds = iso(d);
+    entriesFor(ds).filter(e=>!e.cancelled).forEach(e=>{
+      const [hh,mm] = String(entryTime(e)||'09:00').split(':').map(Number);
+      const start = new Date(ds+'T'+String(hh||9).padStart(2,'0')+':'+String(mm||0).padStart(2,'0')+':00');
+      items.push({
+        id:e.id, kind:'task', dateStr:ds, title: actLabel(e.activityId),
+        description: [employeeNames(e), houseNames(e), e.note].filter(Boolean).join(' · '),
+        start, end: new Date(start.getTime()+3600000),
+      });
+    });
+  }
+  if(!items.length){ toast(t('noEvents'),'info'); return; }
+  downloadTextFile('armonia-thassos.ics', buildIcs(items));
+  toast(t('exportCalendar'),'success');
+}
+
+function viewScheduleCalendar(){
+  const now = new Date();
+  const cm = state.calendarMonth ? new Date(state.calendarMonth+'T12:00:00') : now;
+  const y = cm.getFullYear(), m = cm.getMonth();
+  const markers = calendarMarkersForMonth(y, m);
+  const cells = calendarMonthGrid(y, m, markers);
+  const monthName = cm.toLocaleDateString(state.lang==='el'?'el-GR':'de-DE', {month:'long', year:'numeric'});
+  const today = iso(now);
+  const upcoming = [...DB.events].filter(e=>e.status==='published' && e.date>=today)
+    .sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from)).slice(0,6);
+  const notifAvail = typeof Notification !== 'undefined';
+  const notifGranted = notifAvail && Notification.permission === 'granted';
+  const notifRow = !notifAvail ? '' : notifGranted
+    ? `<span class="cal-notif-pill" aria-live="polite">🔔 ${esc(t('notifEnabled'))}</span>`
+    : `<button class="btn sm sec" type="button" id="enableNotifs">🔔 ${esc(t('notifEnable'))}</button>`;
+  const taskLegend = state.lang === 'el' ? 'Εργασίες' : 'Aufgaben';
+  const eventLegend = state.lang === 'el' ? 'Events' : 'Events';
+
+  return `<section class="cal-shell">
+    <div class="cal-head">
+      <button class="btn sm sec cal-nav" type="button" data-cal-shift="-1" aria-label="${esc(t('calPrev'))}">${t('calPrev')}</button>
+      <div class="cal-month">
+        <span class="cal-month-kicker">${esc(t('viewCalendar'))}</span>
+        <b class="cal-month-title">${esc(monthName)}</b>
+      </div>
+      <button class="btn sm sec cal-nav" type="button" data-cal-shift="1" aria-label="${esc(t('calNext'))}">${t('calNext')}</button>
+    </div>
+    <div class="cal-legend" aria-hidden="true">
+      <span><i class="tk"></i>${esc(taskLegend)}</span>
+      <span><i class="ev"></i>${esc(eventLegend)}</span>
+    </div>
+    <div class="cal-weekdays">${DAY_NAMES[state.lang].map(dn=>`<span>${esc(dn.slice(0,2))}</span>`).join('')}</div>
+    <div class="cal-grid" role="grid" aria-label="${esc(monthName)}">${cells.map(c=>{
+      if(!c) return `<div class="cal-cell empty" role="presentation"></div>`;
+      const on = c.ds===state.date, isToday = c.ds===today;
+      const dots = c.mark ? `<span class="cal-dots">${c.mark.events?'<i class="ev"></i>':''}${c.mark.tasks?'<i class="tk"></i>':''}</span>` : '';
+      return `<button type="button" class="cal-cell ${on?'on':''} ${isToday?'today':''}" data-cal-date="${c.ds}"
+        role="gridcell" aria-pressed="${on?'true':'false'}" aria-label="${esc(c.d + (isToday ? ' · ' + t('today') : ''))}">
+        <span class="cal-n">${c.d}</span>${dots}</button>`;
+    }).join('')}</div>
+    <div class="cal-actions">
+      <button class="btn sec sm" type="button" id="exportIcs">📅 ${esc(t('exportCalendar'))}</button>
+      ${notifRow}
+    </div>
+    <div class="cal-upcoming">
+      <div class="block-h plan-block-h"><span class="t">📣 ${esc(t('upcomingEvents'))}</span></div>
+      ${upcoming.length ? upcoming.map(homeEventCard).join('') : `<div class="empty">${esc(t('noEvents'))}</div>`}
+    </div>
+  </section>`;
+}
+
 function viewSchedule(){
   const sv = state.scheduleView;
   const showHouse = ['day','week'].includes(sv);
@@ -5085,7 +5313,8 @@ function viewSchedule(){
       <span class="planner-seg-lbl"><span class="lbl-full">${esc(label)}</span><span class="lbl-short">${esc(shortLabel||label)}</span></span>
     </button>`;
   const eventsShort = state.lang==='el' ? 'Evt' : 'Evt';
-  const viewLabel = sv==='day'?t('viewDay'):sv==='week'?t('viewWeek'):sv==='shift'?t('viewShift'):t('viewEvents');
+  const calShort = state.lang==='el' ? 'Ημ' : 'Kal';
+  const viewLabel = sv==='day'?t('viewDay'):sv==='week'?t('viewWeek'):sv==='calendar'?t('viewCalendar'):sv==='shift'?t('viewShift'):t('viewEvents');
   const houseLabel = !showHouse ? '' :
     (state.houseFilter ? (planningHouses().find(h=>h.id===state.houseFilter)?.short||'') : t('all'));
   const summaryMeta = [viewLabel, houseLabel].filter(Boolean).join(' · ');
@@ -5093,6 +5322,7 @@ function viewSchedule(){
         <div class="seg planner-seg" id="schView" role="tablist" aria-label="${esc(t('filterView'))}">
           ${viewBtn('day','📅',t('viewDay'))}
           ${viewBtn('week','▦',t('viewWeek'))}
+          ${viewBtn('calendar','🗓',t('viewCalendar'),calShort)}
           ${viewBtn('shift','⏱',t('viewShift'))}
           ${viewBtn('events','📣',t('viewEvents'),eventsShort)}
         </div>
@@ -5101,7 +5331,7 @@ function viewSchedule(){
           ${planningHouses().map(h=>`<button type="button" class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}" title="${esc(h.name)}" aria-label="${esc(h.name)}">${esc(h.short)}</button>`).join('')}
         </div>`:''}`;
   return `
-    <div class="planner ${sv==='day'?'plan-day':sv==='week'?'plan-week':sv==='shift'?'plan-shift':'plan-events'}">
+    <div class="planner ${sv==='day'?'plan-day':sv==='week'?'plan-week':sv==='calendar'?'plan-calendar':sv==='shift'?'plan-shift':'plan-events'}">
       <div class="adaptive-chrome planner-chrome-wrap">
         <button type="button" class="adaptive-chrome-summary" data-adaptive-toggle aria-expanded="false">
           <span class="adaptive-summary-label">${esc(t('menuFilters'))}</span>
@@ -5119,6 +5349,7 @@ function viewSchedule(){
       </div>
       ${sv==='day' ? viewScheduleDay()
         : sv==='week' ? viewScheduleWeek()
+        : sv==='calendar' ? viewScheduleCalendar()
         : sv==='shift' ? viewShifts() : staffEventsView()}
     </div>`;
 }
@@ -5557,7 +5788,8 @@ function viewStock(){
       <div class="stock-command-row">
         <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
         ${hid==='all'?`<button class="stock-tool ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle" title="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-label="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-pressed="${state.stockTiles?'true':'false'}">${state.stockTiles?'▦':'☰'}</button>`:''}
-        ${hid!=='all'?`<button class="stock-tool labeled" type="button" id="stockOpenBoard" title="${esc(t('stockBoard'))}" aria-label="${esc(t('stockBoard'))}"><span aria-hidden="true">▦</span><span>${esc(t('stockBoardShort'))}</span></button>
+        ${hid!=='all'?`<button class="stock-tool labeled" type="button" id="stockQuickList" title="${esc(t('stockQuickList'))}" aria-label="${esc(t('stockQuickList'))}"><span aria-hidden="true">⚡</span><span>${esc(t('stockQuickListShort'))}</span></button>
+        <button class="stock-tool labeled" type="button" id="stockOpenBoard" title="${esc(t('stockBoard'))}" aria-label="${esc(t('stockBoard'))}"><span aria-hidden="true">▦</span><span>${esc(t('stockBoardShort'))}</span></button>
         <button class="stock-tool labeled" type="button" id="stockQuickFood" title="${esc(t('stockAddFood'))}" aria-label="${esc(t('stockAddFood'))}"><span aria-hidden="true">＋</span><span>${esc(t('stockAddFoodShort'))}</span></button>`:''}
       </div>
       <div class="stock-strip-stats" role="toolbar" aria-label="${esc(t('menuFilters'))}">
@@ -6688,6 +6920,27 @@ function sheetShoppingHistory(){
   sheetEl.querySelectorAll('[data-history-house]').forEach(button=>button.onclick=()=>{state.house=button.dataset.historyHouse;closeSheet();sheetShoppingHistory();});
 }
 
+/** Leere & niedrige Bestände → offene Freitagsliste (idempotent). */
+function autoFillShoppingFromStock(hid){
+  if(!hid || hid==='all'){ toast(t('selectHouse'),'info'); return 0; }
+  const friday = state.shopFriday||fridayFor();
+  let added = 0;
+  PRODUCTS().forEach(p=>{
+    const qty = DB.stock[stockKey(hid,p.id)] ?? 0;
+    if(qty > lowThreshold(p)) return;
+    if(isProductOnFridayList(hid, p.id, friday)) return;
+    DB.listEntries.push({
+      id:uid(), productId:p.id, name:L(p),
+      qty: Math.max(stepFor(p), lowThreshold(p)), unit:p.unit,
+      houseId:hid, fridayDate:friday, by:state.user?.id||null, status:'open',
+    });
+    added++;
+  });
+  if(added){ if(!save()) return 0; toast(t('shopAutoFilled')(added),'success'); }
+  else toast(t('stockHealthy'),'info');
+  return added;
+}
+
 function viewShop(){
   const hid = shopHouse();
   const friday=state.shopFriday||fridayFor();
@@ -6697,9 +6950,19 @@ function viewShop(){
   const inStore = pending.length > 0;
 
   const fridayState=pending.length?t('fridayActive'):(open.length?t('fridayPlanned'):(bought.length||missing.length?t('fridayCompleted'):t('fridayPlanned')));
+  const lowStockCount = PRODUCTS().filter(p=>{
+    const q = DB.stock[stockKey(hid,p.id)]??0;
+    return q <= lowThreshold(p);
+  }).length;
+  const catOrder = [...CATS().map(c=>c.id), 'other'];
   const hero=inStore?'':`<section class="shop-command" aria-label="${esc(t('shopTitle'))}">
     <div class="seg house-selector" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
       ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
+    </div>
+    <div class="shop-hub-stats" aria-label="${esc(t('shopTitle'))}">
+      <div class="shop-stat"><b>${open.length}</b><span>${t('secOpen')}</span></div>
+      <div class="shop-stat warn"><b>${lowStockCount}</b><span>${t('stockAttention')}</span></div>
+      <div class="shop-stat"><b>${bought.length}</b><span>${t('secBought')}</span></div>
     </div>
     <div class="shop-command-row">
       <div class="friday-picker compact">
@@ -6713,8 +6976,37 @@ function viewShop(){
         <button class="shop-tool" type="button" data-page-act="shopHistory" title="${esc(t('topHistory'))}" aria-label="${esc(t('topHistory'))}">🧾</button>
       </div>
     </div>
-    <div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋</button></div>
+    <div class="seg shop-panel-seg" id="shopPanel">
+      <button class="${state.shopPanel==='plan'?'on':''}" data-shop-panel="plan" type="button">${t('shopPlan')}</button>
+      <button class="${state.shopPanel==='take'?'on':''}" data-shop-panel="take" type="button">${t('shopTake')}</button>
+    </div>
+    <div class="shop-quick-actions">
+      <button class="btn sec sm" type="button" id="shopAutoFill">⚡ ${t('shopAutoFill')}</button>
+    </div>
+    ${state.shopPanel==='plan'?`<div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋</button></div>`:''}
   </section>`;
+
+  const takeListCard = (!inStore && state.shopPanel==='take') ? (()=>{
+    const allTake = [...open, ...pending.filter(e=>!e.decision)];
+    const byCatTake = {};
+    allTake.forEach(e=>{
+      const c = e.productId ? (prod(e.productId)?.cat||'other') : 'other';
+      (byCatTake[c] ||= []).push(e);
+    });
+    return `<section class="card shop-take-card">
+      <div class="shop-take-h"><b>${t('shopTake')}</b><span class="muted">${t('shopTakeHint')}</span></div>
+      ${allTake.length ? catOrder.filter(c=>byCatTake[c]).map(c=>{
+        const cat = CATS().find(x=>x.id===c);
+        return `<div class="shop-take-cat"><div class="shop-take-cat-h">${cat?esc(L(cat)):t('other')}</div>
+          ${byCatTake[c].map(e=>`<div class="shop-take-row"><span class="shop-take-qty">${e.qty}${esc(e.unit)}</span><span class="shop-take-name">${svgIcon(prodIconId(e.productId?prod(e.productId):matchProduct(e.name)),'prod-ico')}${esc(e.name)}</span></div>`).join('')}
+        </div>`;
+      }).join('') : `<div class="shop-empty compact">
+        <div class="big">🧺</div>
+        <h3>${t('noFridayItems')}</h3>
+        <p>${t('shopTakeEmptyHint')}</p>
+      </div>`}
+    </section>`;
+  })() : '';
 
   // ── Store mode: full-page compact aisle list ──
   const done = pending.filter(e => e.decision).length;
@@ -6731,7 +7023,6 @@ function viewShop(){
     const c = e.productId ? (prod(e.productId)?.cat || 'other') : 'other';
     (byCat[c] ||= []).push(e);
   });
-  const catOrder = [...CATS().map(c=>c.id), 'other'];
 
   const storeRow = e => {
     const st = e.decision;
@@ -6787,7 +7078,7 @@ function viewShop(){
       </div>
     </section>` : '';
 
-  const openCard = pending.length?'':`<div class="card shop-list-card">
+  const openCard = (pending.length || state.shopPanel!=='plan')?'':`<div class="card shop-list-card">
     ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${svgIcon(prodIconId(e.productId?prod(e.productId):matchProduct(e.name)),'prod-ico')}${esc(e.name)}</div>
       <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)}</div></div><div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
       `<div class="shop-empty">
@@ -6807,7 +7098,7 @@ function viewShop(){
   const boughtCard = bought.length ? `<details class="card shop-history"><summary>✓ ${t('secBought')}<span class="pill in">${bought.length}</span></summary><div class="shop-history-body">
       ${bought.slice(-8).reverse().map(e=>entryRow(e,`<span class="pill in">${t('stBought')}</span>`)).join('')}</div></details>` : '';
 
-  return hero + pendingCard + openCard + missingCard + boughtCard;
+  return hero + pendingCard + takeListCard + openCard + missingCard + boughtCard;
 }
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
@@ -7966,18 +8257,18 @@ function childEventsView(cid){
 }
 
 const CHILD_GAMES = [
-  {id:'learn', emoji:'🇬🇷', titleKey:'gameLearn', hintKey:'gameLearnHint', tint:'#0d9488', featured:true},
-  {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#2a6b52', featured:true},
-  {id:'math', emoji:'➕', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', featured:true},
-  {id:'island', emoji:'🏝️', titleKey:'gameIsland', hintKey:'gameIslandHint', tint:'#0e7490', featured:true},
+  {id:'learn', emoji:'🇬🇷', titleKey:'gameLearn', hintKey:'gameLearnHint', tint:'#0d9488', featured:true, xp:10},
+  {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#2a6b52', featured:true, xp:8},
+  {id:'math', emoji:'➕', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', featured:true, xp:6},
+  {id:'island', emoji:'🏝️', titleKey:'gameIsland', hintKey:'gameIslandHint', tint:'#0e7490', featured:true, xp:8},
   {id:'eduhub', emoji:'🎓', titleKey:'gameEduHub', hintKey:'gameEduHubHint', tint:'#0369a1', featured:true},
-  {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e'},
-  {id:'tac', emoji:'❌', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#c2410c'},
-  {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1'},
+  {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e', xp:5},
+  {id:'tac', emoji:'❌', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#c2410c', xp:4},
+  {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1', xp:5},
   {id:'react', emoji:'⚡', titleKey:'gameReact', hintKey:'gameReactHint', tint:'#2a6b52'},
   {id:'rps', emoji:'✊', titleKey:'gameRps', hintKey:'gameRpsHint', tint:'#be185d'},
   {id:'dice', emoji:'🎲', titleKey:'gameDice', hintKey:'gameDiceHint', tint:'#0f766e'},
-  {id:'simon', emoji:'🎵', titleKey:'gameSimon', hintKey:'gameSimonHint', tint:'#b45309'},
+  {id:'simon', emoji:'🎵', titleKey:'gameSimon', hintKey:'gameSimonHint', tint:'#b45309', xp:6},
   {id:'colors', emoji:'🎨', titleKey:'gameColors', hintKey:'gameColorsHint', tint:'#2a6b52'},
 ];
 const MEMORY_EMOJIS = ['🌊','☀️','🐚','🐙','🐟','⭐','🍋','⛵'];
@@ -8297,6 +8588,7 @@ function answerLearn(choiceIdx){
     if(gg.i >= gg.deck.length){
       gg.finished=true; gg.lock=false;
       writeGameBest('learn', gg.xp);
+      tryGrantGameWin('learn', gg, gg.hearts>0);
       render(); return;
     }
     buildLearnRound(gg);
@@ -8397,6 +8689,7 @@ function answerQuiz(choiceIdx){
     if(gg.i >= gg.deck.length){
       gg.finished=true; gg.lock=false;
       writeGameBest('quiz', gg.score);
+      tryGrantGameWin('quiz', gg, gg.score>=50);
       render(); return;
     }
     buildQuizRound(gg);
@@ -8516,6 +8809,7 @@ function answerMath(choiceIdx){
       state.game.finished=true;
       state.game.lock=false;
       writeGameBest('math', state.game.score);
+      tryGrantGameWin('math', state.game, state.game.score>=60);
       render();
       return;
     }
@@ -8588,9 +8882,316 @@ function leaveChildGame(){
   render();
 }
 
+function gameStatsKey(kidId){ return kidId||'anon'; }
+function loadGameStats(kidId){
+  DB.gameStats ||= {};
+  return DB.gameStats[gameStatsKey(kidId)] || {streak:0, lastDay:'', wins:0, xp:0};
+}
+function grantXp(kidId, choreId, xp, submissionId){
+  if(!kidId || !xp) return;
+  const log = DB.xpLog || (DB.xpLog=[]);
+  log.push({
+    id:'xp'+Date.now(), kidId, choreId:choreId||null, xp, submissionId:submissionId||null, ts:Date.now(),
+  });
+}
+function grantGameXp(kidId, amount, gameId){
+  if(!kidId || !amount) return;
+  const stats = loadGameStats(kidId);
+  const today = iso(new Date());
+  stats.wins = (stats.wins||0)+1;
+  stats.xp = (stats.xp||0)+amount;
+  if(stats.lastDay !== today){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    stats.streak = stats.lastDay === iso(y) ? (stats.streak||0)+1 : 1;
+    stats.lastDay = today;
+  }
+  DB.gameStats[gameStatsKey(kidId)] = stats;
+  grantXp(kidId, null, amount, 'game-'+gameId);
+  save();
+  toast(t('gameXpEarned')(amount),'success');
+}
+function tryGrantGameWin(gameId, g, pass){
+  if(!g || !state.child || g.xpGranted || state.gameId!==gameId || !pass) return;
+  const amt = CHILD_GAMES.find(x=>x.id===gameId)?.xp;
+  if(!amt) return;
+  g.xpGranted = true;
+  grantGameXp(state.child.id, amt, gameId);
+}
+
+/* ── Reward & Chore helpers ── */
+const XP_LEVELS = [0, 50, 120, 250, 450, 700, 1000, 1400, 1900, 2500];
+function kidXp(kidId){
+  return (DB.xpLog||[]).filter(x=>x.kidId===kidId).reduce((s,x)=>s+x.xp,0);
+}
+function kidLevel(xp){
+  let lv=0;
+  for(let i=0;i<XP_LEVELS.length;i++){ if(xp>=XP_LEVELS[i]) lv=i; }
+  return lv;
+}
+function kidLevelName(lv){
+  const names = t('levelNames');
+  return names[Math.min(lv, names.length-1)];
+}
+function choreForKid(chore, kidId){
+  if(!chore.kidIds || chore.kidIds.length===0) return true;
+  return chore.kidIds.includes(kidId);
+}
+function choreLabel(ch){ return state.lang==='el' ? ch.el : ch.de; }
+function choreDoneToday(choreId, kidId){
+  const today = iso(new Date());
+  return (DB.choreSubmissions||[]).some(s=>s.choreId===choreId && s.kidId===kidId && s.date===today && s.status==='approved');
+}
+function chorePendingToday(choreId, kidId){
+  const today = iso(new Date());
+  return (DB.choreSubmissions||[]).some(s=>s.choreId===choreId && s.kidId===kidId && s.date===today && s.status==='pending');
+}
+
+function childRewardsView(kidId){
+  const c = kid(kidId);
+  const xp = kidXp(kidId);
+  const lv = kidLevel(xp);
+  const lvName = kidLevelName(lv);
+  const nextXp = XP_LEVELS[Math.min(lv+1, XP_LEVELS.length-1)];
+  const curXp = XP_LEVELS[lv];
+  const pct = lv >= XP_LEVELS.length-1 ? 100 : Math.round(((xp-curXp)/(nextXp-curXp))*100);
+  const myChores = (DB.chores||[]).filter(ch=>choreForKid(ch,kidId));
+
+  const hero = `<div class="rewards-hero">
+    <span class="level-badge">🏅 ${t('xpLevel')(lv)} · ${lvName}</span>
+    <div class="xp-name">${esc(c.name)}</div>
+    <div class="xp-sub">${t('xpTotal')(xp)}</div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-row"><span class="xp-cur">${xp} XP</span>
+        ${lv < XP_LEVELS.length-1 ? `<span class="xp-next">${nextXp - xp} ${t('xpNextLevel')}</span>`:'<span class="xp-next">MAX 🏆</span>'}
+      </div>
+      <div class="xp-bar"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+    </div>
+  </div>`;
+
+  const dueChores = myChores.filter(ch=>ch.daily && !choreDoneToday(ch.id,kidId));
+  const doneChores = myChores.filter(ch=>choreDoneToday(ch.id,kidId));
+
+  const choreCard = (ch, interactive) => {
+    const done = choreDoneToday(ch.id,kidId);
+    const pending = chorePendingToday(ch.id,kidId);
+    const cls = done ? 'done' : pending ? 'pending-review' : '';
+    const action = (!done && !pending && interactive) ? `data-chore-submit="${ch.id}"` : '';
+    return `<div class="chore-card ${cls}" ${action} role="${action?'button':'listitem'}" tabindex="${action?0:-1}">
+      <div class="chore-icon" style="background:${safeColor(c.color)}">${ch.emoji}</div>
+      <div class="chore-body">
+        <div class="chore-title">${esc(choreLabel(ch))}</div>
+        <div class="chore-meta">${done?t('choreDone'):pending?t('chorePending'):t('choreSubmitProof')}</div>
+      </div>
+      <div class="chore-xp">${ch.xp}</div>
+    </div>`;
+  };
+
+  const leaderboardHtml = (() => {
+    const board = DB.children.map(k=>({k, xp:kidXp(k.id)}))
+      .sort((a,b)=>b.xp-a.xp).slice(0,8);
+    const medals = ['🥇','🥈','🥉'];
+    return `<div class="reward-leaderboard">
+      ${board.map((entry,i)=>{
+        const isMe = entry.k.id === kidId;
+        const rankCls = i<3?['gold','silver','bronze'][i]:'';
+        return `<div class="lb-row${isMe?' me':''}">
+          <div class="lb-rank ${rankCls}">${medals[i]||i+1}</div>
+          <div class="lb-avatar" style="background:${safeColor(entry.k.color)}">${esc(initials(entry.k.name))}</div>
+          <div class="lb-name">${esc(entry.k.name)}${isMe?` <span class="pill sun">${t('leaderboardMe')}</span>`:''}</div>
+          <div class="lb-xp">⭐ ${entry.xp}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  })();
+
+  return `
+    ${hero}
+    ${dueChores.length ? `<div class="reward-section-h">☀️ ${t('choresDue')}</div>
+      ${dueChores.map(ch=>choreCard(ch,true)).join('')}` : ''}
+    ${doneChores.length ? `<div class="reward-section-h">✅ ${t('choresDone')}</div>
+      ${doneChores.map(ch=>choreCard(ch,false)).join('')}` : ''}
+    <div class="reward-section-h">🏆 ${t('leaderboard')}</div>
+    ${leaderboardHtml}
+    ${!dueChores.length && !doneChores.length ? `<div class="reward-empty"><div class="re-icon">🎉</div>${t('adminNoReviews')}</div>` : ''}
+  `;
+}
+
+async function openChoreSubmitSheet(choreId, kidId){
+  const ch = (DB.chores||[]).find(c=>c.id===choreId);
+  if(!ch) return;
+  const c = kid(kidId);
+  let photoDataUrl = null;
+
+  const renderSheet = (aiState='idle', aiMsg='') => {
+    const aiHtml = aiState==='idle' ? '' : aiState==='checking'
+      ? `<div class="ai-verdict checking"><div class="ai-verdict-icon">🤖</div><div>${t('choreAiChecking')}</div></div>`
+      : aiState==='ok'
+      ? `<div class="ai-verdict ok"><div class="ai-verdict-icon">✅</div><div>${t('choreAiApproved')}</div></div>`
+      : aiState==='fail'
+      ? `<div class="ai-verdict fail"><div class="ai-verdict-icon">❌</div><div>${esc(aiMsg)||t('choreAiRejected')}</div></div>`
+      : `<div class="ai-verdict checking"><div class="ai-verdict-icon">⚠️</div><div>${t('choreAiError')}</div></div>`;
+
+    document.getElementById('sheet').innerHTML = `
+      <button class="sheet-close" id="sheetClose" type="button">×</button>
+      <div style="padding:14px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="width:52px;height:52px;border-radius:14px;background:${safeColor(c.color)};display:grid;place-items:center;font-size:28px">${ch.emoji}</div>
+          <div><div style="font-size:16px;font-weight:700">${esc(choreLabel(ch))}</div>
+            <div class="muted" style="font-size:13px">${t('choreSubmitProof')} · ⭐ ${ch.xp} XP</div></div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin:0 0 10px">${t('chorePhotoHint')}</p>
+        ${photoDataUrl ? `<img class="chore-photo-thumb" src="${photoDataUrl}" alt="proof">` : ''}
+        <div class="chore-verify-area" id="chorePhotoArea" role="button" tabindex="0">
+          <div class="cva-icon">📷</div>
+          <div class="cva-label">${photoDataUrl ? t('imageReady') : t('pickScreenshot')}</div>
+          <input type="file" id="choreFileInput" accept="image/*" capture="environment" style="display:none">
+        </div>
+        <label class="f" style="margin-top:10px">
+          <span>${t('choreProofLabel')}</span>
+          <textarea id="choreProofText" placeholder="${t('choreProofPh')}" rows="3" style="resize:none;font-size:15px"></textarea>
+        </label>
+        ${aiHtml}
+        <button class="btn" id="choreSubmitBtn" type="button" style="margin-top:10px" ${aiState==='checking'?'disabled':''}>
+          ${aiState==='ok' ? t('choreDone') : t('choreSubmit')}
+        </button>
+      </div>`;
+
+    document.getElementById('sheetClose').onclick = ()=>closeSheet();
+    const photoArea = document.getElementById('chorePhotoArea');
+    const fileInput = document.getElementById('choreFileInput');
+    photoArea.onclick = ()=>fileInput.click();
+    fileInput.onchange = async(e)=>{
+      const file = e.target.files[0]; if(!file) return;
+      photoDataUrl = await new Promise(res=>{const r=new FileReader();r.onload=ev=>res(ev.target.result);r.readAsDataURL(file);});
+      renderSheet(aiState, aiMsg);
+    };
+    document.getElementById('choreSubmitBtn').onclick = async()=>{
+      const proofText = (document.getElementById('choreProofText')||{}).value || '';
+      if(aiState==='ok'){
+        finalizeChoreApproval(choreId, kidId, ch.xp, proofText, photoDataUrl);
+        return;
+      }
+      if(!proofText.trim() && !photoDataUrl){ toast(t('choreProofLabel')); return; }
+      renderSheet('checking');
+      const approved = await aiCheckChore(ch, proofText, photoDataUrl);
+      if(approved===true){
+        renderSheet('ok');
+        // Auto-finalize once; button path is guarded by choreDoneToday
+        setTimeout(()=>{ finalizeChoreApproval(choreId, kidId, ch.xp, proofText, photoDataUrl); },900);
+      } else if(approved===false){
+        renderSheet('fail', '');
+        submitPendingReview(choreId, kidId, proofText, photoDataUrl);
+      } else {
+        renderSheet('error');
+        submitPendingReview(choreId, kidId, proofText, photoDataUrl);
+      }
+    };
+  };
+  openSheet();
+  renderSheet();
+}
+
+async function aiCheckChore(chore, proofText, photoDataUrl){
+  try {
+    const resp = await fetch('/api/chore-verify', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        choreName: state.lang==='de' ? chore.de : chore.el,
+        proofText: proofText || (photoDataUrl ? t('imageReady') : ''),
+        lang: state.lang
+      })
+    });
+    if(!resp.ok) return null;
+    const data = await resp.json();
+    return data.approved === true;
+  } catch(e){ return null; }
+}
+
+function submitPendingReview(choreId, kidId, proofText, photoDataUrl){
+  const subs = DB.choreSubmissions || (DB.choreSubmissions=[]);
+  subs.push({
+    id:'sub'+Date.now(), choreId, kidId,
+    date: iso(new Date()), proofText,
+    photoThumb: photoDataUrl ? photoDataUrl.slice(0,200)+'…' : null,
+    status:'pending', ts: Date.now()
+  });
+  save();
+}
+
+function finalizeChoreApproval(choreId, kidId, xp, proofText, photoDataUrl){
+  if(choreDoneToday(choreId, kidId)){
+    closeSheet();
+    render();
+    return;
+  }
+  const subs = DB.choreSubmissions || (DB.choreSubmissions=[]);
+  const subId = 'sub'+Date.now();
+  subs.push({id:subId, choreId, kidId, date:iso(new Date()), proofText,
+    photoThumb: photoDataUrl ? photoDataUrl.slice(0,200)+'…' : null,
+    status:'approved', ts:Date.now()});
+  grantXp(kidId, choreId, xp, subId);
+  save();
+  closeSheet();
+  toast(t('choreXpEarned')(xp));
+  feedback('success');
+  render();
+}
+
+function viewAdminRewardCenter(){
+  const pending = (DB.choreSubmissions||[]).filter(s=>s.status==='pending')
+    .sort((a,b)=>b.ts-a.ts);
+
+  const rows = pending.map(s=>{
+    const ch = (DB.chores||[]).find(c=>c.id===s.choreId);
+    const k = kid(s.kidId);
+    if(!ch||!k) return '';
+    return `<div class="admin-chore-row" data-sub="${s.id}">
+      <div>
+        <div style="font-size:14px;font-weight:700">${ch.emoji} ${esc(k.name)} — ${esc(choreLabel(ch))}</div>
+        <div class="muted" style="font-size:12px">${s.date} · ⭐${ch.xp} XP</div>
+        ${s.proofText ? `<div style="font-size:12px;color:var(--muted);margin-top:3px;font-style:italic">"${esc(s.proofText)}"</div>` : ''}
+      </div>
+      <div class="admin-chore-verdict">
+        <button class="verdict-approve" data-verdict="approve" data-sub="${s.id}" type="button" title="${t('adminApprove')}">✓</button>
+        <button class="verdict-reject" data-verdict="reject" data-sub="${s.id}" type="button" title="${t('adminReject')}">✗</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="card admin-reward-card">
+    <h2>⭐ ${t('adminRewards')}</h2>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:10px">${t('adminPendingReview')}: ${pending.length}</div>
+    ${pending.length ? `<div class="admin-chore-list">${rows}</div>`
+      : `<div class="reward-empty"><div class="re-icon">🎉</div>${t('adminNoReviews')}</div>`}
+  </div>`;
+}
+
+function bindAdminRewardCenter(root){
+  root.querySelectorAll('[data-verdict]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const subId = btn.dataset.sub;
+      const action = btn.dataset.verdict;
+      const sub = (DB.choreSubmissions||[]).find(s=>s.id===subId);
+      if(!sub || sub.status!=='pending') return;
+      sub.status = action==='approve' ? 'approved' : 'rejected';
+      if(action==='approve'){
+        const ch = (DB.chores||[]).find(c=>c.id===sub.choreId);
+        if(ch) grantXp(sub.kidId, sub.choreId, ch.xp, subId);
+        toast(t('adminApprove')+' ✓');
+      } else {
+        toast(t('adminReject'));
+      }
+      save();
+      render();
+    };
+  });
+}
+
 function childGamesLobby(){
   const featured=CHILD_GAMES.filter(g=>g.featured);
   const rest=CHILD_GAMES.filter(g=>!g.featured);
+  const stats = state.child ? loadGameStats(state.child.id) : {streak:0};
   const progressLabel=(g,best)=>{
     if(!best) return '';
     if(g.id==='react') return `${t('gameBest')}: ${t('gameReactMs')(best)}`;
@@ -8604,7 +9205,7 @@ function childGamesLobby(){
     return `<button class="arcade-tile ${g.featured?'featured':''}" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
       <span class="arcade-glow" aria-hidden="true"></span>
       <span class="arcade-emoji">${g.emoji}</span>
-      <span class="arcade-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span>
+      <span class="arcade-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}${g.xp?` · ⭐${g.xp}`:''}</span>
         ${prog?`<small>${esc(prog)}</small>`:''}</span>
       <span class="arcade-play">${t('gamePlay')}</span>
     </button>`;
@@ -8613,7 +9214,7 @@ function childGamesLobby(){
       <div class="arcade-hero">
         <div class="brand-kicker">Armonia Play</div>
         <h2>${t('gamesTitle')}</h2>
-        <p>${t('gamesHint')}</p>
+        <p>${t('gamesHint')}${stats.streak>1?` · ${t('gameStreak')(stats.streak)}`:''}</p>
       </div>
       <div class="arcade-grid featured">${featured.map(card).join('')}</div>
       <div class="arcade-grid">${rest.map(card).join('')}</div>
@@ -8925,6 +9526,7 @@ function answerIsland(choiceIdx){
     if(gg.i >= gg.deck.length){
       gg.finished=true; gg.lock=false;
       writeGameBest('island', gg.score);
+      tryGrantGameWin('island', gg, gg.hearts>0);
       render(); return;
     }
     buildIslandRound(gg);
@@ -9387,6 +9989,7 @@ function bindChildGames(root){
           state.game.left=0;
           state.game.finished=true;
           writeGameBest('math', state.game.score);
+          tryGrantGameWin('math', state.game, state.game.score>=60);
           render();
         }
       }, 1000);
@@ -9406,6 +10009,7 @@ function bindChildGames(root){
         if(ca.pair===cb.pair){
           ca.done=cb.done=true; ca.justMatched=cb.justMatched=true;
           g.pairs += 1; g.streak=(g.streak||0)+1; g.open=[]; g.lock=false; feedback('save');
+          if(g.pairs>=MEMORY_EMOJIS.length) tryGrantGameWin('memory', g, true);
           render();
           setTimeout(()=>{
             if(!state.game || state.gameId!=='memory') return;
@@ -9431,7 +10035,7 @@ function bindChildGames(root){
         const i=Number(btn.dataset.i); if(g.board[i]) return;
         g.board[i]='x'; feedback('select');
         const hit=tacWinnerLine(g.board);
-        if(hit?.winner==='x'){ g.status='win'; g.winner='x'; g.line=hit.line; writeGameBest('tac', readGameBest('tac')+1); feedback('save'); render(); return; }
+        if(hit?.winner==='x'){ g.status='win'; g.winner='x'; g.line=hit.line; writeGameBest('tac', readGameBest('tac')+1); tryGrantGameWin('tac', g, true); feedback('save'); render(); return; }
         if(hit?.winner==='draw'){ g.status='draw'; render(); return; }
         g.turn='o'; render();
         g._cpu=setTimeout(tacCpuMove, 380);
@@ -9455,6 +10059,7 @@ function bindChildGames(root){
             state.game.left=0;
             state.game.finished=true;
             writeGameBest('catch', state.game.score);
+            tryGrantGameWin('catch', state.game, state.game.score>=30);
             render();
           }
         }, 1000);
@@ -9568,6 +10173,7 @@ function bindChildGames(root){
         }
         if(g.input.length===g.seq.length){
           feedback('save');
+          tryGrantGameWin('simon', g, g.seq.length>=5);
           setTimeout(()=>{
             if(!state.game || state.gameId!=='simon') return;
             simonAdvance();
@@ -9790,6 +10396,7 @@ function adminTeamPanel(today){
       ${done?`<div class="muted" style="margin-top:5px">✓ ${done} ${t('adminDone')}</div>`:''}
     </button>`;
   }).join('');
+  const rewardCenter = viewAdminRewardCenter();
   return `<section class="card admin-center">
     <div class="admin-center-head"><div><div class="brand-kicker">ARMONIA THASSOS</div><h2>👑 ${t('adminCenter')}</h2>
       <div class="muted">${t('adminOverview')}</div></div><div class="admin-crown">🛡️</div></div>
@@ -9804,7 +10411,8 @@ function adminTeamPanel(today){
     <div class="admin-alert-strip ${issues.length?'':'clear'}"><span>${issues.length?'⚠️':'✅'}</span><div class="grow"><b>${issues.length?`${issues.length} · ${t('adminWarnings')}`:t('adminAllClear')}</b>
       <div style="margin-top:2px">${t('adminFullControl')}</div></div></div>
     <div class="admin-team-grid">${team}</div>
-  </section>`;
+  </section>
+  ${rewardCenter}`;
 }
 
 async function sheetBroadcastEmail(){
@@ -10210,6 +10818,7 @@ function renderChild(){
     </div>`;
   const tabs = `<div class="seg child-tabs" id="childTabs">
     <button class="${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('childToday')}</button>
+    <button class="${state.childView==='rewards'?'on':''}" data-child-view="rewards">⭐ ${t('childRewards')}</button>
     <button class="${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('childEvents')}${childUpcomingEvents.length?` <span class="nav-badge">${childUpcomingEvents.length}</span>`:''}</button>
     <button class="${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('childWeek')}</button>
     <button class="${state.childView==='gallery'?'on':''}" data-child-view="gallery">📸 ${t('galleryChildTab')}</button>
@@ -10237,6 +10846,7 @@ function renderChild(){
     ${childEventsFor(c.id).filter(e=>e.date===state.date).map(childEventCard).join('')}`;
   const weekView = `<div class="card"><h2>${t('myWeek')}</h2>${weekList}</div>`;
   const viewBody = state.childView==='today' ? todayView
+    : state.childView==='rewards' ? childRewardsView(c.id)
     : state.childView==='events' ? childEventsView(c.id)
     : state.childView==='games' ? childGamesView()
     : state.childView==='gallery' ? childGalleryView()
@@ -10281,6 +10891,15 @@ function renderChild(){
   if(zoDismiss) zoDismiss.onclick=e=>{ e.stopPropagation(); dismissZoAiBanner(); render(); };
   if(state.childView==='games') bindChildGames(document.getElementById('view'));
   if(state.childView==='gallery') bindGallery(document.getElementById('view'));
+  if(state.childView==='rewards'){
+    const root = document.getElementById('view');
+    root.querySelectorAll('[data-chore-submit]').forEach(btn=>{
+      btn.onclick = ()=>{
+        const choreId = btn.dataset.choreSubmit;
+        if(choreId && state.child) openChoreSubmitSheet(choreId, state.child.id);
+      };
+    });
+  }
   syncLayoutMode();
 }
 
@@ -10327,7 +10946,13 @@ function dynamicHeaderTitle(){
   if(state.tab==='home') return t('headerHome');
   if(state.tab==='schedule'){
     if(state.scheduleView==='week') return t('headerScheduleWeek');
+    if(state.scheduleView==='calendar'){
+      const cm = state.calendarMonth ? new Date(state.calendarMonth+'T12:00:00') : new Date();
+      const monthLabel = cm.toLocaleDateString(state.lang==='el'?'el-GR':'de-DE', {month:'long', year:'numeric'});
+      return `${t('headerScheduleCalendar')} · ${monthLabel}`;
+    }
     if(state.scheduleView==='events') return t('headerScheduleEvents');
+    if(state.scheduleView==='shift') return t('viewShift');
     return t('headerScheduleDay');
   }
   if(state.tab==='stock'){
@@ -10865,6 +11490,10 @@ function scheduleMeasureChrome(){
 
 function render(){
   if(state.mode === 'child' && state.child) return renderChild();
+  if(!document.body.classList.contains('auth-pending') && !state._routeBoot){
+    state._routeBoot = true;
+    applyRouteFromHash();
+  }
   if(state.tab==='talk' && state.mode!=='staff') state.tab='home';
   const restoreMatrixFs = document.body.classList.contains('matrix-fullscreen')
     ? (document.querySelector('.matrix-shell.is-fullscreen .matrix-toolbar-title')?.textContent || '')
@@ -10924,6 +11553,7 @@ function render(){
   }
   syncLayoutMode();
   scheduleMeasureChrome();
+  syncLocationHash();
   if(consumePresenceDeepLink()) queueMicrotask(()=>sheetShiftPresence());
   else maybePromptShiftPresence();
 }
@@ -10950,6 +11580,7 @@ function wire(){
     feedback('open');
     sheetAdminAutomations();
   });
+  bindAdminRewardCenter(v);
   const homeCalendar=v.querySelector('#homeCalendar');
   if(homeCalendar) homeCalendar.onclick=()=>{
     feedback('open');
@@ -11033,7 +11664,15 @@ function wire(){
   });
 
   v.querySelectorAll('#schView button').forEach(b=>{
-    b.onclick = () => { exitMatrixFullscreen(); state.scheduleView = b.dataset.v; render(); };
+    b.onclick = () => {
+      exitMatrixFullscreen();
+      state.scheduleView = b.dataset.v;
+      if(state.scheduleView === 'calendar' && !state.calendarMonth){
+        state.calendarMonth = iso(new Date()).slice(0, 7) + '-01';
+      }
+      syncLocationHash();
+      render();
+    };
   });
   v.querySelectorAll('[data-matrix-fs]').forEach(btn=>{
     btn.onclick=()=>{
@@ -11245,6 +11884,11 @@ function wire(){
   });
   const stockOpenBoard=v.querySelector('#stockOpenBoard');
   if(stockOpenBoard) stockOpenBoard.onclick=()=>sheetStockBoard('IN');
+  const stockQuickList=v.querySelector('#stockQuickList');
+  if(stockQuickList) stockQuickList.onclick=()=>{
+    const n=autoFillShoppingFromStock(state.house);
+    if(n){ state.tab='shop'; state.shopPanel='plan'; render(); }
+  };
   const stockQuickFood=v.querySelector('#stockQuickFood');
   if(stockQuickFood) stockQuickFood.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddFood')?.click(), 80); };
   const stockEmptyClear=v.querySelector('#stockEmptyClear');
@@ -11305,6 +11949,31 @@ function wire(){
 
   const sf = v.querySelector('#startFriday');
   if(sf) sf.onclick = startFridayBatch;
+  const shopAutoFill=v.querySelector('#shopAutoFill');
+  if(shopAutoFill) shopAutoFill.onclick=()=>{ autoFillShoppingFromStock(shopHouse()); render(); };
+  v.querySelectorAll('[data-shop-panel]').forEach(b=>{
+    b.onclick=()=>{ state.shopPanel=b.dataset.shopPanel; feedback('toggle'); render(); };
+  });
+  v.querySelectorAll('[data-cal-shift]').forEach(b=>{
+    b.onclick=()=>{
+      const base = state.calendarMonth ? new Date(state.calendarMonth+'T12:00:00') : new Date();
+      base.setMonth(base.getMonth()+Number(b.dataset.calShift));
+      state.calendarMonth = iso(base).slice(0,7)+'-01';
+      render();
+    };
+  });
+  v.querySelectorAll('[data-cal-date]').forEach(b=>{
+    b.onclick=()=>{ state.date=b.dataset.calDate; state.scheduleView='day'; render(); };
+  });
+  const exportIcs=v.querySelector('#exportIcs');
+  if(exportIcs) exportIcs.onclick=exportScheduleCalendarIcs;
+  const enableNotifs=v.querySelector('#enableNotifs');
+  if(enableNotifs) enableNotifs.onclick=async()=>{
+    const ok=await enableAppNotifications();
+    toast(ok?t('notifEnabled'):t('notifDenied'), ok?'success':'error');
+    if(ok) runNotificationSweep({force:true});
+    render();
+  };
   const cancelFriday=v.querySelector('#cancelFriday');
   if(cancelFriday)cancelFriday.onclick=cancelFridayBatch;
   v.querySelectorAll('[data-friday-shift]').forEach(b=>{
@@ -11457,6 +12126,7 @@ document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   b.onclick = () => {
     if(b.dataset.tab!=='stock' && state.tab==='stock') clearStockDraft();
     state.tab = b.dataset.tab;
+    syncLocationHash();
     if(state.tab==='gallery'){
       state.galleryLoading = true;
       render();
@@ -11521,11 +12191,18 @@ async function sheetSecurityAccess(){
     const perm=typeof Notification!=='undefined'?Notification.permission:'denied';
     const on=!!notifPrefs().enabled && perm==='granted';
     const child=state.mode==='child';
+    const prefs=notifPrefsResolved();
     notifCard.innerHTML=`<b>🔔 ${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</b>
       <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(child?t('notifHintChild'):t('notifHint'))}</p>
       ${child?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>`:''}
       <button class="btn ${on?'sec':''}" type="button" id="notifToggle">${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</button>
       <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
+      ${on&&!child?`<div class="notif-prefs" style="margin-top:10px;display:grid;gap:8px">
+        <label class="f"><span>${esc(t('notifQuietStart'))}</span><input type="time" id="notifQuietStart" value="${esc(prefs.quietStart)}"></label>
+        <label class="f"><span>${esc(t('notifQuietEnd'))}</span><input type="time" id="notifQuietEnd" value="${esc(prefs.quietEnd)}"></label>
+        <label class="f"><span>${esc(t('notifLeadMinutes'))}</span><input type="number" id="notifLeadMin" min="0" max="240" step="5" value="${prefs.leadMinutes}"></label>
+        <button class="btn sec sm" type="button" id="notifPrefsSave">${esc(t('saveContact'))}</button>
+      </div>`:''}
       <div id="notifStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`;
     notifCard.querySelector('#notifToggle').onclick=async()=>{
       const st=notifCard.querySelector('#notifStatus');
@@ -11535,7 +12212,19 @@ async function sheetSecurityAccess(){
       if(ok) sheetSecurityAccess();
     };
     notifCard.querySelector('#notifTestBtn').onclick=()=>{
-      showAppNotification(t('notifTest'),{tag:'paidia-test', body:'Armonia Thassos'});
+      showAppNotification(t('notifTest'),{tag:'paidia-test', body:'Armonia Thassos', force:true});
+    };
+    const savePrefsBtn=notifCard.querySelector('#notifPrefsSave');
+    if(savePrefsBtn) savePrefsBtn.onclick=()=>{
+      const st=notifCard.querySelector('#notifStatus');
+      const lead=Number(notifCard.querySelector('#notifLeadMin')?.value);
+      setNotifPrefs({
+        quietStart:notifCard.querySelector('#notifQuietStart')?.value||'22:00',
+        quietEnd:notifCard.querySelector('#notifQuietEnd')?.value||'07:00',
+        leadMinutes:Number.isFinite(lead)&&lead>=0?lead:30,
+      });
+      st.style.display='block';
+      setStatus(st,t('autoSaved'),'success');
     };
   }
   if(calendarCard){
@@ -12117,6 +12806,10 @@ window.addEventListener('keydown', event=>{
     closeChatPanel();
   }
 });
+window.addEventListener('hashchange', ()=>{
+  if(document.body.classList.contains('auth-pending')) return;
+  if(applyRouteFromHash()) render();
+});
 window.addEventListener('resize', ()=>{ syncLayoutMode(); });
 window.visualViewport?.addEventListener('resize', scheduleMeasureChrome);
 window.visualViewport?.addEventListener('scroll', scheduleMeasureChrome);
@@ -12201,7 +12894,7 @@ function dismissTeamNotice(){
 }
 
 function notifAutomations(){
-  const base={shiftStart:true,lowStock:true,presenceLate:true,broadcastBanner:true};
+  const base={shiftStart:true,lowStock:true,presenceLate:true,broadcastBanner:true,fridayShop:true};
   try{
     const raw=JSON.parse(localStorage.getItem('paidia.notifAuto')||'{}')||{};
     return {...base,...raw};
@@ -12222,6 +12915,7 @@ function sheetAdminAutomations(){
     <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoLowStock" ${auto.lowStock?'checked':''}><span>${esc(t('autoLowStock'))}</span></label>
     <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoPresenceLate" ${auto.presenceLate?'checked':''}><span>${esc(t('autoPresenceLate'))}</span></label>
     <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoBroadcastBanner" ${auto.broadcastBanner?'checked':''}><span>${esc(t('autoBroadcastBanner'))}</span></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoFridayShop" ${auto.fridayShop?'checked':''}><span>${esc(t('autoFridayShop'))}</span></label>
     <button class="btn" type="button" id="autoSave">${esc(state.lang==='el'?'Αποθήκευση':'Speichern')}</button>
     <button class="btn sec" type="button" id="autoClose" style="margin-top:8px">${esc(t('close'))}</button>`);
   sheetEl.querySelector('#autoClose').onclick=()=>closeSheet();
@@ -12231,6 +12925,7 @@ function sheetAdminAutomations(){
       lowStock:!!sheetEl.querySelector('#autoLowStock')?.checked,
       presenceLate:!!sheetEl.querySelector('#autoPresenceLate')?.checked,
       broadcastBanner:!!sheetEl.querySelector('#autoBroadcastBanner')?.checked,
+      fridayShop:!!sheetEl.querySelector('#autoFridayShop')?.checked,
     });
     toast(t('autoSaved'),'success');
     closeSheet();
@@ -12239,6 +12934,69 @@ function sheetAdminAutomations(){
 
 function notifPrefs(){
   try{ return JSON.parse(localStorage.getItem('paidia.notif')||'{}')||{}; }catch{ return {}; }
+}
+function notifPrefsResolved(){
+  const raw=notifPrefs();
+  const lead=Number(raw.leadMinutes);
+  return {
+    ...raw,
+    quietStart:raw.quietStart||'22:00',
+    quietEnd:raw.quietEnd||'07:00',
+    leadMinutes:Number.isFinite(lead)&&lead>=0?lead:30,
+  };
+}
+function minsOfDay(d){ return d.getHours()*60+d.getMinutes(); }
+function parseHm(hm){
+  const [h,m]=String(hm||'00:00').split(':').map(Number);
+  return (h||0)*60+(m||0);
+}
+function isQuietHours(now=new Date()){
+  const {quietStart,quietEnd}=notifPrefsResolved();
+  const nowM=minsOfDay(now), startM=parseHm(quietStart), endM=parseHm(quietEnd);
+  if(startM===endM) return false;
+  if(startM<endM) return nowM>=startM && nowM<endM;
+  return nowM>=startM || nowM<endM;
+}
+function entryStartDate(dateStr,e){
+  const b=blockDef(e?.block);
+  return localDateTime(dateStr, e?.from||b?.from||'09:00');
+}
+function eventStartDate(ev){
+  return localDateTime(ev.date, ev.from||'09:00');
+}
+function isWithinLeadWindow(start,leadMin,now=new Date(),graceMs=5*60*1000){
+  const diff=start.getTime()-now.getTime();
+  const leadMs=leadMin*60*1000;
+  return diff<=leadMs && diff>=-graceMs;
+}
+function dueItemCount(){
+  if(state.mode==='child'&&state.child){
+    const today=iso(new Date());
+    return childEventsFor(state.child.id).filter(e=>e.status==='published'&&e.date>=today).length;
+  }
+  if(state.mode!=='staff'||!state.user) return 0;
+  const today=iso(new Date()), user=state.user;
+  let overdue=0;
+  dashboardDates(-7,-1).forEach(dateStr=>dashboardAssignments(dateStr,user.id).forEach(e=>{
+    if(!completionFor(dateStr,e.id,user.id)) overdue++;
+  }));
+  const todayOpen=dashboardAssignments(today,user.id).filter(e=>!completionFor(today,e.id,user.id)).length;
+  return todayOpen+overdue;
+}
+function updateAppBadge(count){
+  try{
+    if(!navigator.setAppBadge) return;
+    const n=Math.max(0,Number(count)||0);
+    if(n>0) navigator.setAppBadge(n).catch(()=>{});
+    else if(navigator.clearAppBadge) navigator.clearAppBadge().catch(()=>{});
+  }catch{}
+}
+function openFridayShopCount(){
+  const friday=fridayFor();
+  return (DB.houses||[]).reduce((n,h)=>n+fridayEntries(h.id,friday).filter(e=>e.status==='open').length,0);
+}
+function isFridayShopReminderTime(now=new Date()){
+  return now.getDay()===5 && minsOfDay(now)>=9*60;
 }
 function setNotifPrefs(patch){
   const next={...notifPrefs(), ...patch, updatedAt:Date.now()};
@@ -12255,13 +13013,14 @@ async function enableAppNotifications(){
   setNotifPrefs({enabled:ok});
   if(ok){
     await registerPaidiaServiceWorker();
-    showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint')});
+    showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true});
     runNotificationSweep({force:true});
   }
   return ok;
 }
 function showAppNotification(title, opts={}){
   if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return;
+  if(!opts.force && isQuietHours()) return;
   const payload={
     body:opts.body||'',
     icon:opts.icon||'icons/icon-192.png',
@@ -12287,7 +13046,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=74',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=75',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);
@@ -12295,15 +13054,19 @@ async function registerPaidiaServiceWorker(){
   }
 }
 function runNotificationSweep({force=false}={}){
+  updateAppBadge(dueItemCount());
   if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return;
+  const prefs=notifPrefsResolved();
   const seen=notifPrefs().seen||{};
+  const now=new Date();
 
   // Child portal: upcoming events only (never staff ops)
   if(state.mode==='child' && state.child){
     try{
-      const today=iso(new Date());
-      const upcoming=childEventsFor(state.child.id).filter(e=>e.status==='published' && e.date>=today).slice(0,3);
-      upcoming.forEach(ev=>{
+      const today=iso(now);
+      childEventsFor(state.child.id).filter(e=>e.status==='published' && e.date>=today).forEach(ev=>{
+        const start=eventStartDate(ev);
+        if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) return;
         const key=`child-event-${state.child.id}-${ev.id}-${ev.date}`;
         if(force || seen[key]!=='1'){
           showAppNotification(T[state.lang].childNotifEvent(L(ev)||ev.title||'Event'),{
@@ -12319,6 +13082,42 @@ function runNotificationSweep({force=false}={}){
   }
 
   if(state.mode!=='staff' || !state.user) return;
+  // Upcoming events (lead window)
+  try{
+    const today=iso(now);
+    DB.events.filter(e=>e.status==='published' && e.date>=today).forEach(ev=>{
+      const start=eventStartDate(ev);
+      if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) return;
+      const key=`event-lead-${ev.id}-${ev.date}`;
+      if(force || seen[key]!=='1'){
+        showAppNotification(T[state.lang].notifUpcomingEvent(L(ev)||ev.title||'Event'),{
+          tag:'paidia-event-'+ev.id,
+          body:`${ev.date}${ev.from?` · ${ev.from}`:''}`,
+          data:{url:'./?tab=schedule&open=events'},
+        });
+        setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+      }
+    });
+  }catch{}
+  // Today's tasks (lead window)
+  try{
+    const today=iso(now);
+    dashboardAssignments(today,state.user.id).forEach(e=>{
+      if(completionFor(today,e.id,state.user.id)) return;
+      const start=entryStartDate(today,e);
+      if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) return;
+      const key=`task-lead-${e.id}-${today}`;
+      if(force || seen[key]!=='1'){
+        const actLabel=L(act(e.activityId)||{de:e.activityId||'Aufgabe',el:e.activityId||'Εργασία'});
+        showAppNotification(T[state.lang].notifUpcomingTask(actLabel),{
+          tag:'paidia-task-'+e.id,
+          body:entryTime(e)||today,
+          data:{url:'./?tab=schedule'},
+        });
+        setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+      }
+    });
+  }catch{}
   // Low stock attention
   try{
     const houses=DB.houses||[];
@@ -12373,6 +13172,23 @@ function runNotificationSweep({force=false}={}){
           }
         );
         setNotifPrefs({seen:{...notifPrefs().seen, presence:key}});
+      }
+    }
+  }catch{}
+  // Friday shopping reminder (open list items)
+  try{
+    const auto=notifAutomations();
+    const friday=fridayFor();
+    if(auto.fridayShop && isFridayShopReminderTime(now)){
+      const openCount=openFridayShopCount();
+      const key=`friday-shop-${friday}`;
+      if(openCount>0 && (force || seen[key]!=='1')){
+        showAppNotification(T[state.lang].notifFridayShop(openCount),{
+          tag:'paidia-friday-shop',
+          body:fridayText(friday),
+          data:{url:'./?tab=shop'},
+        });
+        setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
       }
     }
   }catch{}

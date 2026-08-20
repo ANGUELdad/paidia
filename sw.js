@@ -1,5 +1,5 @@
 // Network-first PWA worker — never serve a stale login shell.
-const CACHE = 'paidia-v74';
+const CACHE = 'paidia-v75';
 const ASSETS = ['./manifest.webmanifest'];
 
 function safeAppUrl(url) {

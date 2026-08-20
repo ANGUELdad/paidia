@@ -10,6 +10,7 @@
   "theme_color": "#0f172a",
   "lang": "de",
   "dir": "ltr",
+  "categories": ["productivity", "utilities"],
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -34,6 +35,23 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Einkauf",
+      "short_name": "Shop",
+      "url": "./index.html#shop"
+    },
+    {
+      "name": "Lager",
+      "short_name": "Lager",
+      "url": "./index.html#stock"
+    },
+    {
+      "name": "Kalender",
+      "short_name": "Plan",
+      "url": "./index.html#schedule/calendar"
     }
   ]
 }
