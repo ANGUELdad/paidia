@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0c2340">
-<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Armonia">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1221,6 +1222,83 @@
   .verdict-approve,.verdict-reject{width:36px;height:36px;border:0;border-radius:10px;font-size:16px;cursor:pointer;font-weight:700}
   .verdict-approve{background:#d1fae5;color:var(--status-ok)}
   .verdict-reject{background:var(--status-critical-tint);color:var(--status-critical)}
+
+  /* Schedule timeline */
+  .plan-day-head{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin:6px 0 10px;padding:0 2px}
+  .plan-day-head b{font-size:15px;color:var(--text-primary)}
+  .plan-block{margin-bottom:10px;border:1px solid var(--border-subtle);border-radius:14px;background:var(--surface-card);overflow:hidden}
+  .plan-block-h{display:flex;align-items:center;gap:8px;padding:8px 11px;border-bottom:1px solid var(--border-subtle);background:var(--surface-sunken);font-size:12px;font-weight:700}
+  .plan-block-h .hrs{margin-left:auto;color:var(--text-tertiary);font-weight:600;font-size:11px}
+  .plan-timeline{padding:6px 8px 8px;display:flex;flex-direction:column;gap:6px}
+  .plan-house-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-tertiary);padding:4px 4px 2px}
+  .plan-entry{display:grid;grid-template-columns:46px 1fr auto;gap:8px;align-items:start;width:100%;text-align:left;
+    padding:8px 10px;border:1px solid var(--border-subtle);border-radius:12px;background:#fff;border-left:3px solid var(--entry-accent,var(--brand-primary))}
+  .plan-entry-time{font-size:11px;font-weight:700;color:var(--text-secondary);padding-top:2px}
+  .plan-entry-title{font-size:13px;font-weight:700;color:var(--text-primary);line-height:1.25}
+  .plan-entry-meta{font-size:11px;color:var(--text-tertiary);margin-top:2px}
+  .plan-entry-note{font-size:11px;color:var(--text-secondary);margin-top:4px;font-style:italic}
+  .plan-entry-badges{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+  .plan-empty{width:100%;padding:14px;border:1px dashed var(--border-subtle);border-radius:12px;background:transparent;color:var(--text-tertiary);font-size:12px}
+
+  /* Calendar */
+  .cal-shell{background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:16px;padding:12px;margin-bottom:10px}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+  .cal-head b{font-size:14px;text-transform:capitalize}
+  .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+  .cal-weekdays span{text-align:center;font-size:10px;font-weight:700;color:var(--text-tertiary);text-transform:uppercase}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal-cell{aspect-ratio:1;border:1px solid transparent;border-radius:10px;background:var(--surface-sunken);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--text-primary);cursor:pointer;padding:2px}
+  .cal-cell.empty{background:transparent;border:0;cursor:default}
+  .cal-cell.today{border-color:var(--brand-primary);background:var(--brand-tint)}
+  .cal-cell.on{background:var(--brand-primary);color:#fff;border-color:var(--brand-primary)}
+  .cal-dots{display:flex;gap:3px;height:4px}
+  .cal-dots i{display:block;width:4px;height:4px;border-radius:50%}
+  .cal-dots i.ev{background:#f59e0b}.cal-dots i.tk{background:var(--brand-primary)}
+  .cal-cell.on .cal-dots i.ev,.cal-cell.on .cal-dots i.tk{background:rgba(255,255,255,.85)}
+  .cal-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 6px}
+  .cal-upcoming{margin-top:8px}
+  .cal-notif-on{font-size:12px}
+
+  /* Shop hub */
+  .shop-hub{background:var(--surface-card);border:1px solid var(--border-subtle);border-radius:16px;padding:12px;margin-bottom:10px}
+  .shop-hub-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+  .shop-hub-top b{display:block;font-size:14px}
+  .shop-hub-top span{display:block;margin-top:2px;font-size:11px;color:var(--text-tertiary)}
+  .shop-hub-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+  .shop-stat{background:var(--surface-sunken);border-radius:12px;padding:8px 6px;text-align:center}
+  .shop-stat b{display:block;font-size:16px;line-height:1.1}
+  .shop-stat span{display:block;font-size:10px;color:var(--text-tertiary);margin-top:2px}
+  .shop-stat.warn b{color:var(--status-warn,#d97706)}
+  .shop-panel-seg{margin:8px 0}
+  .shop-quick-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .shop-take-card{margin-bottom:10px}
+  .shop-take-h{margin-bottom:8px}
+  .shop-take-h b{display:block;font-size:14px}
+  .shop-take-cat{margin-top:8px}
+  .shop-take-cat-h{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--text-tertiary);margin-bottom:4px}
+  .shop-take-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border-subtle);font-size:13px}
+  .shop-take-row:last-child{border-bottom:0}
+  .shop-take-qty{flex:0 0 auto;font-weight:800;color:var(--brand-primary);min-width:42px}
+  .shop-take-name{flex:1;color:var(--text-primary)}
+
+  /* Notifications banner */
+  .notif-banner{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px;margin-bottom:10px;
+    border:1px solid var(--brand-primary);border-radius:14px;background:var(--brand-tint);color:var(--text-primary);cursor:pointer;font-size:13px}
+  .notif-banner b{display:block;font-size:13px}
+  .notif-banner span{font-size:11px;color:var(--text-secondary)}
+
+  /* Games — quiz & simon */
+  .quiz-q{font-size:16px;font-weight:700;line-height:1.35;margin:12px 4px 14px;color:var(--text-primary)}
+  .quiz-opts{display:grid;gap:8px}
+  .quiz-opt{padding:12px 14px;border:1px solid var(--border-subtle);border-radius:12px;background:#fff;
+    text-align:left;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s}
+  .quiz-opt.ok{border-color:var(--status-ok);background:#f0fdf4}
+  .quiz-opt.bad{border-color:var(--status-critical);background:var(--status-critical-tint)}
+  .simon-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:280px;margin:16px auto}
+  .simon-pad{aspect-ratio:1;border:0;border-radius:16px;background:var(--pad);opacity:.55;cursor:pointer;transition:opacity .12s,transform .12s}
+  .simon-pad.on,.simon-pad:active{opacity:1;transform:scale(.96)}
+  .simon-pad:disabled{cursor:default}
 </style>
 </head>
 <body class="auth-pending">
@@ -1257,21 +1335,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <button class="help-fab" id="helpFab" type="button">?</button>
 
-<script>
-/* Kill stale PWA shells that kept showing the old broken login */
-(function(){
-  try {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(rs){
-        rs.forEach(function(r){ r.unregister(); });
-      });
-    }
-    if (window.caches && caches.keys) {
-      caches.keys().then(function(keys){ keys.forEach(function(k){ caches.delete(k); }); });
-    }
-  } catch (e) {}
-})();
-</script>
-<script src="gate.js?v=41"></script>
+<script src="notifications.js?v=42" data-paidia-notify="1"></script>
+<script src="gate.js?v=42"></script>
 </body>
 </html>

@@ -275,6 +275,18 @@ const T = {
     gameMoves:'Züge', gamePairs:'Paare', gameScore:'Punkte', gameTime:'Zeit',
     gameWin:'Geschafft!', gameLose:'Schade — nochmal?', gameDraw:'Unentschieden',
     gameYourTurn:'Du bist dran', gameCpuTurn:'Computer denkt…', gameYou:'Du', gameCpu:'PC',
+    gameQuiz:'Thassos-Quiz', gameQuizHint:'5 Fragen · Wissen testen',
+    gameSimon:'Simon sagt', gameSimonHint:'Merke dir die Farben',
+    gameRound:'Runde', gameXpEarned:n=>`+${n} ⭐ Bonus!`, gameStreak:n=>`${n} Tage Serie`,
+    shopPlan:'Planen', shopTake:'Mitnehmen', shopAutoFill:'Auto aus Lager',
+    shopAutoFillHint:'Leere & wenige Bestände → Liste', shopAutoFilled:n=>`${n} Produkte ergänzt`,
+    shopTakeHint:'Gruppiert nach Gang — zum Abhaken im Laden',
+    stockQuickList:'Alles Wenige → Liste', stockAddedLow:n=>`${n} auf Einkaufsliste`,
+    viewCalendar:'Kalender', exportCalendar:'Kalender exportieren (.ics)',
+    notifEnable:'Benachrichtigungen aktivieren', notifEnabled:'Erinnerungen an',
+    notifDenied:'Benachrichtigungen blockiert — in Systemeinstellungen erlauben',
+    notifBanner:'Events, Aufgaben & Einkauf rechtzeitig erinnern',
+    calPrev:'‹', calNext:'›', planToday:n=>`${n} Einträge heute`,
     eventOfWeek:'Event der Woche', eventToday:'Heute', eventTomorrow:'Morgen', upcomingEvents:'Demnächst',
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
     helpChat:'Hilfe', helpWelcome:'Hallo! Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauchen deine Bestätigung. Du kannst auch das Mikrofon nutzen.',
@@ -627,6 +639,18 @@ const T = {
     gameMoves:'Κινήσεις', gamePairs:'Ζευγάρια', gameScore:'Πόντοι', gameTime:'Χρόνος',
     gameWin:'Μπράβο!', gameLose:'Κρίμα — ξανά;', gameDraw:'Ισοπαλία',
     gameYourTurn:'Η σειρά σου', gameCpuTurn:'Σκέφτεται ο υπολογιστής…', gameYou:'Εσύ', gameCpu:'PC',
+    gameQuiz:'Κουίζ Θάσου', gameQuizHint:'5 ερωτήσεις · γνώσεις',
+    gameSimon:'Simon λέει', gameSimonHint:'Θυμήσου τα χρώματα',
+    gameRound:'Γύρος', gameXpEarned:n=>`+${n} ⭐ μπόνους!`, gameStreak:n=>`${n} μέρες σερί`,
+    shopPlan:'Σχεδιασμός', shopTake:'Παίρνω', shopAutoFill:'Αυτόματα από αποθήκη',
+    shopAutoFillHint:'Άδεια & λίγα → λίστα', shopAutoFilled:n=>`${n} προϊόντα προστέθηκαν`,
+    shopTakeHint:'Ανά διάδρομο — για τσεκάρισμα στο μαγαζί',
+    stockQuickList:'Όλα τα λίγα → λίστα', stockAddedLow:n=>`${n} στη λίστα`,
+    viewCalendar:'Ημερολόγιο', exportCalendar:'Εξαγωγή ημερολογίου (.ics)',
+    notifEnable:'Ενεργοποίηση ειδοποιήσεων', notifEnabled:'Υπενθυμίσεις ενεργές',
+    notifDenied:'Οι ειδοποιήσεις μπλοκάρονται — άνοιξε ρυθμίσεις',
+    notifBanner:'Events, εργασίες & αγορές εγκαίρως',
+    calPrev:'‹', calNext:'›', planToday:n=>`${n} σημερινές εγγραφές`,
     eventOfWeek:'Event της εβδομάδας', eventToday:'Σήμερα', eventTomorrow:'Αύριο', upcomingEvents:'Επόμενα events',
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
     helpChat:'Βοήθεια', helpWelcome:'Γεια! Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση. Μπορείς και μικρόφωνο.',
@@ -1044,9 +1068,8 @@ const SEED = {
 const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
-                 'customProducts', 'customCategories',
-                 'customActivities', 'customReasons', 'profilePrefs',
-                 'chores', 'choreSubmissions', 'xpLog'];
+  'customProducts', 'customCategories', 'customActivities', 'customReasons', 'profilePrefs',
+  'chores', 'choreSubmissions', 'xpLog', 'gameStats'];
 
 let DB = load();
 function load(){
@@ -1536,7 +1559,9 @@ const state = {
   stockDraft: {},
   stockDraftReason: null,
   shopQuery: '',
+  shopPanel: 'plan',
   storeShowDone: false,
+  calendarMonth: null,
   houseFilter: '',
   date: iso(new Date()),
   bookRange: 'today',
@@ -2891,27 +2916,24 @@ function entryLine(e, dateStr=state.date){
   const a = act(e.activityId);
   const announced = eventForEntry(e,dateStr);
   const people=entryEmployeeIds(e);
+  const block = blockDef(e.block);
   const person = people.length ? esc(employeeNames(e)) : `<span class="pill open">${t('unassigned')}</span>`;
   const kids = (e.childIds||[]).map(id=>`<span class="pill kid">${esc(kid(id)?.name||'')}</span>`).join('');
   const who = emp(people[0]);
+  const barColor = e.block==='morning'?'var(--brand-primary)':e.block==='evening'?'#5b21b6':'var(--accent-sea)';
   return `<div class="entry-wrap">
-    <button class="entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-src="${e.source}" type="button">
-      <div class="top">
-        ${who ? `<div class="avatar" style="background:${who.color}">${initials(who.name)}</div>`
-              : `<span class="emoji">${a?a.emoji:'📝'}</span>`}
-        <div class="grow">
-          <div class="act">${who ? esc(a?a.emoji+' ':'') : ''}${esc(actLabel(e.activityId))}
-            ${announced ? `<span class="event-flag">📣 ${t('published')}</span>` : ''}</div>
-          <div class="meta">${who ? esc(employeeNames(e)) : person} · ${esc(entryTime(e))}${
-            entryHouseIds(e).length ? ' · 🏠 ' + esc(houseNames(e)) : ''}</div>
-          ${e.note ? `<div class="meta">${esc(e.note)}</div>` : ''}
-        </div>
-        <div style="flex:0 0 auto">
-          ${e.cancelled ? `<span class="pill gray">${t('cancelled')}</span>`
-            : e.overridden ? `<span class="pill ovr">${t('override')}</span>` : ''}
-        </div>
+    <button class="entry plan-entry ${e.cancelled?'cancelled':''}" data-open="${e.id}" data-src="${e.source}" type="button" style="--entry-accent:${barColor}">
+      <div class="plan-entry-time">${esc(entryTime(e)||block.from)}</div>
+      <div class="plan-entry-body">
+        <div class="plan-entry-title">${esc(a?a.emoji+' ':'')}${esc(actLabel(e.activityId))}
+          ${announced ? `<span class="event-flag">📣</span>` : ''}</div>
+        <div class="plan-entry-meta">${who ? esc(employeeNames(e)) : person}${entryHouseIds(e).length ? ' · 🏠 '+esc(houseNames(e)) : ''}</div>
+        ${e.note ? `<div class="plan-entry-note">${esc(e.note)}</div>` : ''}
+        ${kids ? `<div class="kids">${kids}</div>` : ''}
       </div>
-      ${kids ? `<div class="kids">${kids}</div>` : ''}
+      <div class="plan-entry-badges">
+        ${e.cancelled ? `<span class="pill gray">${t('cancelled')}</span>` : e.overridden ? `<span class="pill ovr">${t('override')}</span>` : `<span class="pill gray">${t(e.block)}</span>`}
+      </div>
     </button>
     ${!e.cancelled?`<button type="button" class="mini-x entry-x" data-remove-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" aria-label="${esc(t('removeFromTable'))}" title="${esc(t('removeFromTable'))}">×</button>`:''}
   </div>`;
@@ -2937,40 +2959,85 @@ function viewScheduleDay(){
         .filter(h => !state.houseFilter || h.id === state.houseFilter)
         .map(h=>{
           const rows = list.filter(e => entryHouseIds(e).includes(h.id));
-          return `<div class="house-h">${esc(h.name)}</div>` +
-            (rows.length ? rows.map(e=>entryLine(e,state.date)).join('')
-              : `<button class="empty" style="width:100%;cursor:pointer;background:none"
-                   data-add="${b.id}" data-house="${h.id}">${t('noEntries')} · ${t('add')}</button>`);
+          return rows.length ? `<div class="plan-house-label">${esc(h.short)}</div>`+rows.map(e=>entryLine(e,state.date)).join('')
+            : '';
         }).join('');
     }else{
-      body = list.length
-        ? DB.employees.map(p=>{
-            const rows = list.filter(e => entryEmployeeIds(e).includes(p.id));
-            return rows.length ? rows.map(e=>entryLine(e,state.date)).join('') : '';
-          }).join('') + list.filter(e=>!entryEmployeeIds(e).length).map(e=>entryLine(e,state.date)).join('')
-        : `<button class="empty" style="width:100%;cursor:pointer;background:none"
-             data-add="${b.id}">${t('noEntries')} · ${t('add')}</button>`;
+      body = list.length ? list.map(e=>entryLine(e,state.date)).join('') : '';
     }
-    return `<div class="block">
-      <div class="block-h">
-        <span class="t">${t(b.id)}</span>
-        <span class="hrs">${b.from}–${b.to}</span>
-      </div>
-      ${body}
-      <div style="text-align:right"><button class="btn ghost" data-add="${b.id}">${t('add')}</button></div>
-    </div>`;
+    if(!body) body = `<button class="empty plan-empty" type="button" data-add="${b.id}">${t('noEntries')} · ${t('add')}</button>`;
+    return `<section class="plan-block">
+      <div class="plan-block-h"><span>${t(b.id)}</span><span class="hrs">${b.from}–${b.to}</span><button class="btn ghost sm" type="button" data-add="${b.id}">${t('add')}</button></div>
+      <div class="plan-timeline">${body}</div>
+    </section>`;
   }).join('');
 
   const d = new Date(state.date+'T12:00:00');
   return `
     <div class="days">${days}</div>
-    <div class="row between" style="margin:2px 0 12px">
-      <div class="muted">${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.</div>
+    <div class="plan-day-head">
+      <div><b>${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.</b>
+        <span class="muted">${t('planToday')(all.filter(e=>!e.cancelled).length)}</span></div>
       <div class="muted">${t('besprechung')}</div>
     </div>
     ${blocks}
     ${validationCard(state.date)}
     ${weekNotesCard()}`;
+}
+
+function calendarMarkersForMonth(y, m){
+  const markers = new Map();
+  const pad = n=>String(n).padStart(2,'0');
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = y+'-'+pad(m+1)+'-'+pad(d);
+    const entries = entriesFor(ds).filter(e=>!e.cancelled);
+    const events = DB.events.filter(e=>e.status==='published' && e.date===ds);
+    if(entries.length || events.length){
+      markers.set(ds, {tasks:entries.length, events:events.length});
+    }
+  }
+  return markers;
+}
+
+function viewScheduleCalendar(){
+  const now = new Date();
+  const cm = state.calendarMonth ? new Date(state.calendarMonth+'T12:00:00') : now;
+  const y = cm.getFullYear(), m = cm.getMonth();
+  const markers = calendarMarkersForMonth(y, m);
+  const cells = window.PaidiaNotify?.calendarMonthGrid(y, m, markers) || [];
+  const monthName = cm.toLocaleDateString(state.lang==='el'?'el-GR':'de-DE', {month:'long', year:'numeric'});
+  const today = iso(now);
+
+  const upcoming = [...DB.events].filter(e=>e.status==='published' && e.date>=today)
+    .sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from)).slice(0,6);
+
+  return `<section class="cal-shell">
+    <div class="cal-head">
+      <button class="btn sm sec" type="button" data-cal-shift="-1">${t('calPrev')}</button>
+      <b>${esc(monthName)}</b>
+      <button class="btn sm sec" type="button" data-cal-shift="1">${t('calNext')}</button>
+    </div>
+    <div class="cal-weekdays">${['Mo','Di','Mi','Do','Fr','Sa','So'].map((d,i)=>{
+      const dn = DAY_NAMES[state.lang][i];
+      return `<span>${dn.slice(0,2)}</span>`;
+    }).join('')}</div>
+    <div class="cal-grid">${cells.map(c=>{
+      if(!c) return `<div class="cal-cell empty"></div>`;
+      const on = c.ds===state.date, isToday = c.ds===today;
+      const dots = c.mark ? `<span class="cal-dots">${c.mark.events?'<i class="ev"></i>':''}${c.mark.tasks?'<i class="tk"></i>':''}</span>` : '';
+      return `<button type="button" class="cal-cell ${on?'on':''} ${isToday?'today':''}" data-cal-date="${c.ds}">
+        <span class="cal-n">${c.d}</span>${dots}</button>`;
+    }).join('')}</div>
+    <div class="cal-actions">
+      <button class="btn sec sm" type="button" id="exportIcs">📅 ${t('exportCalendar')}</button>
+      ${Notification?.permission!=='granted'?`<button class="btn sm" type="button" id="enableNotifs">🔔 ${t('notifEnable')}</button>`:`<span class="muted cal-notif-on">🔔 ${t('notifEnabled')}</span>`}
+    </div>
+    <div class="cal-upcoming">
+      <div class="reward-section-h">📣 ${t('upcomingEvents')}</div>
+      ${upcoming.length ? upcoming.map(homeEventCard).join('') : `<div class="empty">${t('noEvents')}</div>`}
+    </div>
+  </section>`;
 }
 
 /** Κοινό responsive table system για πρόγραμμα, βάρδιες και μελλοντικά datasets. */
@@ -3193,10 +3260,11 @@ function viewSchedule(){
       <div class="seg" id="schView">
         <button class="${state.scheduleView==='day'?'on':''}" data-v="day">${t('viewDay')}</button>
         <button class="${state.scheduleView==='week'?'on':''}" data-v="week">${t('viewWeek')}</button>
+        <button class="${state.scheduleView==='calendar'?'on':''}" data-v="calendar">${t('viewCalendar')}</button>
         <button class="${state.scheduleView==='shift'?'on':''}" data-v="shift">${t('viewShift')}</button>
         <button class="${state.scheduleView==='events'?'on':''}" data-v="events">${t('viewEvents')}</button>
       </div>
-      ${['shift','events'].includes(state.scheduleView) ? '' : `<span class="filter-label">${t('filterHouse')}</span>
+      ${['shift','events','calendar'].includes(state.scheduleView) ? '' : `<span class="filter-label">${t('filterHouse')}</span>
       <div class="seg house-selector" id="hFilter">
         <button class="${state.houseFilter===''?'on':''}" data-h="">${t('allHouses')}</button>
         ${planningHouses().map(h=>`<button class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
@@ -3204,6 +3272,7 @@ function viewSchedule(){
     </div>
     ${state.scheduleView==='day' ? viewScheduleDay()
       : state.scheduleView==='week' ? viewScheduleWeek()
+      : state.scheduleView==='calendar' ? viewScheduleCalendar()
       : state.scheduleView==='shift' ? viewShifts() : staffEventsView()}`;
 }
 
@@ -3603,6 +3672,7 @@ function viewStock(){
     <div class="stock-toolbar">
       <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
       ${hid!=='all'?`<div class="stock-toolbar-actions">
+        <button class="btn sec sm" type="button" id="stockQuickList">⚡ ${t('stockQuickList')}</button>
         <button class="btn sec sm" type="button" id="stockQuickFood">${t('stockAddFood')}</button>
         <button class="btn sec sm" type="button" id="stockQuickCat">${t('stockAddCat')}</button>
         <button class="btn sec sm" type="button" id="stockOpenBoard">${t('stockBoard')}</button>
@@ -4329,6 +4399,97 @@ function sheetShoppingHistory(){
   sheetEl.querySelectorAll('[data-history-house]').forEach(button=>button.onclick=()=>{state.house=button.dataset.historyHouse;closeSheet();sheetShoppingHistory();});
 }
 
+function autoFillShoppingFromStock(hid){
+  if(!hid || hid==='all'){ toast(t('selectHouse'),'info'); return 0; }
+  const friday = state.shopFriday||fridayFor();
+  let added = 0;
+  PRODUCTS().forEach(p=>{
+    const qty = DB.stock[stockKey(hid,p.id)] ?? 0;
+    if(qty > lowThreshold(p)) return;
+    const existing = fridayEntries(hid,friday).find(e=>['open','pending'].includes(e.status) && e.productId===p.id);
+    if(existing) return;
+    DB.listEntries.push({
+      id:uid(), productId:p.id, name:L(p),
+      qty: Math.max(1, lowThreshold(p)), unit:p.unit,
+      houseId:hid, fridayDate:friday, by:state.user?.id||null, status:'open',
+    });
+    added++;
+  });
+  if(added){ save(); toast(t('shopAutoFilled')(added),'success'); }
+  else toast(t('stockHealthy'),'info');
+  return added;
+}
+
+function notificationContext(){
+  const today = iso(new Date());
+  const tasks = [];
+  if(state.user){
+    dashboardDates(-1,2).forEach(dateStr=>{
+      dashboardAssignments(dateStr, state.user.id).forEach(e=>{
+        if(!completionFor(dateStr,e.id,state.user.id)){
+          tasks.push({
+            id:e.id+'-'+dateStr, date:dateStr, time: entryTime(e)||'08:00',
+            label: actLabel(e.activityId), meta: houseNames(e),
+            done:false,
+          });
+        }
+      });
+    });
+  }
+  const hid = shopHouse();
+  const openShop = fridayEntries(hid).filter(e=>e.status==='open').length;
+  const friday = state.shopFriday||fridayFor();
+  let shoppingDue = null;
+  if(openShop && friday){
+    const d = new Date(friday+'T08:00:00');
+    if(d.getTime() > Date.now()) shoppingDue = d.getTime();
+  }
+  return {
+    events: DB.events,
+    tasks,
+    shoppingDue,
+    shoppingTitle: '🛒 '+t('shopTitle'),
+    shoppingBody: openShop+' '+t('openItems')+' · '+house(hid).short,
+  };
+}
+
+function syncAppNotifications(){
+  if(!window.PaidiaNotify) return;
+  const ctx = notificationContext();
+  const upcoming = PaidiaNotify.collectUpcoming(ctx, PaidiaNotify.loadPrefs().leadMinutes);
+  PaidiaNotify.updateBadge(upcoming.length);
+  PaidiaNotify.syncFromContext(ctx);
+}
+
+function exportCalendarIcs(){
+  const items = [];
+  DB.events.filter(e=>e.status==='published').forEach(e=>{
+    const [hh,mm] = String(e.from||'10:00').split(':').map(Number);
+    const start = new Date(e.date+'T'+String(hh||10).padStart(2,'0')+':'+String(mm||0).padStart(2,'0')+':00');
+    const end = new Date(start.getTime()+7200000);
+    items.push({
+      id:e.id, title:(e.emoji||'📣')+' '+(e.title||e.name||'Event'),
+      description:[e.description,e.bring? t('bring')+': '+e.bring:''].filter(Boolean).join('\n'),
+      location:e.location||'', start, end,
+    });
+  });
+  dashboardDates(0,14).forEach(ds=>{
+    entriesFor(ds).filter(e=>!e.cancelled).forEach(e=>{
+      const [hh,mm] = String(entryTime(e)||'09:00').split(':').map(Number);
+      const start = new Date(ds+'T'+String(hh||9).padStart(2,'0')+':'+String(mm||0).padStart(2,'0')+':00');
+      items.push({
+        id:e.id+'-'+ds, title: actLabel(e.activityId),
+        description: [employeeNames(e), houseNames(e), e.note].filter(Boolean).join(' · '),
+        start, end: new Date(start.getTime()+3600000),
+      });
+    });
+  });
+  if(!items.length){ toast(t('noEvents'),'info'); return; }
+  const ics = PaidiaNotify.buildICS(items);
+  PaidiaNotify.downloadICS('armonia-thassos.ics', ics);
+  toast(t('exportCalendar'),'success');
+}
+
 function viewShop(){
   const hid = shopHouse();
   const friday=state.shopFriday||fridayFor();
@@ -4342,16 +4503,54 @@ function viewShop(){
       </div>`;
 
   const fridayState=pending.length?t('fridayActive'):(open.length?t('fridayPlanned'):(bought.length||missing.length?t('fridayCompleted'):t('fridayPlanned')));
-  const hero=inStore?'':`<section class="shop-bar">
-    <div class="shop-bar-top">
-      <div><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length} ${t('openItems')}</span></div>
-      <button class="btn ghost sm" id="shoppingHistory" type="button">🧾 ${t('shoppingHistory')}</button>
+  const lowStockCount = PRODUCTS().filter(p=>{
+    const q = DB.stock[stockKey(hid,p.id)]??0;
+    return q <= lowThreshold(p);
+  }).length;
+  const catOrder = [...CATS().map(c=>c.id), 'other'];
+
+  const shopHub = inStore ? '' : `<section class="shop-hub">
+    <div class="shop-hub-top">
+      <div><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length} ${t('openItems')} · 🏠 ${esc(house(hid).short)}</span></div>
+      <button class="btn ghost sm" id="shoppingHistory" type="button">🧾</button>
+    </div>
+    <div class="shop-hub-stats">
+      <div class="shop-stat"><b>${open.length}</b><span>${t('secOpen')}</span></div>
+      <div class="shop-stat warn"><b>${lowStockCount}</b><span>${t('stockAttention')}</span></div>
+      <div class="shop-stat"><b>${pending.length}</b><span>${t('storeMode')}</span></div>
     </div>
     <div class="friday-picker compact">
       <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
-      <label class="friday-date" title="${t('chooseFriday')}"><input type="date" id="shopFridayDate" value="${friday}"><span>${t('chooseFriday')}</span></label>
+      <label class="friday-date"><input type="date" id="shopFridayDate" value="${friday}"><span>${t('chooseFriday')}</span></label>
       <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
-    </div></section>`;
+    </div>
+    <div class="seg shop-panel-seg" id="shopPanel">
+      <button class="${state.shopPanel==='plan'?'on':''}" data-shop-panel="plan">${t('shopPlan')}</button>
+      <button class="${state.shopPanel==='take'?'on':''}" data-shop-panel="take">${t('shopTake')}</button>
+    </div>
+    <div class="shop-quick-actions">
+      <button class="btn sec sm" type="button" id="shopAutoFill">⚡ ${t('shopAutoFill')}</button>
+      ${open.length&&!pending.length?`<button class="btn sm" type="button" id="startFriday">${T[state.lang].cartReady(open.length)}</button>`:''}
+    </div>
+  </section>`;
+
+  const takeListCard = (!inStore && state.shopPanel==='take') ? (()=>{
+    const allTake = [...open, ...pending.filter(e=>!e.decision)];
+    const byCatTake = {};
+    allTake.forEach(e=>{
+      const c = e.productId ? (prod(e.productId)?.cat||'other') : 'other';
+      (byCatTake[c] ||= []).push(e);
+    });
+    return `<section class="card shop-take-card">
+      <div class="shop-take-h"><b>${t('shopTake')}</b><span class="muted">${t('shopTakeHint')}</span></div>
+      ${allTake.length ? catOrder.filter(c=>byCatTake[c]).map(c=>{
+        const cat = CATS().find(x=>x.id===c);
+        return `<div class="shop-take-cat"><div class="shop-take-cat-h">${cat?esc(L(cat)):t('other')}</div>
+          ${byCatTake[c].map(e=>`<div class="shop-take-row"><span class="shop-take-qty">${e.qty}${esc(e.unit)}</span><span class="shop-take-name">${esc(e.name)}</span></div>`).join('')}
+        </div>`;
+      }).join('') : `<div class="empty">${t('noFridayItems')}</div>`}
+    </section>`;
+  })() : '';
 
   // ── Store mode: full-page compact aisle list ──
   const done = pending.filter(e => e.decision).length;
@@ -4368,7 +4567,6 @@ function viewShop(){
     const c = e.productId ? (prod(e.productId)?.cat || 'other') : 'other';
     (byCat[c] ||= []).push(e);
   });
-  const catOrder = [...CATS().map(c=>c.id), 'other'];
 
   const storeRow = e => {
     const st = e.decision;
@@ -4417,7 +4615,7 @@ function viewShop(){
       </div>
     </section>` : '';
 
-  const openCard = pending.length?'':`<div class="card shop-list-card">
+  const openCard = (pending.length || (state.shopPanel!=='plan' && !inStore)) ? '' : `<div class="card shop-list-card">
     <div class="shop-list-head"><div><h2>${t('secOpen')}</h2><div class="muted" style="font-size:11px">${open.length} · ${esc(house(hid).short)}</div></div>
       <button class="btn ghost sm" id="importList" type="button">${t('importList')}</button></div>
     <div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}"><button class="btn sm" id="cartQuickAdd">＋ ${t('addToCart')}</button></div>
@@ -4438,7 +4636,7 @@ function viewShop(){
   const boughtCard = bought.length ? `<details class="card shop-history"><summary>✓ ${t('secBought')}<span class="pill in">${bought.length}</span></summary><div class="shop-history-body">
       ${bought.slice(-8).reverse().map(e=>entryRow(e,`<span class="pill in">${t('stBought')}</span>`)).join('')}</div></details>` : '';
 
-  return seg + hero + pendingCard + openCard + missingCard + boughtCard;
+  return seg + shopHub + pendingCard + takeListCard + openCard + missingCard + boughtCard;
 }
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
@@ -5332,11 +5530,57 @@ function childEventsView(cid){
 }
 
 const CHILD_GAMES = [
-  {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e'},
-  {id:'tac', emoji:'⭕', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#b45309'},
-  {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1'},
+  {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e', xp:5},
+  {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#7c3aed', xp:8},
+  {id:'simon', emoji:'🎨', titleKey:'gameSimon', hintKey:'gameSimonHint', tint:'#db2777', xp:6},
+  {id:'tac', emoji:'⭕', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#b45309', xp:4},
+  {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1', xp:5},
 ];
 const MEMORY_EMOJIS = ['🌊','☀️','🐚','🐙','🐟','⭐','🍋','⛵'];
+const SIMON_COLORS = [
+  {id:'sea', color:'#0ea5e9', label:'Meer'},
+  {id:'sun', color:'#f59e0b', label:'Sonne'},
+  {id:'leaf', color:'#22c55e', label:'Grün'},
+  {id:'coral', color:'#f43f5e', label:'Koralle'},
+];
+const QUIZ_BANK = {
+  de: [
+    {q:'Auf welcher griechischen Insel liegt Armonia?', opts:['Kreta','Thassos','Rhodos','Korfu'], a:1},
+    {q:'Was bedeutet „Armonia“?', opts:['Sturm','Harmonie','Insel','Freundschaft'], a:1},
+    {q:'Welches Meer umgibt Thassos?', opts:['Adria','Ägäis','Ionisch','Schwarzes Meer'], a:1},
+    {q:'Was sammelst du beim Fische-fangen?', opts:['Punkte','Steine','Blumen','Schuhe'], a:0},
+    {q:'Wofür bekommst du ⭐ XP?', opts:['Aufgaben erledigen','Schlafen','Fernsehen','Nichts tun'], a:0},
+  ],
+  el: [
+    {q:'Σε ποιο ελληνικό νησί είναι η Armonia;', opts:['Κρήτη','Θάσος','Ρόδος','Κέρκυρα'], a:1},
+    {q:'Τι σημαίνει «Armonia»;', opts:['Θύελλα','Αρμονία','Νησί','Φιλία'], a:1},
+    {q:'Ποια θάλασσα περιβάλλει τη Θάσο;', opts:['Αδριατική','Αιγαίο','Ιόνιο','Μαύρη'], a:1},
+    {q:'Τι μαζεύεις στο ψάρεμα;', opts:['Πόντους','Πέτρες','Λουλούδια','Παπούτσια'], a:0},
+    {q:'Για τι παίρνεις ⭐ XP;', opts:['Δουλειές','Ύπνο','Τηλεόραση','Τίποτα'], a:0},
+  ],
+};
+
+function gameStatsKey(kidId){ return kidId||'anon'; }
+function loadGameStats(kidId){
+  DB.gameStats ||= {};
+  return DB.gameStats[gameStatsKey(kidId)] || {streak:0, lastDay:'', wins:0, xp:0};
+}
+function grantGameXp(kidId, amount, gameId){
+  if(!kidId || !amount) return;
+  const stats = loadGameStats(kidId);
+  const today = iso(new Date());
+  stats.wins = (stats.wins||0)+1;
+  stats.xp = (stats.xp||0)+amount;
+  if(stats.lastDay !== today){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    stats.streak = stats.lastDay === iso(y) ? (stats.streak||0)+1 : 1;
+    stats.lastDay = today;
+  }
+  DB.gameStats[gameStatsKey(kidId)] = stats;
+  grantXp(kidId, null, amount, 'game-'+gameId);
+  save();
+  toast(t('gameXpEarned')(amount),'success');
+}
 
 function stopChildGameTimers(){
   if(state.game?._timer){ clearInterval(state.game._timer); state.game._timer=null; }
@@ -5351,12 +5595,32 @@ function startChildGame(id){
       .sort(()=>Math.random()-0.5)
       .map((card,i)=>({...card, key:i, open:false, done:false}));
     state.game = {moves:0, pairs:0, open:[], lock:false, deck};
+  }else if(id==='quiz'){
+    const bank = [...(QUIZ_BANK[state.lang]||QUIZ_BANK.de)].sort(()=>Math.random()-0.5).slice(0,5);
+    state.game = {i:0, score:0, bank, done:false, picked:null};
+  }else if(id==='simon'){
+    state.game = {seq:[Math.floor(Math.random()*4)], step:0, input:[], phase:'show', round:1, fail:false, win:false};
+    simonShowSequence();
   }else if(id==='tac'){
     state.game = {board:Array(9).fill(''), turn:'x', status:'play', winner:null};
   }else if(id==='catch'){
     state.game = {score:0, left:30, hit:false, x:50, y:50, _timer:null};
   }else state.game = null;
   render();
+}
+
+function simonShowSequence(){
+  const g = state.game;
+  if(!g || state.gameId!=='simon') return;
+  g.phase='show'; g.step=0; g.input=[];
+  let i=0;
+  const tick = ()=>{
+    if(!state.game || state.gameId!=='simon') return;
+    if(i >= g.seq.length){ g.phase='input'; render(); return; }
+    g.highlight = g.seq[i]; render();
+    setTimeout(()=>{ if(state.game) state.game.highlight=null; render(); i++; setTimeout(tick, 220); }, 480);
+  };
+  setTimeout(tick, 400);
 }
 
 function leaveChildGame(){
@@ -5367,15 +5631,16 @@ function leaveChildGame(){
 }
 
 function childGamesLobby(){
+  const stats = state.child ? loadGameStats(state.child.id) : {streak:0,wins:0};
   return `<div class="games-hero">
       <div class="brand-kicker">Armonia</div>
       <h2>${t('gamesTitle')}</h2>
-      <p>${t('gamesHint')}</p>
+      <p>${t('gamesHint')}${stats.streak>1?` · ${t('gameStreak')(stats.streak)}`:''}</p>
     </div>
     <div class="games-grid">${CHILD_GAMES.map(g=>`
       <button class="game-card" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
         <span class="game-emoji">${g.emoji}</span>
-        <span class="game-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}</span></span>
+        <span class="game-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))} · ⭐${g.xp}</span></span>
         <span class="game-go">${t('gamePlay')}</span>
       </button>`).join('')}</div>`;
 }
@@ -5453,8 +5718,37 @@ function childCatchView(){
   </div>`;
 }
 
+function childQuizView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  if(g.done) return `<div class="game-shell quiz">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button></div>
+    <div class="game-banner win">${t('gameWin')} · ${g.score}/5 <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>
+  </div>`;
+  const q = g.bank[g.i];
+  return `<div class="game-shell quiz">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats"><span>${g.i+1}/5</span><span>⭐ ${g.score}</span></div></div>
+    <div class="quiz-q">${esc(q.q)}</div>
+    <div class="quiz-opts">${q.opts.map((o,j)=>`<button class="quiz-opt ${g.picked===j?(j===q.a?'ok':'bad'):''}" type="button" data-qopt="${j}" ${g.picked!=null?'disabled':''}>${esc(o)}</button>`).join('')}</div>
+  </div>`;
+}
+
+function childSimonView(){
+  const g=state.game; if(!g) return childGamesLobby();
+  return `<div class="game-shell simon">
+    <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <div class="game-stats"><span>${t('gameRound')}: <b>${g.round}</b></span></div></div>
+    ${g.win?`<div class="game-banner win">${t('gameWin')} <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
+    ${g.fail?`<div class="game-banner lose">${t('gameLose')} <button class="btn" type="button" id="gameAgain">${t('gameAgain')}</button></div>`:''}
+    <div class="simon-grid">${SIMON_COLORS.map((c,i)=>`<button class="simon-pad ${g.highlight===i?'on':''}" type="button" data-simon="${i}" style="--pad:${c.color}" ${g.phase!=='input'?'disabled':''} aria-label="${esc(c.label)}"></button>`).join('')}</div>
+    <div class="muted" style="text-align:center;margin-top:10px;font-size:12px">${g.phase==='show'?t('gameCpuTurn'):t('gameYourTurn')}</div>
+  </div>`;
+}
+
 function childGamesView(){
   if(state.gameId==='memory') return childMemoryView();
+  if(state.gameId==='quiz') return childQuizView();
+  if(state.gameId==='simon') return childSimonView();
   if(state.gameId==='tac') return childTacView();
   if(state.gameId==='catch') return childCatchView();
   return childGamesLobby();
@@ -5753,6 +6047,10 @@ function bindChildGames(root){
         const [a,b]=g.open, ca=g.deck[a], cb=g.deck[b];
         if(ca.pair===cb.pair){
           ca.done=cb.done=true; g.pairs += 1; g.open=[]; g.lock=false; feedback('save');
+          if(g.pairs>=MEMORY_EMOJIS.length && state.child && !g.xpGranted){
+            g.xpGranted=true;
+            grantGameXp(state.child.id, CHILD_GAMES.find(x=>x.id==='memory')?.xp||5, 'memory');
+          }
           render();
         }else{
           render();
@@ -5772,7 +6070,9 @@ function bindChildGames(root){
         const i=Number(btn.dataset.i); if(g.board[i]) return;
         g.board[i]='x'; feedback('select');
         const result=tacWinner(g.board);
-        if(result==='x'){ g.status='win'; g.winner='x'; feedback('save'); render(); return; }
+        if(result==='x'){ g.status='win'; g.winner='x'; feedback('save');
+          if(state.child && !g.xpGranted){ g.xpGranted=true; grantGameXp(state.child.id, CHILD_GAMES.find(x=>x.id==='tac')?.xp||4, 'tac'); }
+          render(); return; }
         if(result==='draw'){ g.status='draw'; render(); return; }
         g.turn='o'; render();
         g._cpu=setTimeout(tacCpuMove, 420);
@@ -5794,7 +6094,13 @@ function bindChildGames(root){
         g._timer=setInterval(()=>{
           if(!state.game || state.gameId!=='catch'){ stopChildGameTimers(); return; }
           state.game.left -= 1;
-          if(state.game.left<=0){ stopChildGameTimers(); state.game.left=0; }
+          if(state.game.left<=0){
+            stopChildGameTimers(); state.game.left=0;
+            if(state.child && !g.xpGranted && g.score>=8){
+              g.xpGranted=true;
+              grantGameXp(state.child.id, CHILD_GAMES.find(x=>x.id==='catch')?.xp||5, 'catch');
+            }
+          }
           else {
             state.game.x = 12 + Math.random()*76;
             state.game.y = 12 + Math.random()*70;
@@ -5803,6 +6109,59 @@ function bindChildGames(root){
         }, 1000);
       }
     }
+  }
+
+  if(state.gameId==='quiz'){
+    root.querySelectorAll('[data-qopt]').forEach(btn=>{
+      btn.onclick=()=>{
+        const g=state.game; if(!g||g.done||g.picked!=null) return;
+        const j=Number(btn.dataset.qopt);
+        const q=g.bank[g.i];
+        g.picked=j;
+        if(j===q.a) g.score++;
+        feedback(j===q.a?'save':'warn');
+        setTimeout(()=>{
+          if(!state.game || state.gameId!=='quiz') return;
+          g.i++; g.picked=null;
+          if(g.i>=g.bank.length){
+            g.done=true;
+            if(state.child && !g.xpGranted && g.score>=3){
+              g.xpGranted=true;
+              grantGameXp(state.child.id, CHILD_GAMES.find(x=>x.id==='quiz')?.xp||8, 'quiz');
+            }
+          }
+          render();
+        }, 700);
+        render();
+      };
+    });
+  }
+
+  if(state.gameId==='simon'){
+    root.querySelectorAll('[data-simon]').forEach(btn=>{
+      btn.onclick=()=>{
+        const g=state.game; if(!g||g.phase!=='input'||g.fail||g.win) return;
+        const i=Number(btn.dataset.simon);
+        g.input.push(i); g.highlight=i; feedback('select'); render();
+        setTimeout(()=>{ if(state.game) state.game.highlight=null; render(); }, 150);
+        if(g.input[g.input.length-1] !== g.seq[g.input.length-1]){
+          g.fail=true; g.phase='done'; feedback('warn'); render(); return;
+        }
+        if(g.input.length >= g.seq.length){
+          if(g.round >= 5){
+            g.win=true; g.phase='done';
+            if(state.child && !g.xpGranted){
+              g.xpGranted=true;
+              grantGameXp(state.child.id, CHILD_GAMES.find(x=>x.id==='simon')?.xp||6, 'simon');
+            }
+            render(); return;
+          }
+          g.round++;
+          g.seq.push(Math.floor(Math.random()*4));
+          setTimeout(simonShowSequence, 600);
+        }
+      };
+    });
   }
 }
 
@@ -6116,7 +6475,13 @@ function viewHome(){
     .forEach(e=>unassigned.push({e,dateStr})));
   const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
   const upcoming=events.filter(e=>e.status==='published' && e.date>=today);
-  return `<div class="card home-hero">
+  const notifOff = typeof Notification!=='undefined' && Notification.permission!=='granted';
+  return `${notifOff?`<button class="notification-card notif-banner" id="enableNotifsHome" type="button">
+      <span style="font-size:22px">🔔</span>
+      <div class="grow"><b>${t('notifEnable')}</b><div class="muted" style="font-size:12px;margin-top:2px">${esc(t('notifBanner'))}</div></div>
+      <span class="muted">→</span>
+    </button>`:''}
+    <div class="card home-hero">
       <div class="muted">${t('homeHello')}${user?', '+esc(user.name):''}</div>
       <h2>${t('homeOverview')}</h2>
       <div class="home-stats">
@@ -6336,6 +6701,7 @@ function render(){
     if(shell) enterMatrixFullscreen(shell);
   }
   scheduleMeasureChrome();
+  syncAppNotifications();
 }
 
 function wire(){
@@ -6381,6 +6747,31 @@ function wire(){
   v.querySelectorAll('#schView button').forEach(b=>{
     b.onclick = () => { exitMatrixFullscreen(); state.scheduleView = b.dataset.v; render(); };
   });
+  v.querySelectorAll('[data-cal-shift]').forEach(b=>{
+    b.onclick=()=>{
+      const cm = state.calendarMonth ? new Date(state.calendarMonth+'T12:00:00') : new Date();
+      cm.setMonth(cm.getMonth()+Number(b.dataset.calShift));
+      state.calendarMonth = iso(cm).slice(0,7)+'-01';
+      render();
+    };
+  });
+  v.querySelectorAll('[data-cal-date]').forEach(b=>{
+    b.onclick=()=>{ state.date=b.dataset.calDate; state.scheduleView='day'; render(); };
+  });
+  const exportIcs=v.querySelector('#exportIcs');
+  if(exportIcs) exportIcs.onclick=exportCalendarIcs;
+  const enableNotifs=v.querySelector('#enableNotifs');
+  if(enableNotifs) enableNotifs.onclick=async()=>{
+    const r=await PaidiaNotify?.requestPermission();
+    toast(r==='granted'?t('notifEnabled'):t('notifDenied'), r==='granted'?'success':'error');
+    render();
+  };
+  const enableNotifsHome=v.querySelector('#enableNotifsHome');
+  if(enableNotifsHome) enableNotifsHome.onclick=async()=>{
+    const r=await PaidiaNotify?.requestPermission();
+    toast(r==='granted'?t('notifEnabled'):t('notifDenied'), r==='granted'?'success':'error');
+    render();
+  };
   v.querySelectorAll('[data-matrix-fs]').forEach(btn=>{
     btn.onclick=()=>{
       const shell=btn.closest('.matrix-shell');
@@ -6610,6 +7001,18 @@ function wire(){
   if(stockClear) stockClear.onclick=()=>{state.stockQuery='';render();};
   const stockToList=v.querySelector('#stockToList');
   if(stockToList) stockToList.onclick=()=>{state.tab='shop';render();};
+  const stockQuickList=v.querySelector('#stockQuickList');
+  if(stockQuickList) stockQuickList.onclick=()=>{
+    const n=autoFillShoppingFromStock(state.house);
+    if(n) toast(t('stockAddedLow')(n),'success');
+    else render();
+  };
+
+  v.querySelectorAll('[data-shop-panel]').forEach(b=>{
+    b.onclick=()=>{ state.shopPanel=b.dataset.shopPanel; render(); };
+  });
+  const shopAutoFill=v.querySelector('#shopAutoFill');
+  if(shopAutoFill) shopAutoFill.onclick=()=>{ autoFillShoppingFromStock(shopHouse()); render(); };
 
   const sf = v.querySelector('#startFriday');
   if(sf) sf.onclick = startFridayBatch;
@@ -7242,12 +7645,19 @@ if(resetToken){
   restoreServerSession();
 }
 resolveIp().then(refreshGateMeta);
-// Do not register a service worker — stale PWA caches were breaking login.
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.getRegistrations().then(regs=>{
-    regs.forEach(reg=>reg.unregister());
-  }).catch(()=>{});
-}
-if(window.caches&&caches.keys){
-  caches.keys().then(keys=>keys.forEach(k=>caches.delete(k))).catch(()=>{});
+// Service worker for notifications + offline shell (network-first, no stale login)
+if(window.PaidiaNotify){
+  PaidiaNotify.registerServiceWorker();
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.addEventListener('message', e=>{
+      if(e.data?.type==='paidia-nav' && e.data.url){
+        const hash=e.data.url.replace(/^.*#/,'');
+        if(hash.startsWith('schedule')){ state.tab='schedule'; state.scheduleView=hash.split('/')[1]||'day'; }
+        else if(hash==='shop') state.tab='shop';
+        else if(hash==='home') state.tab='home';
+        render();
+      }
+    });
+  }
+  setInterval(()=>syncAppNotifications(), 120000);
 }

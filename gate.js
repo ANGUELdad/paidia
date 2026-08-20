@@ -101,11 +101,19 @@
   function loadApp() {
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
-    const script = document.createElement('script');
-    script.src = 'app.js?v=41';
-    script.defer = true;
-    script.dataset.paidiaApp = '1';
-    document.body.appendChild(script);
+    const loadScript = (src, dataAttr) => new Promise((resolve, reject) => {
+      if (document.querySelector(`script[${dataAttr}]`)) { resolve(); return; }
+      const script = document.createElement('script');
+      script.src = src;
+      script.defer = true;
+      script.setAttribute(dataAttr, '1');
+      script.onload = () => resolve();
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+    loadScript('notifications.js?v=42', 'data-paidia-notify')
+      .then(() => loadScript('app.js?v=42', 'data-paidia-app'))
+      .catch(() => loadScript('app.js?v=42', 'data-paidia-app'));
   }
 
   function langSwitch() {

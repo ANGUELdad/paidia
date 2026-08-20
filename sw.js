@@ -1,5 +1,5 @@
-// Network-first PWA worker — never serve a stale login shell.
-const CACHE = 'paidia-v7';
+/* Network-first PWA worker — shell always fresh; supports notifications */
+const CACHE = 'paidia-v8';
 const ASSETS = ['./manifest.webmanifest'];
 
 self.addEventListener('install', e => {
@@ -19,7 +19,6 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Always take fresh HTML / app shell from the network.
   const isShell = e.request.mode === 'navigate' ||
     url.pathname.endsWith('/') ||
     url.pathname.endsWith('/index.html') ||
@@ -40,4 +39,33 @@ self.addEventListener('fetch', e => {
       })
       .catch(() => caches.match(e.request))
   );
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || './index.html';
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      for (const c of clients) {
+        if ('focus' in c) {
+          c.postMessage({ type: 'paidia-nav', url });
+          return c.focus();
+        }
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(url.startsWith('#') ? './index.html'+url : url);
+    })
+  );
+});
+
+self.addEventListener('push', e => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; } catch { data = { title: e.data && e.data.text() }; }
+  const title = data.title || 'Armonia Thassos';
+  const options = {
+    body: data.body || '',
+    tag: data.tag || 'paidia-push',
+    data: data.data || {},
+    vibrate: [80, 40, 80],
+  };
+  e.waitUntil(self.registration.showNotification(title, options));
 });
