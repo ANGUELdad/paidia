@@ -1,12 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "rootDirectory": "apps/web",
-  "functions": {
-    "api/index.py": { "maxDuration": 60 },
-    "api/[...path].py": { "maxDuration": 60 }
-  },
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" }
+    { "source": "/((?!api/).*)", "destination": "/api/_asset/$1" }
   ]
 }
