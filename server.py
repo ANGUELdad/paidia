@@ -3972,6 +3972,12 @@ class Handler(SimpleHTTPRequestHandler):
             "gate.js",
             "sw.js",
             "manifest.webmanifest",
+            # Login shows the running version + DE/EL "what changed" from this.
+            "build.json",
+            # Local-only design reference. Exact match, no directory
+            # fallthrough — the Vercel handler (api/index.py) has its own
+            # allowlist and does not serve this.
+            "design/system-preview.html",
         }
         icon_ok = (
             static_rel.startswith("icons/")

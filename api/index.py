@@ -349,6 +349,8 @@ _STATIC_EXACT = frozenset({
     "gate.js",
     "sw.js",
     "manifest.webmanifest",
+    # Login shows the running version + DE/EL "what changed" from this.
+    "build.json",
 })
 _ICON_SUFFIXES = frozenset({".png", ".svg", ".ico", ".webp", ".jpg", ".jpeg"})
 

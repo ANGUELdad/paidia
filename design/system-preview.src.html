@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Armonia — Design System</title>
+<!--SHIPPED_CSS-->
+<style>
+  /* Page-local scaffolding only. Everything else is injected live from
+     index.html so this guide can never drift from what actually ships. */
+  .sg-wrap{max-width:1180px;margin:0 auto;padding:24px 16px 96px}
+  .sg-sec{margin:0 0 32px}
+  .sg-sec > h2{font-family:var(--font-display);font-size:var(--t-display-md);
+    font-weight:600;margin:0 0 4px}
+  .sg-sec > p{margin:0 0 16px;font-size:var(--t-body-sm);color:var(--muted);max-width:62ch}
+  .sg-grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .sg-swatch{border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;background:#fff}
+  .sg-swatch i{display:block;height:52px}
+  .sg-swatch b{display:block;font-size:var(--t-caption);padding:6px 8px 0;font-weight:700}
+  .sg-swatch code{display:block;font-size:10px;padding:0 8px 6px;color:var(--meta)}
+  .sg-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .sg-note{font-size:var(--t-caption);color:var(--meta);margin-top:8px}
+  .sg-type dt{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--meta);margin-top:14px}
+  .sg-type dd{margin:2px 0 0}
+  nav.dock .nav-ico{fill:none}
+</style>
+</head>
+<body>
+<div class="sg-wrap">
+
+  <div class="hero" style="margin-bottom:28px">
+    <div class="eyebrow">Design system · v2</div>
+    <h1>Armonia Thassos</h1>
+    <p class="muted">Live style guide, built from the shipped <code>index.html</code> stylesheet by
+      <code>scripts/build-style-guide.py</code> — implementation of
+      <code>design/VISUAL_MOTION_SYSTEM.md</code>. Re-run that script after any CSS change.</p>
+  </div>
+
+  <section class="sg-sec">
+    <h2>Colour roles</h2>
+    <p>Stone is warm and quarried, never cool gray. Pine leads; sea supports; amber is the single hot note (~3% of surface).</p>
+    <div class="sg-grid" id="sgColors"></div>
+  </section>
+
+  <section class="sg-sec">
+    <h2>Type scale</h2>
+    <p>Fraunces for display and numerals — it carries the brand and is never flattened to a sans. Outfit for everything the caregiver reads under time pressure.</p>
+    <dl class="sg-type" id="sgType"></dl>
+  </section>
+
+  <section class="sg-sec">
+    <h2>Elevation</h2>
+    <p>Surfaces are layers of light over stone, not paper on a desk. Hierarchy comes from fill opacity plus a hairline — shadow is reserved for the single topmost floating layer.</p>
+    <div class="sg-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+      <div style="padding:16px;border-radius:var(--radius)">
+        <b style="font-size:var(--t-caption)">Glass 0 — Ambient</b>
+        <div class="muted">no surface, page canvas</div>
+      </div>
+      <div class="card"><h2>Glass 1 — Tile</h2><div class="muted">Default tiles, panels, rows</div></div>
+      <div class="card" style="background:var(--glass-strong);box-shadow:var(--shadow-2);border-top:1px solid var(--glass-rim)">
+        <h2>Glass 2 — Raised</h2><div class="muted">Sheets, tour cards, modals</div></div>
+      <div style="background:var(--chrome);color:#fff;padding:16px;border-radius:var(--radius-dock)">
+        <b style="font-size:var(--t-caption)">Chrome — Inverted</b>
+        <div style="font-size:var(--t-body-sm);color:rgba(255,255,255,.7)">Dock only</div></div>
+    </div>
+  </section>
+
+  <section class="sg-sec">
+    <h2>Controls</h2>
+    <p>Every primary control carries the <em>Pine settle</em> press — 120ms in, 220ms back, no overshoot. Tap anything below to feel it.</p>
+    <div class="sg-row" style="margin-bottom:12px">
+      <button class="btn" style="width:auto">Bestätigen</button>
+      <button class="btn sm" style="width:auto">Klein</button>
+      <button class="page-act">Aktion</button>
+      <button class="page-act on">Aktiv</button>
+      <button class="chip">Chip</button>
+      <button class="chip on">Chip aktiv</button>
+      <span class="status-pill" style="background:var(--pine-tint);color:var(--brand)">Im Dienst</span>
+      <span class="status-pill" style="background:var(--out-tint);color:var(--out)">Niedrig</span>
+    </div>
+    <div class="seg" style="max-width:340px">
+      <button class="on">Heute</button><button>Woche</button><button>Monat</button>
+    </div>
+    <div class="sg-row">
+      <input type="text" placeholder="Suchen…" style="padding:10px 12px;min-height:44px">
+      <input type="number" value="12" style="padding:10px 12px;min-height:44px;width:90px">
+    </div>
+    <p class="sg-note">Inputs go fully opaque — glass is for display, never for anything a caregiver types counts into under time pressure.</p>
+  </section>
+
+  <section class="sg-sec">
+    <h2>Data density</h2>
+    <p>Numerals are tabular everywhere, so a count that ticks from 9 to 10 does not shift the row beside it.</p>
+    <div class="dashboard-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px">
+      <div class="bento-tile"><b>12</b><div class="muted">Offen</div></div>
+      <div class="bento-tile"><b>07</b><div class="muted">Niedrig</div></div>
+      <div class="bento-tile"><b>3</b><div class="muted">Heute</div></div>
+      <div class="bento-tile"><b>48</b><div class="muted">Artikel</div></div>
+    </div>
+  </section>
+
+  <section class="sg-sec">
+    <h2>Empty state</h2>
+    <p>Restraint and space, not confetti. The quiet-completion moment is the one place amber gets real presence.</p>
+    <div class="empty-state">
+      <div class="empty-title">Alles erledigt für heute.</div>
+      <div class="empty-hint">Keine offenen Aufgaben. Die nächste Schicht beginnt um 14:00.</div>
+    </div>
+  </section>
+
+  <section class="sg-sec">
+    <h2>Motion</h2>
+    <p>Three named motions, each tied to something the product actually does. Nothing animates for delight alone.</p>
+    <div class="sg-row"><button class="btn sm" id="sgReplay" style="width:auto">Replay reveal</button></div>
+    <div id="sgMotion" style="margin-top:12px">
+      <div class="hero" style="margin-bottom:12px">
+        <div class="eyebrow">Tide-line reveal</div>
+        <h1 style="font-size:var(--t-display-md)">Übergabe</h1>
+        <p class="muted">Once per navigation, hero surfaces only. Never re-triggered on scroll.</p>
+      </div>
+      <div class="dashboard-grid" style="display:grid;gap:8px">
+        <div class="card"><h2>Handover ribbon 1</h2><div class="muted">80ms stagger…</div></div>
+        <div class="card"><h2>Handover ribbon 2</h2><div class="muted">…capped at five steps…</div></div>
+        <div class="card"><h2>Handover ribbon 3</h2><div class="muted">…so long lists never wait.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sg-sec">
+    <h2>Shell</h2>
+    <p>Dark chrome brackets light stone content: the header above, the floating dock below.</p>
+    <header class="app-chrome" style="position:static;border-radius:var(--radius);overflow:hidden">
+      <div class="topbar-row">
+        <div class="chrome-brand grow">
+          <div class="brand-mark">A</div>
+          <div class="brand-copy">
+            <span class="brand-kicker-live">Armonia Thassos</span>
+            <h1>Übergabe</h1>
+            <div class="who">Aggelos · Personal</div>
+          </div>
+        </div>
+        <div class="topbar-core">
+          <button class="topbtn">↔</button><button class="topbtn">DE</button>
+        </div>
+      </div>
+    </header>
+    <nav class="dock" style="position:static;margin-top:12px">
+      <button class="on"><svg class="i nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Start</span></button>
+      <button><svg class="i nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v14H3zm3 10 3.5-4 2.5 3 3-4L20 16"/></svg><span>Galerie</span></button>
+      <button><svg class="i nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v15H4zm0 5h16M8 3v4m8-4v4"/></svg><span>Plan</span></button>
+      <button><svg class="i nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h16v12H4zm0 0 2-4h12l2 4M10 12h4"/></svg><span>Lager</span></button>
+      <button><svg class="i nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h14l-2 8H8zM6 6 5 3H2m5 17.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0m8 0a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0"/></svg><span>Liste</span></button>
+    </nav>
+  </section>
+</div>
+
+<script>
+document.body.classList.remove('auth-pending');
+
+const COLORS = [
+  ['Stone 50','--stone-50'],['Stone 100','--bg'],['Stone 200','--bg-deep'],['Stone 300','--stone-300'],
+  ['Ink 900','--ink'],['Ink 700','--muted'],['Ink 500','--muted-soft'],['Ink 400','--meta'],
+  ['Pine 600','--brand'],['Pine 500','--brand-2'],['Pine tint','--pine-tint'],
+  ['Sea 600','--sea'],['Sea 800','--sea-deep'],
+  ['Amber 600','--sun'],['Amber tint','--amber-tint'],
+  ['Attention','--out'],['Warning','--warn'],['Chrome 900','--chrome'],
+  ['Glass 64','--glass'],['Glass 86','--glass-strong'],['Glass rim','--glass-rim'],
+  ['Mark A','--mark-a'],['Mark B','--mark-b'],
+];
+document.getElementById('sgColors').innerHTML = COLORS.map(([n,v]) =>
+  `<div class="sg-swatch"><i style="background:var(${v})"></i><b>${n}</b><code>${v}</code></div>`).join('');
+
+const TYPE = [
+  ['display-xl','Fraunces 700','var(--t-display-xl)','var(--font-display)',700],
+  ['display-lg','Fraunces 700','var(--t-display-lg)','var(--font-display)',700],
+  ['display-md','Fraunces 600','var(--t-display-md)','var(--font-display)',600],
+  ['display-sm','Fraunces 600','var(--t-display-sm)','var(--font-display)',600],
+  ['numeral','Fraunces 700','var(--t-numeral)','var(--font-display)',700],
+  ['body-lg','Outfit 500','var(--t-body-lg)','var(--font-ui)',500],
+  ['body','Outfit 400','var(--t-body)','var(--font-ui)',400],
+  ['body-sm','Outfit 400','var(--t-body-sm)','var(--font-ui)',400],
+  ['label','Outfit 600','var(--t-label)','var(--font-ui)',600],
+  ['caption','Outfit 600','var(--t-caption)','var(--font-ui)',600],
+  ['eyebrow','Outfit 700','var(--t-eyebrow)','var(--font-ui)',700],
+  ['micro','Outfit 600','var(--t-micro)','var(--font-ui)',600],
+];
+document.getElementById('sgType').innerHTML = TYPE.map(([n,d,s,f,w]) => {
+  const sample = n === 'numeral' ? '12 · 48 · 07'
+    : n === 'eyebrow' ? 'Übergabe · Schicht'
+    : 'Gemeinsam durch den Tag';
+  const extra = n === 'eyebrow' ? 'letter-spacing:.14em;text-transform:uppercase;' : '';
+  return `<dt>type/${n} — ${d}</dt><dd style="font-family:${f};font-size:${s};font-weight:${w};${extra}">${sample}</dd>`;
+}).join('');
+
+// Re-mount the motion block so the once-per-navigation reveals replay.
+document.getElementById('sgReplay').addEventListener('click', () => {
+  const node = document.getElementById('sgMotion');
+  const clone = node.cloneNode(true);
+  node.replaceWith(clone);
+  clone.id = 'sgMotion';
+});
+</script>
+</body>
+</html>

@@ -31,12 +31,14 @@
 
   let lang = localStorage.getItem('paidia.lang') || 'de';
   let bootSettled = false;
+  // Fallback for the first paint, before build.json lands. Keep in step with
+  // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 74,
-    label: 'v75',
+    version: 79,
+    label: 'v79',
     changed: {
-      de: 'Momente ein Tipp · Zo-Ai Groq-Modelle · Pooler-DB-Hinweis',
-      el: 'Momente ένα κλικ · μοντέλα Zo-Ai Groq · υπόδειξη pooler DB',
+      de: 'Kinder-App: Start-Dashboard, Stundenplan, Aufgaben, Sterne-Dock und Lern-Widgets',
+      el: 'Εφαρμογή παιδιών: αρχική, ωρολόγιο, αποστολές, αστέρια-dock και widgets μάθησης',
     },
   };
   const copy = {
@@ -140,7 +142,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=75';
+    script.src = 'app.js?v=79';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);

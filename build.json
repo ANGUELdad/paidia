@@ -1,8 +1,8 @@
 {
-  "version": 75,
-  "label": "v75",
+  "version": 79,
+  "label": "v79",
   "changed": {
-    "de": "Shop Plan/Mitnehmen · Kalender · Belohnungen · Benachrichtigungen",
-    "el": "Ψώνια Σχέδιο/Παίρνω · Ημερολόγιο · Ανταμοιβές · Ειδοποιήσεις"
+    "de": "Kinder-App: Start-Dashboard, Stundenplan, Aufgaben, Sterne-Dock und Lern-Widgets",
+    "el": "Εφαρμογή παιδιών: αρχική, ωρολόγιο, αποστολές, αστέρια-dock και widgets μάθησης"
   }
 }
