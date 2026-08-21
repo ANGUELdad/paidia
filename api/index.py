@@ -161,13 +161,31 @@ def _auth_session():
     if not session:
         return _json(200, {"authenticated": False})
     contact = paidia.profile_contact(session["profile_id"])
+    remember = bool(session.get("remember"))
+    cookie = None
+    expires_ms = int(session["expires_at"] * 1000)
+    session_id = session["session_id"]
+    try:
+        token, payload = paidia.encode_session_token(
+            session["profile_id"], session["mode"],
+            method=session.get("method", "pin"),
+            remember=remember,
+            session_id=session.get("session_id"),
+        )
+        max_age = int(payload.get("ttl") or paidia.AUTH_SESSION_TTL)
+        cookie = _cookie_header(token, max_age=max_age)
+        expires_ms = int(payload["expires_at"] * 1000)
+        session_id = payload.get("session_id", session_id)
+    except RuntimeError:
+        pass
     return _json(200, {
         "authenticated": True,
         "profileId": session["profile_id"],
         "mode": session["mode"],
         "admin": bool(session.get("admin")),
-        "sessionId": session["session_id"],
-        "expiresAt": int(session["expires_at"] * 1000),
+        "sessionId": session_id,
+        "expiresAt": expires_ms,
+        "remember": remember,
         "authenticationMethod": session.get("method", "pin"),
         "onboardingComplete": paidia.onboarding_complete(session["profile_id"], session["mode"]),
         "onboardingVersion": paidia.ONBOARDING_VERSION,
@@ -184,7 +202,7 @@ def _auth_session():
                 paidia.decode_passkey_device_bundle(request.cookies.get(paidia.PASSKEY_COOKIE, "")),
             ),
         )),
-    })
+    }, cookie=cookie)
 
 
 def _auth_profiles():
