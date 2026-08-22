@@ -1,5 +1,18 @@
 # Changelog
 
+## v84 — 2026-08-22
+
+- Merged the pre-redesign `main` line back in; kept `notifications.js`
+  (`window.PaidiaNotify`: calendar grid, reminder scheduling, ICS export, badges)
+- Wired `notifications.js` into the shell and both static allowlists — it shipped
+  on the old line but was never reachable from the redesign
+- Removed a duplicate `run_chore_verify` the merge introduced; kept the hardened
+  version (clamped input, routes via `llm_completion` rather than Groq-only)
+- Removed an unreachable duplicate `/api/chore-verify` route in `api/index.py`
+- Kept the redesign's shell, manifest and service worker — they supersede the old
+  line, including a richer `notificationclick` handler
+- Cache `paidia-v84`
+
 ## v83 — 2026-08-22
 
 - Force fresh UI: service worker no longer caches `app.js` / `gate.js` / `index.html`

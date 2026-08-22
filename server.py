@@ -3998,6 +3998,8 @@ class Handler(SimpleHTTPRequestHandler):
             "manifest.webmanifest",
             # Login shows the running version + DE/EL "what changed" from this.
             "build.json",
+            # Calendar + native-style notification helpers (window.PaidiaNotify).
+            "notifications.js",
             # Local-only design reference. Exact match, no directory
             # fallthrough — the Vercel handler (api/index.py) has its own
             # allowlist and does not serve this.
@@ -4216,6 +4218,13 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
             status, payload = run_shopping(body, api_key)
+            self.json_response(status, payload)
+            return
+        if path == "/api/chore-verify":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = run_chore_verify(body, api_key)
             self.json_response(status, payload)
             return
         self.json_response(404, {"error": "Not found"})

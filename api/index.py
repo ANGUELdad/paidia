@@ -386,6 +386,8 @@ _STATIC_EXACT = frozenset({
     "manifest.webmanifest",
     # Login shows the running version + DE/EL "what changed" from this.
     "build.json",
+    # Calendar + native-style notification helpers (window.PaidiaNotify).
+    "notifications.js",
 })
 _ICON_SUFFIXES = frozenset({".png", ".svg", ".ico", ".webp", ".jpg", ".jpeg"})
 

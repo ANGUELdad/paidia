@@ -1,8 +1,8 @@
 {
-  "version": 83,
-  "label": "v83",
+  "version": 84,
+  "label": "v84",
   "changed": {
-    "de": "Cache-Fix: neue UI sofort nach Update (kein altes PWA-Bundle mehr)",
-    "el": "Διόρθωση cache: νέο UI αμέσως μετά το update"
+    "de": "Kalender-Mitteilungen wieder an Bord (PaidiaNotify) nach Zusammenführung",
+    "el": "Επιστροφή ειδοποιήσεων ημερολογίου (PaidiaNotify) μετά τη συγχώνευση"
   }
 }

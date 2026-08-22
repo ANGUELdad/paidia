@@ -34,10 +34,10 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 83,
-    label: 'v83',
+    version: 84,
+    label: 'v84',
     changed: {
-      de: 'Cache-Fix: neue UI sofort nach Update (kein altes PWA-Bundle mehr)',
+      de: 'Kalender-Mitteilungen wieder an Bord (PaidiaNotify) nach Zusammenführung',
       el: 'Διόρθωση cache: νέο UI αμέσως μετά το update',
     },
   };
