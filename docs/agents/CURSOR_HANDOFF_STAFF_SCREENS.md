@@ -3,7 +3,12 @@
 Continues [CURSOR_HANDOFF.md](CURSOR_HANDOFF.md) and [CURSOR_HANDOFF_SPIELE_WIDGETS.md](CURSOR_HANDOFF_SPIELE_WIDGETS.md).
 Read Guardrails in those docs before editing `app.js` / `index.html`.
 
-Current shipped build: **v100**. Stack unchanged: vanilla `app.js` + `index.html` CSS.
+Current shipped build: **v101**. Stack unchanged: vanilla `app.js` + `index.html` CSS.
+
+v101 adds **Liquid Glass 2026** staff chrome from the Figma prototype
+(`ZRF93F27ea4xtX9y9mijqJ`): frosted glass cards, floating inverted dock,
+`Zo` FAB label, stone canvas — cascade block `STAFF LIQUID GLASS 2026` at end of
+`index.html` `<style>`.
 
 ---
 
