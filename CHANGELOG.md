@@ -1,5 +1,16 @@
 # Changelog
 
+## v98 — 2026-08-22
+
+Accept the Supabase pooler URL as issued.
+
+With v97 pointing writes at Supabase, the connection failed on `invalid URI
+query parameter: "supa"`. Supabase tags its pooler URLs with a vendor marker
+(`?supa=base-pooler.x`), and libpq rejects any query parameter it does not
+recognise rather than ignoring it. `db.py` now filters the query string down to
+libpq's own keywords before the URL reaches psycopg, so vendor extras are
+dropped and `sslmode` and friends survive.
+
 ## v97 — 2026-08-22
 
 Save to the database that still works.

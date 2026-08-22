@@ -15,7 +15,7 @@ import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterator
-from urllib.parse import urlparse, unquote
+from urllib.parse import parse_qsl, urlencode, urlparse, unquote
 
 _LOCK = threading.RLock()
 _INITIALIZED = False
@@ -93,7 +93,33 @@ def _discover_postgres_url() -> str:
     return min(enumerate(candidates), key=lambda pair: (_postgres_rank(pair[1]), pair[0]))[1]
 
 
-DATABASE_URL = _discover_postgres_url()
+# Supabase hands out pooler URLs tagged with its own marker
+# (?supa=base-pooler.x). libpq rejects any query parameter it does not
+# recognise — "invalid URI query parameter" — so vendor extras are dropped
+# before the URL ever reaches psycopg.
+_LIBPQ_PARAMS = frozenset("""
+application_name channel_binding client_encoding connect_timeout dbname
+fallback_application_name gssdelegation gssencmode gsslib host hostaddr
+keepalives keepalives_count keepalives_idle keepalives_interval krbsrvname
+load_balance_hosts options passfile password port replication require_auth
+requirepeer service ssl_max_protocol_version ssl_min_protocol_version sslcert
+sslcertmode sslcompression sslcrl sslcrldir sslkey sslmode sslpassword
+sslrootcert sslsni target_session_attrs tcp_user_timeout user
+""".split())
+
+
+def _sanitize_postgres_url(url: str) -> str:
+    raw = (url or "").strip()
+    if not raw.lower().startswith(("postgres://", "postgresql://")):
+        return raw
+    parsed = urlparse(raw)
+    if not parsed.query:
+        return raw
+    kept = [(k, v) for k, v in parse_qsl(parsed.query, keep_blank_values=True) if k in _LIBPQ_PARAMS]
+    return parsed._replace(query=urlencode(kept)).geturl()
+
+
+DATABASE_URL = _sanitize_postgres_url(_discover_postgres_url())
 
 
 def assert_pooled_database_url(url: str | None = None) -> None:
