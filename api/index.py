@@ -420,7 +420,14 @@ def _serve_static(rel: str):
         return _json(400, {"error": "Invalid path"})
     if target.is_file():
         response = send_from_directory(root, rel)
-        if rel.endswith((".html", ".js", ".webmanifest")):
+        # A ?v=<build> URL is immutable: the next release changes the URL, so the
+        # client cannot be served a stale bundle. Marking these no-store meant
+        # app.js (~730 KB) was re-downloaded on every single load.
+        versioned = re.fullmatch(r"\d+", (request.args.get("v") or "").strip())
+        shell = rel in ("", "index.html", "build.json")
+        if versioned and not shell:
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif rel.endswith((".html", ".js", ".webmanifest", ".json")):
             response.headers["Cache-Control"] = "no-store"
         return response
     # Unknown allowlisted path → SPA shell, never arbitrary repo files.

@@ -34,15 +34,20 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 87,
-    label: 'v87',
+    version: 88,
+    label: 'v88',
     changed: {
-      de: 'Alle Staff-Screens im neuen Design: helle Titel, Armonia-Farben statt Fremdpalette',
-      el: 'Όλες οι οθόνες προσωπικού στο νέο design: φωτεινοί τίτλοι, χρώματα Armonia',
+      de: 'Ladefix: App startet schnell und lädt sich nicht mehr selbst neu',
+      el: 'Διόρθωση φόρτωσης: γρήγορη εκκίνηση, τέλος οι συνεχείς επαναφορτώσεις',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
 
+  // Drop caches belonging to older builds. Deliberately does NOT unregister the
+  // service worker and does NOT reload: unregistering forced a re-register on
+  // the next paint, which fired `updatefound`, which reloaded, which
+  // re-registered — the loop that made the app reload on top of itself.
+  // Versioned ?v= URLs already guarantee a release is picked up.
   async function purgeStaleShell() {
     const target = String(APP_BUILD.version);
     let stored = '';
@@ -51,17 +56,11 @@
     try {
       if ('caches' in window) {
         const keys = await caches.keys();
-        await Promise.all(keys.map((k) => caches.delete(k)));
-      }
-      if ('serviceWorker' in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map((r) => r.unregister()));
+        await Promise.all(
+          keys.filter((k) => k !== 'paidia-v' + target).map((k) => caches.delete(k))
+        );
       }
       localStorage.setItem(SW_BUILD_KEY, target);
-      if (stored && stored !== target) {
-        location.reload();
-        return true;
-      }
     } catch (e) {}
     return false;
   }
@@ -71,14 +70,14 @@
     try {
       const reg = await navigator.serviceWorker.register('./sw.js?v=' + APP_BUILD.version, { scope: './' });
       if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      // Hand over to the new worker, but never reload the page for it. The next
+      // navigation picks up the new build via its ?v= URL, and reloading here is
+      // what produced the loop.
       reg.addEventListener('updatefound', () => {
         const worker = reg.installing;
         if (!worker) return;
         worker.addEventListener('statechange', () => {
-          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-            worker.postMessage({ type: 'SKIP_WAITING' });
-            location.reload();
-          }
+          if (worker.state === 'installed') worker.postMessage({ type: 'SKIP_WAITING' });
         });
       });
     } catch (e) {}

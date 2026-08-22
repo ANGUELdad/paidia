@@ -4072,9 +4072,15 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(payload)))
-            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
-            self.send_header("Pragma", "no-cache")
-            self.send_header("Expires", "0")
+            # Version-stamped assets are immutable — see api/index.py.
+            version_q = urllib.parse.parse_qs(parsed.query).get("v", [""])[0].strip()
+            is_shell = static_rel in ("", "index.html", "build.json")
+            if version_q.isdigit() and not is_shell:
+                self.send_header("Cache-Control", "public, max-age=31536000, immutable")
+            else:
+                self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+                self.send_header("Pragma", "no-cache")
+                self.send_header("Expires", "0")
             self.end_headers()
             self.wfile.write(payload)
             return

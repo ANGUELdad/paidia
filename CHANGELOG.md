@@ -1,5 +1,30 @@
 # Changelog
 
+## v88 — 2026-08-22
+
+Load and reload fix. The app was re-downloading ~1.1 MB on **every** load and
+reloading itself on top of that.
+
+- **Service worker**: v83 went network-first on everything with
+  `cache: 'no-store'` to kill stale bundles. That also bypassed the browser's own
+  HTTP cache, so `index.html` + `app.js` (~1 MB) were re-fetched every load, and
+  `activate` wiped every cache including icons. A `?v=N` URL is immutable by
+  construction — the next release changes the URL — so versioned assets are now
+  cache-first, the shell and `build.json` stay network-first with a cached
+  offline fallback, and activate only drops *other* builds.
+- **Reload loop**: `purgeStaleShell()` unregistered the worker, which forced a
+  re-register, which fired `updatefound`, whose handler called `location.reload()`
+  — which re-registered again. It no longer unregisters and no longer reloads;
+  `app.js` also stopped registering a second worker in a race with `gate.js`.
+  There is now no `location.reload()` anywhere in `gate.js`.
+- **HTTP caching**: `app.js` was served `Cache-Control: no-store` (747 KB, every
+  load). Version-stamped assets now get `public, max-age=31536000, immutable` in
+  both `server.py` and `api/index.py`; the shell and `build.json` stay `no-store`
+  so a release still lands immediately.
+
+Net effect: first load unchanged, every subsequent load serves the bundles from
+cache instead of the network.
+
 ## v87 — 2026-08-22
 
 - Remaining staff screens brought onto the design system.

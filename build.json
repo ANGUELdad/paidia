@@ -1,8 +1,8 @@
 {
-  "version": 87,
-  "label": "v87",
+  "version": 88,
+  "label": "v88",
   "changed": {
-    "de": "Alle Staff-Screens im neuen Design: helle Titel, Armonia-Farben statt Fremdpalette",
-    "el": "Όλες οι οθόνες προσωπικού στο νέο design: φωτεινοί τίτλοι, χρώματα Armonia"
+    "de": "Ladefix: App startet schnell und lädt sich nicht mehr selbst neu",
+    "el": "Διόρθωση φόρτωσης: γρήγορη εκκίνηση, τέλος οι συνεχείς επαναφορτώσεις"
   }
 }

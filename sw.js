@@ -1,7 +1,20 @@
-// Network-first PWA worker — never serve stale app shells or JS bundles.
-const CACHE = 'paidia-v87';
+// PWA worker.
+//
+// v83 went network-first-on-everything with `cache: 'no-store'` to stop stale
+// app bundles. It worked, but it also meant ~1.1 MB re-fetched on EVERY load
+// (index.html + app.js alone are ~1 MB) and bypassed the browser's own HTTP
+// cache, which is why the app crawled on mobile data.
+//
+// A `?v=N` URL is immutable by construction: shipping v(N+1) changes the URL,
+// so the client cannot get a stale bundle. That makes versioned assets safe to
+// cache-first — fresh on release, instant on every load in between. The shell
+// and build.json stay network-first so a release is picked up immediately, with
+// a cached copy as the offline fallback.
+const CACHE = 'paidia-v88';
 const ASSETS = ['./manifest.webmanifest'];
-const NEVER_CACHE = /(?:^|\/)(?:index\.html|gate\.js|app\.js|build\.json|sw\.js)(?:\?|$)/i;
+
+// Fresh every time: the shell and the version manifest that drives the banner.
+const ALWAYS_FRESH = /(?:^|\/)(?:index\.html|build\.json|sw\.js)(?:\?|$)/i;
 
 function safeAppUrl(url) {
   const raw = String(url || './');
@@ -17,10 +30,11 @@ function safeAppUrl(url) {
   return './';
 }
 
-function isVolatile(url) {
-  if (NEVER_CACHE.test(url.pathname + url.search)) return true;
-  if (url.search.includes('v=')) return true;
-  return false;
+// Anything carrying an explicit ?v= build stamp, plus icons.
+function isImmutable(url) {
+  if (ALWAYS_FRESH.test(url.pathname + url.search)) return false;
+  if (/[?&]v=\d+/.test(url.search)) return true;
+  return url.pathname.startsWith('/icons/');
 }
 
 self.addEventListener('install', (e) => {
@@ -34,7 +48,9 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+      // Drop only OTHER builds; wiping every cache on activate meant even
+      // icons were re-fetched after each release.
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -48,26 +64,35 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.startsWith('/api/') || isVolatile(url)) {
+  // Never cache the API.
+  if (url.pathname.startsWith('/api/')) {
     e.respondWith(fetch(e.request, { cache: 'no-store' }));
     return;
   }
 
-  const isShell = e.request.mode === 'navigate' ||
-    url.pathname.endsWith('/') ||
-    url.pathname.endsWith('/index.html');
-  if (isShell) {
+  // Immutable, version-stamped assets: serve from cache, fill on first miss.
+  if (isImmutable(url)) {
     e.respondWith(
-      fetch(e.request, { cache: 'no-store' })
-        .catch(() => Response.error())
+      caches.match(e.request).then((hit) => {
+        if (hit) return hit;
+        return fetch(e.request).then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+          }
+          return res;
+        });
+      })
     );
     return;
   }
 
+  // Shell and build.json: network-first so a release lands at once, cache as
+  // the offline fallback.
   e.respondWith(
-    fetch(e.request, { cache: 'no-store' })
+    fetch(e.request)
       .then((res) => {
-        if (res.ok && url.pathname.startsWith('/icons/')) {
+        if (res && res.ok) {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
         }
