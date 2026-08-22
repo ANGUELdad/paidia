@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 89,
-    label: 'v89',
+    version: 90,
+    label: 'v90',
     changed: {
-      de: 'Layout für alle Bildschirme: Tablet-Stufe, Querformat, schmale und sehr breite Geräte',
-      el: 'Διάταξη για κάθε οθόνη: επίπεδο tablet, οριζόντια προβολή, στενές και πολύ φαρδιές συσκευές',
+      de: 'Kinder: Bewertungen, Bonus und eigene Notizen',
+      el: 'Παιδιά: αξιολογήσεις, μπόνους και προσωπικές σημειώσεις',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

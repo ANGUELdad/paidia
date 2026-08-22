@@ -1,5 +1,24 @@
 # Changelog
 
+## v90 — 2026-08-22
+
+Three Kids surfaces from the Figma frames, built in the app.
+
+- **Bewertungen** — weekly self-rating across Schule / Zuhause / Freunde / Wie
+  ich mich fühle, five stars each, stored per ISO week per child, with a
+  four-week trend showing the computed average.
+- **Bonus** — derived, never stored, so it cannot drift from the chore and XP
+  data it reads: streak, plus four earn conditions with their point values.
+- **Notizen** — the child's own notes with a mood picker (Gut / Geht so /
+  Schwer). Deliberately local to the device: these are the child's words and are
+  not part of the shared ops blob staff sync between phones.
+
+Reachable from Start; the dock keeps five items and highlights Sterne or Start
+as appropriate rather than growing to eight.
+
+All strings added in **both** DE and EL. New `kidRatings` / `kidNotes` keys added
+to the persisted set.
+
 ## v89 — 2026-08-22
 
 Responsive layout for every aspect ratio, not just phone-or-desktop.

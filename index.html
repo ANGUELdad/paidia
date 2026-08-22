@@ -3534,6 +3534,108 @@
     main.app-stage{max-width:min(100%, 860px)}
   }
 
+
+  /* ══════════════════════════════════════════════════════════════════════
+     KIDS — Bewertungen, Bonus, Notizen (Figma Kids frames)
+     Sea-led per the design doc's Kids board; amber only where the child has
+     actually earned something.
+     ══════════════════════════════════════════════════════════════════════ */
+  .kid-card{
+    background:var(--glass); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow-1); padding:var(--space-4); margin-bottom:var(--space-3);
+    display:grid; gap:var(--space-2)}
+  .kid-card h2{font-family:var(--font-display); font-size:var(--t-display-sm);
+    font-weight:600; margin:0; letter-spacing:0}
+
+  /* Ratings ---------------------------------------------------------- */
+  .kid-rate-row{display:flex; align-items:center; gap:var(--space-3); min-height:44px}
+  .kid-rate-label{flex:1; min-width:0; font-size:var(--t-body-sm); color:var(--ink)}
+  .kid-stars{display:inline-flex; gap:3px; flex:0 0 auto}
+  .kid-star{
+    width:34px; height:34px; padding:5px; border:0; background:none; cursor:pointer;
+    display:grid; place-items:center; border-radius:10px;
+    transition:transform var(--m-base) var(--ease-settle)}
+  .kid-star:active{transform:scale(.9); transition-duration:var(--m-fast)}
+  .kid-star svg{width:100%; height:100%; fill:color-mix(in srgb, var(--ink) 14%, transparent)}
+  .kid-stars.sea  .kid-star.on svg{fill:var(--sea)}
+  .kid-stars.pine .kid-star.on svg{fill:var(--brand)}
+  .kid-stars.mark .kid-star.on svg{fill:var(--mark-b)}
+  .kid-stars.sun  .kid-star.on svg{fill:var(--sun)}
+  .kid-star:focus-visible{outline:none; box-shadow:var(--focus)}
+
+  .kid-trend-row{display:flex; align-items:center; gap:var(--space-3)}
+  .kid-trend-wk{width:46px; flex:0 0 auto; font-size:var(--t-micro); color:var(--meta);
+    font-variant-numeric:tabular-nums}
+  .kid-trend-track{flex:1; min-width:0; height:6px; border-radius:3px;
+    background:color-mix(in srgb, var(--ink) 8%, transparent); overflow:hidden}
+  .kid-trend-fill{display:block; height:100%; border-radius:3px; background:var(--sun)}
+  .kid-trend-val{width:28px; flex:0 0 auto; text-align:right;
+    font-size:var(--t-caption); font-weight:700; color:var(--ink);
+    font-variant-numeric:tabular-nums}
+
+  /* Bonus ------------------------------------------------------------ */
+  .kid-bonus-hero{
+    grid-auto-flow:column; grid-template-columns:auto 1fr; align-items:center;
+    background:linear-gradient(var(--amber-tint),var(--amber-tint)),var(--glass);
+    border-color:color-mix(in srgb, var(--sun) 34%, transparent)}
+  .kid-bonus-stars{display:inline-flex; gap:2px}
+  .kid-bonus-stars .kid-star{width:26px;height:26px;pointer-events:none}
+  .kid-bonus-stars .kid-star.on svg{fill:var(--sun)}
+  .kid-bonus-copy{display:grid; gap:2px; min-width:0}
+  .kid-bonus-copy b{font-family:var(--font-display); font-size:var(--t-display-md);
+    font-weight:600; color:var(--ink)}
+  .kid-bonus-copy span{font-size:var(--t-body-sm); color:#7a5a10}
+  .kid-bonus-row{
+    display:flex; align-items:center; gap:var(--space-3);
+    padding:var(--space-2) var(--space-3); border-radius:var(--radius-sm);
+    background:color-mix(in srgb, var(--ink) 3%, transparent); min-height:44px}
+  .kid-bonus-row.done{background:var(--pine-tint)}
+  .kid-bonus-mark{
+    width:22px;height:22px;flex:0 0 auto;border-radius:7px;display:grid;place-items:center;
+    background:#fff; border:1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    font-size:var(--t-micro); font-weight:800; color:#fff}
+  .kid-bonus-row.done .kid-bonus-mark{background:var(--in); border-color:transparent}
+  .kid-bonus-label{flex:1; min-width:0; font-size:var(--t-body-sm); color:var(--muted)}
+  .kid-bonus-row.done .kid-bonus-label{color:var(--ink)}
+  .kid-bonus-pts{flex:0 0 auto; font-size:var(--t-caption); font-weight:700; color:var(--meta);
+    font-variant-numeric:tabular-nums}
+  .kid-bonus-row.done .kid-bonus-pts{color:var(--in)}
+
+  /* Notes ------------------------------------------------------------ */
+  .kid-moods{display:flex; gap:var(--space-2)}
+  .kid-mood{
+    flex:1; min-height:44px; border-radius:var(--radius-pill); cursor:pointer;
+    border:1px solid var(--line); background:#fff; color:var(--muted);
+    font:inherit; font-size:var(--t-caption); font-weight:600;
+    transition:transform var(--m-base) var(--ease-settle), background-color var(--m-fast) linear}
+  .kid-mood:active{transform:scale(.98); transition-duration:var(--m-fast)}
+  .kid-mood:focus-visible{outline:none; box-shadow:var(--focus)}
+  .kid-mood.in.on  {background:var(--pine-tint);  border-color:color-mix(in srgb,var(--in) 42%,transparent);  color:var(--in)}
+  .kid-mood.warn.on{background:var(--amber-tint); border-color:color-mix(in srgb,var(--warn) 42%,transparent); color:var(--warn)}
+  .kid-mood.out.on {background:var(--out-tint);   border-color:color-mix(in srgb,var(--out) 42%,transparent);  color:var(--out)}
+  .kid-note-input{
+    width:100%; border:1px solid var(--line-strong); border-radius:var(--radius-sm);
+    background:#fff; color:var(--ink); padding:var(--space-3); resize:vertical;
+    font:inherit; line-height:1.45}
+  .kid-note{border-left:3px solid var(--line)}
+  .kid-note.in{border-left-color:var(--in)}
+  .kid-note.warn{border-left-color:var(--warn)}
+  .kid-note.out{border-left-color:var(--out)}
+  .kid-note-head{display:flex; align-items:center; gap:var(--space-2)}
+  .kid-note-date{flex:1; min-width:0; font-size:var(--t-caption); font-weight:700; color:var(--ink)}
+  .kid-note-mood{
+    flex:0 0 auto; padding:2px var(--space-2); border-radius:var(--radius-pill);
+    font-size:var(--t-eyebrow); font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+    background:color-mix(in srgb, var(--ink) 5%, transparent); color:var(--muted)}
+  .kid-note p{margin:0; font-size:var(--t-body-sm); color:var(--muted); line-height:1.45}
+
+  /* Wider screens: ratings and bonus read better side by side. */
+  @media (min-width:600px){
+    .kid-rate-row{max-width:520px}
+    .kid-moods{max-width:420px}
+    .kid-note-input{max-width:520px}
+  }
+
 </style>
 </head>
 <body class="auth-pending">
@@ -3622,7 +3724,7 @@
 <script>
 /* Network-first SW + notifications — versioned registration happens in app.js */
 </script>
-<script src="notifications.js?v=89" defer></script>
-<script src="gate.js?v=89"></script>
+<script src="notifications.js?v=90" defer></script>
+<script src="gate.js?v=90"></script>
 </body>
 </html>

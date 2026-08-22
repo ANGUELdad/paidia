@@ -423,6 +423,21 @@ const T = {
     kidLearnOpen:n=>n===1?'1 Quiz offen':`${n} Quiz offen`,
     kidTasksDue:n=>n===1?'1 heute fällig':`${n} heute fällig`,
     kidStarsCollected:n=>`${n} gesammelt`, kidGamesPlay:'Spielen',
+    kidNavRate:'Bewertung', kidRateTitle:'Bewertungen', kidRateKicker:'Wie lief die Woche?',
+    kidRateLead:'Tippe die Sterne. Das sehen nur du und deine Betreuerin.',
+    kidRateSchool:'Schule', kidRateHome:'Zuhause', kidRateFriends:'Freunde', kidRateMood:'Wie ich mich fühle',
+    kidRateWeeks:'Letzte 4 Wochen', kidRateSaved:'Bewertung gespeichert',
+    kidRateEmpty:'Diese Woche noch nicht bewertet.',
+    kidBonusTitle:'Bonus', kidBonusKicker:'Extra verdient',
+    kidBonusEarned:n=>`+${n} Bonus-Sterne`, kidBonusHow:'Wie du Bonus bekommst',
+    kidBonusStreak:n=>`${n} Tage in Folge ohne verpasste Aufgabe.`,
+    kidBonusAllWeek:'Ganze Woche alle Aufgaben', kidBonusRead:'5 Tage in Folge gelesen',
+    kidBonusHelp:'Jemandem geholfen', kidBonusTidy:'Zimmer 7 Tage ordentlich',
+    kidNotesTitle:'Notizen', kidNotesKicker:'Nur für dich',
+    kidNotesAsk:'Wie war dein Tag?', kidNotesPlaceholder:'Schreib auf, was du nicht vergessen willst…',
+    kidNotesSave:'Notiz speichern', kidNotesSaved:'Notiz gespeichert',
+    kidMoodGood:'Gut', kidMoodOk:'Geht so', kidMoodHard:'Schwer',
+    kidNotesEmpty:'Noch keine Notizen. Schreib die erste.',
     kidPlanTitle:'Stundenplan', kidAufgabenTitle:'Aufgaben', kidSterneTitle:'Sterne',
     kidLearnHubTitle:'Lernen', kidLearnHubHint:'Karten, Quiz und Rechnen — sammle Sterne.',
     kidStreak:'7-Tage-Streak', kidWeekDeltaLabel:'diese Woche', kidBadges:'Abzeichen',
@@ -1112,6 +1127,21 @@ const T = {
     close:'Κλείσιμο', menuFilters:'Φίλτρα', menuDone:'Έτοιμο',
     childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια', childRewards:'Βραβεία',
     kidNavStart:'Αρχή', kidNavPlan:'Πρόγραμμα', kidNavLearn:'Μάθηση', kidNavStars:'Αστέρια', kidNavGames:'Παιχνίδια',
+    kidNavRate:'Αξιολόγηση', kidRateTitle:'Αξιολογήσεις', kidRateKicker:'Πώς πήγε η εβδομάδα;',
+    kidRateLead:'Πάτα τα αστέρια. Το βλέπεις μόνο εσύ και η φροντίστριά σου.',
+    kidRateSchool:'Σχολείο', kidRateHome:'Σπίτι', kidRateFriends:'Φίλοι', kidRateMood:'Πώς νιώθω',
+    kidRateWeeks:'Τελευταίες 4 εβδομάδες', kidRateSaved:'Η αξιολόγηση αποθηκεύτηκε',
+    kidRateEmpty:'Δεν έχεις αξιολογήσει ακόμα αυτή την εβδομάδα.',
+    kidBonusTitle:'Μπόνους', kidBonusKicker:'Έξτρα κερδισμένα',
+    kidBonusEarned:n=>`+${n} αστέρια μπόνους`, kidBonusHow:'Πώς κερδίζεις μπόνους',
+    kidBonusStreak:n=>`${n} μέρες στη σειρά χωρίς χαμένη αποστολή.`,
+    kidBonusAllWeek:'Όλες οι αποστολές της εβδομάδας', kidBonusRead:'5 μέρες στη σειρά διάβασμα',
+    kidBonusHelp:'Βοήθησες κάποιον', kidBonusTidy:'Τακτοποιημένο δωμάτιο 7 μέρες',
+    kidNotesTitle:'Σημειώσεις', kidNotesKicker:'Μόνο για σένα',
+    kidNotesAsk:'Πώς ήταν η μέρα σου;', kidNotesPlaceholder:'Γράψε ό,τι δεν θες να ξεχάσεις…',
+    kidNotesSave:'Αποθήκευση', kidNotesSaved:'Η σημείωση αποθηκεύτηκε',
+    kidMoodGood:'Καλά', kidMoodOk:'Έτσι κι έτσι', kidMoodHard:'Δύσκολα',
+    kidNotesEmpty:'Καμία σημείωση ακόμα. Γράψε την πρώτη.',
     kidHello:n=>`Γεια, ${n}`, kidLevelCard:n=>`Επίπεδο ${n}`, kidXpOf:(a,b)=>`${a} / ${b} αστέρια`,
     kidXpRemain:n=>`Ακόμα ${n} για το επόμενο επίπεδο`, kidTodayLessons:'Σήμερα',
     kidLessonsDone:(d,t)=>`${d} από ${t} έτοιμα`, kidNextUp:'Στη συνέχεια',
@@ -1749,6 +1779,8 @@ const SEED = {
   shiftCheckins: [],
   xpLog: [],
   gameStats: {},
+  kidRatings: [],
+  kidNotes: [],
 };
 
 /* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
@@ -1757,7 +1789,7 @@ const KEY = 'paidia.v5';
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
-                 'chores', 'choreSubmissions', 'xpLog', 'gameStats'];
+                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'kidNotes'];
 
 let DB = load();
 function load(){
@@ -9252,6 +9284,9 @@ function childStartView(c){
       <button type="button" class="course-tile out" data-child-view="games"><span class="bar"></span><b>${esc(t('kidCourseGames'))}</b><span>${esc(t('kidGamesPlay'))}</span><div class="meter">${levelMeterHtml(25)}</div></button>
     </div>
     <div class="kid-secondary">
+      <button type="button" class="chip" data-child-view="rate">${esc(t('kidNavRate'))}</button>
+      <button type="button" class="chip" data-child-view="bonus">${esc(t('kidBonusTitle'))}</button>
+      <button type="button" class="chip" data-child-view="notes">${esc(t('kidNotesTitle'))}</button>
       <button type="button" class="chip" data-child-view="events">${esc(t('childEvents'))}</button>
       <button type="button" class="chip" data-child-view="gallery">${esc(t('galleryChildTab'))}</button>
       <button type="button" class="chip" id="childHowToBtn">${esc(t('childHowTo'))}</button>
@@ -9297,6 +9332,199 @@ function childStundenplanView(c){
       <div class="sp-week">${days}</div>
       <div class="sp-rail">${blocks}</div>
     </div>`;
+}
+
+/* ── Kids: weekly self-rating ──────────────────────────────────────────
+   Four areas, five stars each, one row per ISO week. Stored per kid so a
+   child's own read of the week sits next to the XP the system awards them. */
+const KID_RATE_AREAS = [
+  {id:'school',  key:'kidRateSchool',  tint:'sea'},
+  {id:'home',    key:'kidRateHome',    tint:'pine'},
+  {id:'friends', key:'kidRateFriends', tint:'mark'},
+  {id:'mood',    key:'kidRateMood',    tint:'sun'},
+];
+
+function kidWeekKey(d){
+  const dt = d ? new Date(d) : new Date();
+  const day = (dt.getDay() + 6) % 7;              // Monday = 0
+  dt.setDate(dt.getDate() - day);
+  return iso(dt);
+}
+
+function kidRating(kidId, area, week){
+  const wk = week || kidWeekKey();
+  const hit = (DB.kidRatings||[]).find(r=>r.kidId===kidId && r.area===area && r.week===wk);
+  return hit ? Number(hit.value)||0 : 0;
+}
+
+function setKidRating(kidId, area, value){
+  const wk = kidWeekKey();
+  DB.kidRatings = DB.kidRatings || [];
+  const hit = DB.kidRatings.find(r=>r.kidId===kidId && r.area===area && r.week===wk);
+  if(hit) hit.value = value;
+  else DB.kidRatings.push({id:uid(), kidId, area, week:wk, value, ts:Date.now()});
+  save();
+}
+
+function kidWeekAverage(kidId, week){
+  const vals = KID_RATE_AREAS.map(a=>kidRating(kidId, a.id, week)).filter(v=>v>0);
+  if(!vals.length) return 0;
+  return Math.round((vals.reduce((a,b)=>a+b,0) / vals.length) * 10) / 10;
+}
+
+function kidStarsHtml(area, value){
+  let out = '';
+  for(let i=1;i<=5;i++){
+    out += `<button type="button" class="kid-star${i<=value?' on':''}" data-kid-rate="${esc(area)}" data-kid-rate-value="${i}" aria-label="${i}/5">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+    </button>`;
+  }
+  return out;
+}
+
+function childBewertungenView(kidId){
+  const rows = KID_RATE_AREAS.map(a=>{
+    const v = kidRating(kidId, a.id);
+    return `<div class="kid-rate-row">
+      <span class="kid-rate-label">${esc(t(a.key))}</span>
+      <span class="kid-stars ${a.tint}">${kidStarsHtml(a.id, v)}</span>
+    </div>`;
+  }).join('');
+
+  const weeks = [];
+  for(let i=3;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate() - i*7);
+    const wk = kidWeekKey(d);
+    weeks.push({wk, avg: kidWeekAverage(kidId, wk)});
+  }
+  const trend = weeks.map(w=>{
+    const pct = Math.round((w.avg/5)*100);
+    return `<div class="kid-trend-row">
+      <span class="kid-trend-wk">${esc(w.wk.slice(5).replace('-','.'))}</span>
+      <span class="kid-trend-track"><span class="kid-trend-fill" style="width:${pct}%"></span></span>
+      <span class="kid-trend-val">${w.avg ? w.avg.toFixed(1) : '–'}</span>
+    </div>`;
+  }).join('');
+
+  return `<section class="kid-card">
+      <h2>${esc(t('kidRateTitle'))}</h2>
+      <p class="muted">${esc(t('kidRateLead'))}</p>
+      ${rows}
+    </section>
+    <section class="kid-card">
+      <h2>${esc(t('kidRateWeeks'))}</h2>
+      ${trend}
+    </section>`;
+}
+
+/* ── Kids: bonus ──────────────────────────────────────────────────────
+   Derived, never stored: bonus is a read of what the chore and XP data
+   already say, so it cannot drift out of sync with them. */
+function kidBonusState(kidId){
+  const myChores = (DB.chores||[]).filter(ch=>choreForKid(ch,kidId) && ch.daily);
+  const dates = kidXpDates ? kidXpDates(kidId) : [];
+  let streak = 0;
+  for(let i=0;i<30;i++){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    if(dates.includes(iso(d))) streak++;
+    else if(i>0) break;
+  }
+  const allWeek = myChores.length > 0 && streak >= 7;
+  const read5 = streak >= 5;
+  const helped = (DB.xpLog||[]).some(e=>e.kidId===kidId && Number(e.xp)>=10);
+  const tidy7 = streak >= 7 && myChores.length >= 3;
+  const earned = (allWeek?20:0) + (read5?15:0) + (helped?10:0) + (tidy7?25:0);
+  return {streak, earned, items:[
+    {label:t('kidBonusAllWeek'), pts:20, done:allWeek},
+    {label:t('kidBonusRead'),    pts:15, done:read5},
+    {label:t('kidBonusHelp'),    pts:10, done:helped},
+    {label:t('kidBonusTidy'),    pts:25, done:tidy7},
+  ]};
+}
+
+function childBonusView(kidId){
+  const b = kidBonusState(kidId);
+  const items = b.items.map(it=>`<div class="kid-bonus-row${it.done?' done':''}">
+      <span class="kid-bonus-mark" aria-hidden="true">${it.done?'✓':''}</span>
+      <span class="kid-bonus-label">${esc(it.label)}</span>
+      <span class="kid-bonus-pts">+${it.pts}</span>
+    </div>`).join('');
+  return `<section class="kid-card kid-bonus-hero">
+      <span class="kid-bonus-stars" aria-hidden="true">${kidStarsHtml('__none__',3).replace(/data-kid-rate="[^"]*"/g,'').replace(/data-kid-rate-value="[^"]*"/g,'')}</span>
+      <div class="kid-bonus-copy">
+        <b>${esc(t('kidBonusEarned')(b.earned))}</b>
+        <span>${esc(t('kidBonusStreak')(b.streak))}</span>
+      </div>
+    </section>
+    <section class="kid-card">
+      <h2>${esc(t('kidBonusHow'))}</h2>
+      ${items}
+    </section>`;
+}
+
+/* ── Kids: private notes ──────────────────────────────────────────────
+   Local to the device on purpose — these are the child's own words, and
+   they are not part of the shared ops blob staff sync between phones. */
+const KID_MOODS = [
+  {id:'good', key:'kidMoodGood', tint:'in'},
+  {id:'ok',   key:'kidMoodOk',   tint:'warn'},
+  {id:'hard', key:'kidMoodHard', tint:'out'},
+];
+
+function childNotizenView(kidId){
+  const mine = (DB.kidNotes||[]).filter(n=>n.kidId===kidId).sort((a,b)=>b.ts-a.ts);
+  const moods = KID_MOODS.map(m=>`<button type="button" class="kid-mood ${m.tint}" data-kid-mood="${m.id}">${esc(t(m.key))}</button>`).join('');
+  const list = mine.length ? mine.map(n=>{
+    const m = KID_MOODS.find(x=>x.id===n.mood) || KID_MOODS[0];
+    return `<article class="kid-card kid-note ${m.tint}">
+        <div class="kid-note-head">
+          <span class="kid-note-date">${esc(new Date(n.ts).toLocaleDateString(state.lang==='el'?'el-GR':'de-DE',{weekday:'long'}))}</span>
+          <span class="kid-note-mood">${esc(t(m.key))}</span>
+        </div>
+        <p>${esc(n.text)}</p>
+      </article>`;
+  }).join('') : emptyState('', t('kidNotesEmpty'));
+
+  return `<section class="kid-card">
+      <h2>${esc(t('kidNotesAsk'))}</h2>
+      <div class="kid-moods" role="group">${moods}</div>
+      <textarea id="kidNoteText" class="kid-note-input" rows="3" placeholder="${esc(t('kidNotesPlaceholder'))}"></textarea>
+      <button type="button" class="btn" id="kidNoteSave">${esc(t('kidNotesSave'))}</button>
+    </section>
+    ${list}`;
+}
+
+function bindKidExtras(root){
+  root.querySelectorAll('[data-kid-rate]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const area = btn.getAttribute('data-kid-rate');
+      if(area === '__none__') return;
+      const val = Number(btn.getAttribute('data-kid-rate-value'))||0;
+      setKidRating(state.child.id, area, val);
+      toast(t('kidRateSaved'));
+      render();
+    });
+  });
+  root.querySelectorAll('[data-kid-mood]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      root.querySelectorAll('[data-kid-mood]').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+    });
+  });
+  const saveBtn = root.querySelector('#kidNoteSave');
+  if(saveBtn) saveBtn.addEventListener('click', ()=>{
+    const box = root.querySelector('#kidNoteText');
+    const text = (box && box.value || '').trim();
+    if(!text) return;
+    const picked = root.querySelector('[data-kid-mood].on');
+    DB.kidNotes = DB.kidNotes || [];
+    DB.kidNotes.push({id:uid(), kidId:state.child.id, ts:Date.now(),
+                      mood:(picked && picked.getAttribute('data-kid-mood')) || 'good',
+                      text:text.slice(0,600)});
+    save();
+    toast(t('kidNotesSaved'));
+    render();
+  });
 }
 
 function childAufgabenView(kidId){
@@ -9423,7 +9651,10 @@ function renderChild(){
 
   const dockActive = ['today','plan','learn','rewards','games'].includes(state.childView)
     ? state.childView
-    : (state.childView==='aufgaben'?'today':state.childView==='games'? 'games':'today');
+    : (state.childView==='aufgaben'?'today'
+      : state.childView==='games'? 'games'
+      : (state.childView==='rate'||state.childView==='bonus')? 'rewards'
+      : state.childView==='notes'? 'today':'today');
 
   let viewBody;
   if(state.childView==='today') viewBody = childStartView(c);
@@ -9434,6 +9665,9 @@ function renderChild(){
     viewBody = state.gameId ? childGamesView() : childLearnHubView();
   }
   else if(state.childView==='games') viewBody = childGamesView();
+  else if(state.childView==='rate') viewBody = childBewertungenView(c.id);
+  else if(state.childView==='bonus') viewBody = childBonusView(c.id);
+  else if(state.childView==='notes') viewBody = childNotizenView(c.id);
   else if(state.childView==='events') viewBody = childEventsView(c.id);
   else if(state.childView==='gallery') viewBody = childGalleryView();
   else viewBody = childStartView(c);
@@ -9463,6 +9697,7 @@ function renderChild(){
   const howTo=root.querySelector('#childHowToBtn');
   if(howTo) howTo.onclick=()=>sheetChildHowTo();
   if(state.childView==='games' || state.childView==='learn') bindChildGames(root);
+  if(state.childView==='rate' || state.childView==='notes') bindKidExtras(root);
   if(state.childView==='gallery') bindGallery(root);
   root.querySelectorAll('[data-chore-submit]').forEach(btn=>{
     btn.onclick = ()=>{
@@ -13500,7 +13735,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||89),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||90),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
