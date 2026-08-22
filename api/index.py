@@ -629,6 +629,13 @@ def entry(flask_path: str = ""):
             status, payload = paidia.run_gallery_caption(body, api_key)
         return _json(status, payload)
 
+    if request.method == "POST" and api in {"/kid-ops", "/api/kid-ops"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        status, payload = paidia.put_kid_ops(_body(), session)
+        return _json(status, payload)
+
     if request.method == "POST" and api in {"/chore-verify", "/api/chore-verify"}:
         session = _session_from_request()
         if not session:

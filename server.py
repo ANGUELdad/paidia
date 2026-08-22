@@ -275,9 +275,22 @@ OPS_KEYS = (
     "shiftNotes",
     "stockChecks",
     "shiftCheckins",
+    # Kid-owned data. Written by staff via /api/ops like everything else,
+    # and by a child device via /api/kid-ops for its own rows only.
+    "chores",
+    "choreSubmissions",
+    "xpLog",
+    "gameStats",
+    "kidRatings",
+    "kidNotes",
 )
-OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks"}
+OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks", "gameStats"}
 OPS_LIST_CAPS = {
+    "chores": 400,
+    "choreSubmissions": 2000,
+    "xpLog": 4000,
+    "kidRatings": 4000,
+    "kidNotes": 4000,
     "listEntries": 4000,
     "shoppingTrips": 4000,
     "log": 2500,
@@ -1527,6 +1540,72 @@ def get_ops(since: int = 0) -> dict:
                 "changed": False,
             }
     return ops_snapshot(True)
+
+
+# Keys a child's own device may write. Everything else on the ops blob is
+# staff-owned and unreachable from a child session.
+KID_OWNED_KEYS = ("kidRatings", "kidNotes")
+KID_ROW_CAP = 500
+
+
+def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
+    """Let a child device persist its own ratings and notes.
+
+    Deliberately narrow: a child session can touch only KID_OWNED_KEYS, and only
+    rows belonging to itself. Ownership is taken from the session and stamped on
+    every row, so a forged kidId in the payload is ignored rather than trusted —
+    a child cannot write another child's data, and cannot reach staff ops at all.
+    """
+    if session.get("mode") != "child":
+        return 403, {"error": "Child session required", "code": "child_required"}
+    kid_id = str(session.get("profile_id") or "").strip()
+    if not kid_id:
+        return 403, {"error": "Child session required", "code": "child_required"}
+    if not isinstance(body, dict):
+        return 400, {"error": "JSON object required", "code": "input"}
+
+    refresh_ops_state_from_disk()
+    with OPS_LOCK:
+        touched = []
+        for key in KID_OWNED_KEYS:
+            incoming = body.get(key)
+            if incoming is None:
+                continue
+            if not isinstance(incoming, list):
+                return 400, {"error": f"{key} must be a list", "code": "input"}
+            mine = []
+            for row in incoming[:KID_ROW_CAP]:
+                if not isinstance(row, dict):
+                    continue
+                row = dict(row)
+                row["kidId"] = kid_id          # server owns this field
+                mine.append(row)
+            others = [
+                r for r in (OPS_STATE.get(key) or [])
+                if isinstance(r, dict) and str(r.get("kidId") or "") != kid_id
+            ]
+            OPS_STATE[key] = others + mine
+            touched.append(key)
+
+        if not touched:
+            return 400, {"error": "Nothing to write", "code": "input"}
+
+        OPS_STATE["revision"] = int(OPS_STATE.get("revision") or 0) + 1
+        OPS_STATE["updatedAt"] = int(time.time() * 1000)
+        try:
+            persist_ops_state()
+        except OSError:
+            return 507, {"error": "Could not save", "code": "storage"}
+
+        return 200, {
+            "ok": True,
+            "kidId": kid_id,
+            "revision": int(OPS_STATE["revision"]),
+            "updatedAt": int(OPS_STATE["updatedAt"]),
+            "counts": {k: len([r for r in (OPS_STATE.get(k) or [])
+                               if isinstance(r, dict) and str(r.get("kidId") or "") == kid_id])
+                       for k in touched},
+        }
 
 
 def put_ops(body: dict, session: dict) -> tuple[int, dict]:
@@ -4102,7 +4181,7 @@ class Handler(SimpleHTTPRequestHandler):
         if path not in {
             "/api/ai-shopping", "/api/chat", "/api/learn", "/api/quiz", "/api/gallery/caption",
             "/api/chore-verify",
-            "/api/talk", "/api/gallery", "/api/ops", "/api/whatsapp/test", "/api/whatsapp/event",
+            "/api/talk", "/api/gallery", "/api/ops", "/api/kid-ops", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/notify/event-email",
             "/api/notify/broadcast",
             "/api/notify/broadcast-preview",
@@ -4192,6 +4271,15 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
             status, payload = put_ops(body, session)
+            self.json_response(status, payload)
+            return
+
+        if path == "/api/kid-ops":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = put_kid_ops(body, session)
             self.json_response(status, payload)
             return
 

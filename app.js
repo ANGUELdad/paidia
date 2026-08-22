@@ -1976,9 +1976,44 @@ function schedulePushShared(){
   sharedPushTimer = setTimeout(()=>{ pushShared(); }, 280);
 }
 
+/* A child device has no write path to the shared ops blob — put_ops is staff
+   only, by design. This pushes just the child's own ratings and notes to
+   /api/kid-ops, which stamps ownership from the session server-side. Debounced,
+   because ratings fire on every star tap. */
+let kidPushTimer = null;
+function scheduleKidPush(){
+  if(state.mode !== 'child' || !state.child) return;
+  clearTimeout(kidPushTimer);
+  kidPushTimer = setTimeout(pushKidOps, 900);
+}
+async function pushKidOps(){
+  if(state.mode !== 'child' || !state.child) return false;
+  const kidId = state.child.id;
+  const body = {
+    kidRatings: (DB.kidRatings||[]).filter(r=>r && r.kidId===kidId),
+    kidNotes:   (DB.kidNotes||[]).filter(n=>n && n.kidId===kidId),
+  };
+  try{
+    const res = await fetch('/api/kid-ops', {
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body),
+    });
+    if(!res.ok) return false;
+    const data = await res.json().catch(()=>null);
+    if(data && typeof data.revision === 'number') sharedRevision = data.revision;
+    return true;
+  }catch(_){
+    return false;   // offline: the local copy still holds, next save retries
+  }
+}
+
 function save(){
   const ok = saveLocal();
-  if(ok) schedulePushShared();
+  if(ok){
+    if(state.mode === 'child') scheduleKidPush();
+    else schedulePushShared();
+  }
   return ok;
 }
 
@@ -13741,7 +13776,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||91),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||92),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

@@ -1,5 +1,27 @@
 # Changelog
 
+## v92 — 2026-08-22
+
+Kid data can now persist. Two gaps, both closed.
+
+- `chores`, `choreSubmissions`, `xpLog`, `gameStats`, `kidRatings` and `kidNotes`
+  were in the localStorage set but **not** in the server's `OPS_KEYS`, so they
+  never reached durable storage even when the database was healthy. They are now
+  part of the synced set, with row caps, and `gameStats` registered as a dict key.
+- `put_ops` is staff-only by design, so a child's device had **no write path at
+  all**. New `POST /api/kid-ops` (mirrored in `api/index.py`): child session
+  required, and it can touch only `kidRatings` and `kidNotes`.
+
+Ownership is taken from the session and stamped onto every row server-side, so a
+forged `kidId` in the payload is ignored rather than trusted. Rows belonging to
+other children are preserved on write. Verified against local SQLite: a second
+child cannot overwrite the first's rows, a row claiming `kidId: "k1"` sent from
+k2's session is stored as k2's, staff keys sent to the endpoint are ignored, a
+staff session is refused 403, and anonymous is refused 401.
+
+Client pushes are debounced 900ms, since ratings fire on every star tap, and fail
+soft when offline — the local copy still holds and the next save retries.
+
 ## v91 — 2026-08-22
 
 Emoji removed from the interface chrome. The design doc has listed
