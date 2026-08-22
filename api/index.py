@@ -304,9 +304,12 @@ class _FlaskHandlerBridge:
         self._extra_headers = headers or {}
 
     def finish_authentication(self, profile_id: str, mode: str, method: str = "pin",
-                               extra_cookies: list | None = None) -> None:
+                               extra_cookies: list | None = None,
+                               remember: bool = False) -> None:
         # Reuse Handler alerts (new IP / untrusted IP) + cookie minting.
-        paidia.Handler.finish_authentication(self, profile_id, mode, method, extra_cookies)
+        paidia.Handler.finish_authentication(
+            self, profile_id, mode, method, extra_cookies, remember=remember,
+        )
 
     def editable_profile(self, body: dict):
         return paidia.Handler.editable_profile(self, body)

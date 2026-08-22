@@ -713,6 +713,7 @@ def decode_session_token(token: str) -> dict | None:
             "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
             "expires_at": float(payload["expires_at"]),
             "method": str(payload.get("method", "pin")),
+            "remember": bool(payload.get("remember")),
         }
     except (ValueError, TypeError, json.JSONDecodeError, KeyError, RuntimeError):
         return None
