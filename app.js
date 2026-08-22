@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 83,
-  label: 'v83',
+  version: 99,
+  label: 'v99',
   changed: {
-    de: 'Kids-Icons: Aufgaben, Abzeichen und Leerzustände als SVG statt Emoji',
-    el: 'Εικονίδια Kids: αποστολές, εμβλήματα και κενές καταστάσεις σε SVG',
+    de: 'Spiele-Hub neu: Glas-Karten, Snap-Rail, Widgets und Stroke-Icons',
+    el: 'Νέο Spiele hub: γυάλινες κάρτες, snap-rail, widgets και stroke icons',
   },
 };
 const T = {
@@ -8478,19 +8478,19 @@ function childEventsView(cid){
 }
 
 const CHILD_GAMES = [
-  {id:'learn', emoji:'🇬🇷', titleKey:'gameLearn', hintKey:'gameLearnHint', tint:'#0d9488', featured:true, xp:10},
-  {id:'quiz', emoji:'🧠', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#2a6b52', featured:true, xp:8},
-  {id:'math', emoji:'➕', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', featured:true, xp:6},
-  {id:'island', emoji:'🏝️', titleKey:'gameIsland', hintKey:'gameIslandHint', tint:'#0e7490', featured:true, xp:8},
-  {id:'eduhub', emoji:'🎓', titleKey:'gameEduHub', hintKey:'gameEduHubHint', tint:'#0369a1', featured:true},
+  {id:'learn', emoji:'🇬🇷', icon:'u-book', titleKey:'gameLearn', hintKey:'gameLearnHint', tint:'#0d9488', featured:true, xp:10},
+  {id:'quiz', emoji:'🧠', icon:'u-sparkle', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#2a6b52', featured:true, xp:8},
+  {id:'math', emoji:'➕', icon:'u-plus', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', featured:true, xp:6},
+  {id:'island', emoji:'🏝️', icon:'u-leaf', titleKey:'gameIsland', hintKey:'gameIslandHint', tint:'#0e7490', featured:true, xp:8},
+  {id:'eduhub', emoji:'🎓', icon:'u-book', titleKey:'gameEduHub', hintKey:'gameEduHubHint', tint:'#0369a1', featured:true},
   {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e', xp:5},
   {id:'tac', emoji:'❌', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#c2410c', xp:4},
   {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1', xp:5},
-  {id:'react', emoji:'⚡', titleKey:'gameReact', hintKey:'gameReactHint', tint:'#2a6b52'},
+  {id:'react', emoji:'⚡', icon:'u-clock', titleKey:'gameReact', hintKey:'gameReactHint', tint:'#2a6b52'},
   {id:'rps', emoji:'✊', titleKey:'gameRps', hintKey:'gameRpsHint', tint:'#be185d'},
   {id:'dice', emoji:'🎲', titleKey:'gameDice', hintKey:'gameDiceHint', tint:'#0f766e'},
-  {id:'simon', emoji:'🎵', titleKey:'gameSimon', hintKey:'gameSimonHint', tint:'#b45309', xp:6},
-  {id:'colors', emoji:'🎨', titleKey:'gameColors', hintKey:'gameColorsHint', tint:'#2a6b52'},
+  {id:'simon', emoji:'🎵', icon:'u-party', titleKey:'gameSimon', hintKey:'gameSimonHint', tint:'#b45309', xp:6},
+  {id:'colors', emoji:'🎨', icon:'u-sparkle', titleKey:'gameColors', hintKey:'gameColorsHint', tint:'#2a6b52'},
 ];
 const MEMORY_EMOJIS = ['🌊','☀️','🐚','🐙','🐟','⭐','🍋','⛵'];
 const CATCH_FISH = [
@@ -8611,6 +8611,7 @@ function shuffleInPlace(arr){
 }
 
 function gameBestKey(id){ return `paidia.game.best.${id}`; }
+function gameHistKey(id){ return `paidia.game.hist.${id}`; }
 function readGameBest(id){
   try{ return Number(localStorage.getItem(gameBestKey(id)))||0; }catch{ return 0; }
 }
@@ -8621,6 +8622,19 @@ function writeGameBest(id, score){
     return score;
   }
   return prev;
+}
+function readGameHistory(id){
+  try{
+    const raw = JSON.parse(localStorage.getItem(gameHistKey(id))||'[]');
+    return Array.isArray(raw) ? raw.map(Number).filter(n=>Number.isFinite(n)).slice(-8) : [];
+  }catch{ return []; }
+}
+function pushGameHistory(id, value){
+  const n = Number(value);
+  if(!Number.isFinite(n)) return;
+  const list = readGameHistory(id);
+  list.push(n);
+  try{ localStorage.setItem(gameHistKey(id), JSON.stringify(list.slice(-8))); }catch{}
 }
 
 const LEARN_SESSION = 20;
@@ -9181,6 +9195,65 @@ function progressRingHtml(pct, centerLabel, size=64){
 function levelMeterHtml(pct){
   const p = Math.max(0, Math.min(100, Number(pct)||0));
   return `<div class="level-meter" aria-hidden="true"><i style="width:${p}%"></i></div>`;
+}
+function widgetToneClass(tone){
+  const t = String(tone||'').toLowerCase();
+  if(t==='sea') return 'w-tone-sea';
+  if(t==='amber' || t==='sun') return 'w-tone-amber';
+  if(t==='pine' || t==='brand') return 'w-tone-pine';
+  return '';
+}
+/** Conic progress ring — labelled when it is the only carrier of the number. */
+function ringHtml(pct, label = '', tone = ''){
+  if(pct===null || pct===undefined || pct==='') return '';
+  const p = Math.max(0, Math.min(100, Number(pct)||0));
+  const centre = label!=='' && label!=null ? String(label) : `${Math.round(p)}%`;
+  const toneCls = widgetToneClass(tone);
+  return `<div class="w-ring ${toneCls}" role="img" aria-label="${esc(centre)}" style="--w-pct:${p}">
+    <span class="w-ring-label">${esc(centre)}</span>
+  </div>`;
+}
+/** Inline SVG polyline — no axes. Empty input → ''. */
+function sparklineHtml(values, tone = ''){
+  if(!Array.isArray(values) || !values.length) return '';
+  const nums = values.map(Number).filter(n=>Number.isFinite(n));
+  if(!nums.length) return '';
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const span = max-min || 1;
+  const w = 64, h = 28, pad = 2;
+  const pts = nums.map((n,i)=>{
+    const x = pad + (i/(Math.max(1, nums.length-1))) * (w-pad*2);
+    const y = h-pad - ((n-min)/span) * (h-pad*2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const toneCls = widgetToneClass(tone);
+  return `<svg class="w-spark ${toneCls}" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="none" role="img" aria-label="${esc(String(nums[nums.length-1]))}"><polyline points="${pts}" fill="none" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function statTileHtml(value, label, icon, trend){
+  if(value===null || value===undefined || value==='') return '';
+  const trendCls = trend==='up'?'up':trend==='down'?'down':'';
+  const ico = icon ? ui(icon, 'sm') : '';
+  return `<div class="w-stat" role="group" aria-label="${esc(String(label||''))}: ${esc(String(value))}">
+    ${ico?`<span class="w-stat-ico" aria-hidden="true">${ico}</span>`:''}
+    <b class="w-stat-val ${trendCls}">${esc(String(value))}</b>
+    ${label?`<span class="w-stat-lbl">${esc(String(label))}</span>`:''}
+  </div>`;
+}
+/** 7-cell week strip. `dates` = ISO strings with activity; `activeIso` highlights today. */
+function miniCalendarHtml(dates, activeIso){
+  if(!Array.isArray(dates)) return '';
+  const set = new Set(dates.filter(Boolean));
+  if(!set.size && !activeIso) return '';
+  const cells=[];
+  for(let i=6;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const key = iso(d);
+    const on = set.has(key);
+    const active = activeIso && key===activeIso;
+    cells.push(`<i class="${on?'on':''}${active?' active':''}" title="${key}" aria-hidden="true">${d.getDate()}</i>`);
+  }
+  return `<div class="w-minical" role="img" aria-label="${esc(String(activeIso||''))}">${cells.join('')}</div>`;
 }
 function segmentedProgressHtml(done, total, wrongIdx=-1){
   const n = Math.max(1, Number(total)||1);
@@ -9941,32 +10014,60 @@ function childGamesLobby(){
   const featured=CHILD_GAMES.filter(g=>g.featured);
   const rest=CHILD_GAMES.filter(g=>!g.featured);
   const stats = state.child ? loadGameStats(state.child.id) : {streak:0};
-  const progressLabel=(g,best)=>{
+  const gameWidget=(g,best)=>{
     if(!best) return '';
-    if(g.id==='react') return `${t('gameBest')}: ${t('gameReactMs')(best)}`;
-    if(g.id==='learn') return `XP ${best}`;
-    if(g.id==='simon') return `${t('gameLevel')} ${best}`;
-    return `${t('gameBest')}: ${best}`;
+    if(g.id==='learn'){
+      const lv = kidLevel(best);
+      const floor = XP_LEVELS[lv]||0;
+      const ceil = XP_LEVELS[Math.min(lv+1, XP_LEVELS.length-1)]||floor+100;
+      const pct = ceil>floor ? Math.round(((best-floor)/(ceil-floor))*100) : 100;
+      return `<div class="arcade-widget">${levelMeterHtml(pct)}</div>`;
+    }
+    if(g.id==='simon') return `<div class="arcade-widget">${segmentedProgressHtml(best, 10)}</div>`;
+    if(g.id==='react'){
+      const hist = readGameHistory('react');
+      const spark = sparklineHtml(hist.length?hist:[best], 'sea');
+      return spark?`<div class="arcade-widget">${spark}</div>`:'';
+    }
+    const soft = ({quiz:20,math:30,island:20,memory:100,tac:10,catch:40,rps:20,dice:6,colors:30,eduhub:10})[g.id]||20;
+    const pct = Math.min(100, Math.round((best/Math.max(soft, best))*100));
+    const label = g.id==='react' ? t('gameReactMs')(best) : String(best);
+    return `<div class="arcade-widget">${ringHtml(pct, label, 'pine')}</div>`;
   };
-  const card=(g)=>{
+  const card=(g, idx)=>{
     const best=readGameBest(g.id);
-    const prog=progressLabel(g,best);
-    return `<button class="arcade-tile ${g.featured?'featured':''}" type="button" data-game="${g.id}" style="--game-tint:${g.tint}">
-      <span class="arcade-glow" aria-hidden="true"></span>
-      <span class="arcade-emoji">${g.emoji}</span>
-      <span class="arcade-copy"><b>${esc(t(g.titleKey))}</b><span>${esc(t(g.hintKey))}${g.xp?` · ⭐${g.xp}`:''}</span>
-        ${prog?`<small>${esc(prog)}</small>`:''}</span>
+    const widget=gameWidget(g,best);
+    const ico = g.icon
+      ? `<span class="arcade-ico" aria-hidden="true">${ui(g.icon)}</span>`
+      : `<span class="arcade-emoji" aria-hidden="true">${g.emoji}</span>`;
+    const xpChip = g.xp
+      ? `<span class="arcade-xp">${ui('u-sparkle','sm')} ${g.xp}</span>`
+      : '';
+    const delay = Math.min(idx, 5) * 40;
+    return `<button class="arcade-tile ${g.featured?'featured':''}" type="button" data-game="${g.id}" style="--game-tint:${g.tint};--arcade-delay:${delay}ms">
+      ${ico}
+      <span class="arcade-copy">
+        <b>${esc(t(g.titleKey))}</b>
+        <span class="arcade-hint">${esc(t(g.hintKey))}${xpChip?` ${xpChip}`:''}</span>
+        ${widget}
+      </span>
       <span class="arcade-play">${t('gamePlay')}</span>
     </button>`;
   };
+  const streakChip = stats.streak>1
+    ? `<span class="arcade-streak">${ui('u-party','sm')} ${esc(t('gameStreak')(stats.streak))}</span>`
+    : '';
   return `<div class="arcade-lobby">
       <div class="arcade-hero">
-        <div class="brand-kicker">Armonia Play</div>
-        <h2>${t('gamesTitle')}</h2>
-        <p>${t('gamesHint')}${stats.streak>1?` · ${t('gameStreak')(stats.streak)}`:''}</p>
+        <div class="arcade-hero-text">
+          <div class="brand-kicker">Armonia Play</div>
+          <h2>${t('gamesTitle')}</h2>
+          <p>${t('gamesHint')}</p>
+        </div>
+        ${streakChip}
       </div>
-      <div class="arcade-grid featured">${featured.map(card).join('')}</div>
-      <div class="arcade-grid">${rest.map(card).join('')}</div>
+      <div class="arcade-rail featured">${featured.map((g,i)=>card(g,i)).join('')}</div>
+      <div class="arcade-grid">${rest.map((g,i)=>card(g,i+featured.length)).join('')}</div>
     </div>`;
 }
 
@@ -10846,6 +10947,7 @@ function bindChildGames(root){
       if(g.phase==='go'){
         const ms=Math.round(performance.now()-g.startedAt);
         g.ms=ms; g.phase='done';
+        pushGameHistory('react', ms);
         const prev=readGameBest('react');
         // Lower ms is better — store inverted score helper: best = min ms
         if(!prev || ms<prev){
@@ -13792,7 +13894,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||96),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||99),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

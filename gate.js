@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 98,
-    label: 'v98',
+    version: 99,
+    label: 'v99',
     changed: {
-      de: 'Datenbankverbindung akzeptiert die Supabase-Pooler-Adresse',
-      el: 'Η σύνδεση βάσης δέχεται τη διεύθυνση pooler της Supabase',
+      de: 'Spiele-Hub neu: Glas-Karten, Snap-Rail, Widgets und Stroke-Icons',
+      el: 'Νέο Spiele hub: γυάλινες κάρτες, snap-rail, widgets και stroke icons',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

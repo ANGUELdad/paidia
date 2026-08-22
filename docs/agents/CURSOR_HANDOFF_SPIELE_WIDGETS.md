@@ -5,7 +5,7 @@ Continues [CURSOR_HANDOFF.md](CURSOR_HANDOFF.md). That doc's Phase 1 (Kids) is
 section before writing anything — this codebase has no bundler and a few sharp
 edges that will silently revert your work.
 
-Current shipped build: **v98**. Database: Supabase Postgres, `durableStorage: true`.
+Current shipped build: **v99**. Database: Supabase Postgres, `durableStorage: true`.
 
 ---
 
@@ -17,11 +17,12 @@ Current shipped build: **v98**. Database: Supabase Postgres, `durableStorage: tr
 | Responsive tiers (5 + landscape) | `index.html`, block `RESPONSIVE — every aspect ratio` | shipped |
 | Kids: Bewertungen / Bonus / Notizen | `app.js` `childBewertungenView` / `childBonusView` / `childNotizenView` | shipped |
 | Kid data persistence (`kidRatings`, `kidNotes`) | `app.js` `scheduleKidPush`, `server.py` `put_kid_ops` | shipped + verified |
-| Games lobby (functional, unstyled to spec) | `app.js` `childGamesLobby` (~line 9940) | **needs the redesign below** |
-| 18 stroke icons | `index.html` `#uiSprite`, helper `ui(id, cls)` | sprite exists, **mostly unused** |
-| `levelMeterHtml`, `segmentedProgressHtml`, `kidStarsHtml` | `app.js` ~9181, ~9432 | shipped — reuse, don't rewrite |
+| Games lobby (v2 restyle) | `app.js` `childGamesLobby` | **shipped v99** — glass tiles, snap-rail, widgets |
+| Widget catalogue | `app.js` `ringHtml` / `sparklineHtml` / `statTileHtml` / `miniCalendarHtml` | **shipped v99** |
+| 18 stroke icons + game `icon:` map | `index.html` `#uiSprite`, `CHILD_GAMES` | **partial** — games hub done; broader chrome emoji pass still open |
+| `levelMeterHtml`, `segmentedProgressHtml`, `kidStarsHtml` | `app.js` | shipped — reuse, don't rewrite |
 
-So: three jobs remain. **Spiele hub restyle**, **widget catalogue**, **icon pass**.
+Remaining after v99: **broader Job C** (staff chrome emoji → `ui(...)`), optional staff use of `statTileHtml` / `miniCalendarHtml` / `sparklineHtml` on Home / Plan / Lager.
 
 ---
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## v99 — 2026-08-22
+
+- Spiele hub: glass-1 tiles, featured snap-rail, pine-settle stagger, XP/streak chips
+- Widget catalogue: `ringHtml`, `sparklineHtml`, `statTileHtml`, `miniCalendarHtml`
+- Games: stroke icons where mapped; React sparkline from last 8 attempts
+- Cache `paidia-v99`
+
 ## v98 — 2026-08-22
 
 Accept the Supabase pooler URL as issued.
