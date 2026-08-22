@@ -1,5 +1,11 @@
 # Changelog
 
+## v101 — 2026-08-22
+
+- Staff Liquid Glass 2026 from Figma prototype: frosted cards, floating chrome dock, Zo FAB label
+- Kill remaining dark home/shift heroes so stone + pine always wins
+- Cache `paidia-v101`
+
 ## v100 — 2026-08-22
 
 - Staff Home: Figma mast (brand + greeting + lede), signal tiles, glass shift card, quieter “Mehr”

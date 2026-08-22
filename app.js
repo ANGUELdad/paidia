@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 100,
-  label: 'v100',
+  version: 101,
+  label: 'v101',
   changed: {
-    de: 'Staff-UI: Home, Plan, Lager, Liste und Chrome an Figma angeglichen',
-    el: 'Staff UI: Home, Plan, Lager, Liste και chrome σύμφωνα με το Figma',
+    de: 'Staff Liquid Glass 2026: Home, Dock, Zo-Ai wie Figma-Prototyp',
+    el: 'Staff Liquid Glass 2026: Home, Dock, Zo-Ai όπως το Figma prototype',
   },
 };
 const T = {
@@ -13918,7 +13918,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||100),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||101),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

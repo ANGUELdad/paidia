@@ -243,48 +243,39 @@
   .journal-duty-home small{display:block;margin-top:2px;font-size:11px;color:#7c4a1e;line-height:1.35}
   .journal-duty-home-cta{flex:0 0 auto;font-size:12px;font-weight:800;color:#1a2822;background:#c5ddd0;padding:8px 12px;border-radius:10px}
   .home-shift-start{
-    position:relative;overflow:hidden;padding:16px;border-radius:20px;color:#fff;
-    background:
-      radial-gradient(circle at 90% 0%, rgba(155,196,176,.28), transparent 40%),
-      linear-gradient(145deg,#1a2822 0%,#2a4a40 48%,#2f5a63 100%);
-    box-shadow:0 16px 36px rgba(26,40,34,.2);
-    animation:journalOpen .4s var(--ease-out) both}
-  .home-shift-start.late{
-    background:
-      radial-gradient(circle at 88% 10%, rgba(251,113,133,.28), transparent 38%),
-      linear-gradient(145deg,var(--out) 0%,var(--out) 45%,var(--out) 100%)}
-  .home-shift-start.done{
-    background:
-      radial-gradient(circle at 88% 10%, rgba(110,231,183,.22), transparent 40%),
-      linear-gradient(145deg,#14352c 0%,#1f5c48 50%,#2f5648 100%)}
+    position:relative;overflow:hidden;padding:var(--space-4);border-radius:var(--radius);color:var(--ink);
+    background:var(--glass);border:1px solid var(--line);border-left:3px solid var(--brand);
+    box-shadow:var(--shadow-1);animation:journalOpen .4s var(--ease-out) both}
+  .home-shift-start.late{border-left-color:var(--out);background:linear-gradient(var(--out-tint),var(--out-tint)),var(--glass)}
+  .home-shift-start.done{border-left-color:var(--in);background:linear-gradient(var(--pine-tint),var(--pine-tint)),var(--glass)}
   .home-shift-start-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-  .home-shift-kicker{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#9bc4b0}
+  .home-shift-kicker{font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--brand)}
   .home-shift-start.late .home-shift-kicker{color:var(--out)}
-  .home-shift-start h2{margin:4px 0 4px;font-family:var(--font-display);font-size:clamp(20px,5vw,26px);letter-spacing:-.03em;line-height:1.15}
-  .home-shift-start-head p{margin:0;color:#c5d5cc;font-size:13px;line-height:1.4;max-width:36ch}
+  .home-shift-start h2{margin:4px 0 4px;font-family:var(--font-display);font-size:clamp(20px,5vw,26px);letter-spacing:-.03em;line-height:1.15;color:var(--ink)}
+  .home-shift-start-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.4;max-width:36ch}
   .home-shift-start.late .home-shift-start-head p{color:var(--out)}
   .home-shift-primary{
     flex:0 0 auto;appearance:none;border:0;border-radius:10px;padding:12px 14px;min-height:44px;
-    font:inherit;font-weight:800;cursor:pointer;color:#1a2822;
-    background:linear-gradient(135deg,#c5ddd0,#9bc4b0);box-shadow:0 8px 20px rgba(0,0,0,.18)}
-  .home-shift-start.late .home-shift-primary{background:linear-gradient(135deg,var(--out),var(--out));color:var(--out)}
-  .home-shift-hint{margin:10px 0 0;font-size:12px;color:#b5c9bf;line-height:1.4}
+    font:inherit;font-weight:800;cursor:pointer;color:#fff;
+    background:var(--brand);box-shadow:0 8px 20px color-mix(in srgb, var(--brand) 28%, transparent)}
+  .home-shift-start.late .home-shift-primary{background:var(--out)}
+  .home-shift-hint{margin:10px 0 0;font-size:12px;color:var(--meta);line-height:1.4}
   .home-shift-steps{display:grid;gap:4px;margin-top:12px}
   .home-shift-step{
     display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;align-items:center;
-    padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12)}
-  .home-shift-step.ok{background:rgba(236,253,245,.14);border-color:rgba(167,243,208,.28)}
+    padding:8px 12px;border-radius:10px;background:var(--glass-strong);border:1px solid var(--line)}
+  .home-shift-step.ok{background:var(--pine-tint);border-color:color-mix(in srgb, var(--in) 30%, transparent)}
   .home-shift-mark{
     width:28px;height:28px;border-radius:10px;display:grid;place-items:center;
-    background:rgba(255,255,255,.12);font-weight:850;font-size:13px}
-  .home-shift-step.ok .home-shift-mark{background:var(--in);color:#fff}
-  .home-shift-step-label{font-size:13px;font-weight:700}
-  .home-shift-step-done{font-size:11px;font-weight:750;color:var(--pine-tint)}
+    background:var(--glass);border:1px solid var(--line);font-weight:850;font-size:13px;color:var(--muted)}
+  .home-shift-step.ok .home-shift-mark{background:var(--in);color:#fff;border-color:transparent}
+  .home-shift-step-label{font-size:13px;font-weight:700;color:var(--ink)}
+  .home-shift-step-done{font-size:11px;font-weight:750;color:var(--in)}
   .home-shift-step-cta{
-    appearance:none;border:0;border-radius:10px;padding:8px 11px;min-height:36px;
-    font:inherit;font-size:12px;font-weight:800;cursor:pointer;color:#1a2822;background:#e8f0eb}
-  .home-shift-step-cta.primary{background:linear-gradient(135deg,#c5ddd0,#9bc4b0)}
-  .home-shift-start.late .home-shift-step-cta.primary{background:linear-gradient(135deg,var(--out),var(--out));color:var(--out)}
+    appearance:none;border:1px solid var(--line);border-radius:10px;padding:8px 11px;min-height:36px;
+    font:inherit;font-size:12px;font-weight:800;cursor:pointer;color:var(--ink);background:#fff}
+  .home-shift-step-cta.primary{background:var(--brand);color:#fff;border-color:transparent}
+  .home-shift-start.late .home-shift-step-cta.primary{background:var(--out);color:#fff}
   .cal-sheet{display:grid;gap:12px}
   .cal-sheet-hint{margin:0;line-height:1.45;font-size:13px}
   .cal-block{padding:12px;border:1px solid var(--line);border-radius:14px;background:#f7f9f7;display:grid;gap:8px}
@@ -1919,26 +1910,20 @@
   .event-toggle .ev-sub{display:block;font-size:11px;font-weight:550;opacity:.78;margin-top:2px}
   .home-shell{display:flex; flex-direction:column; gap:12px}
   .home-mast{
-    position:relative; overflow:hidden; border-radius:var(--radius); padding:20px 18px 18px;
-    color:#fff; border:0; margin:0;
-    background:
-      linear-gradient(145deg, rgba(26,40,34,.2), transparent 50%),
-      linear-gradient(135deg, #1a2822 0%, #2f5648 48%, #2f5a63 100%);
-    box-shadow:0 20px 48px rgba(26,40,34,.28);
-    animation:mastIn .4s var(--ease-out)}
-  .home-mast::after{
-    content:""; position:absolute; right:-20%; top:-40%; width:70%; height:140%; pointer-events:none;
-    background:radial-gradient(circle, rgba(155,196,176,.28), transparent 62%)}
-  @keyframes mastIn{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+    position:relative; overflow:visible; border-radius:0; padding:var(--space-2) 0 var(--space-3);
+    color:var(--ink); border:0; margin:0;
+    background:none; box-shadow:none}
+  .home-mast::after{content:none; display:none}
+  @keyframes mastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   .home-mast .home-brand{position:relative; z-index:1; font-family:var(--font-display);
     font-size:clamp(28px,8vw,40px); font-weight:800; letter-spacing:-.04em; margin:0; line-height:1}
-  .home-mast .home-hello{position:relative; z-index:1; margin:8px 0 0; font-size:13px; color:#b5c9bf; font-weight:650}
+  .home-mast .home-hello{position:relative; z-index:1; margin:8px 0 0; font-size:13px; color:var(--sea); font-weight:650}
   .home-mast h2{position:relative; z-index:1; font-family:var(--font-display); font-size:clamp(17px,4.4vw,21px);
     margin:4px 0 0; font-weight:700; letter-spacing:-.02em; max-width:22ch; line-height:1.25}
   .home-primary{position:relative; z-index:1; margin-top:12px; width:100%; max-width:280px;
     min-height:48px; border:0; border-radius:14px; cursor:pointer; font:inherit; font-weight:800;
-    color:#1a2822; background:linear-gradient(135deg,#c5ddd0,#9bc4b0);
-    box-shadow:0 10px 24px rgba(0,0,0,.18); touch-action:manipulation}
+    color:#fff; background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    box-shadow:0 10px 24px color-mix(in srgb, var(--brand) 28%, transparent); touch-action:manipulation}
   .home-primary:active{transform:scale(.98)}
   .home-foot-actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; padding:4px 0 8px}
   .home-foot-actions .page-act{width:auto; min-width:140px}
@@ -3834,6 +3819,120 @@
     background:var(--out); color:#fff;
     font:600 var(--t-caption)/1.35 var(--font-ui); text-align:center}
 
+
+  /* ══════════════════════════════════════════════════════════════════════
+     STAFF LIQUID GLASS 2026 — matches Figma Staff Prototype
+     Last in cascade so early legacy dark heroes cannot win.
+     ══════════════════════════════════════════════════════════════════════ */
+  body:not(.mode-child){
+    --staff-glass:rgba(255,255,255,.48);
+    --staff-glass-edge:rgba(255,255,255,.70);
+    --staff-radius:24px;
+  }
+  body:not(.mode-child) .view{
+    background:
+      radial-gradient(120% 80% at 100% 0%, color-mix(in srgb, var(--sea) 8%, transparent), transparent 55%),
+      linear-gradient(180deg, var(--stone-50, #f3f5f2), var(--bg));
+  }
+  body:not(.mode-child) nav.dock{
+    background:rgba(26,40,34,.88)!important;
+    border:1px solid rgba(255,255,255,.14)!important;
+    border-radius:28px!important;
+    padding:8px!important;
+    backdrop-filter:blur(28px) saturate(1.25)!important;
+    -webkit-backdrop-filter:blur(28px) saturate(1.25)!important;
+    box-shadow:0 16px 40px rgba(26,40,34,.32), inset 0 1px 0 rgba(255,255,255,.12)!important;
+  }
+  body:not(.mode-child) nav.dock button{
+    color:rgba(255,255,255,.55)!important;
+    border-radius:18px!important;
+    gap:4px!important;
+  }
+  body:not(.mode-child) nav.dock button.on{
+    color:var(--mark-a)!important;
+    background:rgba(255,255,255,.12)!important;
+    box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--mark-a) 28%, transparent)!important;
+  }
+  body:not(.mode-child) .home-shell-v2{
+    gap:var(--space-4);
+    max-width:720px;
+  }
+  body:not(.mode-child) .home-mast .home-brand{
+    font-size:clamp(30px,8vw,40px)!important;
+    letter-spacing:-.03em!important;
+  }
+  body:not(.mode-child) .home-primary{
+    min-height:52px!important;
+    border-radius:16px!important;
+    padding:0 22px!important;
+    box-shadow:0 10px 28px color-mix(in srgb, var(--brand) 32%, transparent)!important;
+  }
+  body:not(.mode-child) .home-signal,
+  body:not(.mode-child) .home-shell-v2 .home-today-card,
+  body:not(.mode-child) .home-shift-start,
+  body:not(.mode-child) .home-more,
+  body:not(.mode-child) .ops-hero-stats .w-stat,
+  body:not(.mode-child) .stock-command,
+  body:not(.mode-child) .shop-command,
+  body:not(.mode-child) .talk-topics.glass-1,
+  body:not(.mode-child) .talk-chat-shell.glass-1{
+    background:var(--staff-glass)!important;
+    border:1px solid var(--staff-glass-edge)!important;
+    border-radius:var(--staff-radius)!important;
+    backdrop-filter:blur(22px) saturate(1.15);
+    -webkit-backdrop-filter:blur(22px) saturate(1.15);
+    box-shadow:0 12px 32px rgba(26,40,34,.08), inset 0 1px 0 rgba(255,255,255,.55)!important;
+  }
+  body:not(.mode-child) .home-signal.tone-pine{border-left:3px solid var(--brand)!important}
+  body:not(.mode-child) .home-signal.tone-out{border-left:3px solid var(--out)!important}
+  body:not(.mode-child) .home-signal.tone-sea{border-left:3px solid var(--sea)!important}
+  body:not(.mode-child) .home-signal.tone-amber{border-left:3px solid var(--sun)!important}
+  body:not(.mode-child) .home-shift-start{
+    border-left:3px solid var(--brand)!important;
+  }
+  body:not(.mode-child) .home-today-card .task-list > *{
+    background:rgba(255,255,255,.88);
+    border:1px solid var(--line);
+    border-radius:14px;
+    margin-bottom:8px;
+  }
+  body:not(.mode-child) .zoai-fab{
+    width:58px!important; height:58px!important;
+    background:linear-gradient(135deg,var(--brand),var(--brand-2))!important;
+    color:#fff!important;
+    box-shadow:0 12px 28px color-mix(in srgb, var(--brand) 36%, transparent)!important;
+  }
+  body:not(.mode-child) .zoai-fab .zoai-fab-icon{display:none}
+  body:not(.mode-child) .zoai-fab::after{
+    content:"Zo"; font-family:var(--font-ui); font-weight:800; font-size:14px;
+    letter-spacing:-.02em; color:#fff;
+  }
+  body.chat-open:not(.mode-child) .zoai-fab::after{content:"×"; font-size:22px; font-weight:300}
+  body:not(.mode-child) .chat-panel.chat-float{
+    background:rgba(255,255,255,.72)!important;
+    backdrop-filter:blur(28px) saturate(1.2)!important;
+    -webkit-backdrop-filter:blur(28px) saturate(1.2)!important;
+    border:1px solid var(--staff-glass-edge)!important;
+    border-radius:24px!important;
+    box-shadow:0 20px 48px rgba(26,40,34,.18)!important;
+  }
+  body:not(.mode-child) .plan-hero,
+  body:not(.mode-child) .book-hero,
+  body:not(.mode-child) .gal-hero,
+  body:not(.mode-child) .talk-hero{
+    background:none!important; color:var(--ink)!important; box-shadow:none!important;
+  }
+  @media (prefers-reduced-transparency: reduce){
+    body:not(.mode-child) .home-signal,
+    body:not(.mode-child) .home-shell-v2 .home-today-card,
+    body:not(.mode-child) .home-shift-start,
+    body:not(.mode-child) nav.dock{
+      backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
+      background:var(--glass-strong)!important;
+    }
+    body:not(.mode-child) nav.dock{background:var(--chrome)!important}
+  }
+
 </style>
 </head>
 <body class="auth-pending">
@@ -3922,7 +4021,7 @@
 <script>
 /* Network-first SW + notifications — versioned registration happens in app.js */
 </script>
-<script src="notifications.js?v=100" defer></script>
-<script src="gate.js?v=100"></script>
+<script src="notifications.js?v=101" defer></script>
+<script src="gate.js?v=101"></script>
 </body>
 </html>
