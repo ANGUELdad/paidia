@@ -1,5 +1,29 @@
 # Changelog
 
+## v94 — 2026-08-22
+
+Durable storage without Postgres, and without Neon.
+
+`db.py` gains a Redis-REST backend (Vercel KV / Upstash). The module's whole
+public surface is `get_json` / `set_json` / `has_key` / `health` — a key-value
+shape — so this is a natural second backend rather than a port.
+
+Activates when `KV_REST_API_URL` and `KV_REST_API_TOKEN` are set and no
+`DATABASE_URL` is present, so Postgres still wins where it is configured and the
+local SQLite path is untouched. Uses stdlib `urllib` only — no new dependency.
+Security events use `LPUSH` + `LTRIM` to keep the same capped-log behaviour as
+the SQL backend.
+
+Vercel Blob was considered and rejected: its objects are served over URLs, and a
+leaked or logged URL would be an unauthenticated read of caregiver and child
+records. KV is private and token-authenticated.
+
+Verified against a local REST stub: PING/SET/GET/EXISTS round-trip, JSON and
+non-ASCII (Greek + German) survive intact, `get_json` honours its default, the
+security log caps, SQLite is unaffected when KV is unset, Postgres takes
+precedence when both are set, and a bad token raises and is reported by `health`
+rather than failing silently.
+
 ## v93 — 2026-08-22
 
 Stop reporting a successful save for a write that never reached the database.

@@ -75,8 +75,54 @@ def _default_sqlite_path() -> Path:
 SQLITE_PATH = _default_sqlite_path()
 
 
+# ── Redis-REST backend (Vercel KV / Upstash) ──────────────────────────────
+# A second durable option that is not Postgres. The store is key-value, which is
+# exactly the shape this module already exposes, and it is private + token
+# authenticated — unlike Blob, whose objects are served over URLs.
+# Vercel injects KV_REST_API_URL / KV_REST_API_TOKEN when a KV store is linked.
+KV_URL = (os.environ.get("KV_REST_API_URL") or "").strip().rstrip("/")
+KV_TOKEN = (os.environ.get("KV_REST_API_TOKEN") or "").strip()
+KV_PREFIX = os.environ.get("PAIDIA_KV_PREFIX", "paidia:")
+KV_TIMEOUT = float(os.environ.get("PAIDIA_KV_TIMEOUT", "8") or 8)
+
+
+def using_kv() -> bool:
+    """True when a Redis-REST store is configured and Postgres is not."""
+    return bool(KV_URL and KV_TOKEN) and not DATABASE_URL
+
+
+def _kv_command(*args: Any) -> Any:
+    """Run one Redis command over the REST API. Raises on transport failure."""
+    import urllib.error
+    import urllib.request
+
+    payload = json.dumps([str(a) for a in args]).encode("utf-8")
+    req = urllib.request.Request(
+        KV_URL,
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {KV_TOKEN}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=KV_TIMEOUT) as res:
+            body = json.loads(res.read() or b"{}")
+    except urllib.error.HTTPError as exc:
+        detail = ""
+        try:
+            detail = (exc.read() or b"").decode("utf-8", "replace")[:200]
+        except Exception:  # noqa: BLE001
+            pass
+        raise RuntimeError(f"KV HTTP {exc.code}: {detail}") from exc
+    if isinstance(body, dict) and body.get("error"):
+        raise RuntimeError(f"KV error: {body['error']}")
+    return body.get("result") if isinstance(body, dict) else body
+
+
 def db_enabled() -> bool:
-    """Always on: SQLite locally, Postgres when DATABASE_URL points at postgres."""
+    """Always on: SQLite locally, Postgres or Redis-REST when configured."""
     return True
 
 
@@ -141,6 +187,9 @@ def connect() -> Iterator[Any]:
 
 
 def init_schema() -> None:
+    if using_kv():
+        _kv_command("PING")      # fail loudly here rather than on first write
+        return
     global _INITIALIZED
     with _LOCK:
         if _INITIALIZED:
@@ -194,6 +243,14 @@ def init_schema() -> None:
 
 
 def get_json(key: str, default: Any = None) -> Any:
+    if using_kv():
+        raw = _kv_command("GET", KV_PREFIX + key)
+        if raw is None:
+            return default
+        try:
+            return json.loads(raw)
+        except (TypeError, ValueError):
+            return default
     init_schema()
     with _LOCK:
         with connect() as conn:
@@ -217,6 +274,9 @@ def get_json(key: str, default: Any = None) -> Any:
 
 
 def set_json(key: str, value: Any) -> None:
+    if using_kv():
+        _kv_command("SET", KV_PREFIX + key, json.dumps(value, ensure_ascii=False))
+        return
     init_schema()
     payload = value
     with _LOCK:
@@ -246,6 +306,8 @@ def set_json(key: str, value: Any) -> None:
 
 
 def has_key(key: str) -> bool:
+    if using_kv():
+        return bool(_kv_command("EXISTS", KV_PREFIX + key))
     init_schema()
     with _LOCK:
         with connect() as conn:
@@ -261,6 +323,14 @@ def has_key(key: str) -> bool:
 
 
 def append_security_event(event: str, profile_id: str | None, ip: str | None, details: dict) -> None:
+    if using_kv():
+        entry = json.dumps({"ts": int(time.time() * 1000), "event": event,
+                            "profile_id": profile_id, "ip": ip, "details": details},
+                           ensure_ascii=False)
+        listkey = KV_PREFIX + "security_events"
+        _kv_command("LPUSH", listkey, entry)
+        _kv_command("LTRIM", listkey, 0, 999)   # cap, same intent as the SQL cap
+        return
     init_schema()
     details = details if isinstance(details, dict) else {}
     with _LOCK:
@@ -295,6 +365,12 @@ def append_security_event(event: str, profile_id: str | None, ip: str | None, de
 
 
 def health() -> dict:
+    if using_kv():
+        try:
+            _kv_command("PING")
+            return {"ok": True, "backend": "kv"}
+        except Exception as exc:                       # noqa: BLE001
+            return {"ok": False, "backend": "kv", "error": str(exc)[:200]}
     try:
         if using_postgres():
             host = urlparse(DATABASE_URL).hostname or ""
