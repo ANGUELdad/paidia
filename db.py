@@ -20,6 +20,9 @@ from urllib.parse import urlparse, unquote
 _LOCK = threading.RLock()
 _INITIALIZED = False
 
+# Vercel's Postgres integrations inject their own names: Supabase sets
+# POSTGRES_URL (pooled) alongside POSTGRES_URL_NON_POOLING (direct, IPv6-only —
+# deliberately not read here). An explicit DATABASE_URL always wins.
 DATABASE_URL = (
     os.environ.get("DATABASE_URL")
     or os.environ.get("POSTGRES_URL")
