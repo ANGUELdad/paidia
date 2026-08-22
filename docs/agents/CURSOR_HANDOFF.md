@@ -10,6 +10,12 @@ document assumes them and does not repeat them.
 
 ---
 
+> **Superseded for the remaining work.** Phases 1–3 below are now partly shipped.
+> The still-open items — the Spiele hub restyle, the widget catalogue and the icon
+> pass — are specified in
+> **[CURSOR_HANDOFF_SPIELE_WIDGETS.md](CURSOR_HANDOFF_SPIELE_WIDGETS.md)**.
+> Read that one first; keep this one for the token layer and the Figma map.
+
 ## 0. Where things stand
 
 | Layer | State |
@@ -18,6 +24,7 @@ document assumes them and does not repeat them.
 | Figma file: Foundations, Material, Widgets, Screens, Kids, Motion | Built in Figma |
 | Staff screens (Home, Übergabe, Plan, Lager, Liste, Galerie, Zo-Ai) | Token-styled; **not** restructured to Figma Screens |
 | Kids / child mode | **Shipped v79–v80** — Start, Stundenplan, Aufgaben, Sterne, Lernen hub + dock |
+| Kids: Bewertungen, Bonus, Notizen | **Shipped** — with durable per-kid persistence, verified |
 | Widgets (Phase-1 Kids slice) | **Shipped** — ring, streak, level meter, segmented progress, badges |
 | Iconography | **Dock + chores + badges SVG** (v81); schedule/activity emoji still in data |
 | Login / remember-me / cold start | **Shipped v80** — last profile, 30d remember, session handoff, preload |
