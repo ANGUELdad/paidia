@@ -4,17 +4,17 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 101,
-  label: 'v101',
+  version: 105,
+  label: 'v105',
   changed: {
-    de: 'Staff Liquid Glass 2026: Home, Dock, Zo-Ai wie Figma-Prototyp',
-    el: 'Staff Liquid Glass 2026: Home, Dock, Zo-Ai όπως το Figma prototype',
+    de: 'Staff: Widgets, Kinder/Schule, Anwesenheit, Zo-Ai DB',
+    el: 'Staff: Widgets, Παιδιά/Σχολείο, παρουσία, Zo-Ai DB',
   },
 };
 const T = {
   de: {
-    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk',
-    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder',
+    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', kidsHeroHint:'Profile, Fächer, Anwesenheit und Hausaufgaben', kidsEmpty:'Keine Kinder hinterlegt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
     logout:'Profil', noUser:'Nicht angemeldet',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Team sprechen', topTutorial:'Tutorial',
     topAdd:'＋ Eintrag', topIn:'＋ Ein', topOut:'− Aus', topBoard:'Bewegung', topFood:'＋ Ware',
@@ -23,7 +23,7 @@ const T = {
     headerHome:'Armonia · Home',     headerScheduleDay:'Plan · Tag', headerScheduleWeek:'Plan · Woche',
     headerScheduleCalendar:'Plan · Kalender',
     headerScheduleEvents:'Plan · Events', headerStock:'Lager', headerStockAll:'Lager · beide Häuser',
-    headerShop:'Einkauf', headerBook:'Buch & Schicht', headerGallery:'Große Momente', headerTalk:'Team-Gespräch',
+    headerShop:'Einkauf', headerBook:'Buch & Schicht', headerGallery:'Große Momente', headerTalk:'Team-Gespräch', headerKids:'Kinder & Schule',
     galleryTitle:'Große Momente', galleryHint:'Fotos von schönen Momenten — für Kinder und Team',
     galleryEmpty:'Noch keine Momente. Sei der Erste!', galleryShare:'Moment teilen',
     galleryDriveOn:'Fotos speichern in Google Drive', galleryDriveOff:'Fotos speichern auf dem Server',
@@ -728,8 +728,8 @@ const T = {
     pasteScreenshot:'Screenshot einfügen', pickScreenshot:'Screenshot / Foto wählen',
   },
   el: {
-    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk',
-    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά',
+    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', kidsHeroHint:'Προφίλ, μαθήματα, παρουσία και εργασίες', kidsEmpty:'Δεν υπάρχουν παιδιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Ομάδα — συνομιλία', topTutorial:'Tutorial',
     topAdd:'＋ Εγγραφή', topIn:'＋ Εισ', topOut:'− Έξ', topBoard:'Κίνηση', topFood:'＋ Είδος',
@@ -738,7 +738,7 @@ const T = {
     headerHome:'Armonia · Αρχική',     headerScheduleDay:'Πρόγραμμα · Ημέρα', headerScheduleWeek:'Πρόγραμμα · Εβδομάδα',
     headerScheduleCalendar:'Πρόγραμμα · Ημερολόγιο',
     headerScheduleEvents:'Πρόγραμμα · Events', headerStock:'Αποθήκη', headerStockAll:'Αποθήκη · όλα',
-    headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια', headerGallery:'Μεγάλες στιγμές', headerTalk:'Συνομιλία ομάδας',
+    headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια', headerGallery:'Μεγάλες στιγμές', headerTalk:'Συνομιλία ομάδας', headerKids:'Παιδιά & Σχολείο',
     galleryTitle:'Μεγάλες στιγμές', galleryHint:'Φωτογραφίες ωραίων στιγμών — για παιδιά και ομάδα',
     galleryEmpty:'Καμία στιγμή ακόμα. Γίνε ο πρώτος!', galleryShare:'Μοιράσου στιγμή',
     galleryDriveOn:'Οι φωτογραφίες αποθηκεύονται στο Google Drive', galleryDriveOff:'Οι φωτογραφίες αποθηκεύονται στον διακομιστή',
@@ -1787,6 +1787,11 @@ const SEED = {
   gameStats: {},
   kidRatings: [],
   kidNotes: [],
+  subjects: [],
+  subjectGrades: [],
+  attendance: [],
+  homework: [],
+  schoolTimetable: [],
 };
 
 /* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
@@ -1795,7 +1800,7 @@ const KEY = 'paidia.v5';
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
-                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'kidNotes'];
+                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable'];
 
 let DB = load();
 function load(){
@@ -1808,7 +1813,7 @@ function load(){
     }
   }catch(e){ console.warn('load failed', e); }
   // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
-  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins']
+  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
     .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object') db.productOverrides = {};
@@ -1817,6 +1822,15 @@ function load(){
   if(!db.shiftNotes || typeof db.shiftNotes !== 'object') db.shiftNotes = {};
   // Σπίτια χωρίς planning flag από παλιότερα saves δεν μπαίνουν στο πρόγραμμα.
   db.houses = SEED.houses.map(h => ({...h}));
+  if(!Array.isArray(db.subjects) || !db.subjects.length){
+    db.subjects = [
+      {id:'sub-math', de:'Mathe', el:'Μαθηματικά', active:true},
+      {id:'sub-de', de:'Deutsch', el:'Γερμανικά', active:true},
+      {id:'sub-el', de:'Griechisch', el:'Ελληνικά', active:true},
+      {id:'sub-en', de:'Englisch', el:'Αγγλικά', active:true},
+      {id:'sub-sport', de:'Sport', el:'Αθλητισμός', active:true},
+    ];
+  }
   return db;
 }
 
@@ -1826,6 +1840,7 @@ const SHARED_KEYS = [
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
   'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
   'xpLog','gameStats',
+  'kidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable',
 ];
 const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
@@ -2350,6 +2365,8 @@ function logEntry(type, text, extra = {}){
 const state = {
   lang: localStorage.getItem('paidia.lang') || 'de',
   tab: 'home',
+  staffKidId: null,
+  kidsPane: 'directory',
   scheduleView: 'day',
   childView: 'today',
   gameId: null,
@@ -2702,7 +2719,8 @@ function closeSheet(){
 function onboardingSteps(){
   const de=state.lang==='de';
   const step=(icon,deTitle,elTitle,dePath,elPath,deActions,elActions,deResult,elResult)=>({
-    icon,title:de?deTitle:elTitle,path:de?dePath:elPath,
+    icon, iconUi:({ '🏠':'u-check','📅':'u-calendar','✍️':'u-note','🎊':'u-megaphone','🧊':'u-leaf','🛒':'u-cart','🧠':'u-sparkle','🛍️':'u-cart','🧾':'u-receipt','📖':'u-book','🔐':'u-person','❓':'u-chat','🛡️':'u-alert','👤':'u-person','✨':'u-sparkle','🎉':'u-party','🎮':'u-party' }[icon]||'u-book'),
+    title:de?deTitle:elTitle,path:de?dePath:elPath,
     body:de?'Führe diese Schritte aus:':'Ακολούθησε αυτά τα βήματα:',
     features:de?deActions:elActions,result:de?deResult:elResult,
   });
@@ -2727,6 +2745,8 @@ function onboardingSteps(){
     step('📖','Protokoll suchen und korrigieren','Αναζήτηση και διόρθωση καταγραφών','Unteres Menü → 📖 Protokoll','Κάτω μενού → 📖 Καταγραφές',['Wähle Zeitraum: Heute, 7 Tage oder benutzerdefiniert.','Filtere bei Bedarf nach Person und Aktionstyp.','Öffne „Korrektur“, beschreibe den Fehler und speichere die neue Korrektur.','Lösche keine alte Buchung: Sie bleibt als Nachweis erhalten.'],['Διάλεξε περίοδο: Σήμερα, 7 ημέρες ή προσαρμοσμένη.','Φίλτραρε αν χρειάζεται ανά άτομο και τύπο ενέργειας.','Άνοιξε «Διόρθωση», περιέγραψε το λάθος και αποθήκευσε νέα διόρθωση.','Μη διαγράψεις την παλιά κίνηση· παραμένει ως αποδεικτικό.'],'Die Korrektur erscheint als neue append-only Zeile mit Benutzer, Zeit, Gerät und IP.','Η διόρθωση εμφανίζεται ως νέα append-only γραμμή με χρήστη, ώρα, συσκευή και IP.'),
     step('🔐','E-Mail, Telefon, Passkey und Abmeldung','Email, τηλέφωνο, passkey και αποσύνδεση','Oben rechts → Profil','Επάνω δεξιά → Προφίλ',['Öffne „Profil“.','Trage E-Mail und Telefon ein und tippe „Kontaktdaten speichern“; nutze danach „Test-E-Mail senden“.','Tippe „Passkey einrichten“ für Face ID, Touch ID, Fingerabdruck oder Windows Hello, wenn verfügbar.','Nutze „Anderes Profil“ oder „Abmelden“, wenn du fertig bist.'],['Άνοιξε «Προφίλ».','Βάλε email και τηλέφωνο και πάτησε «Αποθήκευση στοιχείων»· μετά «Αποστολή δοκιμαστικού email».','Πάτησε «Ρύθμιση passkey» για Face ID, Touch ID, δακτυλικό αποτύπωμα ή Windows Hello, αν υποστηρίζεται.','Χρησιμοποίησε «Άλλο προφίλ» ή «Αποσύνδεση» όταν τελειώσεις.'],'Beim ersten Login fragt die App nach E-Mail und Telefon. Versand läuft über SMTP (z. B. Gmail App-Passwort).','Στην πρώτη είσοδο η εφαρμογή ζητά email και τηλέφωνο. Η αποστολή γίνεται με SMTP (π.χ. Gmail App Password).'),
     step('❓','Gezielt Hilfe bekommen','Λήψη συγκεκριμένης βοήθειας','Blaues ? unten rechts','Μπλε ? κάτω δεξιά',['Tippe auf das blaue „?“.','Starte unter „Geführtes App-Tutorial“ diese Anleitung neu.','Oder öffne „AI-Hilfe“, beschreibe Ziel und aktuelle Fehlermeldung und tippe „Senden“.'],['Πάτησε το μπλε «?».','Από το «Καθοδηγούμενο tutorial» ξεκίνα ξανά αυτές τις οδηγίες.','Ή άνοιξε «Βοήθεια AI», γράψε στόχο και τρέχον μήνυμα λάθους και πάτησε «Αποστολή».'],'Die AI erklärt den nächsten Schritt, führt aber keine kritische Buchung ohne Bestätigung aus.','Η AI εξηγεί το επόμενο βήμα αλλά δεν κάνει κρίσιμη καταχώρηση χωρίς επιβεβαίωση.'),
+    step('👤','Kinderprofil öffnen','Άνοιγμα προφίλ παιδιού','Unteres Menü → Kinder','Κάτω μενού → Παιδιά',['Öffne „Kinder“.','Tippe ein Kind an.','Sieh XP, Fächer-Sterne, Anwesenheit und Notizen.'],['Άνοιξε «Παιδιά».','Πάτησε ένα παιδί.','Δες XP, αστέρια μαθημάτων, παρουσία και σημειώσεις.'],'Änderungen speichern sich für alle Geräte.','Οι αλλαγές αποθηκεύονται για όλες τις συσκευές.'),
+    step('✨','Zo-Ai mit Bestätigung','Zo-Ai με επιβεβαίωση','FAB Zo unten rechts','FAB Zo κάτω δεξιά',['Stelle eine Frage oder bitte um eine Änderung (Lager/Liste/Note).','Prüfe den Vorschlag.','Tippe „Bestätigen“ — bei Plan zusätzlich PIN.'],['Κάνε ερώτηση ή ζήτα αλλαγή (ψυγείο/λίστα/βαθμός).','Έλεγξε την πρόταση.','Πάτησε «Επιβεβαίωση» — στο πρόγραμμα και PIN.'],'Ohne Bestätigung schreibt Zo-Ai nichts in die Datenbank.','Χωρίς επιβεβαίωση η Zo-Ai δεν γράφει στη βάση.'),
   ];
   if(isAdminUser()) steps.push(step('🛡️','Admin-Zentrale benutzen','Χρήση Κέντρου Διαχείρισης','Home → 👑 Admin-Zentrale','Αρχική → 👑 Κέντρο Διαχείρισης',['Öffne Home und lies Teamkarten, Warnungen und letzte Aktivitäten.','Tippe „Wochenplan bearbeiten“, „Dienste bearbeiten“, „Events verwalten“ oder „Protokoll öffnen“.','Öffne eine Teamkarte, um heutige und kommende Aufgaben dieser Person zu prüfen.','Ändere Profil-E-Mails über Profil; dauerhafte Planänderungen speicherst du mit „Dauerhaft“.'],['Άνοιξε την Αρχική και διάβασε κάρτες ομάδας, προειδοποιήσεις και τελευταίες ενέργειες.','Πάτησε «Επεξεργασία εβδομάδας», «Βαρδιών», «Events» ή «Άνοιγμα καταγραφών».','Άνοιξε κάρτα μέλους για σημερινές και επόμενες εργασίες.','Άλλαξε email προφίλ από το Προφίλ· μόνιμες αλλαγές προγράμματος με «Μόνιμα».'],'Nur Admins sehen diese Kontrollen; jede Änderung bleibt im Protokoll nachvollziehbar.','Μόνο οι admins βλέπουν αυτά τα εργαλεία και κάθε αλλαγή καταγράφεται.'));
   return steps;
@@ -2743,7 +2763,7 @@ function openTutorial({required=false}={}){
       const step=steps[current];
       root.innerHTML=`<div class="tutorial-top"><span class="tutorial-lock">${required?'🔒 '+t('tutorialRequired'):'📘 '+t('tutorialReplay')}</span><span class="tutorial-count">${T[state.lang].tutorialStep(current+1,steps.length)}</span></div>
         <div class="tutorial-progress" style="--steps:${steps.length}" aria-hidden="true">${steps.map((_,i)=>`<i class="${i<=current?'on':''}"></i>`).join('')}</div>
-        <section class="tutorial-card"><div class="tutorial-icon">${step.icon}</div><div class="tutorial-kicker">Armonia Thassos</div>
+        <section class="tutorial-card"><div class="tutorial-icon">${step.iconUi?ui(step.iconUi):esc(step.icon)}</div><div class="tutorial-kicker">Armonia Thassos</div>
           <h2>${esc(step.title)}</h2>${step.path?`<div class="tutorial-path"><span>📍</span><span>${esc(step.path)}</span></div>`:''}<p style="margin-top:11px">${esc(step.body)}</p>${step.features?.length?`<ol class="tutorial-features">${step.features.map(feature=>`<li>${esc(feature)}</li>`).join('')}</ol>`:''}
           ${step.result?`<div class="tutorial-result"><b>${state.lang==='de'?'Ergebnis:':'Αποτέλεσμα:'}</b> ${esc(step.result)}</div>`:''}
           <div class="tutorial-tip"><span>ℹ️</span><span>${t(required?'tutorialTip':'tutorialReplayTip')}</span></div></section>
@@ -2899,6 +2919,8 @@ function helpInventoryContext(){
     openShopping:openShop,
     activeHouse:active,
     shopFriday:state.shopFriday||fridayFor(),
+    children:(DB.children||[]).map(k=>({id:k.id,name:k.name})),
+    subjects:activeSubjects().map(s=>({id:s.id,de:s.de,el:s.el})),
     examples: state.lang==='el'
       ? ['πρόσθεσε 2 γάλα στο Kalyvia','βγάλε 1 βούτυρο','βάλε ρύζι στη λίστα']
       : ['2 Milch nach Kalyvia','1 Butter raus','Reis auf die Liste'],
@@ -3160,6 +3182,27 @@ function describeHelpAction(action){
   if(action.type==='shop_remove') return T[state.lang].helpActionShopRemove(name, houseName);
   if(action.type==='shift_note') return T[state.lang].helpActionShiftNote(action.text||'');
   if(action.type==='open_tab') return T[state.lang].helpActionOpenTab(action.tab||'');
+  if(action.type==='subject_grade_set'){
+    const k=matchKid(action.kidQuery||action.kidId); const s=matchSubject(action.subjectQuery||action.subjectId);
+    return state.lang==='el'
+      ? `★ ${k?.name||'?'} · ${subjectLabel(s)} · ${action.score||'?'} αστέρια`
+      : `★ ${k?.name||'?'} · ${subjectLabel(s)} · ${action.score||'?'} Sterne`;
+  }
+  if(action.type==='kid_note_add'){
+    const k=matchKid(action.kidQuery||action.kidId);
+    return state.lang==='el' ? `📝 Σημείωση · ${k?.name||'?'}` : `📝 Notiz · ${k?.name||'?'}`;
+  }
+  if(action.type==='open_kid'){
+    const k=matchKid(action.kidQuery||action.kidId);
+    return state.lang==='el' ? `↗ Προφίλ ${k?.name||'?'}` : `↗ Profil ${k?.name||'?'}`;
+  }
+  if(action.type==='attendance_set'){
+    const k=matchKid(action.kidQuery||action.kidId);
+    return state.lang==='el' ? `✓ Παρουσία ${k?.name||'?'}` : `✓ Anwesenheit ${k?.name||'?'}`;
+  }
+  if(action.type==='homework_add'){
+    return state.lang==='el' ? `📚 Εργασία: ${String(action.title||'').slice(0,40)}` : `📚 Hausaufgabe: ${String(action.title||'').slice(0,40)}`;
+  }
   if(action.type==='broadcast_email'){
     return state.lang==='el'
       ? `✉️ Email σε ${action.audience||'all'}: ${String(action.subject||'').slice(0,60)}`
@@ -3286,7 +3329,7 @@ function applyHelpActions(actions){
 
     if(kind==='open_tab'){
       const tab=String(action.tab||'').trim();
-      if(!['home','gallery','schedule','stock','shop','book','talk'].includes(tab)) return;
+      if(!['home','gallery','schedule','stock','shop','book','talk','kids'].includes(tab)) return;
       state.tab=tab;
       if(tab==='schedule' && action.open==='events') state.scheduleView='events';
       applied++;
@@ -3391,6 +3434,58 @@ function applyHelpActions(actions){
       return;
     }
 
+
+    if(kind==='subject_grade_set'){
+      const k=matchKid(action.kidQuery||action.kidId);
+      const s=matchSubject(action.subjectQuery||action.subjectId);
+      if(!k||!s) return;
+      if(setSubjectGrade(k.id, s.id, action.score, action.note)){
+        logEntry('SCHOOL',`Zo-Ai · ${describeHelpAction(action)}`);
+        applied++;
+      }
+      return;
+    }
+    if(kind==='kid_note_add'){
+      const k=matchKid(action.kidQuery||action.kidId);
+      const text=String(action.text||'').trim();
+      if(!k||!text) return;
+      ensureSchoolDb();
+      DB.kidNotes.push({id:uid(), kidId:k.id, text:text.slice(0,2000), ts:Date.now(), by:state.user?.id});
+      logEntry('SCHOOL',`Zo-Ai · ${describeHelpAction(action)}`);
+      applied++;
+      return;
+    }
+    if(kind==='open_kid'){
+      const k=matchKid(action.kidQuery||action.kidId);
+      if(!k) return;
+      state.tab='kids'; state.staffKidId=k.id; applied++;
+      return;
+    }
+    if(kind==='attendance_set'){
+      const k=matchKid(action.kidQuery||action.kidId);
+      const dateStr=action.date||iso(new Date());
+      if(!k) return;
+      if(setAttendance(k.id, dateStr, action.status||'present')){
+        logEntry('SCHOOL',`Zo-Ai · ${describeHelpAction(action)}`);
+        applied++;
+      }
+      return;
+    }
+    if(kind==='homework_add'){
+      const title=String(action.title||'').trim();
+      if(!title) return;
+      const s=matchSubject(action.subjectQuery||action.subjectId);
+      const k=action.kidQuery||action.kidId ? matchKid(action.kidQuery||action.kidId) : null;
+      ensureSchoolDb();
+      DB.homework.push({
+        id:uid(), title:title.slice(0,120), subjectId:s?.id||'',
+        kidId:k?.id||null, due:action.due||iso(new Date()), done:false, ts:Date.now(),
+      });
+      logEntry('SCHOOL',`Zo-Ai · ${describeHelpAction(action)}`);
+      applied++;
+      return;
+    }
+
     if(kind==='schedule_template_update'){
       if(!isAdminUser()) return;
       const row=(DB.template||[]).find(x=>x.id===action.entryId);
@@ -3478,7 +3573,14 @@ function sheetHelpProposals(actions, {inline=false, onDone=null}={}){
         state.helpMessages.push({role:'assistant', content:T[state.lang].helpProposeDone(n)});
         state.helpMessages=state.helpMessages.slice(-12);
         render();
-        toast(T[state.lang].helpProposeDone(n),'success');
+        const kinds=new Set((actions||[]).map(a=>a.type));
+        let msg=T[state.lang].helpProposeDone(n);
+        if(kinds.has('stock_adjust')||kinds.has('stock_set')) msg=t('zoSavedLager');
+        else if(kinds.has('shop_add')||kinds.has('shop_remove')||kinds.has('want_bought')) msg=t('zoSavedListe');
+        else if(String([...kinds].join()).includes('schedule')) msg=t('zoSavedPlan');
+        else if(kinds.has('subject_grade_set')||kinds.has('attendance_set')||kinds.has('homework_add')) msg=t('zoSavedSchool');
+        else if(kinds.has('kid_note_add')) msg=t('zoSavedNote');
+        toast(msg,'success',4200);
       }else toast(t('helpProposeEmpty'));
       onDone?.(n);
     };
@@ -5091,6 +5193,7 @@ function viewScheduleDay(){
         <h2 class="plan-hero-date">${esc(longDate)}</h2>
         <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
         ${miniCalendarHtml(calDates, today)}
+        <div class="home-widgets" style="margin-top:10px">${ringHtml(planDayLoadPct(state.date), t('planDayLoad'), 'sea')}</div>
       </div>
       <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
     </header>
@@ -5991,6 +6094,7 @@ function viewStock(){
       <div class="ops-hero-stats" role="group" aria-label="${esc(t('menuFilters'))}">
         ${statTileHtml(counts.empty, t('stockEmpty'), 'u-alert', counts.empty?'down':'')}
         ${statTileHtml(attention, t('stockAttention'), 'u-leaf', attention?'down':'')}
+        ${(()=>{ const sp=stockQtySparkHistory(hid); return sp.length?`<div class="w-stat"><span class="w-stat-lbl">7d</span>${sparklineHtml(sp,'sea')}</div>`:''; })()}
         ${statTileHtml(counts.ok, t('stockHealthy'), 'u-check', '')}
       </div>
     </header>
@@ -9492,6 +9596,418 @@ function childStundenplanView(c){
     </div>`;
 }
 
+/* ── Staff school / kids (v103–v104) ─────────────────────────────────── */
+const DEFAULT_SUBJECTS = [
+  {id:'sub-math', de:'Mathe', el:'Μαθηματικά', active:true},
+  {id:'sub-de', de:'Deutsch', el:'Γερμανικά', active:true},
+  {id:'sub-el', de:'Griechisch', el:'Ελληνικά', active:true},
+  {id:'sub-en', de:'Englisch', el:'Αγγλικά', active:true},
+  {id:'sub-sport', de:'Sport', el:'Αθλητισμός', active:true},
+];
+
+function ensureSchoolDb(){
+  if(!Array.isArray(DB.subjects) || !DB.subjects.length) DB.subjects = structuredClone(DEFAULT_SUBJECTS);
+  ['subjectGrades','attendance','homework','schoolTimetable','kidRatings','kidNotes'].forEach(k=>{
+    if(!Array.isArray(DB[k])) DB[k] = [];
+  });
+}
+
+function activeSubjects(){
+  ensureSchoolDb();
+  return (DB.subjects||[]).filter(s=>s && s.active!==false);
+}
+
+function subjectById(id){ return (DB.subjects||[]).find(s=>s.id===id); }
+
+function subjectLabel(s){
+  if(!s) return '?';
+  return state.lang==='el' ? (s.el||s.de||s.id) : (s.de||s.el||s.id);
+}
+
+function matchKid(query){
+  const q = norm(String(query||''));
+  if(!q) return null;
+  return (DB.children||[]).find(k=>norm(k.name)===q || norm(k.name).includes(q) || q.includes(norm(k.name)))
+    || (DB.children||[]).find(k=>k.id===query);
+}
+
+function matchSubject(query){
+  const q = norm(String(query||''));
+  if(!q) return null;
+  return activeSubjects().find(s=>norm(s.de)===q || norm(s.el)===q || s.id===query)
+    || activeSubjects().find(s=>norm(s.de).includes(q) || norm(s.el).includes(q) || q.includes(norm(s.de)));
+}
+
+function subjectGradeFor(kidId, subjectId, week){
+  const wk = week || kidWeekKey();
+  const hit = (DB.subjectGrades||[]).find(g=>g.kidId===kidId && g.subjectId===subjectId && g.week===wk);
+  return hit ? Number(hit.score)||0 : 0;
+}
+
+function setSubjectGrade(kidId, subjectId, score, note){
+  ensureSchoolDb();
+  const wk = kidWeekKey();
+  const sc = Math.max(1, Math.min(5, Math.round(Number(score)||0)));
+  if(!(sc>=1)) return false;
+  const hit = DB.subjectGrades.find(g=>g.kidId===kidId && g.subjectId===subjectId && g.week===wk);
+  if(hit){ hit.score=sc; hit.ts=Date.now(); if(note!=null) hit.note=String(note).slice(0,200); }
+  else DB.subjectGrades.push({id:uid(), kidId, subjectId, score:sc, note:note?String(note).slice(0,200):'', week:wk, ts:Date.now()});
+  return true;
+}
+
+function attendanceFor(kidId, dateStr){
+  return (DB.attendance||[]).find(a=>a.kidId===kidId && a.date===dateStr);
+}
+
+function setAttendance(kidId, dateStr, status){
+  ensureSchoolDb();
+  const st = ['present','absent','excused'].includes(status) ? status : 'present';
+  const hit = DB.attendance.find(a=>a.kidId===kidId && a.date===dateStr);
+  if(hit){ hit.status=st; hit.ts=Date.now(); }
+  else DB.attendance.push({id:uid(), kidId, date:dateStr, status:st, ts:Date.now()});
+  return true;
+}
+
+function starsHtml(score, {interactive=false, kidId='', subjectId=''}={}){
+  const s = Math.max(0, Math.min(5, Number(score)||0));
+  const cells=[];
+  for(let i=1;i<=5;i++){
+    const on = i<=s;
+    if(interactive){
+      cells.push(`<button type="button" class="school-star ${on?'on':''}" data-grade-kid="${esc(kidId)}" data-grade-sub="${esc(subjectId)}" data-grade-val="${i}" aria-label="${i}">★</button>`);
+    }else{
+      cells.push(`<span class="school-star ${on?'on':''}" aria-hidden="true">★</span>`);
+    }
+  }
+  return `<span class="school-stars" role="img" aria-label="${s}/5">${cells.join('')}</span>`;
+}
+
+function homeShiftCompletionPct(user){
+  if(!user) return 0;
+  const today=iso(new Date());
+  const assign=dashboardAssignments(today,user.id);
+  if(!assign.length) return 100;
+  const done=assign.filter(e=>completionFor(today,e.id,user.id)).length;
+  return Math.round((done/assign.length)*100);
+}
+
+function homeTaskDoneSpark7(user){
+  if(!user) return [];
+  const out=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=iso(d);
+    const assign=dashboardAssignments(ds,user.id);
+    out.push(assign.filter(e=>completionFor(ds,e.id,user.id)).length);
+  }
+  return out;
+}
+
+function planDayLoadPct(dateStr){
+  const all=entriesFor(dateStr).filter(e=>!e.cancelled);
+  const cap=Math.max(6, BLOCKS.length*2);
+  return Math.min(100, Math.round((all.length/cap)*100));
+}
+
+function stockQtySparkHistory(hid){
+  /* Optional: derive from recent OUT/IN log counts per day — omit if empty. */
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const ds=iso(d);
+    const n=(DB.log||[]).filter(L=>{
+      if(!L || (L.type!=='IN' && L.type!=='OUT')) return false;
+      const t=L.ts?iso(new Date(L.ts)): '';
+      return t===ds && (!hid || hid==='all' || L.houseId===hid);
+    }).length;
+    days.push(n);
+  }
+  return days.some(n=>n>0) ? days : [];
+}
+
+function viewKids(){
+  ensureSchoolDb();
+  if(state.staffKidId) return viewKidProfile(state.staffKidId);
+  const pane=state.kidsPane||'directory';
+  const kids=(DB.children||[]).filter(k=>!k.temporary || true);
+  const dir=kids.map(k=>{
+    const xp=kidXp(k.id);
+    const lv=kidLevel(xp);
+    const att=attendanceFor(k.id, state.date||iso(new Date()));
+    const attLbl=att?t('att_'+att.status):'·';
+    return `<button type="button" class="kid-dir-card pine-settle" data-open-kid="${k.id}">
+      <span class="kid-dir-av" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0]||'?')}</span>
+      <span class="grow"><b>${esc(k.name)}</b><small>Lv ${lv} · ${xp} XP · ${esc(attLbl)}</small></span>
+      ${ui('u-person','sm')}
+    </button>`;
+  }).join('');
+  const tabs=`<div class="kids-pane-tabs" role="tablist">
+    <button type="button" class="chip ${pane==='directory'?'on':''}" data-kids-pane="directory">${esc(t('navKids'))}</button>
+    <button type="button" class="chip ${pane==='attendance'?'on':''}" data-kids-pane="attendance">${esc(t('schoolAttendance'))}</button>
+    <button type="button" class="chip ${pane==='homework'?'on':''}" data-kids-pane="homework">${esc(t('schoolHomework'))}</button>
+    <button type="button" class="chip ${pane==='timetable'?'on':''}" data-kids-pane="timetable">${esc(t('schoolTimetable'))}</button>
+    ${isAdminUser()?`<button type="button" class="chip ${pane==='subjects'?'on':''}" data-kids-pane="subjects">${esc(t('schoolSubjects'))}</button>`:''}
+  </div>`;
+  let body='';
+  if(pane==='directory') body=`<div class="kid-dir-list">${dir||emptyState(ui('u-person'), t('kidsEmpty'))}</div>`;
+  else if(pane==='attendance') body=viewAttendanceGrid();
+  else if(pane==='homework') body=viewHomeworkStaff();
+  else if(pane==='timetable') body=viewSchoolTimetable();
+  else if(pane==='subjects' && isAdminUser()) body=viewSubjectsAdmin();
+  else body=`<div class="kid-dir-list">${dir}</div>`;
+  return `<div class="kids-shell">
+    <header class="ops-hero kids-hero hero-texture">
+      <p class="brand-kicker">Armonia</p>
+      <h2>${esc(t('titleKids'))}</h2>
+      <p>${esc(t('kidsHeroHint'))}</p>
+    </header>
+    ${tabs}
+    ${body}
+  </div>`;
+}
+
+function viewKidProfile(kidId){
+  ensureSchoolDb();
+  const k=kid(kidId); if(!k){ state.staffKidId=null; return viewKids(); }
+  const xp=kidXp(k.id), lv=kidLevel(xp), pct=Math.min(100, Math.round((xp%100)));
+  const wk=kidWeekKey();
+  const subs=activeSubjects().map(s=>{
+    const sc=subjectGradeFor(k.id, s.id, wk);
+    return `<div class="school-sub-row">
+      <span class="grow">${esc(subjectLabel(s))}</span>
+      ${starsHtml(sc,{interactive:true,kidId:k.id,subjectId:s.id})}
+    </div>`;
+  }).join('');
+  const rates=KID_RATE_AREAS.map(a=>{
+    const v=kidRating(k.id,a.id,wk);
+    return `<div class="school-sub-row"><span class="grow">${esc(t(a.key))}</span>${starsHtml(v)}</div>`;
+  }).join('');
+  const notes=(DB.kidNotes||[]).filter(n=>n.kidId===k.id).sort((a,b)=>b.ts-a.ts).slice(0,5)
+    .map(n=>`<li><small>${esc(new Date(n.ts).toLocaleDateString())}</small> ${esc(n.text||'')}</li>`).join('')
+    || `<li class="muted">${esc(t('kidNotesEmpty'))}</li>`;
+  const recent=entriesFor(state.date||iso(new Date())).filter(e=>(e.childIds||[]).includes(k.id)).slice(0,6)
+    .map(e=>`<li>${esc(actLabel(e.activityId))}</li>`).join('') || `<li class="muted">${esc(t('noTasks'))}</li>`;
+  const attWeek=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)+i);
+    const ds=iso(d);
+    const a=attendanceFor(k.id,ds);
+    attWeek.push(`<button type="button" class="att-chip ${a?a.status:''}" data-att-kid="${k.id}" data-att-date="${ds}" data-att-cycle="1">${DAY_NAMES[state.lang][(d.getDay()+6)%7]} ${a?t('att_'+a.status):'—'}</button>`);
+  }
+  const hw=(DB.homework||[]).filter(h=>!h.kidId || h.kidId===k.id).slice(0,8)
+    .map(h=>`<label class="hw-row"><input type="checkbox" data-hw-toggle="${h.id}" ${h.done?'checked':''}/> <span>${esc(h.title||'')}</span></label>`).join('')
+    || `<p class="muted">${esc(t('hwEmpty'))}</p>`;
+  return `<div class="kids-shell kid-profile">
+    <button type="button" class="btn ghost sm" id="kidProfileBack">← ${esc(t('navKids'))}</button>
+    <header class="kid-profile-mast hero-texture">
+      <span class="kid-dir-av lg" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0])}</span>
+      <div><p class="brand-kicker">Armonia</p><h2>${esc(k.name)}</h2>
+        <div class="row" style="gap:12px;align-items:center;margin-top:8px">
+          ${ringHtml(pct, 'Lv '+lv, 'pine')}
+          ${kidStreakHtml(k.id)}
+        </div>
+      </div>
+    </header>
+    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolSubjects'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>${subs}</section>
+    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span></div>${rates}</section>
+    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolAttendance'))}</span></div><div class="att-week">${attWeek.join('')}</div></section>
+    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolHomework'))}</span></div>${hw}</section>
+    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNotesTitle'))}</span></div>
+      <div class="row" style="gap:8px;margin-bottom:8px">
+        <input id="staffKidNote" class="inp grow" placeholder="${esc(t('kidNotesPlaceholder'))}"/>
+        <button type="button" class="btn sm" id="staffKidNoteSave" data-note-kid="${k.id}">${esc(t('kidNotesSave'))}</button>
+      </div>
+      <ul class="kid-note-list">${notes}</ul>
+    </section>
+    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('headerScheduleDay'))}</span></div><ul>${recent}</ul></section>
+  </div>`;
+}
+
+function viewAttendanceGrid(){
+  const ds=state.date||iso(new Date());
+  const rows=(DB.children||[]).map(k=>{
+    const a=attendanceFor(k.id,ds);
+    const st=a?.status||'';
+    return `<div class="att-grid-row">
+      <button type="button" class="linkish" data-open-kid="${k.id}"><b>${esc(k.name)}</b></button>
+      <div class="att-btns">
+        <button type="button" class="chip ${st==='present'?'on':''}" data-att-kid="${k.id}" data-att-date="${ds}" data-att-status="present">${esc(t('att_present'))}</button>
+        <button type="button" class="chip ${st==='absent'?'on':''}" data-att-kid="${k.id}" data-att-date="${ds}" data-att-status="absent">${esc(t('att_absent'))}</button>
+        <button type="button" class="chip ${st==='excused'?'on':''}" data-att-kid="${k.id}" data-att-date="${ds}" data-att-status="excused">${esc(t('att_excused'))}</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="att-grid card"><div class="block-h"><span class="t">${esc(eventDayLabel(ds))}</span>
+    <input type="date" id="attDatePick" value="${ds}"/></div>${rows}</div>`;
+}
+
+function viewHomeworkStaff(){
+  ensureSchoolDb();
+  const list=(DB.homework||[]).slice().sort((a,b)=>(a.due||'').localeCompare(b.due||'')).map(h=>{
+    const sub=subjectById(h.subjectId);
+    const kidN=h.kidId?kid(h.kidId)?.name:'';
+    const meta=[subjectLabel(sub), h.due, kidN].filter(Boolean).join(' · ');
+    return `<label class="hw-row card">
+      <input type="checkbox" data-hw-toggle="${h.id}" ${h.done?'checked':''}/>
+      <span class="grow"><b>${esc(h.title||'')}</b><small>${esc(meta)}</small></span>
+    </label>`;
+  }).join('') || emptyState(ui('u-book'), t('hwEmpty'));
+  const subOpts=activeSubjects().map(s=>`<option value="${s.id}">${esc(subjectLabel(s))}</option>`).join('');
+  const kidOpts=`<option value="">${esc(t('hwAllKids'))}</option>`+(DB.children||[]).map(k=>`<option value="${k.id}">${esc(k.name)}</option>`).join('');
+  return `<div class="hw-staff">
+    <form class="card pine-settle" id="hwAddForm">
+      <div class="block-h"><span class="t">${esc(t('hwAdd'))}</span></div>
+      <input name="title" class="inp" required placeholder="${esc(t('hwTitlePh'))}"/>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <select name="subjectId" class="inp grow">${subOpts}</select>
+        <input name="due" type="date" class="inp" value="${iso(new Date())}"/>
+      </div>
+      <select name="kidId" class="inp" style="margin-top:8px">${kidOpts}</select>
+      <button class="btn" type="submit" style="margin-top:10px">${esc(t('hwAdd'))}</button>
+    </form>
+    <div class="hw-list">${list}</div>
+  </div>`;
+}
+
+function viewSchoolTimetable(){
+  ensureSchoolDb();
+  const days=DAY_NAMES[state.lang];
+  const slots=(DB.schoolTimetable||[]).slice().sort((a,b)=>(a.day-b.day)||String(a.from).localeCompare(String(b.from)));
+  const byDay=[0,1,2,3,4,5,6].map(di=>{
+    const rows=slots.filter(s=>Number(s.day)===di).map(s=>{
+      const sub=subjectById(s.subjectId);
+      return `<div class="tt-slot"><b>${esc(s.from||'')}–${esc(s.to||'')}</b> ${esc(subjectLabel(sub))}</div>`;
+    }).join('') || `<p class="muted">${esc(t('ttEmpty'))}</p>`;
+    return `<section class="card pine-settle tt-day"><div class="block-h"><span class="t">${esc(days[di])}</span></div>${rows}</section>`;
+  }).join('');
+  const subOpts=activeSubjects().map(s=>`<option value="${s.id}">${esc(subjectLabel(s))}</option>`).join('');
+  const dayOpts=days.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join('');
+  return `<div class="tt-staff">
+    ${isAdminUser()?`<form class="card" id="ttAddForm">
+      <div class="block-h"><span class="t">${esc(t('ttAdd'))}</span></div>
+      <div class="row" style="gap:8px">
+        <select name="day" class="inp">${dayOpts}</select>
+        <select name="subjectId" class="inp grow">${subOpts}</select>
+      </div>
+      <div class="row" style="gap:8px;margin-top:8px">
+        <input name="from" class="inp" placeholder="09:00" required/>
+        <input name="to" class="inp" placeholder="09:45" required/>
+      </div>
+      <button class="btn" type="submit" style="margin-top:10px">${esc(t('ttAdd'))}</button>
+    </form>`:''}
+    <div class="tt-grid">${byDay}</div>
+  </div>`;
+}
+
+function viewSubjectsAdmin(){
+  ensureSchoolDb();
+  const rows=(DB.subjects||[]).map(s=>`<div class="school-sub-row">
+    <span class="grow ${s.active===false?'muted':''}">${esc(subjectLabel(s))}</span>
+    <button type="button" class="btn ghost sm" data-sub-toggle="${s.id}">${s.active===false?esc(t('subActivate')):esc(t('subArchive'))}</button>
+  </div>`).join('');
+  return `<div class="card">
+    <div class="block-h"><span class="t">${esc(t('schoolSubjects'))}</span></div>
+    ${rows}
+    <form id="subAddForm" class="row" style="gap:8px;margin-top:12px">
+      <input name="de" class="inp grow" placeholder="DE" required/>
+      <input name="el" class="inp grow" placeholder="EL" required/>
+      <button class="btn sm" type="submit">${esc(t('subAdd'))}</button>
+    </form>
+  </div>`;
+}
+
+function childSubjectsReadonlyHtml(kidId){
+  ensureSchoolDb();
+  const wk=kidWeekKey();
+  const rows=activeSubjects().map(s=>{
+    const sc=subjectGradeFor(kidId,s.id,wk);
+    return `<div class="school-sub-row"><span class="grow">${esc(subjectLabel(s))}</span>${starsHtml(sc)}</div>`;
+  }).join('');
+  return `<section class="card kid-subjects-ro"><div class="block-h"><span class="t">${esc(t('schoolSubjects'))}</span></div>${rows||`<p class="muted">${esc(t('subEmpty'))}</p>`}</section>`;
+}
+
+function wireKidsView(v){
+  v.querySelectorAll('[data-kids-pane]').forEach(b=>{
+    b.onclick=()=>{ state.kidsPane=b.dataset.kidsPane; state.staffKidId=null; render(); };
+  });
+  v.querySelectorAll('[data-open-kid]').forEach(b=>{
+    b.onclick=()=>{ state.staffKidId=b.dataset.openKid; render(); };
+  });
+  const back=v.querySelector('#kidProfileBack');
+  if(back) back.onclick=()=>{ state.staffKidId=null; render(); };
+  v.querySelectorAll('[data-grade-kid]').forEach(b=>{
+    b.onclick=()=>{
+      if(setSubjectGrade(b.dataset.gradeKid, b.dataset.gradeSub, Number(b.dataset.gradeVal))){
+        save(); toast(t('gradeSaved'),'success'); render();
+      }
+    };
+  });
+  v.querySelectorAll('[data-att-kid]').forEach(b=>{
+    b.onclick=()=>{
+      let st=b.dataset.attStatus;
+      if(b.dataset.attCycle){
+        const cur=attendanceFor(b.dataset.attKid, b.dataset.attDate)?.status;
+        st = cur==='present'?'absent':cur==='absent'?'excused':'present';
+      }
+      setAttendance(b.dataset.attKid, b.dataset.attDate, st);
+      save(); toast(t('attSaved'),'success'); render();
+    };
+  });
+  const attDate=v.querySelector('#attDatePick');
+  if(attDate) attDate.onchange=()=>{ state.date=attDate.value; render(); };
+  v.querySelectorAll('[data-hw-toggle]').forEach(inp=>{
+    inp.onchange=()=>{
+      const h=(DB.homework||[]).find(x=>x.id===inp.dataset.hwToggle);
+      if(h){ h.done=!!inp.checked; h.ts=Date.now(); save(); toast(t('hwSaved'),'success'); }
+    };
+  });
+  const hwForm=v.querySelector('#hwAddForm');
+  if(hwForm) hwForm.onsubmit=ev=>{
+    ev.preventDefault();
+    const fd=new FormData(hwForm);
+    ensureSchoolDb();
+    DB.homework.push({
+      id:uid(), title:String(fd.get('title')||'').trim().slice(0,120),
+      subjectId:fd.get('subjectId')||'', kidId:fd.get('kidId')||null,
+      due:fd.get('due')||iso(new Date()), done:false, ts:Date.now(),
+    });
+    save(); toast(t('hwSaved'),'success'); render();
+  };
+  const ttForm=v.querySelector('#ttAddForm');
+  if(ttForm) ttForm.onsubmit=ev=>{
+    ev.preventDefault();
+    const fd=new FormData(ttForm);
+    ensureSchoolDb();
+    DB.schoolTimetable.push({
+      id:uid(), day:Number(fd.get('day'))||0, from:String(fd.get('from')||''),
+      to:String(fd.get('to')||''), subjectId:fd.get('subjectId')||'', kidIds:[],
+    });
+    save(); toast(t('ttSaved'),'success'); render();
+  };
+  const noteSave=v.querySelector('#staffKidNoteSave');
+  if(noteSave) noteSave.onclick=()=>{
+    const text=(v.querySelector('#staffKidNote')?.value||'').trim();
+    if(!text) return;
+    ensureSchoolDb();
+    DB.kidNotes.push({id:uid(), kidId:noteSave.dataset.noteKid, text:text.slice(0,2000), ts:Date.now(), by:state.user?.id});
+    save(); toast(t('kidNotesSaved'),'success'); render();
+  };
+  v.querySelectorAll('[data-sub-toggle]').forEach(b=>{
+    b.onclick=()=>{
+      const s=subjectById(b.dataset.subToggle);
+      if(s){ s.active=s.active===false; save(); render(); }
+    };
+  });
+  const subAdd=v.querySelector('#subAddForm');
+  if(subAdd) subAdd.onsubmit=ev=>{
+    ev.preventDefault();
+    const fd=new FormData(subAdd);
+    ensureSchoolDb();
+    DB.subjects.push({id:'sub-'+uid(), de:String(fd.get('de')||'').trim(), el:String(fd.get('el')||'').trim(), active:true});
+    save(); toast(t('subSaved'),'success'); render();
+  };
+}
+
 /* ── Kids: weekly self-rating ──────────────────────────────────────────
    Four areas, five stars each, one row per ISO week. Stored per kid so a
    child's own read of the week sits next to the XP the system awards them. */
@@ -11597,7 +12113,7 @@ function viewHome(){
       <span class="w-stat-lbl">${esc(label)}</span>
     </button>`;
   return `<div class="home-shell home-shell-v2">
-    <section class="home-mast hero" aria-label="Armonia">
+    <section class="home-mast hero hero-texture" aria-label="Armonia">
       <p class="brand-kicker">Armonia Thassos</p>
       <h1 class="home-brand">${esc(t('homeHello'))}${user?', '+esc(user.name):''}</h1>
       <p class="home-lede">${esc(t('homeOverview'))}</p>
@@ -11613,6 +12129,11 @@ function viewHome(){
       <span class="journal-duty-home-cta">${esc(t('journalDutyCta'))}</span>
     </button>`:''}
     ${teamNoticeBannerHtml()}
+    <div class="home-widgets">
+      ${ringHtml(homeShiftCompletionPct(user), t('homeShiftRing'), todayOpen.length?'amber':'pine')}
+      ${(()=>{ const sp=homeTaskDoneSpark7(user); return sp.some(n=>n>0)?`<div class="w-stat"><span class="w-stat-lbl">${esc(t('homeWeekSpark'))}</span>${sparklineHtml(sp,'pine')}</div>`:''; })()}
+      <button type="button" class="btn ghost sm" data-home-jump="kids">${ui('u-person','sm')} ${esc(t('navKids'))}</button>
+    </div>
     <div class="home-signals" role="group" aria-label="${esc(t('homeSignals'))}">
       ${signal('day', todayOpen.length, t('dueToday'), 'u-tasks', todayOpen.length?'tone-pine':'')}
       ${signal('day', overdue.length, t('overdue'), 'u-alert', overdue.length?'tone-out':'')}
@@ -11712,6 +12233,7 @@ function dynamicHeaderTitle(){
   }
   if(state.tab==='gallery') return t('headerGallery');
   if(state.tab==='talk') return t('headerTalk');
+  if(state.tab==='kids') return t('headerKids');
   return t('headerBook');
 }
 
@@ -12300,9 +12822,11 @@ function render(){
     : state.tab==='schedule' ? viewSchedule()
     : state.tab==='stock'    ? viewStock()
     : state.tab==='shop'     ? viewShop()
+    : state.tab==='kids'     ? viewKids()
     : state.tab==='talk'     ? viewTalk()
     : viewBook();
   wire();
+  if(state.tab==='kids') wireKidsView(document.getElementById('view'));
   if(state.tab==='gallery') bindGallery(document.getElementById('view'));
   if(state.tab==='talk'){
     const mount=document.getElementById('talkPageMount');
@@ -12357,6 +12881,7 @@ function wire(){
       const jump=btn.dataset.homeJump;
       if(jump==='shop'){ state.tab='shop'; state.shopPanel='plan'; clearSelection(); render(); return; }
       if(jump==='stock'){ state.tab='stock'; clearSelection(); render(); return; }
+      if(jump==='kids'){ state.tab='kids'; state.staffKidId=null; render(); return; }
       state.tab='schedule';
       state.scheduleView=jump==='events'?'events':'day';
       render();
@@ -13918,7 +14443,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||101),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||105),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

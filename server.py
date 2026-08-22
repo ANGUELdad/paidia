@@ -283,6 +283,11 @@ OPS_KEYS = (
     "gameStats",
     "kidRatings",
     "kidNotes",
+    "subjects",
+    "subjectGrades",
+    "attendance",
+    "homework",
+    "schoolTimetable",
 )
 OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks", "gameStats"}
 OPS_LIST_CAPS = {
@@ -291,6 +296,11 @@ OPS_LIST_CAPS = {
     "xpLog": 4000,
     "kidRatings": 4000,
     "kidNotes": 4000,
+    "subjects": 200,
+    "subjectGrades": 4000,
+    "attendance": 8000,
+    "homework": 4000,
+    "schoolTimetable": 800,
     "listEntries": 4000,
     "shoppingTrips": 4000,
     "log": 2500,
@@ -3112,7 +3122,12 @@ Allowed action types for staff:
 - schedule_update: {type, entryId|activityQuery, date, block?, houseId?, employeeId?, activityQuery?, from?, to?, note?}
 - schedule_cancel: {type, entryId|activityQuery, date, block?}
 - shift_note: {type, text, houseId?}
-- open_tab: {type, tab:home|gallery|schedule|stock|shop|book}
+- open_tab: {type, tab:home|gallery|schedule|stock|shop|book|kids|talk}
+- subject_grade_set: {type, kidQuery|kidId, subjectQuery|subjectId, score:1-5, note?}
+- kid_note_add: {type, kidQuery|kidId, text}
+- open_kid: {type, kidQuery|kidId}
+- attendance_set: {type, kidQuery|kidId, date?, status:present|absent|excused}
+- homework_add: {type, title, subjectQuery?, kidQuery?, due?}
 
 If you propose actions, end with exactly one fenced block:
 ```paidia-action
@@ -3162,6 +3177,8 @@ STAFF_ACTION_TYPES = {
     "shop_add", "shop_remove",
     "schedule_add", "schedule_update", "schedule_cancel",
     "shift_note", "open_tab",
+    "subject_grade_set", "kid_note_add", "open_kid",
+    "attendance_set", "homework_add",
 }
 ADMIN_ACTION_TYPES = STAFF_ACTION_TYPES | {
     "schedule_template_add", "schedule_template_update",
@@ -3400,6 +3417,7 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
                 "date", "block", "employeeId", "activityId", "activityQuery",
                 "entryId", "from", "to", "note", "text", "tab",
                 "audience", "subject", "title", "message",
+                "kidId", "kidQuery", "subjectId", "subjectQuery", "status", "due",
             ):
                 value = row.get(key)
                 if isinstance(value, str) and value.strip():
@@ -3423,6 +3441,13 @@ def extract_chat_actions(text: str, *, role: str = "staff") -> tuple[str, list]:
                 day_num = None
             if day_num is not None and 0 <= day_num <= 6:
                 action["day"] = day_num
+            score = row.get("score")
+            try:
+                score_num = int(score)
+            except (TypeError, ValueError):
+                score_num = None
+            if score_num is not None and 1 <= score_num <= 5:
+                action["score"] = score_num
 
             if kind == "stock_adjust":
                 direction = str(action.get("dir", "IN")).upper()

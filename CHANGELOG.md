@@ -1,5 +1,15 @@
 # Changelog
 
+## v105 — 2026-08-22
+
+Staff expansion roadmap (visual + school + Zo-Ai), one ship:
+
+- **v102 visual:** Home shift ring + 7-day sparkline; Plan day-load ring; Lager history sparkline when log exists; hero stone texture; pine-settle motion; tutorial Liquid Glass + `ui(...)` icons; Kids/Zo-Ai tutorial steps; desktop denser home grid
+- **v103 kids/school A:** Staff dock **Kinder**; profiles (XP, ratings, notes); `DB.subjects` / `subjectGrades` (1–5 stars); admin subject CRUD; child read-only subjects; Zo-Ai `subject_grade_set`, `kid_note_add`, `open_kid`
+- **v104 SIS-lite:** Attendance day grid; homework list; subject timetable; Zo-Ai `attendance_set`, `homework_add`
+- **Zo-Ai reliability:** Clearer success toasts (Lager/Liste/Plan/Schule); richer help context (children + subjects); Confirm still required (+ PIN for schedule)
+- Ops sync: new keys on `/api/ops`; cache `paidia-v105`
+
 ## v101 — 2026-08-22
 
 - Staff Liquid Glass 2026 from Figma prototype: frosted cards, floating chrome dock, Zo FAB label

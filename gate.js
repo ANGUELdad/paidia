@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 101,
-    label: 'v101',
+    version: 105,
+    label: 'v105',
     changed: {
-      de: 'Staff Liquid Glass 2026: Home, Dock, Zo-Ai wie Figma-Prototyp',
-      el: 'Staff Liquid Glass 2026: Home, Dock, Zo-Ai όπως το Figma prototype',
+      de: 'Staff: Widgets, Kinder/Schule, Anwesenheit, Zo-Ai DB',
+      el: 'Staff: Widgets, Παιδιά/Σχολείο, παρουσία, Zo-Ai DB',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
