@@ -2145,6 +2145,12 @@ function feedback(kind){
   feedback._t=setTimeout(()=>document.body.classList.remove('fx-tap'),120);
 }
 
+/* Inline UI icon. Replaces emoji used as chrome — see the u-* symbols in
+   index.html. Content emoji (food categories, chore glyphs) stay as data. */
+function ui(id, cls){
+  return `<svg class="ui-ico${cls?' '+cls:''}" aria-hidden="true"><use href="#${id}"/></svg>`;
+}
+
 function emptyState(icon, title, hint='', ctaHtml=''){
   return `<div class="empty-state" role="status">
     <div class="empty-ico" aria-hidden="true">${icon}</div>
@@ -3492,7 +3498,7 @@ function sheetHelp(){
       ${quickPrompts.map(q=>`<button class="chip" type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('')}
     </div>`;
   openSheet(`<div class="row between" style="align-items:flex-start;gap:10px;margin-bottom:8px">
-      <h3 style="margin:0">✨ ${t('helpChat')}</h3>
+      <h3 style="margin:0">${ui('u-sparkle')} ${t('helpChat')}</h3>
       <span class="help-role-pill ${esc(role)}">${esc(helpRoleLabel())}</span>
     </div>
     <div class="status error" id="helpConfigStatus" hidden style="margin:0 0 10px"></div>
@@ -3583,7 +3589,7 @@ function sheetHelpCenter(){
     <div class="help-center-grid">
       <button class="help-center-card" id="helpTutorial" type="button"><span class="icon">📘</span><b>${t('startTutorial')}</b><span>${t('startTutorialHint')}</span></button>
     </div>
-    <p class="muted" style="margin:14px 0 0;font-size:12.5px">✨ ${esc(t('helpChat'))} · ${esc(t('navChat'))}</p>`);
+    <p class="muted" style="margin:14px 0 0;font-size:12.5px">${ui('u-sparkle')} ${esc(t('helpChat'))} · ${esc(t('navChat'))}</p>`);
   sheetEl.querySelector('#helpTutorial').onclick=openAppTutorial;
 }
 
@@ -3782,13 +3788,13 @@ function viewGallery(){
     </div>
     <div class="gal-compose-bar">
       <button class="gal-fab" type="button" id="galShare" aria-label="${esc(t('galleryShare'))}">
-        <span>📷</span><b>${esc(t('galleryNewPost'))}</b>
+        <span>${ui('u-camera')}</span><b>${esc(t('galleryNewPost'))}</b>
       </button>
       <button class="gal-refresh" type="button" id="galRefresh" aria-label="refresh">↻</button>
     </div>
     ${state.galleryLoading && !posts.length?`<div class="empty">${esc(t('galleryLoading'))}</div>`:''}
     <div class="gal-feed" id="galFeed">
-      ${posts.length ? posts.map((p,i)=>galleryPostCard(p,i)).join('') : emptyState('📸', t('galleryEmpty'), t('galleryEmptyHint'), `<button class="btn" type="button" id="galEmptyShare">${esc(t('galleryComposeCta'))}</button>`)}
+      ${posts.length ? posts.map((p,i)=>galleryPostCard(p,i)).join('') : emptyState(ui('u-camera'), t('galleryEmpty'), t('galleryEmptyHint'), `<button class="btn" type="button" id="galEmptyShare">${esc(t('galleryComposeCta'))}</button>`)}
     </div>
     <div class="gal-lightbox" id="galLightbox" hidden>
       <button type="button" class="gal-lightbox-close" id="galLightClose" aria-label="${esc(t('close'))}">×</button>
@@ -3955,11 +3961,11 @@ function sheetGalleryCompose(opts={}){
       <div class="import-kicker">Armonia</div>
       <h2>${t('galleryShare')}</h2>
       <p class="muted">${opts.game ? t('gameShareMomentHint') : t('galleryHint')}</p>
-      <div class="gal-preview ${photo?'':'empty'}" id="galPreview">${photo?`<img src="${esc(photo)}" alt="">`:'<span>📷</span>'}</div>
+      <div class="gal-preview ${photo?'':'empty'}" id="galPreview">${photo?`<img src="${esc(photo)}" alt="">`:`<span>${ui('u-camera')}</span>`}</div>
       <div class="row" style="gap:8px;flex-wrap:wrap;margin:10px 0">
         <button class="btn sec sm" type="button" id="galPick">${t('galleryPick')}</button>
         <button class="btn sec sm" type="button" id="galCam">${t('galleryCamera')}</button>
-        <button class="btn sec sm" type="button" id="galCaptionAi">✨ ${t('galleryCaptionAi')}</button>
+        <button class="btn sec sm" type="button" id="galCaptionAi">${ui('u-sparkle')} ${t('galleryCaptionAi')}</button>
       </div>
       <input type="file" accept="image/*" id="galFile" hidden>
       <div id="galCamBox" hidden>
@@ -4097,7 +4103,7 @@ let talkCache = {messages:[], topics:[], videoUrl:'', updatedAt:0};
 
 function viewTalk(){
   if(state.mode!=='staff' || !state.user){
-    return `<div class="talk-page">${emptyState('💬', t('staffTalkNeedStaff'))}</div>`;
+    return `<div class="talk-page">${emptyState(ui('u-chat'), t('staffTalkNeedStaff'))}</div>`;
   }
   return `<div class="talk-page">
     <header class="talk-hero">
@@ -4428,7 +4434,7 @@ function sheetCalendar(profileId, mode='staff'){
   };
 
   openSheet(`<div class="cal-sheet">
-    <div class="admin-detail-hero"><div class="pa avatar" style="background:${esc(profileColor(person))}">📅</div>
+    <div class="admin-detail-hero"><div class="pa avatar" style="background:${esc(profileColor(person))}">${ui('u-calendar')}</div>
       <div class="grow"><div class="muted">ARMONIA THASSOS</div>
         <h3 style="margin:1px 0">${esc(T[state.lang].calOpenPerson(name))}</h3>
         <div class="muted">${esc(t('calWeeks'))} · ${esc(T[state.lang].calCount(all.length))}</div></div></div>
@@ -4529,7 +4535,7 @@ function shiftPresenceBannerHtml(){
   const toLabel = shift.type==='H24' ? '+24h' : (shift.to||'');
   if(checkin){
     return `<div class="shift-check-banner presence done">
-      <div><b>✅ ${esc(t('presenceDone'))}</b>
+      <div><b>${ui('u-check')} ${esc(t('presenceDone'))}</b>
         <span>${esc(T[state.lang].presenceBannerDone(checkin.status, fmtDT(checkin.at)))}</span></div>
       <button class="btn sec sm" type="button" id="shiftPresenceOpen">${esc(t('presenceOpen'))}</button>
     </div>`;
@@ -4887,7 +4893,7 @@ function validationCard(dateStr){
   if(!isAdminUser()) return '';
   const issues = validateDay(dateStr);
   if(!issues.length) return `<div class="card"><div class="row" style="gap:8px">
-    <span style="font-size:17px">✅</span><div class="muted">${t('vNone')}</div></div></div>`;
+    <span style="font-size:17px">${ui('u-check')}</span><div class="muted">${t('vNone')}</div></div></div>`;
   const errs = issues.filter(i=>i.sev==='error');
   return `<div class="card" style="border-color:${errs.length?'#fca5a5':'#fcd34d'}">
     <h2>${t('vTitle')} · ${issues.length}</h2>
@@ -4951,7 +4957,7 @@ function entryLine(e, dateStr=state.date){
               : `<span class="emoji">${a?a.emoji:'📝'}</span>`}
         <div class="grow">
           <div class="act">${who ? esc(a?a.emoji+' ':'') : ''}${esc(actLabel(e.activityId))}
-            ${announced ? `<span class="event-flag">📣 ${t('published')}</span>` : ''}</div>
+            ${announced ? `<span class="event-flag">${ui('u-megaphone')} ${t('published')}</span>` : ''}</div>
           <div class="meta">${who ? esc(employeeNames(e)) : person} · ${esc(entryTime(e))}${
             entryHouseIds(e).length ? ' · 🏠 ' + esc(houseNames(e)) : ''}</div>
           ${e.note ? `<div class="meta">${esc(e.note)}</div>` : ''}
@@ -5200,7 +5206,7 @@ function cellItems(list, showWho = true, dateStr=state.date){
     const sub = [showWho ? who : '', e.note].filter(Boolean).join(' · ');
     return `<div class="cellitem" data-open-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" role="button" tabindex="0">
       <button type="button" class="cellitem-x" data-remove-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" aria-label="${esc(t('removeFromTable'))}" title="${esc(t('removeFromTable'))}">×</button>
-      <div class="cellitem-body"><b>${esc(actLabel(e.activityId))}</b>${eventForEntry(e,dateStr)?' <span class="event-flag">📣</span>':''}${
+      <div class="cellitem-body"><b>${esc(actLabel(e.activityId))}</b>${eventForEntry(e,dateStr)?` <span class="event-flag">${ui('u-megaphone')}</span>`:''}${
       kids ? ` <span class="c">${esc(kids)}</span>` : ''}${
       when ? `<div class="cellitem-time">${esc(when)}</div>` : ''}${
       sub ? `<div class="cellitem-sub">${esc(sub)}</div>` : ''}</div></div>`;
@@ -5426,11 +5432,11 @@ function viewScheduleCalendar(){
         <span class="cal-n">${c.d}</span>${dots}</button>`;
     }).join('')}</div>
     <div class="cal-actions">
-      <button class="btn sec sm" type="button" id="exportIcs">📅 ${esc(t('exportCalendar'))}</button>
+      <button class="btn sec sm" type="button" id="exportIcs">${ui('u-calendar')} ${esc(t('exportCalendar'))}</button>
       ${notifRow}
     </div>
     <div class="cal-upcoming">
-      <div class="block-h plan-block-h"><span class="t">📣 ${esc(t('upcomingEvents'))}</span></div>
+      <div class="block-h plan-block-h"><span class="t">${ui('u-megaphone')} ${esc(t('upcomingEvents'))}</span></div>
       ${upcoming.length ? upcoming.map(homeEventCard).join('') : `<div class="empty">${esc(t('noEvents'))}</div>`}
     </div>
   </section>`;
@@ -5517,7 +5523,7 @@ function sheetEntry(e, dateStr, presets = {}){
       </div>
       <button class="event-toggle ${linkedEvent?.status==='published'?'on':''}" id="fEventToggle" type="button"
         aria-pressed="${linkedEvent?.status==='published'?'true':'false'}">
-        <span><span class="ev-ico" aria-hidden="true">📣</span>
+        <span><span class="ev-ico" aria-hidden="true">${ui('u-megaphone')}</span>
           <b id="fEventToggleLabel">${linkedEvent?.status==='published'?t('eventButtonOn'):t('eventButton')}</b>
           <span class="ev-sub">${t('announceHint')}</span>
         </span>
@@ -5938,7 +5944,7 @@ function viewStock(){
     ${shiftPresenceBannerHtml()}
     ${shiftStockCheckBannerHtml()}
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
-    <div class="stock-categories">${categoryHtml||emptyState('⌕', t('noStockResults'), t('noStockHint'), state.stockQuery?`<button class="btn sm sec" type="button" id="stockEmptyClear">${esc(t('stockClearSearch'))}</button>`:(hid!=='all'?`<button class="btn sm" type="button" id="stockEmptyAdd">${esc(t('stockAddFoodShort'))}</button>`:''))}</div>
+    <div class="stock-categories">${categoryHtml||emptyState(ui('u-search'), t('noStockResults'), t('noStockHint'), state.stockQuery?`<button class="btn sm sec" type="button" id="stockEmptyClear">${esc(t('stockClearSearch'))}</button>`:(hid!=='all'?`<button class="btn sm" type="button" id="stockEmptyAdd">${esc(t('stockAddFoodShort'))}</button>`:''))}</div>
     ${state.selectMode==='stock'&&hid!=='all'?bulkBarHtml([
       {id:'to-list', label:t('bulkToList')},
       {id:'out', label:t('bulkOut')},
@@ -7115,7 +7121,7 @@ function viewShop(){
       </div>
       <div class="shop-tools" role="toolbar" aria-label="${esc(t('shopTitle'))}">
         <button class="shop-tool ${shopSelecting?'on':''}" type="button" id="shopSelectToggle" title="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-label="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-pressed="${shopSelecting?'true':'false'}">${shopSelecting?'✓':'☑'}</button>
-        <button class="shop-tool" type="button" data-page-act="shopScan" title="${esc(t('topScan'))}" aria-label="${esc(t('topScan'))}">📷</button>
+        <button class="shop-tool" type="button" data-page-act="shopScan" title="${esc(t('topScan'))}" aria-label="${esc(t('topScan'))}">${ui('u-camera')}</button>
         <button class="shop-tool" type="button" id="importList" title="${esc(t('importList'))}" aria-label="${esc(t('importList'))}">📥</button>
         <button class="shop-tool" type="button" data-page-act="shopHistory" title="${esc(t('topHistory'))}" aria-label="${esc(t('topHistory'))}">🧾</button>
       </div>
@@ -8406,7 +8412,7 @@ function childEventsView(cid){
   const calBar = `<div class="page-actions" role="toolbar" style="margin-bottom:10px">
       <button class="page-act ghost" type="button" id="childCalendar">📅 ${esc(t('calTitle'))}</button>
     </div>`;
-  if(!events.length) return `${calBar}${emptyState('📣', t('noEvents'))}`;
+  if(!events.length) return `${calBar}${emptyState(ui('u-megaphone'), t('noEvents'))}`;
   const today = iso(new Date()), tomorrowDate = new Date();
   tomorrowDate.setDate(tomorrowDate.getDate()+1);
   const tomorrow = iso(tomorrowDate);
@@ -9718,7 +9724,7 @@ async function openChoreSubmitSheet(choreId, kidId){
     const aiHtml = aiState==='idle' ? '' : aiState==='checking'
       ? `<div class="ai-verdict checking"><div class="ai-verdict-icon">🤖</div><div>${t('choreAiChecking')}</div></div>`
       : aiState==='ok'
-      ? `<div class="ai-verdict ok"><div class="ai-verdict-icon">✅</div><div>${t('choreAiApproved')}</div></div>`
+      ? `<div class="ai-verdict ok"><div class="ai-verdict-icon">${ui('u-check')}</div><div>${t('choreAiApproved')}</div></div>`
       : aiState==='fail'
       ? `<div class="ai-verdict fail"><div class="ai-verdict-icon">❌</div><div>${esc(aiMsg)||t('choreAiRejected')}</div></div>`
       : `<div class="ai-verdict checking"><div class="ai-verdict-icon">⚠️</div><div>${t('choreAiError')}</div></div>`;
@@ -9734,7 +9740,7 @@ async function openChoreSubmitSheet(choreId, kidId){
         <p style="font-size:13px;color:var(--muted);margin:0 0 10px">${t('chorePhotoHint')}</p>
         ${photoDataUrl ? `<img class="chore-photo-thumb" src="${photoDataUrl}" alt="proof">` : ''}
         <div class="chore-verify-area" id="chorePhotoArea" role="button" tabindex="0">
-          <div class="cva-icon">📷</div>
+          <div class="cva-icon">${ui('u-camera')}</div>
           <div class="cva-label">${photoDataUrl ? t('imageReady') : t('pickScreenshot')}</div>
           <input type="file" id="choreFileInput" accept="image/*" capture="environment" style="display:none">
         </div>
@@ -11439,7 +11445,7 @@ function viewHome(){
     ${shiftStartCard?'':`${shiftPresenceBannerHtml()}${shiftStockCheckBannerHtml()}`}
     <section class="card home-today-card" style="margin-top:10px">
       <div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
-      <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState('✅', t('noTasks'), t('noTasksHint'), planCta)}</div>
+      <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState(ui('u-check'), t('noTasks'), t('noTasksHint'), planCta)}</div>
     </section>
     <details class="home-more">
       <summary>${esc(t('homeMore'))}</summary>
@@ -11448,13 +11454,13 @@ function viewHome(){
         <section class="card"><div class="block-h"><span class="t">⚠️ ${t('overdueTasks')}</span><span class="hrs">7</span></div>
           <div class="task-list">${overdue.length||recentlyDone.length?
             overdue.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id,{overdue:true})).join('')+
-            recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):emptyState('🌿', t('noOverdue'), t('noOverdueHint'))}</div>
+            recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):emptyState(ui('u-leaf'), t('noOverdue'), t('noOverdueHint'))}</div>
         </section>
         <section class="card wide"><div class="block-h"><span class="t">📣 ${t('allEvents')}</span><button class="btn sm sec" id="homeAllEvents" type="button">${t('openEvents')} →</button></div>
-          <div class="task-list">${events.length?events.map(homeEventCard).join(''):emptyState('📣', t('noEvents'), t('noEventsHint'), eventsCta)}</div>
+          <div class="task-list">${events.length?events.map(homeEventCard).join(''):emptyState(ui('u-megaphone'), t('noEvents'), t('noEventsHint'), eventsCta)}</div>
         </section>
         <section class="card wide"><div class="block-h"><span class="t">👤 ${t('unassignedTasks')}</span><span class="hrs">${t('next3Days')}</span></div>
-          <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):emptyState('👤', t('noUnassigned'), t('noUnassignedHint'), planCta)}</div>
+          <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):emptyState(ui('u-person'), t('noUnassigned'), t('noUnassignedHint'), planCta)}</div>
         </section>
       </div>
     </details>
@@ -11641,7 +11647,7 @@ function openChatPanel(mode='ai'){
   const title=document.getElementById('chatPanelTitle');
   if(title){
     title.hidden=false;
-    title.textContent = `✨ ${t('helpChat')}`;
+    title.textContent = `${ui('u-sparkle')} ${t('helpChat')}`;
   }
   const closeBtn=document.getElementById('chatClose');
   if(closeBtn) closeBtn.setAttribute('aria-label', t('close'));
@@ -11728,7 +11734,7 @@ function mountStaffTalkChat(root){
     <div class="chat-voice-status" id="talkVoiceStatus" hidden></div>
     <div class="talk-float-tools">
       <button class="btn ghost sm" type="button" id="talkVideoOpen">📹 ${esc(t('staffTalkVideoOpen'))}</button>
-      <button class="btn ghost sm" type="button" id="talkToZoAi">✨ ${esc(t('helpChat'))}</button>
+      <button class="btn ghost sm" type="button" id="talkToZoAi">${ui('u-sparkle')} ${esc(t('helpChat'))}</button>
     </div>`;
   paint();
   const input=root.querySelector('#talkInput');
@@ -13735,7 +13741,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||90),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||91),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

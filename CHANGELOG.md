@@ -1,5 +1,20 @@
 # Changelog
 
+## v91 — 2026-08-22
+
+Emoji removed from the interface chrome. The design doc has listed
+"emoji used as primary iconography" as a placeholder to replace since v1, and it
+was the single biggest thing still making the app read as dated.
+
+- 18 stroke icons added to the existing sprite (check, tasks, calendar, book,
+  camera, cart, sparkle, alert, megaphone, person, note, receipt, plus, clock,
+  leaf, search, chat, party), on the same 24-grid and `currentColor` convention
+  as the nav icons, with explicit sizing.
+- New `ui(id)` helper; empty states, the Zo-Ai launcher and the visible chrome
+  buttons now render icons instead of emoji.
+- Content emoji deliberately kept: food categories and chore glyphs are *data*,
+  and outline icons for milk vs butter would be worse for staff scanning a shelf.
+
 ## v90 — 2026-08-22
 
 Three Kids surfaces from the Figma frames, built in the app.
