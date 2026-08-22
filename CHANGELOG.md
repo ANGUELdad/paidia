@@ -1,5 +1,18 @@
 # Changelog
 
+## v86 — 2026-08-22
+
+- Staff **Home** brought onto the design system. It had kept its pre-redesign
+  structure while only the tokens shipped, which is why it still read as the old UI.
+- Hero: dark gradient card -> stone canvas, sea eyebrow above a Fraunces wordmark,
+  muted lead, pine primary action (matches the Figma "Home" frame).
+- Shift banner: was a full-bleed crimson wash built on Tailwind rose
+  (`#7f1d1d` / `#fecdd3`) — colours in no Armonia token. Now glass-1 with a 3px
+  semantic accent edge and a 10% tint: pine by default, terracotta when late,
+  success when done. Terracotta is an accent, never a wash.
+- Step rows, marks and CTAs re-tokenised; desktop caps the primary action at 360px.
+- Verified on mobile (375) and desktop (1280).
+
 ## v85 — 2026-08-22
 
 - Fix the Neon data-transfer burn that exhausted the quota and took durable

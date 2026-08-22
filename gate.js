@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 85,
-    label: 'v85',
+    version: 86,
+    label: 'v86',
     changed: {
-      de: 'Datenbank schont Transfer: Umfragen lesen zwischengespeichert statt bei jedem Takt',
-      el: 'Λιγότερη κίνηση βάσης: τα polls διαβάζουν από cache, όχι σε κάθε παλμό',
+      de: 'Home im neuen Design: heller Titel auf Stein, Schichtkarte als Glas mit Akzentkante',
+      el: 'Νέο design στην Αρχική: φωτεινός τίτλος σε πέτρα, κάρτα βάρδιας σε glass με ακμή',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

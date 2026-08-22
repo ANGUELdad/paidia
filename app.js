@@ -13497,7 +13497,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||85),{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||86),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

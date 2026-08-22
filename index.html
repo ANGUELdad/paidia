@@ -3304,6 +3304,92 @@
     .kid-dock button{min-height:48px; padding:6px 2px}
     .level-card{margin-top:calc(-1 * var(--space-4)); padding:var(--space-3)}
   }
+
+  /* ══════════════════════════════════════════════════════════════════════
+     STAFF HOME — alignment with the Figma Screens frames
+     The token layer shipped in v78 but the staff screens kept their
+     pre-redesign structure: a dark gradient hero and a full-bleed crimson
+     shift banner built on Tailwind rose (#7f1d1d/#fecdd3), colours that
+     appear nowhere in the system. Per the design doc, terracotta is an
+     attention accent — never a wash — and hero copy sits on stone, not on
+     a dark card. Markup is untouched; this is styling only.
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── Hero: stone canvas, ink type (Figma "Home" mast) ──────────────── */
+  .home-mast{
+    background:none; color:var(--ink); box-shadow:none; border:0;
+    padding:var(--space-2) 0 var(--space-3); overflow:visible;
+    /* flex so the eyebrow can be ordered above the wordmark without
+       touching the markup, matching the Figma hero stack */
+    display:flex; flex-direction:column; align-items:flex-start}
+  .home-mast::after{content:none}
+  .home-mast .home-brand{
+    color:var(--ink); font-size:var(--t-display-lg); font-weight:700; letter-spacing:-.02em}
+  .home-mast .home-hello{
+    order:-1; margin:0 0 var(--space-1);
+    font-size:var(--t-eyebrow); font-weight:700; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--sea)}
+  .home-mast h2{
+    color:var(--muted); font-family:var(--font-ui); font-weight:500;
+    font-size:var(--t-body-lg); letter-spacing:0; margin-top:var(--space-1)}
+  .home-primary{
+    color:#fff; border-radius:var(--radius-sm); font-weight:700;
+    background:linear-gradient(135deg,var(--brand),var(--brand-2));
+    box-shadow:0 6px 16px color-mix(in srgb, var(--brand) 24%, transparent)}
+  /* Full-bleed is right on a phone; on desktop the shell is 1180px wide and a
+     button that long reads as a banner, not an action. */
+  body.layout-desktop .home-primary,
+  body.layout-desktop .home-shell-compact .home-primary{max-width:360px}
+
+  /* ── Shift banner: glass-1 with a semantic accent edge ─────────────── */
+  .home-shift-start{
+    --shift-accent:var(--brand);
+    --shift-wash:var(--pine-tint);
+    color:var(--ink);
+    background:var(--glass);
+    border:1px solid var(--line);
+    border-left:3px solid var(--shift-accent);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-1);
+    padding:var(--space-4)}
+  .home-shift-start.late{--shift-accent:var(--out); --shift-wash:var(--out-tint);
+    background:linear-gradient(var(--shift-wash),var(--shift-wash)),var(--glass)}
+  .home-shift-start.done{--shift-accent:var(--in); --shift-wash:var(--pine-tint);
+    background:linear-gradient(var(--shift-wash),var(--shift-wash)),var(--glass)}
+  .home-shift-kicker,
+  .home-shift-start.late .home-shift-kicker{
+    color:var(--shift-accent); font-size:var(--t-eyebrow); font-weight:700; letter-spacing:.14em}
+  .home-shift-start h2{color:var(--ink); font-size:var(--t-display-md); letter-spacing:-.01em}
+  .home-shift-start-head p,
+  .home-shift-start.late .home-shift-start-head p{color:var(--muted); font-size:var(--t-body-sm)}
+  .home-shift-hint{color:var(--meta); font-size:var(--t-micro); line-height:1.45}
+
+  /* Primary action carries the tone; secondary stays quiet. */
+  .home-shift-primary,
+  .home-shift-start.late .home-shift-primary{
+    color:#fff; border-radius:var(--radius-sm); font-weight:700;
+    background:var(--shift-accent);
+    box-shadow:0 6px 16px color-mix(in srgb, var(--shift-accent) 26%, transparent)}
+
+  .home-shift-step{
+    background:var(--glass-strong); border:1px solid var(--line);
+    border-radius:var(--radius-sm); padding:var(--space-2) var(--space-3)}
+  .home-shift-step.ok{
+    background:var(--pine-tint);
+    border-color:color-mix(in srgb, var(--in) 30%, transparent)}
+  .home-shift-mark{
+    background:var(--glass); border:1px solid var(--line);
+    border-radius:10px; color:var(--muted)}
+  .home-shift-step.ok .home-shift-mark{background:var(--in); color:#fff; border-color:transparent}
+  .home-shift-step-label{color:var(--ink); font-size:var(--t-body-sm); font-weight:600}
+  .home-shift-step-done{color:var(--in); font-size:var(--t-micro); font-weight:700}
+  .home-shift-step-cta{
+    background:#fff; border:1px solid var(--line); color:var(--ink);
+    border-radius:10px; font-size:var(--t-caption); font-weight:700}
+  .home-shift-step-cta.primary,
+  .home-shift-start.late .home-shift-step-cta.primary{
+    background:var(--shift-accent); color:#fff; border-color:transparent}
+
 </style>
 </head>
 <body class="auth-pending">
@@ -3392,7 +3478,7 @@
 <script>
 /* Network-first SW + notifications — versioned registration happens in app.js */
 </script>
-<script src="notifications.js?v=85" defer></script>
-<script src="gate.js?v=85"></script>
+<script src="notifications.js?v=86" defer></script>
+<script src="gate.js?v=86"></script>
 </body>
 </html>
