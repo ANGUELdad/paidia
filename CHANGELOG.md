@@ -1,5 +1,10 @@
 # Changelog
 
+## v81.1 — 2026-08-22
+
+- Fix Vercel login crash: Flask auth bridge now forwards `remember` to session minting (was 500 → “Anmeldung nicht möglich”)
+- Session decode preserves `remember` for sliding cookie refresh
+
 ## v81 — 2026-08-22
 
 - Phase 3 Kids icons: chore cards, badges (earned/locked), empty states use SVG `currentColor` sprites
