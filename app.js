@@ -4,8 +4,8 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 82,
-  label: 'v82',
+  version: 83,
+  label: 'v83',
   changed: {
     de: 'Kids-Icons: Aufgaben, Abzeichen und Leerzustände als SVG statt Emoji',
     el: 'Εικονίδια Kids: αποστολές, εμβλήματα και κενές καταστάσεις σε SVG',
@@ -13497,7 +13497,8 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=82',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||83),{scope:'./'});
+    if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);

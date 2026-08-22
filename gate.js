@@ -34,13 +34,55 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 82,
-    label: 'v82',
+    version: 83,
+    label: 'v83',
     changed: {
-      de: 'Login-Fix: Angemeldet bleiben opt-in; Server-Bridge für PIN repariert',
-      el: 'Διόρθωση σύνδεσης: «Να με θυμάσαι» μόνο αν το επιλέξεις· επισκευή PIN API',
+      de: 'Cache-Fix: neue UI sofort nach Update (kein altes PWA-Bundle mehr)',
+      el: 'Διόρθωση cache: νέο UI αμέσως μετά το update',
     },
   };
+  const SW_BUILD_KEY = 'paidia.swBuild';
+
+  async function purgeStaleShell() {
+    const target = String(APP_BUILD.version);
+    let stored = '';
+    try { stored = localStorage.getItem(SW_BUILD_KEY) || ''; } catch (e) {}
+    if (stored === target) return false;
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+      localStorage.setItem(SW_BUILD_KEY, target);
+      if (stored && stored !== target) {
+        location.reload();
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  async function ensureServiceWorker() {
+    if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js?v=' + APP_BUILD.version, { scope: './' });
+      if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+      reg.addEventListener('updatefound', () => {
+        const worker = reg.installing;
+        if (!worker) return;
+        worker.addEventListener('statechange', () => {
+          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+            worker.postMessage({ type: 'SKIP_WAITING' });
+            location.reload();
+          }
+        });
+      });
+    } catch (e) {}
+  }
   const copy = {
     de: {
       brand: 'Gemeinsam durch den Tag',
@@ -190,7 +232,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=82';
+    script.src = 'app.js?v=' + APP_BUILD.version;
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -665,6 +707,8 @@
   }
 
   async function start() {
+    if (await purgeStaleShell()) return;
+    ensureServiceWorker();
     document.documentElement.lang = lang;
     gate.classList.add('on');
     document.body.classList.add('auth-pending');

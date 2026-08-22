@@ -1,5 +1,11 @@
 # Changelog
 
+## v83 — 2026-08-22
+
+- Force fresh UI: service worker no longer caches `app.js` / `gate.js` / `index.html`
+- Gate purges old PWA caches once per release and re-registers SW before login
+- Cache `paidia-v83`
+
 ## v82 — 2026-08-22
 
 - Login hotfix: remember-me is opt-in (unchecked by default) so PIN works before API redeploy
