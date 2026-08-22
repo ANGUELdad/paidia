@@ -423,6 +423,7 @@ const T = {
     kidLearnOpen:n=>n===1?'1 Quiz offen':`${n} Quiz offen`,
     kidTasksDue:n=>n===1?'1 heute fällig':`${n} heute fällig`,
     kidStarsCollected:n=>`${n} gesammelt`, kidGamesPlay:'Spielen',
+    storageOffline:'Nicht dauerhaft gespeichert — Datenbank offline. Bitte Admin informieren.',
     kidNavRate:'Bewertung', kidRateTitle:'Bewertungen', kidRateKicker:'Wie lief die Woche?',
     kidRateLead:'Tippe die Sterne. Das sehen nur du und deine Betreuerin.',
     kidRateSchool:'Schule', kidRateHome:'Zuhause', kidRateFriends:'Freunde', kidRateMood:'Wie ich mich fühle',
@@ -1127,6 +1128,7 @@ const T = {
     close:'Κλείσιμο', menuFilters:'Φίλτρα', menuDone:'Έτοιμο',
     childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια', childRewards:'Βραβεία',
     kidNavStart:'Αρχή', kidNavPlan:'Πρόγραμμα', kidNavLearn:'Μάθηση', kidNavStars:'Αστέρια', kidNavGames:'Παιχνίδια',
+    storageOffline:'Δεν αποθηκεύτηκε μόνιμα — η βάση είναι εκτός. Ενημέρωσε τον διαχειριστή.',
     kidNavRate:'Αξιολόγηση', kidRateTitle:'Αξιολογήσεις', kidRateKicker:'Πώς πήγε η εβδομάδα;',
     kidRateLead:'Πάτα τα αστέρια. Το βλέπεις μόνο εσύ και η φροντίστριά σου.',
     kidRateSchool:'Σχολείο', kidRateHome:'Σπίτι', kidRateFriends:'Φίλοι', kidRateMood:'Πώς νιώθω',
@@ -1980,6 +1982,19 @@ function schedulePushShared(){
    only, by design. This pushes just the child's own ratings and notes to
    /api/kid-ops, which stamps ownership from the session server-side. Debounced,
    because ratings fire on every star tap. */
+/* The server now tells us whether a write actually reached durable storage.
+   A /tmp-only write is not a save, and staff were being shown success for it. */
+let durableStorageOk = true;
+function noteDurability(data){
+  if(!data || typeof data.durable !== 'boolean') return;
+  const was = durableStorageOk;
+  durableStorageOk = data.durable;
+  if(was && !durableStorageOk) toast(t('storageOffline'), 6000);
+  document.body.classList.toggle('storage-offline', !durableStorageOk);
+  const shell = document.getElementById('app');
+  if(shell) shell.setAttribute('data-storage-warning', t('storageOffline'));
+}
+
 let kidPushTimer = null;
 function scheduleKidPush(){
   if(state.mode !== 'child' || !state.child) return;
@@ -2001,6 +2016,7 @@ async function pushKidOps(){
     });
     if(!res.ok) return false;
     const data = await res.json().catch(()=>null);
+    noteDurability(data);
     if(data && typeof data.revision === 'number') sharedRevision = data.revision;
     return true;
   }catch(_){
@@ -13776,7 +13792,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||92),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||93),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

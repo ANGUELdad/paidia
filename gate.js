@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 92,
-    label: 'v92',
+    version: 93,
+    label: 'v93',
     changed: {
-      de: 'Kinder-Daten werden dauerhaft gespeichert (eigener sicherer Schreibweg)',
-      el: 'Τα δεδομένα των παιδιών αποθηκεύονται μόνιμα (δικός τους ασφαλής δρόμος)',
+      de: 'Ehrliche Speicher-Warnung statt falscher Erfolgsmeldung',
+      el: 'Ειλικρινής προειδοποίηση αποθήκευσης αντί για ψεύτικη επιτυχία',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

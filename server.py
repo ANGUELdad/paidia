@@ -1486,7 +1486,13 @@ def load_ops_state() -> dict:
 OPS_STATE = load_ops_state()
 
 
-def persist_ops_state() -> None:
+def persist_ops_state() -> bool:
+    """Write the ops blob. Returns whether it reached DURABLE storage.
+
+    The /tmp copy on Vercel always succeeds and is wiped when the instance
+    recycles, which is why a failed database write looked like a successful save
+    all the way back to the caregiver. Callers surface this flag now.
+    """
     key = paidia_db.KEY_OPS if paidia_db else "ops"
     db_ok = _db_set(key, OPS_STATE)
     raw = json.dumps(OPS_STATE, ensure_ascii=False, separators=(",", ":"))
@@ -1503,6 +1509,7 @@ def persist_ops_state() -> None:
     except OSError:
         if os.environ.get("VERCEL") != "1" and not db_ok:
             raise
+    return bool(db_ok)
 
 
 def refresh_ops_state_from_disk() -> None:
@@ -1593,12 +1600,13 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
         OPS_STATE["revision"] = int(OPS_STATE.get("revision") or 0) + 1
         OPS_STATE["updatedAt"] = int(time.time() * 1000)
         try:
-            persist_ops_state()
+            durable = persist_ops_state()
         except OSError:
             return 507, {"error": "Could not save", "code": "storage"}
 
         return 200, {
             "ok": True,
+            "durable": durable,
             "kidId": kid_id,
             "revision": int(OPS_STATE["revision"]),
             "updatedAt": int(OPS_STATE["updatedAt"]),
@@ -1652,11 +1660,14 @@ def put_ops(body: dict, session: dict) -> tuple[int, dict]:
         OPS_STATE.clear()
         OPS_STATE.update(next_state)
         try:
-            persist_ops_state()
+            durable = persist_ops_state()
         except OSError:
             return 507, {"error": "Ops state could not be saved", "code": "storage"}
 
-    return 200, ops_snapshot(True)
+    snapshot = ops_snapshot(True)
+    # Tell the client the truth: a /tmp-only write is not a save.
+    snapshot["durable"] = bool(durable)
+    return 200, snapshot
 
 
 LEARN_PROMPT = (

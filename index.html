@@ -3649,6 +3649,16 @@
   .empty-ico .ui-ico{width:44px; height:44px; stroke-width:1.3; color:var(--sea); opacity:.85}
   .btn .ui-ico, .page-act .ui-ico, .chip .ui-ico{margin-right:6px}
 
+
+  /* Persistent, unmissable while durable storage is down. Staff were being
+     shown a successful save for a write that only reached /tmp. */
+  body.storage-offline #app.app-shell::before{
+    content:attr(data-storage-warning);
+    position:sticky; top:0; z-index:30; display:block;
+    padding:var(--space-2) var(--space-4);
+    background:var(--out); color:#fff;
+    font:600 var(--t-caption)/1.35 var(--font-ui); text-align:center}
+
 </style>
 </head>
 <body class="auth-pending">
@@ -3737,7 +3747,7 @@
 <script>
 /* Network-first SW + notifications — versioned registration happens in app.js */
 </script>
-<script src="notifications.js?v=92" defer></script>
-<script src="gate.js?v=92"></script>
+<script src="notifications.js?v=93" defer></script>
+<script src="gate.js?v=93"></script>
 </body>
 </html>

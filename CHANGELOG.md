@@ -1,5 +1,19 @@
 # Changelog
 
+## v93 — 2026-08-22
+
+Stop reporting a successful save for a write that never reached the database.
+
+`persist_ops_state()` discarded the result of the durable write. The /tmp copy on
+Vercel always succeeds and is wiped when the instance recycles, so `put_ops`
+returned 200 and staff were shown success for data that was already gone. It now
+returns whether the write reached durable storage, `put_ops` and `put_kid_ops`
+pass that back as `durable`, and the client shows a persistent red banner plus a
+toast instead of a false confirmation.
+
+Provider note: `db.py` already accepts Supabase poolers as well as Neon, so
+moving to another free Postgres is a `DATABASE_URL` swap with no code change.
+
 ## v92 — 2026-08-22
 
 Kid data can now persist. Two gaps, both closed.
