@@ -1,8 +1,8 @@
 {
-  "version": 84,
-  "label": "v84",
+  "version": 85,
+  "label": "v85",
   "changed": {
-    "de": "Kalender-Mitteilungen wieder an Bord (PaidiaNotify) nach Zusammenführung",
-    "el": "Επιστροφή ειδοποιήσεων ημερολογίου (PaidiaNotify) μετά τη συγχώνευση"
+    "de": "Datenbank schont Transfer: Umfragen lesen zwischengespeichert statt bei jedem Takt",
+    "el": "Λιγότερη κίνηση βάσης: τα polls διαβάζουν από cache, όχι σε κάθε παλμό"
   }
 }

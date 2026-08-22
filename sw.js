@@ -1,5 +1,5 @@
 // Network-first PWA worker — never serve stale app shells or JS bundles.
-const CACHE = 'paidia-v84';
+const CACHE = 'paidia-v85';
 const ASSETS = ['./manifest.webmanifest'];
 const NEVER_CACHE = /(?:^|\/)(?:index\.html|gate\.js|app\.js|build\.json|sw\.js)(?:\?|$)/i;
 

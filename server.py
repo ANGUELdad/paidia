@@ -50,6 +50,7 @@ def _db_set(key: str, value) -> bool:
         return False
     try:
         paidia_db.set_json(key, value)
+        _durable_invalidate(key)
         return True
     except Exception as exc:  # noqa: BLE001
         print(f"[paidia.db] set {key} failed: {exc}", flush=True)
@@ -63,6 +64,49 @@ def _db_has(key: str) -> bool:
         return paidia_db.has_key(key)
     except Exception:
         return False
+
+
+# ── Durable-read cache ────────────────────────────────────────────────────
+# On hosted Postgres the scarce resource is data transfer, not queries. The
+# client polls /api/ops and the gallery every 2.5s, and each poll re-read the
+# whole blob — roughly 17 MB/hour per open tab, which is what exhausted the
+# Neon transfer quota. Cache those two hot keys in-process and drop the entry
+# on write so a writer never reads its own stale value.
+#
+# Deliberately NOT applied to the security/lockout key: a stale read there
+# would widen the PIN brute-force window across instances.
+_DURABLE_TTL = float(os.environ.get("PAIDIA_DURABLE_TTL", "15") or 15)
+_DURABLE_CACHED_KEYS: set[str] = set()
+if paidia_db is not None:
+    _DURABLE_CACHED_KEYS = {
+        getattr(paidia_db, "KEY_OPS", "ops"),
+        getattr(paidia_db, "KEY_GALLERY", "gallery"),
+    }
+_durable_cache: dict[str, tuple[float, object]] = {}
+_durable_cache_lock = threading.Lock()
+
+
+def _db_get_cached(key: str, default=None):
+    """_db_get for hot polled keys, memoised for _DURABLE_TTL seconds."""
+    if key not in _DURABLE_CACHED_KEYS or _DURABLE_TTL <= 0:
+        return _db_get(key, default)
+    now = time.monotonic()
+    with _durable_cache_lock:
+        hit = _durable_cache.get(key)
+        if hit is not None and (now - hit[0]) < _DURABLE_TTL:
+            return hit[1]
+    value = _db_get(key, default)
+    with _durable_cache_lock:
+        _durable_cache[key] = (time.monotonic(), value)
+    return value
+
+
+def _durable_invalidate(key: str | None = None) -> None:
+    with _durable_cache_lock:
+        if key is None:
+            _durable_cache.clear()
+        else:
+            _durable_cache.pop(key, None)
 
 
 try:
@@ -998,7 +1042,7 @@ def _normalize_gallery_state(value: object) -> dict:
 
 def load_gallery_state() -> dict:
     key = paidia_db.KEY_GALLERY if paidia_db else "gallery"
-    stored = _db_get(key)
+    stored = _db_get_cached(key)
     if isinstance(stored, dict):
         return _normalize_gallery_state(stored)
     try:
@@ -1406,7 +1450,7 @@ def _normalize_ops_state(value: object) -> dict:
 def load_ops_state() -> dict:
     """Prefer DB (survives deploys); fall back to env seed, then local/tmp file."""
     key = paidia_db.KEY_OPS if paidia_db else "ops"
-    stored = _db_get(key)
+    stored = _db_get_cached(key)
     if isinstance(stored, dict):
         return _normalize_ops_state(stored)
     raw = os.environ.get("PAIDIA_OPS_JSON", "").strip()

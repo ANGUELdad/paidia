@@ -1,5 +1,18 @@
 # Changelog
 
+## v85 — 2026-08-22
+
+- Fix the Neon data-transfer burn that exhausted the quota and took durable
+  storage offline. `/api/ops` and the gallery are polled every 2.5s and each poll
+  re-read the whole blob from Postgres — roughly 17 MB/hour per open tab.
+- Added a 15s in-process cache for the two hot keys (`ops`, `gallery`), dropped
+  on write so an instance never serves its own stale value. Measured: 20 polls
+  now cost 1 database read instead of 20.
+- The security/lockout key is deliberately left uncached — a stale read there
+  would widen the PIN brute-force window across instances.
+- TTL is tunable via `PAIDIA_DURABLE_TTL` (seconds; 0 disables the cache).
+- Corrected the Greek login banner string, which had been left on v83 text.
+
 ## v84 — 2026-08-22
 
 - Merged the pre-redesign `main` line back in; kept `notifications.js`

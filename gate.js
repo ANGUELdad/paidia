@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 84,
-    label: 'v84',
+    version: 85,
+    label: 'v85',
     changed: {
-      de: 'Kalender-Mitteilungen wieder an Bord (PaidiaNotify) nach Zusammenführung',
-      el: 'Διόρθωση cache: νέο UI αμέσως μετά το update',
+      de: 'Datenbank schont Transfer: Umfragen lesen zwischengespeichert statt bei jedem Takt',
+      el: 'Λιγότερη κίνηση βάσης: τα polls διαβάζουν από cache, όχι σε κάθε παλμό',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
