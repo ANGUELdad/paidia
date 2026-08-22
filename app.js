@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 74,
-  label: 'v75',
+  version: 81,
+  label: 'v81',
   changed: {
-    de: 'Momente ein Tipp · Zo-Ai Groq-Modelle · Pooler-DB-Hinweis',
-    el: 'Momente ένα κλικ · μοντέλα Zo-Ai Groq · υπόδειξη pooler DB',
+    de: 'Kids-Icons: Aufgaben, Abzeichen und Leerzustände als SVG statt Emoji',
+    el: 'Εικονίδια Kids: αποστολές, εμβλήματα και κενές καταστάσεις σε SVG',
   },
 };
 const T = {
@@ -371,6 +371,11 @@ const T = {
     shopPlan:'Planen', shopTake:'Mitnehmen', shopTakeHint:'Kompakt nach Gang — was mitnehmen',
     shopTakeEmptyHint:'Unter Planen Produkte hinzufügen oder Auto aus Lager nutzen.',
     shopAutoFill:'Auto aus Lager', shopAutoFilled:n=>`${n} Produkte ergänzt`,
+    selectMode:'Auswählen', selectDone:'Fertig', selectedCount:n=>`${n} gewählt`,
+    bulkRemove:'Entfernen', bulkQtyMinus:'Qty −', bulkQtyPlus:'Qty ＋', bulkToList:'→ Liste',
+    bulkOut:'OUT', bulkClearEmpty:'Leeren', bulkFound:'Gefunden', bulkMissing:'Fehlt', bulkUndo:'Rückgängig',
+    bulkRemoved:n=>`${n} entfernt`, bulkListed:n=>`${n} → Liste`, bulkDecided:n=>`${n} markiert`,
+    homeSignalList:'Liste', homeSignalStock:'Lager', homeCompactTitle:'Heute · kompakt',
     stockQuickList:'Alles Wenige → Liste', stockQuickListShort:'Wenige',
     stockAddedLow:n=>`${n} auf Einkaufsliste`,
     viewCalendar:'Kalender', calPrev:'‹', calNext:'›',
@@ -409,6 +414,20 @@ const T = {
     visibleToAll:'Für alle sichtbar',
     close:'Schließen', menuFilters:'Filter', menuDone:'Fertig',
     childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele', childRewards:'Belohnungen',
+    kidNavStart:'Start', kidNavPlan:'Plan', kidNavLearn:'Lernen', kidNavStars:'Sterne', kidNavGames:'Spiele',
+    kidHello:n=>`Hallo, ${n}`, kidLevelCard:n=>`Stufe ${n}`, kidXpOf:(a,b)=>`${a} / ${b} Sterne`,
+    kidXpRemain:n=>`Noch ${n} bis zur nächsten Stufe`, kidTodayLessons:'Heute',
+    kidLessonsDone:(d,t)=>`${d} von ${t} fertig`, kidNextUp:'Als Nächstes',
+    kidNextMeta:(m,xp)=>`${m} Min. · +${xp} Sterne`, kidCourseLearn:'Lernen', kidCourseTasks:'Aufgaben',
+    kidCourseStars:'Sterne', kidCourseGames:'Spiele',
+    kidLearnOpen:n=>n===1?'1 Quiz offen':`${n} Quiz offen`,
+    kidTasksDue:n=>n===1?'1 heute fällig':`${n} heute fällig`,
+    kidStarsCollected:n=>`${n} gesammelt`, kidGamesPlay:'Spielen',
+    kidPlanTitle:'Stundenplan', kidAufgabenTitle:'Aufgaben', kidSterneTitle:'Sterne',
+    kidLearnHubTitle:'Lernen', kidLearnHubHint:'Karten, Quiz und Rechnen — sammle Sterne.',
+    kidStreak:'7-Tage-Streak', kidWeekDeltaLabel:'diese Woche', kidBadges:'Abzeichen',
+    kidBadgeLocked:'Gesperrt', kidRedeem:'Einlösen', kidSubjectDaily:'Alltag',
+    kidDueToday:'Heute fällig', kidOverdue:'Überfällig',
     rewardsTitle:'Aufgaben & Belohnungen', rewardsHero:'Dein Fortschritt',
     choresDue:'Heutige Aufgaben', choresDone:'Erledigte Aufgaben', choresAll:'Alle Aufgaben',
     choreSubmitProof:'Aufgabe einreichen', chorePhotoHint:'Foto machen oder beschreiben, was du getan hast',
@@ -1049,6 +1068,11 @@ const T = {
     shopPlan:'Σχεδιασμός', shopTake:'Παίρνω', shopTakeHint:'Συμπαγής λίστα ανά διάδρομο — τι παίρνω',
     shopTakeEmptyHint:'Πρόσθεσε προϊόντα στον Σχεδιασμό ή χρησιμοποίησε Αυτόματα από αποθήκη.',
     shopAutoFill:'Αυτόματα από αποθήκη', shopAutoFilled:n=>`${n} προϊόντα προστέθηκαν`,
+    selectMode:'Επιλογή', selectDone:'Έτοιμο', selectedCount:n=>`${n} επιλεγμένα`,
+    bulkRemove:'Διαγραφή', bulkQtyMinus:'Ποσ. −', bulkQtyPlus:'Ποσ. ＋', bulkToList:'→ Λίστα',
+    bulkOut:'OUT', bulkClearEmpty:'Άδειασμα', bulkFound:'Βρέθηκε', bulkMissing:'Λείπει', bulkUndo:'Αναίρεση',
+    bulkRemoved:n=>`${n} διαγράφηκαν`, bulkListed:n=>`${n} → λίστα`, bulkDecided:n=>`${n} σημειώθηκαν`,
+    homeSignalList:'Λίστα', homeSignalStock:'Αποθήκη', homeCompactTitle:'Σήμερα · συμπαγές',
     stockQuickList:'Όλα τα λίγα → λίστα', stockQuickListShort:'Λίγα',
     stockAddedLow:n=>`${n} στη λίστα`,
     viewCalendar:'Ημερολόγιο', calPrev:'‹', calNext:'›',
@@ -1087,6 +1111,20 @@ const T = {
     visibleToAll:'Ορατό σε όλους',
     close:'Κλείσιμο', menuFilters:'Φίλτρα', menuDone:'Έτοιμο',
     childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια', childRewards:'Βραβεία',
+    kidNavStart:'Αρχή', kidNavPlan:'Πρόγραμμα', kidNavLearn:'Μάθηση', kidNavStars:'Αστέρια', kidNavGames:'Παιχνίδια',
+    kidHello:n=>`Γεια, ${n}`, kidLevelCard:n=>`Επίπεδο ${n}`, kidXpOf:(a,b)=>`${a} / ${b} αστέρια`,
+    kidXpRemain:n=>`Ακόμα ${n} για το επόμενο επίπεδο`, kidTodayLessons:'Σήμερα',
+    kidLessonsDone:(d,t)=>`${d} από ${t} έτοιμα`, kidNextUp:'Στη συνέχεια',
+    kidNextMeta:(m,xp)=>`${m} λεπτά · +${xp} αστέρια`, kidCourseLearn:'Μάθηση', kidCourseTasks:'Αποστολές',
+    kidCourseStars:'Αστέρια', kidCourseGames:'Παιχνίδια',
+    kidLearnOpen:n=>n===1?'1 κουίζ ανοιχτό':`${n} κουίζ ανοιχτά`,
+    kidTasksDue:n=>n===1?'1 σήμερα':`${n} σήμερα`,
+    kidStarsCollected:n=>`${n} μαζεμένα`, kidGamesPlay:'Παίξε',
+    kidPlanTitle:'Ωρολόγιο', kidAufgabenTitle:'Αποστολές', kidSterneTitle:'Αστέρια',
+    kidLearnHubTitle:'Μάθηση', kidLearnHubHint:'Κάρτες, κουίζ και μαθηματικά — μάζεψε αστέρια.',
+    kidStreak:'Σερί 7 ημερών', kidWeekDeltaLabel:'αυτή την εβδομάδα', kidBadges:'Εμβλήματα',
+    kidBadgeLocked:'Κλειδωμένο', kidRedeem:'Εξαργύρωση', kidSubjectDaily:'Καθημερινά',
+    kidDueToday:'Σήμερα', kidOverdue:'Εκπρόθεσμο',
     rewardsTitle:'Αποστολές & Βραβεία', rewardsHero:'Η πρόοδός σου',
     choresDue:'Αποστολές σήμερα', choresDone:'Ολοκληρωμένες', choresAll:'Όλες οι αποστολές',
     choreSubmitProof:'Υποβολή αποστολής', chorePhotoHint:'Τράβηξε φωτογραφία ή γράψε τι έκανες',
@@ -2243,6 +2281,8 @@ const state = {
   stockDraftReason: null,
   shopQuery: '',
   storeShowDone: false,
+  selectMode: null, // null | 'shop' | 'stock' | 'store'
+  selectedIds: [],
   houseFilter: '',
   date: iso(new Date()),
   bookRange: 'today', // today | week | month | all
@@ -2369,6 +2409,10 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   state.mode=mode;
   state.child=mode==='child'?authenticatedWho:null;
   state.user=mode==='staff'?authenticatedWho:null;
+  try{
+    localStorage.setItem('paidia.lastMode', mode);
+    localStorage.setItem('paidia.lastProfileId', data.profileId);
+  }catch{}
   state.onboardingVersion=Number(data.onboardingVersion)||1;
   const serverDone=data.onboardingComplete===true;
   const localDone=readOnboardingDone(data.profileId, mode, state.onboardingVersion);
@@ -2391,9 +2435,11 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
 }
 
 async function authenticateProfile(mode,who,pin){
+  let remember=true;
+  try{ remember = localStorage.getItem('paidia.rememberMe')!=='0'; }catch{}
   const response=await fetch('/api/auth/login',{
     method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
-    body:JSON.stringify({mode,profileId:who.id,pin}),
+    body:JSON.stringify({mode,profileId:who.id,pin,remember}),
   });
   const data=await response.json();
   if(!response.ok){
@@ -2453,10 +2499,12 @@ async function passkeyApi(path,body){
 }
 async function loginWithPasskey(mode,who){
   if(!passkeyCapable()){const error=new Error(t('passkeyUnavailable'));error.code='unsupported';throw error;}
+  let remember=true;
+  try{ remember = localStorage.getItem('paidia.rememberMe')!=='0'; }catch{}
   const options=await passkeyApi('/api/auth/passkey/login/options',{mode,profileId:who.id});
   const publicKey=decodePublicKeyOptions(options.publicKey);
   const credential=await navigator.credentials.get({publicKey});
-  const data=await passkeyApi('/api/auth/passkey/login/verify',{ceremonyId:options.ceremonyId,credential:publicKeyCredentialJSON(credential)});
+  const data=await passkeyApi('/api/auth/passkey/login/verify',{ceremonyId:options.ceremonyId,credential:publicKeyCredentialJSON(credential),remember});
   if(!applyAuthenticatedProfile(data,{logLogin:true}))throw new Error('Unknown profile');
   return data;
 }
@@ -2476,9 +2524,16 @@ function revealApp(){
 
 async function restoreServerSession(){
   try{
-    const response=await fetch('/api/auth/session',{credentials:'same-origin'});
-    const data=await response.json();
-    if(response.ok && data.authenticated && applyAuthenticatedProfile(data)){
+    let data = window.__paidiaBootSession || null;
+    if(data && data.authenticated){
+      try{ delete window.__paidiaBootSession; }catch{}
+    }else{
+      data = null;
+      const response=await fetch('/api/auth/session',{credentials:'same-origin'});
+      data=await response.json();
+      if(!response.ok) data=null;
+    }
+    if(data && data.authenticated && applyAuthenticatedProfile(data)){
       closeGate();revealApp();render();
       startSharedSync();
       await ensureOnboarding();await ensureContactDetails();return true;
@@ -4627,6 +4682,7 @@ function consumePresenceDeepLink(){
 
 const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk'];
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
+const ROUTE_SHOP_PANELS = ['plan','take','store'];
 
 function routeFromHash(){
   const raw = (location.hash || '').replace(/^#/, '').trim();
@@ -4636,6 +4692,7 @@ function routeFromHash(){
   if(!ROUTE_TABS.includes(tab)) return null;
   const route = {tab};
   if(tab === 'schedule' && parts[1] && ROUTE_SCHEDULE_VIEWS.includes(parts[1])) route.scheduleView = parts[1];
+  if(tab === 'shop' && parts[1] && ROUTE_SHOP_PANELS.includes(parts[1])) route.shopPanel = parts[1];
   return route;
 }
 
@@ -4644,6 +4701,9 @@ function applyRouteFromHash(){
   if(!route) return false;
   state.tab = route.tab;
   if(route.scheduleView) state.scheduleView = route.scheduleView;
+  if(route.shopPanel){
+    state.shopPanel = route.shopPanel === 'store' ? 'plan' : route.shopPanel;
+  }
   if(state.tab === 'schedule' && state.scheduleView === 'calendar' && !state.calendarMonth){
     state.calendarMonth = iso(new Date()).slice(0, 7) + '-01';
   }
@@ -4651,11 +4711,51 @@ function applyRouteFromHash(){
 }
 
 function hashForState(){
-  if(state.tab === 'schedule' && state.scheduleView === 'calendar') return '#schedule/calendar';
-  if(state.tab === 'schedule' && state.scheduleView === 'events') return '#schedule/events';
-  if(state.tab === 'shop') return '#shop';
+  if(state.tab === 'home') return '#home';
+  if(state.tab === 'gallery') return '#gallery';
+  if(state.tab === 'book') return '#book';
+  if(state.tab === 'talk') return '#talk';
   if(state.tab === 'stock') return '#stock';
+  if(state.tab === 'schedule'){
+    const sv = state.scheduleView || 'day';
+    return ROUTE_SCHEDULE_VIEWS.includes(sv) ? `#schedule/${sv}` : '#schedule/day';
+  }
+  if(state.tab === 'shop'){
+    try{
+      const pending = fridayEntries(shopHouse()).some(e=>e.status==='pending');
+      if(pending) return '#shop/store';
+    }catch{}
+    const panel = state.shopPanel === 'take' ? 'take' : 'plan';
+    return `#shop/${panel}`;
+  }
   return '';
+}
+
+function clearSelection(){
+  state.selectMode = null;
+  state.selectedIds = [];
+}
+function isSelected(id){
+  return state.selectedIds.includes(id);
+}
+function toggleSelected(id){
+  if(isSelected(id)) state.selectedIds = state.selectedIds.filter(x=>x!==id);
+  else state.selectedIds = [...state.selectedIds, id];
+}
+function enterSelectMode(mode){
+  state.selectMode = mode;
+  state.selectedIds = [];
+}
+function exitSelectMode(){
+  clearSelection();
+}
+function bulkBarHtml(actions){
+  const n = state.selectedIds.length;
+  if(!n) return '';
+  return `<div class="bulk-bar" role="toolbar" aria-label="${esc(T[state.lang].selectedCount(n))}">
+    <span class="bulk-bar-count">${esc(T[state.lang].selectedCount(n))}</span>
+    <div class="bulk-bar-actions">${actions.map(a=>`<button type="button" class="bulk-act ${a.danger?'danger':''}" data-bulk="${a.id}">${esc(a.label)}</button>`).join('')}</div>
+  </div>`;
 }
 
 function syncLocationHash(){
@@ -5755,17 +5855,20 @@ function viewStock(){
     const preview=roundStock(qty+delta);
     const pending=delta?`<span class="stock-pending ${delta>0?'in':'out'}">${delta>0?'+':''}${delta}</span>`:'';
     const planned=isProductOnFridayList(hid,p.id,friday);
-    return `<div class="stock-product ${st} has-stepper ${delta?'drafting':''}">
+    const selecting=state.selectMode==='stock' && hid!=='all';
+    const sel=selecting && isSelected(p.id);
+    return `<div class="stock-product ${st} has-stepper ${delta?'drafting':''} ${sel?'selected':''}">
+      ${selecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${p.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
         <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}${pending}</div>
         <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ✎</div>
       </button>
-      <div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
+      ${selecting?'':`<div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
         <button class="stock-step out" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${preview<=0&&delta<=0?'disabled':''}>−</button>
         <div class="stock-qty ${delta>0?'draft-in':delta<0?'draft-out':''}">${preview}<small>${esc(p.unit)}</small></div>
         <button class="stock-step in" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">＋</button>
       </div>
-      <button type="button" class="want-bought ${planned?'on':''}" data-want-shop="${p.id}" ${planned?'disabled':''}>${planned?'✓ '+t('wantBoughtDone'):t('wantBought')}</button>
+      <button type="button" class="want-bought ${planned?'on':''}" data-want-shop="${p.id}" ${planned?'disabled':''}>${planned?'✓ '+t('wantBoughtDone'):t('wantBought')}</button>`}
     </div>`;
   };
   const forceOpenCats=!!query || state.stockFilter!=='all';
@@ -5788,7 +5891,8 @@ function viewStock(){
       <div class="stock-command-row">
         <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
         ${hid==='all'?`<button class="stock-tool ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle" title="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-label="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-pressed="${state.stockTiles?'true':'false'}">${state.stockTiles?'▦':'☰'}</button>`:''}
-        ${hid!=='all'?`<button class="stock-tool labeled" type="button" id="stockQuickList" title="${esc(t('stockQuickList'))}" aria-label="${esc(t('stockQuickList'))}"><span aria-hidden="true">⚡</span><span>${esc(t('stockQuickListShort'))}</span></button>
+        ${hid!=='all'?`<button class="stock-tool ${state.selectMode==='stock'?'on':''}" type="button" id="stockSelectToggle" title="${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}" aria-label="${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}" aria-pressed="${state.selectMode==='stock'?'true':'false'}">${state.selectMode==='stock'?'✓':'☑'}</button>
+        <button class="stock-tool labeled" type="button" id="stockQuickList" title="${esc(t('stockQuickList'))}" aria-label="${esc(t('stockQuickList'))}"><span aria-hidden="true">⚡</span><span>${esc(t('stockQuickListShort'))}</span></button>
         <button class="stock-tool labeled" type="button" id="stockOpenBoard" title="${esc(t('stockBoard'))}" aria-label="${esc(t('stockBoard'))}"><span aria-hidden="true">▦</span><span>${esc(t('stockBoardShort'))}</span></button>
         <button class="stock-tool labeled" type="button" id="stockQuickFood" title="${esc(t('stockAddFood'))}" aria-label="${esc(t('stockAddFood'))}"><span aria-hidden="true">＋</span><span>${esc(t('stockAddFoodShort'))}</span></button>`:''}
       </div>
@@ -5803,6 +5907,11 @@ function viewStock(){
     ${shiftStockCheckBannerHtml()}
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
     <div class="stock-categories">${categoryHtml||emptyState('⌕', t('noStockResults'), t('noStockHint'), state.stockQuery?`<button class="btn sm sec" type="button" id="stockEmptyClear">${esc(t('stockClearSearch'))}</button>`:(hid!=='all'?`<button class="btn sm" type="button" id="stockEmptyAdd">${esc(t('stockAddFoodShort'))}</button>`:''))}</div>
+    ${state.selectMode==='stock'&&hid!=='all'?bulkBarHtml([
+      {id:'to-list', label:t('bulkToList')},
+      {id:'out', label:t('bulkOut')},
+      {id:'clear-empty', label:t('bulkClearEmpty'), danger:true},
+    ]):''}
     ${hid!=='all'?(()=>{
       const draft=stockDraftEntries();
       if(!draft.length) return '';
@@ -6955,6 +7064,8 @@ function viewShop(){
     return q <= lowThreshold(p);
   }).length;
   const catOrder = [...CATS().map(c=>c.id), 'other'];
+  const shopSelecting = state.selectMode==='shop' && !inStore;
+  const storeSelecting = state.selectMode==='store' && inStore;
   const hero=inStore?'':`<section class="shop-command" aria-label="${esc(t('shopTitle'))}">
     <div class="seg house-selector" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
       ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
@@ -6971,6 +7082,7 @@ function viewShop(){
         <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
       </div>
       <div class="shop-tools" role="toolbar" aria-label="${esc(t('shopTitle'))}">
+        <button class="shop-tool ${shopSelecting?'on':''}" type="button" id="shopSelectToggle" title="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-label="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-pressed="${shopSelecting?'true':'false'}">${shopSelecting?'✓':'☑'}</button>
         <button class="shop-tool" type="button" data-page-act="shopScan" title="${esc(t('topScan'))}" aria-label="${esc(t('topScan'))}">📷</button>
         <button class="shop-tool" type="button" id="importList" title="${esc(t('importList'))}" aria-label="${esc(t('importList'))}">📥</button>
         <button class="shop-tool" type="button" data-page-act="shopHistory" title="${esc(t('topHistory'))}" aria-label="${esc(t('topHistory'))}">🧾</button>
@@ -7026,7 +7138,9 @@ function viewShop(){
 
   const storeRow = e => {
     const st = e.decision;
-    return `<div class="store-choice ${st||''}" data-entry-row="${e.id}">
+    const sel = storeSelecting && isSelected(e.id);
+    return `<div class="store-choice ${st||''} ${sel?'selected':''}" data-entry-row="${e.id}">
+      ${storeSelecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${e.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
       <button class="store-choice-main" type="button" data-decision="${st==='bought'?'undo':'bought'}" data-entry="${e.id}" aria-label="${st==='bought'?t('undoDecision'):t('markBought')}">
         <div class="store-choice-name">${esc(e.name)}</div>
         <div class="store-choice-qty"><b>${e.qty} ${esc(e.unit)}</b>${e.note?' · '+esc(e.note):''}</div>
@@ -7048,6 +7162,7 @@ function viewShop(){
             <b>${done===pending.length?'✓ '+t('storeComplete'):t('storeMode')}</b>
             <span>🏠 ${esc(house(hid).short)} · ${T[state.lang].storeLeft(remaining)}</span>
           </div>
+          <button class="store-done-toggle ${storeSelecting?'on':''}" id="storeSelectToggle" type="button">${storeSelecting?t('selectDone'):t('selectMode')}</button>
           <button class="store-done-toggle ${showDone?'on':''}" id="storeShowDone" type="button">${showDone?t('storeHideDone'):t('storeShowDone')}</button>
         </div>
         <div class="store-progress"><i style="width:${progress}%"></i></div>
@@ -7069,6 +7184,11 @@ function viewShop(){
           </div>
         </div>`:''}
       </div>
+      ${storeSelecting?bulkBarHtml([
+        {id:'found', label:t('bulkFound')},
+        {id:'missing', label:t('bulkMissing'), danger:true},
+        {id:'undo', label:t('bulkUndo')},
+      ]):''}
       <div class="store-finish bottom-dock">
         <div class="row">
           <button class="btn sec sm" id="btnReceipt" type="button">${t('scanReceipt')}</button>
@@ -7079,8 +7199,15 @@ function viewShop(){
     </section>` : '';
 
   const openCard = (pending.length || state.shopPanel!=='plan')?'':`<div class="card shop-list-card">
-    ${open.length?`<div class="shop-items">${open.map(e=>`<div class="shop-item"><div><div class="shop-item-name">${svgIcon(prodIconId(e.productId?prod(e.productId):matchProduct(e.name)),'prod-ico')}${esc(e.name)}</div>
-      <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)}</div></div><div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div></div>`).join('')}</div>`:
+    ${open.length?`<div class="shop-items">${open.map(e=>{
+      const sel = shopSelecting && isSelected(e.id);
+      return `<div class="shop-item ${sel?'selected':''}">
+      ${shopSelecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${e.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
+      <div><div class="shop-item-name">${svgIcon(prodIconId(e.productId?prod(e.productId):matchProduct(e.name)),'prod-ico')}${esc(e.name)}</div>
+      <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)}</div></div>
+      ${shopSelecting?'':`<div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div>`}
+      </div>`;
+    }).join('')}</div>`:
       `<div class="shop-empty">
         <div class="big">🧺</div>
         <h3>${t('startListTitle')}</h3>
@@ -7089,7 +7216,12 @@ function viewShop(){
           <button class="btn" type="button" id="shopStartAdd">${t('startListAdd')}</button>
         </div>
       </div>`}
-    ${open.length&&!pending.length?`<div class="cart-start"><button class="btn" id="startFriday">${T[state.lang].cartReady(open.length)}</button></div>`:''}
+    ${shopSelecting?bulkBarHtml([
+      {id:'remove', label:t('bulkRemove'), danger:true},
+      {id:'qty-minus', label:t('bulkQtyMinus')},
+      {id:'qty-plus', label:t('bulkQtyPlus')},
+    ]):''}
+    ${open.length&&!pending.length&&!shopSelecting?`<div class="cart-start"><button class="btn" id="startFriday">${T[state.lang].cartReady(open.length)}</button></div>`:''}
     </div>`;
 
   const missingCard = missing.length ? `<details class="card shop-history"><summary>⚠️ ${t('secMissing')}<span class="pill out">${missing.length}</span></summary><div class="shop-history-body">
@@ -8879,6 +9011,8 @@ function leaveChildGame(){
   stopChildGameTimers();
   state.gameId = null;
   state.game = null;
+  if(state.mode==='child' && !['learn','games'].includes(state.childView))
+    state.childView = 'games';
   render();
 }
 
@@ -8946,6 +9080,267 @@ function chorePendingToday(choreId, kidId){
   return (DB.choreSubmissions||[]).some(s=>s.choreId===choreId && s.kidId===kidId && s.date===today && s.status==='pending');
 }
 
+function progressRingHtml(pct, centerLabel, size=64){
+  const p = Math.max(0, Math.min(100, Number(pct)||0));
+  const r = 26, c = 2*Math.PI*r, off = c*(1-p/100);
+  return `<svg class="progress-ring" width="${size}" height="${size}" viewBox="0 0 64 64" role="img" aria-label="${esc(String(centerLabel))}">
+    <circle class="pr-track" cx="32" cy="32" r="${r}"/>
+    <circle class="pr-fill" cx="32" cy="32" r="${r}" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}"/>
+    <text class="pr-label" x="32" y="37" text-anchor="middle">${esc(String(centerLabel))}</text>
+  </svg>`;
+}
+function levelMeterHtml(pct){
+  const p = Math.max(0, Math.min(100, Number(pct)||0));
+  return `<div class="level-meter" aria-hidden="true"><i style="width:${p}%"></i></div>`;
+}
+function segmentedProgressHtml(done, total, wrongIdx=-1){
+  const n = Math.max(1, Number(total)||1);
+  const d = Math.max(0, Math.min(n, Number(done)||0));
+  return `<div class="seg-progress" role="img" aria-label="${d}/${n}">${Array.from({length:n},(_,i)=>
+    `<i class="${i<d?'on':''} ${i===wrongIdx?'bad':''}"></i>`).join('')}</div>`;
+}
+function kidXpDates(kidId){
+  return [...new Set((DB.xpLog||[]).filter(x=>x.kidId===kidId && (x.ts||x.at))
+    .map(x=>iso(new Date(x.ts||x.at))))].sort();
+}
+function kidStreakDays(kidId){
+  const dates = kidXpDates(kidId);
+  if(!dates.length) return 0;
+  let streak=0;
+  let cursor = iso(new Date());
+  const set = new Set(dates);
+  // Allow streak to count if yesterday was last activity (miss today still OK until end of day? Figma shows consecutive days with activity)
+  if(!set.has(cursor)){
+    const y = new Date(); y.setDate(y.getDate()-1);
+    cursor = iso(y);
+  }
+  while(set.has(cursor)){
+    streak++;
+    const d = new Date(cursor+'T12:00:00');
+    d.setDate(d.getDate()-1);
+    cursor = iso(d);
+  }
+  return streak;
+}
+function kidWeekXpDelta(kidId){
+  const start = new Date(); start.setDate(start.getDate()-6); start.setHours(0,0,0,0);
+  return (DB.xpLog||[]).filter(x=>x.kidId===kidId && (x.ts||x.at) && new Date(x.ts||x.at)>=start)
+    .reduce((s,x)=>s+(x.xp||0),0);
+}
+function kidStreakHtml(kidId){
+  const dates = new Set(kidXpDates(kidId));
+  const cells=[];
+  for(let i=6;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const key = iso(d);
+    cells.push(`<i class="${dates.has(key)?'on':''}" title="${key}">${d.getDate()}</i>`);
+  }
+  return `<div class="kid-streak" aria-label="${esc(t('kidStreak'))}">${cells.join('')}</div>`;
+}
+function svgUse(id, size=22){
+  return `<svg class="i" width="${size}" height="${size}" aria-hidden="true"><use href="#${esc(id)}"/></svg>`;
+}
+const CHORE_SVG = {
+  '🛏️':'i-chore-bed', '🧹':'i-chore-broom', '🍽️':'i-chore-dish', '🦷':'i-chore-tooth',
+  '👟':'i-chore-shoe', '🌱':'i-chore-plant', '🐕':'i-chore-pet', '📚':'i-chore-book', '🛁':'i-chore-bath',
+};
+function choreIconSvg(ch, size=22){
+  return svgUse(CHORE_SVG[ch?.emoji] || 'i-chore-check', size);
+}
+const KID_BADGES = [
+  {id:'b1', xp:10, de:'Erster Stern', el:'Πρώτο αστέρι', ico:'i-star'},
+  {id:'b2', xp:50, de:'Starter', el:'Starter', ico:'i-badge-seed'},
+  {id:'b3', xp:120, de:'Entdecker', el:'Εξερευνητής', ico:'i-badge-compass'},
+  {id:'b4', xp:250, de:'Held', el:'Ήρωας', ico:'i-badge-shield'},
+  {id:'b5', xp:450, de:'Champion', el:'Πρωταθλητής', ico:'i-badge-trophy'},
+  {id:'b6', xp:700, de:'Legende', el:'Θρύλος', ico:'i-badge-crown'},
+  {id:'b7', xp:100, de:'Fleißig', el:'Εργατικός', ico:'i-badge-bolt'},
+  {id:'b8', xp:200, de:'Team', el:'Ομάδα', ico:'i-badge-team'},
+];
+function kidBadgesHtml(xp){
+  return `<div class="badge-grid">${KID_BADGES.map(b=>{
+    const earned = xp >= b.xp;
+    const name = state.lang==='el'?b.el:b.de;
+    return `<div class="badge-tile ${earned?'':'locked'}" title="${esc(name)}">
+      <span class="bt-ico" aria-hidden="true">${earned?svgUse(b.ico,22):svgUse('i-lock',20)}</span>
+      <span class="bt-name">${esc(earned?name:t('kidBadgeLocked'))}</span>
+    </div>`;
+  }).join('')}</div>`;
+}
+function childLessonPast(entry, dateStr){
+  const b = blockDef(entry.block); if(!b) return false;
+  const today = iso(new Date());
+  if(dateStr < today) return true;
+  if(dateStr > today) return false;
+  const [hh,mm] = String(b.to||'23:59').split(':').map(Number);
+  const end = new Date(); end.setHours(hh||23, mm||59, 0, 0);
+  return Date.now() > end.getTime();
+}
+function kidDockHtml(active){
+  const items = [
+    {id:'today', label:t('kidNavStart'), ico:'#i-kid-start'},
+    {id:'plan', label:t('kidNavPlan'), ico:'#i-kid-plan'},
+    {id:'learn', label:t('kidNavLearn'), ico:'#i-kid-learn'},
+    {id:'rewards', label:t('kidNavStars'), ico:'#i-kid-stars'},
+    {id:'games', label:t('kidNavGames'), ico:'#i-kid-games'},
+  ];
+  return `<nav class="kid-dock" aria-label="Kids">${items.map(it=>`
+    <button type="button" class="${active===it.id?'on':''}" data-child-view="${it.id}">
+      <svg class="i nav-ico" aria-hidden="true"><use href="${it.ico}"/></svg>
+      <span>${esc(it.label)}</span>
+    </button>`).join('')}</nav>`;
+}
+
+function childStartView(c){
+  const today = iso(new Date());
+  const dateStr = state.date || today;
+  const xp = kidXp(c.id), lv = kidLevel(xp), lvName = kidLevelName(lv);
+  const nextXp = XP_LEVELS[Math.min(lv+1, XP_LEVELS.length-1)];
+  const curXp = XP_LEVELS[lv];
+  const pct = lv >= XP_LEVELS.length-1 ? 100 : Math.round(((xp-curXp)/Math.max(1,nextXp-curXp))*100);
+  const lessons = childEntriesFor(dateStr, c.id);
+  const done = lessons.filter(e=>childLessonPast(e, dateStr)).length;
+  const next = lessons.find(e=>!childLessonPast(e, dateStr));
+  const dueChores = (DB.chores||[]).filter(ch=>choreForKid(ch,c.id) && ch.daily && !choreDoneToday(ch.id,c.id)).length;
+  const lessonRows = lessons.length ? lessons.map(e=>{
+    const past = childLessonPast(e, dateStr);
+    const a = act(e.activityId);
+    return `<div class="lesson-row">
+      <span class="dot ${past?'':'open'}" aria-hidden="true"></span>
+      <span class="tm">${esc(entryTime(e))}</span>
+      <span class="nm">${esc(actLabel(e.activityId)||(a?L(a):''))}</span>
+      ${past?`<span class="tick" aria-label="ok">✓</span>`:'<span></span>'}
+    </div>`;
+  }).join('') : emptyState(svgUse('i-empty-sun',28), t('nothingToday'), t('kidPlanTitle'),
+    `<button type="button" class="btn sm" data-child-view="plan">${esc(t('kidNavPlan'))}</button>`);
+  const nextHtml = next ? (()=>{
+    const b = blockDef(next.block);
+    const from = (b?.from||'--:--').slice(0,5);
+    return `<div class="next-up">
+      <div class="nu-ring">${esc(from)}</div>
+      <div>
+        <div class="eyebrow">${esc(t('kidNextUp'))}</div>
+        <b>${esc(actLabel(next.activityId))}</b>
+        <small>${esc(t('kidNextMeta')(30, 25))}</small>
+      </div>
+    </div>`;
+  })() : '';
+  return `
+    <header class="kid-header tide-reveal">
+      <p class="eyebrow">Armonia</p>
+      <h2>${esc(t('kidHello')(c.name))}</h2>
+      <p class="kid-hello">${esc(lvName)} · ${esc(t('xpLevel')(lv))}</p>
+    </header>
+    <section class="level-card">
+      ${progressRingHtml(pct, lv)}
+      <div class="level-copy">
+        <div class="level-xp">${esc(t('kidXpOf')(xp, nextXp))}</div>
+        <div class="level-next">${lv>=XP_LEVELS.length-1?'MAX':esc(t('kidXpRemain')(Math.max(0,nextXp-xp)))}</div>
+        <div class="level-tag">${esc(t('kidLevelCard')(lv))}</div>
+        ${levelMeterHtml(pct)}
+      </div>
+    </section>
+    <section class="kid-panel">
+      <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||0))}</span></div>
+      ${lessonRows}
+    </section>
+    ${nextHtml}
+    <div class="course-grid">
+      <button type="button" class="course-tile" data-child-view="learn"><span class="bar"></span><b>${esc(t('kidCourseLearn'))}</b><span>${esc(t('kidLearnOpen')(1))}</span><div class="meter">${levelMeterHtml(55)}</div></button>
+      <button type="button" class="course-tile sea" data-child-view="aufgaben"><span class="bar"></span><b>${esc(t('kidCourseTasks'))}</b><span>${esc(t('kidTasksDue')(dueChores))}</span><div class="meter">${levelMeterHtml(dueChores?40:100)}</div></button>
+      <button type="button" class="course-tile sun" data-child-view="rewards"><span class="bar"></span><b>${esc(t('kidCourseStars'))}</b><span>${esc(t('kidStarsCollected')(xp))}</span><div class="meter">${levelMeterHtml(pct)}</div></button>
+      <button type="button" class="course-tile out" data-child-view="games"><span class="bar"></span><b>${esc(t('kidCourseGames'))}</b><span>${esc(t('kidGamesPlay'))}</span><div class="meter">${levelMeterHtml(25)}</div></button>
+    </div>
+    <div class="kid-secondary">
+      <button type="button" class="chip" data-child-view="events">${esc(t('childEvents'))}</button>
+      <button type="button" class="chip" data-child-view="gallery">${esc(t('galleryChildTab'))}</button>
+      <button type="button" class="chip" id="childHowToBtn">${esc(t('childHowTo'))}</button>
+    </div>
+    ${teamNoticeBannerHtml()}
+  `;
+}
+
+function childStundenplanView(c){
+  const today = iso(new Date());
+  const week = weekDates(state.date);
+  const days = week.map(ds=>{
+    const d = new Date(ds+'T12:00:00');
+    const n = childEntriesFor(ds, c.id).length;
+    return `<button type="button" class="sp-day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}">
+      <span class="d">${DAY_NAMES[state.lang][dowIdx(d)]}</span>
+      <span class="n">${d.getDate()}</span>
+      <span class="muted" style="font-size:9px">${n||''}</span>
+    </button>`;
+  }).join('');
+  const list = childEntriesFor(state.date, c.id);
+  const now = new Date();
+  const nowMin = now.getHours()*60 + now.getMinutes();
+  const blocks = list.length ? list.map((e,i)=>{
+    const b = blockDef(e.block);
+    const [fh,fm] = String(b?.from||'00:00').split(':').map(Number);
+    const [th,tm] = String(b?.to||'23:59').split(':').map(Number);
+    const start = fh*60+(fm||0), end = th*60+(tm||0);
+    const isNow = state.date===today && nowMin>=start && nowMin<end;
+    const nowPct = isNow ? Math.round(((nowMin-start)/Math.max(1,end-start))*100) : 0;
+    return `<div class="sp-block" data-sp-i="${i}">
+      <div class="when">${esc((b?.from||'').slice(0,5))}</div>
+      <div class="slot ${isNow?'now':''}">
+        ${isNow?`<div class="sp-now-line" style="top:${nowPct}%" aria-hidden="true"></div>`:''}
+        <b>${esc(actLabel(e.activityId))}</b>
+        <span>${esc(entryTime(e))}</span>
+      </div>
+    </div>`;
+  }).join('') : emptyState(svgUse('i-kid-plan',28), t('nothingToday'));
+  return `
+    <header class="kid-header"><p class="eyebrow">Armonia</p><h2>${esc(t('kidPlanTitle'))}</h2></header>
+    <div class="stundenplan">
+      <div class="sp-week">${days}</div>
+      <div class="sp-rail">${blocks}</div>
+    </div>`;
+}
+
+function childAufgabenView(kidId){
+  const myChores = (DB.chores||[]).filter(ch=>choreForKid(ch,kidId));
+  const due = myChores.filter(ch=>!choreDoneToday(ch.id,kidId));
+  const done = myChores.filter(ch=>choreDoneToday(ch.id,kidId));
+  const lateDay = new Date().getHours() >= 17;
+  const card = (ch) => {
+    const isDone = choreDoneToday(ch.id,kidId);
+    const pending = chorePendingToday(ch.id,kidId);
+    const overdue = !isDone && !pending && !!ch.daily && lateDay;
+    const cls = [isDone?'done':'', pending?'pending-review':'', overdue?'overdue':''].filter(Boolean).join(' ');
+    const action = (!isDone && !pending) ? `data-chore-submit="${ch.id}"` : '';
+    return `<button type="button" class="aufgabe-card ${cls}" ${action}>
+      <span class="ac-ico" aria-hidden="true">${choreIconSvg(ch)}</span>
+      <span class="ac-body">
+        <span class="ac-tag">${esc(t('kidSubjectDaily'))}</span>
+        <span class="ac-title">${esc(choreLabel(ch))}</span>
+        <span class="ac-meta">${isDone?t('choreDone'):pending?t('chorePending'):overdue?t('kidOverdue'):t('kidDueToday')}</span>
+      </span>
+      <span class="ac-xp">+${ch.xp||0}</span>
+    </button>`;
+  };
+  return `
+    <header class="kid-header"><p class="eyebrow">Armonia</p><h2>${esc(t('kidAufgabenTitle'))}</h2></header>
+    <div style="display:grid;gap:var(--space-2)">
+      ${due.length?due.map(card).join(''):''}
+      ${done.length?done.map(card).join(''):''}
+      ${!due.length && !done.length ? emptyState(svgUse('i-chore-check',28), t('adminNoReviews')) : ''}
+    </div>`;
+}
+
+function childLearnHubView(){
+  return `
+    <header class="kid-header"><p class="eyebrow">Armonia Learn</p><h2>${esc(t('kidLearnHubTitle'))}</h2>
+      <p class="kid-hello">${esc(t('kidLearnHubHint'))}</p></header>
+    <div class="course-grid">
+      <button type="button" class="course-tile" data-game="learn"><span class="bar"></span><b>${esc(t('gameLearn'))}</b><span>${esc(t('gameLearnHint'))}</span></button>
+      <button type="button" class="course-tile sea" data-game="quiz"><span class="bar"></span><b>${esc(t('gameQuiz'))}</b><span>${esc(t('gameQuizHint'))}</span></button>
+      <button type="button" class="course-tile sun" data-game="math"><span class="bar"></span><b>${esc(t('gameMath'))}</b><span>${esc(t('gameMathHint'))}</span></button>
+      <button type="button" class="course-tile out" data-game="eduhub"><span class="bar"></span><b>${esc(t('gameEduHub'))}</b><span>${esc(t('gameEduHubHint'))}</span></button>
+    </div>`;
+}
+
 function childRewardsView(kidId){
   const c = kid(kidId);
   const xp = kidXp(kidId);
@@ -8953,67 +9348,129 @@ function childRewardsView(kidId){
   const lvName = kidLevelName(lv);
   const nextXp = XP_LEVELS[Math.min(lv+1, XP_LEVELS.length-1)];
   const curXp = XP_LEVELS[lv];
-  const pct = lv >= XP_LEVELS.length-1 ? 100 : Math.round(((xp-curXp)/(nextXp-curXp))*100);
-  const myChores = (DB.chores||[]).filter(ch=>choreForKid(ch,kidId));
-
-  const hero = `<div class="rewards-hero">
-    <span class="level-badge">🏅 ${t('xpLevel')(lv)} · ${lvName}</span>
-    <div class="xp-name">${esc(c.name)}</div>
-    <div class="xp-sub">${t('xpTotal')(xp)}</div>
-    <div class="xp-bar-wrap">
-      <div class="xp-bar-row"><span class="xp-cur">${xp} XP</span>
-        ${lv < XP_LEVELS.length-1 ? `<span class="xp-next">${nextXp - xp} ${t('xpNextLevel')}</span>`:'<span class="xp-next">MAX 🏆</span>'}
-      </div>
-      <div class="xp-bar"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
-    </div>
-  </div>`;
-
-  const dueChores = myChores.filter(ch=>ch.daily && !choreDoneToday(ch.id,kidId));
-  const doneChores = myChores.filter(ch=>choreDoneToday(ch.id,kidId));
-
-  const choreCard = (ch, interactive) => {
-    const done = choreDoneToday(ch.id,kidId);
-    const pending = chorePendingToday(ch.id,kidId);
-    const cls = done ? 'done' : pending ? 'pending-review' : '';
-    const action = (!done && !pending && interactive) ? `data-chore-submit="${ch.id}"` : '';
-    return `<div class="chore-card ${cls}" ${action} role="${action?'button':'listitem'}" tabindex="${action?0:-1}">
-      <div class="chore-icon" style="background:${safeColor(c.color)}">${ch.emoji}</div>
-      <div class="chore-body">
-        <div class="chore-title">${esc(choreLabel(ch))}</div>
-        <div class="chore-meta">${done?t('choreDone'):pending?t('chorePending'):t('choreSubmitProof')}</div>
-      </div>
-      <div class="chore-xp">${ch.xp}</div>
-    </div>`;
-  };
-
-  const leaderboardHtml = (() => {
-    const board = DB.children.map(k=>({k, xp:kidXp(k.id)}))
-      .sort((a,b)=>b.xp-a.xp).slice(0,8);
-    const medals = ['🥇','🥈','🥉'];
-    return `<div class="reward-leaderboard">
-      ${board.map((entry,i)=>{
-        const isMe = entry.k.id === kidId;
-        const rankCls = i<3?['gold','silver','bronze'][i]:'';
-        return `<div class="lb-row${isMe?' me':''}">
-          <div class="lb-rank ${rankCls}">${medals[i]||i+1}</div>
-          <div class="lb-avatar" style="background:${safeColor(entry.k.color)}">${esc(initials(entry.k.name))}</div>
-          <div class="lb-name">${esc(entry.k.name)}${isMe?` <span class="pill sun">${t('leaderboardMe')}</span>`:''}</div>
-          <div class="lb-xp">⭐ ${entry.xp}</div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  })();
-
+  const pct = lv >= XP_LEVELS.length-1 ? 100 : Math.round(((xp-curXp)/Math.max(1,nextXp-curXp))*100);
+  const weekDelta = kidWeekXpDelta(kidId);
+  const streak = kidStreakDays(kidId);
   return `
-    ${hero}
-    ${dueChores.length ? `<div class="reward-section-h">☀️ ${t('choresDue')}</div>
-      ${dueChores.map(ch=>choreCard(ch,true)).join('')}` : ''}
-    ${doneChores.length ? `<div class="reward-section-h">✅ ${t('choresDone')}</div>
-      ${doneChores.map(ch=>choreCard(ch,false)).join('')}` : ''}
-    <div class="reward-section-h">🏆 ${t('leaderboard')}</div>
-    ${leaderboardHtml}
-    ${!dueChores.length && !doneChores.length ? `<div class="reward-empty"><div class="re-icon">🎉</div>${t('adminNoReviews')}</div>` : ''}
+    <header class="kid-header"><p class="eyebrow">Armonia</p><h2>${esc(t('kidSterneTitle'))}</h2>
+      <p class="kid-hello">${esc(c.name)} · ${esc(lvName)}</p></header>
+    <section class="sterne-hero">
+      <div class="sterne-top">
+        ${progressRingHtml(pct, lv)}
+        <div>
+          <div class="level-xp">${esc(t('kidXpOf')(xp, nextXp))}</div>
+          <div class="level-next">${lv>=XP_LEVELS.length-1?'MAX':esc(t('kidXpRemain')(Math.max(0,nextXp-xp)))}</div>
+          ${levelMeterHtml(pct)}
+        </div>
+      </div>
+      <div class="sterne-stats">
+        <div class="sterne-stat"><b>+${weekDelta}</b><span>${esc(t('kidWeekDeltaLabel'))}</span></div>
+        <div class="sterne-stat"><b>${streak}</b><span>${esc(t('kidStreak'))}</span></div>
+      </div>
+      ${kidStreakHtml(kidId)}
+    </section>
+    <div class="kid-panel-h" style="margin-top:var(--space-2)"><b>${esc(t('kidBadges'))}</b></div>
+    ${kidBadgesHtml(xp)}
+    <div class="kid-panel-h" style="margin-top:var(--space-3)"><b>${esc(t('leaderboard'))}</b>
+      <button type="button" class="chip" data-child-view="aufgaben">${esc(t('kidCourseTasks'))}</button></div>
+    ${(() => {
+      const board = DB.children.map(k=>({k, xp:kidXp(k.id)})).sort((a,b)=>b.xp-a.xp).slice(0,8);
+      return `<div class="reward-leaderboard">${board.map((entry,i)=>{
+        const isMe = entry.k.id === kidId;
+        return `<div class="lb-row${isMe?' me':''}">
+          <div class="lb-rank">${i+1}</div>
+          <div class="lb-avatar" style="background:${safeColor(entry.k.color)}">${esc(initials(entry.k.name))}</div>
+          <div class="lb-name">${esc(entry.k.name)}</div>
+          <div class="lb-xp">${entry.xp}</div>
+        </div>`;
+      }).join('')}</div>`;
+    })()}
   `;
+}
+
+function renderChild(){
+  const c = state.child;
+  const today = iso(new Date());
+  if(!state.date) state.date = today;
+  // Map legacy views onto the student dock set
+  if(state.childView==='week') state.childView='plan';
+  if(state.childView==='events' || state.childView==='gallery'){ /* keep secondary */ }
+
+  document.getElementById('title').textContent = esc(c.name);
+  document.getElementById('who').textContent = t('myWeek');
+  document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
+  document.getElementById('btnUser').textContent = t('childBye');
+  document.getElementById('btnProfiles').textContent = '↔';
+  document.getElementById('btnProfiles').title = t('profilesBack');
+  document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
+  const tools=document.getElementById('topTools');
+  if(tools){ tools.hidden=true; tools.replaceChildren(); }
+  const bottom=document.getElementById('bottomPanel');
+  if(bottom) bottom.style.display='none';
+  document.querySelector('nav')?.classList.add('is-staff-hidden');
+  const staffNav = document.querySelector('nav.dock');
+  if(staffNav) staffNav.style.display='none';
+  document.body.classList.add('mode-child');
+  document.body.classList.remove('has-stock-dock','has-store-dock');
+  document.body.classList.toggle('chat-open', !!state.chatOpen);
+  const zoFab=document.getElementById('navChat');
+  if(zoFab){
+    zoFab.hidden=false;
+    zoFab.classList.toggle('on', !!state.chatOpen);
+    zoFab.setAttribute('aria-label', t('helpChat'));
+    zoFab.title = t('helpChat');
+  }
+
+  const dockActive = ['today','plan','learn','rewards','games'].includes(state.childView)
+    ? state.childView
+    : (state.childView==='aufgaben'?'today':state.childView==='games'? 'games':'today');
+
+  let viewBody;
+  if(state.childView==='today') viewBody = childStartView(c);
+  else if(state.childView==='plan') viewBody = childStundenplanView(c);
+  else if(state.childView==='aufgaben') viewBody = childAufgabenView(c.id);
+  else if(state.childView==='rewards') viewBody = childRewardsView(c.id);
+  else if(state.childView==='learn'){
+    viewBody = state.gameId ? childGamesView() : childLearnHubView();
+  }
+  else if(state.childView==='games') viewBody = childGamesView();
+  else if(state.childView==='events') viewBody = childEventsView(c.id);
+  else if(state.childView==='gallery') viewBody = childGalleryView();
+  else viewBody = childStartView(c);
+
+  document.getElementById('view').innerHTML = `
+    <div class="kid-shell">
+      ${viewBody}
+      ${kidDockHtml(dockActive)}
+    </div>`;
+
+  const root = document.getElementById('view');
+  root.querySelectorAll('[data-child-view]').forEach(b=>{
+    b.onclick = () => {
+      const next = b.dataset.childView;
+      if(next !== 'games' && next !== 'learn'){ stopChildGameTimers(); state.gameId=null; state.game=null; }
+      if(next==='learn'){ state.gameId=null; state.game=null; }
+      state.childView = next;
+      if(next==='gallery'){ refreshGallery({silent:true}).finally(()=>render()); return; }
+      render();
+    };
+  });
+  root.querySelectorAll('[data-date]').forEach(d=>{
+    d.onclick = () => { state.date = d.dataset.date; render(); };
+  });
+  const teamBanner=root.querySelector('#teamNoticeBanner');
+  if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
+  const howTo=root.querySelector('#childHowToBtn');
+  if(howTo) howTo.onclick=()=>sheetChildHowTo();
+  if(state.childView==='games' || state.childView==='learn') bindChildGames(root);
+  if(state.childView==='gallery') bindGallery(root);
+  root.querySelectorAll('[data-chore-submit]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const choreId = btn.dataset.choreSubmit;
+      if(choreId && state.child) openChoreSubmitSheet(choreId, state.child.id);
+    };
+  });
+  syncLayoutMode();
 }
 
 async function openChoreSubmitSheet(choreId, kidId){
@@ -9035,7 +9492,7 @@ async function openChoreSubmitSheet(choreId, kidId){
       <button class="sheet-close" id="sheetClose" type="button">×</button>
       <div style="padding:14px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
-          <div style="width:52px;height:52px;border-radius:14px;background:${safeColor(c.color)};display:grid;place-items:center;font-size:28px">${ch.emoji}</div>
+          <div style="width:52px;height:52px;border-radius:14px;background:${safeColor(c.color)};display:grid;place-items:center;color:var(--ink)">${choreIconSvg(ch,26)}</div>
           <div><div style="font-size:16px;font-weight:700">${esc(choreLabel(ch))}</div>
             <div class="muted" style="font-size:13px">${t('choreSubmitProof')} · ⭐ ${ch.xp} XP</div></div>
         </div>
@@ -9623,7 +10080,6 @@ function childGamesView(){
 function childLearnView(){
   const g=state.game; if(!g) return childGamesLobby();
   const total=g.deck.length||LEARN_SESSION;
-  const progress=Math.min(100, Math.round((g.i/total)*100));
   const heartsHtml = Array.from({length:3},(_,i)=>
     `<span class="learn-heart ${i<g.hearts?'':'broken'}">${i<g.hearts?'❤️':'💔'}</span>`
   ).join('');
@@ -9662,7 +10118,7 @@ function childLearnView(){
         <button class="arcade-mode-btn ai" type="button" id="learnAi" ${g.loading?'disabled':''}>${g.loading?'…':'✨'}</button>
       </div>
     </div>
-    <div class="learn-progress"><span style="width:${progress}%"></span></div>
+    ${segmentedProgressHtml(g.i, total)}
     <div class="learn-prompt card-flip" data-flip="${g.flipKey||0}">
       <span class="learn-emoji">${esc(g.card?.emoji||'🇬🇷')}</span>
       <b>${esc(g.prompt)}</b>
@@ -9698,6 +10154,7 @@ function childQuizView(){
     <div class="arcade-controls end">
       <button class="arcade-mode-btn ai" type="button" id="quizAi" ${g.loading?'disabled':''}>${g.loading?'…':`✨ ${t('gameLearnAi')}`}</button>
     </div>
+    ${segmentedProgressHtml(g.i, total)}
     <div class="learn-prompt quiz-q quiz-pop"><b>${esc(g.q||'')}</b></div>
     ${g.feedback?`<div class="game-banner ${g.feedback.ok?'win':'lose'} pop-in">${g.feedback.ok?t('gameLearnCorrect'):`${t('gameLearnWrong')} ${esc(g.choices[g.correct]||'')}`}</div>`:''}
     <div class="learn-choices arcade-answers">${(g.choices||[]).map((c,i)=>`
@@ -10705,12 +11162,17 @@ function viewHome(){
   const showJournalDuty=journalDue && !shiftStartCard;
   const planCta=`<button class="btn sm" type="button" data-home-jump="day">${esc(t('homeOpenPlan'))}</button>`;
   const eventsCta=`<button class="btn sm sec" type="button" data-home-jump="events">${esc(t('homeOpenEvents'))}</button>`;
+  const openListCount = fridayEntries(shopHouse()).filter(e=>e.status==='open'||e.status==='pending').length;
+  const lowStockCount = PRODUCTS().filter(p=>{
+    const hid = state.house==='all'?'h1':state.house;
+    return (DB.stock[stockKey(hid,p.id)]??0) <= lowThreshold(p);
+  }).length;
   const primaryLabel = shiftStartCard ? t('homePrimaryCta') : (todayOpen.length ? t('homePrimaryCta') : t('homeOpenPlan'));
-  return `<div class="home-shell">
+  return `<div class="home-shell home-shell-compact">
     <section class="home-mast" aria-label="Armonia">
       <p class="home-brand">Armonia</p>
       <p class="home-hello">${t('homeHello')}${user?', '+esc(user.name):''}</p>
-      <h2>${t('homeOverview')}</h2>
+      <h2>${t('homeCompactTitle')}</h2>
       <button class="home-primary page-act primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
     </section>
     ${shiftStartCard}
@@ -10720,16 +11182,24 @@ function viewHome(){
       <span class="journal-duty-home-cta">${esc(t('journalDutyCta'))}</span>
     </button>`:''}
     ${teamNoticeBannerHtml()}
-    <div class="home-bento" role="group" aria-label="${esc(t('homeSignals'))}">
+    <div class="home-bento home-bento-4" role="group" aria-label="${esc(t('homeSignals'))}">
       <button class="bento-tile accent action" type="button" data-home-jump="day">
         <b>${todayOpen.length}</b><span>${t('dueToday')}</span>
       </button>
       <button class="bento-tile warn action" type="button" data-home-jump="day">
         <b>${overdue.length}</b><span>${t('overdue')}</span>
       </button>
-      <button class="bento-tile sea action" type="button" data-home-jump="events">
-        <b>${upcoming.length}</b><span>${t('eventsSoon')}</span>
+      <button class="bento-tile sea action" type="button" data-home-jump="shop">
+        <b>${openListCount}</b><span>${t('homeSignalList')}</span>
       </button>
+      <button class="bento-tile sun action" type="button" data-home-jump="stock">
+        <b>${lowStockCount}</b><span>${t('homeSignalStock')}</span>
+      </button>
+    </div>
+    <div class="home-quick-row" role="group" aria-label="${esc(t('homeSignals'))}">
+      <button type="button" class="home-quick" data-home-jump="shop">${esc(t('homeSignalList'))}</button>
+      <button type="button" class="home-quick stock" data-home-jump="stock">${esc(t('homeSignalStock'))}</button>
+      <button type="button" class="home-quick book" id="homeQuickBook">${esc(t('headerBook'))}</button>
     </div>
     ${shiftStartCard?'':`${shiftPresenceBannerHtml()}${shiftStockCheckBannerHtml()}`}
     <section class="card home-today-card" style="margin-top:10px">
@@ -10759,148 +11229,6 @@ function viewHome(){
       <button class="page-act ghost" type="button" id="homeGalleryOpen">📸 ${esc(t('galleryTitle'))}</button>
     </div>
   </div>`;
-}
-
-function renderChild(){
-  const c = state.child;
-  const today = iso(new Date());
-  const week = weekDates(state.date);
-  const wk = DB.weeks[weekKey(state.date)] || {};
-  const todays = childEntriesFor(state.date, c.id);
-  const childUpcomingEvents = childEventsFor(c.id).filter(e=>e.date>=today);
-
-  document.getElementById('title').textContent = esc(c.name);
-  document.getElementById('who').textContent = t('myWeek');
-  document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
-  document.getElementById('btnUser').textContent = t('childBye');
-  document.getElementById('btnProfiles').textContent = '↔';
-  document.getElementById('btnProfiles').title = t('profilesBack');
-  document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
-  const tools=document.getElementById('topTools');
-  if(tools){
-    tools.hidden=true;
-    tools.replaceChildren();
-  }
-  const bottom=document.getElementById('bottomPanel');
-  if(bottom) bottom.style.display='none';
-  document.querySelector('nav').style.display = 'none';
-  document.body.classList.add('mode-child');
-  document.body.classList.remove('has-stock-dock','has-store-dock');
-  document.body.classList.toggle('chat-open', !!state.chatOpen);
-  const zoFab=document.getElementById('navChat');
-  if(zoFab){
-    zoFab.hidden=false;
-    zoFab.classList.toggle('on', !!state.chatOpen);
-    zoFab.setAttribute('aria-label', t('helpChat'));
-    zoFab.title = t('helpChat');
-  }
-  const days = week.map(ds=>{
-    const d = new Date(ds+'T12:00:00');
-    return `<div class="day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}">
-      <div class="d">${DAY_NAMES[state.lang][dowIdx(d)]}</div><div class="n">${d.getDate()}<i>.${d.getMonth()+1}</i></div></div>`;
-  }).join('');
-
-  const weekList = week.map(ds=>{
-    const list = childEntriesFor(ds, c.id);
-    if(!list.length) return '';
-    const d = new Date(ds+'T12:00:00');
-    return `<div class="house-h">${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.</div>
-      ${list.map(e=>{
-        const a = act(e.activityId);
-        return `<div class="kv"><div class="grow">${a?a.emoji:'📝'} ${esc(actLabel(e.activityId))}</div>
-          <div class="muted">${esc(entryTime(e))}</div></div>`;
-      }).join('')}`;
-  }).join('') || emptyState('☀️', t('nothingToday'));
-
-  const profile = `<div class="child-profile">
-      <div class="pa avatar child-profile-ava" style="background:${profileColor(c)}">${esc(profileEmoji(c)||initials(profileName(c)))}</div>
-      <div class="child-profile-name">${esc(profileLabel(c))}</div>
-    </div>`;
-  const tabs = `<div class="seg child-tabs" id="childTabs">
-    <button class="${state.childView==='today'?'on':''}" data-child-view="today">☀️ ${t('childToday')}</button>
-    <button class="${state.childView==='rewards'?'on':''}" data-child-view="rewards">⭐ ${t('childRewards')}</button>
-    <button class="${state.childView==='events'?'on':''}" data-child-view="events">🎉 ${t('childEvents')}${childUpcomingEvents.length?` <span class="nav-badge">${childUpcomingEvents.length}</span>`:''}</button>
-    <button class="${state.childView==='week'?'on':''}" data-child-view="week">📅 ${t('childWeek')}</button>
-    <button class="${state.childView==='gallery'?'on':''}" data-child-view="gallery">📸 ${t('galleryChildTab')}</button>
-    <button class="${state.childView==='games'?'on':''}" data-child-view="games">🎮 ${t('childGames')}</button>
-  </div>`;
-  const todayView = `
-    <div class="child-app-card">
-      <h3>${esc(t('childInstallTitle'))}</h3>
-      <p>${esc(t('childInstallHint'))}</p>
-      <p>${esc(t('childInstallIos'))}</p>
-      <p>${esc(t('childInstallAndroid'))}</p>
-      <div class="child-app-actions">
-        <button class="btn sm" type="button" id="childEnableNotifs">${esc(t('notifEnableChild'))}</button>
-        <button class="btn sm sec" type="button" id="childHowToBtn">${esc(t('childHowTo'))}</button>
-      </div>
-    </div>
-    ${teamNoticeBannerHtml()}
-    ${childUpcomingEvents.length?`<button class="notification-card" id="childEventNotice" type="button">
-      <span style="font-size:24px">📣</span><span class="grow"><span class="strong">${t('childNotifications')}</span><br><span class="muted">${t('openEvents')}</span></span>
-      <span class="notification-count">${childUpcomingEvents.length}</span></button>`:''}
-    <div class="days">${days}</div>
-    <div class="block-h" style="margin-top:6px"><span class="t">${t('myToday')}</span></div>
-    ${todays.length ? todays.map(e=>childEntryCard(e, c.id)).join('')
-      : emptyState('☀️', t('nothingToday'))}
-    ${childEventsFor(c.id).filter(e=>e.date===state.date).map(childEventCard).join('')}`;
-  const weekView = `<div class="card"><h2>${t('myWeek')}</h2>${weekList}</div>`;
-  const viewBody = state.childView==='today' ? todayView
-    : state.childView==='rewards' ? childRewardsView(c.id)
-    : state.childView==='events' ? childEventsView(c.id)
-    : state.childView==='games' ? childGamesView()
-    : state.childView==='gallery' ? childGalleryView()
-    : weekView;
-
-  document.getElementById('view').innerHTML = `
-    ${profile}${tabs}
-    ${viewBody}`;
-
-  document.getElementById('view').querySelectorAll('.day').forEach(d=>{
-    d.onclick = () => { state.date = d.dataset.date; render(); };
-  });
-  document.getElementById('view').querySelectorAll('[data-child-view]').forEach(b=>{
-    b.onclick = () => {
-      const next = b.dataset.childView;
-      if(next !== 'games'){ stopChildGameTimers(); state.gameId=null; state.game=null; }
-      state.childView = next;
-      if(next==='gallery'){
-        refreshGallery({silent:true}).finally(()=>render());
-        return;
-      }
-      render();
-    };
-  });
-  const eventNotice=document.getElementById('view').querySelector('#childEventNotice');
-  if(eventNotice) eventNotice.onclick=()=>{state.childView='events';render();};
-  const teamBanner=document.getElementById('view').querySelector('#teamNoticeBanner');
-  if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
-  const childEnableNotifs=document.getElementById('view').querySelector('#childEnableNotifs');
-  if(childEnableNotifs) childEnableNotifs.onclick=async()=>{
-    const ok=await enableAppNotifications();
-    toast(ok?t('notifEnabled'):t('notifDenied'), ok?'success':'error');
-    if(ok) runNotificationSweep({force:true});
-  };
-  const childHowToBtn=document.getElementById('view').querySelector('#childHowToBtn');
-  if(childHowToBtn) childHowToBtn.onclick=()=>sheetChildHowTo();
-  const childCal=document.getElementById('view').querySelector('#childCalendar');
-  if(childCal) childCal.onclick=()=>{ feedback('open'); sheetCalendar(c.id,'child'); };
-  const zoBan=document.getElementById('view').querySelector('#zoAiBanner');
-  if(zoBan) zoBan.onclick=()=>{ dismissZoAiBanner(); openZoAi(); };
-  const zoDismiss=document.getElementById('view').querySelector('#zoAiBannerDismiss');
-  if(zoDismiss) zoDismiss.onclick=e=>{ e.stopPropagation(); dismissZoAiBanner(); render(); };
-  if(state.childView==='games') bindChildGames(document.getElementById('view'));
-  if(state.childView==='gallery') bindGallery(document.getElementById('view'));
-  if(state.childView==='rewards'){
-    const root = document.getElementById('view');
-    root.querySelectorAll('[data-chore-submit]').forEach(btn=>{
-      btn.onclick = ()=>{
-        const choreId = btn.dataset.choreSubmit;
-        if(choreId && state.child) openChoreSubmitSheet(choreId, state.child.id);
-      };
-    });
-  }
-  syncLayoutMode();
 }
 
 function sheetChildHowTo(){
@@ -11444,7 +11772,22 @@ function measureChrome(){
   const desktop=document.body.classList.contains('layout-desktop');
   const navHidden=childMode || storeFs || matrixFs || !nav || nav.style.display==='none';
   let navH=0;
-  if(!navHidden){
+  if(childMode){
+    const kidDock=document.querySelector('.kid-dock');
+    if(kidDock){
+      const style=getComputedStyle(kidDock);
+      if(style.display!=='none' && style.visibility!=='hidden'){
+        navH=Math.ceil(kidDock.getBoundingClientRect().height)||64;
+      }
+    }else{
+      navH=64;
+    }
+    root.style.setProperty('--kid-dock-h', navH+'px');
+    document.body.style.setProperty('--kid-dock-h', navH+'px');
+  }else{
+    root.style.setProperty('--kid-dock-h', '0px');
+  }
+  if(!navHidden && !childMode){
     if(desktop){
       navH=0;
       const w=Math.max(88, Math.ceil(nav.getBoundingClientRect().width||92));
@@ -11527,6 +11870,7 @@ function render(){
   document.body.classList.toggle('has-store-dock', storeDock);
   document.body.classList.toggle('store-fullscreen', storeDock);
   document.body.classList.toggle('has-stock-draft', stockDraftActive);
+  document.body.classList.toggle('has-bulk-bar', !!(state.selectMode && state.selectedIds.length));
   document.body.classList.toggle('chat-open', !!state.chatOpen);
   // Lets the stylesheet theme a single tab without touching the rest
   // of the app's ~1000 rules. Read by body[data-tab="…"] in index.html.
@@ -11592,8 +11936,11 @@ function wire(){
   v.querySelectorAll('[data-home-jump]').forEach(btn=>{
     btn.onclick=()=>{
       feedback('tap');
+      const jump=btn.dataset.homeJump;
+      if(jump==='shop'){ state.tab='shop'; state.shopPanel='plan'; clearSelection(); render(); return; }
+      if(jump==='stock'){ state.tab='stock'; clearSelection(); render(); return; }
       state.tab='schedule';
-      state.scheduleView=btn.dataset.homeJump==='events'?'events':'day';
+      state.scheduleView=jump==='events'?'events':'day';
       render();
     };
   });
@@ -11611,6 +11958,13 @@ function wire(){
     state.bookJournalMode='ink';
     render();
     queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
+  };
+  const homeQuickBook=v.querySelector('#homeQuickBook');
+  if(homeQuickBook) homeQuickBook.onclick=()=>{
+    feedback('open');
+    state.tab='book';
+    state.bookPane='shift';
+    render();
   };
   const teamBanner=v.querySelector('#teamNoticeBanner');
   if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
@@ -11952,7 +12306,103 @@ function wire(){
   const shopAutoFill=v.querySelector('#shopAutoFill');
   if(shopAutoFill) shopAutoFill.onclick=()=>{ autoFillShoppingFromStock(shopHouse()); render(); };
   v.querySelectorAll('[data-shop-panel]').forEach(b=>{
-    b.onclick=()=>{ state.shopPanel=b.dataset.shopPanel; feedback('toggle'); render(); };
+    b.onclick=()=>{ state.shopPanel=b.dataset.shopPanel; if(state.selectMode==='shop') clearSelection(); feedback('toggle'); render(); };
+  });
+  const shopSelectToggle=v.querySelector('#shopSelectToggle');
+  if(shopSelectToggle) shopSelectToggle.onclick=()=>{
+    if(state.selectMode==='shop') exitSelectMode();
+    else enterSelectMode('shop');
+    feedback('toggle'); render();
+  };
+  const stockSelectToggle=v.querySelector('#stockSelectToggle');
+  if(stockSelectToggle) stockSelectToggle.onclick=()=>{
+    if(state.house==='all'){ toast(t('selectHouse'),'info'); return; }
+    if(state.selectMode==='stock') exitSelectMode();
+    else enterSelectMode('stock');
+    feedback('toggle'); render();
+  };
+  const storeSelectToggle=v.querySelector('#storeSelectToggle');
+  if(storeSelectToggle) storeSelectToggle.onclick=()=>{
+    if(state.selectMode==='store') exitSelectMode();
+    else enterSelectMode('store');
+    feedback('toggle'); render();
+  };
+  v.querySelectorAll('[data-bulk-toggle]').forEach(b=>{
+    b.onclick=ev=>{
+      ev.preventDefault(); ev.stopPropagation();
+      toggleSelected(b.dataset.bulkToggle);
+      feedback('select'); render();
+    };
+  });
+  v.querySelectorAll('[data-bulk]').forEach(b=>{
+    b.onclick=()=>{
+      const act=b.dataset.bulk;
+      const ids=[...state.selectedIds];
+      if(!ids.length) return;
+      if(state.selectMode==='shop'){
+        if(act==='remove'){
+          const reasonId=(LIST_REMOVE_REASONS()[0]||{}).id||'bulk';
+          const reason=LIST_REMOVE_REASONS().find(r=>r.id===reasonId);
+          const label=reason?L(reason):'bulk';
+          let n=0;
+          ids.forEach(id=>{
+            const entry=DB.listEntries.find(e=>e.id===id);
+            if(!entry || entry.status!=='open') return;
+            entry.status='removed';
+            entry.removeReasonId=reasonId;
+            entry.removeReason=label;
+            entry.removedAt=Date.now();
+            entry.removedBy=state.user?.id||null;
+            n++;
+          });
+          if(n){ save(); toast(T[state.lang].bulkRemoved(n),'success'); }
+          exitSelectMode(); render(); return;
+        }
+        if(act==='qty-minus' || act==='qty-plus'){
+          const delta=act==='qty-plus'?1:-1;
+          ids.forEach(id=>{
+            const entry=DB.listEntries.find(e=>e.id===id);
+            if(!entry || entry.status!=='open') return;
+            entry.qty=Math.max(1, roundStock((Number(entry.qty)||1)+delta));
+          });
+          save(); feedback('toggle'); render(); return;
+        }
+      }
+      if(state.selectMode==='stock'){
+        if(act==='to-list'){
+          let n=0;
+          ids.forEach(pid=>{ if(requestWantBought(pid, state.house)) n++; });
+          toast(T[state.lang].bulkListed(n),'success');
+          exitSelectMode(); render(); return;
+        }
+        if(act==='out'){
+          ids.forEach(pid=>adjustStockDraft(pid,'OUT'));
+          exitSelectMode(); render(); return;
+        }
+        if(act==='clear-empty'){
+          ids.forEach(pid=>{
+            const key=stockKey(state.house,pid);
+            const qty=DB.stock[key]??0;
+            const delta=state.stockDraft[pid]||0;
+            const target=-(qty+delta);
+            if(target) state.stockDraft[pid]=(state.stockDraft[pid]||0)+target;
+          });
+          exitSelectMode(); render(); return;
+        }
+      }
+      if(state.selectMode==='store'){
+        ids.forEach(id=>{
+          const entry=DB.listEntries.find(e=>e.id===id);
+          if(!entry || entry.status!=='pending') return;
+          if(act==='found') entry.decision='bought';
+          else if(act==='missing') entry.decision='unavailable';
+          else if(act==='undo') delete entry.decision;
+        });
+        save();
+        toast(T[state.lang].bulkDecided(ids.length),'success');
+        exitSelectMode(); render();
+      }
+    };
   });
   v.querySelectorAll('[data-cal-shift]').forEach(b=>{
     b.onclick=()=>{
@@ -12125,6 +12575,7 @@ function wire(){
 document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   b.onclick = () => {
     if(b.dataset.tab!=='stock' && state.tab==='stock') clearStockDraft();
+    if(b.dataset.tab!==state.tab) clearSelection();
     state.tab = b.dataset.tab;
     syncLocationHash();
     if(state.tab==='gallery'){
@@ -13046,7 +13497,7 @@ function showAppNotification(title, opts={}){
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
   try{
-    const reg=await navigator.serviceWorker.register('./sw.js?v=75',{scope:'./'});
+    const reg=await navigator.serviceWorker.register('./sw.js?v=81',{scope:'./'});
     return reg;
   }catch(err){
     console.warn('SW register failed', err);

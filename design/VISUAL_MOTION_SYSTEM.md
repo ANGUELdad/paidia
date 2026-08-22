@@ -1,6 +1,12 @@
 # Armonia Thassos — Visual & Motion System
 
-**Status:** proposal, v1 — for Figma build-out and later CSS implementation
+**Status:** implemented in CSS as of v78 (§1–§5 and §7 tokens/elevation/motion; §6 dark-mode
+policy honoured). §8 moodboards and §9 Figma file build-out remain open — the photographic
+hero treatment is specified but not yet shot, so hero bands still use the stone gradient.
+Implementation lives in the `ARMONIA DESIGN SYSTEM v2` block at the end of the `<style>`
+element in `index.html`; the rendered result is `design/system-preview.html`. The Figma
+build of §7 (variables + text/effect styles), §5 (motion specs) and the screen frames is
+[Armonia Thassos — Design System v2](https://www.figma.com/design/chWjXFxyCaFzFC6438lk4N).
 **Scope:** color roles, type scale, spacing, elevation (glass), 3 motions, dark-mode policy, moodboards
 **Non-goals:** no code in this doc. Existing tokens in `design/armonia.tokens.json` and `apps/web/src/app/globals.css` are the current baseline — this proposal extends them, it does not replace the brand hex values that already ship.
 

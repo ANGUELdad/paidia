@@ -31,12 +31,14 @@
 
   let lang = localStorage.getItem('paidia.lang') || 'de';
   let bootSettled = false;
+  // Fallback for the first paint, before build.json lands. Keep in step with
+  // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 74,
-    label: 'v75',
+    version: 81,
+    label: 'v81',
     changed: {
-      de: 'Momente ein Tipp · Zo-Ai Groq-Modelle · Pooler-DB-Hinweis',
-      el: 'Momente ένα κλικ · μοντέλα Zo-Ai Groq · υπόδειξη pooler DB',
+      de: 'Kids-Icons: Aufgaben, Abzeichen und Leerzustände als SVG statt Emoji',
+      el: 'Εικονίδια Kids: αποστολές, εμβλήματα και κενές καταστάσεις σε SVG',
     },
   };
   const copy = {
@@ -83,6 +85,9 @@
       resetUnavailable: 'E-Mail-Reset ist gerade nicht verfügbar. Bitte Admin fragen.',
       resetNeedProfileEmail: 'Nutze die E-Mail, die für dieses Profil gespeichert ist.',
       resetBackPin: '← Zurück zur PIN',
+      rememberMe: 'Angemeldet bleiben',
+      otherPerson: 'Andere Person',
+      loadingBoot: 'Laden…',
     },
     el: {
       brand: 'Μαζί μέσα στην ημέρα',
@@ -127,6 +132,9 @@
       resetUnavailable: 'Η αλλαγή PIN με email δεν είναι διαθέσιμη τώρα. Ρώτα τον admin.',
       resetNeedProfileEmail: 'Χρησιμοποίησε το email που είναι αποθηκευμένο σε αυτό το προφίλ.',
       resetBackPin: '← Πίσω στο PIN',
+      rememberMe: 'Να μείνω συνδεδεμένος',
+      otherPerson: 'Άλλο άτομο',
+      loadingBoot: 'Φόρτωση…',
     },
   };
   const t = (key) => copy[lang][key];
@@ -136,11 +144,53 @@
   const safeColor = (value) => /^#[0-9a-fA-F]{3,8}$/.test(String(value || '')) ? String(value) : '#94a3b8';
   const initials = (name) => String(name || '?').split(/\s+/).map((p) => p[0]).join('').slice(0, 2).toUpperCase();
 
+  const LAST_MODE_KEY = 'paidia.lastMode';
+  const LAST_PROFILE_KEY = 'paidia.lastProfileId';
+  const REMEMBER_KEY = 'paidia.rememberMe';
+
+  function readLastProfile() {
+    try {
+      const mode = localStorage.getItem(LAST_MODE_KEY);
+      const id = localStorage.getItem(LAST_PROFILE_KEY);
+      if (!mode || !id) return null;
+      const list = mode === 'child' ? CHILDREN : STAFF;
+      const who = list.find((p) => p.id === id);
+      return who ? { who, mode } : null;
+    } catch (e) { return null; }
+  }
+  function writeLastProfile(mode, profileId) {
+    try {
+      localStorage.setItem(LAST_MODE_KEY, mode);
+      localStorage.setItem(LAST_PROFILE_KEY, profileId);
+    } catch (e) {}
+  }
+  function clearLastProfile() {
+    try {
+      localStorage.removeItem(LAST_MODE_KEY);
+      localStorage.removeItem(LAST_PROFILE_KEY);
+    } catch (e) {}
+  }
+  function rememberChecked() {
+    try { return localStorage.getItem(REMEMBER_KEY) !== '0'; } catch (e) { return true; }
+  }
+  function setRememberChecked(on) {
+    try { localStorage.setItem(REMEMBER_KEY, on ? '1' : '0'); } catch (e) {}
+  }
+  function preloadApp() {
+    if (document.querySelector('link[data-paidia-preload], script[data-paidia-app]')) return;
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'script';
+    link.href = 'app.js?v=' + APP_BUILD.version;
+    link.dataset.paidiaPreload = '1';
+    document.head.appendChild(link);
+  }
+
   function loadApp() {
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=75';
+    script.src = 'app.js?v=81';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);
@@ -317,12 +367,17 @@
           <button type="button" data-k="0">0</button>
           <button type="button" data-k="clr" aria-label="Clear">C</button>
         </div>
+        <label class="gate-remember" style="display:flex;align-items:center;gap:10px;margin:12px 0 0;font-size:13px;color:var(--muted,#64748b);cursor:pointer">
+          <input type="checkbox" id="gRemember" ${rememberChecked()?'checked':''} style="width:18px;height:18px;accent-color:var(--brand,#2f5a63)">
+          <span>${esc(t('rememberMe'))}</span>
+        </label>
         <div class="gate-sticky-actions">
           <button class="btn" id="gLogin" type="button">${t('login')}</button>
         </div>
         <button class="gate-forgot" id="gForgot" type="button">${t('forgot')}</button>
         <div class="muted" style="margin-top:10px;font-size:11.5px">${t('hint')}</div>
         <button class="gate-back" type="button" id="gBack">${t('back')}</button>
+        <button class="gate-back" type="button" id="gOther" style="margin-top:4px">${t('otherPerson')}</button>
       </div>
       <div class="gate-build" role="status"><b>${esc(APP_BUILD.label)}</b><span>${esc((APP_BUILD.changed && (APP_BUILD.changed[lang] || APP_BUILD.changed.de)) || '')}</span></div>`;
 
@@ -373,11 +428,13 @@
       errorEl.textContent = '';
       draw();
       try {
+        const remember = !!(body.querySelector('#gRemember') || {}).checked;
+        setRememberChecked(remember);
         const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({ mode, profileId: who.id, pin: buf }),
+          body: JSON.stringify({ mode, profileId: who.id, pin: buf, remember }),
         });
         const raw = await response.text();
         let data = {};
@@ -400,6 +457,8 @@
         }
         succeeded = true;
         window.__paidiaAuthed = true;
+        writeLastProfile(mode, who.id);
+        window.__paidiaBootSession = data;
         try {
           loadApp();
         } catch (error) {
@@ -429,12 +488,17 @@
         const options = await passkeyApi('/api/auth/passkey/login/options', { mode, profileId: who.id });
         const publicKey = decodePublicKeyOptions(options.publicKey);
         const credential = await navigator.credentials.get({ publicKey });
-        await passkeyApi('/api/auth/passkey/login/verify', {
+        const remember = !!(body.querySelector('#gRemember') || {}).checked;
+        setRememberChecked(remember);
+        const pkData = await passkeyApi('/api/auth/passkey/login/verify', {
           ceremonyId: options.ceremonyId,
           credential: publicKeyCredentialJSON(credential),
+          remember,
         });
         succeeded = true;
         window.__paidiaAuthed = true;
+        writeLastProfile(mode, who.id);
+        window.__paidiaBootSession = pkData;
         try { loadApp(); } catch (error) { location.replace('/?in=' + Date.now()); }
         return;
       } catch (error) {
@@ -459,7 +523,12 @@
       if (buf.length === 6) finish();
     };
 
+    preloadApp();
     body.querySelector('#gBack').onclick = () => renderProfiles(mode);
+    const otherBtn = body.querySelector('#gOther');
+    if (otherBtn) otherBtn.onclick = () => { clearLastProfile(); renderEntrance(); };
+    const rem = body.querySelector('#gRemember');
+    if (rem) rem.onchange = () => setRememberChecked(rem.checked);
     body.querySelector('#gForgot').onclick = () => renderResetRequest(who, mode);
     body.querySelector('#gPasskey').onclick = finishPasskey;
     pad.onclick = (event) => {
@@ -605,11 +674,19 @@
       renderResetForm(resetToken);
       return;
     }
-    // Only fall back to entrance after the session probe finishes (or hard timeout).
+    const softTimer = setTimeout(() => {
+      if (!bootSettled && body && !body.querySelector('.gate-head, .gate-pin')) {
+        body.innerHTML = `<div class="gate-head"><div class="mark" aria-hidden="true">A</div>
+          <div class="brand-kicker">Armonia</div><h2>${esc(t('loadingBoot')||'…')}</h2></div>`;
+      }
+    }, 800);
     const bootTimer = setTimeout(() => {
       if (!bootSettled) {
         bootSettled = true;
-        renderEntrance();
+        clearTimeout(softTimer);
+        const last = readLastProfile();
+        if (last) renderPin(last.who, last.mode);
+        else renderEntrance();
       }
     }, 4500);
     try {
@@ -627,6 +704,9 @@
       if (response.ok && data.authenticated) {
         bootSettled = true;
         clearTimeout(bootTimer);
+        clearTimeout(softTimer);
+        window.__paidiaBootSession = data;
+        if (data.profileId && data.mode) writeLastProfile(data.mode, data.profileId);
         loadApp();
         return;
       }
@@ -636,7 +716,10 @@
     if (!bootSettled) {
       bootSettled = true;
       clearTimeout(bootTimer);
-      renderEntrance();
+      clearTimeout(softTimer);
+      const last = readLastProfile();
+      if (last) renderPin(last.who, last.mode);
+      else renderEntrance();
     }
   }
 

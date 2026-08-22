@@ -1,35 +1,292 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "name": "Armonia Thassos",
-  "description": "Pine & mineral shell tokens — kept in sync with index.html :root.",
+  "description": "Pine & mineral tokens — kept in sync with the :root block in index.html. Implements design/VISUAL_MOTION_SYSTEM.md §7.",
   "color": {
-    "ink": { "$value": "#1a2822" },
-    "muted": { "$value": "#455851" },
-    "mutedSoft": { "$value": "#4a6a74" },
-    "meta": { "$value": "#6b8a94" },
-    "line": { "$value": "rgba(26,40,34,0.12)" },
-    "bg": { "$value": "#e9ece8" },
-    "bgDeep": { "$value": "#d4dbd5" },
-    "brand": { "$value": "#2a6b52" },
-    "brand2": { "$value": "#3d8a6a" },
-    "sea": { "$value": "#2f5a63" },
-    "sun": { "$value": "#c48a1a" },
-    "in": { "$value": "#2a6b52" },
-    "out": { "$value": "#c2410c" },
-    "warn": { "$value": "#a16207" },
-    "chrome": { "$value": "rgba(26,40,34,0.78)" },
-    "glass": { "$value": "rgba(255,255,255,0.64)" },
-    "glassStrong": { "$value": "rgba(255,255,255,0.86)" },
-    "markA": { "$value": "#9bc4b0" },
-    "markB": { "$value": "#7a9eaa" }
+    "ink": {
+      "$value": "#1a2822"
+    },
+    "muted": {
+      "$value": "#455851"
+    },
+    "mutedSoft": {
+      "$value": "#4a6a74"
+    },
+    "meta": {
+      "$value": "#6b8a94"
+    },
+    "line": {
+      "$value": "rgba(26,40,34,0.12)"
+    },
+    "bg": {
+      "$value": "#e9ece8"
+    },
+    "bgDeep": {
+      "$value": "#d4dbd5"
+    },
+    "brand": {
+      "$value": "#2a6b52"
+    },
+    "brand2": {
+      "$value": "#3d8a6a"
+    },
+    "sea": {
+      "$value": "#2f5a63"
+    },
+    "sun": {
+      "$value": "#c48a1a"
+    },
+    "in": {
+      "$value": "#2a6b52"
+    },
+    "out": {
+      "$value": "#c2410c"
+    },
+    "warn": {
+      "$value": "#a16207"
+    },
+    "chrome": {
+      "$value": "rgba(26,40,34,0.90)"
+    },
+    "glass": {
+      "$value": "rgba(255,255,255,0.64)"
+    },
+    "glassStrong": {
+      "$value": "rgba(255,255,255,0.86)"
+    },
+    "markA": {
+      "$value": "#9bc4b0"
+    },
+    "markB": {
+      "$value": "#7a9eaa"
+    },
+    "stone50": {
+      "$value": "#f3f5f2"
+    },
+    "stone300": {
+      "$value": "#c3ccc4"
+    },
+    "lineStrong": {
+      "$value": "rgba(26,40,34,0.20)"
+    },
+    "pineTint": {
+      "$value": "rgba(42,107,82,0.10)"
+    },
+    "seaDeep": {
+      "$value": "#1a3a42"
+    },
+    "amberTint": {
+      "$value": "rgba(196,138,26,0.10)"
+    },
+    "glassRim": {
+      "$value": "rgba(255,255,255,0.55)"
+    }
   },
   "radius": {
-    "sm": { "$value": "12px" },
-    "md": { "$value": "18px" },
-    "dock": { "$value": "24px" }
+    "sm": {
+      "$value": "12px"
+    },
+    "md": {
+      "$value": "18px"
+    },
+    "dock": {
+      "$value": "24px"
+    },
+    "lg": {
+      "$value": "20px"
+    },
+    "pill": {
+      "$value": "999px"
+    }
   },
   "font": {
-    "ui": { "$value": "Outfit" },
-    "display": { "$value": "Fraunces" }
+    "ui": {
+      "$value": "Outfit"
+    },
+    "display": {
+      "$value": "Fraunces"
+    }
+  },
+  "space": {
+    "1": {
+      "$value": "4px"
+    },
+    "2": {
+      "$value": "8px"
+    },
+    "3": {
+      "$value": "12px"
+    },
+    "4": {
+      "$value": "16px"
+    },
+    "5": {
+      "$value": "20px"
+    },
+    "6": {
+      "$value": "24px"
+    },
+    "8": {
+      "$value": "32px"
+    },
+    "10": {
+      "$value": "40px"
+    },
+    "12": {
+      "$value": "48px"
+    },
+    "16": {
+      "$value": "64px"
+    },
+    "20": {
+      "$value": "80px"
+    }
+  },
+  "type": {
+    "display-xl": {
+      "$value": {
+        "fontFamily": "Fraunces",
+        "fontWeight": 700,
+        "fontSize": "clamp(2rem,6vw,2.75rem)",
+        "lineHeight": "1.08",
+        "letterSpacing": "-0.02em"
+      }
+    },
+    "display-lg": {
+      "$value": {
+        "fontFamily": "Fraunces",
+        "fontWeight": 700,
+        "fontSize": "clamp(1.75rem,4vw,2.1rem)",
+        "lineHeight": "1.12",
+        "letterSpacing": "-0.02em"
+      }
+    },
+    "display-md": {
+      "$value": {
+        "fontFamily": "Fraunces",
+        "fontWeight": 600,
+        "fontSize": "1.375rem",
+        "lineHeight": "1.2",
+        "letterSpacing": "-0.01em"
+      }
+    },
+    "display-sm": {
+      "$value": {
+        "fontFamily": "Fraunces",
+        "fontWeight": 600,
+        "fontSize": "1.125rem",
+        "lineHeight": "1.25",
+        "letterSpacing": "0"
+      }
+    },
+    "numeral": {
+      "$value": {
+        "fontFamily": "Fraunces",
+        "fontWeight": 700,
+        "fontSize": "1.75rem",
+        "lineHeight": "1",
+        "letterSpacing": "-0.01em"
+      }
+    },
+    "body-lg": {
+      "$value": {
+        "fontFamily": "Outfit",
+        "fontWeight": 500,
+        "fontSize": "1.05rem",
+        "lineHeight": "1.5",
+        "letterSpacing": "0"
+      }
+    },
+    "body": {
+      "$value": {
+        "fontFamily": "Outfit",
+        "fontWeight": 400,
+        "fontSize": "1rem",
+        "lineHeight": "1.5",
+        "letterSpacing": "0"
+      }
+    },
+    "body-sm": {
+      "$value": {
+        "fontFamily": "Outfit",
+        "fontWeight": 400,
+        "fontSize": "0.9rem",
+        "lineHeight": "1.45",
+        "letterSpacing": "0"
+      }
+    },
+    "label": {
+      "$value": {
+        "fontFamily": "Outfit",
+        "fontWeight": 600,
+        "fontSize": "0.85rem",
+        "lineHeight": "1.3",
+        "letterSpacing": "0"
+      }
+    },
+    "caption": {
+      "$value": {
+        "fontFamily": "Outfit",
+        "fontWeight": 600,
+        "fontSize": "0.8125rem",
+        "lineHeight": "1.35",
+        "letterSpacing": "0"
+      }
+    },
+    "eyebrow": {
+      "$value": {
+        "fontFamily": "Outfit",
+        "fontWeight": 700,
+        "fontSize": "0.6875rem",
+        "lineHeight": "1.3",
+        "letterSpacing": "0.14em"
+      }
+    },
+    "micro": {
+      "$value": {
+        "fontFamily": "Outfit",
+        "fontWeight": 600,
+        "fontSize": "0.625rem",
+        "lineHeight": "1.2",
+        "letterSpacing": "0.02em"
+      }
+    }
+  },
+  "motion": {
+    "fast": {
+      "$value": "120ms"
+    },
+    "base": {
+      "$value": "220ms"
+    },
+    "slow": {
+      "$value": "380ms"
+    },
+    "reveal": {
+      "$value": "480ms"
+    },
+    "stagger-sm": {
+      "$value": "60ms"
+    },
+    "stagger-md": {
+      "$value": "80ms"
+    },
+    "ease-settle": {
+      "$value": "cubic-bezier(0.2,0.8,0.2,1)"
+    },
+    "ease-tide": {
+      "$value": "cubic-bezier(0.65,0,0.35,1)"
+    }
+  },
+  "elevation": {
+    "glass-1": {
+      "$value": "background glass/64, 1px line/12, blur 10px, radius md, shadow 0 6px 18px rgba(26,40,34,.08)"
+    },
+    "glass-2": {
+      "$value": "background glass/86, 1px line/12 + 1px glass/rim top, blur 16px, radius lg, shadow 0 18px 40px rgba(26,40,34,.14)"
+    },
+    "chrome": {
+      "$value": "background chrome/900, blur 12px, radius dock"
+    }
   }
 }

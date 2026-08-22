@@ -47,5 +47,7 @@ Skill lives at `.claude/skills/task-observer/` (and `~/.claude/skills/task-obser
 
 - Never commit `.env`, PINs, WhatsApp tokens, or live caregiver phone numbers
 - Prefer small diffs; match existing vanilla JS + Flask style
-- Cache bust: bump `build.json` + `CHANGELOG.md` + `?v=` in `gate.js` / `index.html` / `sw.js` when shipping client changes
+- Cache bust: bump `build.json` + `CHANGELOG.md` + `?v=` in `gate.js` / `index.html` / `sw.js` / the `app.js` SW register when shipping client changes
+- Also bump `APP_BUILD` in `gate.js` — it is the first-paint fallback for the
+  login version banner, so a stale value shows a release-behind version
 - Never paste entire `app.js` / `server.py` — use `docs/agents/` maps

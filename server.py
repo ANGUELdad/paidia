@@ -131,6 +131,7 @@ WHATSAPP_GRAPH_URL = "https://graph.facebook.com"
 WHATSAPP_DEDUPE_WINDOW = 10 * 60
 WHATSAPP_SENT: dict[str, float] = {}
 AUTH_SESSION_TTL = 12 * 60 * 60
+AUTH_SESSION_TTL_REMEMBER = 30 * 24 * 60 * 60
 RESET_TOKEN_TTL = 30 * 60
 PIN_ITERATIONS = 600_000
 AUTH_COOKIE = "paidia_session"
@@ -654,11 +655,13 @@ def session_secret() -> bytes:
     return hashlib.sha256(raw.encode("utf-8")).digest()
 
 
-def encode_session_token(profile_id: str, mode: str, method: str = "pin") -> tuple[str, dict]:
+def encode_session_token(profile_id: str, mode: str, method: str = "pin",
+                          remember: bool = False, session_id: str | None = None) -> tuple[str, dict]:
     import base64
     now = time.time()
-    expires_at = now + AUTH_SESSION_TTL
-    session_id = "ses-" + secrets.token_urlsafe(12)
+    ttl = AUTH_SESSION_TTL_REMEMBER if remember else AUTH_SESSION_TTL
+    expires_at = now + ttl
+    session_id = session_id or ("ses-" + secrets.token_urlsafe(12))
     user = AUTH_USERS.get(profile_id) or {}
     payload = {
         "session_id": session_id,
@@ -667,6 +670,8 @@ def encode_session_token(profile_id: str, mode: str, method: str = "pin") -> tup
         "admin": mode == "staff" and profile_id in ADMIN_PROFILE_IDS,
         "expires_at": expires_at,
         "method": method,
+        "remember": bool(remember),
+        "ttl": int(ttl),
         # Bound to current PIN hash — changing PIN invalidates all signed cookies.
         "pin_ver": pin_fingerprint(str(user.get("pin_hash", ""))),
     }
@@ -3885,13 +3890,31 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json_response(200, {"authenticated": False})
             else:
                 contact = profile_contact(session["profile_id"])
+                remember = bool(session.get("remember"))
+                slide_headers = None
+                expires_ms = int(session["expires_at"] * 1000)
+                session_id = session["session_id"]
+                try:
+                    token, payload = encode_session_token(
+                        session["profile_id"], session["mode"],
+                        method=session.get("method", "pin"),
+                        remember=remember,
+                        session_id=session.get("session_id"),
+                    )
+                    max_age = int(payload.get("ttl") or AUTH_SESSION_TTL)
+                    slide_headers = {"Set-Cookie": self.set_session_cookie(token, max_age=max_age)}
+                    expires_ms = int(payload["expires_at"] * 1000)
+                    session_id = payload.get("session_id", session_id)
+                except RuntimeError:
+                    pass
                 self.json_response(200, {
                     "authenticated": True,
                     "profileId": session["profile_id"],
                     "mode": session["mode"],
                     "admin": bool(session.get("admin")),
-                    "sessionId": session["session_id"],
-                    "expiresAt": int(session["expires_at"] * 1000),
+                    "sessionId": session_id,
+                    "expiresAt": expires_ms,
+                    "remember": remember,
                     "passkeys": len(profile_passkeys(session["profile_id"], session["mode"])),
                     "onboardingComplete": onboarding_complete(session["profile_id"], session["mode"]),
                     "onboardingVersion": ONBOARDING_VERSION,
@@ -3900,7 +3923,7 @@ class Handler(SimpleHTTPRequestHandler):
                     "contactComplete": bool(contact["email"] and contact["phone"]),
                     "emailConfigured": email_delivery_status()["configured"],
                     "emailProvider": email_delivery_status()["provider"],
-                })
+                }, slide_headers)
             return
         if parsed.path == "/api/talk":
             session = self.current_auth_session()
@@ -3972,6 +3995,12 @@ class Handler(SimpleHTTPRequestHandler):
             "gate.js",
             "sw.js",
             "manifest.webmanifest",
+            # Login shows the running version + DE/EL "what changed" from this.
+            "build.json",
+            # Local-only design reference. Exact match, no directory
+            # fallthrough — the Vercel handler (api/index.py) has its own
+            # allowlist and does not serve this.
+            "design/system-preview.html",
         }
         icon_ok = (
             static_rel.startswith("icons/")
@@ -4191,10 +4220,11 @@ class Handler(SimpleHTTPRequestHandler):
         self.json_response(404, {"error": "Not found"})
 
     def finish_authentication(self, profile_id: str, mode: str, method: str = "pin",
-                               extra_cookies: list[str] | None = None) -> None:
+                               extra_cookies: list[str] | None = None,
+                               remember: bool = False) -> None:
         client_ip = self.client_ip()
         try:
-            token, payload = encode_session_token(profile_id, mode, method)
+            token, payload = encode_session_token(profile_id, mode, method, remember=remember)
         except RuntimeError:
             self.json_response(503, {
                 "error": "Server authentication is misconfigured",
@@ -4211,7 +4241,8 @@ class Handler(SimpleHTTPRequestHandler):
             elif new_ip and not first_ip:
                 queue_security_alert(profile_id, "new_ip_login", client_ip, {"attempts": 0})
         contact = profile_contact(profile_id)
-        cookies = [self.set_session_cookie(token)]
+        max_age = int(payload.get("ttl") or AUTH_SESSION_TTL)
+        cookies = [self.set_session_cookie(token, max_age=max_age)]
         if extra_cookies:
             cookies.extend(extra_cookies)
         self.json_response(200, {
@@ -4219,6 +4250,7 @@ class Handler(SimpleHTTPRequestHandler):
             "admin": bool(payload["admin"]),
             "sessionId": payload["session_id"], "expiresAt": int(payload["expires_at"] * 1000),
             "authenticationMethod": method,
+            "remember": bool(payload.get("remember")),
             "onboardingComplete": onboarding_complete(profile_id, mode),
             "onboardingVersion": ONBOARDING_VERSION,
             "email": contact["email"],
@@ -4329,7 +4361,8 @@ class Handler(SimpleHTTPRequestHandler):
             return
         with AUTH_LOCK:
             LOGIN_FAILURES.pop(attempt_key, None)
-        self.finish_authentication(profile_id, mode, "pin")
+        remember = bool(body.get("remember"))
+        self.finish_authentication(profile_id, mode, "pin", remember=remember)
 
     def handle_passkey_register_options(self, body: dict) -> None:
         if not WEBAUTHN_AVAILABLE:
@@ -4485,9 +4518,11 @@ class Handler(SimpleHTTPRequestHandler):
         except OSError:
             pass
         device_bundle["credentials"][credential_id] = stored
+        remember = bool(body.get("remember"))
         self.finish_authentication(
             challenge["profile_id"], challenge["mode"], "passkey",
             extra_cookies=[self.set_passkey_cookie(encode_passkey_device_bundle(device_bundle))],
+            remember=remember,
         )
 
     def handle_passkey_remove(self, body: dict) -> None:

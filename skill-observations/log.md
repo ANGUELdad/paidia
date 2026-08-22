@@ -407,3 +407,85 @@
 - **Trigger:** QA of Marble Dawn home + Zo-Ai screen guide.
 - **Insight:** German how-to phrasing (“Wie starte ich die Schicht?”) does not match `schicht\s*start`. Intent maps need verb/noun either order, and more-specific targets (Schichtbuch) must win over substring matches (Schicht).
 - **Reusable pattern:** For guide/intent routers, put longer/more-specific patterns first; test with real user phrasing, not only keyword lists.
+
+## 2026-08-21 — Multipage Figma → PWA
+
+- **Trigger:** Implement multipage redesign plan (Figma MCP + PWA bulk/home/routes).
+- **Insight:** Figma MCP `fontSize` must be numbers not strings; space variable scopes use `WIDTH_HEIGHT` not `WIDTH_SIZE`. Origin pushes need `gh auth switch --user ANGUELdad` (documented in docs/agents/PUSH_ORIGIN.md).
+- **Reusable pattern:** Ship hash multipage routes + select/bulk sticky bar as one ops pattern across Liste/Lager/Store.
+- **Skill candidates:** none new.
+
+### Observation 21: Look for an unimplemented design spec before inventing a visual direction
+
+**Status:** OPEN
+**Date:** 2026-08-21
+**Session context:** User asked, in shouty shorthand, for a full UI redesign — "FIGMA, TOP NOTCH, FUTURISTIC, NEW, FRESH, 2026 TRENDS".
+**Skill:** New skill candidate: redesign-intake
+**Type:** open-source
+**Phase/Area:** Intake / establishing the design target
+
+**Issue:** The literal reading of the prompt (neon, glass, dark mode, gradient-forward "futuristic") was directly contradicted by a design document already in the repo, which listed those exact treatments as clichés to reject and instead specified a place-specific system. That document was a written-but-unimplemented spec — the highest-value work was implementing it, not generating a new direction. Reading it first changed the entire shape of the task, and it would have been easy to miss by going straight to the stylesheet.
+
+**Suggested improvement:** Make "search for design docs, token files, and style guides before proposing any visual direction" an explicit first step of redesign work — glob for `design/`, `*.tokens.json`, `*DESIGN*`, `*VISUAL*`, `*STYLE*`. Treat a detailed unimplemented spec as the default target, and say so when it conflicts with the literal prompt.
+
+**Principle:** On a redesign request, the repo often already contains the intended design; adjectives in the prompt describe the desired *effect*, not necessarily the direction. Find the existing design authority before generating a competing one.
+
+### Observation 22: Layering CSS onto an unfamiliar stylesheet needs a scripted cascade audit
+
+**Status:** OPEN
+**Date:** 2026-08-21
+**Session context:** Appending a ~300-line design-system layer to a ~200KB single-file stylesheet with ~1700 shipped rules.
+**Skill:** New skill candidate: redesign-intake
+**Type:** open-source
+**Phase/Area:** Implementation / verifying overrides actually land
+
+**Issue:** Two silent failures that computed-style spot checks only caught by luck. (1) A single-class rule lost to a shipped two-class rule targeting the same element, so a heading kept its old size while everything around it changed. (2) Using the `font` shorthand reset the root font-size, silently disabling a responsive density step defined elsewhere in the sheet — a regression in a property that was never deliberately touched. A short script that diffs declared (selector, property) pairs against the rest of the sheet by specificity found the whole class of problem in one pass, and confirmed the remaining overrides were intentional scoped variants.
+
+**Suggested improvement:** When adding an override layer to a stylesheet you did not write, (a) script a specificity audit over the parsed sheet rather than spot-checking in devtools, and (b) prefer longhand properties — shorthands silently reset siblings you never intended to touch.
+
+**Principle:** In a large cascade, an override that loses is indistinguishable from one that was never written. Verify overrides structurally, and never let a shorthand reset properties you did not choose.
+
+### Observation 23: An auth gate blocking visual QA is a reason to build a harness, not to skip verification
+
+**Status:** OPEN
+**Date:** 2026-08-21
+**Session context:** Redesign could not be seen in situ — the app sits behind a PIN gate, and entering credentials is out of bounds.
+**Skill:** New skill candidate: redesign-intake
+**Type:** open-source
+**Phase/Area:** Verification
+
+**Issue:** Every redesigned surface lived behind a login. The options were to ship unverified, or to ask the user to drive the browser. A third option was better: generate a style-guide page that renders every primitive against the shipped stylesheet, which both verified the work and left behind a reusable artifact. It also surfaced defects (wrong heading size, broken icon fills) that no amount of reading CSS would have shown.
+
+**Suggested improvement:** When the target UI is gated, build a component harness that loads the real stylesheet and renders the primitives, rather than treating verification as blocked. Keep it generated from the shipped source so it cannot drift, and state plainly which in-app screens remain unverified.
+
+**Principle:** Inaccessible UI blocks *in-situ* verification, not verification. A harness built from the shipped source is a legitimate substitute — and usually outlives the task.
+
+### Observation 24: Two Figma Plugin API traps that cost a round trip each
+
+**Status:** OPEN
+**Date:** 2026-08-21
+**Session context:** Building a design-system file in Figma via `use_figma` — variables, styles, and five mobile screen frames.
+**Skill:** figma-use
+**Type:** open-source
+**Phase/Area:** Plugin API gotchas
+
+**Issue:** Two failures, each costing a full retry. (1) `node.query('FRAME[name=App chrome]')` returned null — the CSS-like attribute selector does not handle unquoted values containing spaces, and the failure is silent (null, not an error), so it surfaces later as `cannot read property 'clone' of null`. (2) A loop that read `t.characters` in one branch, called `t.remove()`, then read `t.characters` again in a second `if` on the same node threw `The node with id X does not exist` — the second read hit a removed node. Both are the same underlying shape: the API gives no guard, so the mistake surfaces one step downstream of its cause.
+
+**Suggested improvement:** Add to the gotchas reference: (a) `query` attribute values containing whitespace do not match — use `[name^=…]`, or `children.find(c => c.name === …)` / `findOne`, for names with spaces; (b) snapshot the properties you need before any structural mutation, and never re-read a node's properties after removing it — use `else if` or read into a local first.
+
+**Principle:** When an API returns null instead of raising on a malformed query, and lets you read a node you already destroyed, the error you see is always one step downstream of the error you made. Read before mutating, and prefer lookups that fail loudly.
+
+### Observation 25: In Figma auto-layout, x/y on a child is silently ignored
+
+**Status:** OPEN
+**Date:** 2026-08-21
+**Session context:** Building a widget catalogue and a child-mode screen set in Figma via the Plugin API.
+**Skill:** figma-use
+**Type:** open-source
+**Phase/Area:** Layout / auto-layout children
+
+**Issue:** Several widgets came out subtly wrong in ways the script gave no signal about. A star icon set with `x`/`y` after being appended to an auto-layout frame rendered at the frame's flow position instead, so it sat off its disc. A progress-bar fill appended to an auto-layout card and then positioned with `x`/`y` became its own stacked row rather than an overlay on its track. Both scripts returned success. The fix in each case was structural: nest the overlay inside the element it overlays (fill inside track, star inside a centring disc frame) rather than trying to position it.
+
+**Suggested improvement:** State the rule directly in the layout guidance: inside an auto-layout frame the parent owns child position, so `x`/`y` writes are discarded unless the child is absolutely positioned (`layoutPositioning = 'ABSOLUTE'`). To overlay one node on another, make the lower node a frame and append the upper node to it; to centre, use a `createAutoLayout` frame with both axes centred.
+
+**Principle:** When a layout system owns a property, assigning that property is a silent no-op, not an error. Overlay and centring are structural problems in such systems — solve them by nesting, never by coordinates.
