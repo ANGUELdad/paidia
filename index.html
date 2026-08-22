@@ -3017,7 +3017,21 @@
   .page-act{border-radius:var(--radius-sm); padding:var(--space-2) var(--space-4);
     min-height:44px; font-size:var(--t-caption); font-weight:700;
     background:var(--glass-strong); box-shadow:var(--shadow-1)}
-  .page-actions{gap:var(--space-2); margin-bottom:var(--space-3)}
+  .page-actions{
+    gap:var(--space-2); margin-bottom:var(--space-3);
+    padding:var(--space-2); border-radius:var(--radius);
+    background:var(--glass); border:1px solid var(--line);
+    box-shadow:var(--shadow-1); backdrop-filter:blur(10px)}
+  .page-actions .page-act{background:var(--glass-strong)}
+  .chat-panel.chat-float{
+    background:var(--glass-strong)!important;
+    border:1px solid var(--line)!important;
+    box-shadow:var(--shadow-2)!important;
+    border-radius:var(--radius)!important}
+  .chat-panel.chat-float .chat-panel-head{
+    background:var(--glass)!important; border-bottom:1px solid var(--line)}
+  .chat-panel.chat-float .chat-panel-title{color:var(--ink)!important;
+    font-family:var(--font-display); letter-spacing:-.02em}
 
   /* Inputs go fully opaque — glass is for display, not for typing counts under
      time pressure (§4 "when opacity goes to 100%") */
@@ -3430,6 +3444,99 @@
   .home-shift-start.late .home-shift-step-cta.primary{
     background:var(--shift-accent); color:#fff; border-color:transparent}
 
+  /* ── Home v2: Figma mast + signal tiles + quieter “Mehr” ───────────── */
+  .home-shell-v2{gap:var(--space-3)}
+  .home-mast .brand-kicker{
+    order:-2; margin:0 0 var(--space-1);
+    font-family:var(--font-ui); color:var(--sea);
+    font-size:var(--t-eyebrow); font-weight:700; letter-spacing:.14em;
+    text-transform:uppercase}
+  .home-mast .home-brand{
+    order:0; margin:0; color:var(--ink);
+    font-family:var(--font-display); font-size:var(--t-display-lg);
+    font-weight:700; letter-spacing:-.02em; line-height:1.12}
+  .home-mast .home-lede{
+    order:1; margin:var(--space-1) 0 0; max-width:36ch;
+    color:var(--muted); font-family:var(--font-ui); font-weight:500;
+    font-size:var(--t-body-lg); letter-spacing:0}
+  .home-cta-row{
+    order:2; display:flex; flex-wrap:wrap; gap:var(--space-2);
+    margin-top:var(--space-3); width:100%; align-items:center}
+  .home-cta-row .home-primary{margin-top:0; width:auto; min-width:min(100%,200px)}
+  .home-secondary{
+    appearance:none; border:1px solid var(--line); background:var(--glass);
+    color:var(--ink); border-radius:var(--radius-sm); min-height:48px;
+    padding:0 var(--space-3); font:inherit; font-weight:700; cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px; touch-action:manipulation}
+  .home-secondary:active{transform:scale(.98)}
+  .home-signals{
+    display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:var(--space-2)}
+  @media(max-width:420px){
+    .home-signals{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  .home-signal{
+    appearance:none; border:1px solid var(--line); background:var(--glass);
+    border-radius:var(--radius); padding:var(--space-3); text-align:left;
+    cursor:pointer; display:grid; gap:2px; min-width:0; box-shadow:var(--shadow-1);
+    color:inherit; font:inherit; touch-action:manipulation}
+  .home-signal:active{transform:scale(.98)}
+  .home-signal .w-stat-val{font-family:var(--font-display); font-size:1.375rem;
+    letter-spacing:-.02em; font-variant-numeric:tabular-nums; color:var(--ink)}
+  .home-signal .w-stat-lbl{font-size:12px; color:var(--muted); line-height:1.3}
+  .home-signal .w-stat-ico{color:var(--sea)}
+  .home-signal.tone-pine{border-left:3px solid var(--brand)}
+  .home-signal.tone-out{border-left:3px solid var(--out)}
+  .home-signal.tone-sea{border-left:3px solid var(--sea)}
+  .home-signal.tone-amber{border-left:3px solid var(--mark-a,#c48a1a)}
+  .home-more{
+    border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--glass); padding:0; box-shadow:var(--shadow-1)}
+  .home-more > summary{
+    list-style:none; cursor:pointer; padding:var(--space-3) var(--space-4);
+    font-weight:700; font-size:var(--t-body-sm); color:var(--muted)}
+  .home-more > summary::-webkit-details-marker{display:none}
+  .home-more[open] > summary{border-bottom:1px solid var(--line); color:var(--ink)}
+  .home-more-grid{padding:var(--space-3); margin:0}
+  .home-shell-v2 .home-today-card{
+    border:1px solid var(--line); background:var(--glass);
+    border-radius:var(--radius); padding:var(--space-3); box-shadow:var(--shadow-1)}
+
+  /* ── Ops shells (Lager / Liste): hero + glass command ──────────────── */
+  .ops-hero,.stock-hero,.shop-hero{
+    padding:var(--space-2) 0 var(--space-3); color:var(--ink)}
+  .ops-hero .brand-kicker,.stock-hero .brand-kicker,.shop-hero .brand-kicker{
+    font-family:var(--font-ui); color:var(--sea);
+    font-size:var(--t-eyebrow); font-weight:700; letter-spacing:.14em;
+    text-transform:uppercase; margin:0 0 var(--space-1)}
+  .ops-hero h2,.stock-hero h2,.shop-hero h2{
+    margin:0; font-family:var(--font-display); font-size:var(--t-display-lg);
+    font-weight:700; letter-spacing:-.02em; color:var(--ink)}
+  .ops-hero > p,.stock-hero > p,.shop-hero > p{
+    margin:var(--space-1) 0 0; color:var(--muted); font-size:var(--t-body-sm); max-width:40ch}
+  .ops-hero-stats{
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:var(--space-2); margin-top:var(--space-3)}
+  .ops-hero-stats .w-stat{
+    background:var(--glass); border:1px solid var(--line); box-shadow:var(--shadow-1)}
+  .stock-shell,.shop-shell{display:flex; flex-direction:column; gap:var(--space-2)}
+  .stock-command,.shop-command{
+    background:var(--glass)!important; border:1px solid var(--line)!important;
+    box-shadow:var(--shadow-1)!important; border-radius:var(--radius)!important}
+  .bulk-bar{
+    background:linear-gradient(135deg,var(--brand),var(--brand-2))!important;
+    border-color:color-mix(in srgb, var(--brand) 40%, transparent)!important;
+    box-shadow:0 12px 28px color-mix(in srgb, var(--brand) 28%, transparent)!important}
+  .plan-hero .w-minical{margin-top:var(--space-2)}
+  .talk-topics.glass-1,.talk-chat-shell.glass-1,
+  .gal-shell .gal-compose-bar{
+    background:var(--glass); border:1px solid var(--line);
+    border-radius:var(--radius); box-shadow:var(--shadow-1); padding:var(--space-3)}
+  .book-hero .tide-line{
+    background:linear-gradient(90deg,var(--sea),var(--brand));
+    -webkit-background-clip:text; background-clip:text; color:transparent}
+  @media(prefers-reduced-motion:reduce){
+    .book-hero .tide-line{background:none; color:var(--ink); -webkit-background-clip:unset; background-clip:unset}
+  }
 
   /* ── Plan hero: same treatment as Home (Figma "Plan" frame) ────────── */
   .plan-hero{
@@ -3815,7 +3922,7 @@
 <script>
 /* Network-first SW + notifications — versioned registration happens in app.js */
 </script>
-<script src="notifications.js?v=99" defer></script>
-<script src="gate.js?v=99"></script>
+<script src="notifications.js?v=100" defer></script>
+<script src="gate.js?v=100"></script>
 </body>
 </html>

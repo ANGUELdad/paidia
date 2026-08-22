@@ -22,6 +22,8 @@ authority; the Figma build of it is [Armonia Thassos — Design System v2](https
 **Handoff to another agent (Cursor etc.):** [docs/agents/CURSOR_HANDOFF.md](docs/agents/CURSOR_HANDOFF.md)
 — token reference, the Kids/widgets build spec, real `app.js` anchors, ship checklist, guardrails.
 
+**Staff screens (v100):** [docs/agents/CURSOR_HANDOFF_STAFF_SCREENS.md](docs/agents/CURSOR_HANDOFF_STAFF_SCREENS.md)
+
 **Claude Code extras:** [CLAUDE.md](CLAUDE.md), [docs/claude-code-setup.md](docs/claude-code-setup.md)
 
 **Deferred Web Push:** [docs/agents/WEB_PUSH_LATER.md](docs/agents/WEB_PUSH_LATER.md)

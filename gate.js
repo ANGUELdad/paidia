@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 99,
-    label: 'v99',
+    version: 100,
+    label: 'v100',
     changed: {
-      de: 'Spiele-Hub neu: Glas-Karten, Snap-Rail, Widgets und Stroke-Icons',
-      el: 'Νέο Spiele hub: γυάλινες κάρτες, snap-rail, widgets και stroke icons',
+      de: 'Staff-UI: Home, Plan, Lager, Liste und Chrome an Figma angeglichen',
+      el: 'Staff UI: Home, Plan, Lager, Liste και chrome σύμφωνα με το Figma',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

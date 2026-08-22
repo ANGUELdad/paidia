@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 99,
-  label: 'v99',
+  version: 100,
+  label: 'v100',
   changed: {
-    de: 'Spiele-Hub neu: Glas-Karten, Snap-Rail, Widgets und Stroke-Icons',
-    el: 'Νέο Spiele hub: γυάλινες κάρτες, snap-rail, widgets και stroke icons',
+    de: 'Staff-UI: Home, Plan, Lager, Liste und Chrome an Figma angeglichen',
+    el: 'Staff UI: Home, Plan, Lager, Liste και chrome σύμφωνα με το Figma',
   },
 };
 const T = {
@@ -310,6 +310,8 @@ const T = {
     stockDraftPending:'Noch nicht gespeichert',
     homeMore:'Mehr heute',
     homeSignals:'Kurzüberblick',
+    stockHeroHint:'Bestände prüfen und Bewegung buchen',
+    shopHeroHint:'Freitagsliste planen, mitnehmen, im Laden abhaken',
     adminAutomations:'Automationen',
     adminAutomationsHint:'Lokale Mitteilungen steuern (App offen). E-Mail weiter über Broadcast.',
     autoShiftStart:'Schicht-Start Mitteilung',
@@ -1023,6 +1025,8 @@ const T = {
     stockDraftPending:'Δεν αποθηκεύτηκε ακόμη',
     homeMore:'Περισσότερα σήμερα',
     homeSignals:'Σύντομη εικόνα',
+    stockHeroHint:'Έλεγχος αποθέματος και κίνηση',
+    shopHeroHint:'Λίστα Παρασκευής · προετοιμασία · επιβεβαίωση στο μαγαζί',
     adminAutomations:'Αυτοματισμοί',
     adminAutomationsHint:'Τοπικές ειδοποιήσεις (ενώ η app είναι ανοιχτή). Email μέσω Broadcast.',
     autoShiftStart:'Ειδοποίηση έναρξης βάρδιας',
@@ -3832,7 +3836,7 @@ function viewGallery(){
   const hasFeed = posts.length > 0;
   return `<div class="gal-shell">
     <div class="gal-hero ${hasFeed?'compact':''}">
-      <div class="brand-kicker">Armonia</div>
+      <div class="brand-kicker">Armonia Thassos</div>
       <h2>${t('galleryTitle')}</h2>
       ${hasFeed?'':`<p>${t('galleryHint')}</p><p class="gal-safe-line">${esc(t('gallerySafeHint'))}</p>`}
       <p class="gal-drive-line">${esc(state.galleryDrive?t('galleryDriveOn'):t('galleryDriveOff'))}</p>
@@ -4158,11 +4162,11 @@ function viewTalk(){
   }
   return `<div class="talk-page">
     <header class="talk-hero">
-      <div class="brand-kicker">Armonia</div>
+      <div class="brand-kicker">Armonia Thassos</div>
       <h2>${esc(t('staffTalkTitle'))}</h2>
       <p>${esc(t('staffTalkIntro'))}</p>
     </header>
-    <section class="talk-topics card" aria-label="${esc(t('staffTalkTopics'))}">
+    <section class="talk-topics glass-1" aria-label="${esc(t('staffTalkTopics'))}">
       <div class="block-h"><span class="t">${esc(t('staffTalkTopics'))}</span></div>
       <p class="muted talk-topics-hint">${esc(t('staffTalkTopicsHint'))}</p>
       <div id="talkTopicsList" class="talk-topics-list"></div>
@@ -4175,7 +4179,7 @@ function viewTalk(){
         <button class="btn ghost sm" type="button" id="talkTopicClear">${esc(t('staffTalkClearDone'))}</button>
       </div>
     </section>
-    <section class="talk-chat-shell card" aria-label="${esc(t('staffTalkTitle'))}">
+    <section class="talk-chat-shell glass-1" aria-label="${esc(t('staffTalkTitle'))}">
       <div id="talkPageMount" class="talk-root-fast"></div>
     </section>
   </div>`;
@@ -4605,7 +4609,7 @@ function shiftPresenceBannerHtml(){
   </div>`;
 }
 
-/** Home: shift-start checklist (presence → stock → journal). */
+/** Home: shift-start checklist (presence → stock → journal). Glass-1 card with semantic edge. */
 function homeShiftStartCardHtml(){
   if(state.mode!=='staff' || !state.user) return '';
   const active = activeShiftPresence(state.user.id);
@@ -4636,7 +4640,7 @@ function homeShiftStartCardHtml(){
 
   const step = (ok, label, cta, id, primary) => `
     <div class="home-shift-step ${ok?'ok':''}">
-      <span class="home-shift-mark" aria-hidden="true">${ok?'✓':'○'}</span>
+      <span class="home-shift-mark" aria-hidden="true">${ok?ui('u-check','sm'):'○'}</span>
       <span class="home-shift-step-label">${esc(label)}</span>
       ${ok
         ? `<span class="home-shift-step-done">${esc(t('homeShiftDoneMark'))}</span>`
@@ -5074,12 +5078,19 @@ function viewScheduleDay(){
 
   const d = new Date(state.date+'T12:00:00');
   const longDate = `${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+  const calDates = [];
+  for(let i=6;i>=0;i--){
+    const cd = new Date(); cd.setDate(cd.getDate()-i);
+    const key = iso(cd);
+    if(entriesFor(key).length) calDates.push(key);
+  }
   return `
     <header class="plan-hero">
       <div class="plan-hero-copy">
         <div class="brand-kicker">Armonia</div>
         <h2 class="plan-hero-date">${esc(longDate)}</h2>
         <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
+        ${miniCalendarHtml(calDates, today)}
       </div>
       <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
     </header>
@@ -5498,7 +5509,7 @@ function viewSchedule(){
   const showHouse = ['day','week'].includes(sv);
   const viewBtn = (id, icon, label, shortLabel) =>
     `<button type="button" class="${sv===id?'on':''}" data-v="${id}" title="${esc(label)}" aria-label="${esc(label)}" aria-pressed="${sv===id?'true':'false'}">
-      <span class="planner-seg-ico" aria-hidden="true">${icon}</span>
+      <span class="planner-seg-ico" aria-hidden="true">${ui(icon,'sm')}</span>
       <span class="planner-seg-lbl"><span class="lbl-full">${esc(label)}</span><span class="lbl-short">${esc(shortLabel||label)}</span></span>
     </button>`;
   const eventsShort = state.lang==='el' ? 'Evt' : 'Evt';
@@ -5509,11 +5520,11 @@ function viewSchedule(){
   const summaryMeta = [viewLabel, houseLabel].filter(Boolean).join(' · ');
   const chromePanel = `
         <div class="seg planner-seg" id="schView" role="tablist" aria-label="${esc(t('filterView'))}">
-          ${viewBtn('day','📅',t('viewDay'))}
-          ${viewBtn('week','▦',t('viewWeek'))}
-          ${viewBtn('calendar','🗓',t('viewCalendar'),calShort)}
-          ${viewBtn('shift','⏱',t('viewShift'))}
-          ${viewBtn('events','📣',t('viewEvents'),eventsShort)}
+          ${viewBtn('day','u-calendar',t('viewDay'))}
+          ${viewBtn('week','u-tasks',t('viewWeek'))}
+          ${viewBtn('calendar','u-calendar',t('viewCalendar'),calShort)}
+          ${viewBtn('shift','u-clock',t('viewShift'))}
+          ${viewBtn('events','u-megaphone',t('viewEvents'),eventsShort)}
         </div>
         ${showHouse?`<div class="seg planner-seg planner-seg-house house-selector" id="hFilter" role="tablist" aria-label="${esc(t('filterHouse'))}">
           <button type="button" class="${state.houseFilter===''?'on':''}" data-h="" title="${esc(t('all'))}" aria-label="${esc(t('all'))}">${esc(t('all'))}</button>
@@ -5972,9 +5983,20 @@ function viewStock(){
   const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
   const attention=counts.empty+counts.low;
 
-  return `<div class="stock-command" aria-label="${esc(t('headerStock'))}">
+  return `<div class="stock-shell">
+    <header class="ops-hero stock-hero">
+      <p class="brand-kicker">Armonia</p>
+      <h2>${esc(t('headerStock'))}</h2>
+      <p>${esc(t('stockHeroHint'))}</p>
+      <div class="ops-hero-stats" role="group" aria-label="${esc(t('menuFilters'))}">
+        ${statTileHtml(counts.empty, t('stockEmpty'), 'u-alert', counts.empty?'down':'')}
+        ${statTileHtml(attention, t('stockAttention'), 'u-leaf', attention?'down':'')}
+        ${statTileHtml(counts.ok, t('stockHealthy'), 'u-check', '')}
+      </div>
+    </header>
+    <div class="stock-command" aria-label="${esc(t('headerStock'))}">
       <div class="seg house-selector" id="sHouse" aria-label="${t('filterHouse')}">
-        ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
+        ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-person','sm')} ${esc(h.short)}</button>`).join('')}
         <button class="${hid==='all'?'on':''}" data-h="all">${t('bothHouses')}</button>
       </div>
       <div class="stock-command-row">
@@ -6018,10 +6040,11 @@ function viewStock(){
         ${reasons}
         <div class="stock-draft-actions">
           <button class="btn sec" type="button" id="stockDraftClear">${t('stockDraftClear')}</button>
-          <button class="btn" type="button" id="stockDraftSave">💾 ${t('stockDraftSave')}</button>
+          <button class="btn" type="button" id="stockDraftSave">${ui('u-check','sm')} ${t('stockDraftSave')}</button>
         </div>
       </div>`;
-    })():''}`;
+    })():''}
+  </div>`;
 }
 
 function sheetStockDetail(pid,hid=state.house){
@@ -7155,14 +7178,19 @@ function viewShop(){
   const catOrder = [...CATS().map(c=>c.id), 'other'];
   const shopSelecting = state.selectMode==='shop' && !inStore;
   const storeSelecting = state.selectMode==='store' && inStore;
-  const hero=inStore?'':`<section class="shop-command" aria-label="${esc(t('shopTitle'))}">
+  const hero=inStore?'':`<header class="ops-hero shop-hero">
+      <p class="brand-kicker">Armonia</p>
+      <h2>${esc(t('shopTitle'))}</h2>
+      <p>${esc(t('shopHeroHint'))}</p>
+      <div class="ops-hero-stats" role="group" aria-label="${esc(t('shopTitle'))}">
+        ${statTileHtml(open.length, t('secOpen'), 'u-cart', open.length?'up':'')}
+        ${statTileHtml(lowStockCount, t('stockAttention'), 'u-leaf', lowStockCount?'down':'')}
+        ${statTileHtml(bought.length, t('secBought'), 'u-check', '')}
+      </div>
+    </header>
+    <section class="shop-command" aria-label="${esc(t('shopTitle'))}">
     <div class="seg house-selector" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
-      ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}
-    </div>
-    <div class="shop-hub-stats" aria-label="${esc(t('shopTitle'))}">
-      <div class="shop-stat"><b>${open.length}</b><span>${t('secOpen')}</span></div>
-      <div class="shop-stat warn"><b>${lowStockCount}</b><span>${t('stockAttention')}</span></div>
-      <div class="shop-stat"><b>${bought.length}</b><span>${t('secBought')}</span></div>
+      ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-person','sm')} ${esc(h.short)}</button>`).join('')}
     </div>
     <div class="shop-command-row">
       <div class="friday-picker compact">
@@ -7171,10 +7199,10 @@ function viewShop(){
         <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
       </div>
       <div class="shop-tools" role="toolbar" aria-label="${esc(t('shopTitle'))}">
-        <button class="shop-tool ${shopSelecting?'on':''}" type="button" id="shopSelectToggle" title="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-label="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-pressed="${shopSelecting?'true':'false'}">${shopSelecting?'✓':'☑'}</button>
+        <button class="shop-tool ${shopSelecting?'on':''}" type="button" id="shopSelectToggle" title="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-label="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-pressed="${shopSelecting?'true':'false'}">${shopSelecting?ui('u-check','sm'):'☑'}</button>
         <button class="shop-tool" type="button" data-page-act="shopScan" title="${esc(t('topScan'))}" aria-label="${esc(t('topScan'))}">${ui('u-camera')}</button>
-        <button class="shop-tool" type="button" id="importList" title="${esc(t('importList'))}" aria-label="${esc(t('importList'))}">📥</button>
-        <button class="shop-tool" type="button" data-page-act="shopHistory" title="${esc(t('topHistory'))}" aria-label="${esc(t('topHistory'))}">🧾</button>
+        <button class="shop-tool" type="button" id="importList" title="${esc(t('importList'))}" aria-label="${esc(t('importList'))}">${ui('u-receipt')}</button>
+        <button class="shop-tool" type="button" data-page-act="shopHistory" title="${esc(t('topHistory'))}" aria-label="${esc(t('topHistory'))}">${ui('u-book')}</button>
       </div>
     </div>
     <div class="seg shop-panel-seg" id="shopPanel">
@@ -7182,7 +7210,7 @@ function viewShop(){
       <button class="${state.shopPanel==='take'?'on':''}" data-shop-panel="take" type="button">${t('shopTake')}</button>
     </div>
     <div class="shop-quick-actions">
-      <button class="btn sec sm" type="button" id="shopAutoFill">⚡ ${t('shopAutoFill')}</button>
+      <button class="btn sec sm" type="button" id="shopAutoFill">${ui('u-sparkle','sm')} ${t('shopAutoFill')}</button>
     </div>
     ${state.shopPanel==='plan'?`<div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋</button></div>`:''}
   </section>`;
@@ -7319,7 +7347,7 @@ function viewShop(){
   const boughtCard = bought.length ? `<details class="card shop-history"><summary>✓ ${t('secBought')}<span class="pill in">${bought.length}</span></summary><div class="shop-history-body">
       ${bought.slice(-8).reverse().map(e=>entryRow(e,`<span class="pill in">${t('stBought')}</span>`)).join('')}</div></details>` : '';
 
-  return hero + pendingCard + takeListCard + openCard + missingCard + boughtCard;
+  return `<div class="shop-shell">${hero}${pendingCard}${takeListCard}${openCard}${missingCard}${boughtCard}</div>`;
 }
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
@@ -8351,8 +8379,8 @@ function viewBook(){
 
   return `<div class="book-page">
     <header class="book-hero ${pane==='shift'?'journal':''}">
-      <div class="brand-kicker">${esc(t('navBook'))}</div>
-      <h2>${esc(heroTitle)}</h2>
+      <div class="brand-kicker">Armonia Thassos</div>
+      <h2 class="tide-line">${esc(heroTitle)}</h2>
       <p>${esc(heroHint)}</p>
     </header>
     <div class="book-panes" role="tablist">
@@ -11562,65 +11590,61 @@ function viewHome(){
     return (DB.stock[stockKey(hid,p.id)]??0) <= lowThreshold(p);
   }).length;
   const primaryLabel = shiftStartCard ? t('homePrimaryCta') : (todayOpen.length ? t('homePrimaryCta') : t('homeOpenPlan'));
-  return `<div class="home-shell home-shell-compact">
-    <section class="home-mast" aria-label="Armonia">
-      <p class="home-brand">Armonia</p>
-      <p class="home-hello">${t('homeHello')}${user?', '+esc(user.name):''}</p>
-      <h2>${t('homeCompactTitle')}</h2>
-      <button class="home-primary page-act primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
+  const signal=(jump,value,label,icon,tone)=>`
+    <button type="button" class="home-signal ${tone||''}" data-home-jump="${jump}">
+      <span class="w-stat-ico" aria-hidden="true">${ui(icon,'sm')}</span>
+      <b class="w-stat-val">${esc(String(value))}</b>
+      <span class="w-stat-lbl">${esc(label)}</span>
+    </button>`;
+  return `<div class="home-shell home-shell-v2">
+    <section class="home-mast hero" aria-label="Armonia">
+      <p class="brand-kicker">Armonia Thassos</p>
+      <h1 class="home-brand">${esc(t('homeHello'))}${user?', '+esc(user.name):''}</h1>
+      <p class="home-lede">${esc(t('homeOverview'))}</p>
+      <div class="home-cta-row">
+        <button class="home-primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
+        ${!shiftStartCard?`<button class="home-secondary" type="button" id="homeQuickBook">${ui('u-note','sm')} ${esc(t('headerBook'))}</button>`:''}
+      </div>
     </section>
     ${shiftStartCard}
     ${showJournalDuty?`<button class="journal-duty-home" type="button" id="homeWriteBook">
-      <span class="journal-duty-home-mark">!</span>
+      <span class="journal-duty-home-mark" aria-hidden="true">${ui('u-alert','sm')}</span>
       <span class="grow"><b>${esc(t('journalDutyHome'))}</b><small>${esc(t('bookJournalHint'))}</small></span>
       <span class="journal-duty-home-cta">${esc(t('journalDutyCta'))}</span>
     </button>`:''}
     ${teamNoticeBannerHtml()}
-    <div class="home-bento home-bento-4" role="group" aria-label="${esc(t('homeSignals'))}">
-      <button class="bento-tile accent action" type="button" data-home-jump="day">
-        <b>${todayOpen.length}</b><span>${t('dueToday')}</span>
-      </button>
-      <button class="bento-tile warn action" type="button" data-home-jump="day">
-        <b>${overdue.length}</b><span>${t('overdue')}</span>
-      </button>
-      <button class="bento-tile sea action" type="button" data-home-jump="shop">
-        <b>${openListCount}</b><span>${t('homeSignalList')}</span>
-      </button>
-      <button class="bento-tile sun action" type="button" data-home-jump="stock">
-        <b>${lowStockCount}</b><span>${t('homeSignalStock')}</span>
-      </button>
-    </div>
-    <div class="home-quick-row" role="group" aria-label="${esc(t('homeSignals'))}">
-      <button type="button" class="home-quick" data-home-jump="shop">${esc(t('homeSignalList'))}</button>
-      <button type="button" class="home-quick stock" data-home-jump="stock">${esc(t('homeSignalStock'))}</button>
-      <button type="button" class="home-quick book" id="homeQuickBook">${esc(t('headerBook'))}</button>
+    <div class="home-signals" role="group" aria-label="${esc(t('homeSignals'))}">
+      ${signal('day', todayOpen.length, t('dueToday'), 'u-tasks', todayOpen.length?'tone-pine':'')}
+      ${signal('day', overdue.length, t('overdue'), 'u-alert', overdue.length?'tone-out':'')}
+      ${signal('shop', openListCount, t('homeSignalList'), 'u-cart', openListCount?'tone-sea':'')}
+      ${signal('stock', lowStockCount, t('homeSignalStock'), 'u-leaf', lowStockCount?'tone-amber':'')}
     </div>
     ${shiftStartCard?'':`${shiftPresenceBannerHtml()}${shiftStockCheckBannerHtml()}`}
-    <section class="card home-today-card" style="margin-top:10px">
-      <div class="block-h"><span class="t">✅ ${t('myTasks')}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
+    <section class="card home-today-card">
+      <div class="block-h"><span class="t">${ui('u-check','sm')} ${esc(t('myTasks'))}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
       <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState(ui('u-check'), t('noTasks'), t('noTasksHint'), planCta)}</div>
     </section>
     <details class="home-more">
       <summary>${esc(t('homeMore'))}</summary>
-      <div class="dashboard-grid" style="margin-top:4px">
+      <div class="dashboard-grid home-more-grid">
         ${adminTeamPanel(today)}
-        <section class="card"><div class="block-h"><span class="t">⚠️ ${t('overdueTasks')}</span><span class="hrs">7</span></div>
+        <section class="card"><div class="block-h"><span class="t">${ui('u-alert','sm')} ${esc(t('overdueTasks'))}</span><span class="hrs">7</span></div>
           <div class="task-list">${overdue.length||recentlyDone.length?
             overdue.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id,{overdue:true})).join('')+
             recentlyDone.map(x=>dashboardTaskCard(x.e,x.dateStr,user.id)).join(''):emptyState(ui('u-leaf'), t('noOverdue'), t('noOverdueHint'))}</div>
         </section>
-        <section class="card wide"><div class="block-h"><span class="t">📣 ${t('allEvents')}</span><button class="btn sm sec" id="homeAllEvents" type="button">${t('openEvents')} →</button></div>
+        <section class="card wide"><div class="block-h"><span class="t">${ui('u-megaphone','sm')} ${esc(t('allEvents'))}</span><button class="btn sm sec" id="homeAllEvents" type="button">${esc(t('openEvents'))} →</button></div>
           <div class="task-list">${events.length?events.map(homeEventCard).join(''):emptyState(ui('u-megaphone'), t('noEvents'), t('noEventsHint'), eventsCta)}</div>
         </section>
-        <section class="card wide"><div class="block-h"><span class="t">👤 ${t('unassignedTasks')}</span><span class="hrs">${t('next3Days')}</span></div>
+        <section class="card wide"><div class="block-h"><span class="t">${ui('u-person','sm')} ${esc(t('unassignedTasks'))}</span><span class="hrs">${esc(t('next3Days'))}</span></div>
           <div class="task-list">${unassigned.length?unassigned.map(x=>dashboardTaskCard(x.e,x.dateStr,'',{readonly:true})).join(''):emptyState(ui('u-person'), t('noUnassigned'), t('noUnassignedHint'), planCta)}</div>
         </section>
       </div>
     </details>
     <div class="home-foot-actions">
-      <button class="page-act ghost" type="button" data-page-act="tutorial">📘 ${esc(t('topTutorial'))}</button>
-      <button class="page-act ghost" type="button" id="homeCalendar">📅 ${esc(t('calTitle'))}</button>
-      <button class="page-act ghost" type="button" id="homeGalleryOpen">📸 ${esc(t('galleryTitle'))}</button>
+      <button class="page-act ghost" type="button" data-page-act="tutorial">${ui('u-book','sm')} ${esc(t('topTutorial'))}</button>
+      <button class="page-act ghost" type="button" id="homeCalendar">${ui('u-calendar','sm')} ${esc(t('calTitle'))}</button>
+      <button class="page-act ghost" type="button" id="homeGalleryOpen">${ui('u-camera','sm')} ${esc(t('galleryTitle'))}</button>
     </div>
   </div>`;
 }
@@ -13894,7 +13918,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||99),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||100),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

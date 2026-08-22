@@ -1,5 +1,13 @@
 # Changelog
 
+## v100 — 2026-08-22
+
+- Staff Home: Figma mast (brand + greeting + lede), signal tiles, glass shift card, quieter “Mehr”
+- Plan / Lager / Liste shells: ops heroes, widgets, pine bulk bar; mechanics unchanged
+- Galerie / Talk / Übergabe / Zo-Ai: light heroes + glass panels; confirm flow untouched
+- Staff chrome: dock inverted only; page-actions glass; planner icons → `ui(...)`
+- Cache `paidia-v100`
+
 ## v99 — 2026-08-22
 
 - Spiele hub: glass-1 tiles, featured snap-rail, pine-settle stagger, XP/streak chips
