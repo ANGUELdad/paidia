@@ -1,5 +1,20 @@
 # Changelog
 
+## v96 — 2026-08-22
+
+Find the Postgres URL whatever the integration named it.
+
+Vercel marketplace integrations allow a custom variable prefix, and the Supabase
+install landed as `A_POSTGRES_URL` rather than `POSTGRES_URL` — so a correct
+setup would still have reported no database. `db.py` now falls back to any
+`*_POSTGRES_URL` after trying the explicit names. `POSTGRES_URL_NON_POOLING` is
+excluded by construction: it does not match the suffix, and it is the direct IPv6
+host Vercel cannot reach.
+
+Verified: a prefixed pooled URL is found and passes the pooler check, a prefixed
+non-pooled one is not preferred over it, and an explicit `DATABASE_URL` still
+wins over everything.
+
 ## v95 — 2026-08-22
 
 The Redis-REST backend now accepts either env-var convention: the legacy

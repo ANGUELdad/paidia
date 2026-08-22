@@ -23,12 +23,29 @@ _INITIALIZED = False
 # Vercel's Postgres integrations inject their own names: Supabase sets
 # POSTGRES_URL (pooled) alongside POSTGRES_URL_NON_POOLING (direct, IPv6-only —
 # deliberately not read here). An explicit DATABASE_URL always wins.
-DATABASE_URL = (
-    os.environ.get("DATABASE_URL")
-    or os.environ.get("POSTGRES_URL")
-    or os.environ.get("POSTGRES_PRISMA_URL")
-    or ""
-).strip()
+def _discover_postgres_url() -> str:
+    """Find the Postgres URL whatever the integration decided to call it.
+
+    Vercel marketplace integrations let you set a custom variable prefix, so a
+    Supabase install can land as A_POSTGRES_URL rather than POSTGRES_URL. Falling
+    back to a suffix match means a prefixed install works without anyone having
+    to notice the prefix. POSTGRES_URL_NON_POOLING is excluded by construction:
+    it does not end in _POSTGRES_URL, and it is the direct IPv6 host Vercel
+    cannot reach.
+    """
+    for name in ("DATABASE_URL", "POSTGRES_URL", "POSTGRES_PRISMA_URL"):
+        value = (os.environ.get(name) or "").strip()
+        if value:
+            return value
+    for name in sorted(os.environ):
+        if name.endswith("_POSTGRES_URL"):
+            value = (os.environ.get(name) or "").strip()
+            if value:
+                return value
+    return ""
+
+
+DATABASE_URL = _discover_postgres_url()
 
 # Vercel has no IPv6 egress. Direct db.<ref>.supabase.co:5432 and unpooled Neon
 # hosts resolve to IPv6 and fail with "Cannot assign requested address".
