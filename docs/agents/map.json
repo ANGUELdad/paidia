@@ -87,9 +87,9 @@
     },
     {
       "id": "deploy",
-      "keys": ["vercel", "deploy", "api", "flask"],
-      "files": ["vercel.json", "api/index.py", "api/[...path].py", "server.py"],
-      "snippet": "Vercel rewrites to Flask adapter importing paidia helpers."
+      "keys": ["vercel", "deploy", "api", "flask", "github", "upstream", "armonia-thassos"],
+      "files": ["docs/agents/DEPLOY_WIRING.md", "docs/agents/PUSH_ORIGIN.md", "vercel.json", "api/index.py", "pyproject.toml", "server.py"],
+      "snippet": "Push upstream ANGUELdad/paidia → Vercel → armonia-thassos.vercel.app. Read DEPLOY_WIRING.md first."
     },
     {
       "id": "child",

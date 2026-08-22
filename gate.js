@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 96,
-    label: 'v96',
+    version: 97,
+    label: 'v97',
     changed: {
-      de: 'Datenbank-Variablen mit Präfix werden erkannt (Supabase-Integration)',
-      el: 'Αναγνώριση μεταβλητών βάσης με πρόθεμα (ενσωμάτωση Supabase)',
+      de: 'Speicher nutzt wieder die aktive Datenbank statt der abgeschalteten',
+      el: 'Η αποθήκευση χρησιμοποιεί ξανά την ενεργή βάση αντί της ανενεργής',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

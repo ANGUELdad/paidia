@@ -19,6 +19,7 @@ Do not open `index.html` via `file://` — AI routes need the server.
 | Local API | `server.py` |
 | Vercel | `api/index.py` (imports paidia helpers) |
 | Durable store | `db.py` (SQLite / Postgres) |
+| Deploy / GitHub / Vercel | [docs/agents/DEPLOY_WIRING.md](docs/agents/DEPLOY_WIRING.md) |
 | Zo-Ai knowledge | `docs/zoai/` (injected into chat prompts) |
 | Coding-agent maps | `docs/agents/` + root `AGENTS.md` (token savers) |
 

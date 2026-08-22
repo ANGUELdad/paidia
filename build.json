@@ -1,8 +1,8 @@
 {
-  "version": 96,
-  "label": "v96",
+  "version": 97,
+  "label": "v97",
   "changed": {
-    "de": "Datenbank-Variablen mit Präfix werden erkannt (Supabase-Integration)",
-    "el": "Αναγνώριση μεταβλητών βάσης με πρόθεμα (ενσωμάτωση Supabase)"
+    "de": "Speicher nutzt wieder die aktive Datenbank statt der abgeschalteten",
+    "el": "Η αποθήκευση χρησιμοποιεί ξανά την ενεργή βάση αντί της ανενεργής"
   }
 }

@@ -27,3 +27,5 @@ authority; the Figma build of it is [Armonia Thassos — Design System v2](https
 **Deferred Web Push:** [docs/agents/WEB_PUSH_LATER.md](docs/agents/WEB_PUSH_LATER.md)
 
 **Git push to origin:** [docs/agents/PUSH_ORIGIN.md](docs/agents/PUSH_ORIGIN.md) — use `ANGUELdad` (not `anguel0z`) or push fails with 403.
+
+**Deploy wiring (GitHub → Vercel → live URL):** [docs/agents/DEPLOY_WIRING.md](docs/agents/DEPLOY_WIRING.md)

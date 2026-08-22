@@ -21,3 +21,5 @@ Root entry: [AGENTS.md](../../AGENTS.md). Zo-Ai runtime: `docs/zoai/`.
 **Login:** every entrance shows `build.json` version + DE/EL “what changed”.
 
 **Ship checklist:** bump `build.json` + `CHANGELOG.md` + cache `?v=` in `gate.js` / `index.html` / `sw.js` / `app.js` register.
+
+**Deploy wiring:** [DEPLOY_WIRING.md](DEPLOY_WIRING.md) — GitHub remotes, Vercel routing, env vars, production URLs.

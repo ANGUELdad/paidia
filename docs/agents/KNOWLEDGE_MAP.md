@@ -28,7 +28,7 @@
 | Durable DB | `db.py`, `server.py` | keys, ops blob, `DATABASE_URL` |
 | Ops sync | `app.js`, `server.py` | `/api/ops`, `SHARED_KEYS`, `pushShared`/`pullShared` |
 | PWA / SW | `sw.js`, `manifest.webmanifest`, `index.html` | cache `paidia-vN`, `?v=` bust |
-| Deploy | `vercel.json`, `api/index.py`, `api/[...path].py` | Vercel Flask adapter |
+| Deploy | `vercel.json`, `api/index.py`, `api/[...path].py`, `pyproject.toml` | Vercel Flask adapter — see [DEPLOY_WIRING.md](DEPLOY_WIRING.md) |
 | Design tokens | `design/armonia.tokens.json`, `index.html` CSS | mineral palette, fonts |
 | Specs (read-only) | `docs/complete_system_specification.md`, `STATUS.md` | historical; prefer maps over full specs |
 

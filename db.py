@@ -20,33 +20,6 @@ from urllib.parse import urlparse, unquote
 _LOCK = threading.RLock()
 _INITIALIZED = False
 
-# Vercel's Postgres integrations inject their own names: Supabase sets
-# POSTGRES_URL (pooled) alongside POSTGRES_URL_NON_POOLING (direct, IPv6-only —
-# deliberately not read here). An explicit DATABASE_URL always wins.
-def _discover_postgres_url() -> str:
-    """Find the Postgres URL whatever the integration decided to call it.
-
-    Vercel marketplace integrations let you set a custom variable prefix, so a
-    Supabase install can land as A_POSTGRES_URL rather than POSTGRES_URL. Falling
-    back to a suffix match means a prefixed install works without anyone having
-    to notice the prefix. POSTGRES_URL_NON_POOLING is excluded by construction:
-    it does not end in _POSTGRES_URL, and it is the direct IPv6 host Vercel
-    cannot reach.
-    """
-    for name in ("DATABASE_URL", "POSTGRES_URL", "POSTGRES_PRISMA_URL"):
-        value = (os.environ.get(name) or "").strip()
-        if value:
-            return value
-    for name in sorted(os.environ):
-        if name.endswith("_POSTGRES_URL"):
-            value = (os.environ.get(name) or "").strip()
-            if value:
-                return value
-    return ""
-
-
-DATABASE_URL = _discover_postgres_url()
-
 # Vercel has no IPv6 egress. Direct db.<ref>.supabase.co:5432 and unpooled Neon
 # hosts resolve to IPv6 and fail with "Cannot assign requested address".
 POOLER_REQUIRED_HINT = (
@@ -76,6 +49,51 @@ def postgres_pooler_error(url: str) -> str | None:
     if port == 5432 and ("supabase.co" in host or host.endswith("neon.tech")):
         return POOLER_REQUIRED_HINT
     return None
+
+
+# Vercel's Postgres integrations each inject their own variable names, and a
+# project can carry more than one at a time: a retired Neon store keeps
+# re-supplying DATABASE_URL on every deploy while the live Supabase install
+# lands as (optionally prefixed) POSTGRES_URL. Name order alone would pick the
+# dead one, so candidates are filtered through postgres_pooler_error first and
+# only fall back to name order when nothing is reachable.
+def _postgres_candidates() -> Iterator[str]:
+    for name in ("PAIDIA_DATABASE_URL", "DATABASE_URL", "POSTGRES_URL", "POSTGRES_PRISMA_URL"):
+        value = (os.environ.get(name) or "").strip()
+        if value:
+            yield value
+    # Marketplace installs allow a custom variable prefix, so a Supabase store
+    # can arrive as A_POSTGRES_URL. POSTGRES_URL_NON_POOLING is excluded by
+    # construction: it does not end in _POSTGRES_URL.
+    for name in sorted(os.environ):
+        if name.endswith("_POSTGRES_URL"):
+            value = (os.environ.get(name) or "").strip()
+            if value:
+                yield value
+
+
+# The retired Neon store still accepts TCP connections — it fails later, on
+# quota — so reachability alone will not demote it. Rank it below any other
+# provider and let name order break ties inside a rank.
+def _postgres_rank(url: str) -> int:
+    host = (urlparse(url).hostname or "").lower()
+    retired = host.endswith("neon.tech")
+    unreachable = postgres_pooler_error(url) is not None
+    return (2 if unreachable else 0) + (1 if retired else 0)
+
+
+def _discover_postgres_url() -> str:
+    """Prefer a Postgres URL Vercel can actually use over one it merely found first."""
+    override = (os.environ.get("PAIDIA_DATABASE_URL") or "").strip()
+    if override:
+        return override
+    candidates = list(dict.fromkeys(_postgres_candidates()))
+    if not candidates:
+        return ""
+    return min(enumerate(candidates), key=lambda pair: (_postgres_rank(pair[1]), pair[0]))[1]
+
+
+DATABASE_URL = _discover_postgres_url()
 
 
 def assert_pooled_database_url(url: str | None = None) -> None:

@@ -1,5 +1,20 @@
 # Changelog
 
+## v97 — 2026-08-22
+
+Save to the database that still works.
+
+The retired Neon store is connected to the project at "All Environments", so
+Vercel re-injects its `DATABASE_URL` on every deploy no matter what the
+environment rows say — and that URL wins on name order, sending every write to a
+project whose transfer quota is exhausted. Reachability could not break the tie:
+Neon accepts the TCP connection and only then fails on quota.
+
+`db.py` now ranks candidate URLs instead of taking the first name that matches —
+a reachable non-Neon host beats a reachable Neon one, unreachable hosts sort
+last, and discovery order breaks ties within a rank. `PAIDIA_DATABASE_URL`
+overrides the ranking outright when a specific URL has to win.
+
 ## v96 — 2026-08-22
 
 Find the Postgres URL whatever the integration named it.
