@@ -1,5 +1,24 @@
 # Changelog
 
+## v87 — 2026-08-22
+
+- Remaining staff screens brought onto the design system.
+- **Foreign palettes removed.** 210 colour uses across 141 rules were Tailwind
+  rose / emerald / amber (`#dc2626`, `#ecfdf5`, `#fbbf24`, `#fecdd3` …) — none of
+  them an Armonia token. Remapped onto `--out` / `--in` / `--warn` and their
+  tints, mapping by luminance so light washes stay washes and accents stay
+  accents, preserving every text-on-background pairing.
+- **Plan, Talk, Buch, Galerie heroes**: the last pre-redesign dark gradient
+  cards, now stone canvas with sea eyebrow, Fraunces ink title and muted lead —
+  matching Home. Kids/arcade heroes deliberately untouched (own direction, v79–80).
+- **Zo-Ai launcher** now pine, not the pale brand-mark gradient.
+- **Liste layout bug**: `.friday-picker` collapsed to 0 width inside a `nowrap`
+  row, so the date label overflowed on top of the stepper. Given a real minimum
+  and its own line on phones.
+- Gallery hero contrast: helper lines were mark-a on stone (1.61:1). Now 6.37:1.
+- Verified logged in at 375px and 1280px across Home, Plan, Lager, Liste, Talk,
+  Momente.
+
 ## v86 — 2026-08-22
 
 - Staff **Home** brought onto the design system. It had kept its pre-redesign

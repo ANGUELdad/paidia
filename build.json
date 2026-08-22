@@ -1,8 +1,8 @@
 {
-  "version": 86,
-  "label": "v86",
+  "version": 87,
+  "label": "v87",
   "changed": {
-    "de": "Home im neuen Design: heller Titel auf Stein, Schichtkarte als Glas mit Akzentkante",
-    "el": "Νέο design στην Αρχική: φωτεινός τίτλος σε πέτρα, κάρτα βάρδιας σε glass με ακμή"
+    "de": "Alle Staff-Screens im neuen Design: helle Titel, Armonia-Farben statt Fremdpalette",
+    "el": "Όλες οι οθόνες προσωπικού στο νέο design: φωτεινοί τίτλοι, χρώματα Armonia"
   }
 }
