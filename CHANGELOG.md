@@ -1,5 +1,32 @@
 # Changelog
 
+## v89 — 2026-08-22
+
+Responsive layout for every aspect ratio, not just phone-or-desktop.
+
+The app had a single binary switch at 900px. An iPad at 768px therefore got the
+phone layout with a **748px-wide "floating" dock pill** stretched across the
+bottom — a phone control blown up rather than a tablet one. There was no tablet
+tier at all, and almost no orientation handling.
+
+Five tiers now:
+
+- **<=359** compact phone / folded foldable — single column, tighter gutters,
+  smaller dock labels.
+- **360–599** phone (unchanged default).
+- **600–899** tablet portrait, previously missing — content gets a 720px measure
+  instead of running full-bleed, three-column dashboard.
+- **900–1279** tablet landscape / small desktop — 900px measure, three columns.
+- **>=1600** large desktop — 1080px measure, four columns.
+
+Plus: landscape phones (`max-height:500px`) compress the header and dock and
+drop to a denser grid; very short viewports tighten the shift card; and the
+floating dock is capped at 560px and centred at *any* width where it is not the
+desktop rail, with the Zo-Ai launcher aligned to its edge.
+
+Measured at 320, 375, 430, 600, 768, 812x375, 1024, 1280 and 1680: no horizontal
+overflow at any size.
+
 ## v88 — 2026-08-22
 
 Load and reload fix. The app was re-downloading ~1.1 MB on **every** load and

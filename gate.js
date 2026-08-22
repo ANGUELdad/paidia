@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 88,
-    label: 'v88',
+    version: 89,
+    label: 'v89',
     changed: {
-      de: 'Ladefix: App startet schnell und lädt sich nicht mehr selbst neu',
-      el: 'Διόρθωση φόρτωσης: γρήγορη εκκίνηση, τέλος οι συνεχείς επαναφορτώσεις',
+      de: 'Layout für alle Bildschirme: Tablet-Stufe, Querformat, schmale und sehr breite Geräte',
+      el: 'Διάταξη για κάθε οθόνη: επίπεδο tablet, οριζόντια προβολή, στενές και πολύ φαρδιές συσκευές',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
