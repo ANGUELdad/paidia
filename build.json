@@ -1,8 +1,8 @@
 {
-  "version": 94,
-  "label": "v94",
+  "version": 95,
+  "label": "v95",
   "changed": {
-    "de": "Speicher ohne Neon möglich: Vercel KV als Alternative",
-    "el": "Αποθήκευση χωρίς Neon: εναλλακτική με Vercel KV"
+    "de": "Speicher-Backend erkennt Upstash- und KV-Variablennamen",
+    "el": "Το backend αποθήκευσης αναγνωρίζει ονόματα Upstash και KV"
   }
 }

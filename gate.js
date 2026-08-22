@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 94,
-    label: 'v94',
+    version: 95,
+    label: 'v95',
     changed: {
-      de: 'Speicher ohne Neon möglich: Vercel KV als Alternative',
-      el: 'Αποθήκευση χωρίς Neon: εναλλακτική με Vercel KV',
+      de: 'Speicher-Backend erkennt Upstash- und KV-Variablennamen',
+      el: 'Το backend αποθήκευσης αναγνωρίζει ονόματα Upstash και KV',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

@@ -1,5 +1,14 @@
 # Changelog
 
+## v95 — 2026-08-22
+
+The Redis-REST backend now accepts either env-var convention: the legacy
+`KV_REST_API_URL` / `KV_REST_API_TOKEN` pair and Upstash's own
+`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`. Marketplace integrations
+inject different names for the same endpoint, and guessing wrong would have
+looked like "storage still broken" after a correct setup. Verified against the
+stub under the Upstash naming.
+
 ## v94 — 2026-08-22
 
 Durable storage without Postgres, and without Neon.

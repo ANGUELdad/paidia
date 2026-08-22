@@ -80,8 +80,18 @@ SQLITE_PATH = _default_sqlite_path()
 # exactly the shape this module already exposes, and it is private + token
 # authenticated — unlike Blob, whose objects are served over URLs.
 # Vercel injects KV_REST_API_URL / KV_REST_API_TOKEN when a KV store is linked.
-KV_URL = (os.environ.get("KV_REST_API_URL") or "").strip().rstrip("/")
-KV_TOKEN = (os.environ.get("KV_REST_API_TOKEN") or "").strip()
+# Marketplace integrations inject different names for the same REST endpoint:
+# the legacy Vercel KV pair, and Upstash's own pair. Accept either.
+KV_URL = (
+    os.environ.get("KV_REST_API_URL")
+    or os.environ.get("UPSTASH_REDIS_REST_URL")
+    or ""
+).strip().rstrip("/")
+KV_TOKEN = (
+    os.environ.get("KV_REST_API_TOKEN")
+    or os.environ.get("UPSTASH_REDIS_REST_TOKEN")
+    or ""
+).strip()
 KV_PREFIX = os.environ.get("PAIDIA_KV_PREFIX", "paidia:")
 KV_TIMEOUT = float(os.environ.get("PAIDIA_KV_TIMEOUT", "8") or 8)
 
