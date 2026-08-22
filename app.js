@@ -10085,6 +10085,7 @@ function childBewertungenView(kidId){
       <p class="muted">${esc(t('kidRateLead'))}</p>
       ${rows}
     </section>
+    ${childSubjectsReadonlyHtml(kidId)}
     <section class="kid-card">
       <h2>${esc(t('kidRateWeeks'))}</h2>
       ${trend}
