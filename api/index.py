@@ -323,10 +323,24 @@ def _call_handler(method_name: str, body: dict | None = None):
     paidia.hydrate_auth_from_cookie(request.cookies.get(paidia.AUTH_OVERRIDE_COOKIE, ""))
     bridge = _FlaskHandlerBridge()
     method = getattr(paidia.Handler, method_name)
-    if body is None:
-        method(bridge)
-    else:
-        method(bridge, body)
+    try:
+        if body is None:
+            method(bridge)
+        else:
+            method(bridge, body)
+    except TypeError as exc:
+        # Bridge drift vs Handler (e.g. missing remember kwarg) — never return HTML 500.
+        return _json(500, {
+            "error": "Authentication handler mismatch",
+            "code": "auth_handler",
+            "detail": str(exc)[:200],
+        })
+    except Exception as exc:  # noqa: BLE001
+        return _json(500, {
+            "error": "Authentication failed",
+            "code": "auth_server",
+            "detail": str(exc)[:200],
+        })
     return bridge.as_response()
 
 

@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 81,
-    label: 'v81',
+    version: 82,
+    label: 'v82',
     changed: {
-      de: 'Kids-Icons: Aufgaben, Abzeichen und Leerzustände als SVG statt Emoji',
-      el: 'Εικονίδια Kids: αποστολές, εμβλήματα και κενές καταστάσεις σε SVG',
+      de: 'Login-Fix: Angemeldet bleiben opt-in; Server-Bridge für PIN repariert',
+      el: 'Διόρθωση σύνδεσης: «Να με θυμάσαι» μόνο αν το επιλέξεις· επισκευή PIN API',
     },
   };
   const copy = {
@@ -171,7 +171,7 @@
     } catch (e) {}
   }
   function rememberChecked() {
-    try { return localStorage.getItem(REMEMBER_KEY) !== '0'; } catch (e) { return true; }
+    try { return localStorage.getItem(REMEMBER_KEY) === '1'; } catch (e) { return false; }
   }
   function setRememberChecked(on) {
     try { localStorage.setItem(REMEMBER_KEY, on ? '1' : '0'); } catch (e) {}
@@ -190,7 +190,7 @@
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
     const script = document.createElement('script');
-    script.src = 'app.js?v=81';
+    script.src = 'app.js?v=82';
     script.defer = true;
     script.dataset.paidiaApp = '1';
     document.body.appendChild(script);

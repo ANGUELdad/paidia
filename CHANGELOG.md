@@ -1,5 +1,11 @@
 # Changelog
 
+## v82 — 2026-08-22
+
+- Login hotfix: remember-me is opt-in (unchecked by default) so PIN works before API redeploy
+- Vercel auth bridge: forward `remember`, catch handler errors as JSON (no HTML 500)
+- Cache `paidia-v82`
+
 ## v81.1 — 2026-08-22
 
 - Fix Vercel login crash: Flask auth bridge now forwards `remember` to session minting (was 500 → “Anmeldung nicht möglich”)

@@ -1,8 +1,8 @@
 {
-  "version": 81,
-  "label": "v81",
+  "version": 82,
+  "label": "v82",
   "changed": {
-    "de": "Kids-Icons: Aufgaben, Abzeichen und Leerzustände als SVG statt Emoji",
-    "el": "Εικονίδια Kids: αποστολές, εμβλήματα και κενές καταστάσεις σε SVG"
+    "de": "Login-Fix: Angemeldet bleiben opt-in; Server-Bridge für PIN repariert",
+    "el": "Διόρθωση σύνδεσης: «Να με θυμάσαι» μόνο αν το επιλέξεις· επισκευή PIN API"
   }
 }
