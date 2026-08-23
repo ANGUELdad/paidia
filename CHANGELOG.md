@@ -1,5 +1,15 @@
 # Changelog
 
+## v113 — 2026-08-24
+
+- Flattened the desktop Lager controls into a full-width toolbar with wrapping actions and no overlap.
+- Fixed shift calendar lookup, Athens timezone metadata and `.ics` generation.
+- Migrated granted notification permissions into the active preference store and retry failed deliveries.
+- Made notification delivery await the service worker before marking alerts as sent.
+- Added overnight shift lookup and reliable late-arrival prompts.
+- Added confirmed automatic handoff summaries to Team Talk at shift end.
+- Cache `paidia-v113`.
+
 ## v112 — 2026-08-24
 
 - Restored a solid, labeled desktop navigation rail with readable contrast.

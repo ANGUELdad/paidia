@@ -1,8 +1,7 @@
 /* Armonia Thassos — Calendar & native-style notifications (PWA) */
 (function(global){
   const PREFS_KEY = 'paidia.notifPrefs';
-  const SW_URL = './sw.js';
-  const SW_VER = 'paidia-v8';
+  const SW_URL = './sw.js?v=113';
 
   const defaultPrefs = () => ({
     enabled: false,
@@ -77,7 +76,8 @@
   async function registerServiceWorker(){
     if(!('serviceWorker' in navigator)) return null;
     try{
-      const reg = await navigator.serviceWorker.register(SW_URL, {scope:'./'});
+      const reg = await navigator.serviceWorker.getRegistration()
+        || await navigator.serviceWorker.register(SW_URL, {scope:'./'});
       return reg;
     }catch(e){
       console.warn('SW register failed', e);

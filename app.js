@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 112,
-  label: 'v112',
+  version: 113,
+  label: 'v113',
   changed: {
-    de: 'Desktop neu aufgebaut: lesbare Navigation, klare Werkzeugleiste, keine Überlappung',
-    el: 'Νέα δομή desktop: ευανάγνωστη πλοήγηση, καθαρή γραμμή εργαλείων, χωρίς επικαλύψεις',
+    de: 'Lager ohne Überlappung; Kalender, Schichtübergabe und Benachrichtigungen repariert',
+    el: 'Αποθήκη χωρίς επικαλύψεις· διορθώθηκαν ημερολόγιο, παράδοση βάρδιας και ειδοποιήσεις',
   },
 };
 const T = {
@@ -654,7 +654,9 @@ const T = {
     shiftEndTasks:'Offene Aufgaben prüfen',
     shiftEndTasksHint:(n)=>n?`${n} offen`:'Keine offen',
     shiftEndHandover:'Nächste Schicht informieren',
-    shiftEndHandoverHint:'optional',
+    shiftEndHandoverHint:'Wird automatisch an Talk gesendet',
+    shiftEndHandoverSent:'Übergabe an die nächste Schicht gesendet',
+    shiftEndHandoverFailed:'Übergabe konnte nicht gesendet werden. Bitte erneut versuchen.',
     shiftEndLogout:'Abmelden',
     shiftEndLogoutHint:'PIN / Passkey',
     shiftEndConfirm:'Schicht beenden',
@@ -1398,7 +1400,9 @@ const T = {
     shiftEndTasks:'Έλεγχος ανοιχτών εργασιών',
     shiftEndTasksHint:(n)=>n?`${n} ανοιχτά`:'Κανένα ανοιχτό',
     shiftEndHandover:'Ενημέρωση επόμενης βάρδιας',
-    shiftEndHandoverHint:'προαιρετικό',
+    shiftEndHandoverHint:'Στέλνεται αυτόματα στο Talk',
+    shiftEndHandoverSent:'Η παράδοση στάλθηκε στην επόμενη βάρδια',
+    shiftEndHandoverFailed:'Η παράδοση δεν μπόρεσε να σταλεί. Δοκίμασε ξανά.',
     shiftEndLogout:'Αποσύνδεση',
     shiftEndLogoutHint:'PIN / Passkey',
     shiftEndConfirm:'Τέλος βάρδιας',
@@ -4503,7 +4507,7 @@ function personShiftOccurrences(employeeId, weeks=8){
           start,
           end,
           title:`Armonia · ${empName(employeeId)} · ${shiftLabel(s)}`,
-          description:[shift.type, s.note].filter(Boolean).join(' · '),
+          description:[s.type, s.note].filter(Boolean).join(' · '),
           location:CAL_LOCATION,
         });
       });
@@ -4564,6 +4568,7 @@ function buildIcs(events, calName='Armonia Thassos', {alarmMinutes=30}={}){
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     `X-WR-CALNAME:${icsEscape(calName)}`,
+    'X-WR-TIMEZONE:Europe/Athens',
   ];
   const now = new Date();
   events.forEach(ev=>{
@@ -4571,8 +4576,8 @@ function buildIcs(events, calName='Armonia Thassos', {alarmMinutes=30}={}){
       'BEGIN:VEVENT',
       `UID:${icsEscape(`${ev.kind}-${ev.id}-${ev.dateStr}@armonia-thassos`)}`,
       `DTSTAMP:${icsStamp(now)}`,
-      `DTSTART:${icsLocal(ev.start)}`,
-      `DTEND:${icsLocal(ev.end)}`,
+      `DTSTART;TZID=Europe/Athens:${icsLocal(ev.start)}`,
+      `DTEND;TZID=Europe/Athens:${icsLocal(ev.end)}`,
       `SUMMARY:${icsEscape(ev.title)}`,
       `DESCRIPTION:${icsEscape(ev.description||'')}`,
       `LOCATION:${icsEscape(ev.location||CAL_LOCATION)}`,
@@ -4718,10 +4723,14 @@ function activeShiftPresence(employeeId){
   const today = iso(now);
   const yesterday = shiftDate(today, -1);
   const yDay = dowIdx(new Date(yesterday+'T12:00:00'));
+  const previousOvernight = shiftsOf(employeeId, yDay)
+    .filter(s=>s.type!=='OFF' && s.from)
+    .filter(s=>shiftBounds(s, yesterday).end >= now)
+    .map(s=>({s, dateStr:yesterday}));
   const candidates = [
+    ...previousOvernight,
     ...shiftsOf(employeeId, dowIdx(now)).filter(s=>s.type!=='OFF' && s.from).map(s=>({s, dateStr:today})),
-    ...shiftsOf(employeeId, yDay).filter(s=>s.type==='H24' && s.from).map(s=>({s, dateStr:yesterday})),
-  ];
+  ].sort((a,b)=>shiftBounds(a.s,a.dateStr).start-shiftBounds(b.s,b.dateStr).start);
   for(const {s, dateStr} of candidates){
     const checkin = shiftCheckinFor(employeeId, dateStr, s.id);
     const {start, end} = shiftBounds(s, dateStr);
@@ -12278,11 +12287,63 @@ function runInboxJump(jump){
   render();
 }
 
+function shiftHandoffRecord(employeeId, dateStr=iso(new Date())){
+  return DB.profilePrefs?._shiftHandoffs?.[`${employeeId}:${dateStr}`] || null;
+}
+
+function automaticShiftHandoffText(employeeId, dateStr=iso(new Date())){
+  const person=emp(employeeId) || state.user;
+  const note=String(shiftNoteFor(employeeId,dateStr)?.text||'').trim();
+  if(!person || !note) return '';
+  const open=dashboardAssignments(dateStr,employeeId)
+    .filter(e=>!completionFor(dateStr,e.id,employeeId));
+  const houses=DB.houses||[];
+  const attention=PRODUCTS().filter(product=>houses.some(houseRow=>{
+    const qty=DB.stock?.[stockKey(houseRow.id,product.id)]??0;
+    return qty===0 || qty<=lowThreshold(product);
+  })).length;
+  const shifts=shiftsOf(employeeId,dowIdx(new Date(dateStr+'T12:00:00')))
+    .filter(s=>s.type!=='OFF')
+    .map(shiftLabel)
+    .join(', ');
+  const taskLine=open.length
+    ? open.slice(0,5).map(e=>actLabel(e.activityId)).join(', ')+(open.length>5?` +${open.length-5}`:'')
+    : (state.lang==='el'?'καμία':'keine');
+  return [
+    `↪ ${t('handover')} · ${person.name} · ${dateStr}${shifts?` · ${shifts}`:''}`,
+    note,
+    `${t('shiftEndTasks')}: ${taskLine}`,
+    `${t('stockAttention')}: ${attention}`,
+  ].join('\n');
+}
+
+async function sendAutomaticShiftHandoff(employeeId=state.user?.id, dateStr=iso(new Date())){
+  if(!employeeId) return false;
+  if(shiftHandoffRecord(employeeId,dateStr)) return true;
+  const message=automaticShiftHandoffText(employeeId,dateStr);
+  if(!message) return false;
+  try{
+    await talkApi('send',{text:message});
+    DB.profilePrefs ||= {};
+    DB.profilePrefs._shiftHandoffs ||= {};
+    DB.profilePrefs._shiftHandoffs[`${employeeId}:${dateStr}`]={
+      employeeId,date:dateStr,sentAt:Date.now(),sentBy:state.user?.id||employeeId,
+    };
+    logEntry('SHIFT',`${t('shiftEndHandover')}: ${dateStr}`);
+    save();
+    return true;
+  }catch(error){
+    console.error('Automatic shift handoff failed',error);
+    return false;
+  }
+}
+
 function sheetShiftEnd(){
   if(state.mode!=='staff' || !state.user){ toast(t('presenceNoShift'),'error'); return; }
   const today=iso(new Date());
   const journalDue=!(shiftNoteFor(state.user.id, today)?.text||'').trim();
   const openTasks=dashboardAssignments(today,state.user.id).filter(e=>!completionFor(today,e.id,state.user.id)).length;
+  const handoffDone=!!shiftHandoffRecord(state.user.id,today);
   const row=(done,title,hint,actionId,cta)=>`
     <div class="shift-end-row ${done?'':'todo'}">
       <span class="num" aria-hidden="true">${done?'✓':'·'}</span>
@@ -12295,20 +12356,30 @@ function sheetShiftEnd(){
     <p class="muted">${esc(t('shiftEndHint'))}</p>
     ${row(!journalDue, t('shiftEndBook'), t('shiftEndBookHint'), 'shiftEndBook', t('homeShiftJournalGo'))}
     ${row(!openTasks, t('shiftEndTasks'), T[state.lang].shiftEndTasksHint(openTasks), 'shiftEndTasks', t('homeOpenPlan'))}
-    ${row(false, t('shiftEndHandover'), t('shiftEndHandoverHint'), 'shiftEndHandover', t('topTalk'))}
+    ${row(handoffDone, t('shiftEndHandover'), t('shiftEndHandoverHint'), 'shiftEndHandover', t('topTalk'))}
     ${row(false, t('shiftEndLogout'), t('shiftEndLogoutHint'), 'shiftEndLogout', t('signOut'))}
     <button class="btn" type="button" id="shiftEndDone">${esc(t('shiftEndConfirm'))}</button>
     <button class="btn sec" type="button" id="shiftEndClose">${esc(t('close'))}</button>
   </div>`);
   sheetEl.querySelector('#shiftEndClose').onclick=()=>closeSheet();
-  sheetEl.querySelector('#shiftEndDone').onclick=()=>{
-    closeSheet();
+  sheetEl.querySelector('#shiftEndDone').onclick=async()=>{
     if(journalDue){
+      closeSheet();
       state.tab='book'; state.bookPane='shift'; state.bookJournalMode='ink'; render();
       queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
       toast(t('shiftEndBook'),'info');
       return;
     }
+    const doneButton=sheetEl.querySelector('#shiftEndDone');
+    if(doneButton) doneButton.disabled=true;
+    const sent=await sendAutomaticShiftHandoff(state.user.id,today);
+    if(!sent){
+      if(doneButton) doneButton.disabled=false;
+      toast(t('shiftEndHandoverFailed'),'error',5200);
+      return;
+    }
+    toast(t('shiftEndHandoverSent'),'success');
+    closeSheet();
     sheetSecurityAccess();
   };
   const book=sheetEl.querySelector('#shiftEndBook');
@@ -12319,7 +12390,18 @@ function sheetShiftEnd(){
   const tasks=sheetEl.querySelector('#shiftEndTasks');
   if(tasks) tasks.onclick=()=>{ closeSheet(); state.tab='home'; render(); };
   const hand=sheetEl.querySelector('#shiftEndHandover');
-  if(hand) hand.onclick=()=>{ closeSheet(); state.tab='talk'; render(); };
+  if(hand) hand.onclick=async()=>{
+    if(journalDue){
+      toast(t('shiftEndBook'),'info');
+      return;
+    }
+    hand.disabled=true;
+    const sent=await sendAutomaticShiftHandoff(state.user.id,today);
+    if(!sent){ hand.disabled=false; toast(t('shiftEndHandoverFailed'),'error',5200); return; }
+    toast(t('shiftEndHandoverSent'),'success');
+    closeSheet();
+    setTimeout(()=>sheetShiftEnd(),160);
+  };
   const logout=sheetEl.querySelector('#shiftEndLogout');
   if(logout) logout.onclick=()=>{ closeSheet(); sheetSecurityAccess(); };
 }
@@ -14666,7 +14748,17 @@ function sheetAdminAutomations(){
 }
 
 function notifPrefs(){
-  try{ return JSON.parse(localStorage.getItem('paidia.notif')||'{}')||{}; }catch{ return {}; }
+  try{
+    const current=JSON.parse(localStorage.getItem('paidia.notif')||'{}')||{};
+    if(typeof current.enabled==='boolean') return current;
+    const legacy=JSON.parse(localStorage.getItem('paidia.notifPrefs')||'{}')||{};
+    if(legacy.enabled===true || (typeof Notification!=='undefined' && Notification.permission==='granted')){
+      const migrated={...current,enabled:true,updatedAt:Date.now()};
+      localStorage.setItem('paidia.notif',JSON.stringify(migrated));
+      return migrated;
+    }
+    return current;
+  }catch{ return {}; }
 }
 function notifPrefsResolved(){
   const raw=notifPrefs();
@@ -14746,14 +14838,14 @@ async function enableAppNotifications(){
   setNotifPrefs({enabled:ok});
   if(ok){
     await registerPaidiaServiceWorker();
-    showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true});
-    runNotificationSweep({force:true});
+    await showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true});
+    await runNotificationSweep({force:true});
   }
   return ok;
 }
-function showAppNotification(title, opts={}){
-  if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return;
-  if(!opts.force && isQuietHours()) return;
+async function showAppNotification(title, opts={}){
+  if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return false;
+  if(!opts.force && isQuietHours()) return false;
   const payload={
     body:opts.body||'',
     icon:opts.icon||'icons/icon-192.png',
@@ -14767,14 +14859,17 @@ function showAppNotification(title, opts={}){
     payload.actions = opts.actions.slice(0, 2);
   }
   try{
-    if(navigator.serviceWorker?.controller){
-      navigator.serviceWorker.ready.then(reg=>reg.showNotification(title, payload)).catch(()=>{
-        new Notification(title, payload);
-      });
-    }else{
-      new Notification(title, payload);
+    const reg=await registerPaidiaServiceWorker();
+    if(reg?.showNotification){
+      await reg.showNotification(title,payload);
+      return true;
     }
-  }catch{}
+    new Notification(title,payload);
+    return true;
+  }catch(error){
+    console.warn('Notification delivery failed',error);
+    return false;
+  }
 }
 async function registerPaidiaServiceWorker(){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
@@ -14782,7 +14877,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||112),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||113),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
@@ -14790,7 +14885,7 @@ async function registerPaidiaServiceWorker(){
     return null;
   }
 }
-function runNotificationSweep({force=false}={}){
+async function runNotificationSweep({force=false}={}){
   updateAppBadge(dueItemCount());
   if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return;
   const prefs=notifPrefsResolved();
@@ -14801,19 +14896,19 @@ function runNotificationSweep({force=false}={}){
   if(state.mode==='child' && state.child){
     try{
       const today=iso(now);
-      childEventsFor(state.child.id).filter(e=>e.status==='published' && e.date>=today).forEach(ev=>{
+      for(const ev of childEventsFor(state.child.id).filter(e=>e.status==='published' && e.date>=today)){
         const start=eventStartDate(ev);
-        if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) return;
+        if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
         const key=`child-event-${state.child.id}-${ev.id}-${ev.date}`;
         if(force || seen[key]!=='1'){
-          showAppNotification(T[state.lang].childNotifEvent(L(ev)||ev.title||'Event'),{
+          const delivered=await showAppNotification(T[state.lang].childNotifEvent(L(ev)||ev.title||'Event'),{
             tag:'paidia-child-event-'+ev.id,
             body: `${ev.date}${ev.from?` · ${ev.from}`:''}`,
             data:{url:'./?tab=home'},
           });
-          setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+          if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
         }
-      });
+      }
     }catch{}
     return;
   }
@@ -14822,38 +14917,38 @@ function runNotificationSweep({force=false}={}){
   // Upcoming events (lead window)
   try{
     const today=iso(now);
-    DB.events.filter(e=>e.status==='published' && e.date>=today).forEach(ev=>{
+    for(const ev of DB.events.filter(e=>e.status==='published' && e.date>=today)){
       const start=eventStartDate(ev);
-      if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) return;
+      if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
       const key=`event-lead-${ev.id}-${ev.date}`;
       if(force || seen[key]!=='1'){
-        showAppNotification(T[state.lang].notifUpcomingEvent(L(ev)||ev.title||'Event'),{
+        const delivered=await showAppNotification(T[state.lang].notifUpcomingEvent(L(ev)||ev.title||'Event'),{
           tag:'paidia-event-'+ev.id,
           body:`${ev.date}${ev.from?` · ${ev.from}`:''}`,
           data:{url:'./?tab=schedule&open=events'},
         });
-        setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
       }
-    });
+    }
   }catch{}
   // Today's tasks (lead window)
   try{
     const today=iso(now);
-    dashboardAssignments(today,state.user.id).forEach(e=>{
-      if(completionFor(today,e.id,state.user.id)) return;
+    for(const e of dashboardAssignments(today,state.user.id)){
+      if(completionFor(today,e.id,state.user.id)) continue;
       const start=entryStartDate(today,e);
-      if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) return;
+      if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
       const key=`task-lead-${e.id}-${today}`;
       if(force || seen[key]!=='1'){
         const actLabel=L(act(e.activityId)||{de:e.activityId||'Aufgabe',el:e.activityId||'Εργασία'});
-        showAppNotification(T[state.lang].notifUpcomingTask(actLabel),{
+        const delivered=await showAppNotification(T[state.lang].notifUpcomingTask(actLabel),{
           tag:'paidia-task-'+e.id,
           body:entryTime(e)||today,
           data:{url:'./?tab=schedule'},
         });
-        setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
       }
-    });
+    }
   }catch{}
   // Low stock attention
   try{
@@ -14868,16 +14963,16 @@ function runNotificationSweep({force=false}={}){
     });
     const key=`low-${attention}`;
     if(attention>0 && notifAutomations().lowStock && (force || seen.low!==key)){
-      showAppNotification(T[state.lang].notifLowStock(attention),{tag:'paidia-low', body:t('headerStock'), data:{url:'./?tab=stock'}});
-      setNotifPrefs({seen:{...seen, low:key}});
+      const delivered=await showAppNotification(T[state.lang].notifLowStock(attention),{tag:'paidia-low', body:t('headerStock'), data:{url:'./?tab=stock'}});
+      if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, low:key}});
     }
   }catch{}
   // Shift stock check pending
   try{
     if(notifAutomations().shiftStart && typeof shiftStockCheckPending==='function' && shiftStockCheckPending()){
       if(force || !seen.shiftCheck){
-        showAppNotification(t('notifShiftCheck'),{tag:'paidia-shift-check', body:'Kalyvia', data:{url:'./?tab=stock'}});
-        setNotifPrefs({seen:{...notifPrefs().seen, shiftCheck:true}});
+        const delivered=await showAppNotification(t('notifShiftCheck'),{tag:'paidia-shift-check', body:'Kalyvia', data:{url:'./?tab=stock'}});
+        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, shiftCheck:true}});
       }
     }
   }catch{}
@@ -14890,7 +14985,7 @@ function runNotificationSweep({force=false}={}){
       const key=`presence-${active.dateStr}-${active.shift.id}-${active.late?'late':'soon'}`;
       if(force || seen.presence!==key){
         const label=shiftLabel(active.shift);
-        showAppNotification(
+        const delivered=await showAppNotification(
           active.late?T[state.lang].notifShiftLate(label):T[state.lang].notifShiftStart(label),
           {
             tag:'paidia-presence',
@@ -14908,7 +15003,7 @@ function runNotificationSweep({force=false}={}){
                 ],
           }
         );
-        setNotifPrefs({seen:{...notifPrefs().seen, presence:key}});
+        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, presence:key}});
       }
     }
   }catch{}
@@ -14920,12 +15015,12 @@ function runNotificationSweep({force=false}={}){
       const openCount=openFridayShopCount();
       const key=`friday-shop-${friday}`;
       if(openCount>0 && (force || seen[key]!=='1')){
-        showAppNotification(T[state.lang].notifFridayShop(openCount),{
+        const delivered=await showAppNotification(T[state.lang].notifFridayShop(openCount),{
           tag:'paidia-friday-shop',
           body:fridayText(friday),
           data:{url:'./?tab=shop'},
         });
-        setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
       }
     }
   }catch{}
