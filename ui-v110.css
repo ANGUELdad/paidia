@@ -818,6 +818,217 @@ body:not(.mode-child) .mobile-more-grid .ui-ico {
   }
 }
 
+/* v112 desktop reset: one readable rail, one work column, no squeezed side tools. */
+@media (min-width: 900px) {
+  body.layout-desktop:not(.mode-child) {
+    --chrome: #1b2822;
+    --rail-w: 232px;
+  }
+
+  body.layout-desktop:not(.mode-child) .bottom-panel {
+    padding: 0 12px 16px !important;
+    background: #1b2822 !important;
+    border-right: 1px solid #2b3932 !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .dock-brand {
+    display: flex !important;
+    min-height: 78px;
+    padding: 18px 6px 14px !important;
+    color: #fff !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .dock-brand-copy,
+  body.layout-desktop:not(.mode-child) .dock-brand-copy strong,
+  body.layout-desktop:not(.mode-child) .dock-brand-copy span {
+    display: block !important;
+    color: #fff !important;
+  }
+
+  body.layout-desktop:not(.mode-child) nav.dock {
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  body.layout-desktop:not(.mode-child) nav.dock button {
+    width: 100% !important;
+    min-height: 46px !important;
+    padding: 0 12px !important;
+    color: #c3cec7 !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    font-size: 13px !important;
+  }
+
+  body.layout-desktop:not(.mode-child) nav.dock button span {
+    display: inline !important;
+    color: inherit !important;
+  }
+
+  body.layout-desktop:not(.mode-child) nav.dock button.on {
+    color: #fff !important;
+    background: #2b4136 !important;
+  }
+
+  body.layout-desktop:not(.mode-child) :is(.dock-zoai, .dock-who) {
+    display: block !important;
+    color: #dce4df !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .dock-zoai {
+    width: calc(100% - 24px) !important;
+    min-height: 44px !important;
+    margin: auto 12px 8px !important;
+    border: 1px solid #496457 !important;
+    border-radius: 8px !important;
+    background: #263a30 !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .dock-who {
+    padding: 8px 12px 2px !important;
+    font-size: 12px !important;
+  }
+
+  body.layout-desktop:not(.mode-child) header.topbar .topbtn {
+    width: auto !important;
+    min-width: 44px !important;
+    padding: 0 12px !important;
+    white-space: nowrap !important;
+  }
+
+  body.layout-desktop:not(.mode-child) main.app-stage {
+    min-width: 0;
+    padding: 28px 32px 48px !important;
+  }
+
+  body.layout-desktop:not(.mode-child) :is(.shop-shell, .shop-shell-plan) {
+    display: block !important;
+    width: min(100%, 1040px) !important;
+    max-width: 1040px !important;
+    margin: 0 auto !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-shell-plan > .shop-hero {
+    display: none !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-shell-plan > .shop-command {
+    position: static !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(190px, 260px) minmax(170px, auto) !important;
+    grid-template-rows: auto auto auto !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin: 0 0 24px !important;
+    padding: 0 0 20px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--line) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command > * {
+    position: static !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command > .house-selector {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--line) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command > .house-selector button {
+    min-height: 46px !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command > .house-selector button.on {
+    color: var(--brand) !important;
+    background: transparent !important;
+    box-shadow: inset 0 -2px 0 var(--brand) !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command-row {
+    grid-column: 1 !important;
+    display: block !important;
+    min-width: 0 !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command-row .friday-picker {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command-row .shop-tools {
+    display: none !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command > .shop-panel-seg {
+    grid-column: 2 !important;
+    min-height: 46px !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command > .shop-quick-actions {
+    grid-column: 3 !important;
+    min-height: 46px !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command > .shop-quick-actions .btn {
+    height: 46px !important;
+    white-space: nowrap !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command > .cart-quick {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 48px !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-command > .cart-quick :is(input, .btn) {
+    height: 46px !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-shell-plan > .shop-list-card {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-top: 1px solid var(--line) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-empty {
+    max-width: 620px;
+    padding: 42px 0 !important;
+    border: 0 !important;
+    text-align: left !important;
+    background: transparent !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-empty p {
+    max-width: 42ch !important;
+    margin-inline: 0 !important;
+  }
+
+  body.layout-desktop:not(.mode-child) .shop-empty .shop-start-actions {
+    display: none !important;
+  }
+}
+
 /* v111 mobile composition: phone screens are documents made of rows. */
 @media (max-width: 899px) {
   body.layout-mobile:not(.mode-child) main.app-stage {

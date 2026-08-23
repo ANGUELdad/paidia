@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 111,
-  label: 'v111',
+  version: 112,
+  label: 'v112',
   changed: {
-    de: 'Mobile Seiten neu aufgebaut: weniger Ebenen, klare Zeilen, keine Überlappung',
-    el: 'Νέα δομή mobile: λιγότερα επίπεδα, καθαρές γραμμές, χωρίς επικαλύψεις',
+    de: 'Desktop neu aufgebaut: lesbare Navigation, klare Werkzeugleiste, keine Überlappung',
+    el: 'Νέα δομή desktop: ευανάγνωστη πλοήγηση, καθαρή γραμμή εργαλείων, χωρίς επικαλύψεις',
   },
 };
 const T = {
@@ -14782,7 +14782,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||111),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||112),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

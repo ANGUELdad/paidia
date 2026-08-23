@@ -1,5 +1,13 @@
 # Changelog
 
+## v112 — 2026-08-24
+
+- Restored a solid, labeled desktop navigation rail with readable contrast.
+- Replaced the narrow shopping control rail with one centered toolbar and list flow.
+- Removed duplicate shopping summaries and empty-state actions from the desktop page.
+- Let text-bearing header controls size to their labels instead of clipping.
+- Cache `paidia-v112`.
+
 ## v111 — 2026-08-24
 
 - Rebuilt the mobile Home composition around one action, one checklist and one task list.
