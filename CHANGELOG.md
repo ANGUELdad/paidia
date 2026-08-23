@@ -1,5 +1,10 @@
 # Changelog
 
+## v108 — 2026-08-23
+- Mobile Glass 2026 (Figma `07`): light frosted staff header on phone/tablet
+- Ink-on-glass topbar buttons (bell, lang, profile) — matches browser frames
+- Cache `paidia-v108`
+
 ## v107 — 2026-08-23
 - Desktop header glass: ink-on-light topbar buttons (was white-on-white)
 - Hit targets ≥44px (topbtn, chips, btn.sm); rail width locked to 220px with labeled nav

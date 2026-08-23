@@ -3925,7 +3925,49 @@
   body:not(.mode-child) .talk-hero{
     background:none!important; color:var(--ink)!important; box-shadow:none!important;
   }
+
+  /* Mobile Glass 2026 — Figma page 07: light frosted header, ink controls */
+  body:not(.mode-child) header.app-chrome{
+    background:rgba(255,255,255,.52)!important;
+    color:var(--ink)!important;
+    border-bottom:1px solid rgba(26,40,34,.08)!important;
+    box-shadow:0 8px 24px rgba(26,40,34,.06)!important;
+    backdrop-filter:blur(24px) saturate(1.35)!important;
+    -webkit-backdrop-filter:blur(24px) saturate(1.35)!important;
+  }
+  body:not(.mode-child) header.app-chrome::before{
+    opacity:.45!important;
+    background:linear-gradient(120deg,
+      color-mix(in srgb, var(--mark-a) 10%, transparent),
+      transparent 50%,
+      color-mix(in srgb, var(--sea) 8%, transparent))!important;
+  }
+  body:not(.mode-child) .brand-kicker-live{color:var(--sea)!important}
+  body:not(.mode-child) header h1{color:var(--ink)!important}
+  body:not(.mode-child) header .who{color:var(--muted)!important; opacity:1}
+  body:not(.mode-child) .topbtn{
+    border:1px solid rgba(26,40,34,.12)!important;
+    background:rgba(255,255,255,.78)!important;
+    color:var(--ink)!important;
+    min-height:44px!important;
+    min-width:44px;
+    box-shadow:0 4px 12px rgba(26,40,34,.05);
+  }
+  body:not(.mode-child) .topbtn-bell .bell-count{
+    background:var(--sun); color:var(--ink);
+  }
+  body:not(.mode-child) nav.dock button{
+    min-height:48px;
+    pointer-events:auto;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+
   @media (prefers-reduced-transparency: reduce){
+    body:not(.mode-child) header.app-chrome{
+      backdrop-filter:none!important; -webkit-backdrop-filter:none!important;
+      background:var(--glass-strong)!important;
+    }
     body:not(.mode-child) .home-signal,
     body:not(.mode-child) .home-shell-v2 .home-today-card,
     body:not(.mode-child) .home-shift-start,
@@ -4347,7 +4389,7 @@
 <script>
 /* Network-first SW + notifications — versioned registration happens in app.js */
 </script>
-<script src="notifications.js?v=107" defer></script>
-<script src="gate.js?v=107"></script>
+<script src="notifications.js?v=108" defer></script>
+<script src="gate.js?v=108"></script>
 </body>
 </html>
