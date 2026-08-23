@@ -1,5 +1,13 @@
 # Changelog
 
+## v111 — 2026-08-24
+
+- Rebuilt the mobile Home composition around one action, one checklist and one task list.
+- Removed mobile dashboard summaries, secondary toolbars and decorative empty-state panels.
+- Flattened Plan, Lager, Liste and Buch into section headers and work rows.
+- Constrained all mobile actions and controls to the viewport to eliminate overlap.
+- Cache `paidia-v111`.
+
 ## v110 — 2026-08-24
 
 - Replaced the staff UI's layered glass/prototype styling with one flat operational design system.

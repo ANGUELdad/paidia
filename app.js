@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 110,
-  label: 'v110',
+  version: 111,
+  label: 'v111',
   changed: {
-    de: 'Klare Arbeitsoberfläche ohne Glas, Kartenwände und Dekoration',
-    el: 'Καθαρό περιβάλλον εργασίας χωρίς γυαλί, στοίβες καρτών και διακόσμηση',
+    de: 'Mobile Seiten neu aufgebaut: weniger Ebenen, klare Zeilen, keine Überlappung',
+    el: 'Νέα δομή mobile: λιγότερα επίπεδα, καθαρές γραμμές, χωρίς επικαλύψεις',
   },
 };
 const T = {
@@ -12365,6 +12365,29 @@ function viewHome(){
       <b class="w-stat-val">${esc(String(value))}</b>
       <span class="w-stat-lbl">${esc(label)}</span>
     </button>`;
+  if(window.matchMedia('(max-width:899px)').matches){
+    return `<div class="mobile-work-page mobile-home-v111">
+      <header class="mobile-work-head">
+        <span class="mobile-work-kicker">${esc(eventDayLabel(today))}</span>
+        <h1>${esc(t('homeHello'))}${user?', '+esc(user.name):''}</h1>
+        <p>${esc(t('homeOverview'))}</p>
+        <button class="btn mobile-work-primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
+      </header>
+      ${shiftStartCard}
+      ${showJournalDuty?`<button class="mobile-alert-row" type="button" id="homeWriteBook">
+        ${ui('u-alert','sm')}<span><b>${esc(t('journalDutyHome'))}</b><small>${esc(t('bookJournalHint'))}</small></span><span>→</span>
+      </button>`:''}
+      ${teamNoticeBannerHtml()}
+      <section class="mobile-work-section" aria-labelledby="mobileTasksTitle">
+        <header><h2 id="mobileTasksTitle">${esc(t('myTasks'))}</h2><span>${esc(todayOpen.length+' '+t('dueToday'))}</span></header>
+        <div class="task-list">${todayAssignments.length
+          ? todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join('')
+          : `<div class="mobile-empty-row"><span>${esc(t('noTasks'))}</span><button type="button" data-home-jump="day">${esc(t('homeOpenPlan'))}</button></div>`}
+        </div>
+      </section>
+      <button class="mobile-text-action" type="button" id="homeQuickBook">${ui('u-note','sm')}<span>${esc(t('headerBook'))}</span><b>→</b></button>
+    </div>`;
+  }
   const main=`
     <section class="home-mast hero hero-texture" aria-label="Armonia">
       <p class="brand-kicker">Armonia Thassos</p>
@@ -14759,7 +14782,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||110),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||111),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
