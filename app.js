@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 106,
-  label: 'v106',
+  version: 107,
+  label: 'v107',
   changed: {
-    de: 'PC: Sidebar, dichtes Home, Schichtende, Mitteilungen',
-    el: 'PC: Sidebar, πυκνό Home, τέλος βάρδιας, ειδοποιήσεις',
+    de: 'Buttons: Kontrast + 44px Hits; Desktop-Sidebar 220px',
+    el: 'Κουμπιά: αντίθεση + 44px hits· desktop sidebar 220px',
   },
 };
 const T = {
@@ -14725,7 +14725,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||106),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||107),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

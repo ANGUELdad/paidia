@@ -1,5 +1,12 @@
 # Changelog
 
+## v107 — 2026-08-23
+- Desktop header glass: ink-on-light topbar buttons (was white-on-white)
+- Hit targets ≥44px (topbtn, chips, btn.sm); rail width locked to 220px with labeled nav
+- Dock/nav pointer-events hardened on desktop
+- Figma: page `07 — Mobile Glass 2026` (WEB FIRST browsers + iOS/Android + depth screens)
+- Cache `paidia-v107`
+
 ## v106 — 2026-08-23
 - PC desktop shell (≥900px): fixed 220px chrome sidebar with brand + Zo-Ai, not a stretched phone dock
 - Dense Home: main column + right rail (Mitteilungen, Kinder, Schichtende)

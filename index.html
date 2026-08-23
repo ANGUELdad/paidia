@@ -127,7 +127,7 @@
   @media(max-width:380px){
     .brand-kicker-live{font-size:11px; letter-spacing:.12em}
     header .who{display:none}
-    .topbtn{padding:8px 9px; min-height:38px}
+    .topbtn{padding:8px 10px; min-height:44px; min-width:44px}
     .brand-mark{width:32px;height:32px;font-size:14px;border-radius:10px}
   }
   .topbar-core,.topbar-tools{display:flex; gap:4px; align-items:center; flex-wrap:nowrap;
@@ -362,18 +362,18 @@
     .book-compact-time{grid-area:time;justify-self:end}
   }
   .topbtn{flex:0 0 auto; border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.1); color:#e8f6f7;
-    border-radius:10px; padding:8px 11px; font-size:12px; font-weight:700; cursor:pointer;
-    min-height:40px; white-space:nowrap; line-height:1.1; touch-action:manipulation;
-    backdrop-filter:blur(8px)}
+    border-radius:12px; padding:10px 12px; font-size:12px; font-weight:700; cursor:pointer;
+    min-height:44px; min-width:44px; white-space:nowrap; line-height:1.1; touch-action:manipulation;
+    backdrop-filter:blur(8px); -webkit-tap-highlight-color:transparent}
   .topbtn:active{transform:scale(.97)}
   .btn{border:0; border-radius:var(--radius-sm); padding:12px 14px; font-weight:700;
     background:linear-gradient(135deg,var(--brand),var(--brand-2));
     color:#fff; cursor:pointer; width:100%; min-height:44px; touch-action:manipulation;
-    box-shadow:0 8px 20px rgba(42,107,82,.22)}
-  .btn.sm{padding:8px 12px; width:auto; font-size:12px; border-radius:10px; min-height:40px}
-  .chip{border:1px solid var(--line); background:var(--glass-strong); border-radius:999px; padding:8px 12px;
-    font-size:13px; cursor:pointer; display:inline-flex; gap:4px; align-items:center; min-height:36px;
-    touch-action:manipulation; font-weight:650}
+    box-shadow:0 8px 20px rgba(42,107,82,.22); -webkit-tap-highlight-color:transparent}
+  .btn.sm{padding:10px 14px; width:auto; font-size:12px; border-radius:12px; min-height:44px}
+  .chip{border:1px solid var(--line); background:var(--glass-strong); border-radius:999px; padding:10px 14px;
+    font-size:13px; cursor:pointer; display:inline-flex; gap:4px; align-items:center; min-height:44px;
+    touch-action:manipulation; font-weight:650; -webkit-tap-highlight-color:transparent}
   .topbtn.on,.topbtn.primary{background:var(--sun); border-color:transparent; color:#1a2822}
   .topbtn.danger{background:var(--out); border-color:var(--out); color:var(--out)}
   .topbtn.ok{background:var(--in); border-color:var(--in); color:var(--pine-tint)}
@@ -2653,8 +2653,10 @@
   body.layout-mobile .seg button, body.layout-mobile .planner-seg button{min-height:46px}
 
   /* ── Desktop left rail ───────────────────────────────────────────── */
+  body.layout-desktop{--rail-w:92px}
+  body.layout-desktop:not(.mode-child){--rail-w:220px}
   body.layout-desktop #app.app-shell{
-    display:grid; grid-template-columns:var(--rail-w, 92px) minmax(0,1fr);
+    display:grid; grid-template-columns:var(--rail-w) minmax(0,1fr);
     grid-template-rows:auto 1fr; max-width:none; min-height:100dvh;
     padding-bottom:20px; gap:0}
   body.layout-desktop header.app-chrome{grid-column:2; grid-row:1; position:sticky; top:0}
@@ -2668,7 +2670,8 @@
     flex-direction:column; height:calc(100dvh - 24px); min-height:0; width:100%;
     border-radius:20px; padding:8px 6px; gap:4px; justify-content:flex-start}
   body.layout-desktop nav.dock button{
-    flex:0 0 auto; width:100%; min-height:64px; border-radius:14px; font-size:11px; gap:4px}
+    flex:0 0 auto; width:100%; min-height:48px; border-radius:14px; font-size:11px; gap:4px;
+    pointer-events:auto; cursor:pointer; touch-action:manipulation}
   body.layout-desktop .zoai-fab{
     right:max(16px, var(--side-gutter));
     bottom:calc(var(--nav-total) + var(--dock-h) + 18px + var(--safe-b))}
@@ -4134,9 +4137,12 @@
   }
   body.layout-desktop:not(.mode-child) nav.dock button{
     flex:0 0 auto; width:100%; min-height:44px; border-radius:14px!important;
-    flex-direction:row; justify-content:flex-start; align-items:center;
+    flex-direction:row!important; justify-content:flex-start; align-items:center;
     gap:10px!important; padding:10px 12px; font-size:13px; font-weight:650;
-    color:rgba(255,255,255,.55)!important;
+    color:rgba(255,255,255,.72)!important;
+  }
+  body.layout-desktop:not(.mode-child) nav.dock button span{
+    display:inline!important; font-size:13px; white-space:nowrap;
   }
   body.layout-desktop:not(.mode-child) nav.dock button .nav-ico{
     width:18px; height:18px; margin:0; opacity:.7}
@@ -4154,8 +4160,51 @@
     display:block; padding:4px 4px 0; font-size:11px; color:rgba(255,255,255,.45); flex:0 0 auto}
   body.layout-desktop:not(.mode-child) header.app-chrome{
     grid-column:2; grid-row:1; position:sticky; top:0;
-    background:rgba(255,255,255,.55); border-bottom:1px solid rgba(26,40,34,.08);
-    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    background:rgba(255,255,255,.72)!important;
+    border-bottom:1px solid rgba(26,40,34,.10)!important;
+    color:var(--ink)!important;
+    box-shadow:0 8px 24px rgba(26,40,34,.06)!important;
+    backdrop-filter:blur(18px) saturate(1.2)!important;
+    -webkit-backdrop-filter:blur(18px) saturate(1.2)!important;
+  }
+  body.layout-desktop:not(.mode-child) header.app-chrome::before{opacity:.35}
+  body.layout-desktop:not(.mode-child) .brand-kicker-live{color:var(--sea)!important}
+  body.layout-desktop:not(.mode-child) header h1{color:var(--ink)!important}
+  body.layout-desktop:not(.mode-child) header .who{color:var(--muted)!important; opacity:1}
+  body.layout-desktop:not(.mode-child) .topbtn{
+    border:1px solid rgba(26,40,34,.14)!important;
+    background:rgba(255,255,255,.92)!important;
+    color:var(--ink)!important;
+    min-height:44px!important;
+    min-width:44px;
+    box-shadow:0 4px 12px rgba(26,40,34,.06);
+  }
+  body.layout-desktop:not(.mode-child) .topbtn:active{transform:scale(.97)}
+  body.layout-desktop:not(.mode-child) .topbtn-bell .bell-count{
+    background:var(--sun); color:var(--ink);
+  }
+  body.layout-desktop:not(.mode-child) .bottom-panel{
+    pointer-events:auto!important;
+    z-index:40;
+  }
+  body.layout-desktop:not(.mode-child) nav.dock button,
+  body.layout-desktop:not(.mode-child) .dock-zoai{
+    pointer-events:auto!important;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  body.layout-desktop:not(.mode-child) .home-signal,
+  body.layout-desktop:not(.mode-child) .home-rail-notif button,
+  body.layout-desktop:not(.mode-child) .home-rail-kid,
+  body.layout-desktop:not(.mode-child) .home-primary,
+  body.layout-desktop:not(.mode-child) .btn{
+    min-height:44px;
+    cursor:pointer;
+    touch-action:manipulation;
+  }
+  body.layout-desktop:not(.mode-child) .home-signal{
+    display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+    text-align:left; width:100%;
   }
   body.layout-desktop:not(.mode-child) main.app-stage{
     grid-column:2; grid-row:2; max-width:none; width:100%;
@@ -4298,7 +4347,7 @@
 <script>
 /* Network-first SW + notifications — versioned registration happens in app.js */
 </script>
-<script src="notifications.js?v=106" defer></script>
-<script src="gate.js?v=106"></script>
+<script src="notifications.js?v=107" defer></script>
+<script src="gate.js?v=107"></script>
 </body>
 </html>
