@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 109,
-  label: 'v109',
+  version: 110,
+  label: 'v110',
   changed: {
-    de: 'UX-Neustart: ruhiger Einstieg, klare Wege, mobile Navigation',
-    el: 'Νέο UX: ήρεμη είσοδος, καθαρές διαδρομές, mobile πλοήγηση',
+    de: 'Klare Arbeitsoberfläche ohne Glas, Kartenwände und Dekoration',
+    el: 'Καθαρό περιβάλλον εργασίας χωρίς γυαλί, στοίβες καρτών και διακόσμηση',
   },
 };
 const T = {
@@ -14759,7 +14759,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||109),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||110),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

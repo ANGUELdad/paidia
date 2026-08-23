@@ -1,8 +1,8 @@
 {
-  "version": 109,
-  "label": "v109",
+  "version": 110,
+  "label": "v110",
   "changed": {
-    "de": "UX-Neustart: ruhiger Einstieg, klare Wege, mobile Navigation",
-    "el": "Νέο UX: ήρεμη είσοδος, καθαρές διαδρομές, mobile πλοήγηση"
+    "de": "Klare Arbeitsoberfläche ohne Glas, Kartenwände und Dekoration",
+    "el": "Καθαρό περιβάλλον εργασίας χωρίς γυαλί, στοίβες καρτών και διακόσμηση"
   }
 }

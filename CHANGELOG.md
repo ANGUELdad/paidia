@@ -1,5 +1,13 @@
 # Changelog
 
+## v110 — 2026-08-24
+
+- Replaced the staff UI's layered glass/prototype styling with one flat operational design system.
+- Converted plan, stock, shopping and logbook surfaces from decorative card stacks to compact work lists.
+- Standardized typography, spacing, controls, navigation, states and responsive desktop/mobile chrome.
+- Added `ui-v110.css` as a versioned final presentation layer so the overhaul is isolated and reversible.
+- Cache `paidia-v110`.
+
 ## v109 — 2026-08-23
 - Mobile UX reset: flat warm gate, scannable profile rows, calm solid work surfaces
 - One-handed five-item dock; Momente, Kinder, Talk and Buch moved into a clear “Mehr” sheet

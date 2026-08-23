@@ -382,6 +382,7 @@ _STATIC_EXACT = frozenset({
     "index.html",
     "app.js",
     "gate.js",
+    "ui-v110.css",
     "sw.js",
     "manifest.webmanifest",
     # Login shows the running version + DE/EL "what changed" from this.
