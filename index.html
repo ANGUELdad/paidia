@@ -4287,6 +4287,257 @@
     body.layout-desktop:not(.mode-child) nav.dock button.on .nav-ico{transform:none}
   }
 
+  /* ══════════════════════════════════════════════════════════════════════
+     MOBILE UX RESET v109
+     A single final layer replaces the accumulated prototype treatments on
+     phones. Glass is reserved for chrome; work surfaces stay calm and solid.
+     ══════════════════════════════════════════════════════════════════════ */
+  .dock-more{display:none!important}
+
+  #gate{
+    color:var(--ink);
+    background:
+      radial-gradient(80% 56% at 8% 0%, rgba(155,196,176,.34), transparent 66%),
+      radial-gradient(70% 48% at 100% 100%, rgba(122,158,170,.22), transparent 65%),
+      linear-gradient(155deg,#f7f6f1 0%,#e8eeea 54%,#dfe9e6 100%);
+  }
+  .gate-wrap{
+    background:rgba(255,255,255,.72);border-color:rgba(255,255,255,.9);
+    box-shadow:0 28px 72px rgba(26,40,34,.14),inset 0 1px 0 #fff;
+  }
+  .gate-head .mark{
+    background:linear-gradient(145deg,#dfece5,#91b4a4);color:var(--ink);
+    box-shadow:0 12px 30px rgba(47,90,99,.16),inset 0 1px 0 rgba(255,255,255,.8);
+  }
+  .gate-head > *{animation:none!important;opacity:1!important;transform:none!important}
+  .gate-head h2{font-family:var(--font-display);font-weight:700;color:var(--ink)}
+  .gate-head .brand-kicker{color:var(--sea)}
+  .gate-head p{color:var(--muted)}
+  .gate-lang button{background:rgba(255,255,255,.64);border-color:var(--line);color:var(--muted)}
+  .gate-lang button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .profiles{grid-template-columns:1fr;gap:8px}
+  .profile{
+    display:grid;grid-template-columns:48px minmax(0,1fr) 24px;align-items:center;gap:12px;
+    min-height:68px;padding:12px;text-align:left;color:var(--ink);
+    background:rgba(255,255,255,.74);border-color:rgba(26,40,34,.1);border-radius:20px;
+    box-shadow:0 6px 18px rgba(26,40,34,.04),inset 0 1px 0 rgba(255,255,255,.9);
+  }
+  .profile:hover{background:#fff;border-color:rgba(47,90,99,.24)}
+  .profile:active{background:#f2f5f1;transform:scale(.985)}
+  .profile .pa{margin:0;width:48px;height:48px;border-radius:14px}
+  .profile .pn{font-size:16px;font-weight:760}
+  .profile .pr{font-size:12px;color:var(--muted);margin-top:3px}
+  .gate-mode-card{grid-template-columns:52px minmax(0,1fr) 24px!important;min-height:82px!important;padding:16px!important}
+  .gate-mode-icon{margin:0!important;width:52px!important;height:52px!important;background:#dcece3!important;color:var(--brand)}
+  .gate-mode-icon.child{background:#f2e8c9!important;color:#7b5d18}
+  .gate-mode-copy{min-width:0}
+  .gate-mode-copy .pn{font-family:var(--font-display);font-size:18px}
+  .gate-mode-arrow{font-size:21px;color:var(--sea)}
+  .gate-build{background:rgba(255,255,255,.5);border-color:var(--line);color:var(--muted)}
+  .gate-build b{color:var(--sea)}
+  .gate-pin h3{font-family:var(--font-display);font-size:21px;color:var(--ink)}
+  .gate-pin .sub{color:var(--muted)}
+  .gate-pin .pindots i{background:#cbd7d2}
+  .gate-pin .pindots i.f{background:var(--brand)}
+  .gate-pin .pin-field{background:#fff;color:var(--ink);border-color:var(--line);caret-color:var(--brand)}
+  .gate-pin .pinpad button{background:rgba(255,255,255,.76);border-color:var(--line);color:var(--ink);box-shadow:0 4px 12px rgba(26,40,34,.04)}
+  .gate-pin .pinpad button:active{background:#dfece5}
+  .gate-pin .btn{background:linear-gradient(135deg,var(--brand),var(--sea));color:#fff}
+  .gate-sticky-actions{background:linear-gradient(180deg,transparent,rgba(239,244,240,.96) 30%)}
+  .gate-forgot{color:var(--sea);border-color:rgba(47,90,99,.28);background:rgba(255,255,255,.4)}
+  .gate-back,.gate-meta{color:var(--muted)}
+  .passkey-btn,.passkey-btn.primary-bio{background:#e2efe8;color:var(--ink);border-color:rgba(47,90,99,.18);box-shadow:none}
+  .pin-divider{color:var(--muted)}
+  .pin-divider::before,.pin-divider::after{background:var(--line)}
+
+  .mobile-more-head{padding:8px 4px 14px}
+  .mobile-more-head .brand-kicker{display:block;color:var(--sea);font-size:11px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+  .mobile-more-head h2{margin:4px 0 0;font-family:var(--font-display);font-size:26px}
+  .mobile-more-grid{display:grid;gap:8px;padding-bottom:calc(8px + var(--safe-b))}
+  .mobile-more-grid button{
+    display:grid;grid-template-columns:42px minmax(0,1fr) 20px;align-items:center;gap:12px;
+    min-height:60px;padding:8px 12px;border:1px solid var(--line);border-radius:14px;
+    background:#fff;color:var(--ink);font:700 16px/1.2 var(--font-ui);text-align:left;cursor:pointer;
+  }
+  .mobile-more-grid .ui-ico{width:22px;height:22px;padding:12px;border-radius:14px;background:var(--pine-tint);color:var(--brand)}
+  .mobile-more-grid b{color:var(--sea);font-size:18px}
+
+  @media(max-width:899px){
+    :root{--page-x:16px;--nav-h:70px;--header-h:64px}
+    body:not(.mode-child){background:#edf1ed}
+    body:not(.mode-child) .view{
+      background:
+        radial-gradient(90% 38% at 0% 0%,rgba(155,196,176,.18),transparent 70%),
+        linear-gradient(180deg,#f3f5f1 0%,#edf1ed 100%)!important;
+    }
+    body.layout-mobile:not(.mode-child) header.app-chrome{
+      min-height:calc(60px + var(--safe-t));padding:calc(8px + var(--safe-t)) 14px 8px!important;
+      background:rgba(247,248,245,.86)!important;border-bottom:1px solid rgba(26,40,34,.08)!important;
+      box-shadow:0 6px 18px rgba(26,40,34,.045)!important;backdrop-filter:blur(20px) saturate(1.2)!important;
+    }
+    body.layout-mobile:not(.mode-child) header.app-chrome::before{display:none}
+    body.layout-mobile:not(.mode-child) .brand-mark{width:38px;height:38px;border-radius:14px;background:linear-gradient(145deg,#dcebe3,#94b7a6);color:var(--ink)}
+    body.layout-mobile:not(.mode-child) .brand-kicker-live{font-size:11px;letter-spacing:.13em;color:var(--sea)!important}
+    body.layout-mobile:not(.mode-child) header h1{font-size:18px!important;line-height:1.05}
+    body.layout-mobile:not(.mode-child) header .who{display:none}
+    body.layout-mobile:not(.mode-child) .topbar-core{max-width:none;gap:8px}
+    body.layout-mobile:not(.mode-child) #btnProfiles{display:none}
+    body.layout-mobile:not(.mode-child) .topbtn{min-width:40px!important;width:40px;min-height:40px!important;height:40px;padding:0!important;border-radius:14px!important;background:rgba(255,255,255,.76)!important}
+    body.layout-mobile:not(.mode-child) #btnUser{font-size:0}
+    body.layout-mobile:not(.mode-child) #btnUser::after{content:"●";font-size:14px;color:var(--brand)}
+
+    body.layout-mobile:not(.mode-child) main.app-stage{padding:16px 16px calc(var(--nav-h) + 42px);max-width:680px;margin-inline:auto}
+    body.layout-mobile:not(.mode-child) .home-shell-v2{gap:16px!important;max-width:100%}
+    body.layout-mobile:not(.mode-child) .home-pc-rail{display:none}
+    body.layout-mobile:not(.mode-child) .home-mast{
+      padding:4px 2px 6px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+    }
+    body.layout-mobile:not(.mode-child) .home-mast::after{display:none!important}
+    body.layout-mobile:not(.mode-child) .home-mast .brand-kicker{font-size:11px;color:var(--sea);margin-bottom:8px}
+    body.layout-mobile:not(.mode-child) .home-mast .home-brand{font-size:clamp(30px,9vw,38px)!important;line-height:1.02;max-width:11ch}
+    body.layout-mobile:not(.mode-child) .home-lede{font-size:14px;margin-top:6px;color:var(--muted)}
+    body.layout-mobile:not(.mode-child) .home-cta-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:16px}
+    body.layout-mobile:not(.mode-child) .home-primary{width:100%;max-width:none!important;min-height:50px!important;border-radius:14px!important;box-shadow:0 10px 22px rgba(42,107,82,.18)!important}
+    body.layout-mobile:not(.mode-child) .home-secondary{min-width:50px;padding-inline:16px;border-radius:14px}
+    body.layout-mobile:not(.mode-child) .home-shift-start,
+    body.layout-mobile:not(.mode-child) .home-shell-v2 .home-today-card,
+    body.layout-mobile:not(.mode-child) .home-signal,
+    body.layout-mobile:not(.mode-child) .home-more{
+      background:rgba(255,255,255,.88)!important;border:1px solid rgba(26,40,34,.09)!important;
+      border-radius:20px!important;backdrop-filter:none!important;box-shadow:0 8px 24px rgba(26,40,34,.055)!important;
+    }
+    body.layout-mobile:not(.mode-child) .home-shift-start{padding:16px!important;border-left:3px solid var(--brand)!important}
+    body.layout-mobile:not(.mode-child) .home-shift-start h2{font-size:21px;letter-spacing:-.02em}
+    body.layout-mobile:not(.mode-child) .home-shift-start .muted{font-size:12px}
+    body.layout-mobile:not(.mode-child) .home-widgets{margin:0!important;gap:8px!important}
+    body.layout-mobile:not(.mode-child) .home-widgets .w-ring{width:58px!important;height:58px!important}
+    body.layout-mobile:not(.mode-child) .home-signals{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+    body.layout-mobile:not(.mode-child) .home-signal{min-height:88px;padding:13px!important;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"ico val" "label label";text-align:left}
+    body.layout-mobile:not(.mode-child) .home-signal .w-stat-ico{grid-area:ico}
+    body.layout-mobile:not(.mode-child) .home-signal .w-stat-val{grid-area:val;font-size:26px!important;justify-self:end}
+    body.layout-mobile:not(.mode-child) .home-signal .w-stat-lbl{grid-area:label;font-size:12px}
+    body.layout-mobile:not(.mode-child) .home-today-card{padding:16px!important}
+    body.layout-mobile:not(.mode-child) .home-foot-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+    body.layout-mobile:not(.mode-child) .home-foot-actions .page-act{min-width:0;padding:8px 5px;font-size:11px}
+
+    body.layout-mobile:not(.mode-child) .bottom-panel{padding:0 12px calc(12px + var(--safe-b));max-width:100%;background:transparent}
+    body.layout-mobile:not(.mode-child) nav.dock{
+      display:flex!important;min-height:66px!important;padding:4px!important;border-radius:20px!important;
+      background:rgba(249,250,247,.92)!important;border:1px solid rgba(255,255,255,.96)!important;
+      box-shadow:0 14px 34px rgba(26,40,34,.18),inset 0 1px 0 #fff!important;
+      backdrop-filter:blur(22px) saturate(1.25)!important;-webkit-backdrop-filter:blur(22px) saturate(1.25)!important;
+    }
+    body.layout-mobile:not(.mode-child) nav.dock .dock-secondary{display:none!important}
+    body.layout-mobile:not(.mode-child) nav.dock .dock-more{display:flex!important}
+    body.layout-mobile:not(.mode-child) nav.dock button{min-height:54px!important;color:#728078!important;border-radius:20px!important;font-size:11px!important;gap:4px!important}
+    body.layout-mobile:not(.mode-child) nav.dock button.on{color:var(--brand)!important;background:#e3eee8!important;box-shadow:none!important}
+    body.layout-mobile:not(.mode-child) nav.dock .nav-ico{width:21px;height:21px;opacity:.9}
+    body.layout-mobile:not(.mode-child) .zoai-fab{width:52px!important;height:52px!important;right:16px;bottom:calc(var(--nav-h) + var(--safe-b) + 22px);border:2px solid rgba(255,255,255,.8)}
+    body.layout-mobile:not(.mode-child) .sheet{background:#f8f9f6;border-radius:20px 20px 0 0;padding:16px 16px calc(16px + var(--safe-b))}
+  }
+
+  @media(max-width:540px){
+    #gate{padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(14px + env(safe-area-inset-bottom,0px))}
+    .gate-wrap{max-width:420px;padding:16px;border-radius:20px}
+    .gate-head{margin-bottom:18px}
+    .gate-head .mark{width:52px;height:52px;border-radius:20px}
+    .gate-head h2{font-size:32px}
+  }
+
+  /* v109.1 — remove the prototype/AI aesthetic. Mobile is a work tool: flat,
+     typographic and predictable. No decorative glass, floating cards or blobs. */
+  @media(max-width:899px){
+    #gate{
+      background:#f4f5f2;
+      padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px));
+    }
+    .gate-wrap{
+      max-width:400px;padding:0;background:transparent;border:0;border-radius:0;
+      box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+    }
+    .gate-lang{justify-content:flex-end;margin-bottom:32px}
+    .gate-lang button{min-height:40px;padding:8px 14px;background:transparent;border-color:#ccd2cd}
+    .gate-lang button.on{background:#20362d;border-color:#20362d}
+    .gate-head{text-align:left;margin-bottom:32px}
+    .gate-head .mark{margin:0 0 20px;width:44px;height:44px;border-radius:10px;background:#d6e3dc;box-shadow:none;font-size:18px}
+    .gate-head .brand-kicker{margin-bottom:8px;color:#527066;font-size:11px}
+    .gate-head h2{font:700 32px/1.05 var(--font-ui);letter-spacing:-.04em}
+    .gate-head p{margin-top:8px;font-size:14px}
+    .profiles{gap:0;border-top:1px solid #d9ded9}
+    .profile,.gate-mode-card{
+      min-height:76px!important;padding:12px 0!important;grid-template-columns:44px minmax(0,1fr) 20px!important;
+      border:0;border-bottom:1px solid #d9ded9;border-radius:0;background:transparent;box-shadow:none;
+    }
+    .profile:hover,.profile:active{background:transparent}
+    .profile .pa,.gate-mode-icon{width:40px!important;height:40px!important;border-radius:10px!important}
+    .profile .pn,.gate-mode-copy .pn{font:700 16px/1.2 var(--font-ui)}
+    .profile .pr{font-size:12px}
+    .gate-build{margin-top:24px;padding:12px 0;border:0;border-top:1px solid #d9ded9;border-radius:0;background:transparent}
+    .gate-pin{max-width:340px}
+    .gate-pin .pa{border-radius:10px}
+    .gate-pin h3{font:700 26px/1.1 var(--font-ui)}
+    .gate-pin .pinpad{gap:8px}
+    .gate-pin .pinpad button{border-radius:10px;background:#fff;box-shadow:none}
+    .gate-pin .pin-field{border-radius:10px}
+    .gate-pin .btn,.passkey-btn.primary-bio{border-radius:10px;box-shadow:none}
+    .gate-sticky-actions{background:linear-gradient(180deg,transparent,#f4f5f2 30%)}
+
+    body.layout-mobile:not(.mode-child),body.layout-mobile:not(.mode-child) .view{background:#f4f5f2!important}
+    body.layout-mobile:not(.mode-child) header.app-chrome{
+      background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+      box-shadow:none!important;border-bottom:1px solid #dfe3df!important;
+    }
+    body.layout-mobile:not(.mode-child) .brand-mark{border-radius:10px;background:#d6e3dc;box-shadow:none}
+    body.layout-mobile:not(.mode-child) header h1{font-family:var(--font-ui)}
+    body.layout-mobile:not(.mode-child) main.app-stage{padding:20px 16px calc(var(--nav-h) + 32px)}
+    body.layout-mobile:not(.mode-child) .home-shell-v2{gap:16px!important}
+    body.layout-mobile:not(.mode-child) .home-mast{padding:0 0 8px!important}
+    body.layout-mobile:not(.mode-child) .home-mast .brand-kicker{margin:0 0 8px}
+    body.layout-mobile:not(.mode-child) .home-mast .home-brand{
+      max-width:none;font:750 32px/1.05 var(--font-ui)!important;letter-spacing:-.045em!important;
+    }
+    body.layout-mobile:not(.mode-child) .home-lede{font-size:14px}
+    body.layout-mobile:not(.mode-child) .home-primary{border-radius:10px!important;box-shadow:none!important;background:#2a6b52!important}
+    body.layout-mobile:not(.mode-child) .home-secondary{border-radius:10px}
+    body.layout-mobile:not(.mode-child) .home-shift-start,
+    body.layout-mobile:not(.mode-child) .home-shell-v2 .home-today-card,
+    body.layout-mobile:not(.mode-child) .home-more{
+      border-radius:12px!important;background:#fff!important;border:1px solid #dfe3df!important;box-shadow:none!important;
+    }
+    body.layout-mobile:not(.mode-child) .home-shift-start{border-left:3px solid #2a6b52!important}
+    body.layout-mobile:not(.mode-child) .home-shift-start h2{font:750 21px/1.15 var(--font-ui)}
+    body.layout-mobile:not(.mode-child) .empty-state{padding:24px 8px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+    body.layout-mobile:not(.mode-child) .empty-state .empty-title{font-family:var(--font-ui);font-size:18px}
+    body.layout-mobile:not(.mode-child) .home-signals{
+      display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:0!important;
+      border:1px solid #dfe3df;border-radius:12px;background:#fff;overflow:hidden;
+    }
+    body.layout-mobile:not(.mode-child) .home-signal{
+      min-height:82px;padding:12px 8px!important;display:flex;flex-direction:column;align-items:flex-start;
+      border:0!important;border-right:1px solid #e5e8e5!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+    }
+    body.layout-mobile:not(.mode-child) .home-signal:last-child{border-right:0!important}
+    body.layout-mobile:not(.mode-child) .home-signal .w-stat-ico{display:none}
+    body.layout-mobile:not(.mode-child) .home-signal .w-stat-val{font:750 21px/1 var(--font-ui)!important}
+    body.layout-mobile:not(.mode-child) .home-signal .w-stat-lbl{margin-top:auto;font-size:11px;line-height:1.15}
+    body.layout-mobile:not(.mode-child) .home-widgets{display:none!important}
+    body.layout-mobile:not(.mode-child) .home-foot-actions{display:none}
+
+    body.layout-mobile:not(.mode-child) .bottom-panel{padding:0;background:#fff;border-top:1px solid #dfe3df}
+    body.layout-mobile:not(.mode-child) nav.dock{
+      min-height:64px!important;padding:4px 8px calc(4px + var(--safe-b))!important;border:0!important;border-radius:0!important;
+      background:#fff!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    }
+    body.layout-mobile:not(.mode-child) nav.dock button{min-height:56px!important;border-radius:8px!important;color:#6f7c75!important}
+    body.layout-mobile:not(.mode-child) nav.dock button.on{background:transparent!important;color:#205f49!important;box-shadow:inset 0 -2px 0 #2a6b52!important}
+    body.layout-mobile:not(.mode-child) .zoai-fab{display:none!important}
+    body.layout-mobile:not(.mode-child) .sheet{background:#fff;border:0;border-top:1px solid #dfe3df;border-radius:12px 12px 0 0;box-shadow:0 -12px 32px rgba(26,40,34,.12)}
+    .mobile-more-head{padding:4px 0 16px}
+    .mobile-more-head h2{font:750 26px/1.1 var(--font-ui)}
+    .mobile-more-grid{gap:0;border-top:1px solid #dfe3df}
+    .mobile-more-grid button{min-height:56px;padding:8px 0;border:0;border-bottom:1px solid #dfe3df;border-radius:0;background:#fff}
+    .mobile-more-grid .ui-ico{width:20px;height:20px;padding:0;border-radius:0;background:transparent;color:#47675c}
+  }
 </style>
 </head>
 <body class="auth-pending">
@@ -4346,13 +4597,14 @@
     </div>
     <nav class="dock" aria-label="Main" data-staff-dock>
       <button type="button" data-tab="home"><svg class="i nav-ico" aria-hidden="true"><use href="#i-home"/></svg><span data-nav="home"></span></button>
-      <button type="button" data-tab="gallery"><svg class="i nav-ico" aria-hidden="true"><use href="#i-gallery"/></svg><span data-nav="gallery"></span></button>
-      <button type="button" data-tab="kids" data-staff-only="1"><svg class="i nav-ico" aria-hidden="true"><use href="#u-person"/></svg><span data-nav="kids"></span></button>
+      <button type="button" class="dock-secondary" data-tab="gallery"><svg class="i nav-ico" aria-hidden="true"><use href="#i-gallery"/></svg><span data-nav="gallery"></span></button>
+      <button type="button" class="dock-secondary" data-tab="kids" data-staff-only="1"><svg class="i nav-ico" aria-hidden="true"><use href="#u-person"/></svg><span data-nav="kids"></span></button>
       <button type="button" data-tab="schedule"><svg class="i nav-ico" aria-hidden="true"><use href="#i-schedule"/></svg><span data-nav="schedule"></span></button>
       <button type="button" data-tab="stock"><svg class="i nav-ico" aria-hidden="true"><use href="#i-stock"/></svg><span data-nav="stock"></span></button>
       <button type="button" data-tab="shop"><svg class="i nav-ico" aria-hidden="true"><use href="#i-shop"/></svg><span data-nav="shop"></span></button>
-      <button type="button" data-tab="talk" data-staff-only="1"><svg class="i nav-ico" aria-hidden="true"><use href="#i-talk"/></svg><span data-nav="talk"></span></button>
-      <button type="button" data-tab="book"><svg class="i nav-ico" aria-hidden="true"><use href="#i-book"/></svg><span data-nav="book"></span></button>
+      <button type="button" class="dock-secondary" data-tab="talk" data-staff-only="1"><svg class="i nav-ico" aria-hidden="true"><use href="#i-talk"/></svg><span data-nav="talk"></span></button>
+      <button type="button" class="dock-secondary" data-tab="book"><svg class="i nav-ico" aria-hidden="true"><use href="#i-book"/></svg><span data-nav="book"></span></button>
+      <button type="button" class="dock-more" id="dockMore" aria-haspopup="dialog"><svg class="i nav-ico" aria-hidden="true"><use href="#u-plus"/></svg><span id="dockMoreLabel">Mehr</span></button>
     </nav>
     <button type="button" class="dock-zoai" id="dockZoAi" data-chat="1">Zo-Ai</button>
     <div class="dock-who" id="dockWho"></div>
@@ -4389,7 +4641,7 @@
 <script>
 /* Network-first SW + notifications — versioned registration happens in app.js */
 </script>
-<script src="notifications.js?v=108" defer></script>
-<script src="gate.js?v=108"></script>
+<script src="notifications.js?v=109" defer></script>
+<script src="gate.js?v=109"></script>
 </body>
 </html>

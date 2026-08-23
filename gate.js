@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 108,
-    label: 'v108',
+    version: 109,
+    label: 'v109',
     changed: {
-      de: 'Mobile Glass 2026: heller Header, klare Buttons',
-      el: 'Mobile Glass 2026: ανοιχτό header, καθαρά κουμπιά',
+      de: 'UX-Neustart: ruhiger Einstieg, klare Wege, mobile Navigation',
+      el: 'Νέο UX: ήρεμη είσοδος, καθαρές διαδρομές, mobile πλοήγηση',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -266,13 +266,15 @@
         <p>${t('who')}</p>
       </div>
       <div class="profiles" style="grid-template-columns:1fr">
-        <button class="profile" type="button" data-mode="staff" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-          <div class="pa" style="background:#9bc4b0;margin:0;flex:0 0 auto">👥</div>
-          <div><div class="pn" style="font-size:16px">${t('staff')}</div><div class="pr">${t('staffSub')}</div></div>
+        <button class="profile gate-mode-card" type="button" data-mode="staff">
+          <div class="pa gate-mode-icon" aria-hidden="true"><svg class="ui-ico"><use href="#u-person"/></svg></div>
+          <div class="gate-mode-copy"><div class="pn">${t('staff')}</div><div class="pr">${t('staffSub')}</div></div>
+          <span class="gate-mode-arrow" aria-hidden="true">→</span>
         </button>
-        <button class="profile" type="button" data-mode="child" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-          <div class="pa" style="background:#c5ddd0;margin:0;flex:0 0 auto">🎈</div>
-          <div><div class="pn" style="font-size:16px">${t('child')}</div><div class="pr">${t('childSub')}</div></div>
+        <button class="profile gate-mode-card" type="button" data-mode="child">
+          <div class="pa gate-mode-icon child" aria-hidden="true"><svg class="ui-ico"><use href="#u-sparkle"/></svg></div>
+          <div class="gate-mode-copy"><div class="pn">${t('child')}</div><div class="pr">${t('childSub')}</div></div>
+          <span class="gate-mode-arrow" aria-hidden="true">→</span>
         </button>
       </div>
       <div class="gate-build" role="status"><b>${esc(APP_BUILD.label)}</b><span>${esc(note)}</span></div>`;
@@ -296,7 +298,7 @@
     body.innerHTML = `
       ${langSwitch()}
       <div class="gate-head">
-        <div class="mark">${mode === 'child' ? '🎈' : '👥'}</div>
+        <div class="mark">${mode === 'child' ? 'K' : 'A'}</div>
         <div class="brand-kicker">Armonia Thassos</div>
         <h2>${mode === 'child' ? t('child') : t('staff')}</h2>
         <p>${t('pick')}</p>

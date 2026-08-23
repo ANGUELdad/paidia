@@ -22,6 +22,9 @@ authority; the Figma build of it is [Armonia Thassos — Design System v2](https
 **Handoff to another agent (Cursor etc.):** [docs/agents/CURSOR_HANDOFF.md](docs/agents/CURSOR_HANDOFF.md)
 — token reference, the Kids/widgets build spec, real `app.js` anchors, ship checklist, guardrails.
 
+**PC + Mobile Glass 2026 (v106–v108):** [docs/agents/CURSOR_HANDOFF_PC_MOBILE_GLASS.md](docs/agents/CURSOR_HANDOFF_PC_MOBILE_GLASS.md)
+— desktop sidebar, button fixes, Figma page 07, cache-bust, next steps.
+
 **Staff screens (v100):** [docs/agents/CURSOR_HANDOFF_STAFF_SCREENS.md](docs/agents/CURSOR_HANDOFF_STAFF_SCREENS.md)
 
 **Claude Code extras:** [CLAUDE.md](CLAUDE.md), [docs/claude-code-setup.md](docs/claude-code-setup.md)

@@ -4,16 +4,16 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 108,
-  label: 'v108',
+  version: 109,
+  label: 'v109',
   changed: {
-    de: 'Mobile Glass 2026: heller Header, klare Buttons',
-    el: 'Mobile Glass 2026: ανοιχτό header, καθαρά κουμπιά',
+    de: 'UX-Neustart: ruhiger Einstieg, klare Wege, mobile Navigation',
+    el: 'Νέο UX: ήρεμη είσοδος, καθαρές διαδρομές, mobile πλοήγηση',
   },
 };
 const T = {
   de: {
-    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navMore:'Mehr',
     titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', kidsHeroHint:'Profile, Fächer, Anwesenheit und Hausaufgaben', kidsEmpty:'Keine Kinder hinterlegt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
     logout:'Profil', noUser:'Nicht angemeldet',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Team sprechen', topTutorial:'Tutorial',
@@ -756,7 +756,7 @@ const T = {
     pasteScreenshot:'Screenshot einfügen', pickScreenshot:'Screenshot / Foto wählen',
   },
   el: {
-    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navMore:'Άλλα',
     titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', kidsHeroHint:'Προφίλ, μαθήματα, παρουσία και εργασίες', kidsEmpty:'Δεν υπάρχουν παιδιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Ομάδα — συνομιλία', topTutorial:'Tutorial',
@@ -13060,6 +13060,13 @@ function render(){
   }
   paintTopChrome();
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
+  const dockMore=document.getElementById('dockMore');
+  if(dockMore){
+    dockMore.classList.toggle('on', ['gallery','kids','talk','book'].includes(state.tab));
+    dockMore.setAttribute('aria-label', t('navMore'));
+  }
+  const dockMoreLabel=document.getElementById('dockMoreLabel');
+  if(dockMoreLabel) dockMoreLabel.textContent=t('navMore');
   document.querySelectorAll('[data-nav]').forEach(s=>{
     s.textContent = t('nav' + s.dataset.nav[0].toUpperCase() + s.dataset.nav.slice(1));
   });
@@ -13804,6 +13811,33 @@ document.querySelectorAll('nav button[data-tab]').forEach(b=>{
     }
     render();
   };
+});
+function sheetMobileMore(){
+  const items=[
+    ['gallery','u-camera',t('navGallery')],
+    ['kids','u-person',t('navKids')],
+    ['talk','u-chat',t('navTalk')],
+    ['book','u-book',t('navBook')],
+  ];
+  openSheet(`<div class="mobile-more-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2></div>
+    <div class="mobile-more-grid">${items.map(([tab,icon,label])=>`<button type="button" data-more-tab="${tab}"><svg class="ui-ico" aria-hidden="true"><use href="#${icon}"/></svg><span>${esc(label)}</span><b aria-hidden="true">→</b></button>`).join('')}
+      <button type="button" data-more-chat><svg class="ui-ico" aria-hidden="true"><use href="#u-sparkle"/></svg><span>${esc(t('navChat'))}</span><b aria-hidden="true">→</b></button>
+    </div>`);
+  sheetEl.querySelectorAll('[data-more-tab]').forEach(btn=>btn.onclick=()=>{
+    closeSheet();
+    state.tab=btn.dataset.moreTab;
+    syncLocationHash();
+    if(state.tab==='gallery'){
+      state.galleryLoading=true; render(); refreshGallery({silent:true}).finally(()=>render()); return;
+    }
+    render();
+  });
+  const chat=sheetEl.querySelector('[data-more-chat]');
+  if(chat) chat.onclick=()=>{ closeSheet(); toggleChatPanel(); };
+}
+document.getElementById('dockMore')?.addEventListener('click', ()=>{
+  feedback('tap');
+  sheetMobileMore();
 });
 document.getElementById('navChat')?.addEventListener('click', ()=>{
   feedback('tap');
@@ -14725,7 +14759,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||108),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||109),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

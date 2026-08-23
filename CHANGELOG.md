@@ -1,5 +1,13 @@
 # Changelog
 
+## v109 — 2026-08-23
+- Mobile UX reset: flat warm gate, scannable profile rows, calm solid work surfaces
+- One-handed five-item dock; Momente, Kinder, Talk and Buch moved into a clear “Mehr” sheet
+- Mobile Home hierarchy tightened: compact chrome, stronger primary action, four-column status strip
+- Removed prototype styling on phones: decorative glass, floating cards and the content-obscuring Zo-Ai bubble
+- Accessibility retained: 40–54px controls, visible focus states, semantic dialog/navigation labels
+- Cache `paidia-v109`
+
 ## v108 — 2026-08-23
 - Mobile Glass 2026 (Figma `07`): light frosted staff header on phone/tablet
 - Ink-on-glass topbar buttons (bell, lang, profile) — matches browser frames
