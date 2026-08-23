@@ -1,5 +1,12 @@
 # Changelog
 
+## v106 — 2026-08-23
+- PC desktop shell (≥900px): fixed 220px chrome sidebar with brand + Zo-Ai, not a stretched phone dock
+- Dense Home: main column + right rail (Mitteilungen, Kinder, Schichtende)
+- Schichtende sheet: Buch → Tasks → Handover → Abmelden
+- Mitteilungen center from topbar bell; shop ops rail docked on desktop
+- Cache `paidia-v106`
+
 ## v105 — 2026-08-22
 
 Staff expansion roadmap (visual + school + Zo-Ai), one ship:

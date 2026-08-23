@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 105,
-  label: 'v105',
+  version: 106,
+  label: 'v106',
   changed: {
-    de: 'Staff: Widgets, Kinder/Schule, Anwesenheit, Zo-Ai DB',
-    el: 'Staff: Widgets, Παιδιά/Σχολείο, παρουσία, Zo-Ai DB',
+    de: 'PC: Sidebar, dichtes Home, Schichtende, Mitteilungen',
+    el: 'PC: Sidebar, πυκνό Home, τέλος βάρδιας, ειδοποιήσεις',
   },
 };
 const T = {
@@ -631,6 +631,34 @@ const T = {
     homeShiftStockGo:'Check starten',
     homeShiftJournalGo:'Seite öffnen',
     homeShiftDoneMark:'Erledigt',
+    homeRailNotifs:'Benachrichtigungen',
+    homeRailKids:'Kinder heute',
+    homeRailEnd:'Schichtende',
+    homeRailEndHint:'Übergabe · Buch schließen · Abmelden',
+    homeShiftEndCta:'Schicht beenden',
+    homeMomentsToday:'Momente heute',
+    homeMomentsEmpty:'Noch keine Fotos heute',
+    notifCenterTitle:'Mitteilungen',
+    notifCenterEmpty:'Alles ruhig — keine offenen Hinweise.',
+    notifCenterAll:'Alle gelesen',
+    notifToneShift:'Schicht',
+    notifToneStock:'Lager',
+    notifTonePlan:'Plan',
+    notifToneShop:'Liste',
+    notifToneKids:'Kinder',
+    notifToneZo:'Zo-Ai',
+    shiftEndTitle:'Übergabe schließen',
+    shiftEndHint:'Buchnotiz · offene Tasks · Abmelden',
+    shiftEndBook:'Schichtbuch schreiben',
+    shiftEndBookHint:'Pflicht · 2–4 Sätze',
+    shiftEndTasks:'Offene Aufgaben prüfen',
+    shiftEndTasksHint:(n)=>n?`${n} offen`:'Keine offen',
+    shiftEndHandover:'Nächste Schicht informieren',
+    shiftEndHandoverHint:'optional',
+    shiftEndLogout:'Abmelden',
+    shiftEndLogoutHint:'PIN / Passkey',
+    shiftEndConfirm:'Schicht beenden',
+    bellLabel:'Mitteilungen',
     helpActionShopRemove:(name,house)=>`🛒 entfernen: ${name} @ ${house}`,
     helpActionScheduleAdd:(when,block,what,who)=>`📅 + ${when} · ${block}: ${what}${who?' · '+who:''}`,
     helpActionScheduleUpdate:(when,what)=>`📅 ändern ${when}: ${what}`,
@@ -1347,6 +1375,34 @@ const T = {
     homeShiftStockGo:'Έναρξη ελέγχου',
     homeShiftJournalGo:'Άνοιξε σελίδα',
     homeShiftDoneMark:'Ολοκληρώθηκε',
+    homeRailNotifs:'Ειδοποιήσεις',
+    homeRailKids:'Παιδιά σήμερα',
+    homeRailEnd:'Τέλος βάρδιας',
+    homeRailEndHint:'Παράδοση · Κλείσιμο βιβλίου · Αποσύνδεση',
+    homeShiftEndCta:'Τέλος βάρδιας',
+    homeMomentsToday:'Στιγμές σήμερα',
+    homeMomentsEmpty:'Δεν υπάρχουν φωτογραφίες σήμερα',
+    notifCenterTitle:'Ειδοποιήσεις',
+    notifCenterEmpty:'Ησυχία — κανένας ανοιχτός δείκτης.',
+    notifCenterAll:'Όλα διαβασμένα',
+    notifToneShift:'Βάρδια',
+    notifToneStock:'Αποθήκη',
+    notifTonePlan:'Πρόγραμμα',
+    notifToneShop:'Λίστα',
+    notifToneKids:'Παιδιά',
+    notifToneZo:'Zo-Ai',
+    shiftEndTitle:'Κλείσιμο παράδοσης',
+    shiftEndHint:'Σημείωση βιβλίου · ανοιχτές εργασίες · αποσύνδεση',
+    shiftEndBook:'Γράψε στο βιβλίο βάρδιας',
+    shiftEndBookHint:'Υποχρεωτικό · 2–4 προτάσεις',
+    shiftEndTasks:'Έλεγχος ανοιχτών εργασιών',
+    shiftEndTasksHint:(n)=>n?`${n} ανοιχτά`:'Κανένα ανοιχτό',
+    shiftEndHandover:'Ενημέρωση επόμενης βάρδιας',
+    shiftEndHandoverHint:'προαιρετικό',
+    shiftEndLogout:'Αποσύνδεση',
+    shiftEndLogoutHint:'PIN / Passkey',
+    shiftEndConfirm:'Τέλος βάρδιας',
+    bellLabel:'Ειδοποιήσεις',
     helpActionShopRemove:(name,house)=>`🛒 αφαίρεση: ${name} @ ${house}`,
     helpActionScheduleAdd:(when,block,what,who)=>`📅 + ${when} · ${block}: ${what}${who?' · '+who:''}`,
     helpActionScheduleUpdate:(when,what)=>`📅 αλλαγή ${when}: ${what}`,
@@ -7451,7 +7507,7 @@ function viewShop(){
   const boughtCard = bought.length ? `<details class="card shop-history"><summary>✓ ${t('secBought')}<span class="pill in">${bought.length}</span></summary><div class="shop-history-body">
       ${bought.slice(-8).reverse().map(e=>entryRow(e,`<span class="pill in">${t('stBought')}</span>`)).join('')}</div></details>` : '';
 
-  return `<div class="shop-shell">${hero}${pendingCard}${takeListCard}${openCard}${missingCard}${boughtCard}</div>`;
+  return `<div class="shop-shell ${inStore?'shop-shell-store':'shop-shell-plan'}">${hero}${pendingCard}${takeListCard}${openCard}${missingCard}${boughtCard}</div>`;
 }
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
@@ -12083,6 +12139,203 @@ function notifyZoAiReady(){
   try{ localStorage.removeItem(zoAiBannerKey()); }catch{}
 }
 
+
+function staffInboxItems(){
+  const items=[];
+  if(state.mode!=='staff' || !state.user) return items;
+  const today=iso(new Date());
+  const active=typeof activeShiftPresence==='function' ? activeShiftPresence(state.user.id) : null;
+  if(active && !active.checkin){
+    const label=`${active.shift.from}${active.shift.to?`–${active.shift.to}`:''}`;
+    items.push({
+      id:'shift', tone:'amber', toneLabel:t('notifToneShift'),
+      title: active.late ? T[state.lang].notifShiftLate(label) : T[state.lang].notifShiftStart(label),
+      meta: active.late ? t('homeShiftStartLate') : t('homeShiftStart'),
+      jump:'presence'
+    });
+  }
+  if(typeof shiftStockCheckPending==='function' && shiftStockCheckPending()){
+    items.push({
+      id:'stockcheck', tone:'out', toneLabel:t('notifToneStock'),
+      title:t('notifShiftCheck'), meta:t('shiftStockCheck'), jump:'stockcheck'
+    });
+  }
+  const low=PRODUCTS().filter(p=>{
+    const hid=state.house==='all'?'h1':state.house;
+    return (DB.stock[stockKey(hid,p.id)]??0) <= lowThreshold(p);
+  }).length;
+  if(low){
+    items.push({
+      id:'low', tone:'out', toneLabel:t('notifToneStock'),
+      title:T[state.lang].notifLowStock(low), meta:t('stockAttention'), jump:'stock'
+    });
+  }
+  const openList=fridayEntries(shopHouse()).filter(e=>e.status==='open'||e.status==='pending').length;
+  if(openList){
+    items.push({
+      id:'shop', tone:'sea', toneLabel:t('notifToneShop'),
+      title:T[state.lang].notifFridayShop(openList), meta:t('navShop'), jump:'shop'
+    });
+  }
+  const upcoming=(DB.events||[]).filter(e=>e.status==='published' && e.date>=today).slice(0,2);
+  upcoming.forEach(e=>{
+    items.push({
+      id:'ev-'+e.id, tone:'sea', toneLabel:t('notifTonePlan'),
+      title:e.title||t('allEvents'), meta:e.date, jump:'events'
+    });
+  });
+  if(state.user && !(shiftNoteFor(state.user.id, today)?.text||'').trim()){
+    items.push({
+      id:'journal', tone:'pine', toneLabel:t('notifToneShift'),
+      title:t('journalDutyHome'), meta:t('bookJournalHint'), jump:'book'
+    });
+  }
+  return items;
+}
+
+function homeMomentsStripHtml(){
+  const posts=(state.galleryPosts||[]).slice(0,4);
+  if(!posts.length){
+    return `<div class="home-rail-card home-moments">
+      <h3>${esc(t('homeMomentsToday'))}</h3>
+      <p class="muted" style="margin:0;font-size:12px">${esc(t('homeMomentsEmpty'))}</p>
+    </div>`;
+  }
+  const thumbs=posts.map(p=>{
+    const photo=(p.photos&&p.photos[0])||p.photo||null;
+    const src=photo && typeof galleryPhotoSrc==='function' ? galleryPhotoSrc(photo) : '';
+    return src
+      ? `<a href="#gallery" data-home-jump="gallery"><img src="${esc(src)}" alt=""></a>`
+      : `<span data-home-jump="gallery"></span>`;
+  }).join('');
+  return `<div class="home-rail-card home-moments">
+    <h3>${esc(t('homeMomentsToday'))}</h3>
+    <div class="home-moments-strip">${thumbs}</div>
+  </div>`;
+}
+
+function homePcRailHtml({todayOpenCount=0}={}){
+  const inbox=staffInboxItems().slice(0,4);
+  const kids=(DB.children||[]).slice(0,6);
+  const notifRows=inbox.length
+    ? inbox.map(n=>`<button type="button" data-inbox-jump="${esc(n.jump)}">
+        <span class="nr-title">${esc(n.title)}</span>
+        <span class="nr-tone tone-${esc(n.tone)}">${esc(n.toneLabel)}</span>
+      </button>`).join('')
+    : `<p class="muted" style="margin:0;font-size:12px">${esc(t('notifCenterEmpty'))}</p>`;
+  const kidRows=kids.map(k=>{
+    const ini=(k.name||'?').trim().slice(0,1).toUpperCase();
+    return `<button type="button" class="home-rail-kid" data-home-jump="kids" data-kid-open="${esc(k.id)}">
+      <span class="av" style="background:${esc(k.color||'var(--brand)')}">${esc(ini)}</span>
+      <span>${esc(k.name)}</span>
+    </button>`;
+  }).join('') || `<p class="muted" style="margin:0;font-size:12px">${esc(t('kidsEmpty'))}</p>`;
+  return `
+    <section class="home-rail-card">
+      <h3>${esc(t('homeRailNotifs'))}</h3>
+      <div class="home-rail-notif">${notifRows}</div>
+    </section>
+    <section class="home-rail-card">
+      <h3>${esc(t('homeRailKids'))}</h3>
+      <div class="home-rail-kids">${kidRows}</div>
+    </section>
+    <section class="home-rail-card home-rail-end">
+      <h3>${esc(t('homeRailEnd'))}</h3>
+      <p class="muted">${esc(t('homeRailEndHint'))}</p>
+      <button class="btn" type="button" id="homeShiftEnd">${esc(t('homeShiftEndCta'))}</button>
+    </section>`;
+}
+
+function sheetNotifCenter(){
+  const items=staffInboxItems();
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia</div>
+    <h2>${esc(t('notifCenterTitle'))}</h2>
+    <p>${esc(items.length?t('notifHint'):t('notifCenterEmpty'))}</p></div>
+    <div class="notif-center">
+      ${items.length?items.map(n=>`<button type="button" class="notif-center-row" data-inbox-jump="${esc(n.jump)}">
+        <b>${esc(n.title)}</b>
+        <span class="nr-tone tone-${esc(n.tone)}">${esc(n.toneLabel)} · ${esc(n.meta||'')}</span>
+      </button>`).join(''):`<p class="muted">${esc(t('notifCenterEmpty'))}</p>`}
+    </div>
+    <button class="btn sec" type="button" id="notifCenterClose" style="margin-top:10px">${esc(t('close'))}</button>`);
+  sheetEl.querySelector('#notifCenterClose').onclick=()=>closeSheet();
+  sheetEl.querySelectorAll('[data-inbox-jump]').forEach(btn=>{
+    btn.onclick=()=>{ closeSheet(); runInboxJump(btn.dataset.inboxJump); };
+  });
+}
+
+function runInboxJump(jump){
+  feedback('tap');
+  if(jump==='presence'){ sheetShiftPresence(); return; }
+  if(jump==='stockcheck'){ sheetShiftStockCheck(); return; }
+  if(jump==='stock'){ state.tab='stock'; clearSelection(); render(); return; }
+  if(jump==='shop'){ state.tab='shop'; state.shopPanel='plan'; clearSelection(); render(); return; }
+  if(jump==='book'){ state.tab='book'; state.bookPane='shift'; render(); return; }
+  if(jump==='kids'){ state.tab='kids'; render(); return; }
+  if(jump==='gallery'){ state.tab='gallery'; refreshGallery({silent:true}).finally(()=>render()); return; }
+  state.tab='schedule';
+  state.scheduleView=jump==='events'?'events':'day';
+  render();
+}
+
+function sheetShiftEnd(){
+  if(state.mode!=='staff' || !state.user){ toast(t('presenceNoShift'),'error'); return; }
+  const today=iso(new Date());
+  const journalDue=!(shiftNoteFor(state.user.id, today)?.text||'').trim();
+  const openTasks=dashboardAssignments(today,state.user.id).filter(e=>!completionFor(today,e.id,state.user.id)).length;
+  const row=(done,title,hint,actionId,cta)=>`
+    <div class="shift-end-row ${done?'':'todo'}">
+      <span class="num" aria-hidden="true">${done?'✓':'·'}</span>
+      <div class="grow"><b>${esc(title)}</b><span>${esc(hint)}</span></div>
+      ${done?'':`<button class="btn sm sec" type="button" id="${actionId}">${esc(cta)}</button>`}
+    </div>`;
+  openSheet(`<div class="shift-end-panel">
+    <div class="presence-kicker">${esc(t('homeRailEnd'))}</div>
+    <h2>${esc(t('shiftEndTitle'))}</h2>
+    <p class="muted">${esc(t('shiftEndHint'))}</p>
+    ${row(!journalDue, t('shiftEndBook'), t('shiftEndBookHint'), 'shiftEndBook', t('homeShiftJournalGo'))}
+    ${row(!openTasks, t('shiftEndTasks'), T[state.lang].shiftEndTasksHint(openTasks), 'shiftEndTasks', t('homeOpenPlan'))}
+    ${row(false, t('shiftEndHandover'), t('shiftEndHandoverHint'), 'shiftEndHandover', t('topTalk'))}
+    ${row(false, t('shiftEndLogout'), t('shiftEndLogoutHint'), 'shiftEndLogout', t('signOut'))}
+    <button class="btn" type="button" id="shiftEndDone">${esc(t('shiftEndConfirm'))}</button>
+    <button class="btn sec" type="button" id="shiftEndClose">${esc(t('close'))}</button>
+  </div>`);
+  sheetEl.querySelector('#shiftEndClose').onclick=()=>closeSheet();
+  sheetEl.querySelector('#shiftEndDone').onclick=()=>{
+    closeSheet();
+    if(journalDue){
+      state.tab='book'; state.bookPane='shift'; state.bookJournalMode='ink'; render();
+      queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
+      toast(t('shiftEndBook'),'info');
+      return;
+    }
+    sheetSecurityAccess();
+  };
+  const book=sheetEl.querySelector('#shiftEndBook');
+  if(book) book.onclick=()=>{
+    closeSheet(); state.tab='book'; state.bookPane='shift'; state.bookJournalMode='ink'; render();
+    queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
+  };
+  const tasks=sheetEl.querySelector('#shiftEndTasks');
+  if(tasks) tasks.onclick=()=>{ closeSheet(); state.tab='home'; render(); };
+  const hand=sheetEl.querySelector('#shiftEndHandover');
+  if(hand) hand.onclick=()=>{ closeSheet(); state.tab='talk'; render(); };
+  const logout=sheetEl.querySelector('#shiftEndLogout');
+  if(logout) logout.onclick=()=>{ closeSheet(); sheetSecurityAccess(); };
+}
+
+function paintNotifBadge(){
+  const badge=document.getElementById('notifBadge');
+  const btn=document.getElementById('btnNotifs');
+  if(!badge||!btn) return;
+  const n=state.mode==='staff'?staffInboxItems().length:0;
+  badge.textContent=String(n);
+  badge.hidden=!n;
+  btn.title=t('bellLabel');
+  btn.setAttribute('aria-label', t('bellLabel')+(n?` (${n})`:''));
+}
+
+
 function viewHome(){
   const today=iso(new Date()), user=state.user;
   const todayAssignments=user?dashboardAssignments(today,user.id):[];
@@ -12095,7 +12348,6 @@ function viewHome(){
   dashboardDates(0,2).forEach(dateStr=>entriesFor(dateStr).filter(e=>!e.cancelled && !entryEmployeeIds(e).length)
     .forEach(e=>unassigned.push({e,dateStr})));
   const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
-  const upcoming=events.filter(e=>e.status==='published' && e.date>=today);
   const journalDue=!!(user && !(shiftNoteFor(user.id, today)?.text||'').trim());
   const shiftStartCard=homeShiftStartCardHtml();
   const showJournalDuty=journalDue && !shiftStartCard;
@@ -12113,7 +12365,7 @@ function viewHome(){
       <b class="w-stat-val">${esc(String(value))}</b>
       <span class="w-stat-lbl">${esc(label)}</span>
     </button>`;
-  return `<div class="home-shell home-shell-v2">
+  const main=`
     <section class="home-mast hero hero-texture" aria-label="Armonia">
       <p class="brand-kicker">Armonia Thassos</p>
       <h1 class="home-brand">${esc(t('homeHello'))}${user?', '+esc(user.name):''}</h1>
@@ -12146,6 +12398,7 @@ function viewHome(){
       <div class="block-h"><span class="t">${ui('u-check','sm')} ${esc(t('myTasks'))}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
       <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState(ui('u-check'), t('noTasks'), t('noTasksHint'), planCta)}</div>
     </section>
+    ${homeMomentsStripHtml()}
     <details class="home-more">
       <summary>${esc(t('homeMore'))}</summary>
       <div class="dashboard-grid home-more-grid">
@@ -12167,9 +12420,14 @@ function viewHome(){
       <button class="page-act ghost" type="button" data-page-act="tutorial">${ui('u-book','sm')} ${esc(t('topTutorial'))}</button>
       <button class="page-act ghost" type="button" id="homeCalendar">${ui('u-calendar','sm')} ${esc(t('calTitle'))}</button>
       <button class="page-act ghost" type="button" id="homeGalleryOpen">${ui('u-camera','sm')} ${esc(t('galleryTitle'))}</button>
-    </div>
+    </div>`;
+  return `<div class="home-shell home-shell-v2 home-pc">
+    <div class="home-pc-main">${main}</div>
+    <aside class="home-pc-rail" aria-label="${esc(t('homeRailNotifs'))}">${homePcRailHtml({todayOpenCount:todayOpen.length})}</aside>
   </div>`;
 }
+
+
 
 function sheetChildHowTo(){
   openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia</div>
@@ -12247,6 +12505,13 @@ function paintTopChrome(){
       ? profileLabel(state.user) + ' · ' + L(state.user.role) : t('noUser');
     if(isAdminUser()) whoEl.innerHTML += ' <span class="admin-badge">ADMIN</span>';
   }
+  const dockWho=document.getElementById('dockWho');
+  if(dockWho){
+    dockWho.textContent = state.user
+      ? (state.user.name + (isAdminUser()?' · Admin':''))
+      : '';
+  }
+  paintNotifBadge();
   const lang=document.getElementById('btnLang');
   const user=document.getElementById('btnUser');
   const profiles=document.getElementById('btnProfiles');
@@ -12697,7 +12962,7 @@ function syncLayoutMode(){
   }
   const rail=document.querySelector('nav.dock')||document.querySelector('nav');
   if(desktop && rail && rail.style.display!=='none'){
-    document.documentElement.style.setProperty('--rail-w', Math.max(88, Math.ceil(rail.getBoundingClientRect().width||92))+'px');
+    document.documentElement.style.setProperty('--rail-w', '220px');
   }else{
     document.documentElement.style.setProperty('--rail-w', '0px');
   }
@@ -12731,9 +12996,8 @@ function measureChrome(){
   if(!navHidden && !childMode){
     if(desktop){
       navH=0;
-      const w=Math.max(88, Math.ceil(nav.getBoundingClientRect().width||92));
-      root.style.setProperty('--rail-w', w+'px');
-      document.body.style.setProperty('--rail-w', w+'px');
+      root.style.setProperty('--rail-w', '220px');
+      document.body.style.setProperty('--rail-w', '220px');
     }else{
       navH=Math.ceil(nav.getBoundingClientRect().height);
       root.style.setProperty('--rail-w', '0px');
@@ -12883,6 +13147,7 @@ function wire(){
       if(jump==='shop'){ state.tab='shop'; state.shopPanel='plan'; clearSelection(); render(); return; }
       if(jump==='stock'){ state.tab='stock'; clearSelection(); render(); return; }
       if(jump==='kids'){ state.tab='kids'; state.staffKidId=null; render(); return; }
+      if(jump==='gallery'){ state.tab='gallery'; refreshGallery({silent:true}).finally(()=>render()); return; }
       state.tab='schedule';
       state.scheduleView=jump==='events'?'events':'day';
       render();
@@ -12927,6 +13192,15 @@ function wire(){
     render();
     queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
   };
+  const homeShiftEnd=v.querySelector('#homeShiftEnd');
+  if(homeShiftEnd) homeShiftEnd.onclick=()=>{ feedback('open'); sheetShiftEnd(); };
+  v.querySelectorAll('[data-inbox-jump]').forEach(btn=>{
+    btn.onclick=()=>runInboxJump(btn.dataset.inboxJump);
+  });
+  v.querySelectorAll('[data-kid-open]').forEach(btn=>{
+    btn.onclick=()=>{ state.tab='kids'; state.staffKidId=btn.dataset.kidOpen; render(); };
+  });
+
   v.querySelectorAll('#shiftStockCheckOpen, #stockShiftCheck').forEach(btn=>{
     btn.onclick=()=>{ feedback('select'); sheetShiftStockCheck(); };
   });
@@ -13541,6 +13815,13 @@ document.getElementById('chatClose')?.addEventListener('click', ()=>{
 });
 document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
 document.getElementById('btnLang').onclick = () => setLang(state.lang === 'de' ? 'el' : 'de');
+document.getElementById('btnNotifs')?.addEventListener('click', ()=>{
+  if(state.mode!=='staff'){ toast(t('notifCenterEmpty'),'info'); return; }
+  sheetNotifCenter();
+});
+document.getElementById('dockZoAi')?.addEventListener('click', ()=>{
+  feedback('open'); openZoAi();
+});
 document.getElementById('btnProfiles').onclick = () => {
   feedback('tap');
   if(state.user||state.child) logoutServerSession();
@@ -14444,7 +14725,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||105),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||106),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
