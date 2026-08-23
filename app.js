@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 113,
-  label: 'v113',
+  version: 114,
+  label: 'v114',
   changed: {
-    de: 'Lager ohne Überlappung; Kalender, Schichtübergabe und Benachrichtigungen repariert',
-    el: 'Αποθήκη χωρίς επικαλύψεις· διορθώθηκαν ημερολόγιο, παράδοση βάρδιας και ειδοποιήσεις',
+    de: 'Schichtübergabe, Kalender-Speichern und Verspätungs-Mitteilungen zuverlässig verbunden',
+    el: 'Συνδέθηκαν αξιόπιστα παράδοση βάρδιας, αποθήκευση ημερολογίου και ειδοποιήσεις καθυστέρησης',
   },
 };
 const T = {
@@ -559,6 +559,9 @@ const T = {
     notifEnable:'Mitteilungen aktivieren',
     notifEnabled:'Mitteilungen an',
     notifDenied:'Mitteilungen blockiert — in den Geräteeinstellungen erlauben',
+    notifDeliveryFailed:'Test konnte auf diesem Gerät nicht zugestellt werden.',
+    notifDeliveryOk:'Test-Mitteilung wurde zugestellt.',
+    notifRuntimeHint:'Schicht-Hinweise werden synchronisiert, sobald Armonia läuft. Kalender-Erinnerungen funktionieren unabhängig davon.',
     notifHint:'Wie eine echte App: Lager leer, Schicht-Check, Anwesenheit, Events.',
     notifLowStock:n=>`${n} Produkte brauchen Aufmerksamkeit`,
     notifShiftCheck:'Schicht-Lagercheck offen (Kalyvia)',
@@ -657,6 +660,12 @@ const T = {
     shiftEndHandoverHint:'Wird automatisch an Talk gesendet',
     shiftEndHandoverSent:'Übergabe an die nächste Schicht gesendet',
     shiftEndHandoverFailed:'Übergabe konnte nicht gesendet werden. Bitte erneut versuchen.',
+    shiftEndNext:'Nächste Schicht',
+    shiftEndNextNone:'Keine nächste Schicht im Plan gefunden',
+    lateAlertTitle:(name)=>`Verspätung · ${name}`,
+    lateAlertBody:(date,from)=>`${date} · Dienst ab ${from}`,
+    lateAlertReason:'Gemeldeter Grund',
+    lateAlertSeen:'Als gelesen markieren',
     shiftEndLogout:'Abmelden',
     shiftEndLogoutHint:'PIN / Passkey',
     shiftEndConfirm:'Schicht beenden',
@@ -1304,6 +1313,9 @@ const T = {
     notifEnable:'Ενεργοποίηση ειδοποιήσεων',
     notifEnabled:'Ειδοποιήσεις ενεργές',
     notifDenied:'Ειδοποιήσεις μπλοκαρισμένες — επίτρεψέ τις στις ρυθμίσεις',
+    notifDeliveryFailed:'Η δοκιμαστική ειδοποίηση δεν παραδόθηκε σε αυτή τη συσκευή.',
+    notifDeliveryOk:'Η δοκιμαστική ειδοποίηση παραδόθηκε.',
+    notifRuntimeHint:'Οι ειδοποιήσεις βάρδιας συγχρονίζονται όταν λειτουργεί το Armonia. Οι υπενθυμίσεις ημερολογίου λειτουργούν ανεξάρτητα.',
     notifHint:'Σαν πραγματική εφαρμογή: άδειο απόθεμα, έλεγχος βάρδιας, παρουσία, events.',
     notifLowStock:n=>`${n} προϊόντα χρειάζονται προσοχή`,
     notifShiftCheck:'Έλεγχος αποθέματος βάρδιας ανοιχτός (Kalyvia)',
@@ -1403,6 +1415,12 @@ const T = {
     shiftEndHandoverHint:'Στέλνεται αυτόματα στο Talk',
     shiftEndHandoverSent:'Η παράδοση στάλθηκε στην επόμενη βάρδια',
     shiftEndHandoverFailed:'Η παράδοση δεν μπόρεσε να σταλεί. Δοκίμασε ξανά.',
+    shiftEndNext:'Επόμενη βάρδια',
+    shiftEndNextNone:'Δεν βρέθηκε επόμενη βάρδια στο πρόγραμμα',
+    lateAlertTitle:(name)=>`Καθυστέρηση · ${name}`,
+    lateAlertBody:(date,from)=>`${date} · Βάρδια από ${from}`,
+    lateAlertReason:'Αιτία που δηλώθηκε',
+    lateAlertSeen:'Σήμανση ως αναγνωσμένο',
     shiftEndLogout:'Αποσύνδεση',
     shiftEndLogoutHint:'PIN / Passkey',
     shiftEndConfirm:'Τέλος βάρδιας',
@@ -4516,6 +4534,20 @@ function personShiftOccurrences(employeeId, weeks=8){
   return out.sort((a,b)=>a.start - b.start);
 }
 
+function nextShiftCoverage(employeeId, after=new Date()){
+  const candidates=[];
+  (DB.employees||[]).filter(person=>person.id!==employeeId).forEach(person=>{
+    personShiftOccurrences(person.id, 2).forEach(occurrence=>{
+      if(occurrence.start > after) candidates.push({...occurrence, person});
+    });
+  });
+  candidates.sort((a,b)=>a.start-b.start);
+  if(!candidates.length) return null;
+  const first=candidates[0];
+  const same=candidates.filter(item=>Math.abs(item.start-first.start)<60000);
+  return {start:first.start, end:first.end, people:same.map(item=>item.person), shifts:same};
+}
+
 function personEventOccurrences(profileId, mode='staff'){
   const today = iso(new Date());
   return (DB.events||[])
@@ -4608,6 +4640,21 @@ function downloadTextFile(filename, text, mime='text/calendar;charset=utf-8'){
   a.click();
   a.remove();
   setTimeout(()=>URL.revokeObjectURL(url), 2500);
+}
+
+function saveProfileCalendar(profileId, mode='staff'){
+  const person=mode==='child'?kid(profileId):emp(profileId);
+  if(!person) return false;
+  const shifts=mode==='staff'?personShiftOccurrences(profileId,8):[];
+  const events=personEventOccurrences(profileId,mode);
+  const items=[...shifts,...events].sort((a,b)=>a.start-b.start);
+  if(!items.length){ toast(t('calNextNone'),'error'); return false; }
+  const name=profileName(person);
+  const slug=String(name||profileId).replace(/\s+/g,'-').toLowerCase();
+  downloadTextFile(`armonia-${slug}.ics`,buildIcs(items,`Armonia · ${name}`));
+  feedback('save');
+  toast(t('calSaved'),'success');
+  return true;
 }
 
 function googleCalUrl(ev){
@@ -4838,7 +4885,7 @@ function saveShiftPresence({shift, dateStr, late, reason}){
   DB.shiftCheckins = DB.shiftCheckins || [];
   DB.shiftCheckins = DB.shiftCheckins.filter(c =>
     !(c.employeeId===who.id && c.date===dateStr && c.shiftId===shift.id));
-  DB.shiftCheckins.push({
+  const checkin={
     id:'sc'+uid(),
     employeeId:who.id,
     date:dateStr,
@@ -4850,8 +4897,25 @@ function saveShiftPresence({shift, dateStr, late, reason}){
     reason:late ? String(reason||'').trim().slice(0,240) : '',
     at:Date.now(),
     byName:who.name||who.id,
-  });
+  };
+  DB.shiftCheckins.push(checkin);
   if(DB.shiftCheckins.length > 800) DB.shiftCheckins = DB.shiftCheckins.slice(-800);
+  if(late){
+    DB.profilePrefs ||= {};
+    DB.profilePrefs._lateAlerts ||= {};
+    DB.profilePrefs._lateAlerts[checkin.id]={
+      id:checkin.id,
+      employeeId:who.id,
+      name:who.name||who.id,
+      date:dateStr,
+      shiftId:shift.id,
+      from:shift.from,
+      reason:checkin.reason,
+      at:checkin.at,
+    };
+    const ordered=Object.values(DB.profilePrefs._lateAlerts).sort((a,b)=>b.at-a.at).slice(0,80);
+    DB.profilePrefs._lateAlerts=Object.fromEntries(ordered.map(item=>[item.id,item]));
+  }
   logEntry('SHIFT', late
     ? `${t('presenceLate')}: ${who.name} · ${dateStr} ${shift.from} · ${reason}`
     : `${t('presenceOnTime')}: ${who.name} · ${dateStr} ${shift.from}`);
@@ -12153,6 +12217,20 @@ function staffInboxItems(){
   const items=[];
   if(state.mode!=='staff' || !state.user) return items;
   const today=iso(new Date());
+  if(isAdminUser()){
+    const seen=notifPrefs().seen||{};
+    Object.values(DB.profilePrefs?._lateAlerts||{})
+      .filter(alert=>alert?.id && Date.now()-Number(alert.at||0)<7*24*60*60*1000)
+      .filter(alert=>seen[`late-alert-${alert.id}`]!=='1')
+      .sort((a,b)=>Number(b.at||0)-Number(a.at||0))
+      .slice(0,5)
+      .forEach(alert=>items.push({
+        id:`late-${alert.id}`, tone:'amber', toneLabel:t('presenceLate'),
+        title:T[state.lang].lateAlertTitle(alert.name||empName(alert.employeeId)),
+        meta:T[state.lang].lateAlertBody(alert.date,alert.from),
+        jump:`late:${alert.id}`,
+      }));
+  }
   const active=typeof activeShiftPresence==='function' ? activeShiftPresence(state.user.id) : null;
   if(active && !active.checkin){
     const label=`${active.shift.from}${active.shift.to?`–${active.shift.to}`:''}`;
@@ -12275,6 +12353,7 @@ function sheetNotifCenter(){
 
 function runInboxJump(jump){
   feedback('tap');
+  if(String(jump||'').startsWith('late:')){ sheetLateAlert(String(jump).slice(5)); return; }
   if(jump==='presence'){ sheetShiftPresence(); return; }
   if(jump==='stockcheck'){ sheetShiftStockCheck(); return; }
   if(jump==='stock'){ state.tab='stock'; clearSelection(); render(); return; }
@@ -12285,6 +12364,26 @@ function runInboxJump(jump){
   state.tab='schedule';
   state.scheduleView=jump==='events'?'events':'day';
   render();
+}
+
+function sheetLateAlert(alertId){
+  const alert=DB.profilePrefs?._lateAlerts?.[alertId];
+  if(!alert){ toast(t('notifCenterEmpty'),'info'); return; }
+  openSheet(`<div class="presence-panel late">
+    <div class="presence-kicker">${esc(t('presenceLate'))}</div>
+    <h2>${esc(T[state.lang].lateAlertTitle(alert.name||empName(alert.employeeId)))}</h2>
+    <p class="presence-meta">${esc(T[state.lang].lateAlertBody(alert.date,alert.from))}</p>
+    <div class="presence-late-box"><b>${esc(t('lateAlertReason'))}</b><p>${esc(alert.reason||'—')}</p></div>
+    <button class="btn" type="button" id="lateAlertSeen">${esc(t('lateAlertSeen'))}</button>
+    <button class="btn sec" type="button" id="lateAlertClose">${esc(t('close'))}</button>
+  </div>`);
+  sheetEl.querySelector('#lateAlertClose').onclick=()=>closeSheet();
+  sheetEl.querySelector('#lateAlertSeen').onclick=()=>{
+    setNotifPrefs({seen:{...notifPrefs().seen,[`late-alert-${alert.id}`]:'1'}});
+    closeSheet();
+    paintNotifBadge();
+    render();
+  };
 }
 
 function shiftHandoffRecord(employeeId, dateStr=iso(new Date())){
@@ -12309,11 +12408,16 @@ function automaticShiftHandoffText(employeeId, dateStr=iso(new Date())){
   const taskLine=open.length
     ? open.slice(0,5).map(e=>actLabel(e.activityId)).join(', ')+(open.length>5?` +${open.length-5}`:'')
     : (state.lang==='el'?'καμία':'keine');
+  const next=nextShiftCoverage(employeeId,new Date());
+  const nextLine=next
+    ? `${t('shiftEndNext')}: ${next.people.map(person=>person.name).join(', ')} · ${fmtDT(next.start.getTime())}`
+    : `${t('shiftEndNext')}: ${t('shiftEndNextNone')}`;
   return [
     `↪ ${t('handover')} · ${person.name} · ${dateStr}${shifts?` · ${shifts}`:''}`,
     note,
     `${t('shiftEndTasks')}: ${taskLine}`,
     `${t('stockAttention')}: ${attention}`,
+    nextLine,
   ].join('\n');
 }
 
@@ -12340,10 +12444,15 @@ async function sendAutomaticShiftHandoff(employeeId=state.user?.id, dateStr=iso(
 
 function sheetShiftEnd(){
   if(state.mode!=='staff' || !state.user){ toast(t('presenceNoShift'),'error'); return; }
-  const today=iso(new Date());
+  const active=typeof activeShiftPresence==='function'?activeShiftPresence(state.user.id):null;
+  const today=active?.dateStr||iso(new Date());
   const journalDue=!(shiftNoteFor(state.user.id, today)?.text||'').trim();
   const openTasks=dashboardAssignments(today,state.user.id).filter(e=>!completionFor(today,e.id,state.user.id)).length;
   const handoffDone=!!shiftHandoffRecord(state.user.id,today);
+  const next=nextShiftCoverage(state.user.id,new Date());
+  const nextLabel=next
+    ? `${next.people.map(person=>person.name).join(', ')} · ${fmtDT(next.start.getTime())}`
+    : t('shiftEndNextNone');
   const row=(done,title,hint,actionId,cta)=>`
     <div class="shift-end-row ${done?'':'todo'}">
       <span class="num" aria-hidden="true">${done?'✓':'·'}</span>
@@ -12354,6 +12463,7 @@ function sheetShiftEnd(){
     <div class="presence-kicker">${esc(t('homeRailEnd'))}</div>
     <h2>${esc(t('shiftEndTitle'))}</h2>
     <p class="muted">${esc(t('shiftEndHint'))}</p>
+    <div class="status-box" style="margin-bottom:10px"><b>${esc(t('shiftEndNext'))}</b><div>${esc(nextLabel)}</div></div>
     ${row(!journalDue, t('shiftEndBook'), t('shiftEndBookHint'), 'shiftEndBook', t('homeShiftJournalGo'))}
     ${row(!openTasks, t('shiftEndTasks'), T[state.lang].shiftEndTasksHint(openTasks), 'shiftEndTasks', t('homeOpenPlan'))}
     ${row(handoffDone, t('shiftEndHandover'), t('shiftEndHandoverHint'), 'shiftEndHandover', t('topTalk'))}
@@ -12365,6 +12475,7 @@ function sheetShiftEnd(){
   sheetEl.querySelector('#shiftEndDone').onclick=async()=>{
     if(journalDue){
       closeSheet();
+      state._resumeShiftEnd=true;
       state.tab='book'; state.bookPane='shift'; state.bookJournalMode='ink'; render();
       queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
       toast(t('shiftEndBook'),'info');
@@ -12384,7 +12495,7 @@ function sheetShiftEnd(){
   };
   const book=sheetEl.querySelector('#shiftEndBook');
   if(book) book.onclick=()=>{
-    closeSheet(); state.tab='book'; state.bookPane='shift'; state.bookJournalMode='ink'; render();
+    closeSheet(); state._resumeShiftEnd=true; state.tab='book'; state.bookPane='shift'; state.bookJournalMode='ink'; render();
     queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
   };
   const tasks=sheetEl.querySelector('#shiftEndTasks');
@@ -13898,6 +14009,10 @@ function wire(){
       render();
       feedback('save');
       toast(t('shiftDiarySaved'),'success');
+      if(state._resumeShiftEnd){
+        state._resumeShiftEnd=false;
+        setTimeout(()=>sheetShiftEnd(),160);
+      }
     });
   };
 }
@@ -14009,6 +14124,7 @@ async function sheetSecurityAccess(){
     const prefs=notifPrefsResolved();
     notifCard.innerHTML=`<b>🔔 ${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</b>
       <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(child?t('notifHintChild'):t('notifHint'))}</p>
+      <p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
       ${child?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>`:''}
       <button class="btn ${on?'sec':''}" type="button" id="notifToggle">${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</button>
       <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
@@ -14026,8 +14142,11 @@ async function sheetSecurityAccess(){
       setStatus(st, ok?t('notifEnabled'):(Notification.permission==='denied'?t('notifDenied'):t('notifEnable')), ok?'success':'error');
       if(ok) sheetSecurityAccess();
     };
-    notifCard.querySelector('#notifTestBtn').onclick=()=>{
-      showAppNotification(t('notifTest'),{tag:'paidia-test', body:'Armonia Thassos', force:true});
+    notifCard.querySelector('#notifTestBtn').onclick=async()=>{
+      const st=notifCard.querySelector('#notifStatus');
+      const delivered=await showAppNotification(t('notifTest'),{tag:'paidia-test', body:'Armonia Thassos', force:true});
+      st.style.display='block';
+      setStatus(st,delivered?t('notifDeliveryOk'):t('notifDeliveryFailed'),delivered?'success':'error');
     };
     const savePrefsBtn=notifCard.querySelector('#notifPrefsSave');
     if(savePrefsBtn) savePrefsBtn.onclick=()=>{
@@ -14051,7 +14170,10 @@ async function sheetSecurityAccess(){
       const mode=state.mode==='child'?'child':'staff';
       sheetCalendar(who.id, mode);
     };
-    calendarCard.querySelector('#openMyCalendar').onclick=openCal;
+    calendarCard.querySelector('#openMyCalendar').onclick=()=>{
+      const mode=state.mode==='child'?'child':'staff';
+      saveProfileCalendar(who.id,mode);
+    };
     calendarCard.querySelector('#openMyCalendarMore').onclick=openCal;
   }
   if(customizeCard){
@@ -14838,7 +14960,8 @@ async function enableAppNotifications(){
   setNotifPrefs({enabled:ok});
   if(ok){
     await registerPaidiaServiceWorker();
-    await showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true});
+    const delivered=await showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true});
+    if(!delivered) return false;
     await runNotificationSweep({force:true});
   }
   return ok;
@@ -14877,7 +15000,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||113),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||114),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
@@ -15004,6 +15127,27 @@ async function runNotificationSweep({force=false}={}){
           }
         );
         if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, presence:key}});
+      }
+    }
+  }catch{}
+  // Persistent late-arrival alerts for administrators
+  try{
+    if(isAdminUser()){
+      const alerts=Object.values(DB.profilePrefs?._lateAlerts||{})
+        .filter(alert=>alert?.id && Date.now()-Number(alert.at||0)<7*24*60*60*1000)
+        .sort((a,b)=>Number(a.at||0)-Number(b.at||0));
+      for(const alert of alerts){
+        const key=`late-delivered-${alert.id}`;
+        if(force || seen[key]!=='1'){
+          const delivered=await showAppNotification(T[state.lang].lateAlertTitle(alert.name||empName(alert.employeeId)),{
+            tag:`paidia-${key}`,
+            renotify:true,
+            requireInteraction:true,
+            body:`${T[state.lang].lateAlertBody(alert.date,alert.from)} · ${alert.reason||'—'}`,
+            data:{url:'./?tab=home'},
+          });
+          if(delivered) setNotifPrefs({seen:{...notifPrefs().seen,[key]:'1'}});
+        }
       }
     }
   }catch{}

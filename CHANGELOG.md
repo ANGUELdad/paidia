@@ -1,5 +1,13 @@
 # Changelog
 
+## v114 — 2026-08-24
+
+- The main Apple / `.ics` profile action now downloads the complete eight-week calendar immediately; Google and Outlook remain in the detailed calendar view.
+- Shift end now identifies the next scheduled team member, includes that lookup in the Talk handoff, and automatically resumes after the required journal note is saved.
+- Late check-ins create persistent admin inbox alerts with the employee, shift, time, and stated reason.
+- Notification setup and testing now report actual delivery failure instead of showing a false enabled state.
+- Cache `paidia-v114`.
+
 ## v113 — 2026-08-24
 
 - Flattened the desktop Lager controls into a full-width toolbar with wrapping actions and no overlap.

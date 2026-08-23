@@ -31,3 +31,30 @@ test('shift end posts one recorded automatic handoff', () => {
   assert.match(app, /await talkApi\('send',\{text:message\}\)/);
   assert.match(app, /if\(shiftHandoffRecord\(employeeId,dateStr\)\) return true/);
 });
+
+test('profile calendar primary action downloads without another sheet', () => {
+  assert.match(app, /function saveProfileCalendar/);
+  assert.match(app, /querySelector\('#openMyCalendar'\)\.onclick=\(\)=>\{[\s\S]*?saveProfileCalendar\(who\.id,mode\)/);
+});
+
+test('required journal resumes the interrupted shift-end workflow', () => {
+  assert.match(app, /state\._resumeShiftEnd=true/);
+  assert.match(app, /if\(state\._resumeShiftEnd\)[\s\S]*?setTimeout\(\(\)=>sheetShiftEnd\(\),160\)/);
+});
+
+test('handoff resolves and names the next scheduled shift', () => {
+  assert.match(app, /function nextShiftCoverage/);
+  assert.match(app, /next\.people\.map\(person=>person\.name\)/);
+  assert.match(app, /nextLine/);
+});
+
+test('late check-ins persist an administrator alert with the reason', () => {
+  assert.match(app, /DB\.profilePrefs\._lateAlerts\[checkin\.id\]/);
+  assert.match(app, /reason:checkin\.reason/);
+  assert.match(app, /function sheetLateAlert/);
+});
+
+test('notification enablement fails when the test cannot be delivered', () => {
+  assert.match(app, /const delivered=await showAppNotification\(t\('notifTest'\)/);
+  assert.match(app, /if\(!delivered\) return false/);
+});
