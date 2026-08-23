@@ -1,5 +1,11 @@
 # Changelog
 
+## v115 — 2026-08-24
+
+- Closing the Profile sheet while its security and passkey cards are still loading no longer throws an async null-handler error or shows the generic crash toast.
+- Includes the v114 calendar, next-shift handoff, late-alert, and truthful notification-delivery fixes.
+- Cache `paidia-v115`.
+
 ## v114 — 2026-08-24
 
 - The main Apple / `.ics` profile action now downloads the complete eight-week calendar immediately; Google and Outlook remain in the detailed calendar view.

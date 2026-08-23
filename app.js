@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 114,
-  label: 'v114',
+  version: 115,
+  label: 'v115',
   changed: {
-    de: 'Schichtübergabe, Kalender-Speichern und Verspätungs-Mitteilungen zuverlässig verbunden',
-    el: 'Συνδέθηκαν αξιόπιστα παράδοση βάρδιας, αποθήκευση ημερολογίου και ειδοποιήσεις καθυστέρησης',
+    de: 'Schichtübergabe, Kalender und Verspätungs-Mitteilungen ohne Profil-Absturz',
+    el: 'Παράδοση βάρδιας, ημερολόγιο και ειδοποιήσεις καθυστέρησης χωρίς crash προφίλ',
   },
 };
 const T = {
@@ -14359,9 +14359,12 @@ async function sheetSecurityAccess(){
     profileCard.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;
     card.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;
   }
-  sheetEl.querySelector('#securityTutorial').onclick=openAppTutorial;
-  sheetEl.querySelector('#securitySwitch').onclick=()=>{closeSheet();logoutServerSession();};
-  sheetEl.querySelector('#securityLogout').onclick=()=>{closeSheet();logoutServerSession();};
+  const tutorialButton=sheetEl.querySelector('#securityTutorial');
+  if(tutorialButton) tutorialButton.onclick=openAppTutorial;
+  const switchButton=sheetEl.querySelector('#securitySwitch');
+  if(switchButton) switchButton.onclick=()=>{closeSheet();logoutServerSession();};
+  const logoutButton=sheetEl.querySelector('#securityLogout');
+  if(logoutButton) logoutButton.onclick=()=>{closeSheet();logoutServerSession();};
 }
 
 function gateMeta(){
@@ -15000,7 +15003,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||114),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||115),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

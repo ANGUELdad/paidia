@@ -58,3 +58,9 @@ test('notification enablement fails when the test cannot be delivered', () => {
   assert.match(app, /const delivered=await showAppNotification\(t\('notifTest'\)/);
   assert.match(app, /if\(!delivered\) return false/);
 });
+
+test('closing Profile during async security loading cannot assign through null', () => {
+  assert.match(app, /const tutorialButton=sheetEl\.querySelector\('#securityTutorial'\)/);
+  assert.match(app, /if\(tutorialButton\) tutorialButton\.onclick=openAppTutorial/);
+  assert.doesNotMatch(app, /sheetEl\.querySelector\('#securityTutorial'\)\.onclick/);
+});
