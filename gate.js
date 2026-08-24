@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 119,
-    label: 'v119',
+    version: 120,
+    label: 'v120',
     changed: {
-      de: 'Mobile Kinderansicht neu aufgebaut: klare Navigation, kompakte Karten und zuverlässiger Seitenanfang',
-      el: 'Νέα mobile εμπειρία παιδιών: καθαρή πλοήγηση, συμπαγείς κάρτες και σωστή αρχή σελίδας',
+      de: 'Login komplett neu: bildschirmfüllend, klar auf PC und Mobil und ohne Scrollen',
+      el: 'Νέο login: πλήρης οθόνη, καθαρό σε PC και κινητό και χωρίς κύλιση',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -283,9 +283,26 @@
     });
   }
 
-  function renderEntrance() {
+  function gateBuildHtml() {
     const note = (APP_BUILD.changed && (APP_BUILD.changed[lang] || APP_BUILD.changed.de)) || '';
-    body.innerHTML = `
+    return `<div class="gate-build" role="status"><b>${esc(APP_BUILD.label)}</b><span>${esc(note)}</span></div>`;
+  }
+
+  function gateLandmarkHtml() {
+    return `<aside class="gate-landmark" aria-hidden="true">
+      <div class="gate-landmark-top"><span class="gate-landmark-mark">A</span><span>Armonia Thassos</span></div>
+      <div class="gate-landmark-message"><small>THASSOS · GREECE</small><strong>${esc(t('brand'))}</strong></div>
+      <div class="gate-landmark-line"></div>
+    </aside>`;
+  }
+
+  function paintGate(view, content) {
+    body.dataset.gateView = view;
+    body.innerHTML = `${gateLandmarkHtml()}<main class="gate-main">${content}</main>`;
+  }
+
+  function renderEntrance() {
+    paintGate('entrance', `
       ${langSwitch()}
       <div class="gate-head">
         <div class="mark" aria-hidden="true">A</div>
@@ -305,7 +322,7 @@
           <span class="gate-mode-arrow" aria-hidden="true">→</span>
         </button>
       </div>
-      <div class="gate-build" role="status"><b>${esc(APP_BUILD.label)}</b><span>${esc(note)}</span></div>`;
+      ${gateBuildHtml()}`);
     wireLang();
     body.querySelectorAll('[data-mode]').forEach((button) => {
       button.onclick = () => renderProfiles(button.dataset.mode);
@@ -323,7 +340,7 @@
 
   function renderProfiles(mode) {
     const people = mode === 'child' ? CHILDREN : STAFF;
-    body.innerHTML = `
+    paintGate('profiles', `
       ${langSwitch()}
       <div class="gate-head">
         <div class="mark">${mode === 'child' ? 'K' : 'A'}</div>
@@ -340,7 +357,7 @@
             <div class="pr">${esc(person.role || '')}</div>
           </button>`).join('')}
       </div>
-      <button class="gate-back" type="button" id="gHome">${t('back')}</button>`;
+      <div class="gate-footer-row"><button class="gate-back" type="button" id="gHome">${t('back')}</button>${gateBuildHtml()}</div>`);
     wireLang();
     body.querySelector('#gHome').onclick = renderEntrance;
     body.querySelectorAll('[data-p]').forEach((button) => {
@@ -421,11 +438,12 @@
     let buf = '';
     let busy = false;
     let succeeded = false;
-    body.innerHTML = `
+    paintGate('pin', `
       <div class="gate-pin">
-        <div class="pa" style="background:${safeColor(who.color)}">${initials(who.name)}</div>
-        <h3>${esc(who.name)}</h3>
-        <div class="sub">${who.role ? esc(who.role) + ' · ' : ''}${t('pin')}</div>
+        <div class="gate-pin-identity">
+          <div class="pa" style="background:${safeColor(who.color)}">${initials(who.name)}</div>
+          <div><h3>${esc(who.name)}</h3><div class="sub">${who.role ? esc(who.role) + ' · ' : ''}${t('pin')}</div></div>
+        </div>
         <button class="passkey-btn primary-bio" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricLabel())}</b><span class="pk-sub">${esc(t('bioHint'))}</span></span></button>
         <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
         <div class="pindots" id="gpd"></div>
@@ -442,15 +460,14 @@
           <input type="checkbox" id="gRemember" ${rememberChecked()?'checked':''} style="width:18px;height:18px;accent-color:var(--brand,#2f5a63)">
           <span>${esc(t('rememberMe'))}</span>
         </label>
-        <div class="gate-sticky-actions">
-          <button class="btn" id="gLogin" type="button">${t('login')}</button>
+        <button class="btn gate-login-submit" id="gLogin" type="button">${t('login')}</button>
+        <div class="gate-pin-links">
+          <button class="gate-forgot" id="gForgot" type="button">${t('forgot')}</button>
+          <button class="gate-back" type="button" id="gBack">${t('back')}</button>
+          <button class="gate-back" type="button" id="gOther">${t('otherPerson')}</button>
         </div>
-        <button class="gate-forgot" id="gForgot" type="button">${t('forgot')}</button>
-        <div class="muted" style="margin-top:10px;font-size:11.5px">${t('hint')}</div>
-        <button class="gate-back" type="button" id="gBack">${t('back')}</button>
-        <button class="gate-back" type="button" id="gOther" style="margin-top:4px">${t('otherPerson')}</button>
       </div>
-      <div class="gate-build" role="status"><b>${esc(APP_BUILD.label)}</b><span>${esc((APP_BUILD.changed && (APP_BUILD.changed[lang] || APP_BUILD.changed.de)) || '')}</span></div>`;
+      ${gateBuildHtml()}`);
 
     const input = body.querySelector('#gPinInput');
     const errorEl = body.querySelector('#gpErr');
@@ -631,7 +648,7 @@
   }
 
   function renderResetRequest(who, mode) {
-    body.innerHTML = `
+    paintGate('reset', `
       <div class="gate-pin gate-reset">
         <div class="gate-mail-hero" aria-hidden="true">
           <div class="gate-mail-mark">A</div>
@@ -646,7 +663,7 @@
         <div class="gate-status" id="resetStatus" role="status" aria-live="polite"></div>
         <button class="btn" id="resetSend" type="button">${t('sendLink')}</button>
         <button class="gate-back" type="button" id="resetBack">${t('resetBackPin')}</button>
-      </div>`;
+      </div>${gateBuildHtml()}`);
     const status = body.querySelector('#resetStatus');
     const button = body.querySelector('#resetSend');
     body.querySelector('#resetBack').onclick = () => renderPin(who, mode);
@@ -683,7 +700,7 @@
   function renderResetForm(token) {
     // Strip token from URL immediately so it does not linger in history/referrers.
     try { history.replaceState({}, '', location.pathname + location.hash); } catch (error) {}
-    body.innerHTML = `
+    paintGate('reset', `
       <div class="gate-pin gate-reset">
         <div class="gate-mail-hero" aria-hidden="true">
           <div class="gate-mail-mark">A</div>
@@ -698,7 +715,7 @@
         <div class="gate-status" id="changeStatus" role="status" aria-live="polite"></div>
         <button class="btn" id="changePin" type="button">${t('changePin')}</button>
         <button class="gate-back" type="button" id="resetHome">${t('back')}</button>
-      </div>`;
+      </div>${gateBuildHtml()}`);
     body.querySelector('#resetHome').onclick = () => renderEntrance();
     body.querySelector('#changePin').onclick = async () => {
       const pin = body.querySelector('#newPin').value;
@@ -750,8 +767,8 @@
     }
     const softTimer = setTimeout(() => {
       if (!bootSettled && body && !body.querySelector('.gate-head, .gate-pin')) {
-        body.innerHTML = `<div class="gate-head"><div class="mark" aria-hidden="true">A</div>
-          <div class="brand-kicker">Armonia</div><h2>${esc(t('loadingBoot')||'…')}</h2></div>`;
+        paintGate('loading', `<div class="gate-head"><div class="brand-kicker">Armonia</div>
+          <h2>${esc(t('loadingBoot')||'…')}</h2></div>`);
       }
     }, 800);
     const bootTimer = setTimeout(() => {

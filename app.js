@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 119,
-  label: 'v119',
+  version: 120,
+  label: 'v120',
   changed: {
-    de: 'Mobile Kinderansicht neu aufgebaut: klare Navigation, kompakte Karten und zuverlässiger Seitenanfang',
-    el: 'Νέα mobile εμπειρία παιδιών: καθαρή πλοήγηση, συμπαγείς κάρτες και σωστή αρχή σελίδας',
+    de: 'Login komplett neu: bildschirmfüllend, klar auf PC und Mobil und ohne Scrollen',
+    el: 'Νέο login: πλήρης οθόνη, καθαρό σε PC και κινητό και χωρίς κύλιση',
   },
 };
 const T = {
@@ -14685,6 +14685,19 @@ function wireLangSwitch(){
   });
 }
 
+function appGateLandmark(){
+  return `<aside class="gate-landmark" aria-hidden="true">
+    <div class="gate-landmark-top"><span class="gate-landmark-mark">A</span><span>Armonia Thassos</span></div>
+    <div class="gate-landmark-message"><small>THASSOS · GREECE</small><strong>${esc(t('gateBrandLine'))}</strong></div>
+    <div class="gate-landmark-line"></div>
+  </aside>`;
+}
+
+function paintAppGate(view, content){
+  gateBody.dataset.gateView=view;
+  gateBody.innerHTML=`${appGateLandmark()}<main class="gate-main">${content}</main>`;
+}
+
 let pinKeyHandler=null;
 function stopPinKeyboard(){
   if(pinKeyHandler){
@@ -14699,7 +14712,7 @@ function closeGate(){ stopPinKeyboard(); gateEl.classList.remove('on'); }
 /** Βήμα 1 — δύο ξεχωριστές είσοδοι: Προσωπικό / Παιδιά (§31.3). */
 function renderEntrance(){
   stopPinKeyboard();
-  gateBody.innerHTML = `
+  paintAppGate('entrance', `
     ${langSwitch()}
     <div class="gate-head">
       <div class="mark" aria-hidden="true">A</div>
@@ -14708,18 +14721,18 @@ function renderEntrance(){
       <p>${t('whoAreYou')}</p>
     </div>
     <div class="profiles" style="grid-template-columns:1fr">
-      <button class="profile" data-mode="staff" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-        <div class="pa" style="background:#bfdbfe;margin:0;flex:0 0 auto">👥</div>
-        <div><div class="pn" style="font-size:16px">${t('entryStaff')}</div>
-          <div class="pr">${t('entryStaffSub')}</div></div>
+      <button class="profile gate-mode-card" data-mode="staff">
+        <div class="pa gate-mode-icon" aria-hidden="true">${ui('u-person')}</div>
+        <div class="gate-mode-copy"><div class="pn">${t('entryStaff')}</div><div class="pr">${t('entryStaffSub')}</div></div>
+        <span class="gate-mode-arrow" aria-hidden="true">→</span>
       </button>
-      <button class="profile" data-mode="child" style="text-align:left;display:flex;gap:14px;align-items:center;padding:18px 16px">
-        <div class="pa" style="background:#fde68a;margin:0;flex:0 0 auto">🎈</div>
-        <div><div class="pn" style="font-size:16px">${t('entryChild')}</div>
-          <div class="pr">${t('entryChildSub')}</div></div>
+      <button class="profile gate-mode-card" data-mode="child">
+        <div class="pa gate-mode-icon child" aria-hidden="true">${ui('u-sparkle')}</div>
+        <div class="gate-mode-copy"><div class="pn">${t('entryChild')}</div><div class="pr">${t('entryChildSub')}</div></div>
+        <span class="gate-mode-arrow" aria-hidden="true">→</span>
       </button>
     </div>
-    ${gateMeta()}`;
+    ${gateMeta()}`);
   wireLangSwitch();
   gateBody.querySelectorAll('[data-mode]').forEach(b=>{
     b.onclick = () => renderProfiles(b.dataset.mode);
@@ -14732,7 +14745,7 @@ function renderProfiles(mode = 'staff'){
   const people = mode === 'child'
     ? DB.children.map(c=>({id:c.id, name:c.name, color:c.color, sub: childResidence(c)||(c.temporary?'·':'')}))
     : DB.employees.map(e=>({id:e.id, name:e.name, color:e.color, sub:L(e.role)}));
-  gateBody.innerHTML = `
+  paintAppGate('profiles', `
     ${langSwitch()}
     <div class="gate-head">
       <div class="mark">${mode==='child'?'🎈':'👥'}</div>
@@ -14753,8 +14766,7 @@ function renderProfiles(mode = 'staff'){
           <div class="pr">${esc(p.sub)}</div>
         </button>`).join('')}
     </div>
-    <button class="gate-back" id="gHome" style="display:block;margin:6px auto 0">${t('gateBack')}</button>
-    ${gateMeta()}`;
+    <div class="gate-footer-row"><button class="gate-back" id="gHome">${t('gateBack')}</button>${gateMeta()}</div>`);
   wireLangSwitch();
   gateBody.querySelector('#gHome').onclick = renderEntrance;
   gateBody.querySelectorAll('.profile').forEach(b=>{
@@ -14775,11 +14787,12 @@ function renderGatePin(who, mode = 'staff'){
   let busy = false;
   let succeeded = false;
   const pinColor = /^#[0-9a-fA-F]{3,8}$/.test(String(who.color||''))?who.color:'#94a3b8';
-  gateBody.innerHTML = `
+  paintAppGate('pin', `
     <div class="gate-pin">
-      <div class="pa" style="background:${esc(pinColor)}">${initials(who.name)}</div>
-      <h3>${esc(who.name)}</h3>
-      <div class="sub">${mode==='child' ? '' : esc(L(who.role)) + ' · '}${t('gatePin')}</div>
+      <div class="gate-pin-identity">
+        <div class="pa" style="background:${esc(pinColor)}">${initials(who.name)}</div>
+        <div><h3>${esc(who.name)}</h3><div class="sub">${mode==='child' ? '' : esc(L(who.role)) + ' · '}${t('gatePin')}</div></div>
+      </div>
       <button class="passkey-btn primary-bio" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricName())}</b><span class="pk-sub">${esc(biometricHint())}</span></span></button>
       <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
       <div class="pindots" id="gpd" aria-live="polite"></div>
@@ -14790,14 +14803,13 @@ function renderGatePin(who, mode = 'staff'){
         ${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join('')}
         <button type="button" data-k="del" aria-label="Backspace">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="clr" aria-label="Clear">C</button>
       </div>
-      <div class="gate-sticky-actions">
-        <button class="btn" id="gLogin" type="button">${t('loginEntry')}</button>
+      <button class="btn gate-login-submit" id="gLogin" type="button">${t('loginEntry')}</button>
+      <div class="gate-pin-links" style="grid-template-columns:1fr 1fr">
+        <button class="gate-forgot" id="gForgot" type="button">${t('forgotPin')}</button>
+        <button class="gate-back" id="gBack" type="button">${t('gateBack')}</button>
       </div>
-      <div class="muted" style="margin-top:10px;font-size:11.5px">${state.lang==='el'?'Πληκτρολόγησε ή πάτα τα 6 ψηφία.':'PIN tippen oder die 6 Ziffern antippen.'}</div>
-      <button class="gate-back" id="gForgot" type="button" style="display:block;margin:2px auto">${t('forgotPin')}</button>
-      <button class="gate-back" id="gBack" type="button">${t('gateBack')}</button>
     </div>
-    ${gateMeta()}`;
+    ${gateMeta()}`);
   const pinInput=gateBody.querySelector('#gPinInput');
   const draw = () => {
     gateBody.querySelector('#gpd').innerHTML =
@@ -14914,7 +14926,7 @@ function renderGatePin(who, mode = 'staff'){
 function renderResetRequest(who,mode){
   stopPinKeyboard();
   const pinColor = /^#[0-9a-fA-F]{3,8}$/.test(String(who.color||''))?who.color:'#94a3b8';
-  gateBody.innerHTML=`
+  paintAppGate('reset', `
     <div class="gate-pin gate-reset">
       <div class="gate-mail-hero" aria-hidden="true">
         <div class="gate-mail-mark">A</div>
@@ -14929,7 +14941,7 @@ function renderResetRequest(who,mode){
       <div id="resetStatus" class="status-box" style="min-height:36px;font-size:12.5px;display:none" role="status" aria-live="polite"></div>
       <button class="btn" id="resetSend">${t('sendResetLink')}</button>
       <button class="gate-back" id="resetBack" type="button">${t('resetBackPin')}</button>
-    </div>`;
+    </div>${gateMeta()}`);
   const status=gateBody.querySelector('#resetStatus');
   const button=gateBody.querySelector('#resetSend');
   gateBody.querySelector('#resetBack').onclick=()=>renderGatePin(who,mode);
@@ -14965,7 +14977,7 @@ function renderResetForm(token){
     return;
   }
   gateEl.classList.add('on');
-  gateBody.innerHTML=`
+  paintAppGate('reset', `
     <div class="gate-pin gate-reset">
       <div class="pa" style="background:#9bc4b0">🔐</div>
       <h3>${t('resetPinTitle')}</h3>
@@ -14975,7 +14987,7 @@ function renderResetForm(token){
         <input type="password" id="confirmPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password"></label>
       <div id="changeStatus" style="min-height:36px;font-size:12.5px"></div>
       <button class="btn" id="changePin">${t('changePin')}</button>
-    </div>`;
+    </div>${gateMeta()}`);
   gateBody.querySelector('#changePin').onclick=async()=>{
     const pin=gateBody.querySelector('#newPin').value,confirmPin=gateBody.querySelector('#confirmPin').value;
     const status=gateBody.querySelector('#changeStatus'),button=gateBody.querySelector('#changePin');
@@ -15279,7 +15291,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||118),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||120),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

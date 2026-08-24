@@ -1,8 +1,8 @@
 {
-  "version": 119,
-  "label": "v119",
+  "version": 120,
+  "label": "v120",
   "changed": {
-    "de": "Mobile Kinderansicht neu aufgebaut: klare Navigation, kompakte Karten und zuverlässiger Seitenanfang",
-    "el": "Νέα mobile εμπειρία παιδιών: καθαρή πλοήγηση, συμπαγείς κάρτες και σωστή αρχή σελίδας"
+    "de": "Login komplett neu: bildschirmfüllend, klar auf PC und Mobil und ohne Scrollen",
+    "el": "Νέο login: πλήρης οθόνη, καθαρό σε PC και κινητό και χωρίς κύλιση"
   }
 }

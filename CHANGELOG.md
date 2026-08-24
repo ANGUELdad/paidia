@@ -1,5 +1,13 @@
 # Changelog
 
+## v120 — 2026-08-25
+
+- Rebuilt login as a true full-screen doorway with a strong Armonia identity panel on desktop and a compact branded header on mobile.
+- Entrance, profile selection, PIN, passkey, and PIN-reset states now stay inside one viewport without page scrolling.
+- Replaced the narrow desktop login card with a balanced split layout and converted profile selection to a responsive compact grid.
+- Condensed the mobile PIN flow while preserving 40–44px touch targets, biometric login, build information, and recovery controls.
+- Cache `paidia-v120`.
+
 ## v119 — 2026-08-24
 
 - Kids is now a first-class mobile destination in the bottom navigation instead of being hidden behind More.
