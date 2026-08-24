@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 117,
-    label: 'v117',
+    version: 118,
+    label: 'v118',
     changed: {
-      de: 'Wöchentlicher Team-Durchschnitt pro Kind aus allen Mitarbeiter-Bewertungen',
-      el: 'Εβδομαδιαίος μέσος όρος ανά παιδί από τις αξιολογήσεις όλου του προσωπικού',
+      de: 'Kinder sehen nur anonyme Team-Durchschnitte, niemals einzelne Bewertungen oder Namen',
+      el: 'Τα παιδιά βλέπουν μόνο ανώνυμους μέσους όρους, ποτέ ατομικούς βαθμούς ή ονόματα',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

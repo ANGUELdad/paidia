@@ -1,5 +1,12 @@
 # Changelog
 
+## v118 — 2026-08-24
+
+- Child sessions never receive raw staff-evaluation records or evaluator identifiers; the server returns only anonymous weekly aggregates for the signed-in child.
+- Staff sessions retain the full evaluator-owned records required to update the equal-weight weekly average.
+- Child clients purge any raw v117 staff-rating cache and render exclusively from the anonymous server summary.
+- Cache `paidia-v118`.
+
 ## v117 — 2026-08-24
 
 - Every staff member can submit one weekly four-area evaluation for each child without overwriting the child's self-rating.

@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 117,
-  label: 'v117',
+  version: 118,
+  label: 'v118',
   changed: {
-    de: 'Wöchentlicher Team-Durchschnitt pro Kind aus allen Mitarbeiter-Bewertungen',
-    el: 'Εβδομαδιαίος μέσος όρος ανά παιδί από τις αξιολογήσεις όλου του προσωπικού',
+    de: 'Kinder sehen nur anonyme Team-Durchschnitte, niemals einzelne Bewertungen oder Namen',
+    el: 'Τα παιδιά βλέπουν μόνο ανώνυμους μέσους όρους, ποτέ ατομικούς βαθμούς ή ονόματα',
   },
 };
 const T = {
@@ -1883,6 +1883,7 @@ const SEED = {
   gameStats: {},
   kidRatings: [],
   staffKidRatings: [],
+  staffKidRatingSummaries: [],
   kidNotes: [],
   subjects: [],
   subjectGrades: [],
@@ -1897,7 +1898,7 @@ const KEY = 'paidia.v5';
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
-                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable'];
+                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable'];
 
 let DB = load();
 function load(){
@@ -1910,7 +1911,7 @@ function load(){
     }
   }catch(e){ console.warn('load failed', e); }
   // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
-  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
+  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
     .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object') db.productOverrides = {};
@@ -1974,6 +1975,13 @@ function applySharedPayload(data){
       : (Array.isArray(data[k]) ? data[k] : []);
     changed = true;
   });
+  if(state.mode==='child'){
+    // Raw staff evaluations are private. A child receives only the anonymous
+    // server-computed weekly summaries and drops any old v117 cache immediately.
+    DB.staffKidRatings=[];
+    DB.staffKidRatingSummaries=Array.isArray(data.staffKidRatingSummaries)?data.staffKidRatingSummaries:[];
+    changed=true;
+  }
   if(typeof data.revision === 'number'){
     sharedRevision = data.revision;
     localStorage.setItem('paidia.sharedRev', String(sharedRevision));
@@ -10371,6 +10379,12 @@ function calculateStaffKidWeeklySummary(records, areas){
 
 function staffKidWeeklySummary(kidId, week){
   const wk=week||kidWeekKey();
+  if(state.mode==='child'){
+    const summary=(DB.staffKidRatingSummaries||[]).find(row=>row.kidId===kidId && row.week===wk);
+    return summary
+      ? {week:wk,average:Number(summary.average)||0,raterCount:Number(summary.raterCount)||0,areas:summary.areas||{}}
+      : {week:wk,average:0,raterCount:0,areas:{}};
+  }
   const records=(DB.staffKidRatings||[]).filter(r=>r.kidId===kidId && r.week===wk && Number(r.value)>0);
   return {week:wk,...calculateStaffKidWeeklySummary(records,KID_RATE_AREAS)};
 }
@@ -10672,6 +10686,10 @@ function childRewardsView(kidId){
 }
 
 function renderChild(){
+  if((DB.staffKidRatings||[]).length){
+    DB.staffKidRatings=[];
+    saveLocal();
+  }
   const c = state.child;
   const today = iso(new Date());
   if(!state.date) state.date = today;
@@ -15255,7 +15273,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||117),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||118),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

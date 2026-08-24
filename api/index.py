@@ -570,7 +570,7 @@ def entry(flask_path: str = ""):
             since = int(request.args.get("since") or 0)
         except (TypeError, ValueError):
             since = 0
-        return _json(200, paidia.get_ops(since))
+        return _json(200, paidia.get_ops_for_session(since, session))
 
     if request.method == "POST" and api in {"/ops", "/api/ops"}:
         session = _session_from_request()

@@ -282,6 +282,7 @@ OPS_KEYS = (
     "xpLog",
     "gameStats",
     "kidRatings",
+    "staffKidRatings",
     "kidNotes",
     "subjects",
     "subjectGrades",
@@ -295,6 +296,7 @@ OPS_LIST_CAPS = {
     "choreSubmissions": 2000,
     "xpLog": 4000,
     "kidRatings": 4000,
+    "staffKidRatings": 12000,
     "kidNotes": 4000,
     "subjects": 200,
     "subjectGrades": 4000,
@@ -1557,6 +1559,59 @@ def get_ops(since: int = 0) -> dict:
                 "changed": False,
             }
     return ops_snapshot(True)
+
+
+STAFF_KID_RATING_AREAS = ("school", "home", "friends", "mood")
+
+
+def staff_rating_summaries_for_kid(kid_id: str) -> list[dict]:
+    """Return anonymous weekly aggregates; never expose evaluator identities."""
+    grouped: dict[str, list[dict]] = {}
+    with OPS_LOCK:
+        source_rows = list(OPS_STATE.get("staffKidRatings") or [])
+    for row in source_rows:
+        if not isinstance(row, dict) or str(row.get("kidId") or "") != kid_id:
+            continue
+        week = str(row.get("week") or "").strip()
+        rater_id = str(row.get("raterId") or "").strip()
+        area = str(row.get("area") or "").strip()
+        try:
+            value = float(row.get("value") or 0)
+        except (TypeError, ValueError):
+            continue
+        if not week or not rater_id or area not in STAFF_KID_RATING_AREAS or not 1 <= value <= 5:
+            continue
+        grouped.setdefault(week, []).append({"raterId": rater_id, "area": area, "value": value})
+
+    summaries = []
+    for week, rows in sorted(grouped.items()):
+        by_rater: dict[str, list[float]] = {}
+        for row in rows:
+            by_rater.setdefault(row["raterId"], []).append(row["value"])
+        rater_averages = [sum(values) / len(values) for values in by_rater.values()]
+        area_averages = {}
+        for area in STAFF_KID_RATING_AREAS:
+            values = [row["value"] for row in rows if row["area"] == area]
+            area_averages[area] = round(sum(values) / len(values), 1) if values else 0
+        summaries.append({
+            "kidId": kid_id,
+            "week": week,
+            "average": round(sum(rater_averages) / len(rater_averages), 1),
+            "raterCount": len(by_rater),
+            "areas": area_averages,
+        })
+    return summaries
+
+
+def get_ops_for_session(since: int, session: dict) -> dict:
+    """Child sessions receive aggregates only, never raw staff ratings."""
+    payload = get_ops(since)
+    if session.get("mode") != "child" or not payload.get("changed"):
+        return payload
+    kid_id = str(session.get("profile_id") or "").strip()
+    payload.pop("staffKidRatings", None)
+    payload["staffKidRatingSummaries"] = staff_rating_summaries_for_kid(kid_id) if kid_id else []
+    return payload
 
 
 # Keys a child's own device may write. Everything else on the ops blob is
@@ -4120,7 +4175,7 @@ class Handler(SimpleHTTPRequestHandler):
                 since = int(urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get("since", ["0"])[0])
             except (TypeError, ValueError):
                 since = 0
-            self.json_response(200, get_ops(since))
+            self.json_response(200, get_ops_for_session(since, session))
             return
         if parsed.path == "/api/whatsapp/health":
             config = whatsapp_config()

@@ -1,8 +1,8 @@
 {
-  "version": 117,
-  "label": "v117",
+  "version": 118,
+  "label": "v118",
   "changed": {
-    "de": "Wöchentlicher Team-Durchschnitt pro Kind aus allen Mitarbeiter-Bewertungen",
-    "el": "Εβδομαδιαίος μέσος όρος ανά παιδί από τις αξιολογήσεις όλου του προσωπικού"
+    "de": "Kinder sehen nur anonyme Team-Durchschnitte, niemals einzelne Bewertungen oder Namen",
+    "el": "Τα παιδιά βλέπουν μόνο ανώνυμους μέσους όρους, ποτέ ατομικούς βαθμούς ή ονόματα"
   }
 }
