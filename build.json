@@ -1,8 +1,8 @@
 {
-  "version": 118,
-  "label": "v118",
+  "version": 119,
+  "label": "v119",
   "changed": {
-    "de": "Kinder sehen nur anonyme Team-Durchschnitte, niemals einzelne Bewertungen oder Namen",
-    "el": "Τα παιδιά βλέπουν μόνο ανώνυμους μέσους όρους, ποτέ ατομικούς βαθμούς ή ονόματα"
+    "de": "Mobile Kinderansicht neu aufgebaut: klare Navigation, kompakte Karten und zuverlässiger Seitenanfang",
+    "el": "Νέα mobile εμπειρία παιδιών: καθαρή πλοήγηση, συμπαγείς κάρτες και σωστή αρχή σελίδας"
   }
 }

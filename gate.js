@@ -34,14 +34,42 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 118,
-    label: 'v118',
+    version: 119,
+    label: 'v119',
     changed: {
-      de: 'Kinder sehen nur anonyme Team-Durchschnitte, niemals einzelne Bewertungen oder Namen',
-      el: 'Τα παιδιά βλέπουν μόνο ανώνυμους μέσους όρους, ποτέ ατομικούς βαθμούς ή ονόματα',
+      de: 'Mobile Kinderansicht neu aufgebaut: klare Navigation, kompakte Karten und zuverlässiger Seitenanfang',
+      el: 'Νέα mobile εμπειρία παιδιών: καθαρή πλοήγηση, συμπαγείς κάρτες και σωστή αρχή σελίδας',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
+  const BUILD_RELOAD_KEY = 'paidia.buildReload';
+
+  // A long-lived installed PWA can still start from an older HTML shell. Check
+  // the tiny network manifest before booting, clear only Paidia caches, and do
+  // one cache-busted navigation. The session marker prevents reload loops.
+  async function refreshStaleShell() {
+    try {
+      const response = await fetch('build.json?boot=' + Date.now(), { cache: 'no-store' });
+      const remote = response.ok ? await response.json() : null;
+      if (!remote || !Number.isFinite(Number(remote.version)) || Number(remote.version) === Number(APP_BUILD.version)) return false;
+      const target = String(remote.version);
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.filter((key) => key.startsWith('paidia-v')).map((key) => caches.delete(key)));
+      }
+      if (sessionStorage.getItem(BUILD_RELOAD_KEY) !== target) {
+        sessionStorage.setItem(BUILD_RELOAD_KEY, target);
+        const url = new URL(location.href);
+        url.searchParams.set('release', target);
+        location.replace(url.href);
+        return true;
+      }
+      Object.assign(APP_BUILD, remote);
+    } catch (error) {
+      /* Offline boot continues from the installed shell. */
+    }
+    return false;
+  }
 
   // Drop caches belonging to older builds. Deliberately does NOT unregister the
   // service worker and does NOT reload: unregistering forced a re-register on
@@ -708,6 +736,7 @@
   }
 
   async function start() {
+    if (await refreshStaleShell()) return;
     if (await purgeStaleShell()) return;
     ensureServiceWorker();
     document.documentElement.lang = lang;

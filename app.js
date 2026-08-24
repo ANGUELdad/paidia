@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 118,
-  label: 'v118',
+  version: 119,
+  label: 'v119',
   changed: {
-    de: 'Kinder sehen nur anonyme Team-Durchschnitte, niemals einzelne Bewertungen oder Namen',
-    el: 'Τα παιδιά βλέπουν μόνο ανώνυμους μέσους όρους, ποτέ ατομικούς βαθμούς ή ονόματα',
+    de: 'Mobile Kinderansicht neu aufgebaut: klare Navigation, kompakte Karten und zuverlässiger Seitenanfang',
+    el: 'Νέα mobile εμπειρία παιδιών: καθαρή πλοήγηση, συμπαγείς κάρτες και σωστή αρχή σελίδας',
   },
 };
 const T = {
@@ -10079,7 +10079,7 @@ function viewKidProfile(kidId){
     || `<p class="muted">${esc(t('hwEmpty'))}</p>`;
   return `<div class="kids-shell kid-profile">
     <button type="button" class="btn ghost sm" id="kidProfileBack">← ${esc(t('navKids'))}</button>
-    <header class="kid-profile-mast hero-texture">
+    <header class="kid-profile-mast">
       <span class="kid-dir-av lg" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0])}</span>
       <div class="grow"><p class="brand-kicker">Armonia</p><h2>${esc(k.name)}</h2><p>${esc(t('xpTotal')(xp))} · ${esc(t('xpLevel')(lv))}</p></div>
       ${progressRingHtml(pct,'Lv '+lv)}
@@ -10091,22 +10091,22 @@ function viewKidProfile(kidId){
       <div><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):'—'}</b><span>${esc(t('staffWeekAverage'))}</span></div>
     </section>
     <div class="kid-profile-grid">
+      <section class="card pine-settle kid-team-rating">${staffRatingPanelHtml(k.id)}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolSubjects'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>${subs}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('gameProgress'))}</span><span class="hrs">${summary.gamePlays} ${esc(t('gameRounds'))}</span></div>${staffGameProgressHtml(k.id)}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolAttendance'))}</span></div><div class="att-week">${attWeek.join('')}</div></section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolHomework'))}</span><span class="hrs">${summary.homeworkOpen} ${esc(t('homeworkOpen'))}</span></div>${hw}</section>
-      <section class="card pine-settle">${staffRatingPanelHtml(k.id)}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span><span class="hrs">${esc(t('kidRateKicker'))}</span></div>${rates}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidBadges'))}</span><span class="hrs">${summary.streak} ${esc(t('kidStreak'))}</span></div>${kidBadgesHtml(xp)}</section>
     </div>
     <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNotesTitle'))}</span></div>
-      <div class="row" style="gap:8px;margin-bottom:8px">
+      <div class="row kid-note-compose" style="gap:8px;margin-bottom:8px">
         <input id="staffKidNote" class="inp grow" placeholder="${esc(t('kidNotesPlaceholder'))}"/>
         <button type="button" class="btn sm" id="staffKidNoteSave" data-note-kid="${k.id}">${esc(t('kidNotesSave'))}</button>
       </div>
       <ul class="kid-note-list">${notes}</ul>
     </section>
-    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('headerScheduleDay'))}</span></div><ul>${recent}</ul></section>
+    <section class="card pine-settle kid-recent-card"><div class="block-h"><span class="t">${esc(t('headerScheduleDay'))}</span></div><ul>${recent}</ul></section>
   </div>`;
 }
 
@@ -10214,14 +10214,19 @@ function childSubjectsReadonlyHtml(kidId){
 }
 
 function wireKidsView(v){
+  const resetKidsScroll=()=>requestAnimationFrame(()=>{
+    window.scrollTo({top:0,left:0,behavior:'auto'});
+    document.scrollingElement?.scrollTo?.({top:0,left:0,behavior:'auto'});
+    document.getElementById('view')?.scrollTo?.({top:0,left:0,behavior:'auto'});
+  });
   v.querySelectorAll('[data-kids-pane]').forEach(b=>{
-    b.onclick=()=>{ state.kidsPane=b.dataset.kidsPane; state.staffKidId=null; render(); };
+    b.onclick=()=>{ state.kidsPane=b.dataset.kidsPane; state.staffKidId=null; render(); resetKidsScroll(); };
   });
   v.querySelectorAll('[data-open-kid]').forEach(b=>{
-    b.onclick=()=>{ state.staffKidId=b.dataset.openKid; render(); };
+    b.onclick=()=>{ state.staffKidId=b.dataset.openKid; render(); resetKidsScroll(); };
   });
   const back=v.querySelector('#kidProfileBack');
-  if(back) back.onclick=()=>{ state.staffKidId=null; render(); };
+  if(back) back.onclick=()=>{ state.staffKidId=null; render(); resetKidsScroll(); };
   v.querySelectorAll('[data-grade-kid]').forEach(b=>{
     b.onclick=()=>{
       if(setSubjectGrade(b.dataset.gradeKid, b.dataset.gradeSub, Number(b.dataset.gradeVal))){
@@ -13548,7 +13553,7 @@ function render(){
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   const dockMore=document.getElementById('dockMore');
   if(dockMore){
-    dockMore.classList.toggle('on', ['gallery','kids','talk','book'].includes(state.tab));
+    dockMore.classList.toggle('on', ['gallery','talk','book'].includes(state.tab));
     dockMore.setAttribute('aria-label', t('navMore'));
   }
   const dockMoreLabel=document.getElementById('dockMoreLabel');
@@ -14300,12 +14305,12 @@ document.querySelectorAll('nav button[data-tab]').forEach(b=>{
       return;
     }
     render();
+    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
   };
 });
 function sheetMobileMore(){
   const items=[
     ['gallery','u-camera',t('navGallery')],
-    ['kids','u-person',t('navKids')],
     ['talk','u-chat',t('navTalk')],
     ['book','u-book',t('navBook')],
   ];
@@ -14321,6 +14326,7 @@ function sheetMobileMore(){
       state.galleryLoading=true; render(); refreshGallery({silent:true}).finally(()=>render()); return;
     }
     render();
+    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
   });
   const chat=sheetEl.querySelector('[data-more-chat]');
   if(chat) chat.onclick=()=>{ closeSheet(); toggleChatPanel(); };

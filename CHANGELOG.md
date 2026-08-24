@@ -1,5 +1,14 @@
 # Changelog
 
+## v119 — 2026-08-24
+
+- Kids is now a first-class mobile destination in the bottom navigation instead of being hidden behind More.
+- The mobile Kids directory uses one-row filters, compact overview counters, and three readable signals per child instead of squeezing six desktop metrics into every card.
+- Opening a child, changing a Kids section, or returning to the directory reliably resets the view to the top.
+- Child profiles prioritize the anonymous weekly team evaluation, use touch-sized rating controls, and remove redundant mobile schedule clutter.
+- Installed and long-lived PWA sessions detect a newer release manifest before app boot and perform one safe cache-busted refresh.
+- Cache `paidia-v119`.
+
 ## v118 — 2026-08-24
 
 - Child sessions never receive raw staff-evaluation records or evaluator identifiers; the server returns only anonymous weekly aggregates for the signed-in child.
