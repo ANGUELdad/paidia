@@ -1,8 +1,8 @@
 {
-  "version": 115,
-  "label": "v115",
+  "version": 116,
+  "label": "v116",
   "changed": {
-    "de": "Schichtübergabe, Kalender und Verspätungs-Mitteilungen ohne Profil-Absturz",
-    "el": "Παράδοση βάρδιας, ημερολόγιο και ειδοποιήσεις καθυστέρησης χωρίς crash προφίλ"
+    "de": "Kinderbereich mit Noten, Schulübersicht, Spielen und synchronisiertem Fortschritt neu aufgebaut",
+    "el": "Νέα περιοχή παιδιών με βαθμούς, σχολική εικόνα, παιχνίδια και συγχρονισμένη πρόοδο"
   }
 }

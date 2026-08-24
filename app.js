@@ -4,17 +4,23 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 115,
-  label: 'v115',
+  version: 116,
+  label: 'v116',
   changed: {
-    de: 'Schichtübergabe, Kalender und Verspätungs-Mitteilungen ohne Profil-Absturz',
-    el: 'Παράδοση βάρδιας, ημερολόγιο και ειδοποιήσεις καθυστέρησης χωρίς crash προφίλ',
+    de: 'Kinderbereich mit Noten, Schulübersicht, Spielen und synchronisiertem Fortschritt neu aufgebaut',
+    el: 'Νέα περιοχή παιδιών με βαθμούς, σχολική εικόνα, παιχνίδια και συγχρονισμένη πρόοδο',
   },
 };
 const T = {
   de: {
     appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navMore:'Mehr',
-    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', kidsHeroHint:'Profile, Fächer, Anwesenheit und Hausaufgaben', kidsEmpty:'Keine Kinder hinterlegt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
+    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
+    kidsOverview:'Übersicht', kidsTracked:n=>`${n} Kinder`, kidsOpenHomework:n=>`${n} Hausaufgaben offen`,
+    schoolOverview:'Schulübersicht', gradeAverage:'Notenschnitt', gradeNoData:'Noch keine Noten', attendanceWeek:'Anwesenheit diese Woche',
+    homeworkOpen:'Offene Hausaufgaben', gameProgress:'Spiele & Fortschritt', gameWins:'Spiel-Siege', gameRounds:'Spielrunden',
+    kidGameRounds:n=>n===1?'1 Runde':`${n} Runden`, kidGameNone:'Noch keine gespeicherten Spielrunden.',
+    childSchoolTitle:'Meine Schule', childSchoolHint:'Noten, Anwesenheit und Hausaufgaben dieser Woche',
+    childGameChallenge:'Dein nächstes Spiel', childPlayNow:'Jetzt spielen', childGrades:'Meine Noten',
     logout:'Profil', noUser:'Nicht angemeldet',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Team sprechen', topTutorial:'Tutorial',
     topAdd:'＋ Eintrag', topIn:'＋ Ein', topOut:'− Aus', topBoard:'Bewegung', topFood:'＋ Ware',
@@ -768,7 +774,13 @@ const T = {
   },
   el: {
     appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navMore:'Άλλα',
-    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', kidsHeroHint:'Προφίλ, μαθήματα, παρουσία και εργασίες', kidsEmpty:'Δεν υπάρχουν παιδιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
+    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
+    kidsOverview:'Επισκόπηση', kidsTracked:n=>`${n} παιδιά`, kidsOpenHomework:n=>`${n} ανοιχτές εργασίες`,
+    schoolOverview:'Σχολική εικόνα', gradeAverage:'Μέσος βαθμός', gradeNoData:'Δεν υπάρχουν βαθμοί ακόμα', attendanceWeek:'Παρουσία αυτή την εβδομάδα',
+    homeworkOpen:'Ανοιχτές εργασίες', gameProgress:'Παιχνίδια & πρόοδος', gameWins:'Νίκες παιχνιδιών', gameRounds:'Γύροι παιχνιδιών',
+    kidGameRounds:n=>n===1?'1 γύρος':`${n} γύροι`, kidGameNone:'Δεν υπάρχουν αποθηκευμένοι γύροι ακόμα.',
+    childSchoolTitle:'Το σχολείο μου', childSchoolHint:'Βαθμοί, παρουσία και εργασίες αυτής της εβδομάδας',
+    childGameChallenge:'Το επόμενο παιχνίδι σου', childPlayNow:'Παίξε τώρα', childGrades:'Οι βαθμοί μου',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Ομάδα — συνομιλία', topTutorial:'Tutorial',
     topAdd:'＋ Εγγραφή', topIn:'＋ Εισ', topOut:'− Έξ', topBoard:'Κίνηση', topFood:'＋ Είδος',
@@ -8874,12 +8886,24 @@ function shuffleInPlace(arr){
 function gameBestKey(id){ return `paidia.game.best.${id}`; }
 function gameHistKey(id){ return `paidia.game.hist.${id}`; }
 function readGameBest(id){
+  const kidId=state.child?.id;
+  const synced=kidId?Number(loadGameStats(kidId)?.bests?.[id]):0;
+  if(Number.isFinite(synced) && synced>0) return synced;
   try{ return Number(localStorage.getItem(gameBestKey(id)))||0; }catch{ return 0; }
 }
-function writeGameBest(id, score){
+function writeGameBest(id, score, {lower=false}={}){
   const prev=readGameBest(id);
-  if(score>prev){
+  const improved=lower ? (!prev || score<prev) : score>prev;
+  if(improved){
     try{ localStorage.setItem(gameBestKey(id), String(score)); }catch{}
+    if(state.child?.id){
+      const stats=loadGameStats(state.child.id);
+      stats.bests={...(stats.bests||{}),[id]:score};
+      stats.lastGameId=id;
+      stats.lastPlayedAt=Date.now();
+      DB.gameStats[gameStatsKey(state.child.id)]=stats;
+      save();
+    }
     return score;
   }
   return prev;
@@ -9323,6 +9347,14 @@ function stopChildGameTimers(){
 function startChildGame(id){
   stopChildGameTimers();
   state.gameId = id;
+  if(state.child?.id && CHILD_GAMES.some(game=>game.id===id)){
+    const stats=loadGameStats(state.child.id);
+    stats.plays={...(stats.plays||{}),[id]:Number(stats.plays?.[id]||0)+1};
+    stats.lastGameId=id;
+    stats.lastPlayedAt=Date.now();
+    DB.gameStats[gameStatsKey(state.child.id)]=stats;
+    save();
+  }
   if(id==='memory'){
     const deck = MEMORY_EMOJIS.flatMap((emoji,i)=>[
       {id:`a${i}`,emoji,pair:i,open:false,done:false,justMatched:false},
@@ -9383,7 +9415,7 @@ function leaveChildGame(){
 function gameStatsKey(kidId){ return kidId||'anon'; }
 function loadGameStats(kidId){
   DB.gameStats ||= {};
-  return DB.gameStats[gameStatsKey(kidId)] || {streak:0, lastDay:'', wins:0, xp:0};
+  return DB.gameStats[gameStatsKey(kidId)] || {streak:0, lastDay:'', wins:0, xp:0, bests:{}, plays:{}};
 }
 function grantXp(kidId, choreId, xp, submissionId){
   if(!kidId || !xp) return;
@@ -9614,6 +9646,37 @@ function kidDockHtml(active){
     </button>`).join('')}</nav>`;
 }
 
+function childSchoolSnapshotHtml(kidId){
+  const summary=childProgressSummary(kidId);
+  const gradeRows=summary.grades.filter(row=>row.score>0).slice(0,4).map(row=>`
+    <span class="child-grade-chip"><b>${esc(subjectLabel(row.subject))}</b>${starsHtml(row.score)}</span>`).join('');
+  return `<section class="child-school-card">
+    <div class="kid-panel-h"><div><b>${esc(t('childSchoolTitle'))}</b><span>${esc(t('childSchoolHint'))}</span></div>
+      <button class="chip" type="button" data-child-view="rate">${esc(t('childGrades'))}</button></div>
+    <div class="child-school-kpis">
+      <span><b>${summary.gradeAverage||'—'}</b>${esc(t('gradeAverage'))}</span>
+      <span><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:'—'}</b>${esc(t('schoolAttendance'))}</span>
+      <span><b>${summary.homeworkOpen}</b>${esc(t('homeworkOpen'))}</span>
+    </div>
+    <div class="child-grade-strip">${gradeRows||`<span class="muted">${esc(t('gradeNoData'))}</span>`}</div>
+  </section>`;
+}
+
+function childGameChallengeHtml(kidId){
+  const summary=childProgressSummary(kidId);
+  const game=recommendedGameForKid(kidId);
+  return `<button type="button" class="child-game-challenge" data-game-challenge="${game.id}" style="--game-tint:${game.tint}">
+    <span class="kid-game-icon" aria-hidden="true">${game.emoji}</span>
+    <span class="grow"><small>${esc(t('childGameChallenge'))}</small><b>${esc(t(game.titleKey))}</b><span>${esc(t(game.hintKey))}</span></span>
+    <span class="child-game-reward">+${game.xp||0} XP<br><strong>${esc(t('childPlayNow'))} →</strong></span>
+  </button>
+  <div class="child-game-stats">
+    <span><b>${summary.game.wins||0}</b>${esc(t('gameWins'))}</span>
+    <span><b>${summary.gamePlays}</b>${esc(t('gameRounds'))}</span>
+    <span><b>${summary.streak}</b>${esc(t('kidStreak'))}</span>
+  </div>`;
+}
+
 function childStartView(c){
   const today = iso(new Date());
   const dateStr = state.date || today;
@@ -9663,6 +9726,7 @@ function childStartView(c){
         ${levelMeterHtml(pct)}
       </div>
     </section>
+    ${childSchoolSnapshotHtml(c.id)}
     <section class="kid-panel">
       <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||0))}</span></div>
       ${lessonRows}
@@ -9674,6 +9738,7 @@ function childStartView(c){
       <button type="button" class="course-tile sun" data-child-view="rewards"><span class="bar"></span><b>${esc(t('kidCourseStars'))}</b><span>${esc(t('kidStarsCollected')(xp))}</span><div class="meter">${levelMeterHtml(pct)}</div></button>
       <button type="button" class="course-tile out" data-child-view="games"><span class="bar"></span><b>${esc(t('kidCourseGames'))}</b><span>${esc(t('kidGamesPlay'))}</span><div class="meter">${levelMeterHtml(25)}</div></button>
     </div>
+    ${childGameChallengeHtml(c.id)}
     <div class="kid-secondary">
       <button type="button" class="chip" data-child-view="rate">${esc(t('kidNavRate'))}</button>
       <button type="button" class="chip" data-child-view="bonus">${esc(t('kidBonusTitle'))}</button>
@@ -9797,6 +9862,56 @@ function setAttendance(kidId, dateStr, status){
   return true;
 }
 
+function childProgressSummary(kidId){
+  ensureSchoolDb();
+  const week=kidWeekKey();
+  const grades=activeSubjects().map(subject=>({
+    subject,
+    score:subjectGradeFor(kidId,subject.id,week),
+  }));
+  const scored=grades.filter(row=>row.score>0);
+  const gradeAverage=scored.length
+    ? Math.round((scored.reduce((sum,row)=>sum+row.score,0)/scored.length)*10)/10
+    : 0;
+  const weekDays=weekDates(week);
+  const attendance=weekDays.map(date=>attendanceFor(kidId,date)).filter(Boolean);
+  const present=attendance.filter(row=>row.status==='present').length;
+  const attendancePct=attendance.length?Math.round((present/attendance.length)*100):0;
+  const homework=(DB.homework||[]).filter(row=>!row.kidId||row.kidId===kidId);
+  const homeworkDone=homework.filter(row=>row.done).length;
+  const homeworkOpen=homework.length-homeworkDone;
+  const game=loadGameStats(kidId);
+  const bests=Object.entries(game.bests||{}).filter(([,value])=>Number(value)>0);
+  const plays=Object.values(game.plays||{}).reduce((sum,value)=>sum+Number(value||0),0);
+  return {
+    week,grades,gradeAverage,gradedCount:scored.length,
+    attendancePct,attendanceRecorded:attendance.length,present,
+    homeworkDone,homeworkOpen,homeworkTotal:homework.length,
+    game,gameBests:bests,gamePlays:plays,
+    xp:kidXp(kidId),level:kidLevel(kidXp(kidId)),streak:kidStreakDays(kidId),
+  };
+}
+
+function recommendedGameForKid(kidId){
+  const stats=loadGameStats(kidId);
+  const playable=CHILD_GAMES.filter(game=>game.featured && game.id!=='eduhub');
+  return playable.slice().sort((a,b)=>Number(stats.plays?.[a.id]||0)-Number(stats.plays?.[b.id]||0))[0]||CHILD_GAMES[0];
+}
+
+function staffGameProgressHtml(kidId){
+  const summary=childProgressSummary(kidId);
+  const rows=CHILD_GAMES
+    .filter(game=>Number(summary.game.bests?.[game.id]||0)>0 || Number(summary.game.plays?.[game.id]||0)>0)
+    .sort((a,b)=>Number(summary.game.plays?.[b.id]||0)-Number(summary.game.plays?.[a.id]||0))
+    .slice(0,6)
+    .map(game=>`<div class="kid-game-row">
+      <span class="kid-game-icon" aria-hidden="true">${game.emoji}</span>
+      <span class="grow"><b>${esc(t(game.titleKey))}</b><small>${esc(t('kidGameRounds')(Number(summary.game.plays?.[game.id]||0)))}</small></span>
+      <strong>${Number(summary.game.bests?.[game.id]||0)||'—'}</strong>
+    </div>`).join('');
+  return rows||`<p class="muted">${esc(t('kidGameNone'))}</p>`;
+}
+
 function starsHtml(score, {interactive=false, kidId='', subjectId=''}={}){
   const s = Math.max(0, Math.min(5, Number(score)||0));
   const cells=[];
@@ -9860,16 +9975,31 @@ function viewKids(){
   const pane=state.kidsPane||'directory';
   const kids=(DB.children||[]).filter(k=>!k.temporary || true);
   const dir=kids.map(k=>{
-    const xp=kidXp(k.id);
-    const lv=kidLevel(xp);
+    const summary=childProgressSummary(k.id);
     const att=attendanceFor(k.id, state.date||iso(new Date()));
     const attLbl=att?t('att_'+att.status):'·';
     return `<button type="button" class="kid-dir-card pine-settle" data-open-kid="${k.id}">
       <span class="kid-dir-av" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0]||'?')}</span>
-      <span class="grow"><b>${esc(k.name)}</b><small>Lv ${lv} · ${xp} XP · ${esc(attLbl)}</small></span>
-      ${ui('u-person','sm')}
+      <span class="kid-dir-main grow">
+        <span class="kid-dir-name"><b>${esc(k.name)}</b><small>${esc(attLbl)}</small></span>
+        <span class="kid-dir-metrics">
+          <span><b>${summary.gradeAverage||'—'}</b>${esc(t('gradeAverage'))}</span>
+          <span><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:'—'}</b>${esc(t('schoolAttendance'))}</span>
+          <span><b>${summary.homeworkOpen}</b>${esc(t('schoolHomework'))}</span>
+          <span><b>${summary.xp}</b>XP · Lv ${summary.level}</span>
+          <span><b>${summary.game.wins||0}</b>${esc(t('gameWins'))}</span>
+        </span>
+      </span>
+      <span class="kid-dir-arrow" aria-hidden="true">→</span>
     </button>`;
   }).join('');
+  const openHomework=(DB.homework||[]).filter(row=>!row.done).length;
+  const graded=(DB.children||[]).filter(child=>childProgressSummary(child.id).gradedCount>0).length;
+  const overview=`<section class="kids-overview" aria-label="${esc(t('kidsOverview'))}">
+    <div><b>${kids.length}</b><span>${esc(t('kidsTracked')(kids.length))}</span></div>
+    <div><b>${graded}</b><span>${esc(t('childGrades'))}</span></div>
+    <div><b>${openHomework}</b><span>${esc(t('kidsOpenHomework')(openHomework))}</span></div>
+  </section>`;
   const tabs=`<div class="kids-pane-tabs" role="tablist">
     <button type="button" class="chip ${pane==='directory'?'on':''}" data-kids-pane="directory">${esc(t('navKids'))}</button>
     <button type="button" class="chip ${pane==='attendance'?'on':''}" data-kids-pane="attendance">${esc(t('schoolAttendance'))}</button>
@@ -9878,7 +10008,7 @@ function viewKids(){
     ${isAdminUser()?`<button type="button" class="chip ${pane==='subjects'?'on':''}" data-kids-pane="subjects">${esc(t('schoolSubjects'))}</button>`:''}
   </div>`;
   let body='';
-  if(pane==='directory') body=`<div class="kid-dir-list">${dir||emptyState(ui('u-person'), t('kidsEmpty'))}</div>`;
+  if(pane==='directory') body=`${overview}<div class="kid-dir-list">${dir||emptyState(ui('u-person'), t('kidsEmpty'))}</div>`;
   else if(pane==='attendance') body=viewAttendanceGrid();
   else if(pane==='homework') body=viewHomeworkStaff();
   else if(pane==='timetable') body=viewSchoolTimetable();
@@ -9898,7 +10028,10 @@ function viewKids(){
 function viewKidProfile(kidId){
   ensureSchoolDb();
   const k=kid(kidId); if(!k){ state.staffKidId=null; return viewKids(); }
-  const xp=kidXp(k.id), lv=kidLevel(xp), pct=Math.min(100, Math.round((xp%100)));
+  const summary=childProgressSummary(k.id);
+  const xp=summary.xp, lv=summary.level;
+  const nextXp=XP_LEVELS[Math.min(lv+1,XP_LEVELS.length-1)],curXp=XP_LEVELS[lv];
+  const pct=lv>=XP_LEVELS.length-1?100:Math.round(((xp-curXp)/Math.max(1,nextXp-curXp))*100);
   const wk=kidWeekKey();
   const subs=activeSubjects().map(s=>{
     const sc=subjectGradeFor(k.id, s.id, wk);
@@ -9923,24 +10056,30 @@ function viewKidProfile(kidId){
     const a=attendanceFor(k.id,ds);
     attWeek.push(`<button type="button" class="att-chip ${a?a.status:''}" data-att-kid="${k.id}" data-att-date="${ds}" data-att-cycle="1">${DAY_NAMES[state.lang][(d.getDay()+6)%7]} ${a?t('att_'+a.status):'—'}</button>`);
   }
-  const hw=(DB.homework||[]).filter(h=>!h.kidId || h.kidId===k.id).slice(0,8)
-    .map(h=>`<label class="hw-row"><input type="checkbox" data-hw-toggle="${h.id}" ${h.done?'checked':''}/> <span>${esc(h.title||'')}</span></label>`).join('')
+  const hw=(DB.homework||[]).filter(h=>!h.kidId || h.kidId===k.id).sort((a,b)=>Number(a.done)-Number(b.done)).slice(0,8)
+    .map(h=>`<label class="hw-row"><input type="checkbox" data-hw-toggle="${h.id}" ${h.done?'checked':''}/> <span class="grow"><b>${esc(h.title||'')}</b><small>${esc([subjectLabel(subjectById(h.subjectId)),h.due].filter(Boolean).join(' · '))}</small></span></label>`).join('')
     || `<p class="muted">${esc(t('hwEmpty'))}</p>`;
   return `<div class="kids-shell kid-profile">
     <button type="button" class="btn ghost sm" id="kidProfileBack">← ${esc(t('navKids'))}</button>
     <header class="kid-profile-mast hero-texture">
       <span class="kid-dir-av lg" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0])}</span>
-      <div><p class="brand-kicker">Armonia</p><h2>${esc(k.name)}</h2>
-        <div class="row" style="gap:12px;align-items:center;margin-top:8px">
-          ${ringHtml(pct, 'Lv '+lv, 'pine')}
-          ${kidStreakHtml(k.id)}
-        </div>
-      </div>
+      <div class="grow"><p class="brand-kicker">Armonia</p><h2>${esc(k.name)}</h2><p>${esc(t('xpTotal')(xp))} · ${esc(t('xpLevel')(lv))}</p></div>
+      ${progressRingHtml(pct,'Lv '+lv)}
     </header>
-    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolSubjects'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>${subs}</section>
-    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span></div>${rates}</section>
-    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolAttendance'))}</span></div><div class="att-week">${attWeek.join('')}</div></section>
-    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolHomework'))}</span></div>${hw}</section>
+    <section class="kid-profile-kpis">
+      <div><b>${summary.gradeAverage||'—'}</b><span>${esc(t('gradeAverage'))}</span></div>
+      <div><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:'—'}</b><span>${esc(t('attendanceWeek'))}</span></div>
+      <div><b>${summary.homeworkOpen}</b><span>${esc(t('homeworkOpen'))}</span></div>
+      <div><b>${summary.game.wins||0}</b><span>${esc(t('gameWins'))}</span></div>
+    </section>
+    <div class="kid-profile-grid">
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolSubjects'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>${subs}</section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('gameProgress'))}</span><span class="hrs">${summary.gamePlays} ${esc(t('gameRounds'))}</span></div>${staffGameProgressHtml(k.id)}</section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolAttendance'))}</span></div><div class="att-week">${attWeek.join('')}</div></section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolHomework'))}</span><span class="hrs">${summary.homeworkOpen} ${esc(t('homeworkOpen'))}</span></div>${hw}</section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span></div>${rates}</section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidBadges'))}</span><span class="hrs">${summary.streak} ${esc(t('kidStreak'))}</span></div>${kidBadgesHtml(xp)}</section>
+    </div>
     <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNotesTitle'))}</span></div>
       <div class="row" style="gap:8px;margin-bottom:8px">
         <input id="staffKidNote" class="inp grow" placeholder="${esc(t('kidNotesPlaceholder'))}"/>
@@ -10500,6 +10639,12 @@ function renderChild(){
   if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
   const howTo=root.querySelector('#childHowToBtn');
   if(howTo) howTo.onclick=()=>sheetChildHowTo();
+  root.querySelectorAll('[data-game-challenge]').forEach(button=>{
+    button.onclick=()=>{
+      state.childView='games';
+      startChildGame(button.dataset.gameChallenge);
+    };
+  });
   if(state.childView==='games' || state.childView==='learn') bindChildGames(root);
   if(state.childView==='rate' || state.childView==='notes') bindKidExtras(root);
   if(state.childView==='gallery') bindGallery(root);
@@ -11622,12 +11767,7 @@ function bindChildGames(root){
         const ms=Math.round(performance.now()-g.startedAt);
         g.ms=ms; g.phase='done';
         pushGameHistory('react', ms);
-        const prev=readGameBest('react');
-        // Lower ms is better — store inverted score helper: best = min ms
-        if(!prev || ms<prev){
-          try{ localStorage.setItem(gameBestKey('react'), String(ms)); }catch{}
-          g.best=ms;
-        }else g.best=prev;
+        g.best=writeGameBest('react',ms,{lower:true});
         feedback('save'); render();
       }
     });
@@ -15003,7 +15143,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||115),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||116),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

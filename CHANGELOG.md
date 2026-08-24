@@ -1,5 +1,13 @@
 # Changelog
 
+## v116 — 2026-08-24
+
+- Rebuilt the staff Kids directory around useful signals: grade average, weekly attendance, open homework, XP/level, and game wins.
+- Child profiles now combine editable subject grades, attendance, homework, badges, self-ratings, and synchronized game progress in one dashboard.
+- The child home screen now shows a school snapshot and a personalized next-game challenge alongside the existing 13-game arcade and rewards system.
+- Game launches and personal bests are persisted per child in shared data, allowing staff and children to see the same progress across devices.
+- Cache `paidia-v116`.
+
 ## v115 — 2026-08-24
 
 - Closing the Profile sheet while its security and passkey cards are still loading no longer throws an async null-handler error or shows the generic crash toast.
