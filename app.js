@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 116,
-  label: 'v116',
+  version: 117,
+  label: 'v117',
   changed: {
-    de: 'Kinderbereich mit Noten, Schulübersicht, Spielen und synchronisiertem Fortschritt neu aufgebaut',
-    el: 'Νέα περιοχή παιδιών με βαθμούς, σχολική εικόνα, παιχνίδια και συγχρονισμένη πρόοδο',
+    de: 'Wöchentlicher Team-Durchschnitt pro Kind aus allen Mitarbeiter-Bewertungen',
+    el: 'Εβδομαδιαίος μέσος όρος ανά παιδί από τις αξιολογήσεις όλου του προσωπικού',
   },
 };
 const T = {
@@ -20,6 +20,9 @@ const T = {
     homeworkOpen:'Offene Hausaufgaben', gameProgress:'Spiele & Fortschritt', gameWins:'Spiel-Siege', gameRounds:'Spielrunden',
     kidGameRounds:n=>n===1?'1 Runde':`${n} Runden`, kidGameNone:'Noch keine gespeicherten Spielrunden.',
     childSchoolTitle:'Meine Schule', childSchoolHint:'Noten, Anwesenheit und Hausaufgaben dieser Woche',
+    staffWeekAverage:'Team-Wochenschnitt', staffWeekAverageHint:n=>n===1?'Aus 1 Mitarbeiter-Bewertung':`Aus ${n} Mitarbeiter-Bewertungen`,
+    staffYourRating:'Deine Wochenbewertung', staffRatingsCount:n=>n===1?'1 Person bewertet':`${n} Personen bewertet`, staffRatingSaved:'Wochenbewertung gespeichert',
+    staffRatingEmpty:'Das Team hat diese Woche noch nicht bewertet.', childStaffRatingTitle:'Bewertung des Teams', childStaffRatingHint:'Wöchentlicher Durchschnitt aus allen Bewertungen deiner Betreuerinnen und Betreuer',
     childGameChallenge:'Dein nächstes Spiel', childPlayNow:'Jetzt spielen', childGrades:'Meine Noten',
     logout:'Profil', noUser:'Nicht angemeldet',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Team sprechen', topTutorial:'Tutorial',
@@ -780,6 +783,9 @@ const T = {
     homeworkOpen:'Ανοιχτές εργασίες', gameProgress:'Παιχνίδια & πρόοδος', gameWins:'Νίκες παιχνιδιών', gameRounds:'Γύροι παιχνιδιών',
     kidGameRounds:n=>n===1?'1 γύρος':`${n} γύροι`, kidGameNone:'Δεν υπάρχουν αποθηκευμένοι γύροι ακόμα.',
     childSchoolTitle:'Το σχολείο μου', childSchoolHint:'Βαθμοί, παρουσία και εργασίες αυτής της εβδομάδας',
+    staffWeekAverage:'Μέσος όρος ομάδας', staffWeekAverageHint:n=>n===1?'Από 1 αξιολόγηση προσωπικού':`Από ${n} αξιολογήσεις προσωπικού`,
+    staffYourRating:'Η εβδομαδιαία αξιολόγησή σου', staffRatingsCount:n=>n===1?'Αξιολόγησε 1 άτομο':`Αξιολόγησαν ${n} άτομα`, staffRatingSaved:'Η εβδομαδιαία αξιολόγηση αποθηκεύτηκε',
+    staffRatingEmpty:'Δεν υπάρχει ακόμη αξιολόγηση προσωπικού για αυτή την εβδομάδα.', childStaffRatingTitle:'Αξιολόγηση ομάδας', childStaffRatingHint:'Εβδομαδιαίος μέσος όρος από όλες τις αξιολογήσεις των φροντιστών σου',
     childGameChallenge:'Το επόμενο παιχνίδι σου', childPlayNow:'Παίξε τώρα', childGrades:'Οι βαθμοί μου',
     logout:'Προφίλ', noUser:'Καμία σύνδεση',
     navChat:'Zo-Ai', topChat:'Zo-Ai', topHelp:'Zo-Ai', topTalk:'Ομάδα — συνομιλία', topTutorial:'Tutorial',
@@ -1876,6 +1882,7 @@ const SEED = {
   xpLog: [],
   gameStats: {},
   kidRatings: [],
+  staffKidRatings: [],
   kidNotes: [],
   subjects: [],
   subjectGrades: [],
@@ -1890,7 +1897,7 @@ const KEY = 'paidia.v5';
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
-                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable'];
+                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable'];
 
 let DB = load();
 function load(){
@@ -1903,7 +1910,7 @@ function load(){
     }
   }catch(e){ console.warn('load failed', e); }
   // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
-  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
+  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
     .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object') db.productOverrides = {};
@@ -1930,7 +1937,7 @@ const SHARED_KEYS = [
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
   'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
   'xpLog','gameStats',
-  'kidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable',
+  'kidRatings','staffKidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable',
 ];
 const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
@@ -9657,6 +9664,7 @@ function childSchoolSnapshotHtml(kidId){
       <span><b>${summary.gradeAverage||'—'}</b>${esc(t('gradeAverage'))}</span>
       <span><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:'—'}</b>${esc(t('schoolAttendance'))}</span>
       <span><b>${summary.homeworkOpen}</b>${esc(t('homeworkOpen'))}</span>
+      <span><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):'—'}</b>${esc(t('staffWeekAverage'))}</span>
     </div>
     <div class="child-grade-strip">${gradeRows||`<span class="muted">${esc(t('gradeNoData'))}</span>`}</div>
   </section>`;
@@ -9801,7 +9809,7 @@ const DEFAULT_SUBJECTS = [
 
 function ensureSchoolDb(){
   if(!Array.isArray(DB.subjects) || !DB.subjects.length) DB.subjects = structuredClone(DEFAULT_SUBJECTS);
-  ['subjectGrades','attendance','homework','schoolTimetable','kidRatings','kidNotes'].forEach(k=>{
+  ['subjectGrades','attendance','homework','schoolTimetable','kidRatings','staffKidRatings','kidNotes'].forEach(k=>{
     if(!Array.isArray(DB[k])) DB[k] = [];
   });
 }
@@ -9881,13 +9889,14 @@ function childProgressSummary(kidId){
   const homeworkDone=homework.filter(row=>row.done).length;
   const homeworkOpen=homework.length-homeworkDone;
   const game=loadGameStats(kidId);
+  const staffRating=staffKidWeeklySummary(kidId,week);
   const bests=Object.entries(game.bests||{}).filter(([,value])=>Number(value)>0);
   const plays=Object.values(game.plays||{}).reduce((sum,value)=>sum+Number(value||0),0);
   return {
     week,grades,gradeAverage,gradedCount:scored.length,
     attendancePct,attendanceRecorded:attendance.length,present,
     homeworkDone,homeworkOpen,homeworkTotal:homework.length,
-    game,gameBests:bests,gamePlays:plays,
+    game,gameBests:bests,gamePlays:plays,staffRating,
     xp:kidXp(kidId),level:kidLevel(kidXp(kidId)),streak:kidStreakDays(kidId),
   };
 }
@@ -9986,6 +9995,7 @@ function viewKids(){
           <span><b>${summary.gradeAverage||'—'}</b>${esc(t('gradeAverage'))}</span>
           <span><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:'—'}</b>${esc(t('schoolAttendance'))}</span>
           <span><b>${summary.homeworkOpen}</b>${esc(t('schoolHomework'))}</span>
+          <span><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):'—'}</b>${esc(t('staffWeekAverage'))}</span>
           <span><b>${summary.xp}</b>XP · Lv ${summary.level}</span>
           <span><b>${summary.game.wins||0}</b>${esc(t('gameWins'))}</span>
         </span>
@@ -10070,14 +10080,15 @@ function viewKidProfile(kidId){
       <div><b>${summary.gradeAverage||'—'}</b><span>${esc(t('gradeAverage'))}</span></div>
       <div><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:'—'}</b><span>${esc(t('attendanceWeek'))}</span></div>
       <div><b>${summary.homeworkOpen}</b><span>${esc(t('homeworkOpen'))}</span></div>
-      <div><b>${summary.game.wins||0}</b><span>${esc(t('gameWins'))}</span></div>
+      <div><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):'—'}</b><span>${esc(t('staffWeekAverage'))}</span></div>
     </section>
     <div class="kid-profile-grid">
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolSubjects'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>${subs}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('gameProgress'))}</span><span class="hrs">${summary.gamePlays} ${esc(t('gameRounds'))}</span></div>${staffGameProgressHtml(k.id)}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolAttendance'))}</span></div><div class="att-week">${attWeek.join('')}</div></section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolHomework'))}</span><span class="hrs">${summary.homeworkOpen} ${esc(t('homeworkOpen'))}</span></div>${hw}</section>
-      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span></div>${rates}</section>
+      <section class="card pine-settle">${staffRatingPanelHtml(k.id)}</section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span><span class="hrs">${esc(t('kidRateKicker'))}</span></div>${rates}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidBadges'))}</span><span class="hrs">${summary.streak} ${esc(t('kidStreak'))}</span></div>${kidBadgesHtml(xp)}</section>
     </div>
     <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNotesTitle'))}</span></div>
@@ -10210,6 +10221,13 @@ function wireKidsView(v){
       }
     };
   });
+  v.querySelectorAll('[data-staff-rate-kid]').forEach(b=>{
+    b.onclick=()=>{
+      if(setStaffKidRating(b.dataset.staffRateKid,b.dataset.staffRateArea,Number(b.dataset.staffRateValue))){
+        toast(t('staffRatingSaved'),'success'); render();
+      }
+    };
+  });
   v.querySelectorAll('[data-att-kid]').forEach(b=>{
     b.onclick=()=>{
       let st=b.dataset.attStatus;
@@ -10308,6 +10326,99 @@ function setKidRating(kidId, area, value){
   save();
 }
 
+/* One weekly evaluation per staff member and area. These records deliberately
+   live outside kidRatings: a child device may sync its self-rating, but it must
+   never overwrite the team's evaluations. Each staff member contributes one
+   equally weighted weekly average, even if another person fills more areas. */
+function staffKidRating(kidId, raterId, area, week){
+  const wk=week||kidWeekKey();
+  const hit=(DB.staffKidRatings||[]).find(r=>r.kidId===kidId && r.raterId===raterId && r.area===area && r.week===wk);
+  return hit?Number(hit.value)||0:0;
+}
+
+function setStaffKidRating(kidId, area, value){
+  const raterId=state.user?.id;
+  if(!kidId || !raterId || !KID_RATE_AREAS.some(a=>a.id===area)) return false;
+  const wk=kidWeekKey();
+  const score=Math.round(Number(value)||0);
+  if(score<1 || score>5) return false;
+  DB.staffKidRatings=DB.staffKidRatings||[];
+  const hit=DB.staffKidRatings.find(r=>r.kidId===kidId && r.raterId===raterId && r.area===area && r.week===wk);
+  if(hit){ hit.value=score; hit.ts=Date.now(); }
+  else DB.staffKidRatings.push({id:uid(),kidId,raterId,area,week:wk,value:score,ts:Date.now()});
+  save();
+  return true;
+}
+
+function calculateStaffKidWeeklySummary(records, areas){
+  const byRater=new Map();
+  records.forEach(r=>{
+    const values=byRater.get(r.raterId)||[];
+    values.push(Number(r.value));
+    byRater.set(r.raterId,values);
+  });
+  const raterAverages=[...byRater.values()].map(values=>values.reduce((sum,value)=>sum+value,0)/values.length);
+  const average=raterAverages.length
+    ? Math.round((raterAverages.reduce((sum,value)=>sum+value,0)/raterAverages.length)*10)/10
+    : 0;
+  const areaAverages=Object.fromEntries(areas.map(area=>{
+    const values=records.filter(r=>r.area===area.id).map(r=>Number(r.value));
+    const areaAverage=values.length?Math.round((values.reduce((sum,value)=>sum+value,0)/values.length)*10)/10:0;
+    return [area.id,areaAverage];
+  }));
+  return {average,raterCount:byRater.size,areas:areaAverages};
+}
+
+function staffKidWeeklySummary(kidId, week){
+  const wk=week||kidWeekKey();
+  const records=(DB.staffKidRatings||[]).filter(r=>r.kidId===kidId && r.week===wk && Number(r.value)>0);
+  return {week:wk,...calculateStaffKidWeeklySummary(records,KID_RATE_AREAS)};
+}
+
+function staffRatingStarsHtml(kidId, area, value){
+  return `<span class="school-stars">${[1,2,3,4,5].map(score=>`<button type="button" class="school-star${score<=value?' on':''}"
+    data-staff-rate-kid="${esc(kidId)}" data-staff-rate-area="${esc(area)}" data-staff-rate-value="${score}" aria-label="${score}/5">★</button>`).join('')}</span>`;
+}
+
+function staffRatingAreaRows(summary){
+  return KID_RATE_AREAS.map(area=>{
+    const value=Number(summary.areas?.[area.id]||0);
+    return `<div class="staff-rating-row"><span>${esc(t(area.key))}</span><span class="staff-rating-track"><i style="width:${Math.round(value/5*100)}%"></i></span><strong>${value?value.toFixed(1):'—'}</strong></div>`;
+  }).join('');
+}
+
+function staffRatingPanelHtml(kidId){
+  const summary=staffKidWeeklySummary(kidId);
+  const own=KID_RATE_AREAS.map(area=>{
+    const value=staffKidRating(kidId,state.user?.id,area.id);
+    return `<div class="school-sub-row"><span class="grow">${esc(t(area.key))}</span>${staffRatingStarsHtml(kidId,area.id,value)}</div>`;
+  }).join('');
+  return `<div class="block-h"><span class="t">${esc(t('staffWeekAverage'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>
+    <div class="staff-rating-summary"><b>${summary.average?summary.average.toFixed(1):'—'}<small>/5</small></b><span>${summary.raterCount?esc(t('staffRatingsCount')(summary.raterCount)):esc(t('staffRatingEmpty'))}</span></div>
+    ${staffRatingAreaRows(summary)}
+    <div class="staff-own-rating"><strong>${esc(t('staffYourRating'))}</strong>${own}</div>`;
+}
+
+function childStaffRatingHtml(kidId){
+  const summary=staffKidWeeklySummary(kidId);
+  const weeks=[];
+  for(let i=3;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i*7);
+    weeks.push(staffKidWeeklySummary(kidId,kidWeekKey(d)));
+  }
+  const trend=weeks.map(item=>`<div class="kid-trend-row">
+    <span class="kid-trend-wk">${esc(item.week.slice(5).replace('-','.'))}</span>
+    <span class="kid-trend-track"><span class="kid-trend-fill" style="width:${Math.round(item.average/5*100)}%"></span></span>
+    <span class="kid-trend-val">${item.average?item.average.toFixed(1):'–'}</span>
+  </div>`).join('');
+  return `<section class="kid-card child-staff-rating">
+    <div class="staff-rating-summary"><b>${summary.average?summary.average.toFixed(1):'—'}<small>/5</small></b><span><strong>${esc(t('childStaffRatingTitle'))}</strong>${esc(summary.raterCount?t('staffWeekAverageHint')(summary.raterCount):t('staffRatingEmpty'))}</span></div>
+    <p class="muted">${esc(t('childStaffRatingHint'))}</p>
+    ${summary.raterCount?staffRatingAreaRows(summary):''}
+    <div class="staff-rating-history">${trend}</div>
+  </section>`;
+}
+
 function kidWeekAverage(kidId, week){
   const vals = KID_RATE_AREAS.map(a=>kidRating(kidId, a.id, week)).filter(v=>v>0);
   if(!vals.length) return 0;
@@ -10348,7 +10459,8 @@ function childBewertungenView(kidId){
     </div>`;
   }).join('');
 
-  return `<section class="kid-card">
+  return `${childStaffRatingHtml(kidId)}
+    <section class="kid-card">
       <h2>${esc(t('kidRateTitle'))}</h2>
       <p class="muted">${esc(t('kidRateLead'))}</p>
       ${rows}
@@ -15143,7 +15255,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||116),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||117),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

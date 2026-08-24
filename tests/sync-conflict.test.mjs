@@ -4,7 +4,7 @@
  * History: the client's 409 branch used to adopt the server's *revision* but
  * restore its own *data* over the top, then retry — which passed the revision
  * check and silently destroyed everything the other device had written across
- * all 21 SHARED_KEYS, including shiftCheckins (clock-in records) and
+ * all SHARED_KEYS, including shiftCheckins (clock-in records) and
  * shiftNotes (handover). Last-write-wins wearing an optimistic-concurrency
  * costume.
  *
@@ -39,6 +39,8 @@ const SHARED_KEYS = [
   'customReasons','customListRemoveReasons','productOverrides','profilePrefs',
   'template','overrides','weeks','events','taskCompletions','aiImports','log',
   'customActivities','shiftNotes','stockChecks','shiftCheckins',
+  'xpLog','gameStats','kidRatings','staffKidRatings','kidNotes','subjects',
+  'subjectGrades','attendance','homework','schoolTimetable',
 ];
 
 /** The server's rule, as implemented in put_ops(). */

@@ -1,5 +1,12 @@
 # Changelog
 
+## v117 — 2026-08-24
+
+- Every staff member can submit one weekly four-area evaluation for each child without overwriting the child's self-rating.
+- Each child's weekly team score averages every participating staff member equally and shows the number of evaluators plus per-area averages.
+- The shared weekly result is visible in the staff directory, child profile, child home, and the child's four-week evaluation trend.
+- Cache `paidia-v117`.
+
 ## v116 — 2026-08-24
 
 - Rebuilt the staff Kids directory around useful signals: grade average, weekly attendance, open homework, XP/level, and game wins.
