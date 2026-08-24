@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 120,
-  label: 'v120',
+  version: 121,
+  label: 'v121',
   changed: {
-    de: 'Login komplett neu: bildschirmfüllend, klar auf PC und Mobil und ohne Scrollen',
-    el: 'Νέο login: πλήρης οθόνη, καθαρό σε PC και κινητό και χωρίς κύλιση',
+    de: 'Startseite neu: klare Schicht-Priorität, ruhige Tagesübersicht und eigenes PC-/Mobil-Layout',
+    el: 'Νέα Αρχική: καθαρή προτεραιότητα βάρδιας, ήρεμη ημερήσια εικόνα και ξεχωριστό PC/mobile layout',
   },
 };
 const T = {
@@ -12828,68 +12828,67 @@ function viewHome(){
   }).length;
   const primaryLabel = shiftStartCard ? t('homePrimaryCta') : (todayOpen.length ? t('homePrimaryCta') : t('homeOpenPlan'));
   const signal=(jump,value,label,icon,tone)=>`
-    <button type="button" class="home-signal ${tone||''}" data-home-jump="${jump}">
+    <button type="button" class="home-signal home-pulse-item ${tone||''}" data-home-jump="${jump}">
       <span class="w-stat-ico" aria-hidden="true">${ui(icon,'sm')}</span>
       <b class="w-stat-val">${esc(String(value))}</b>
       <span class="w-stat-lbl">${esc(label)}</span>
     </button>`;
   if(window.matchMedia('(max-width:899px)').matches){
-    return `<div class="mobile-work-page mobile-home-v111">
-      <header class="mobile-work-head">
-        <span class="mobile-work-kicker">${esc(eventDayLabel(today))}</span>
-        <h1>${esc(t('homeHello'))}${user?', '+esc(user.name):''}</h1>
-        <p>${esc(t('homeOverview'))}</p>
-        <button class="btn mobile-work-primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
+    return `<div class="home-start home-start-mobile">
+      <header class="home-start-hero">
+        <div class="home-start-date"><span>${esc(eventDayLabel(today))}</span><i aria-hidden="true"></i></div>
+        <p class="home-start-kicker">Armonia Thassos</p>
+        <h1>${esc(t('homeHello'))}${user?`, <span>${esc(user.name)}</span>`:''}</h1>
+        <p class="home-start-lede">${esc(t('homeOverview'))}</p>
       </header>
       ${shiftStartCard}
       ${showJournalDuty?`<button class="mobile-alert-row" type="button" id="homeWriteBook">
         ${ui('u-alert','sm')}<span><b>${esc(t('journalDutyHome'))}</b><small>${esc(t('bookJournalHint'))}</small></span><span>→</span>
       </button>`:''}
       ${teamNoticeBannerHtml()}
-      <section class="mobile-work-section" aria-labelledby="mobileTasksTitle">
-        <header><h2 id="mobileTasksTitle">${esc(t('myTasks'))}</h2><span>${esc(todayOpen.length+' '+t('dueToday'))}</span></header>
+      <div class="home-mobile-pulse" role="group" aria-label="${esc(t('homeSignals'))}">
+        ${signal('day', todayOpen.length, t('dueToday'), 'u-tasks', todayOpen.length?'tone-pine':'')}
+        ${signal('day', overdue.length, t('overdue'), 'u-alert', overdue.length?'tone-out':'')}
+        ${signal('shop', openListCount, t('homeSignalList'), 'u-cart', openListCount?'tone-sea':'')}
+        ${signal('stock', lowStockCount, t('homeSignalStock'), 'u-leaf', lowStockCount?'tone-amber':'')}
+      </div>
+      <section class="home-mobile-tasks" aria-labelledby="mobileTasksTitle">
+        <header><div><span>${esc(eventDayLabel(today))}</span><h2 id="mobileTasksTitle">${esc(t('myTasks'))}</h2></div><b>${esc(String(todayOpen.length))}</b></header>
         <div class="task-list">${todayAssignments.length
           ? todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join('')
           : `<div class="mobile-empty-row"><span>${esc(t('noTasks'))}</span><button type="button" data-home-jump="day">${esc(t('homeOpenPlan'))}</button></div>`}
         </div>
       </section>
-      <button class="mobile-text-action" type="button" id="homeQuickBook">${ui('u-note','sm')}<span>${esc(t('headerBook'))}</span><b>→</b></button>
+      <nav class="home-mobile-actions" aria-label="${esc(t('homeMore'))}">
+        <button type="button" data-home-jump="day">${ui('u-calendar','sm')}<span>${esc(t('homeOpenPlan'))}</span></button>
+        <button type="button" id="homeQuickBook">${ui('u-note','sm')}<span>${esc(t('headerBook'))}</span></button>
+        <button type="button" data-home-jump="kids">${ui('u-person','sm')}<span>${esc(t('navKids'))}</span></button>
+      </nav>
+      <details class="home-mobile-more">
+        <summary>${esc(t('homeMore'))}<span>＋</span></summary>
+        <div class="home-mobile-more-body">
+          ${homeMomentsStripHtml()}
+          <div class="home-foot-actions">
+            <button class="page-act ghost" type="button" data-page-act="tutorial">${ui('u-book','sm')} ${esc(t('topTutorial'))}</button>
+            <button class="page-act ghost" type="button" id="homeCalendar">${ui('u-calendar','sm')} ${esc(t('calTitle'))}</button>
+            <button class="page-act ghost" type="button" id="homeGalleryOpen">${ui('u-camera','sm')} ${esc(t('galleryTitle'))}</button>
+          </div>
+        </div>
+      </details>
     </div>`;
   }
-  const main=`
-    <section class="home-mast hero hero-texture" aria-label="Armonia">
-      <p class="brand-kicker">Armonia Thassos</p>
-      <h1 class="home-brand">${esc(t('homeHello'))}${user?', '+esc(user.name):''}</h1>
-      <p class="home-lede">${esc(t('homeOverview'))}</p>
-      <div class="home-cta-row">
-        <button class="home-primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
-        ${!shiftStartCard?`<button class="home-secondary" type="button" id="homeQuickBook">${ui('u-note','sm')} ${esc(t('headerBook'))}</button>`:''}
-      </div>
-    </section>
-    ${shiftStartCard}
+  const main=`${shiftStartCard}
     ${showJournalDuty?`<button class="journal-duty-home" type="button" id="homeWriteBook">
       <span class="journal-duty-home-mark" aria-hidden="true">${ui('u-alert','sm')}</span>
       <span class="grow"><b>${esc(t('journalDutyHome'))}</b><small>${esc(t('bookJournalHint'))}</small></span>
       <span class="journal-duty-home-cta">${esc(t('journalDutyCta'))}</span>
     </button>`:''}
     ${teamNoticeBannerHtml()}
-    <div class="home-widgets">
-      ${ringHtml(homeShiftCompletionPct(user), t('homeShiftRing'), todayOpen.length?'amber':'pine')}
-      ${(()=>{ const sp=homeTaskDoneSpark7(user); return sp.some(n=>n>0)?`<div class="w-stat"><span class="w-stat-lbl">${esc(t('homeWeekSpark'))}</span>${sparklineHtml(sp,'pine')}</div>`:''; })()}
-      <button type="button" class="btn ghost sm" data-home-jump="kids">${ui('u-person','sm')} ${esc(t('navKids'))}</button>
-    </div>
-    <div class="home-signals" role="group" aria-label="${esc(t('homeSignals'))}">
-      ${signal('day', todayOpen.length, t('dueToday'), 'u-tasks', todayOpen.length?'tone-pine':'')}
-      ${signal('day', overdue.length, t('overdue'), 'u-alert', overdue.length?'tone-out':'')}
-      ${signal('shop', openListCount, t('homeSignalList'), 'u-cart', openListCount?'tone-sea':'')}
-      ${signal('stock', lowStockCount, t('homeSignalStock'), 'u-leaf', lowStockCount?'tone-amber':'')}
-    </div>
     ${shiftStartCard?'':`${shiftPresenceBannerHtml()}${shiftStockCheckBannerHtml()}`}
     <section class="card home-today-card">
-      <div class="block-h"><span class="t">${ui('u-check','sm')} ${esc(t('myTasks'))}</span><span class="hrs">${esc(eventDayLabel(today))}</span></div>
+      <div class="block-h"><span class="t"><small>${esc(eventDayLabel(today))}</small>${esc(t('myTasks'))}</span><span class="hrs">${esc(String(todayOpen.length))}</span></div>
       <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState(ui('u-check'), t('noTasks'), t('noTasksHint'), planCta)}</div>
     </section>
-    ${homeMomentsStripHtml()}
     <details class="home-more">
       <summary>${esc(t('homeMore'))}</summary>
       <div class="dashboard-grid home-more-grid">
@@ -12907,14 +12906,36 @@ function viewHome(){
         </section>
       </div>
     </details>
-    <div class="home-foot-actions">
+    <div class="home-foot-actions home-desktop-foot">
       <button class="page-act ghost" type="button" data-page-act="tutorial">${ui('u-book','sm')} ${esc(t('topTutorial'))}</button>
       <button class="page-act ghost" type="button" id="homeCalendar">${ui('u-calendar','sm')} ${esc(t('calTitle'))}</button>
       <button class="page-act ghost" type="button" id="homeGalleryOpen">${ui('u-camera','sm')} ${esc(t('galleryTitle'))}</button>
     </div>`;
-  return `<div class="home-shell home-shell-v2 home-pc">
-    <div class="home-pc-main">${main}</div>
-    <aside class="home-pc-rail" aria-label="${esc(t('homeRailNotifs'))}">${homePcRailHtml({todayOpenCount:todayOpen.length})}</aside>
+  return `<div class="home-start home-start-desktop">
+    <section class="home-command-hero" aria-label="Armonia">
+      <div class="home-command-copy">
+        <p class="home-start-kicker">Armonia Thassos · ${esc(eventDayLabel(today))}</p>
+        <h1>${esc(t('homeHello'))}${user?`, <span>${esc(user.name)}</span>`:''}</h1>
+        <p>${esc(t('homeOverview'))}</p>
+        <div class="home-command-actions">
+          <button class="home-primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
+          <button class="home-secondary" type="button" id="homeQuickBook">${ui('u-note','sm')} ${esc(t('headerBook'))}</button>
+        </div>
+      </div>
+      <div class="home-command-pulse" role="group" aria-label="${esc(t('homeSignals'))}">
+        ${signal('day', todayOpen.length, t('dueToday'), 'u-tasks', todayOpen.length?'tone-pine':'')}
+        ${signal('day', overdue.length, t('overdue'), 'u-alert', overdue.length?'tone-out':'')}
+        ${signal('shop', openListCount, t('homeSignalList'), 'u-cart', openListCount?'tone-sea':'')}
+        ${signal('stock', lowStockCount, t('homeSignalStock'), 'u-leaf', lowStockCount?'tone-amber':'')}
+      </div>
+    </section>
+    <div class="home-command-grid">
+      <div class="home-command-main">${main}</div>
+      <aside class="home-command-rail" aria-label="${esc(t('homeRailNotifs'))}">
+        ${homePcRailHtml({todayOpenCount:todayOpen.length})}
+        ${homeMomentsStripHtml()}
+      </aside>
+    </div>
   </div>`;
 }
 
@@ -15038,7 +15059,15 @@ window.addEventListener('hashchange', ()=>{
   if(document.body.classList.contains('auth-pending')) return;
   if(applyRouteFromHash()) render();
 });
-window.addEventListener('resize', ()=>{ syncLayoutMode(); });
+let lastResponsiveDesktop=window.matchMedia('(min-width:900px)').matches;
+window.addEventListener('resize', ()=>{
+  const desktop=window.matchMedia('(min-width:900px)').matches;
+  syncLayoutMode();
+  if(desktop!==lastResponsiveDesktop){
+    lastResponsiveDesktop=desktop;
+    if(state.tab==='home' && !document.body.classList.contains('auth-pending')) render();
+  }
+});
 window.visualViewport?.addEventListener('resize', scheduleMeasureChrome);
 window.visualViewport?.addEventListener('scroll', scheduleMeasureChrome);
 window.addEventListener('unhandledrejection', event=>{
@@ -15291,7 +15320,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||120),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||121),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

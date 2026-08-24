@@ -1,5 +1,13 @@
 # Changelog
 
+## v121 — 2026-08-25
+
+- Rebuilt the staff Start page around one operational hierarchy: current shift, next required action, personal tasks, then supporting information.
+- Added a full-width desktop command mast with integrated day signals and a quieter two-column work area instead of equal-weight card subdivisions.
+- Added a dedicated mobile composition with a real greeting, compact status rail, focused task area, and three direct work destinations.
+- Preserved shift presence, stock check, journal, task completion, notifications, children, calendar, gallery, tutorial, and end-of-shift actions.
+- Cache `paidia-v121`.
+
 ## v120 — 2026-08-25
 
 - Rebuilt login as a true full-screen doorway with a strong Armonia identity panel on desktop and a compact branded header on mobile.
