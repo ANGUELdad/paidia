@@ -1,5 +1,14 @@
 # Changelog
 
+## v123 — 2026-08-25
+
+- Removed the three-zone mental model from Daily and Weekly Plan; blocks remain only as internal form data for compatibility.
+- Daily Plan is now one chronological agenda showing time, activity, staff, house, children, and notes in one readable flow.
+- Weekly Plan is now seven day agendas on desktop and a single-open-day accordion on mobile, instead of three separate matrices.
+- Empty schedules now show one purposeful add action per day rather than repeated empty morning, afternoon, and evening containers.
+- Preserved entry creation, editing, deletion, house filtering, week navigation, validation, and weekly notes.
+- Cache `paidia-v123`.
+
 ## v122 — 2026-08-25
 
 - Rebuilt Daily and Weekly Plan as one responsive planning system with direct Day/Week navigation on mobile.

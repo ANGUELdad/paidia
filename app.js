@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 122,
-  label: 'v122',
+  version: 123,
+  label: 'v123',
   changed: {
-    de: 'Tages- und Wochenplan neu: schneller Wechsel, kompakte Zeitblöcke und mobile Wochen-Akkordeons',
-    el: 'Νέο ημερήσιο και εβδομαδιαίο πρόγραμμα: γρήγορη εναλλαγή, συμπαγείς ζώνες και mobile accordions',
+    de: 'Plan vereinfacht: eine chronologische Tagesagenda und sieben klare Wochenübersichten statt drei Zeitblöcken',
+    el: 'Απλούστερο πρόγραμμα: μία χρονολογική ροή ημέρας και επτά καθαρές ημέρες αντί για τρεις ζώνες',
   },
 };
 const T = {
@@ -85,6 +85,7 @@ const T = {
     shiftStockCheckFixed:'Korrigiert',
     shiftStockCheckProgress:(a,b)=>`${a}/${b} geprüft`,
     viewDay:'Tag', viewWeek:'Woche', filterView:'Ansicht', filterHouse:'Haus',
+    dayAgenda:'Tagesablauf', weekAgenda:'Wochenübersicht', agendaEmpty:'Noch nichts geplant', agendaEmptyHint:'Füge den ersten Eintrag direkt zum Tagesablauf hinzu.', openDay:'Tag öffnen',
     tableFullscreen:'Vollbild', tableExitFullscreen:'Schließen',
     allHouses:'Kombiniert',
     morning:'Vormittagsprogramm', afternoon:'Nachmittagsbetreuung', evening:'Abendprogramm',
@@ -848,6 +849,7 @@ const T = {
     shiftStockCheckFixed:'Διορθώθηκε',
     shiftStockCheckProgress:(a,b)=>`${a}/${b} ελέγχθηκαν`,
     viewDay:'Ημέρα', viewWeek:'Εβδομάδα', filterView:'Προβολή', filterHouse:'Σπίτι',
+    dayAgenda:'Ροή ημέρας', weekAgenda:'Εικόνα εβδομάδας', agendaEmpty:'Δεν έχει προγραμματιστεί κάτι', agendaEmptyHint:'Πρόσθεσε την πρώτη εγγραφή απευθείας στη ροή της ημέρας.', openDay:'Άνοιγμα ημέρας',
     tableFullscreen:'Πλήρης οθόνη', tableExitFullscreen:'Κλείσιμο',
     allHouses:'Συνδυαστικά',
     morning:'Πρωινό πρόγραμμα', afternoon:'Απογευματινή φροντίδα', evening:'Βραδινό πρόγραμμα',
@@ -5286,6 +5288,33 @@ function entryLine(e, dateStr=state.date){
   </div>`;
 }
 
+function scheduleAgendaEntry(e,dateStr,{compact=false}={}){
+  const activity=act(e.activityId);
+  const employeeIds=entryEmployeeIds(e);
+  const firstPerson=emp(employeeIds[0]);
+  const people=employeeIds.length?employeeNames(e):t('unassigned');
+  const place=entryHouseIds(e).length?houseNames(e):t('allHouses');
+  const childrenNames=kidNames(e.childIds||[]);
+  const accent=firstPerson?.color||'#2f5a63';
+  const meta=[people,place,childrenNames].filter(Boolean).join(' · ');
+  return `<div class="schedule-agenda-entry ${compact?'compact':''}" style="--agenda-accent:${safeColor(accent)}">
+    <time>${esc(entryTime(e)||'—')}</time>
+    <span class="agenda-rail" aria-hidden="true"><i></i></span>
+    <button class="agenda-entry-main" type="button" data-open="${esc(e.id)}" data-entry-date="${esc(dateStr)}">
+      <b>${esc(activity?.emoji||'')} ${esc(actLabel(e.activityId))}</b>
+      <span>${esc(meta)}</span>
+      ${e.note?`<small>${esc(e.note)}</small>`:''}
+    </button>
+    <button type="button" class="agenda-entry-remove" data-remove-entry="${esc(e.id)}" data-entry-date="${esc(dateStr)}" aria-label="${esc(t('removeFromTable'))}" title="${esc(t('removeFromTable'))}">×</button>
+  </div>`;
+}
+
+function scheduleAgendaEmpty(dateStr,{compact=false}={}){
+  return `<button class="schedule-agenda-empty ${compact?'compact':''}" type="button" data-add="afternoon" data-add-date="${esc(dateStr)}">
+    <span aria-hidden="true">＋</span><b>${esc(t('agendaEmpty'))}</b>${compact?'':`<small>${esc(t('agendaEmptyHint'))}</small>`}
+  </button>`;
+}
+
 function viewScheduleDay(){
   const today = iso(new Date());
   const week = weekDates(state.date);
@@ -5300,39 +5329,7 @@ function viewScheduleDay(){
       <span class="n">${d.getDate()}<i>.${d.getMonth()+1}.${String(d.getFullYear()).slice(2)}</i></span></button>`;
   }).join('');
 
-  const blocks = BLOCKS.map((b, bi)=>{
-    const list = all.filter(e => e.block === b.id);
-    let body;
-    if(b.by === 'house'){
-      body = planningHouses()
-        .filter(h => !state.houseFilter || h.id === state.houseFilter)
-        .map(h=>{
-          const rows = list.filter(e => entryHouseIds(e).includes(h.id));
-          return `<div class="plan-lane">
-            <div class="plan-lane-h house-h">${esc(h.name)}</div>
-            ${rows.length ? rows.map(e=>entryLine(e,state.date)).join('')
-              : `<button class="plan-lane-empty empty-state-btn" type="button" data-add="${b.id}" data-house="${h.id}"><span class="empty-ico" aria-hidden="true">＋</span><span class="empty-title">${esc(t('planLaneEmpty'))}</span></button>`}
-          </div>`;
-        }).join('');
-    }else{
-      const assigned = list.length
-        ? DB.employees.map(p=>{
-            const rows = list.filter(e => entryEmployeeIds(e).includes(p.id));
-            return rows.length ? rows.map(e=>entryLine(e,state.date)).join('') : '';
-          }).join('') + list.filter(e=>!entryEmployeeIds(e).length).map(e=>entryLine(e,state.date)).join('')
-        : '';
-      body = `<div class="plan-lane">${assigned ||
-        `<button class="plan-lane-empty empty-state-btn" type="button" data-add="${b.id}"><span class="empty-ico" aria-hidden="true">＋</span><span class="empty-title">${esc(t('planLaneEmpty'))}</span></button>`}</div>`;
-    }
-    return `<section class="plan-block block block-${b.id}" style="--block-i:${bi}">
-      <div class="plan-block-h block-h">
-        <span class="t">${t(b.id)}</span>
-        <span class="hrs plan-time-chip">${b.from}–${b.to}</span>
-      </div>
-      ${body}
-      ${list.length?`<div class="plan-block-add"><button class="btn ghost sm" type="button" data-add="${b.id}">${t('add')}</button></div>`:''}
-    </section>`;
-  }).join('');
+  const agenda=all.slice().sort((a,b)=>String(entryTime(a)||'99:99').localeCompare(String(entryTime(b)||'99:99')));
 
   const d = new Date(state.date+'T12:00:00');
   const longDate = `${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
@@ -5353,7 +5350,11 @@ function viewScheduleDay(){
       </div>
     </header>
     <div class="plan-days days" role="tablist" aria-label="${esc(t('viewDay'))}">${days}</div>
-    <div class="plan-day-flow">${blocks}</div>
+    <section class="schedule-day-agenda" aria-labelledby="scheduleDayAgendaTitle">
+      <header><div><span>${esc(eventDayLabel(state.date))}</span><h3 id="scheduleDayAgendaTitle">${esc(t('dayAgenda'))}</h3></div>
+        <button type="button" data-add="afternoon">${esc(t('add'))}</button></header>
+      <div class="schedule-agenda-list">${agenda.length?agenda.map(e=>scheduleAgendaEntry(e,state.date)).join(''):scheduleAgendaEmpty(state.date)}</div>
+    </section>
     ${validationCard(state.date)}
     ${weekNotesCard()}`;
 }
@@ -5539,56 +5540,12 @@ function viewScheduleWeek(){
   const stamps = week.map((ds,i)=>dayStamp(ds,i));
   const byDate = {};
   week.forEach(ds => { byDate[ds] = entriesFor(ds).filter(e=>!e.cancelled &&
-    (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter))); });
-  const visibleHouses=planningHouses().filter(h=>!state.houseFilter || h.id===state.houseFilter);
-
-  const houseTable = (blockId) => matrixView(visibleHouses.map(h=>h.name), stamps.map(s=>({
-    label:esc(s.text),
-    labelHtml:s.labelHtml,
-    cells:visibleHouses.map(h=>{
-      const list = byDate[s.ds].filter(e=>e.block===blockId && entryHouseIds(e).includes(h.id));
-      return {html:cellItems(list,true,s.ds), action:`${s.ds}|${blockId}|${h.id}|`,
-        aria:`${s.long} ${s.full} · ${h.name} · ${t(blockId)}`};
-    }),
-  })), {label:state.lang==='de'?'Tag':'Ημέρα', interactive:true, title:t(blockId)});
-
-  const dayHeaders = stamps.map(s=>({html:s.headHtml, text:s.text}));
-  const personTable = matrixView(dayHeaders, DB.employees.map(p=>({
-    label:esc(p.name),
-    cells:stamps.map(s=>{
-      const list = byDate[s.ds].filter(e=>e.block==='afternoon' && entryEmployeeIds(e).includes(p.id));
-      return {html:cellItems(list,false,s.ds), action:`${s.ds}|afternoon||${p.id}`,
-        aria:`${p.name} · ${s.long} ${s.full} · ${t('afternoon')}`};
-    }),
-  })), {label:state.lang==='de'?'Person':'Άτομο', interactive:true, title:t('afternoon')});
-
-  const stackBlock = (ds, blockId) => {
-    const list = byDate[ds].filter(e=>e.block===blockId);
-    const b = blockDef(blockId);
-    let body;
-    if(b.by==='house'){
-      body = visibleHouses.map(h=>{
-        const rows = list.filter(e=>entryHouseIds(e).includes(h.id));
-        return `<div class="week-stack-lane">
-          <div class="week-stack-lane-h">${esc(h.short||h.name)}</div>
-          ${rows.length ? rows.map(e=>entryLine(e,ds)).join('')
-            : `<button class="plan-lane-empty empty-state-btn" type="button" data-add="${blockId}" data-house="${h.id}" data-add-date="${ds}"><span class="empty-ico" aria-hidden="true">＋</span><span class="empty-title">${esc(t('planLaneEmpty'))}</span></button>`}
-        </div>`;
-      }).join('');
-    }else{
-      body = list.length
-        ? list.map(e=>entryLine(e,ds)).join('')
-        : `<button class="plan-lane-empty empty-state-btn" type="button" data-add="${blockId}" data-add-date="${ds}"><span class="empty-ico" aria-hidden="true">＋</span><span class="empty-title">${esc(t('planLaneEmpty'))}</span></button>`;
-    }
-    return `<div class="week-stack-block block-${blockId}">
-      <div class="week-stack-block-h"><span>${t(blockId)}</span><span class="plan-time-chip">${b.from}–${b.to}</span></div>
-      ${body}
-    </div>`;
-  };
+    (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter)))
+    .sort((a,b)=>String(entryTime(a)||'99:99').localeCompare(String(entryTime(b)||'99:99'))); });
 
   const dayStack = `<div class="week-day-stack" aria-label="${esc(t('viewWeek'))}">
     ${stamps.map(s=>{
-      const count = byDate[s.ds].length;
+      const list=byDate[s.ds], count=list.length;
       const open=s.ds===state.date || s.ds===today;
       return `<details class="week-day-card ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-selected':''}" ${open?'open':''}>
         <summary class="week-day-card-h" aria-label="${esc(s.long)} ${esc(s.full)}">
@@ -5599,14 +5556,31 @@ function viewScheduleWeek(){
           <span class="wd-meta"><b>${count}</b><span class="wd-go" aria-hidden="true">⌄</span></span>
         </summary>
         <div class="week-day-card-body">
-          ${stackBlock(s.ds,'morning')}
-          ${stackBlock(s.ds,'afternoon')}
-          ${stackBlock(s.ds,'evening')}
-          <button type="button" class="week-open-day" data-jump-day="${s.ds}">${esc(t('viewDay'))} →</button>
+          <div class="schedule-agenda-list compact">${list.length?list.map(e=>scheduleAgendaEntry(e,s.ds,{compact:true})).join(''):scheduleAgendaEmpty(s.ds,{compact:true})}</div>
+          <div class="week-day-actions">
+            <button type="button" class="week-add-entry" data-add="afternoon" data-add-date="${s.ds}">${esc(t('add'))}</button>
+            <button type="button" class="week-open-day" data-jump-day="${s.ds}">${esc(t('openDay'))} →</button>
+          </div>
         </div>
       </details>`;
     }).join('')}
   </div>`;
+
+  const weekBoard=`<section class="week-agenda-shell" aria-labelledby="weekAgendaTitle">
+    <header><div><span>${esc(t('viewWeek'))}</span><h3 id="weekAgendaTitle">${esc(t('weekAgenda'))}</h3></div></header>
+    <div class="week-agenda-board">
+      ${stamps.map(s=>{
+        const list=byDate[s.ds];
+        return `<article class="week-agenda-column ${s.ds===today?'is-today':''}">
+          <button type="button" class="week-agenda-head" data-jump-day="${s.ds}">
+            <span>${esc(s.long)}</span><b>${esc(s.short)}</b><i>${list.length}</i>
+          </button>
+          <div class="week-agenda-column-list">${list.length?list.map(e=>scheduleAgendaEntry(e,s.ds,{compact:true})).join(''):scheduleAgendaEmpty(s.ds,{compact:true})}</div>
+          <button type="button" class="week-agenda-add" data-add="afternoon" data-add-date="${s.ds}">${esc(t('add'))}</button>
+        </article>`;
+      }).join('')}
+    </div>
+  </section>`;
 
   const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   const weekEntries=week.flatMap(ds=>byDate[ds]);
@@ -5631,14 +5605,7 @@ function viewScheduleWeek(){
       </div>
     </header>
     ${dayStack}
-    <div class="week-matrix-desktop">
-      <div class="plan-block-h block-h block-morning"><span class="t">${t('morning')}</span><span class="hrs plan-time-chip">10:00–14:00</span></div>
-      ${houseTable('morning')}
-      <div class="plan-block-h block-h block-afternoon"><span class="t">${t('afternoon')}</span><span class="hrs plan-time-chip">15:00–19:00</span></div>
-      ${personTable}
-      <div class="plan-block-h block-h block-evening"><span class="t">${t('evening')}</span><span class="hrs plan-time-chip">19:00–22:00</span></div>
-      ${houseTable('evening')}
-    </div>
+    ${weekBoard}
     ${weekNotesCard()}`;
 }
 
@@ -15354,7 +15321,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||122),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||123),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
