@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 121,
-    label: 'v121',
+    version: 122,
+    label: 'v122',
     changed: {
-      de: 'Startseite neu: klare Schicht-Priorität, ruhige Tagesübersicht und eigenes PC-/Mobil-Layout',
-      el: 'Νέα Αρχική: καθαρή προτεραιότητα βάρδιας, ήρεμη ημερήσια εικόνα και ξεχωριστό PC/mobile layout',
+      de: 'Tages- und Wochenplan neu: schneller Wechsel, kompakte Zeitblöcke und mobile Wochen-Akkordeons',
+      el: 'Νέο ημερήσιο και εβδομαδιαίο πρόγραμμα: γρήγορη εναλλαγή, συμπαγείς ζώνες και mobile accordions',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

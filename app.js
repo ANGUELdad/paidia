@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 121,
-  label: 'v121',
+  version: 122,
+  label: 'v122',
   changed: {
-    de: 'Startseite neu: klare Schicht-Priorität, ruhige Tagesübersicht und eigenes PC-/Mobil-Layout',
-    el: 'Νέα Αρχική: καθαρή προτεραιότητα βάρδιας, ήρεμη ημερήσια εικόνα και ξεχωριστό PC/mobile layout',
+    de: 'Tages- und Wochenplan neu: schneller Wechsel, kompakte Zeitblöcke und mobile Wochen-Akkordeons',
+    el: 'Νέο ημερήσιο και εβδομαδιαίο πρόγραμμα: γρήγορη εναλλαγή, συμπαγείς ζώνες και mobile accordions',
   },
 };
 const T = {
@@ -5336,25 +5336,24 @@ function viewScheduleDay(){
 
   const d = new Date(state.date+'T12:00:00');
   const longDate = `${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
-  const calDates = [];
-  for(let i=6;i>=0;i--){
-    const cd = new Date(); cd.setDate(cd.getDate()-i);
-    const key = iso(cd);
-    if(entriesFor(key).length) calDates.push(key);
-  }
+  const unassignedCount=all.filter(e=>!entryEmployeeIds(e).length).length;
+  const housesCount=new Set(all.flatMap(entryHouseIds)).size;
   return `
-    <header class="plan-hero">
+    <header class="plan-hero plan-day-hero">
       <div class="plan-hero-copy">
-        <div class="brand-kicker">Armonia</div>
+        <div class="brand-kicker">${esc(t('viewDay'))}</div>
         <h2 class="plan-hero-date">${esc(longDate)}</h2>
         <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
-        ${miniCalendarHtml(calDates, today)}
-        <div class="home-widgets" style="margin-top:10px">${ringHtml(planDayLoadPct(state.date), t('planDayLoad'), 'sea')}</div>
       </div>
       <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
+      <div class="plan-day-summary" aria-label="${esc(t('planDayLoad'))}">
+        <span><b>${all.length}</b><small>${esc(t('dueToday'))}</small></span>
+        <span><b>${unassignedCount}</b><small>${esc(t('unassigned'))}</small></span>
+        <span><b>${housesCount}</b><small>${esc(t('filterHouse'))}</small></span>
+      </div>
     </header>
     <div class="plan-days days" role="tablist" aria-label="${esc(t('viewDay'))}">${days}</div>
-    ${blocks}
+    <div class="plan-day-flow">${blocks}</div>
     ${validationCard(state.date)}
     ${weekNotesCard()}`;
 }
@@ -5590,28 +5589,33 @@ function viewScheduleWeek(){
   const dayStack = `<div class="week-day-stack" aria-label="${esc(t('viewWeek'))}">
     ${stamps.map(s=>{
       const count = byDate[s.ds].length;
-      return `<section class="week-day-card ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-selected':''}">
-        <button type="button" class="week-day-card-h" data-jump-day="${s.ds}" aria-label="${esc(s.long)} ${esc(s.full)}">
+      const open=s.ds===state.date || s.ds===today;
+      return `<details class="week-day-card ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-selected':''}" ${open?'open':''}>
+        <summary class="week-day-card-h" aria-label="${esc(s.long)} ${esc(s.full)}">
           <span class="wd-main">
             <span class="wd-name">${esc(s.long)}</span>
             <span class="wd-date">${esc(s.full)}</span>
           </span>
-          <span class="wd-meta">${count?`${count}`:''}<span class="wd-go" aria-hidden="true">›</span></span>
-        </button>
+          <span class="wd-meta"><b>${count}</b><span class="wd-go" aria-hidden="true">⌄</span></span>
+        </summary>
         <div class="week-day-card-body">
           ${stackBlock(s.ds,'morning')}
           ${stackBlock(s.ds,'afternoon')}
           ${stackBlock(s.ds,'evening')}
+          <button type="button" class="week-open-day" data-jump-day="${s.ds}">${esc(t('viewDay'))} →</button>
         </div>
-      </section>`;
+      </details>`;
     }).join('')}
   </div>`;
 
   const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
+  const weekEntries=week.flatMap(ds=>byDate[ds]);
+  const activeDays=week.filter(ds=>byDate[ds].length).length;
+  const unassignedCount=weekEntries.filter(e=>!entryEmployeeIds(e).length).length;
   return `
     <header class="plan-hero plan-hero-week">
       <div class="plan-hero-copy">
-        <div class="brand-kicker">Armonia</div>
+        <div class="brand-kicker">${esc(t('viewWeek'))}</div>
         <h2 class="plan-hero-date">${t('weekOf')}: ${first.getDate()}.${first.getMonth()+1}. – ${last.getDate()}.${last.getMonth()+1}.${last.getFullYear()}</h2>
         <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
       </div>
@@ -5619,6 +5623,11 @@ function viewScheduleWeek(){
         <button class="btn sm sec" type="button" data-shift="-7" aria-label="${esc(t('previousFriday')||'‹')}">‹</button>
         <button class="btn sm sec" type="button" data-shift="7" aria-label="›">›</button>
         <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
+      </div>
+      <div class="plan-week-summary">
+        <span><b>${weekEntries.length}</b><small>${esc(t('dueToday'))}</small></span>
+        <span><b>${activeDays}</b><small>${esc(t('viewDay'))}</small></span>
+        <span><b>${unassignedCount}</b><small>${esc(t('unassigned'))}</small></span>
       </div>
     </header>
     ${dayStack}
@@ -5639,8 +5648,9 @@ function weekNotesCard(){
   const f = (id, label, val, rows=2) => `
     <label class="f"><span>${label}</span>
       <textarea id="${id}" rows="${rows}">${esc(val||'')}</textarea></label>`;
-  return `<div class="card">
-    <h2>${t('weekNotes')}</h2>
+  return `<details class="card week-notes-card">
+    <summary><span>${t('weekNotes')}</span><small>${t('remarks')}</small><b aria-hidden="true">＋</b></summary>
+    <div class="week-notes-body">
     ${f('wnAfternoon', t('hintAfternoon'), wk.hintAfternoon)}
     ${f('wnProjects',  t('projects'),      wk.projects)}
     ${f('wnMaterials', t('materials'),     wk.materials)}
@@ -5650,7 +5660,8 @@ function weekNotesCard(){
       <button class="btn" id="wnSave">${t('saveNotes')}</button>
     </div>
     ${wk.createdBy ? `<div class="muted" style="margin-top:9px">${t('createdBy')}: ${esc(emp(wk.createdBy)?.name||'—')} · ${fmtDT(wk.createdAt)}</div>` : ''}
-  </div>`;
+    </div>
+  </details>`;
 }
 
 function calendarMarkersForMonth(y, m){
@@ -5791,6 +5802,15 @@ function viewSchedule(){
         </div>`:''}`;
   return `
     <div class="planner ${sv==='day'?'plan-day':sv==='week'?'plan-week':sv==='calendar'?'plan-calendar':sv==='shift'?'plan-shift':'plan-events'}">
+      <div class="planner-focus-switch" role="tablist" aria-label="${esc(t('filterView'))}">
+        ${viewBtn('day','u-calendar',t('viewDay'))}
+        ${viewBtn('week','u-tasks',t('viewWeek'))}
+        <button type="button" class="planner-more-toggle" id="plannerMoreToggle" aria-label="${esc(t('menuFilters'))}"><b aria-hidden="true">···</b><span>${esc(t('navMore'))}</span></button>
+      </div>
+      ${showHouse?`<div class="planner-mobile-house" role="tablist" aria-label="${esc(t('filterHouse'))}">
+        <button type="button" class="${state.houseFilter===''?'on':''}" data-plan-house="">${esc(t('all'))}</button>
+        ${planningHouses().map(h=>`<button type="button" class="${state.houseFilter===h.id?'on':''}" data-plan-house="${h.id}">${esc(h.short)}</button>`).join('')}
+      </div>`:''}
       <div class="adaptive-chrome planner-chrome-wrap">
         <button type="button" class="adaptive-chrome-summary" data-adaptive-toggle aria-expanded="false">
           <span class="adaptive-summary-label">${esc(t('menuFilters'))}</span>
@@ -13631,6 +13651,9 @@ function render(){
 function wire(){
   const v = document.getElementById('view');
   wireAdaptiveChrome(v);
+  v.querySelector('#plannerMoreToggle')?.addEventListener('click',()=>{
+    v.querySelector('.planner-chrome-wrap .adaptive-chrome-summary')?.click();
+  });
   v.querySelectorAll('[data-page-act]').forEach(b=>{
     b.onclick=()=>{ feedback('tap'); onTopAction(b.dataset.pageAct); };
   });
@@ -13754,7 +13777,7 @@ function wire(){
     render();toast(t('eventDeleted'),'success');
   });
 
-  v.querySelectorAll('#schView button').forEach(b=>{
+  v.querySelectorAll('[data-v]').forEach(b=>{
     b.onclick = () => {
       exitMatrixFullscreen();
       state.scheduleView = b.dataset.v;
@@ -13779,6 +13802,9 @@ function wire(){
   v.querySelectorAll('#hFilter button').forEach(b=>{
     b.onclick = () => { state.houseFilter = b.dataset.h; render(); };
   });
+  v.querySelectorAll('[data-plan-house]').forEach(b=>{
+    b.onclick = () => { state.houseFilter = b.dataset.planHouse; render(); };
+  });
   v.querySelectorAll('#sHouse button, #shHouse button').forEach(b=>{
     b.onclick = () => {
       if(b.dataset.h!==state.house) clearStockDraft();
@@ -13796,6 +13822,14 @@ function wire(){
       feedback('select');
       render();
     };
+  });
+  v.querySelectorAll('.week-day-card > summary').forEach(summary=>{
+    summary.addEventListener('click',()=>{
+      const current=summary.parentElement;
+      v.querySelectorAll('.week-day-card[open]').forEach(card=>{
+        if(card!==current) card.open=false;
+      });
+    });
   });
   v.querySelectorAll('[data-shift]').forEach(b=>{
     b.onclick = () => {
@@ -15320,7 +15354,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||121),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||122),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

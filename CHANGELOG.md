@@ -1,5 +1,14 @@
 # Changelog
 
+## v122 — 2026-08-25
+
+- Rebuilt Daily and Weekly Plan as one responsive planning system with direct Day/Week navigation on mobile.
+- Replaced the oversized Daily hero/calendar area with a compact operational header, useful counters, and three clear time-zone columns on desktop.
+- Converted the mobile Weekly Plan from seven fully expanded days into compact day accordions, opening only the relevant day by default.
+- Added immediate mobile house filtering while keeping Calendar, Shifts, and Events available in the secondary planning menu.
+- Reduced empty-state height and matrix density while preserving entry creation, editing, removal, house filtering, full-screen tables, validation, and notes.
+- Cache `paidia-v122`.
+
 ## v121 — 2026-08-25
 
 - Rebuilt the staff Start page around one operational hierarchy: current shift, next required action, personal tasks, then supporting information.
