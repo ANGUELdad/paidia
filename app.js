@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 124,
-  label: 'v124',
+  version: 127,
+  label: 'v127',
   changed: {
-    de: 'Lager neu geordnet: Prioritäten zuerst, klare Schnellbuchung und ein ruhiger Katalog für alle Bildschirmgrößen',
-    el: 'Νέα Αποθήκη: πρώτα οι προτεραιότητες, καθαρή γρήγορη καταχώρηση και ήρεμος κατάλογος σε κάθε οθόνη',
+    de: 'Einkauf neu aufgebaut: klare Schritte, erreichbare Aktionen und automatisch passende Schaltflächen in Deutsch und Griechisch',
+    el: 'Νέα Λίστα Αγορών: καθαρά βήματα, διαθέσιμες ενέργειες και κουμπιά που προσαρμόζονται αυτόματα σε Ελληνικά και Γερμανικά',
   },
 };
 const T = {
@@ -327,6 +327,8 @@ const T = {
     stockMoreActions:'Weitere Aktionen',
     stockAllHealthy:'Alles ist ausreichend vorhanden.',
     shopHeroHint:'Freitagsliste planen, mitnehmen, im Laden abhaken',
+    shopMoreActions:'Weitere Listenaktionen',
+    shopOverviewHint:n=>n===1?'1 Produkt für diesen Einkauf geplant.':`${n} Produkte für diesen Einkauf geplant.`,
     adminAutomations:'Automationen',
     adminAutomationsHint:'Lokale Mitteilungen steuern (App offen). E-Mail weiter über Broadcast.',
     autoShiftStart:'Schicht-Start Mitteilung',
@@ -1096,6 +1098,8 @@ const T = {
     stockMoreActions:'Περισσότερες ενέργειες',
     stockAllHealthy:'Όλα τα προϊόντα έχουν επαρκές απόθεμα.',
     shopHeroHint:'Λίστα Παρασκευής · προετοιμασία · επιβεβαίωση στο μαγαζί',
+    shopMoreActions:'Περισσότερες ενέργειες λίστας',
+    shopOverviewHint:n=>n===1?'1 προϊόν έχει προγραμματιστεί για αυτά τα ψώνια.':`${n} προϊόντα έχουν προγραμματιστεί για αυτά τα ψώνια.`,
     adminAutomations:'Αυτοματισμοί',
     adminAutomationsHint:'Τοπικές ειδοποιήσεις (ενώ η app είναι ανοιχτή). Email μέσω Broadcast.',
     autoShiftStart:'Ειδοποίηση έναρξης βάρδιας',
@@ -7438,42 +7442,38 @@ function viewShop(){
   const catOrder = [...CATS().map(c=>c.id), 'other'];
   const shopSelecting = state.selectMode==='shop' && !inStore;
   const storeSelecting = state.selectMode==='store' && inStore;
-  const hero=inStore?'':`<header class="ops-hero shop-hero">
-      <p class="brand-kicker">Armonia</p>
-      <h2>${esc(t('shopTitle'))}</h2>
-      <p>${esc(t('shopHeroHint'))}</p>
-      <div class="ops-hero-stats" role="group" aria-label="${esc(t('shopTitle'))}">
-        ${statTileHtml(open.length, t('secOpen'), 'u-cart', open.length?'up':'')}
-        ${statTileHtml(lowStockCount, t('stockAttention'), 'u-leaf', lowStockCount?'down':'')}
-        ${statTileHtml(bought.length, t('secBought'), 'u-check', '')}
+  const hero=inStore?'':`<header class="shop-overview">
+      <div class="shop-overview-copy"><p class="brand-kicker">${esc(t('shopTitle'))}</p><h2>${esc(house(hid).short)}</h2><span>${esc(fridayText(friday))} · ${esc(T[state.lang].shopOverviewHint(open.length))}</span></div>
+      <div class="shop-overview-stats" role="group" aria-label="${esc(t('shopTitle'))}">
+        <div><b>${open.length}</b><span>${esc(t('secOpen'))}</span></div>
+        <div><b>${lowStockCount}</b><span>${esc(t('stockAttention'))}</span></div>
+        <div><b>${bought.length}</b><span>${esc(t('secBought'))}</span></div>
       </div>
     </header>
     <section class="shop-command" aria-label="${esc(t('shopTitle'))}">
-    <div class="seg house-selector" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
-      ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-person','sm')} ${esc(h.short)}</button>`).join('')}
-    </div>
-    <div class="shop-command-row">
-      <div class="friday-picker compact">
-        <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
-        <label class="friday-date" title="${t('chooseFriday')}"><input type="date" id="shopFridayDate" value="${friday}"><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length}</span></label>
-        <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
+      <div class="seg house-selector" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
+        ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-person','sm')} ${esc(h.short)}</button>`).join('')}
       </div>
-      <div class="shop-tools" role="toolbar" aria-label="${esc(t('shopTitle'))}">
-        <button class="shop-tool ${shopSelecting?'on':''}" type="button" id="shopSelectToggle" title="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-label="${esc(shopSelecting?t('selectDone'):t('selectMode'))}" aria-pressed="${shopSelecting?'true':'false'}">${shopSelecting?ui('u-check','sm'):'☑'}</button>
-        <button class="shop-tool" type="button" data-page-act="shopScan" title="${esc(t('topScan'))}" aria-label="${esc(t('topScan'))}">${ui('u-camera')}</button>
-        <button class="shop-tool" type="button" id="importList" title="${esc(t('importList'))}" aria-label="${esc(t('importList'))}">${ui('u-receipt')}</button>
-        <button class="shop-tool" type="button" data-page-act="shopHistory" title="${esc(t('topHistory'))}" aria-label="${esc(t('topHistory'))}">${ui('u-book')}</button>
+      <div class="shop-flow-row">
+        <div class="friday-picker compact">
+          <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
+          <label class="friday-date" title="${t('chooseFriday')}"><input type="date" id="shopFridayDate" value="${friday}"><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length}</span></label>
+          <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
+        </div>
+        <div class="seg shop-panel-seg" id="shopPanel">
+          <button class="${state.shopPanel==='plan'?'on':''}" data-shop-panel="plan" type="button">${t('shopPlan')}</button>
+          <button class="${state.shopPanel==='take'?'on':''}" data-shop-panel="take" type="button">${t('shopTake')}</button>
+        </div>
+        <details class="shop-more"><summary aria-label="${esc(t('shopMoreActions'))}">•••</summary><div class="shop-more-popover">
+          <button class="shop-more-action ${shopSelecting?'on':''}" type="button" id="shopSelectToggle">☑ ${esc(shopSelecting?t('selectDone'):t('selectMode'))}</button>
+          <button class="shop-more-action" type="button" data-page-act="shopScan">${ui('u-camera','sm')} ${esc(t('topScan'))}</button>
+          <button class="shop-more-action" type="button" id="importList">${ui('u-receipt','sm')} ${esc(t('importList'))}</button>
+          <button class="shop-more-action" type="button" data-page-act="shopHistory">${ui('u-book','sm')} ${esc(t('topHistory'))}</button>
+        </div></details>
       </div>
-    </div>
-    <div class="seg shop-panel-seg" id="shopPanel">
-      <button class="${state.shopPanel==='plan'?'on':''}" data-shop-panel="plan" type="button">${t('shopPlan')}</button>
-      <button class="${state.shopPanel==='take'?'on':''}" data-shop-panel="take" type="button">${t('shopTake')}</button>
-    </div>
-    <div class="shop-quick-actions">
-      <button class="btn sec sm" type="button" id="shopAutoFill">${ui('u-sparkle','sm')} ${t('shopAutoFill')}</button>
-    </div>
-    ${state.shopPanel==='plan'?`<div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋</button></div>`:''}
-  </section>`;
+      ${state.shopPanel==='plan'?`<div class="shop-add-row"><div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋ <span>${esc(t('addToCart'))}</span></button></div>
+        <button class="btn sec sm shop-auto-fill" type="button" id="shopAutoFill">${ui('u-sparkle','sm')} ${t('shopAutoFill')}</button></div>`:''}
+    </section>`;
 
   const takeListCard = (!inStore && state.shopPanel==='take') ? (()=>{
     const allTake = [...open, ...pending.filter(e=>!e.decision)];
@@ -7575,7 +7575,10 @@ function viewShop(){
       </div>
     </section>` : '';
 
-  const openCard = (pending.length || state.shopPanel!=='plan')?'':`<div class="card shop-list-card">
+  const openCard = (pending.length || state.shopPanel!=='plan')?'':`<section class="shop-list-card">
+    <header class="shop-list-heading"><div><p>${esc(t('secOpen'))}</p><span>${esc(T[state.lang].shopOverviewHint(open.length))}</span></div>
+      ${open.length&&!shopSelecting?`<button class="btn sm" id="startFriday">${T[state.lang].cartReady(open.length)}</button>`:''}
+    </header>
     ${open.length?`<div class="shop-items">${open.map(e=>{
       const sel = shopSelecting && isSelected(e.id);
       return `<div class="shop-item ${sel?'selected':''}">
@@ -7591,6 +7594,7 @@ function viewShop(){
         <p>${t('startListHint')}</p>
         <div class="shop-start-actions">
           <button class="btn" type="button" id="shopStartAdd">${t('startListAdd')}</button>
+          <button class="btn sec" type="button" id="importListHero">${t('importList')}</button>
         </div>
       </div>`}
     ${shopSelecting?bulkBarHtml([
@@ -7598,8 +7602,7 @@ function viewShop(){
       {id:'qty-minus', label:t('bulkQtyMinus')},
       {id:'qty-plus', label:t('bulkQtyPlus')},
     ]):''}
-    ${open.length&&!pending.length&&!shopSelecting?`<div class="cart-start"><button class="btn" id="startFriday">${T[state.lang].cartReady(open.length)}</button></div>`:''}
-    </div>`;
+    </section>`;
 
   const missingCard = missing.length ? `<details class="card shop-history"><summary>⚠️ ${t('secMissing')}<span class="pill out">${missing.length}</span></summary><div class="shop-history-body">
       ${missing.map(e=>entryRow(e,`<button class="btn sm sec" data-carry="${e.id}">${t('carryOver')}</button>`)).join('')}</div></details>` : '';
@@ -13548,6 +13551,28 @@ function scheduleMeasureChrome(){
   });
 }
 
+/* Measure every textual button after each render. Icon-only controls are left
+   untouched by the label-length guard below. This keeps language fitting a
+   shared behaviour instead of a page-by-page exception list. */
+const BUTTON_FIT_SELECTOR = 'button';
+let buttonFitFrame=0;
+function fitButtonLabels(root=document){
+  cancelAnimationFrame(buttonFitFrame);
+  buttonFitFrame=requestAnimationFrame(()=>{
+    const buttons=[...root.querySelectorAll(BUTTON_FIT_SELECTOR)].filter(button=>button.getClientRects().length);
+    buttons.forEach(button=>{
+      button.classList.remove('ui-fit-text','ui-fit-tight','ui-fit-wrap');
+      const label=(button.innerText||button.textContent||'').replace(/\s+/g,' ').trim();
+      if(label.length<2)return;
+      button.classList.add('ui-fit-text');
+      if(button.scrollWidth>button.clientWidth+1||button.scrollHeight>button.clientHeight+1)button.classList.add('ui-fit-tight');
+    });
+    requestAnimationFrame(()=>buttons.forEach(button=>{
+      if(button.scrollWidth>button.clientWidth+1||button.scrollHeight>button.clientHeight+1)button.classList.add('ui-fit-wrap');
+    }));
+  });
+}
+
 function render(){
   if(state.mode === 'child' && state.child) return renderChild();
   if(!document.body.classList.contains('auth-pending') && !state._routeBoot){
@@ -13622,6 +13647,7 @@ function render(){
     if(shell) enterMatrixFullscreen(shell);
   }
   syncLayoutMode();
+  fitButtonLabels(document);
   scheduleMeasureChrome();
   syncLocationHash();
   if(consumePresenceDeepLink()) queueMicrotask(()=>sheetShiftPresence());
@@ -15044,6 +15070,7 @@ function renderResetForm(token){
 }
 
 document.documentElement.lang = state.lang;
+window.addEventListener('resize',()=>fitButtonLabels(document),{passive:true});
 window.addEventListener('keydown', event=>{
   if(event.key==='Escape' && document.body.classList.contains('gal-lightbox-open')){
     event.preventDefault();
@@ -15334,7 +15361,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||124),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||127),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

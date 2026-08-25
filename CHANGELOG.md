@@ -1,5 +1,15 @@
 # Changelog
 
+## v127 — 2026-08-25
+
+- Rebuilt Shopping as a clear flow: house, Friday, Plan/Take mode, then item entry.
+- Added a dedicated shopping overview with open, low-stock, and bought counts.
+- Kept scan, import, history, and bulk selection reachable at every responsive size through one secondary-actions menu.
+- Replaced the icon-only quick-add action with an explicit translated label and restored purposeful empty-state actions.
+- Added app-wide runtime overflow detection for every textual button label; controls tighten or wrap only when their actual content does not fit.
+- Reworked shopping controls and item rows for desktop, tablet, narrow mobile, and supermarket mode.
+- Cache `paidia-v127`.
+
 ## v124 — 2026-08-25
 
 - Rebuilt Storage around a priority queue: empty items first, then low stock, with the full catalogue available only when requested.

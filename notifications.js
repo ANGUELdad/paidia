@@ -1,7 +1,7 @@
 /* Armonia Thassos — Calendar & native-style notifications (PWA) */
 (function(global){
   const PREFS_KEY = 'paidia.notifPrefs';
-const SW_URL = './sw.js?v=124';
+const SW_URL = './sw.js?v=127';
 
   const defaultPrefs = () => ({
     enabled: false,
