@@ -1,5 +1,15 @@
 # Changelog
 
+## v136 — 2026-08-25
+
+- Rebuilt the active supermarket screen around one-handed, high-speed item decisions rather than a cramped icon grid.
+- Added a focused progress header with house, Friday, remaining count, percentage, search, and secondary controls in one safe menu.
+- Replaced ambiguous icon-only product actions with three explicit translated choices: bought, unavailable, and too expensive.
+- Reworked product rows with category context, product icon, quantity, note, large touch targets, and clear selected-result states.
+- Added a persistent completion surface with receipt access, progress feedback, and confirmation locked until every item is decided.
+- Added responsive layouts for desktop, narrow phones, short landscape screens, bulk selection, and completed-item review.
+- Cache `paidia-v136`.
+
 ## v131 — 2026-08-25
 
 - Rebuilt Talk as a focused team workspace with a clear channel header, live status, and useful message/topic counts.

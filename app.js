@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 131,
-  label: 'v131',
+  version: 136,
+  label: 'v136',
   changed: {
-    de: 'Team-Gespräch neu aufgebaut: fokussierter Chat, klare Besprechungsthemen und starke mobile Bedienung',
-    el: 'Νέα Συνομιλία Ομάδας: καθαρό chat, οργανωμένα θέματα σύσκεψης και σωστή λειτουργία στο κινητό',
+    de: 'Supermarkt-Modus komplett neu: klare Produktentscheidungen, Einhand-Bedienung und sichere Abschlusskontrolle',
+    el: 'Πλήρης ανακατασκευή λειτουργίας supermarket: καθαρές επιλογές προϊόντων, χρήση με ένα χέρι και ασφαλής ολοκλήρωση',
   },
 };
 const T = {
@@ -7551,35 +7551,42 @@ function viewShop(){
   const storeRow = e => {
     const st = e.decision;
     const sel = storeSelecting && isSelected(e.id);
-    return `<div class="store-choice ${st||''} ${sel?'selected':''}" data-entry-row="${e.id}">
+    const product=e.productId?prod(e.productId):matchProduct(e.name);
+    return `<article class="store-choice ${st||''} ${sel?'selected':''}" data-entry-row="${e.id}">
       ${storeSelecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${e.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
       <button class="store-choice-main" type="button" data-decision="${st==='bought'?'undo':'bought'}" data-entry="${e.id}" aria-label="${st==='bought'?t('undoDecision'):t('markBought')}">
-        <div class="store-choice-name">${esc(e.name)}</div>
-        <div class="store-choice-qty"><b>${e.qty} ${esc(e.unit)}</b>${e.note?' · '+esc(e.note):''}</div>
+        <span class="store-product-icon">${svgIcon(prodIconId(product),'prod-ico')}</span>
+        <span class="store-choice-copy"><span class="store-choice-name">${esc(e.name)}</span>
+        <span class="store-choice-qty"><b>${e.qty} ${esc(e.unit)}</b>${e.note?' · '+esc(e.note):''}</span></span>
       </button>
-      <div class="store-choice-actions">
-        <button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}" type="button" aria-label="${t('markBought')}" title="${esc(t('markBought'))}">✓</button>
-        <button class="store-decision mid ${st==='unavailable'?'on':''}" data-decision="unavailable" data-entry="${e.id}" type="button" aria-label="${t('markUnavailable')}" title="${esc(t('markUnavailable'))}">∅</button>
-        <button class="store-decision expensive ${st==='expensive'?'on':''}" data-decision="expensive" data-entry="${e.id}" type="button" aria-label="${t('markExpensive')}" title="${esc(t('markExpensive'))}">€</button>
+      <div class="store-choice-actions" role="group" aria-label="${esc(e.name)}">
+        <button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}" type="button" aria-pressed="${st==='bought'?'true':'false'}"><span>✓</span>${esc(t('markBought'))}</button>
+        <button class="store-decision mid ${st==='unavailable'?'on':''}" data-decision="unavailable" data-entry="${e.id}" type="button" aria-pressed="${st==='unavailable'?'true':'false'}"><span>∅</span>${esc(t('markUnavailable'))}</button>
+        <button class="store-decision expensive ${st==='expensive'?'on':''}" data-decision="expensive" data-entry="${e.id}" type="button" aria-pressed="${st==='expensive'?'true':'false'}"><span>€</span>${esc(t('markExpensive'))}</button>
       </div>
-    </div>`;
+    </article>`;
   };
 
   const pendingCard = pending.length ? `
     <section class="store-page" aria-label="${esc(t('storeMode'))}">
-      <div class="store-top">
+      <header class="store-top">
         <div class="store-top-row">
           <button class="store-back" id="cancelFriday" type="button" aria-label="${t('backToCart')}">←</button>
           <div class="store-top-meta">
-            <b>${done===pending.length?'✓ '+t('storeComplete'):t('storeMode')}</b>
-            <span>🏠 ${esc(house(hid).short)} · ${T[state.lang].storeLeft(remaining)}</span>
+            <span class="store-kicker">${esc(t('storeFocus'))}</span>
+            <b>${done===pending.length?'✓ '+t('storeComplete'):esc(house(hid).short)}</b>
+            <span>${esc(fridayText(friday))} · ${T[state.lang].storeLeft(remaining)}</span>
           </div>
-          <button class="store-done-toggle ${storeSelecting?'on':''}" id="storeSelectToggle" type="button">${storeSelecting?t('selectDone'):t('selectMode')}</button>
-          <button class="store-done-toggle ${showDone?'on':''}" id="storeShowDone" type="button">${showDone?t('storeHideDone'):t('storeShowDone')}</button>
+          <div class="store-progress-copy"><b>${done}/${pending.length}</b><span>${progress}%</span></div>
+          <details class="store-options"><summary aria-label="${esc(t('shopMoreActions'))}">•••</summary><div class="store-options-popover">
+            <button class="store-done-toggle ${storeSelecting?'on':''}" id="storeSelectToggle" type="button">${storeSelecting?t('selectDone'):t('selectMode')}</button>
+            <button class="store-done-toggle ${showDone?'on':''}" id="storeShowDone" type="button">${showDone?t('storeHideDone'):t('storeShowDone')}</button>
+          </div></details>
         </div>
         <div class="store-progress"><i style="width:${progress}%"></i></div>
-        <div class="store-search"><input id="storeSearch" value="${esc(state.shopQuery)}" placeholder="${t('storeSearch')}" aria-label="${t('storeSearch')}" autocomplete="off" enterkeyhint="search"></div>
-      </div>
+        <div class="store-search-wrap"><label class="store-search">${ui('u-search','sm')}<input id="storeSearch" value="${esc(state.shopQuery)}" placeholder="${t('storeSearch')}" aria-label="${t('storeSearch')}" autocomplete="off" enterkeyhint="search"></label>${state.shopQuery?`<button class="store-search-reset" id="storeSearchReset" type="button" aria-label="${esc(t('storeClearSearch'))}">×</button>`:''}</div>
+        <div class="store-guidance"><span>${T[state.lang].storeLeft(remaining)}</span><span>${esc(t('storeTapHint'))}</span></div>
+      </header>
       <div class="store-scroll">
         ${catOrder.filter(c=>byCat[c]).map(c=>{
           const cat = CATS().find(x=>x.id===c);
@@ -7587,7 +7594,7 @@ function viewShop(){
           return `<div class="store-category"><div class="store-cat-h">${cat?esc(L(cat)):t('other')}<span>${rows.length}</span></div>${rows.map(storeRow).join('')}</div>`;
         }).join('')}
         ${!pendingVisible.length?`<div class="shop-empty compact">
-          <div class="big">⌕</div>
+          <div class="big">${ui('u-search')}</div>
           <h3>${t('storeNoMatch')}</h3>
           <p>${t('storeNoMatchHint')}</p>
           <div class="shop-start-actions">
@@ -7602,11 +7609,11 @@ function viewShop(){
         {id:'undo', label:t('bulkUndo')},
       ]):''}
       <div class="store-finish bottom-dock">
+        <div class="store-finish-copy"><b>${done}/${pending.length} · ${esc(t('shoppingProgress'))}</b><span>${remaining?T[state.lang].storeProgressHint(done,pending.length):esc(t('storeComplete'))}</span></div>
         <div class="row">
-          <button class="btn sec sm" id="btnReceipt" type="button">${t('scanReceipt')}</button>
+          <button class="btn sec sm" id="btnReceipt" type="button">${ui('u-receipt','sm')} ${t('scanReceipt')}</button>
           <button class="btn" id="confirmBatch" type="button" ${remaining?'disabled':''}>${remaining?`${done}/${pending.length} · ${t('storeRemaining')}`:t('confirmBatch')}</button>
         </div>
-        ${remaining?`<div class="muted" style="margin-top:6px;text-align:center;font-size:10.5px">${T[state.lang].storeProgressHint(done,pending.length)} · ${t('decideAll')}</div>`:''}
       </div>
     </section>` : '';
 
@@ -14290,6 +14297,8 @@ function wire(){
     state.shopQuery=storeSearch.value;render();
     const next=document.querySelector('#storeSearch');if(next){next.focus();next.setSelectionRange(next.value.length,next.value.length);}
   };
+  const storeSearchReset=v.querySelector('#storeSearchReset');
+  if(storeSearchReset) storeSearchReset.onclick=()=>{ state.shopQuery=''; render(); document.querySelector('#storeSearch')?.focus(); };
   const storeShowDone=v.querySelector('#storeShowDone');
   if(storeShowDone) storeShowDone.onclick=()=>{ state.storeShowDone=!state.storeShowDone; render(); };
   const storeShowDoneEmpty=v.querySelector('#storeShowDoneEmpty');
@@ -15428,7 +15437,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||131),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||136),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

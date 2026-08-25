@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 131,
-    label: 'v131',
+    version: 136,
+    label: 'v136',
     changed: {
-      de: 'Team-Gespräch neu aufgebaut: fokussierter Chat, klare Besprechungsthemen und starke mobile Bedienung',
-      el: 'Νέα Συνομιλία Ομάδας: καθαρό chat, οργανωμένα θέματα σύσκεψης και σωστή λειτουργία στο κινητό',
+      de: 'Supermarkt-Modus komplett neu: klare Produktentscheidungen, Einhand-Bedienung und sichere Abschlusskontrolle',
+      el: 'Πλήρης ανακατασκευή λειτουργίας supermarket: καθαρές επιλογές προϊόντων, χρήση με ένα χέρι και ασφαλής ολοκλήρωση',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
