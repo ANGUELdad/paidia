@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 127,
-  label: 'v127',
+  version: 131,
+  label: 'v131',
   changed: {
-    de: 'Einkauf neu aufgebaut: klare Schritte, erreichbare Aktionen und automatisch passende Schaltflächen in Deutsch und Griechisch',
-    el: 'Νέα Λίστα Αγορών: καθαρά βήματα, διαθέσιμες ενέργειες και κουμπιά που προσαρμόζονται αυτόματα σε Ελληνικά και Γερμανικά',
+    de: 'Team-Gespräch neu aufgebaut: fokussierter Chat, klare Besprechungsthemen und starke mobile Bedienung',
+    el: 'Νέα Συνομιλία Ομάδας: καθαρό chat, οργανωμένα θέματα σύσκεψης και σωστή λειτουργία στο κινητό',
   },
 };
 const T = {
@@ -300,6 +300,10 @@ const T = {
     staffTalkLoadError:'Team-Gespräch konnte nicht geladen werden.',
     staffTalkOpen:'Team-Gespräch öffnen',
     staffTalkOpenTopics:n=>`${n} offene Besprechungsthemen`,
+    staffTalkChannel:'Teamkanal', staffTalkPrivate:'Nur für angemeldetes Personal',
+    staffTalkChat:'Nachrichten', staffTalkAgenda:'Besprechung', staffTalkLive:'Live synchronisiert',
+    staffTalkMessages:'Nachrichten', staffTalkOpenCount:'Offen', staffTalkDoneCount:'Erledigt',
+    staffTalkToday:'Heute', staffTalkMeetingTools:'Besprechungswerkzeuge',
     pickChild:'Mindestens ein Kind wählen', pickActivity:'Aktivität wählen',
     loginEntry:'Anmeldung in der App',
     notesSaved:'Hinweise gespeichert', materialsMoved:n=>`${n} Positionen in die Einkaufsliste übernommen`,
@@ -1071,6 +1075,10 @@ const T = {
     staffTalkLoadError:'Η συνομιλία δεν φορτώθηκε.',
     staffTalkOpen:'Άνοιγμα συνομιλίας ομάδας',
     staffTalkOpenTopics:n=>`${n} ανοιχτά θέματα σύσκεψης`,
+    staffTalkChannel:'Κανάλι ομάδας', staffTalkPrivate:'Μόνο για συνδεδεμένο προσωπικό',
+    staffTalkChat:'Μηνύματα', staffTalkAgenda:'Σύσκεψη', staffTalkLive:'Ζωντανός συγχρονισμός',
+    staffTalkMessages:'Μηνύματα', staffTalkOpenCount:'Ανοιχτά', staffTalkDoneCount:'Έγιναν',
+    staffTalkToday:'Σήμερα', staffTalkMeetingTools:'Εργαλεία σύσκεψης',
     pickChild:'Διάλεξε τουλάχιστον ένα παιδί', pickActivity:'Διάλεξε δραστηριότητα',
     loginEntry:'Είσοδος στην εφαρμογή',
     notesSaved:'Οι σημειώσεις αποθηκεύτηκαν', materialsMoved:n=>`${n} είδη πέρασαν στη λίστα αγορών`,
@@ -4383,14 +4391,33 @@ function viewTalk(){
   if(state.mode!=='staff' || !state.user){
     return `<div class="talk-page">${emptyState(ui('u-chat'), t('staffTalkNeedStaff'))}</div>`;
   }
-  return `<div class="talk-page">
-    <header class="talk-hero">
-      <div class="brand-kicker">Armonia Thassos</div>
-      <h2>${esc(t('staffTalkTitle'))}</h2>
-      <p>${esc(t('staffTalkIntro'))}</p>
+  const cachedMessages=Array.isArray(talkCache.messages)?talkCache.messages.length:0;
+  const cachedTopics=Array.isArray(talkCache.topics)?talkCache.topics:[];
+  const cachedOpen=cachedTopics.filter(topic=>!topic.done).length;
+  const cachedDone=cachedTopics.filter(topic=>topic.done).length;
+  return `<div class="talk-page" data-talk-pane="chat">
+    <header class="talk-overview">
+      <div class="talk-overview-copy">
+        <div class="brand-kicker">${esc(t('staffTalkChannel'))} · Armonia Thassos</div>
+        <h2>${esc(t('staffTalkTitle'))}</h2>
+        <p>${esc(t('staffTalkIntro'))}</p>
+        <span class="talk-private">${ui('u-person')} ${esc(t('staffTalkPrivate'))}</span>
+      </div>
+      <div class="talk-overview-stats" aria-label="${esc(t('staffTalkTitle'))}">
+        <div><b id="talkMessageCount">${cachedMessages}</b><span>${esc(t('staffTalkMessages'))}</span></div>
+        <div><b id="talkOpenCount">${cachedOpen}</b><span>${esc(t('staffTalkOpenCount'))}</span></div>
+        <div><b id="talkDoneCount">${cachedDone}</b><span>${esc(t('staffTalkDoneCount'))}</span></div>
+      </div>
     </header>
-    <section class="talk-topics glass-1" aria-label="${esc(t('staffTalkTopics'))}">
-      <div class="block-h"><span class="t">${esc(t('staffTalkTopics'))}</span></div>
+    <nav class="talk-mobile-switch" aria-label="${esc(t('staffTalkTitle'))}">
+      <button class="on" type="button" data-talk-pane="chat">${ui('u-chat')} ${esc(t('staffTalkChat'))}</button>
+      <button type="button" data-talk-pane="topics">${ui('u-tasks')} ${esc(t('staffTalkAgenda'))}<span id="talkMobileTopicCount">${cachedOpen}</span></button>
+    </nav>
+    <aside class="talk-topics glass-1" aria-label="${esc(t('staffTalkTopics'))}">
+      <div class="talk-section-head">
+        <div><span class="talk-eyebrow">${esc(t('staffTalkToday'))}</span><h3>${esc(t('staffTalkTopics'))}</h3></div>
+        <span class="talk-count" id="talkTopicBadge">${cachedOpen}</span>
+      </div>
       <p class="muted talk-topics-hint">${esc(t('staffTalkTopicsHint'))}</p>
       <div id="talkTopicsList" class="talk-topics-list"></div>
       <div class="talk-topic-add">
@@ -4401,8 +4428,16 @@ function viewTalk(){
         <button class="btn ghost sm" type="button" id="talkTopicSuggest">${esc(t('staffTalkSuggest'))}</button>
         <button class="btn ghost sm" type="button" id="talkTopicClear">${esc(t('staffTalkClearDone'))}</button>
       </div>
-    </section>
+    </aside>
     <section class="talk-chat-shell glass-1" aria-label="${esc(t('staffTalkTitle'))}">
+      <header class="talk-channel-head">
+        <div class="talk-channel-mark">${ui('u-chat')}</div>
+        <div><h3>${esc(t('staffTalkChat'))}</h3><span><i></i>${esc(t('staffTalkLive'))}</span></div>
+        <div class="talk-channel-actions">
+          <button class="btn ghost sm" type="button" id="talkVideoOpen">${ui('u-camera')} ${esc(t('staffTalkVideoOpen'))}</button>
+          <button class="btn ghost sm" type="button" id="talkToZoAi">${ui('u-sparkle')} Zo-Ai</button>
+        </div>
+      </header>
       <div id="talkPageMount" class="talk-root-fast"></div>
     </section>
   </div>`;
@@ -13163,7 +13198,19 @@ function mountStaffTalkChat(root){
     try{ return new Date(ts).toLocaleTimeString(state.lang==='el'?'el-GR':'de-DE',{hour:'2-digit',minute:'2-digit'}); }
     catch{ return ''; }
   };
+  const fmtTalkDate=ts=>{
+    try{ return new Date(ts).toLocaleDateString(state.lang==='el'?'el-GR':'de-DE',{weekday:'long',day:'numeric',month:'long'}); }
+    catch{ return ''; }
+  };
+  const talkInitials=name=>String(name||'?').trim().split(/\s+/).slice(0,2).map(part=>part[0]||'').join('').toUpperCase();
   const remember=()=>{ talkCache={messages:talk.messages||[], topics:talk.topics||[], videoUrl:talk.videoUrl||'', updatedAt:talk.updatedAt||0}; };
+  const paintCounts=()=>{
+    const messages=(talk.messages||[]).length;
+    const open=(talk.topics||[]).filter(topic=>!topic.done).length;
+    const done=(talk.topics||[]).filter(topic=>topic.done).length;
+    [['talkMessageCount',messages],['talkOpenCount',open],['talkDoneCount',done],['talkMobileTopicCount',open],['talkTopicBadge',open]]
+      .forEach(([id,value])=>{ const el=document.getElementById(id); if(el) el.textContent=String(value); });
+  };
   const paintTopics=()=>{
     const host=document.getElementById('talkTopicsList');
     if(!host) return;
@@ -13172,8 +13219,8 @@ function mountStaffTalkChat(root){
     host.innerHTML = rows.length
       ? rows.map(tp=>`<label class="talk-topic-row ${tp.done?'done':''}">
           <input type="checkbox" data-topic-toggle="${esc(tp.id)}" ${tp.done?'checked':''}>
-          <span>${esc(tp.text)}</span>
-          <small>${esc(tp.byName||'')}</small>
+          <span class="talk-topic-check" aria-hidden="true">${tp.done?ui('u-check'):''}</span>
+          <span class="talk-topic-copy"><b>${esc(tp.text)}</b><small>${esc(tp.byName||'')}</small></span>
         </label>`).join('')
       : `<div class="muted" style="font-size:12px">${esc(t('staffTalkEmpty'))}</div>`;
     host.querySelectorAll('[data-topic-toggle]').forEach(input=>{
@@ -13188,47 +13235,62 @@ function mountStaffTalkChat(root){
   const paint=()=>{
     if(!talkPageActive()) return;
     const log=root.querySelector('#talkLog');
-    const videoBtn=root.querySelector('#talkVideoOpen');
+    const videoBtn=document.getElementById('talkVideoOpen');
     if(videoBtn){ videoBtn.disabled=!talk.videoUrl; videoBtn.dataset.url=talk.videoUrl||''; }
     if(log){
       const msgs=talk.messages||[];
+      let day='';
       log.innerHTML = msgs.length
         ? msgs.map(m=>{
             const mine=m.by===state.user.id;
-            return `<div class="chat-msg ${mine?'talk-user':'assistant'}">
-              <span class="talk-who">${esc(m.byName||m.by)} · ${esc(fmtTalkTime(m.at))}</span>${esc(m.text)}</div>`;
+            const messageDay=fmtTalkDate(m.at);
+            const separator=messageDay!==day ? `<div class="talk-day"><span>${esc(messageDay)}</span></div>` : '';
+            day=messageDay;
+            const name=m.byName||m.by;
+            return `${separator}<article class="talk-message ${mine?'mine':'theirs'}">
+              <span class="talk-avatar" aria-hidden="true">${esc(talkInitials(name))}</span>
+              <div class="talk-message-body"><div class="talk-message-meta"><b>${esc(name)}</b><time>${esc(fmtTalkTime(m.at))}</time></div>
+              <div class="talk-bubble">${esc(m.text)}</div></div></article>`;
           }).join('')
-        : `<div class="chat-msg talk-meta">${esc(t('staffTalkEmpty'))}</div>`;
+        : `<div class="talk-empty-chat">${ui('u-chat')}<b>${esc(t('staffTalkEmpty'))}</b></div>`;
       log.scrollTop=log.scrollHeight;
     }
-    paintTopics();
+    paintTopics(); paintCounts();
   };
 
   root.innerHTML=`
     <div class="chat-log talk-chat-fast" id="talkLog" aria-live="polite"></div>
-    <div class="chat-compose">
+    <div class="chat-compose talk-compose">
       <textarea id="talkInput" rows="1" placeholder="${esc(t('staffTalkPlaceholder'))}"></textarea>
-      <button class="chat-mic" id="talkMic" type="button" aria-label="${esc(t('helpVoice'))}" title="${esc(t('helpVoice'))}">🎤</button>
+      <button class="chat-mic" id="talkMic" type="button" aria-label="${esc(t('helpVoice'))}" title="${esc(t('helpVoice'))}"><span aria-hidden="true">●</span></button>
       <button class="btn" id="talkSend" type="button">${esc(t('staffTalkSend'))}</button>
     </div>
-    <div class="chat-voice-status" id="talkVoiceStatus" hidden></div>
-    <div class="talk-float-tools">
-      <button class="btn ghost sm" type="button" id="talkVideoOpen">📹 ${esc(t('staffTalkVideoOpen'))}</button>
-      <button class="btn ghost sm" type="button" id="talkToZoAi">${ui('u-sparkle')} ${esc(t('helpChat'))}</button>
-    </div>`;
+    <div class="chat-voice-status" id="talkVoiceStatus" hidden></div>`;
   paint();
   const input=root.querySelector('#talkInput');
   const send=root.querySelector('#talkSend');
   const mic=root.querySelector('#talkMic');
-  setTimeout(()=>input?.focus(), 20);
+  send.disabled=!input.value.trim();
 
-  root.querySelector('#talkVideoOpen').onclick=()=>{
-    const url=root.querySelector('#talkVideoOpen').dataset.url;
+  const videoOpen=document.getElementById('talkVideoOpen');
+  if(videoOpen) videoOpen.onclick=()=>{
+    const url=videoOpen.dataset.url;
     if(!url) return;
     feedback('open');
     window.open(url, '_blank', 'noopener,noreferrer');
   };
-  root.querySelector('#talkToZoAi').onclick=()=>{ feedback('select'); openZoAi(); };
+  const zoOpen=document.getElementById('talkToZoAi');
+  if(zoOpen) zoOpen.onclick=()=>{ feedback('select'); openZoAi(); };
+
+  const talkPage=root.closest('.talk-page');
+  talkPage?.querySelectorAll('[data-talk-pane]').forEach(button=>{
+    button.onclick=()=>{
+      const pane=button.dataset.talkPane||'chat';
+      talkPage.dataset.talkPane=pane;
+      talkPage.querySelectorAll('.talk-mobile-switch [data-talk-pane]').forEach(item=>item.classList.toggle('on',item.dataset.talkPane===pane));
+      feedback('select');
+    };
+  });
 
   const topicInput=document.getElementById('talkTopicInput');
   document.getElementById('talkTopicAdd')?.addEventListener('click', async()=>{
@@ -13278,9 +13340,14 @@ function mountStaffTalkChat(root){
       talk.messages=(talk.messages||[]).filter(m=>m.id!==optimistic.id);
       paint();
       feedback('error'); toast(error.message||t('staffTalkLoadError'),'error');
-    }finally{ busy=false; send.disabled=false; if(mic) mic.disabled=false; input.focus(); }
+    }finally{ busy=false; send.disabled=!input.value.trim(); if(mic) mic.disabled=false; input.focus(); }
   };
   send.onclick=submit;
+  input.oninput=()=>{
+    input.style.height='auto';
+    input.style.height=`${Math.min(input.scrollHeight,112)}px`;
+    send.disabled=!input.value.trim() || busy;
+  };
   input.onkeydown=e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); } };
   voice=bindVoiceInput({ input, mic, statusEl:root.querySelector('#talkVoiceStatus') });
 
@@ -15361,7 +15428,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||127),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||131),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

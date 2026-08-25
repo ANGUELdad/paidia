@@ -1,5 +1,15 @@
 # Changelog
 
+## v131 — 2026-08-25
+
+- Rebuilt Talk as a focused team workspace with a clear channel header, live status, and useful message/topic counts.
+- Replaced generic chat bubbles with readable author, avatar, timestamp, date-divider, and message grouping treatment.
+- Made mobile chat-first with a dedicated Messages/Meeting switch instead of forcing staff through the agenda before reaching chat.
+- Reworked the meeting agenda with clear completion controls, responsive topic entry, suggestions, and completed-topic cleanup.
+- Moved the real video-room and Zo-Ai actions into the channel header and kept the composer visible and usable across device sizes.
+- Added auto-growing message input, narrow-screen action fitting, reduced-motion support, and short landscape handling.
+- Cache `paidia-v131`.
+
 ## v127 — 2026-08-25
 
 - Rebuilt Shopping as a clear flow: house, Friday, Plan/Take mode, then item entry.
