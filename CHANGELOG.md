@@ -1,5 +1,14 @@
 # Changelog
 
+## v124 — 2026-08-25
+
+- Rebuilt Storage around a priority queue: empty items first, then low stock, with the full catalogue available only when requested.
+- Replaced the crowded toolbar with one search field, one primary stock-movement action, and a compact secondary-actions menu.
+- Removed the repeated per-product shopping buttons; shopping remains available through product details and the bulk low-stock action.
+- Added a responsive health overview, explicit status tabs, two-column desktop queue/catalogue, and a single-column mobile flow.
+- Kept direct quantity steppers, drafts, bulk selection, shift checks, multi-house comparison, search, and catalogue editing.
+- Cache `paidia-v124`.
+
 ## v123 — 2026-08-25
 
 - Removed the three-zone mental model from Daily and Weekly Plan; blocks remain only as internal form data for compatibility.

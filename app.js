@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 123,
-  label: 'v123',
+  version: 124,
+  label: 'v124',
   changed: {
-    de: 'Plan vereinfacht: eine chronologische Tagesagenda und sieben klare Wochenübersichten statt drei Zeitblöcken',
-    el: 'Απλούστερο πρόγραμμα: μία χρονολογική ροή ημέρας και επτά καθαρές ημέρες αντί για τρεις ζώνες',
+    de: 'Lager neu geordnet: Prioritäten zuerst, klare Schnellbuchung und ein ruhiger Katalog für alle Bildschirmgrößen',
+    el: 'Νέα Αποθήκη: πρώτα οι προτεραιότητες, καθαρή γρήγορη καταχώρηση και ήρεμος κατάλογος σε κάθε οθόνη',
   },
 };
 const T = {
@@ -321,6 +321,11 @@ const T = {
     homeMore:'Mehr heute',
     homeSignals:'Kurzüberblick',
     stockHeroHint:'Bestände prüfen und Bewegung buchen',
+    stockNeedsAction:'Jetzt prüfen',
+    stockNeedsActionHint:n=>n===1?'1 Produkt braucht Nachschub oder eine Prüfung.':`${n} Produkte brauchen Nachschub oder eine Prüfung.`,
+    stockCatalogue:'Gesamter Bestand nach Kategorie',
+    stockMoreActions:'Weitere Aktionen',
+    stockAllHealthy:'Alles ist ausreichend vorhanden.',
     shopHeroHint:'Freitagsliste planen, mitnehmen, im Laden abhaken',
     adminAutomations:'Automationen',
     adminAutomationsHint:'Lokale Mitteilungen steuern (App offen). E-Mail weiter über Broadcast.',
@@ -1085,6 +1090,11 @@ const T = {
     homeMore:'Περισσότερα σήμερα',
     homeSignals:'Σύντομη εικόνα',
     stockHeroHint:'Έλεγχος αποθέματος και κίνηση',
+    stockNeedsAction:'Χρειάζονται έλεγχο',
+    stockNeedsActionHint:n=>n===1?'1 προϊόν χρειάζεται αναπλήρωση ή έλεγχο.':`${n} προϊόντα χρειάζονται αναπλήρωση ή έλεγχο.`,
+    stockCatalogue:'Όλο το απόθεμα ανά κατηγορία',
+    stockMoreActions:'Περισσότερες ενέργειες',
+    stockAllHealthy:'Όλα τα προϊόντα έχουν επαρκές απόθεμα.',
     shopHeroHint:'Λίστα Παρασκευής · προετοιμασία · επιβεβαίωση στο μαγαζί',
     adminAutomations:'Αυτοματισμοί',
     adminAutomationsHint:'Τοπικές ειδοποιήσεις (ενώ η app είναι ανοιχτή). Email μέσω Broadcast.',
@@ -2490,7 +2500,7 @@ const state = {
   shopFriday: fridayFor(),
   shopPanel: 'plan',
   calendarMonth: null,
-  stockFilter: 'all',
+  stockFilter: 'attention',
   stockQuery: '',
   stockOpenCategories: null,
   stockTiles: localStorage.getItem('paidia.stockTiles')==='1',
@@ -6160,7 +6170,6 @@ const svgIcon = (id, cls) => `<svg class="${cls}" aria-hidden="true"><use href="
 function viewStock(){
   const hid = state.house;
   const houses=hid==='all'?DB.houses:[house(hid)];
-  const friday=state.shopFriday||fridayFor();
   const productState=p=>{
     const values=houses.map(h=>DB.stock[stockKey(h.id,p.id)]??0);
     return values.some(q=>q===0)?'empty':values.some(q=>q<=lowThreshold(p))?'low':'ok';
@@ -6171,6 +6180,9 @@ function viewStock(){
   const visible=allProducts.filter(p=>{
     const st=productState(p), matches=!query||norm(`${p.de} ${p.el}`).includes(query);
     return matches&&(!!query||state.stockFilter==='all'||state.stockFilter===st||state.stockFilter==='attention'&&st!=='ok');
+  }).sort((a,b)=>{
+    const priority={empty:0,low:1,ok:2};
+    return priority[productState(a)]-priority[productState(b)]||L(a).localeCompare(L(b),state.lang);
   });
   const catIcon = cid => svgIcon(catIconId(cid), 'cat-ico');
   const productCard=p=>{
@@ -6185,22 +6197,16 @@ function viewStock(){
         </button>`;
       }
       const quantities=houses.map(h=>`<div class="stock-qty"><span class="stock-state">${esc(h.short)}</span>${DB.stock[stockKey(h.id,p.id)]??0}<small>${esc(p.unit)}</small></div>`).join('');
-      const wantBtns=houses.map(h=>{
-        const planned=isProductOnFridayList(h.id,p.id,friday);
-        return `<button type="button" class="want-bought ${planned?'on':''}" data-want-shop="${p.id}" data-want-house="${h.id}" ${planned?'disabled':''}>${planned?'✓ ':''}${esc(h.short)}</button>`;
-      }).join('');
       return `<div class="stock-product ${st} multi-house">
         <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div class="stock-product-name">${esc(L(p))}</div>
         <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ✎</div></button>
-        <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div>
-        <div class="want-bought-row" role="group" aria-label="${esc(t('wantBought'))}">${wantBtns}</div></div>`;
+        <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div></div>`;
     }
     const qty=DB.stock[stockKey(hid,p.id)]??0;
     const step=stepFor(p);
     const delta=state.stockDraft[p.id]||0;
     const preview=roundStock(qty+delta);
     const pending=delta?`<span class="stock-pending ${delta>0?'in':'out'}">${delta>0?'+':''}${delta}</span>`:'';
-    const planned=isProductOnFridayList(hid,p.id,friday);
     const selecting=state.selectMode==='stock' && hid!=='all';
     const sel=selecting && isSelected(p.id);
     return `<div class="stock-product ${st} has-stepper ${delta?'drafting':''} ${sel?'selected':''}">
@@ -6213,33 +6219,39 @@ function viewStock(){
         <button class="stock-step out" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${preview<=0&&delta<=0?'disabled':''}>−</button>
         <div class="stock-qty ${delta>0?'draft-in':delta<0?'draft-out':''}">${preview}<small>${esc(p.unit)}</small></div>
         <button class="stock-step in" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">＋</button>
-      </div>
-      <button type="button" class="want-bought ${planned?'on':''}" data-want-shop="${p.id}" ${planned?'disabled':''}>${planned?'✓ '+t('wantBoughtDone'):t('wantBought')}</button>`}
+      </div>`}
     </div>`;
   };
-  const forceOpenCats=!!query || state.stockFilter!=='all';
-  const categoryHtml=CATS().map(c=>{
+  const categoryHtml=CATS().map((c,index)=>{
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
-    const hasAttention=products.some(p=>{const st=productState(p);return st==='empty'||st==='low';});
     const hasDraft=hid!=='all'&&products.some(p=>state.stockDraft[p.id]);
-    const shouldOpen=forceOpenCats||hasAttention||hasDraft;
+    const shouldOpen=hasDraft||index===0;
     return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"${shouldOpen?' open':''}><summary><span class="cat-ico-wrap">${catIcon(c.id)}</span><span>${esc(L(c))}</span>
       <span class="stock-cat-count">${products.length}</span></summary><div class="stock-product-grid ${hid==='all'&&state.stockTiles?'tiles':''}">${products.map(productCard).join('')}</div></details>`;
   }).join('');
   const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
   const attention=counts.empty+counts.low;
+  const healthyPct=Math.round(counts.ok/Math.max(1,allProducts.length)*100);
+  const location=hid==='all'?t('bothHouses'):(house(hid)?.short||'');
+  const flatView=!!query||state.stockFilter!=='all';
+  const resultTitle=query?`${t('stockSearch')} · ${visible.length}`:state.stockFilter==='empty'?`${t('stockEmpty')} · ${visible.length}`:`${t('stockNeedsAction')} · ${visible.length}`;
+  const resultHint=query?state.stockQuery:state.stockFilter==='empty'?t('stockOutState'):T[state.lang].stockNeedsActionHint(visible.length);
+  const resultsHtml=flatView
+    ? `<section class="stock-priority" aria-label="${esc(resultTitle)}">
+        <header class="stock-section-heading"><div><p>${esc(resultTitle)}</p><span>${esc(resultHint)}</span></div>
+          ${!query&&state.stockFilter==='attention'&&attention&&hid!=='all'?`<button class="btn sec sm" type="button" id="stockQuickList">${ui('u-cart','sm')} ${esc(t('stockQuickList'))}</button>`:''}
+        </header>
+        <div class="stock-priority-grid">${visible.map(productCard).join('')||emptyState(ui('u-check'),t('stockAllHealthy'),'',state.stockQuery?`<button class="btn sm sec" type="button" id="stockEmptyClear">${esc(t('stockClearSearch'))}</button>`:'')}</div>
+      </section>`
+    : `<section class="stock-catalogue" aria-label="${esc(t('stockCatalogue'))}">
+        <header class="stock-section-heading"><div><p>${esc(t('stockCatalogue'))}</p><span>${allProducts.length} ${esc(t('productTypes'))}</span></div></header>
+        <div class="stock-categories">${categoryHtml||emptyState(ui('u-search'),t('noStockResults'),t('noStockHint'))}</div>
+      </section>`;
 
   return `<div class="stock-shell">
-    <header class="ops-hero stock-hero">
-      <p class="brand-kicker">Armonia</p>
-      <h2>${esc(t('headerStock'))}</h2>
-      <p>${esc(t('stockHeroHint'))}</p>
-      <div class="ops-hero-stats" role="group" aria-label="${esc(t('menuFilters'))}">
-        ${statTileHtml(counts.empty, t('stockEmpty'), 'u-alert', counts.empty?'down':'')}
-        ${statTileHtml(attention, t('stockAttention'), 'u-leaf', attention?'down':'')}
-        ${(()=>{ const sp=stockQtySparkHistory(hid); return sp.length?`<div class="w-stat"><span class="w-stat-lbl">7d</span>${sparklineHtml(sp,'sea')}</div>`:''; })()}
-        ${statTileHtml(counts.ok, t('stockHealthy'), 'u-check', '')}
-      </div>
+    <header class="stock-overview">
+      <div class="stock-overview-copy"><p class="brand-kicker">${esc(t('headerStock'))}</p><h2>${esc(location)}</h2><span>${esc(t('stockHeroHint'))}</span></div>
+      <div class="stock-health-ring" style="--stock-health:${healthyPct*3.6}deg" aria-label="${esc(T[state.lang].inventoryHealthyPct(healthyPct))}"><div><b>${healthyPct}%</b><span>${esc(t('stockHealthy'))}</span></div></div>
     </header>
     <div class="stock-command" aria-label="${esc(t('headerStock'))}">
       <div class="seg house-selector" id="sHouse" aria-label="${t('filterHouse')}">
@@ -6248,23 +6260,24 @@ function viewStock(){
       </div>
       <div class="stock-command-row">
         <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
-        ${hid==='all'?`<button class="stock-tool ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle" title="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-label="${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}" aria-pressed="${state.stockTiles?'true':'false'}">${state.stockTiles?'▦':'☰'}</button>`:''}
-        ${hid!=='all'?`<button class="stock-tool ${state.selectMode==='stock'?'on':''}" type="button" id="stockSelectToggle" title="${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}" aria-label="${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}" aria-pressed="${state.selectMode==='stock'?'true':'false'}">${state.selectMode==='stock'?'✓':'☑'}</button>
-        <button class="stock-tool labeled" type="button" id="stockQuickList" title="${esc(t('stockQuickList'))}" aria-label="${esc(t('stockQuickList'))}"><span aria-hidden="true">⚡</span><span>${esc(t('stockQuickListShort'))}</span></button>
-        <button class="stock-tool labeled" type="button" id="stockOpenBoard" title="${esc(t('stockBoard'))}" aria-label="${esc(t('stockBoard'))}"><span aria-hidden="true">▦</span><span>${esc(t('stockBoardShort'))}</span></button>
-        <button class="stock-tool labeled" type="button" id="stockQuickFood" title="${esc(t('stockAddFood'))}" aria-label="${esc(t('stockAddFood'))}"><span aria-hidden="true">＋</span><span>${esc(t('stockAddFoodShort'))}</span></button>`:''}
+        ${hid!=='all'?`<button class="btn stock-primary-action" type="button" id="stockOpenBoard"><span aria-hidden="true">↕</span> ${esc(t('stockBoardShort'))}</button>`:''}
+        <details class="stock-more"><summary aria-label="${esc(t('stockMoreActions'))}">•••</summary><div class="stock-more-popover">
+          ${hid==='all'?`<button class="stock-more-action ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle">${state.stockTiles?'▦':'☰'} ${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}</button>`:''}
+          ${hid!=='all'?`<button class="stock-more-action ${state.selectMode==='stock'?'on':''}" type="button" id="stockSelectToggle">☑ ${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}</button>
+          <button class="stock-more-action" type="button" id="stockQuickFood">＋ ${esc(t('stockAddFoodShort'))}</button>
+          <button class="stock-more-action" type="button" id="stockShiftCheck">☑ ${esc(t('shiftStockCheck'))}</button>`:''}
+        </div></details>
       </div>
-      <div class="stock-strip-stats" role="toolbar" aria-label="${esc(t('menuFilters'))}">
-        <button type="button" class="stock-chip empty ${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b>${t('stockEmpty')}</button>
-        <button type="button" class="stock-chip low ${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b>${t('stockAttention')}</button>
-        <button type="button" class="stock-chip ok ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b>${t('stockAll')}</button>
-        <button type="button" class="stock-chip check" id="stockShiftCheck" title="${esc(t('shiftStockCheck'))}">☑️</button>
-      </div>
+    </div>
+    <div class="stock-view-tabs" role="toolbar" aria-label="${esc(t('menuFilters'))}">
+      <button type="button" class="${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b><span>${esc(t('stockAttention'))}</span><small>${counts.empty} ${esc(t('stockEmpty'))} · ${counts.low} ${esc(t('stockLow'))}</small></button>
+      <button type="button" class="${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b><span>${esc(t('stockEmpty'))}</span><small>${esc(t('stockOutState'))}</small></button>
+      <button type="button" class="${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b><span>${esc(t('stockAll'))}</span><small>${esc(t('stockCatalogue'))}</small></button>
     </div>
     ${shiftPresenceBannerHtml()}
     ${shiftStockCheckBannerHtml()}
     ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
-    <div class="stock-categories">${categoryHtml||emptyState(ui('u-search'), t('noStockResults'), t('noStockHint'), state.stockQuery?`<button class="btn sm sec" type="button" id="stockEmptyClear">${esc(t('stockClearSearch'))}</button>`:(hid!=='all'?`<button class="btn sm" type="button" id="stockEmptyAdd">${esc(t('stockAddFoodShort'))}</button>`:''))}</div>
+    ${resultsHtml}
     ${state.selectMode==='stock'&&hid!=='all'?bulkBarHtml([
       {id:'to-list', label:t('bulkToList')},
       {id:'out', label:t('bulkOut')},
@@ -15321,7 +15334,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||123),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||124),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
