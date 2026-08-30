@@ -18,7 +18,7 @@
 | Presence | `app.js`, `sw.js` | `sheetShiftPresence`, notif actions `?presence=1` |
 | Talk / Team | `app.js`, `server.py` | `viewTalk`, `/api/talk` (staff) |
 | Gallery | `app.js`, `server.py`, `drive_gallery.py` | `/api/gallery`, Moments |
-| Child portal | `app.js`, `docs/zoai/child.md` | `renderChild` + `mountKidDock` (Start/Spiele/Bewertung/Bonus/Notizen/Mehr); desktop rail |
+| Child portal | `app.js`, `docs/zoai/child.md`, `docs/agents/QA_REPORT_KIDS_UI.md` | `renderChild` + `mountKidDock` + `childStartView` kid-home; desktop rail |
 | Notifications | `app.js`, `sw.js` | `enableAppNotifications`, `runNotificationSweep` (local OS) |
 | Email / broadcast | `server.py`, `app.js`, `email-preview.html` | `email_shell`, `/api/notify/broadcast` |
 | Admin center | `app.js` | admin panel, `sheetBroadcastEmail`, staff sheets |

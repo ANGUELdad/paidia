@@ -3,7 +3,7 @@
 **Date:** 2026-08-30  
 **Auditor:** QA / design-audit agent (code + production screenshot)  
 **Live:** https://armonia-thassos.vercel.app (`#home`, child session)  
-**Production at audit close:** **v143** (`build.json`)  
+**Production at audit close:** **v143**; implementer close-out **v144**  
 **Repo:** `/Users/aggelosdadalis/paidia`  
 **Screenshot:** user-attached Chrome desktop capture (macOS) of kids UI with Zo-Ai float open  
 
@@ -19,10 +19,10 @@
 |-------|----------|--------|
 | Kids dock / left rail missing | was P0 | **Fixed / v142** (`3545dec`) |
 | Zo-Ai title raw `<svg class="ui-ico"…>` | was P0 | **Fixed / v143** (`6e6c586`) |
-| Sparse desktop Start / Bewertung content | **P0** | **Open** |
-| No desktop multi-column kid home (vs staff `.home-pc`) | **P1** | **Open** |
-| Easy mode hides secondary kid destinations | **P1** | **Open** (product, not regression of nav) |
-| Tablet / mid-width layout density | **P1** | **Open** |
+| Sparse desktop Start / Bewertung content | was P0 | **Fixed / v144** |
+| No desktop multi-column kid home (vs staff `.home-pc`) | was P1 | **Fixed / v144** |
+| Easy mode hides secondary kid destinations | was P1 | **Fixed / v144** (Start CTAs always) |
+| Tablet / mid-width layout density | was P1 | **Improved / v144** |
 | Broader kids visual polish (“massive overhaul”) | **P2** | **Open** (backlog) |
 | Zo-Ai float vs dock / macOS dock collision | **P2** | **Open** |
 

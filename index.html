@@ -2785,23 +2785,25 @@
   body.layout-desktop.has-store-dock .chat-panel.chat-float{
     bottom:calc(var(--nav-total) + var(--dock-h) + 86px + var(--safe-b))}
   /* Kids desktop: keep a left chrome rail (kid-dock lives in #bottomPanel). */
-  body.layout-desktop.mode-child{--rail-w:180px}
+  body.layout-desktop.mode-child{--rail-w:200px}
   body.layout-desktop.mode-child #app.app-shell{
     display:grid; grid-template-columns:var(--rail-w) minmax(0,1fr);
     grid-template-rows:auto 1fr; max-width:none; min-height:100dvh; padding-bottom:0; gap:0}
   body.layout-desktop.mode-child header.app-chrome{grid-column:2; grid-row:1}
-  body.layout-desktop.mode-child main.app-stage{grid-column:2; grid-row:2; max-width:900px; margin:0 auto}
+  body.layout-desktop.mode-child main.app-stage{
+    grid-column:2; grid-row:2; max-width:1120px; width:100%; margin:0; padding:20px 28px 32px}
   body.layout-desktop.mode-child .bottom-panel.is-kid-chrome{
     grid-column:1; grid-row:1 / -1; position:sticky; top:0; left:0; right:auto; bottom:auto;
     height:100dvh; width:var(--rail-w); max-width:var(--rail-w); margin:0; padding:16px 10px;
-    pointer-events:auto; align-self:stretch; z-index:30;
-    display:flex; flex-direction:column; gap:8px;
+    pointer-events:auto; align-self:stretch; z-index:40;
+    display:flex!important; flex-direction:column; gap:8px;
     background:var(--chrome)!important; border-radius:0!important;
     box-shadow:inset -1px 0 0 rgba(255,255,255,.06)}
-  body.layout-desktop.mode-child .bottom-panel.is-kid-chrome .dock-brand{display:flex; flex-direction:column; gap:4px; padding:4px 4px 12px}
+  body.layout-desktop.mode-child .bottom-panel.is-kid-chrome .dock-brand{
+    display:flex!important; flex-direction:column; gap:4px; padding:4px 4px 12px}
   body.layout-desktop.mode-child .kid-dock{
-    position:static; left:auto; right:auto; bottom:auto;
-    flex:1 1 auto; display:flex; flex-direction:column; gap:4px;
+    position:static!important; left:auto; right:auto; bottom:auto;
+    flex:1 1 auto; display:flex!important; flex-direction:column; gap:4px;
     height:auto; min-height:0; width:100%; grid-template-columns:none;
     border-radius:0; padding:0; background:transparent; border:0; box-shadow:none;
     backdrop-filter:none; -webkit-backdrop-filter:none}
@@ -2812,6 +2814,11 @@
   body.layout-desktop.mode-child .kid-dock .nav-ico,
   body.layout-desktop.mode-child .kid-dock .ui-ico{margin:0}
   body.layout-desktop.mode-child .kid-shell{padding-bottom:var(--space-6); max-width:none}
+  body.layout-desktop.mode-child .kid-home-layout{
+    display:grid; grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr); gap:var(--space-4); align-items:start}
+  body.layout-desktop.mode-child .kid-home-aside{position:sticky; top:calc(var(--header-h, 72px) + 12px)}
+  body.layout-desktop.mode-child .kid-rate-layout{
+    display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--space-3); align-items:start}
   body.layout-desktop.mode-child .zoai-fab{
     bottom:calc(18px + var(--safe-b))!important; right:max(16px, var(--side-gutter))}
   body.layout-desktop.mode-child .chat-panel.chat-float{
@@ -3535,6 +3542,39 @@
   .learn-choice.is-wrong{border-color:var(--out)!important; background:var(--out-tint)!important}
   .kid-secondary{display:flex; flex-wrap:wrap; gap:var(--space-2); margin-top:var(--space-1)}
   .kid-secondary .chip{min-height:44px}
+  .kid-home{display:grid; gap:var(--space-3)}
+  .kid-home-layout{display:grid; gap:var(--space-3)}
+  .kid-home-main,.kid-home-aside{display:grid; gap:var(--space-3); align-content:start}
+  .kid-home-cta-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-2)}
+  .kid-home-cta-tile{
+    display:grid; grid-template-columns:auto 1fr; gap:var(--space-2); align-items:center;
+    text-align:left; min-height:56px; padding:var(--space-3); border-radius:var(--radius-sm);
+    border:1px solid var(--line); background:var(--glass-strong); box-shadow:var(--shadow-1);
+    font:inherit; font-weight:700; color:var(--ink); cursor:pointer; touch-action:manipulation}
+  .kid-home-cta-tile:active{transform:scale(.985)}
+  .kid-home-cta-ico{
+    width:36px; height:36px; border-radius:12px; display:grid; place-items:center;
+    background:var(--pine-tint); color:var(--brand)}
+  .kid-home-cta-tile.sea .kid-home-cta-ico{background:color-mix(in srgb, var(--sea) 16%, #fff); color:var(--sea-deep)}
+  .kid-home-cta-tile.sun .kid-home-cta-ico{background:var(--amber-tint, #f5e6c8); color:var(--sun)}
+  .kid-home-cta-tile.out .kid-home-cta-ico{background:var(--out-tint); color:var(--out)}
+  .kid-home-cta-ico .ui-ico{width:20px; height:20px}
+  .kid-sub-chip-row{display:flex; flex-wrap:wrap; gap:8px}
+  .kid-sub-chip{
+    display:inline-flex; align-items:center; gap:8px; min-height:40px; padding:8px 12px;
+    border-radius:999px; border:1px solid var(--line); background:#fff; font:inherit; cursor:pointer}
+  .kid-sub-chip strong{font-variant-numeric:tabular-nums; color:var(--sea)}
+  .kid-home-empty{display:grid; gap:10px; justify-items:start}
+  .next-up.next-up-idle{grid-template-columns:46px 1fr auto}
+  .next-up .nu-ring .ui-ico{width:22px; height:22px; color:#fff}
+  .kid-rate-layout{display:grid; gap:var(--space-3)}
+  @media (min-width:700px){
+    .kid-home-cta-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .kid-home-layout{grid-template-columns:minmax(0,1.2fr) minmax(240px,.9fr); align-items:start}
+    .kid-rate-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr); align-items:start}
+    body.mode-child:not(.layout-desktop) .kid-shell{max-width:820px; margin-inline:auto}
+    body.mode-child:not(.layout-desktop) main.app-stage{padding-inline:20px}
+  }
   @media (max-width:380px){
     .kid-dock button span{font-size:9px}
     .course-grid{gap:var(--space-1)}

@@ -1,5 +1,14 @@
 # Changelog
 
+## v144 — 2026-08-30
+
+- **Kids Start / Αρχική overhaul:** denser dashboard with CTA grid (Spiele, Bewertung, Bonus, Notizen, Plan, Sterne), week trend, subjects peek, lessons + next-up.
+- Desktop (≥900px): wider stage (~1120px) + 2-column home beside the left kid rail; tablet mid-width gets CTA/home split.
+- Phone: top chip strip (backup nav) + bottom dock; rail owns nav on desktop.
+- Easy mode keeps primary next steps visible (Spiele/Bewertung/Aufgaben/Sterne). DE/EL.
+- QA P0/P1 from `docs/agents/QA_REPORT_KIDS_UI.md` (sparse desktop / multi-column / Easy CTAs). Zo-Ai SVG title left to v143.
+- Cache `paidia-v144`.
+
 ## v143 — 2026-08-30
 
 - **Zo-Ai panel title:** render sparkle via `innerHTML` + `esc(title)` — `textContent` was showing raw `<svg>…</svg> Zo-Ai`.

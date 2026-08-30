@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 143,
-  label: 'v143',
+  version: 144,
+  label: 'v144',
   changed: {
-    de: 'Zo-Ai Titel: Sparkle-Icon statt Roh-HTML',
-    el: 'Τίτλος Zo-Ai: εικονίδιο sparkle αντί για raw HTML',
+    de: 'Kids-Home Desktop · Menü + Dichte',
+    el: 'Αρχική παιδιών · μενού + πυκνότητα',
   },
 };
 const T = {
@@ -274,6 +274,20 @@ const T = {
     kidGuideHintMore:'Weitere Seiten: Plan, Lernen, Sterne.',
     kidGuideHintEasy:'Tippe unten auf einen Menüpunkt.',
     kidGuideHintPro:'Menü unten (Telefon) oder links (Tablet/PC). Mehr öffnet Plan, Lernen, Sterne.',
+    kidHomeDash:'Dein Tag',
+    kidHomeCtaTitle:'Wohin als Nächstes?',
+    kidHomeCtaGames:'Spiele öffnen',
+    kidHomeCtaRate:'Woche bewerten',
+    kidHomeCtaBonus:'Bonus checken',
+    kidHomeCtaNotes:'Notiz schreiben',
+    kidHomeCtaPlan:'Stundenplan',
+    kidHomeCtaStars:'Sterne ansehen',
+    kidHomeWeekTitle:'Deine Woche',
+    kidHomeEmptyWeek:'Noch keine Noten diese Woche — tippe auf Bewertung.',
+    kidHomeSubjectsPeek:'Fächer diese Woche',
+    kidHomeGoRate:'Zu Bewertungen',
+    kidHomeGoGames:'Zu Spielen',
+    kidHomeAsideTitle:'Schnell',
     childNotifEvent:title=>`Event · ${title}`,
     adminBroadcastPreview:'So sieht die Mail aus',
     adminBroadcastLang:'Sprache der Mail',
@@ -325,6 +339,24 @@ const T = {
     tutorialReplayTip:'Du kannst dieses Tutorial jederzeit über Hilfe (?) oder Profil erneut öffnen.',
     helpCenter:'Hilfe & Zo-Ai', helpCenterHint:'Tutorial, Team-Gespräch und Zo-Ai. Zo-Ai kann mit Bestätigung Lager, Liste und Plan ändern.',
     startTutorial:'Geführtes App-Tutorial', startTutorialHint:'Alle Funktionen passend zu deinem Profil – jederzeit wiederholbar über ?.',
+    feedbackNav:'Feedback', feedbackTitle:'Melden & Vorschlagen',
+    feedbackHint:'Fehler melden, Änderung oder Ergänzung vorschlagen. Seite wird automatisch mitgeschickt.',
+    feedbackTypeBug:'Fehler', feedbackTypeChange:'Änderung', feedbackTypeAddition:'Ergänzung',
+    feedbackTypeBugHint:'Etwas funktioniert nicht oder sieht falsch aus',
+    feedbackTypeChangeHint:'Bestehendes anders machen',
+    feedbackTypeAdditionHint:'Neue Funktion oder Inhalt wünschen',
+    feedbackFieldTitle:'Kurz-Titel', feedbackTitlePh:'z.B. Lager ± speichert nicht',
+    feedbackFieldDesc:'Beschreibung', feedbackDescPh:'Was passiert? Was erwartest du?',
+    feedbackFieldContext:'Seite / Kontext', feedbackContextAuto:'automatisch',
+    feedbackFieldShot:'Screenshot-Hinweis (optional)', feedbackShotPh:'z.B. Foto folgt per WhatsApp / wo du es siehst',
+    feedbackFieldSeverity:'Schwere (nur Fehler)', feedbackSevLow:'Niedrig', feedbackSevMed:'Mittel', feedbackSevHigh:'Hoch',
+    feedbackSubmit:'Absenden', feedbackSubmitted:'Danke — gemeldet und gespeichert',
+    feedbackNeedTitle:'Bitte einen Titel eingeben', feedbackNeedDesc:'Bitte kurz beschreiben',
+    feedbackInbox:'Feedback-Posteingang', feedbackInboxHint:'Offene Meldungen prüfen und triagieren (Pro).',
+    feedbackInboxEmpty:'Keine Meldungen.', feedbackOpenCount:n=>n===1?'1 offen':`${n} offen`,
+    feedbackStatusOpen:'Offen', feedbackStatusTriaged:'In Arbeit', feedbackStatusDone:'Erledigt', feedbackStatusWont:'Nein',
+    feedbackTriageNote:'Notiz (optional)', feedbackTriageSave:'Status speichern',
+    feedbackBy:'Von', feedbackMine:'Meine Meldungen', feedbackMineEmpty:'Du hast noch nichts gemeldet.',
     askAiHelp:'Zo-Ai fragen', askAiHelpHint:'Lager, Liste, Plan — in einfacher Sprache',
     staffTalk:'Team sprechen', staffTalkHint:'Chat mit Mikrofon, Besprechungsthemen und gemeinsamer Videoanruf.',
     staffTalkTitle:'Team-Gespräch', staffTalkIntro:'Schreibt oder sprecht per Mikrofon. Themen merken wir für die Besprechung. Video geht über einen gemeinsamen Jitsi-Raum.',
@@ -1150,6 +1182,20 @@ const T = {
     kidGuideHintMore:'Άλλες σελίδες: Πρόγραμμα, Μάθηση, Αστέρια.',
     kidGuideHintEasy:'Πάτα κάτω ένα κουμπί του μενού.',
     kidGuideHintPro:'Μενού κάτω (τηλέφωνο) ή αριστερά (τάμπλετ/PC). Τα Άλλα ανοίγουν Πρόγραμμα, Μάθηση, Αστέρια.',
+    kidHomeDash:'Η μέρα σου',
+    kidHomeCtaTitle:'Πού μετά;',
+    kidHomeCtaGames:'Άνοιξε παιχνίδια',
+    kidHomeCtaRate:'Βαθμολόγησε την εβδομάδα',
+    kidHomeCtaBonus:'Δες μπόνους',
+    kidHomeCtaNotes:'Γράψε σημείωση',
+    kidHomeCtaPlan:'Ωρολόγιο',
+    kidHomeCtaStars:'Δες αστέρια',
+    kidHomeWeekTitle:'Η εβδομάδα σου',
+    kidHomeEmptyWeek:'Δεν υπάρχουν βαθμοί ακόμα — πάτα Αξιολόγηση.',
+    kidHomeSubjectsPeek:'Μαθήματα αυτής της εβδομάδας',
+    kidHomeGoRate:'Στις αξιολογήσεις',
+    kidHomeGoGames:'Στα παιχνίδια',
+    kidHomeAsideTitle:'Γρήγορα',
     childNotifEvent:title=>`Event · ${title}`,
     adminBroadcastPreview:'Έτσι φαίνεται το email',
     adminBroadcastLang:'Γλώσσα email',
@@ -1201,6 +1247,24 @@ const T = {
     tutorialReplayTip:'Μπορείς να ανοίξεις ξανά αυτό το tutorial οποιαδήποτε στιγμή από το ? ή το Προφίλ.',
     helpCenter:'Βοήθεια & Zo-Ai', helpCenterHint:'Tutorial, συνομιλία ομάδας και Zo-Ai. Η Zo-Ai μπορεί με επιβεβαίωση να αλλάξει αποθήκη, λίστα και πρόγραμμα.',
     startTutorial:'Καθοδηγούμενο tutorial εφαρμογής', startTutorialHint:'Όλες οι λειτουργίες για το προφίλ σου – επαναλαμβάνεται από το ?.',
+    feedbackNav:'Αναφορά', feedbackTitle:'Αναφορά & πρόταση',
+    feedbackHint:'Αναφορά σφάλματος, αίτημα αλλαγής ή προσθήκης. Η σελίδα συμπληρώνεται αυτόματα.',
+    feedbackTypeBug:'Σφάλμα', feedbackTypeChange:'Αλλαγή', feedbackTypeAddition:'Προσθήκη',
+    feedbackTypeBugHint:'Κάτι δεν δουλεύει ή φαίνεται λάθος',
+    feedbackTypeChangeHint:'Να αλλάξει κάτι που υπάρχει',
+    feedbackTypeAdditionHint:'Νέα λειτουργία ή περιεχόμενο',
+    feedbackFieldTitle:'Σύντομος τίτλος', feedbackTitlePh:'π.χ. Το ± στο Lager δεν αποθηκεύει',
+    feedbackFieldDesc:'Περιγραφή', feedbackDescPh:'Τι συμβαίνει; Τι περίμενες;',
+    feedbackFieldContext:'Σελίδα / πλαίσιο', feedbackContextAuto:'αυτόματα',
+    feedbackFieldShot:'Σημείωση screenshot (προαιρετικό)', feedbackShotPh:'π.χ. φωτό στο WhatsApp / πού το βλέπεις',
+    feedbackFieldSeverity:'Σοβαρότητα (μόνο σφάλμα)', feedbackSevLow:'Χαμηλή', feedbackSevMed:'Μεσαία', feedbackSevHigh:'Υψηλή',
+    feedbackSubmit:'Αποστολή', feedbackSubmitted:'Ευχαριστούμε — αποθηκεύτηκε',
+    feedbackNeedTitle:'Βάλε έναν τίτλο', feedbackNeedDesc:'Γράψε μια σύντομη περιγραφή',
+    feedbackInbox:'Εισερχόμενα feedback', feedbackInboxHint:'Έλεγχος και triage ανοιχτών αναφορών (Pro).',
+    feedbackInboxEmpty:'Καμία αναφορά.', feedbackOpenCount:n=>n===1?'1 ανοιχτή':`${n} ανοιχτές`,
+    feedbackStatusOpen:'Ανοιχτό', feedbackStatusTriaged:'Σε εξέλιξη', feedbackStatusDone:'Έγινε', feedbackStatusWont:'Όχι',
+    feedbackTriageNote:'Σημείωση (προαιρετικό)', feedbackTriageSave:'Αποθήκευση κατάστασης',
+    feedbackBy:'Από', feedbackMine:'Οι αναφορές μου', feedbackMineEmpty:'Δεν έχεις στείλει ακόμα.',
     askAiHelp:'Ρώτα τη Zo-Ai', askAiHelpHint:'Αποθήκη, λίστα, πρόγραμμα — με απλά λόγια',
     staffTalk:'Ομάδα — συνομιλία', staffTalkHint:'Chat με μικρόφωνο, θέματα σύσκεψης και κοινό βιντεοκλήση.',
     staffTalkTitle:'Συνομιλία ομάδας', staffTalkIntro:'Γράψτε ή μιλήστε με μικρόφωνο. Τα θέματα μένουν για τη σύσκεψη. Το βίντεο είναι κοινό δωμάτιο Jitsi.',
@@ -2101,6 +2165,7 @@ const SEED = {
   listEntries: [],
   shoppingTrips: [],
   listRequests: [],
+  feedbackReports: [],
   stock: {},
   log: [],
   shiftNotes: {},
@@ -2122,7 +2187,7 @@ const SEED = {
 /* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
 const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
-const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'listRequests', 'stock', 'log',
+const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'listRequests', 'feedbackReports', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
                  'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable'];
@@ -2138,7 +2203,7 @@ function load(){
     }
   }catch(e){ console.warn('load failed', e); }
   // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
-  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','listRequests','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
+  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','listRequests','feedbackReports','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
     .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object') db.productOverrides = {};
@@ -2161,7 +2226,7 @@ function load(){
 
 /** Shared across all staff devices — full operational state (survives when Postgres is configured). */
 const SHARED_KEYS = [
-  'listEntries','shoppingTrips','listRequests','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
+  'listEntries','shoppingTrips','listRequests','feedbackReports','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
   'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
   'xpLog','gameStats',
@@ -2359,6 +2424,7 @@ async function pushKidOps(){
     kidRatings: (DB.kidRatings||[]).filter(r=>r && r.kidId===kidId),
     kidNotes:   (DB.kidNotes||[]).filter(n=>n && n.kidId===kidId),
     listRequests: (DB.listRequests||[]).filter(r=>r && r.kidId===kidId && r.status==='open'),
+    feedbackReports: (DB.feedbackReports||[]).filter(r=>r && (r.kidId===kidId || r.authorId===kidId) && r.status==='open'),
   };
   try{
     const res = await fetch('/api/kid-ops', {
@@ -11609,6 +11675,49 @@ function childGameChallengeHtml(kidId){
   </div>`;
 }
 
+function kidWeekTrendHtml(kidId){
+  const weeks = [];
+  for(let i=3;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate() - i*7);
+    const wk = kidWeekKey(d);
+    weeks.push({wk, avg: kidWeekAverage(kidId, wk)});
+  }
+  const any = weeks.some(w=>w.avg);
+  if(!any){
+    return `<div class="kid-home-empty">
+      <p class="muted">${esc(t('kidHomeEmptyWeek'))}</p>
+      <button type="button" class="btn sm" data-child-view="rate">${esc(t('kidHomeGoRate'))}</button>
+    </div>`;
+  }
+  return weeks.map(w=>`
+    <div class="kid-trend-row">
+      <span class="kid-trend-wk">${esc(w.wk.slice(5).replace('-','.'))}</span>
+      <span class="kid-trend-track"><span class="kid-trend-fill" style="width:${gradeQualityPct(w.avg)}%"></span></span>
+      <span class="kid-trend-val">${w.avg ? w.avg.toFixed(1) : '–'}</span>
+    </div>`).join('');
+}
+
+function kidHomeCtaHtml(){
+  /* Dock destinations stay visible in Easy; Plan/Sterne are Pro extras. */
+  const items = [
+    {id:'games', label:t('kidHomeCtaGames'), ico:'u-party', tone:'out'},
+    {id:'rate', label:t('kidHomeCtaRate'), ico:'u-target', tone:'sea'},
+    {id:'bonus', label:t('kidHomeCtaBonus'), ico:'u-sparkle', tone:'sun'},
+    {id:'notes', label:t('kidHomeCtaNotes'), ico:'u-note', tone:''},
+    {id:'plan', label:t('kidHomeCtaPlan'), ico:'u-calendar', tone:'sea', pro:true},
+    {id:'rewards', label:t('kidHomeCtaStars'), ico:'u-sparkle', tone:'sun', pro:true},
+  ];
+  return `<div class="kid-home-cta" role="navigation" aria-label="${esc(t('kidHomeCtaTitle'))}">
+    <div class="kid-panel-h"><b>${esc(t('kidHomeCtaTitle'))}</b></div>
+    <div class="kid-home-cta-grid">${items.map(it=>`
+      <button type="button" class="kid-home-cta-tile ${it.tone}${it.pro?' pro-only mode-pro-block':''}" data-child-view="${it.id}">
+        <span class="kid-home-cta-ico" aria-hidden="true">${ui(it.ico)}</span>
+        <span>${esc(it.label)}</span>
+      </button>`).join('')}
+    </div>
+  </div>`;
+}
+
 function childStartView(c){
   const today = iso(new Date());
   const dateStr = state.date || today;
@@ -11620,6 +11729,7 @@ function childStartView(c){
   const done = lessons.filter(e=>childLessonPast(e, dateStr)).length;
   const next = lessons.find(e=>!childLessonPast(e, dateStr));
   const dueChores = (DB.chores||[]).filter(ch=>choreForKid(ch,c.id) && ch.daily && !choreDoneToday(ch.id,c.id)).length;
+  const summary = childProgressSummary(c.id);
   const lessonRows = lessons.length ? lessons.map(e=>{
     const past = childLessonPast(e, dateStr);
     const a = act(e.activityId);
@@ -11642,46 +11752,83 @@ function childStartView(c){
         <small>${esc(t('kidNextMeta')(30, 25))}</small>
       </div>
     </div>`;
-  })() : '';
-  return `
-    <header class="kid-header tide-reveal">
-      <p class="eyebrow">Armonia</p>
-      <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
-      <h2>${esc(t('kidHello')(c.name))}</h2>
-      <p class="kid-hello">${esc(lvName)} · ${esc(t('xpLevel')(lv))}</p>
-    </header>
-    <section class="level-card">
-      ${progressRingHtml(pct, lv)}
-      <div class="level-copy">
-        <div class="level-xp">${esc(t('kidXpOf')(xp, nextXp))}</div>
-        <div class="level-next">${lv>=XP_LEVELS.length-1?'MAX':esc(t('kidXpRemain')(Math.max(0,nextXp-xp)))}</div>
-        <div class="level-tag">${esc(t('kidLevelCard')(lv))}</div>
-        ${levelMeterHtml(pct)}
+  })() : `<div class="next-up next-up-idle">
+      <div class="nu-ring">${ui('u-party')}</div>
+      <div>
+        <div class="eyebrow">${esc(t('kidGuideNext'))}</div>
+        <b>${esc(t('kidHomeCtaGames'))}</b>
+        <small>${esc(t('kidGuideHintGames'))}</small>
       </div>
-    </section>
-    ${childSchoolSnapshotHtml(c.id)}
-    ${childRateDueBannerHtml(c.id)}
-    <section class="kid-panel">
-      <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||0))}</span></div>
-      ${lessonRows}
-    </section>
-    ${nextHtml}
-    <div class="course-grid">
-      <button type="button" class="course-tile" data-child-view="learn"><span class="bar"></span><b>${esc(t('kidCourseLearn'))}</b><span>${esc(t('kidLearnOpen')(1))}</span><div class="meter">${levelMeterHtml(55)}</div></button>
-      <button type="button" class="course-tile sea" data-child-view="aufgaben"><span class="bar"></span><b>${esc(t('kidCourseTasks'))}</b><span>${esc(t('kidTasksDue')(dueChores))}</span><div class="meter">${levelMeterHtml(dueChores?40:100)}</div></button>
-      <button type="button" class="course-tile sun" data-child-view="rewards"><span class="bar"></span><b>${esc(t('kidCourseStars'))}</b><span>${esc(t('kidStarsCollected')(xp))}</span><div class="meter">${levelMeterHtml(pct)}</div></button>
-      <button type="button" class="course-tile out" data-child-view="games"><span class="bar"></span><b>${esc(t('kidCourseGames'))}</b><span>${esc(t('kidGamesPlay'))}</span><div class="meter">${levelMeterHtml(25)}</div></button>
+      <button type="button" class="chip on" data-child-view="games">${esc(t('kidHomeGoGames'))}</button>
+    </div>`;
+  const subjectPeek = activeSubjects().slice(0,5).map(s=>{
+    const sc = subjectGradeFor(c.id, s.id, summary.week);
+    return `<button type="button" class="kid-sub-chip" data-child-view="rate">
+      <span>${esc(subjectLabel(s))}</span>
+      <strong>${sc?sc.toFixed(0):'—'}</strong>
+    </button>`;
+  }).join('');
+
+  return `
+    <div class="kid-home">
+      <header class="kid-header tide-reveal">
+        <p class="eyebrow">Armonia · ${esc(t('kidHomeDash'))}</p>
+        <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+        <h2>${esc(t('kidHello')(c.name))}</h2>
+        <p class="kid-hello">${esc(lvName)} · ${esc(t('xpLevel')(lv))} · ${esc(t('kidStarsCollected')(xp))}</p>
+      </header>
+      <div class="kid-home-layout">
+        <div class="kid-home-main">
+          <section class="level-card">
+            ${progressRingHtml(pct, lv)}
+            <div class="level-copy">
+              <div class="level-xp">${esc(t('kidXpOf')(xp, nextXp))}</div>
+              <div class="level-next">${lv>=XP_LEVELS.length-1?'MAX':esc(t('kidXpRemain')(Math.max(0,nextXp-xp)))}</div>
+              <div class="level-tag">${esc(t('kidLevelCard')(lv))}</div>
+              ${levelMeterHtml(pct)}
+            </div>
+          </section>
+          ${kidHomeCtaHtml()}
+          ${childRateDueBannerHtml(c.id)}
+          ${nextHtml}
+          <section class="kid-panel">
+            <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||0))}</span></div>
+            ${lessonRows}
+          </section>
+          <div class="course-grid">
+            <button type="button" class="course-tile sea" data-child-view="aufgaben"><span class="bar"></span><b>${esc(t('kidCourseTasks'))}</b><span>${esc(t('kidTasksDue')(dueChores))}</span><div class="meter">${levelMeterHtml(dueChores?40:100)}</div></button>
+            <button type="button" class="course-tile out" data-child-view="games"><span class="bar"></span><b>${esc(t('kidCourseGames'))}</b><span>${esc(t('kidGamesPlay'))}</span><div class="meter">${levelMeterHtml(25)}</div></button>
+            <button type="button" class="course-tile sun" data-child-view="rate"><span class="bar"></span><b>${esc(t('kidNavRate'))}</b><span>${esc(t('kidHomeGoRate'))}</span><div class="meter">${levelMeterHtml(summary.gradedCount?60:20)}</div></button>
+            <button type="button" class="course-tile" data-child-view="rewards"><span class="bar"></span><b>${esc(t('kidCourseStars'))}</b><span>${esc(t('kidStarsCollected')(xp))}</span><div class="meter">${levelMeterHtml(pct)}</div></button>
+          </div>
+          <div class="course-grid mode-pro-block">
+            <button type="button" class="course-tile" data-child-view="learn"><span class="bar"></span><b>${esc(t('kidCourseLearn'))}</b><span>${esc(t('kidLearnOpen')(1))}</span><div class="meter">${levelMeterHtml(55)}</div></button>
+            <button type="button" class="course-tile sea" data-child-view="plan"><span class="bar"></span><b>${esc(t('kidNavPlan'))}</b><span>${esc(t('kidHomeCtaPlan'))}</span><div class="meter">${levelMeterHtml(40)}</div></button>
+          </div>
+          ${childGameChallengeHtml(c.id)}
+        </div>
+        <aside class="kid-home-aside" aria-label="${esc(t('kidHomeAsideTitle'))}">
+          <section class="kid-panel">
+            <div class="kid-panel-h"><b>${esc(t('kidHomeWeekTitle'))}</b>
+              <button type="button" class="chip" data-child-view="rate">${esc(t('kidNavRate'))}</button></div>
+            ${kidWeekTrendHtml(c.id)}
+          </section>
+          <section class="kid-panel">
+            <div class="kid-panel-h"><b>${esc(t('kidHomeSubjectsPeek'))}</b></div>
+            <div class="kid-sub-chip-row">${subjectPeek||`<p class="muted">${esc(t('subEmpty'))}</p>`}</div>
+          </section>
+          <div class="mode-pro-block">${childSchoolSnapshotHtml(c.id)}</div>
+          <div class="kid-secondary">
+            <button type="button" class="chip" id="childRequestBtn">${esc(t('shopRequestBig'))}</button>
+            <button type="button" class="chip" data-child-view="notes">${esc(t('kidNotesTitle'))}</button>
+            <button type="button" class="chip" data-child-view="bonus">${esc(t('kidBonusTitle'))}</button>
+            <button type="button" class="chip mode-pro-block" data-child-view="events">${esc(t('childEvents'))}</button>
+            <button type="button" class="chip mode-pro-block" data-child-view="gallery">${esc(t('galleryChildTab'))}</button>
+          </div>
+          ${teamNoticeBannerHtml()}
+        </aside>
+      </div>
     </div>
-    ${childGameChallengeHtml(c.id)}
-    <div class="kid-secondary">
-      <button type="button" class="chip" id="childRequestBtn">${esc(t('shopRequestBig'))}</button>
-      <button type="button" class="chip" data-child-view="plan">${esc(t('kidNavPlan'))}</button>
-      <button type="button" class="chip" data-child-view="learn">${esc(t('kidNavLearn'))}</button>
-      <button type="button" class="chip" data-child-view="rewards">${esc(t('kidNavStars'))}</button>
-      <button type="button" class="chip pro-only mode-pro-block" data-child-view="events">${esc(t('childEvents'))}</button>
-      <button type="button" class="chip pro-only mode-pro-block" data-child-view="gallery">${esc(t('galleryChildTab'))}</button>
-    </div>
-    ${teamNoticeBannerHtml()}
   `;
 }
 
@@ -12596,7 +12743,8 @@ function childBewertungenView(kidId){
     </div>`;
   }).join('');
 
-  return `<div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+  return `<div class="kid-rate-pc">
+    <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
     ${childStaffRatingHtml(kidId)}
     <section class="kid-card mode-easy-block">
       <h2>${esc(t('kidRateTitle'))}</h2>
@@ -12610,11 +12758,14 @@ function childBewertungenView(kidId){
       <p class="muted">${esc(t('kidRateThingsLead'))}</p>
       ${thingRows}
     </section>
-    ${childSubjectsReadonlyHtml(kidId)}
-    <section class="kid-card mode-easy-block">
-      <h2>${esc(t('kidRateWeeks'))}</h2>
-      ${trend}
-    </section>`;
+    <div class="kid-rate-layout">
+      ${childSubjectsReadonlyHtml(kidId)}
+      <section class="kid-card mode-easy-block">
+        <h2>${esc(t('kidRateWeeks'))}</h2>
+        ${trend}
+      </section>
+    </div>
+  </div>`;
 }
 
 /* ── Kids: bonus ──────────────────────────────────────────────────────
@@ -12840,7 +12991,20 @@ function renderChild(){
   document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
   paintUiModeToggle();
   const tools=document.getElementById('topTools');
-  if(tools){ tools.hidden=true; tools.replaceChildren(); }
+  if(tools){
+    const dockActivePreview = kidDockActiveView(state.childView);
+    tools.hidden = false;
+    tools.innerHTML = `<div class="kid-top-nav" role="navigation" aria-label="Kids">
+      ${[
+        {id:'today', label:t('kidNavStart')},
+        {id:'games', label:t('kidNavGames')},
+        {id:'rate', label:t('kidNavRate')},
+        {id:'bonus', label:t('kidBonusTitle')},
+        {id:'notes', label:t('kidNotesTitle')},
+      ].map(it=>`<button type="button" class="chip ${dockActivePreview===it.id?'on':''}" data-child-view="${it.id}">${esc(it.label)}</button>`).join('')}
+      <button type="button" class="chip ${dockActivePreview==='more'?'on':''}" id="kidTopMore">${esc(t('navMore'))}</button>
+    </div>`;
+  }
   document.body.classList.add('mode-child');
   document.body.classList.remove('has-stock-dock','has-store-dock');
   document.body.classList.toggle('chat-open', !!state.chatOpen);
@@ -12854,6 +13018,9 @@ function renderChild(){
 
   const dockActive = kidDockActiveView(state.childView);
   mountKidDock(dockActive);
+  const topMore = document.getElementById('kidTopMore');
+  if(topMore) topMore.onclick = ()=>sheetKidMore();
+  wireKidChrome(document.getElementById('topTools'));
 
   let viewBody;
   if(state.childView==='today') viewBody = childStartView(c);
@@ -15704,7 +15871,7 @@ function syncLayoutMode(){
   const kidDock=document.querySelector('nav.kid-dock');
   const staffRail=document.querySelector('nav.dock[data-staff-dock]')||document.querySelector('nav.dock');
   if(desktop && childMode && kidDock){
-    document.documentElement.style.setProperty('--rail-w', '180px');
+    document.documentElement.style.setProperty('--rail-w', '200px');
   }else if(desktop && staffRail && staffRail.style.display!=='none' && !childMode){
     document.documentElement.style.setProperty('--rail-w', '220px');
   }else{
@@ -15728,8 +15895,8 @@ function measureChrome(){
       navH=0;
       root.style.setProperty('--kid-dock-h', '0px');
       document.body.style.setProperty('--kid-dock-h', '0px');
-      root.style.setProperty('--rail-w', '180px');
-      document.body.style.setProperty('--rail-w', '180px');
+      root.style.setProperty('--rail-w', '200px');
+      document.body.style.setProperty('--rail-w', '200px');
     }else if(kidDock){
       const style=getComputedStyle(kidDock);
       if(style.display!=='none' && style.visibility!=='hidden'){
@@ -18008,7 +18175,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||143),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||144),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

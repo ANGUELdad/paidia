@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 143,
-    label: 'v143',
+    version: 144,
+    label: 'v144',
     changed: {
-      de: 'Zo-Ai Titel: Sparkle-Icon statt Roh-HTML',
-      el: 'Τίτλος Zo-Ai: εικονίδιο sparkle αντί για raw HTML',
+      de: 'Kids-Home Desktop · Menü + Dichte',
+      el: 'Αρχική παιδιών · μενού + πυκνότητα',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
