@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 145,
-  label: 'v145',
+  version: 148,
+  label: 'v148',
   changed: {
-    de: 'Spotlight-Tour: echte Buttons, Easy/Pro, Fortsetzen',
-    el: 'Spotlight-tour: πραγματικά κουμπιά, Easy/Pro, συνέχεια',
+    de: 'Kinder können eigene Notizen speichern (Sync-Fix)',
+    el: 'Τα παιδιά αποθηκεύουν δικές τους σημειώσεις (sync fix)',
   },
 };
 const T = {
@@ -530,7 +530,10 @@ const T = {
     nothingToImport:'Nichts erkannt',
     importList:'🪄 Liste einlesen',
     aiReading:'AI liest und strukturiert die Liste…', aiUnavailable:'AI ist nicht erreichbar. Text wurde lokal analysiert.',
-    aiNeedsServer:'AI-Fotoerkennung ist nicht konfiguriert. Starte die App mit server.py und GROQ_API_KEY.',
+    aiNeedsServer:'AI-Fotoerkennung ist nicht konfiguriert. Setze XAI_API_KEY / GROK_API_KEY (Grok) oder GROQ_API_KEY und starte server.py.',
+    ocrSnapFill:'Foto → OCR', ocrSnapFillHint:'Produktname und Menge aus Foto lesen (Grok).',
+    ocrUnavailable:'OCR nicht verfügbar — kein API-Schlüssel. Admin: XAI_API_KEY oder GROK_API_KEY setzen.',
+    ocrFilled:'OCR gelesen — bitte prüfen',
     chooseImage:'Bild / Screenshot wählen', useCamera:'Kamera verwenden', extractedText:'Erkannter Text',
     confHigh:'Hohe Sicherheit', confMedium:'Prüfen', confLow:'Unklar', stockNow:'Bestand',
     aiDraft:'AI-Entwurf — bitte prüfen', imageReady:'Bild bereit', itemName:'Produktname',
@@ -587,8 +590,12 @@ const T = {
     kidNotesTitle:'Notizen', kidNotesKicker:'Nur für dich',
     kidNotesAsk:'Wie war dein Tag?', kidNotesPlaceholder:'Schreib auf, was du nicht vergessen willst…',
     kidNotesSave:'Notiz speichern', kidNotesSaved:'Notiz gespeichert',
+    kidNotesWrite:'Notiz schreiben', kidNotesEdit:'Bearbeiten', kidNotesDelete:'Löschen',
+    kidNotesUpdate:'Notiz aktualisieren', kidNotesDeleted:'Notiz gelöscht',
+    kidNotesCancelEdit:'Abbrechen',
     kidMoodGood:'Gut', kidMoodOk:'Geht so', kidMoodHard:'Schwer',
     kidNotesEmpty:'Noch keine Notizen. Schreib die erste.',
+    kidNotesEmptyHint:'Nur du und deine Betreuer sehen deine Notizen.',
     kidPlanTitle:'Stundenplan', kidAufgabenTitle:'Aufgaben', kidSterneTitle:'Sterne',
     kidLearnHubTitle:'Lernen', kidLearnHubHint:'Karten, Quiz und Rechnen — sammle Sterne.',
     kidStreak:'7-Tage-Streak', kidWeekDeltaLabel:'diese Woche', kidBadges:'Abzeichen',
@@ -715,9 +722,28 @@ const T = {
     notifEnable:'Mitteilungen aktivieren',
     notifEnabled:'Mitteilungen an',
     notifDenied:'Mitteilungen blockiert — in den Geräteeinstellungen erlauben',
+    notifUnsupported:'Dieses Gerät/Browser unterstützt keine Web-Mitteilungen.',
+    notifNeedInstall:'Auf dem iPhone: zuerst „Zum Home-Bildschirm“ — Mitteilungen nur in der installierten App (iOS 16.4+).',
+    notifNeedSecure:'Mitteilungen brauchen HTTPS (oder localhost).',
     notifDeliveryFailed:'Test konnte auf diesem Gerät nicht zugestellt werden.',
     notifDeliveryOk:'Test-Mitteilung wurde zugestellt.',
-    notifRuntimeHint:'Schicht-Hinweise werden synchronisiert, sobald Armonia läuft. Kalender-Erinnerungen funktionieren unabhängig davon.',
+    notifRuntimeHint:'Lokale Hinweise laufen, solange Armonia (oder der Service Worker) aktiv ist. Echtes Hintergrund-Push braucht VAPID-Schlüssel auf dem Server.',
+    notifDeliveryHint:'Kategorien gelten für lokale OS-Mitteilungen. Ohne Server-Push nur bei geöffneter App / aktivem SW.',
+    notifPrefsTitle:'Mitteilungen',
+    notifPrefsHint:'Wähle, woran dich Armonia erinnert — pro Kategorie ein- und ausschaltbar.',
+    notifCatsLabel:'Kategorien',
+    notifOptShifts:'Schicht / Anwesenheit',
+    notifOptHandover:'Übergabe vor Schichtende',
+    notifOptActivities:'Aktivitäten & Plan',
+    notifOptEvents:'Events',
+    notifOptShopping:'Einkauf / Anfragen',
+    notifOptStock:'Lager leer / Check',
+    notifOptJournal:'Schichtbuch offen',
+    notifOptRatings:'Bewertungen fällig',
+    notifOptReminders:'Wichtige Dinge / Erinnerungen',
+    notifOptChores:'Aufgaben (Kinder)',
+    notifOptSound:'Ton',
+    notifOptVibrate:'Vibration',
     notifHint:'Wie eine echte App: Lager leer, Schicht-Check, Anwesenheit, Events.',
     notifLowStock:n=>`${n} Produkte brauchen Aufmerksamkeit`,
     notifShiftCheck:'Schicht-Lagercheck offen (Kalyvia)',
@@ -726,6 +752,12 @@ const T = {
     notifTest:'Test-Mitteilung von Armonia',
     notifQuietStart:'Ruhezeit von', notifQuietEnd:'Ruhezeit bis', notifLeadMinutes:'Vorlauf (Minuten)',
     notifUpcomingEvent:t=>`Event gleich · ${t}`, notifUpcomingTask:t=>`Aufgabe gleich · ${t}`,
+    notifUpcomingActivity:t=>`Aktivität gleich · ${t}`,
+    notifHandoverSoon:t=>`Übergabe bald · Schicht bis ${t}`,
+    notifJournalDue:'Schichtbuch noch offen',
+    notifChoresDue:n=>n===1?'1 Aufgabe offen heute':`${n} Aufgaben offen heute`,
+    notifRatingsDue:n=>n===1?'1 Bewertung offen':`${n} Bewertungen offen`,
+    notifImportantDue:n=>n===1?'1 wichtiges Ding offen':`${n} wichtige Dinge offen`,
     notifFridayShop:n=>`Freitagseinkauf · ${n} offen`,
     calTitle:'Mein Kalender',
     calHint:'Ein Klick — Dienste und Events in Apple, Google, Outlook oder jeden anderen Kalender.',
@@ -906,7 +938,7 @@ const T = {
     errNetwork:'Keine Verbindung zum AI-Dienst. Prüfe Internet und Server und versuche es erneut.',
     errTimeout:'Die AI-Antwort hat zu lange gedauert. Bitte versuche es erneut.',
     errRate:'Die AI ist gerade ausgelastet. Warte kurz und versuche es erneut.',
-    errConfig:'AI ist nicht eingerichtet. Lokal: GROQ_API_KEY in .env. Live: denselben Key in Vercel → Environment Variables setzen und neu deployen.',
+    errConfig:'AI/OCR ist nicht eingerichtet. Lokal: XAI_API_KEY oder GROK_API_KEY (OCR) und/oder GROQ_API_KEY in .env. Live: dieselben Keys in Vercel → Environment Variables setzen und neu deployen.',
     errImage:'Das Bild konnte nicht gelesen werden. Verwende JPG, PNG oder WebP mit gut sichtbarem Text.',
     errServer:'Zo-Ai konnte die Anfrage nicht verarbeiten. Bitte versuche es erneut.',
     errFile:'Diese Datei konnte nicht geöffnet werden. Wähle ein anderes Bild.',
@@ -1440,7 +1472,10 @@ const T = {
     nothingToImport:'Δεν αναγνωρίστηκε τίποτα',
     importList:'🪄 Εισαγωγή λίστας',
     aiReading:'Το AI διαβάζει και οργανώνει τη λίστα…', aiUnavailable:'Το AI δεν είναι διαθέσιμο. Το κείμενο αναλύθηκε τοπικά.',
-    aiNeedsServer:'Η ανάγνωση φωτογραφίας με AI δεν έχει ρυθμιστεί. Εκκίνησε με server.py και GROQ_API_KEY.',
+    aiNeedsServer:'Η ανάγνωση φωτογραφίας με AI δεν έχει ρυθμιστεί. Βάλε XAI_API_KEY / GROK_API_KEY (Grok) ή GROQ_API_KEY και εκκίνησε με server.py.',
+    ocrSnapFill:'Φωτό → OCR', ocrSnapFillHint:'Όνομα και ποσότητα από φωτογραφία (Grok).',
+    ocrUnavailable:'Το OCR δεν είναι διαθέσιμο — λείπει API key. Admin: XAI_API_KEY ή GROK_API_KEY.',
+    ocrFilled:'Διαβάστηκε με OCR — έλεγξέ το',
     chooseImage:'Επιλογή εικόνας / screenshot', useCamera:'Χρήση κάμερας', extractedText:'Κείμενο που αναγνωρίστηκε',
     confHigh:'Υψηλή βεβαιότητα', confMedium:'Χρειάζεται έλεγχο', confLow:'Ασαφές', stockNow:'Απόθεμα',
     aiDraft:'Πρόχειρο AI — έλεγξέ το', imageReady:'Η εικόνα είναι έτοιμη', itemName:'Όνομα προϊόντος',
@@ -1489,8 +1524,12 @@ const T = {
     kidNotesTitle:'Σημειώσεις', kidNotesKicker:'Μόνο για σένα',
     kidNotesAsk:'Πώς ήταν η μέρα σου;', kidNotesPlaceholder:'Γράψε ό,τι δεν θες να ξεχάσεις…',
     kidNotesSave:'Αποθήκευση', kidNotesSaved:'Η σημείωση αποθηκεύτηκε',
+    kidNotesWrite:'Γράψε σημείωση', kidNotesEdit:'Επεξεργασία', kidNotesDelete:'Διαγραφή',
+    kidNotesUpdate:'Ενημέρωση σημείωσης', kidNotesDeleted:'Η σημείωση διαγράφηκε',
+    kidNotesCancelEdit:'Ακύρωση',
     kidMoodGood:'Καλά', kidMoodOk:'Έτσι κι έτσι', kidMoodHard:'Δύσκολα',
     kidNotesEmpty:'Καμία σημείωση ακόμα. Γράψε την πρώτη.',
+    kidNotesEmptyHint:'Μόνο εσύ και οι φροντιστές βλέπετε τις σημειώσεις σου.',
     kidHello:n=>`Γεια, ${n}`, kidLevelCard:n=>`Επίπεδο ${n}`, kidXpOf:(a,b)=>`${a} / ${b} αστέρια`,
     kidXpRemain:n=>`Ακόμα ${n} για το επόμενο επίπεδο`, kidTodayLessons:'Σήμερα',
     kidLessonsDone:(d,t)=>`${d} από ${t} έτοιμα`, kidNextUp:'Στη συνέχεια',
@@ -1625,9 +1664,28 @@ const T = {
     notifEnable:'Ενεργοποίηση ειδοποιήσεων',
     notifEnabled:'Ειδοποιήσεις ενεργές',
     notifDenied:'Ειδοποιήσεις μπλοκαρισμένες — επίτρεψέ τις στις ρυθμίσεις',
+    notifUnsupported:'Αυτή η συσκευή/browser δεν υποστηρίζει ειδοποιήσεις ιστού.',
+    notifNeedInstall:'Στο iPhone: πρώτα «Στην οθόνη Αφετηρίας» — οι ειδοποιήσεις δουλεύουν μόνο στην εγκατεστημένη εφαρμογή (iOS 16.4+).',
+    notifNeedSecure:'Οι ειδοποιήσεις χρειάζονται HTTPS (ή localhost).',
     notifDeliveryFailed:'Η δοκιμαστική ειδοποίηση δεν παραδόθηκε σε αυτή τη συσκευή.',
     notifDeliveryOk:'Η δοκιμαστική ειδοποίηση παραδόθηκε.',
-    notifRuntimeHint:'Οι ειδοποιήσεις βάρδιας συγχρονίζονται όταν λειτουργεί το Armonia. Οι υπενθυμίσεις ημερολογίου λειτουργούν ανεξάρτητα.',
+    notifRuntimeHint:'Οι τοπικές ειδοποιήσεις τρέχουν όσο είναι ανοιχτό το Armonia (ή ο Service Worker). Πραγματικό push στο παρασκήνιο χρειάζεται κλειδιά VAPID στον server.',
+    notifDeliveryHint:'Οι κατηγορίες ισχύουν για τοπικές ειδοποιήσεις OS. Χωρίς server-push μόνο με ανοιχτή εφαρμογή / ενεργό SW.',
+    notifPrefsTitle:'Ειδοποιήσεις',
+    notifPrefsHint:'Διάλεξε τι θα σου θυμίζει το Armonia — ανά κατηγορία on/off.',
+    notifCatsLabel:'Κατηγορίες',
+    notifOptShifts:'Βάρδια / παρουσία',
+    notifOptHandover:'Παράδοση πριν το τέλος',
+    notifOptActivities:'Δραστηριότητες & πρόγραμμα',
+    notifOptEvents:'Events',
+    notifOptShopping:'Ψώνια / αιτήματα',
+    notifOptStock:'Άδειο απόθεμα / έλεγχος',
+    notifOptJournal:'Ανοιχτό ημερολόγιο βάρδιας',
+    notifOptRatings:'Αξιολογήσεις σε εκκρεμότητα',
+    notifOptReminders:'Σημαντικά / υπενθυμίσεις',
+    notifOptChores:'Καθήκοντα (παιδιά)',
+    notifOptSound:'Ήχος',
+    notifOptVibrate:'Δόνηση',
     notifHint:'Σαν πραγματική εφαρμογή: άδειο απόθεμα, έλεγχος βάρδιας, παρουσία, events.',
     notifLowStock:n=>`${n} προϊόντα χρειάζονται προσοχή`,
     notifShiftCheck:'Έλεγχος αποθέματος βάρδιας ανοιχτός (Kalyvia)',
@@ -1636,6 +1694,12 @@ const T = {
     notifTest:'Δοκιμαστική ειδοποίηση Armonia',
     notifQuietStart:'Ώρα ησυχίας από', notifQuietEnd:'Ώρα ησυχίας έως', notifLeadMinutes:'Προειδοποίηση (λεπτά)',
     notifUpcomingEvent:t=>`Event σύντομα · ${t}`, notifUpcomingTask:t=>`Εργασία σύντομα · ${t}`,
+    notifUpcomingActivity:t=>`Δραστηριότητα σύντομα · ${t}`,
+    notifHandoverSoon:t=>`Παράδοση σύντομα · βάρδια έως ${t}`,
+    notifJournalDue:'Το ημερολόγιο βάρδιας είναι ακόμα ανοιχτό',
+    notifChoresDue:n=>n===1?'1 καθήκον ανοιχτό σήμερα':`${n} καθήκοντα ανοιχτά σήμερα`,
+    notifRatingsDue:n=>n===1?'1 αξιολόγηση ανοιχτή':`${n} αξιολογήσεις ανοιχτές`,
+    notifImportantDue:n=>n===1?'1 σημαντικό ανοιχτό':`${n} σημαντικά ανοιχτά`,
     notifFridayShop:n=>`Ψώνια Παρασκευής · ${n} ανοιχτά`,
     autoFridayShop:'Υπενθύμιση ψωνίων Παρασκευής',
     calTitle:'Το ημερολόγιό μου',
@@ -1817,7 +1881,7 @@ const T = {
     errNetwork:'Δεν υπάρχει σύνδεση με το AI. Έλεγξε internet και server και δοκίμασε ξανά.',
     errTimeout:'Το AI άργησε να απαντήσει. Δοκίμασε ξανά.',
     errRate:'Το AI έχει προσωρινά μεγάλο φόρτο. Περίμενε λίγο και δοκίμασε ξανά.',
-    errConfig:'Το AI δεν έχει ρυθμιστεί. Τοπικά: GROQ_API_KEY στο .env. Live: βάλε το ίδιο κλειδί στο Vercel → Environment Variables και κάνε νέο deploy.',
+    errConfig:'Το AI/OCR δεν έχει ρυθμιστεί. Τοπικά: XAI_API_KEY ή GROK_API_KEY (OCR) και/ή GROQ_API_KEY στο .env. Live: βάλε τα ίδια κλειδιά στο Vercel → Environment Variables και κάνε νέο deploy.',
     errImage:'Η εικόνα δεν διαβάστηκε. Χρησιμοποίησε JPG, PNG ή WebP με καθαρό κείμενο.',
     errServer:'Η Zo-Ai δεν μπόρεσε να επεξεργαστεί το αίτημα. Δοκίμασε ξανά.',
     errFile:'Το αρχείο δεν άνοιξε. Διάλεξε άλλη εικόνα.',
@@ -2261,8 +2325,52 @@ function saveLocal(){
   }
 }
 
+/* Kid-owned ops keys. While a child push is pending, pullShared must not wipe
+   local rows for this kid — that race made notes "save" then vanish. */
+const KID_OWNED_SYNC_KEYS = ['kidRatings', 'kidNotes', 'listRequests'];
+let kidPushPending = false;
+let kidPushEpoch = 0;
+
+function kidOwnsNoteRow(n, kidId){
+  if(!n || n.kidId !== kidId) return false;
+  const by = n.by;
+  return !by || by === kidId;
+}
+
+function snapshotKidOwnedLocal(kidId){
+  const out = {};
+  KID_OWNED_SYNC_KEYS.forEach(k=>{
+    out[k] = (DB[k]||[]).filter(r=>r && r.kidId===kidId);
+  });
+  return out;
+}
+
+function restoreKidOwnedLocal(kidId, snap){
+  KID_OWNED_SYNC_KEYS.forEach(k=>{
+    if(!snap[k]) return;
+    const server = Array.isArray(DB[k]) ? DB[k] : [];
+    const others = server.filter(r=>r && r.kidId!==kidId);
+    if(k==='kidNotes'){
+      const staff = server.filter(r=>r && r.kidId===kidId && r.by && r.by!==kidId);
+      const mine = snap[k].filter(r=>kidOwnsNoteRow(r, kidId));
+      DB[k] = others.concat(staff, mine);
+    }else if(k==='listRequests'){
+      const locked = server.filter(r=>r && r.kidId===kidId && r.status && r.status!=='open');
+      const mineOpen = snap[k].filter(r=>!r.status || r.status==='open');
+      DB[k] = others.concat(locked, mineOpen);
+    }else{
+      DB[k] = others.concat(snap[k]);
+    }
+  });
+}
+
 function applySharedPayload(data){
   if(!data || typeof data !== 'object') return false;
+  if(typeof data.revision === 'number' && data.revision < sharedRevision) return false;
+
+  const kidId = state.mode==='child' && state.child ? state.child.id : null;
+  const hold = (kidId && kidPushPending) ? snapshotKidOwnedLocal(kidId) : null;
+
   let changed = false;
   SHARED_KEYS.forEach(k=>{
     if(data[k] === undefined) return;
@@ -2272,12 +2380,11 @@ function applySharedPayload(data){
     changed = true;
   });
   if(state.mode==='child'){
-    // Raw staff evaluations are private. A child receives only the anonymous
-    // server-computed weekly summaries and drops any old v117 cache immediately.
     DB.staffKidRatings=[];
     DB.staffKidRatingSummaries=Array.isArray(data.staffKidRatingSummaries)?data.staffKidRatingSummaries:[];
     changed=true;
   }
+  if(hold && kidId) restoreKidOwnedLocal(kidId, hold);
   if(typeof data.revision === 'number'){
     sharedRevision = data.revision;
     localStorage.setItem('paidia.sharedRev', String(sharedRevision));
@@ -2285,6 +2392,7 @@ function applySharedPayload(data){
   if(changed) saveLocal();
   return changed;
 }
+
 
 async function pullShared({force=false}={}){
   if(!(state.user||state.child)) return false;
@@ -2418,35 +2526,53 @@ function noteDurability(data){
 let kidPushTimer = null;
 function scheduleKidPush(){
   if(state.mode !== 'child' || !state.child) return;
+  kidPushPending = true;
+  kidPushEpoch += 1;
+  const epoch = kidPushEpoch;
   clearTimeout(kidPushTimer);
-  kidPushTimer = setTimeout(pushKidOps, 900);
+  kidPushTimer = setTimeout(()=>pushKidOps(epoch), 900);
 }
-async function pushKidOps(){
+async function pushKidOps(epoch){
   if(state.mode !== 'child' || !state.child) return false;
   const kidId = state.child.id;
   const body = {
     kidRatings: (DB.kidRatings||[]).filter(r=>r && r.kidId===kidId),
-    kidNotes:   (DB.kidNotes||[]).filter(n=>n && n.kidId===kidId),
+    kidNotes:   (DB.kidNotes||[]).filter(n=>kidOwnsNoteRow(n, kidId)),
     listRequests: (DB.listRequests||[]).filter(r=>r && r.kidId===kidId && r.status==='open'),
-    feedbackReports: (DB.feedbackReports||[]).filter(r=>r && (r.kidId===kidId || r.authorId===kidId) && r.status==='open'),
-    gameStats: loadGameStats(kidId),
-    xpLog: (DB.xpLog||[]).filter(x=>x && x.kidId===kidId).slice(-400),
   };
+  if(typeof loadGameStats === 'function'){
+    try{ body.gameStats = loadGameStats(kidId); }catch(_){}
+  }
+  if(Array.isArray(DB.xpLog)){
+    body.xpLog = (DB.xpLog||[]).filter(x=>x && x.kidId===kidId).slice(-400);
+  }
+  if(Array.isArray(DB.feedbackReports)){
+    body.feedbackReports = (DB.feedbackReports||[]).filter(r=>r && (r.kidId===kidId || r.authorId===kidId) && r.status==='open');
+  }
   try{
     const res = await fetch('/api/kid-ops', {
       method:'POST', credentials:'same-origin',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(body),
     });
-    if(!res.ok) return false;
+    if(!res.ok){
+      if(epoch === undefined || epoch === kidPushEpoch) kidPushPending = true;
+      return false;
+    }
     const data = await res.json().catch(()=>null);
     noteDurability(data);
-    if(data && typeof data.revision === 'number') sharedRevision = data.revision;
+    if(data && typeof data.revision === 'number'){
+      sharedRevision = data.revision;
+      try{ localStorage.setItem('paidia.sharedRev', String(sharedRevision)); }catch{}
+    }
+    if(epoch === undefined || epoch === kidPushEpoch) kidPushPending = false;
     return true;
   }catch(_){
-    return false;   // offline: the local copy still holds, next save retries
+    if(epoch === undefined || epoch === kidPushEpoch) kidPushPending = true;
+    return false;
   }
 }
+
 
 function save(){
   const ok = saveLocal();
@@ -2701,13 +2827,14 @@ function groupChipHtml(g, on){
 }
 
 function friendlyAiError(error){
-  const status=Number(error?.status||0), code=String(error?.code||'').toLowerCase();
+  const status=Number(error?.status||148), code=String(error?.code||'').toLowerCase();
   const detail=String(error?.detail||error?.message||'').toLowerCase();
   if(status===401 || code==='auth_required') return t('helpAuthExpired');
-  if(status===503 || code==='configuration' || detail.includes('not configured') || detail.includes('configuration') || detail.includes('groq_api_key')) return t('errConfig');
+  if(status===403 || code==='staff_required') return t('ocrUnavailable');
+  if(status===503 || code==='configuration' || detail.includes('not configured') || detail.includes('configuration') || detail.includes('ocr unavailable') || detail.includes('groq_api_key') || detail.includes('xai_api_key') || detail.includes('grok_api_key')) return t('errConfig');
   if(status===429 || code==='rate_limit' || detail.includes('rate limit')) return t('errRate');
   if(status===408 || status===504 || code==='aborterror' || code==='timeout' || detail.includes('timed out') || detail.includes('timeout')) return t('errTimeout');
-  if(status===413 || detail.includes('too large') || detail.includes('image')) return t('errImage');
+  if(status===413 || code==='too_large' || detail.includes('too large') || detail.includes('image')) return t('errImage');
   if(!navigator.onLine || status===0 || detail.includes('failed to fetch') || detail.includes('network')) return t('errNetwork');
   if(status===502 || code==='provider') return t('helpUnavailable');
   return t('errServer');
@@ -2816,6 +2943,7 @@ const state = {
   kidsPane: 'directory',
   scheduleView: 'week',
   childView: 'today',
+  kidNoteEditId: null,
   gameId: null,
   game: null,
   gameCoach: null,
@@ -3381,7 +3509,7 @@ function writeTourProgress(patch={}){
     version: TOUR_VERSION,
     mode,
     profileId: profileId||'_',
-    index: Number.isFinite(patch.index) ? patch.index : (Number(prev.index)||0),
+    index: Number.isFinite(patch.index) ? patch.index : (Number(prev.index)||148),
     done: patch.done===true || (patch.done!==false && prev.done===true),
     skipped: patch.skipped===true || prev.skipped===true,
     density: isEasy()?'easy':'pro',
@@ -3856,9 +3984,9 @@ function helpUiContext(){
     const bests = Object.fromEntries(CHILD_GAMES.map(g=>[g.id, readGameBest(g.id)||0]));
     const suggest = [];
     if(unfinished) suggest.push({game:'learn', reason:'unfinished_topic', topic:unfinished});
-    if((bests.learn||0)<80) suggest.push({game:'learn', reason:'practice'});
-    if((bests.math||0)<60) suggest.push({game:'math', reason:'level_up'});
-    if((bests.catch||0)<30) suggest.push({game:'catch', reason:'fun'});
+    if((bests.learn||148)<80) suggest.push({game:'learn', reason:'practice'});
+    if((bests.math||148)<60) suggest.push({game:'math', reason:'level_up'});
+    if((bests.catch||148)<30) suggest.push({game:'catch', reason:'fun'});
     if(!suggest.length) suggest.push({game:'quiz', reason:'variety'});
     base.playSuggestions = suggest.slice(0,3);
   }
@@ -4636,9 +4764,11 @@ function sheetHelpCenter(){
   openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia Thassos</div><h2>${t('helpCenter')}</h2><p>${t('helpCenterHint')}</p></div>
     <div class="help-center-grid">
       <button class="help-center-card" id="helpTutorial" type="button"><span class="icon">📘</span><b>${t('startTutorial')}</b><span>${t('startTutorialHint')}</span></button>
+      <button class="help-center-card" id="helpFeedback" type="button"><span class="icon">💬</span><b>${esc(t('feedbackTitle'))}</b><span>${esc(t('feedbackHint'))}</span></button>
     </div>
     <p class="muted" style="margin:14px 0 0;font-size:12.5px">${ui('u-sparkle')} ${esc(t('helpChat'))} · ${esc(t('navChat'))}</p>`);
   sheetEl.querySelector('#helpTutorial').onclick=openAppTutorial;
+  sheetEl.querySelector('#helpFeedback').onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
 }
 
 async function talkApi(action=null, extra={}){
@@ -4658,7 +4788,7 @@ async function talkApi(action=null, extra={}){
 }
 
 function galleryRelative(at){
-  const ms = Date.now() - (Number(at)||0);
+  const ms = Date.now() - (Number(at)||148);
   if(ms < 60_000) return t('galleryJustNow');
   if(ms < 3_600_000) return t('galleryMinutes')(Math.max(1, Math.floor(ms/60_000)));
   if(ms < 86_400_000) return t('galleryHours')(Math.max(1, Math.floor(ms/3_600_000)));
@@ -6884,7 +7014,7 @@ async function aiExtractSchedule(text, weekMon){
     const result = await response.json().catch(()=>({error:'invalid-response'}));
     if(!response.ok){
       const error = new Error(result.error || 'AI request failed');
-      error.status=response.status; error.detail=result.detail||result.setup||result.error;
+      error.status=response.status; error.code=result.code; error.detail=result.detail||result.setup||result.error;
       throw error;
     }
     if(!Array.isArray(result.entries)){
@@ -7025,7 +7155,7 @@ function sheetAiSchedule(){
       const ctl=new AbortController(), timer=setTimeout(()=>ctl.abort(),4000);
       const response=await fetch('/api/health',{signal:ctl.signal}); clearTimeout(timer);
       const health=await response.json();
-      if(!busy) setStatus(status,health.aiConfigured?t('aiReady'):t('errConfig'),health.aiConfigured?'success':'error');
+      if(!busy) setStatus(status,(health.ocrConfigured??health.aiConfigured)?t('aiReady'):t('errConfig'),(health.ocrConfigured??health.aiConfigured)?'success':'error');
     }catch{ if(!busy) setStatus(status,t('errNetwork'),'error'); }
   })();
 
@@ -7082,7 +7212,7 @@ function exportScheduleCalendarIcs(){
   const items = [];
   DB.events.filter(e=>e.status==='published').forEach(e=>{
     const [hh,mm] = String(e.from||'10:00').split(':').map(Number);
-    const start = new Date(e.date+'T'+String(hh||10).padStart(2,'0')+':'+String(mm||0).padStart(2,'0')+':00');
+    const start = new Date(e.date+'T'+String(hh||148).padStart(2,'0')+':'+String(mm||148).padStart(2,'0')+':00');
     const end = new Date(start.getTime()+7200000);
     items.push({
       id:e.id, kind:'event', dateStr:e.date, title:(e.emoji||'📣')+' '+(e.title||e.name||'Event'),
@@ -7095,7 +7225,7 @@ function exportScheduleCalendarIcs(){
     const ds = iso(d);
     entriesFor(ds).filter(e=>!e.cancelled).forEach(e=>{
       const [hh,mm] = String(entryTime(e)||'09:00').split(':').map(Number);
-      const start = new Date(ds+'T'+String(hh||9).padStart(2,'0')+':'+String(mm||0).padStart(2,'0')+':00');
+      const start = new Date(ds+'T'+String(hh||148).padStart(2,'0')+':'+String(mm||148).padStart(2,'0')+':00');
       items.push({
         id:e.id, kind:'task', dateStr:ds, title: actLabel(e.activityId),
         description: [employeeNames(e), houseNames(e), e.note].filter(Boolean).join(' · '),
@@ -7118,9 +7248,13 @@ function viewScheduleCalendar(){
   const today = iso(now);
   const upcoming = [...DB.events].filter(e=>e.status==='published' && e.date>=today)
     .sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from)).slice(0,6);
-  const notifAvail = typeof Notification !== 'undefined';
-  const notifGranted = notifAvail && Notification.permission === 'granted';
-  const notifRow = !notifAvail ? '' : notifGranted
+  const notifCap = (typeof notifCapabilities==='function') ? notifCapabilities() : {api:typeof Notification!=='undefined', permission:(typeof Notification!=='undefined'?Notification.permission:'unsupported'), reason:!('Notification' in window)?'unsupported':'default', canRequest:true};
+  const notifGranted = !!notifCap.api && notifCap.permission === 'granted';
+  const notifRow = notifCap.reason==='unsupported' || notifCap.reason==='insecure'
+    ? `<span class="cal-notif-pill muted" title="${esc(notifCapabilityMessage(notifCap))}">${ui('u-bell')} ${esc(t('notifUnsupported'))}</span>`
+    : notifCap.reason==='ios-install'
+    ? `<span class="cal-notif-pill muted" title="${esc(t('notifNeedInstall'))}">${ui('u-bell')} ${esc(t('childInstallTitle'))}</span>`
+    : notifGranted
     ? `<span class="cal-notif-pill notif-bell" aria-live="polite">${ui('u-bell')} ${esc(t('notifEnabled'))}</span>`
     : `<button class="btn sm sec notif-bell" type="button" id="enableNotifs">${ui('u-bell')} ${esc(t('notifEnable'))}</button>`;
   const taskLegend = state.lang === 'el' ? 'Εργασίες' : 'Aufgaben';
@@ -7579,7 +7713,7 @@ const svgIcon = (id, cls) => `<svg class="${cls}" aria-hidden="true"><use href="
 /** Soft “full jar” ceiling for the tactile fill meter (not a hard max). */
 function stockFillPct(qty, p){
   const full = Math.max(lowThreshold(p) * 4, stepFor(p) * 4, 1);
-  return Math.max(0, Math.min(100, Math.round((Number(qty)||0) / full * 100)));
+  return Math.max(0, Math.min(100, Math.round((Number(qty)||148) / full * 100)));
 }
 function recentStockMoves(hid, limit=6){
   return (DB.log||[])
@@ -8471,6 +8605,8 @@ function sheetStockQuickAdd(){
     </div>
     <label class="f"><span>${t('stockFoodName')}</span>
       <input id="qaName" placeholder="Milch / Γάλα" autocomplete="off" enterkeyhint="done"></label>
+    <button class="btn sec sm" type="button" id="qaOcr" style="margin:0 0 10px">${ui('u-sparkle','sm')} ${esc(t('ocrSnapFill'))}</button>
+    <div class="muted" style="font-size:11px;margin:-6px 0 10px">${esc(t('ocrSnapFillHint'))}</div>
     <div id="qaMatches" class="stock-qa-matches-wrap"></div>
     <div class="row" style="gap:8px">
       <label class="f grow"><span>${t('qty')}</span>
@@ -8500,6 +8636,29 @@ function sheetStockQuickAdd(){
   nameInp?.addEventListener('input', ()=>{ matchPid=null; paint(); });
   nameInp?.addEventListener('keydown', ev=>{
     if(ev.key==='Enter'){ ev.preventDefault(); sheetEl.querySelector('#qaSave')?.click(); }
+  });
+  sheetEl.querySelector('#qaOcr')?.addEventListener('click', async ()=>{
+    const btn=sheetEl.querySelector('#qaOcr');
+    if(btn) btn.disabled=true;
+    try{
+      const item=await ocrPickFirstItem('stock');
+      if(!item){ toast(t('nothingToImport'),'info'); return; }
+      if(nameInp) nameInp.value=item.name||'';
+      if(item.qty!=null && Number.isFinite(Number(item.qty))){
+        qty=roundStock(Number(item.qty));
+        const q=sheetEl.querySelector('#qaQty'); if(q) q.value=String(qty);
+      }
+      if(item.unit){
+        unit=normalizeUnit(item.unit,'Stk');
+        const u=sheetEl.querySelector('#qaUnit'); if(u) u.value=unit;
+      }
+      matchPid=null; paint();
+      toast(t('ocrFilled'),'success');
+    }catch(error){
+      toast(friendlyAiError(error),'error',5200);
+    }finally{
+      if(btn) btn.disabled=false;
+    }
   });
   sheetEl.querySelector('#qaQty')?.addEventListener('change', e=>{
     const n = Number(String(e.target.value||'').replace(',','.'));
@@ -9165,7 +9324,7 @@ function shoppingHistory(hid){
   const legacy=new Map();
   DB.listEntries.filter(e=>e.houseId===hid&&['bought','missing'].includes(e.status)&&!capturedIds.has(e.id)).forEach(e=>{
     const friday=listEntryFriday(e),key=`${hid}:${friday}`,trip=legacy.get(key)||{id:`legacy-${key}`,houseId:hid,fridayDate:friday,completedAt:0,completedBy:null,items:[],legacy:true};
-    trip.completedAt=Math.max(trip.completedAt,Number(e.decidedAt)||0);trip.completedBy=e.decidedBy||trip.completedBy;
+    trip.completedAt=Math.max(trip.completedAt,Number(e.decidedAt)||148);trip.completedBy=e.decidedBy||trip.completedBy;
     trip.items.push({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status,reason:e.missReason||null});legacy.set(key,trip);
   });
   return [...saved,...legacy.values()].sort((a,b)=>(b.completedAt||new Date(b.fridayDate+'T12:00:00'))-(a.completedAt||new Date(a.fridayDate+'T12:00:00')));
@@ -9239,7 +9398,7 @@ function listRequestsFor(hid, {status, who}={}){
     }
     return true;
   });
-  return rows.sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+  return rows.sort((a,b)=>(Number(b.createdAt)||148)-(Number(a.createdAt)||148));
 }
 
 function openListRequestCount(hid){
@@ -9346,6 +9505,288 @@ function markListRequestBought(reqId, whoId){
   return true;
 }
 
+
+/* ── In-app feedback: bug / change / addition ───────────────────────── */
+const FEEDBACK_TYPES = ['bug','change','addition'];
+const FEEDBACK_STATUSES = ['open','triaged','done','wontfix'];
+
+function ensureFeedbackReports(){
+  if(!Array.isArray(DB.feedbackReports)) DB.feedbackReports = [];
+  return DB.feedbackReports;
+}
+
+function feedbackContextKey(){
+  if(state.mode==='child') return 'child:'+(state.childView||'today');
+  let key = 'staff:'+(state.tab||'home');
+  if(state.tab==='schedule') key += ':'+(state.scheduleView||'day');
+  if(state.tab==='shop') key += ':'+(state.shopPanel||'plan');
+  if(state.tab==='book') key += ':'+(state.bookPane||'shift');
+  if(state.tab==='kids') key += ':'+(state.kidsPane||'directory');
+  return key;
+}
+
+function feedbackContextLabel(){
+  if(state.mode==='child'){
+    const v = state.childView||'today';
+    const map = {
+      today: t('kidNavStart'), games: t('kidNavGames'), rate: t('kidNavRate'),
+      bonus: t('kidBonusTitle'), notes: t('kidNotesTitle'), more: t('navMore'),
+      plan: t('kidNavPlan'), learn: t('kidNavLearn'), rewards: t('kidNavStars'),
+      aufgaben: t('kidCourseTasks'), events: t('childEvents'),
+      gallery: t('galleryChildTab')||t('navGallery'),
+    };
+    return map[v] || v;
+  }
+  try{ return dynamicHeaderTitle(); }catch(_){ return String(state.tab||'home'); }
+}
+
+function feedbackTypeLabel(type){
+  if(type==='change') return t('feedbackTypeChange');
+  if(type==='addition') return t('feedbackTypeAddition');
+  return t('feedbackTypeBug');
+}
+
+function feedbackStatusLabel(status){
+  if(status==='triaged') return t('feedbackStatusTriaged');
+  if(status==='done') return t('feedbackStatusDone');
+  if(status==='wontfix') return t('feedbackStatusWont');
+  return t('feedbackStatusOpen');
+}
+
+function feedbackAuthorLabel(row){
+  if(!row) return '—';
+  if(row.authorName) return row.authorName;
+  if(row.authorType==='child' || row.kidId){
+    const c = kid(row.kidId || row.authorId);
+    return c?.name || '—';
+  }
+  const e = emp(row.authorId || row.by);
+  return e?.name || '—';
+}
+
+function openFeedbackCount(){
+  return ensureFeedbackReports().filter(r=>r && r.status==='open').length;
+}
+
+function createFeedbackReport({type, title, description, screenshotNote, severity}={}){
+  const cleanTitle = String(title||'').trim();
+  const cleanDesc = String(description||'').trim();
+  if(!cleanTitle){ toast(t('feedbackNeedTitle'),'error'); return null; }
+  if(!cleanDesc){ toast(t('feedbackNeedDesc'),'error'); return null; }
+  let ftype = String(type||'bug').toLowerCase();
+  if(!FEEDBACK_TYPES.includes(ftype)) ftype = 'bug';
+  let sev = null;
+  if(ftype==='bug'){
+    sev = String(severity||'medium').toLowerCase();
+    if(!['low','medium','high'].includes(sev)) sev = 'medium';
+  }
+  const child = state.mode==='child' && state.child;
+  const who = state.user || state.child;
+  const now = Date.now();
+  const row = {
+    id: uid(),
+    type: ftype,
+    title: cleanTitle.slice(0,120),
+    description: cleanDesc.slice(0,2000),
+    context: String(feedbackContextLabel()||'').slice(0,160),
+    contextKey: String(feedbackContextKey()||'').slice(0,80),
+    screenshotNote: String(screenshotNote||'').trim().slice(0,240),
+    severity: sev,
+    status: 'open',
+    authorType: child ? 'child' : 'staff',
+    authorId: who?.id || null,
+    authorName: (typeof profileName==='function' ? profileName(who) : who?.name) || '',
+    kidId: child ? state.child.id : null,
+    by: who?.id || null,
+    createdAt: now,
+    updatedAt: now,
+    triageNote: null,
+    triagedBy: null,
+    triagedAt: null,
+  };
+  ensureFeedbackReports().push(row);
+  if(!save()) return null;
+  feedback('save');
+  toast(t('feedbackSubmitted'),'success');
+  return row;
+}
+
+function triageFeedbackReport(id, status, note=''){
+  if(state.mode!=='staff' || !state.user) return false;
+  const row = ensureFeedbackReports().find(r=>r && r.id===id);
+  if(!row) return false;
+  const next = String(status||'open');
+  if(!FEEDBACK_STATUSES.includes(next)) return false;
+  row.status = next;
+  row.triageNote = String(note||'').trim().slice(0,400) || null;
+  row.triagedBy = state.user.id;
+  row.triagedAt = Date.now();
+  row.updatedAt = row.triagedAt;
+  return !!save();
+}
+
+function sheetFeedbackCompose({presetType}={}){
+  if(!(state.user||state.child)){ openGate(); return; }
+  const ctxLabel = feedbackContextLabel();
+  const ctxKey = feedbackContextKey();
+  const startType = FEEDBACK_TYPES.includes(presetType) ? presetType : 'bug';
+  openSheet(`<div class="help-center-hero">
+      <div class="import-kicker">Armonia</div>
+      <h2>${esc(t('feedbackTitle'))}</h2>
+      <p>${esc(t('feedbackHint'))}</p>
+    </div>
+    <div class="fb-form">
+      <div class="seg fb-type-seg" role="group" aria-label="${esc(t('feedbackNav'))}">
+        <button type="button" class="${startType==='bug'?'on':''}" data-fb-type="bug">${esc(t('feedbackTypeBug'))}</button>
+        <button type="button" class="${startType==='change'?'on':''}" data-fb-type="change">${esc(t('feedbackTypeChange'))}</button>
+        <button type="button" class="${startType==='addition'?'on':''}" data-fb-type="addition">${esc(t('feedbackTypeAddition'))}</button>
+      </div>
+      <p class="muted fb-type-hint" id="fbTypeHint">${esc(t('feedbackTypeBugHint'))}</p>
+      <label class="f"><span>${esc(t('feedbackFieldTitle'))}</span>
+        <input id="fbTitle" maxlength="120" autocomplete="off" placeholder="${esc(t('feedbackTitlePh'))}"></label>
+      <label class="f"><span>${esc(t('feedbackFieldDesc'))}</span>
+        <textarea id="fbDesc" rows="4" maxlength="2000" placeholder="${esc(t('feedbackDescPh'))}"></textarea></label>
+      <div class="fb-context muted"><b>${esc(t('feedbackFieldContext'))}</b>
+        <span>${esc(ctxLabel)} · ${esc(t('feedbackContextAuto'))}</span>
+        <code class="fb-ctx-key">${esc(ctxKey)}</code></div>
+      <label class="f"><span>${esc(t('feedbackFieldShot'))}</span>
+        <input id="fbShot" maxlength="240" placeholder="${esc(t('feedbackShotPh'))}"></label>
+      <div class="fb-sev" id="fbSevWrap">
+        <div class="muted" style="font-size:12px;margin:0 0 6px">${esc(t('feedbackFieldSeverity'))}</div>
+        <div class="seg" id="fbSev">
+          <button type="button" data-fb-sev="low">${esc(t('feedbackSevLow'))}</button>
+          <button type="button" class="on" data-fb-sev="medium">${esc(t('feedbackSevMed'))}</button>
+          <button type="button" data-fb-sev="high">${esc(t('feedbackSevHigh'))}</button>
+        </div>
+      </div>
+      <button type="button" class="btn" id="fbSubmit" style="margin-top:12px">${esc(t('feedbackSubmit'))}</button>
+    </div>`);
+  const root = sheetEl;
+  let type = startType;
+  let sev = 'medium';
+  const hint = root.querySelector('#fbTypeHint');
+  const sevWrap = root.querySelector('#fbSevWrap');
+  const syncType = ()=>{
+    root.querySelectorAll('[data-fb-type]').forEach(b=>b.classList.toggle('on', b.dataset.fbType===type));
+    const hints = {bug:t('feedbackTypeBugHint'), change:t('feedbackTypeChangeHint'), addition:t('feedbackTypeAdditionHint')};
+    if(hint) hint.textContent = hints[type] || '';
+    if(sevWrap) sevWrap.hidden = type!=='bug';
+  };
+  syncType();
+  root.querySelectorAll('[data-fb-type]').forEach(b=>{
+    b.onclick=()=>{ type=b.dataset.fbType; syncType(); feedback('select'); };
+  });
+  root.querySelectorAll('[data-fb-sev]').forEach(b=>{
+    b.onclick=()=>{
+      sev=b.dataset.fbSev;
+      root.querySelectorAll('[data-fb-sev]').forEach(x=>x.classList.toggle('on', x.dataset.fbSev===sev));
+      feedback('select');
+    };
+  });
+  root.querySelector('#fbSubmit').onclick=()=>{
+    const row = createFeedbackReport({
+      type,
+      title: root.querySelector('#fbTitle')?.value,
+      description: root.querySelector('#fbDesc')?.value,
+      screenshotNote: root.querySelector('#fbShot')?.value,
+      severity: sev,
+    });
+    if(row) closeSheet();
+  };
+  root.querySelector('#fbTitle')?.focus();
+}
+
+function sheetFeedbackInbox(){
+  if(state.mode!=='staff' || !state.user){ toast(t('staffTalkNeedStaff'),'info'); return; }
+  const rows = ensureFeedbackReports().slice().sort((a,b)=>(Number(b.createdAt)||148)-(Number(a.createdAt)||148));
+  const openN = openFeedbackCount();
+  const list = rows.length ? rows.map(r=>{
+    const when = r.createdAt ? new Date(r.createdAt).toLocaleString(state.lang==='el'?'el-GR':'de-DE',{dateStyle:'short',timeStyle:'short'}) : '';
+    const sev = r.type==='bug' && r.severity ? ` · ${esc(r.severity)}` : '';
+    return `<article class="fb-inbox-row" data-fb-id="${esc(r.id)}">
+      <div class="row between" style="gap:8px;align-items:flex-start">
+        <div class="grow">
+          <div class="fb-inbox-meta">${esc(feedbackTypeLabel(r.type))}${sev} · ${esc(feedbackStatusLabel(r.status||'open'))}</div>
+          <b>${esc(r.title||'')}</b>
+          <div class="muted" style="font-size:12px;margin-top:4px">${esc(r.context||'')} · ${esc(t('feedbackBy'))} ${esc(feedbackAuthorLabel(r))} · ${esc(when)}</div>
+          <p class="fb-inbox-desc">${esc(r.description||'')}</p>
+          ${r.screenshotNote?`<div class="muted" style="font-size:11px">📷 ${esc(r.screenshotNote)}</div>`:''}
+        </div>
+      </div>
+      <div class="fb-triage pro-only mode-pro-block">
+        <div class="seg fb-status-seg">
+          ${FEEDBACK_STATUSES.map(s=>`<button type="button" class="${(r.status||'open')===s?'on':''}" data-fb-status="${s}" data-fb-id="${esc(r.id)}">${esc(feedbackStatusLabel(s))}</button>`).join('')}
+        </div>
+        <label class="f" style="margin-top:8px"><span>${esc(t('feedbackTriageNote'))}</span>
+          <input class="fb-note" data-fb-note="${esc(r.id)}" value="${esc(r.triageNote||'')}" maxlength="400"></label>
+        <button type="button" class="btn sm sec" data-fb-save="${esc(r.id)}" style="margin-top:6px">${esc(t('feedbackTriageSave'))}</button>
+      </div>
+    </article>`;
+  }).join('') : `<div class="muted" style="padding:12px 4px">${esc(t('feedbackInboxEmpty'))}</div>`;
+
+  openSheet(`<div class="help-center-hero">
+      <div class="import-kicker">Pro</div>
+      <h2>${esc(t('feedbackInbox'))}</h2>
+      <p>${esc(t('feedbackInboxHint'))} · ${esc(t('feedbackOpenCount')(openN))}</p>
+    </div>
+    <div class="fb-inbox">${list}</div>
+    <button type="button" class="btn" id="fbComposeFromInbox" style="margin-top:10px">${esc(t('feedbackTitle'))}</button>`);
+  const root = sheetEl;
+  root.querySelector('#fbComposeFromInbox').onclick=()=>{ closeSheet(); sheetFeedbackCompose(); };
+  root.querySelectorAll('[data-fb-status]').forEach(b=>{
+    b.onclick=()=>{
+      const id = b.dataset.fbId;
+      root.querySelectorAll('[data-fb-status]').forEach(x=>{
+        if(x.dataset.fbId===id) x.classList.toggle('on', x===b);
+      });
+      feedback('select');
+    };
+  });
+  root.querySelectorAll('[data-fb-save]').forEach(btn=>{
+    btn.onclick=()=>{
+      const id = btn.dataset.fbSave;
+      const statusBtn = [...root.querySelectorAll('[data-fb-status]')].find(x=>x.dataset.fbId===id && x.classList.contains('on'))
+        || [...root.querySelectorAll('[data-fb-status]')].find(x=>x.dataset.fbId===id);
+      const noteEl = [...root.querySelectorAll('[data-fb-note]')].find(x=>x.dataset.fbNote===id);
+      const note = noteEl?.value || '';
+      const status = statusBtn?.dataset.fbStatus || 'open';
+      if(triageFeedbackReport(id, status, note)){
+        toast(t('feedbackTriageSaved'),'success');
+        sheetFeedbackInbox();
+      }
+    };
+  });
+}
+
+function sheetFeedbackHub(){
+  if(!(state.user||state.child)){ openGate(); return; }
+  const mineId = (state.user||state.child)?.id;
+  const mine = ensureFeedbackReports().filter(r=>r && (r.authorId===mineId || r.by===mineId || r.kidId===mineId))
+    .sort((a,b)=>(Number(b.createdAt)||148)-(Number(a.createdAt)||148)).slice(0,8);
+  const mineHtml = mine.length ? mine.map(r=>`<li><b>${esc(feedbackTypeLabel(r.type))}</b> ${esc(r.title||'')}
+    <span class="muted">· ${esc(feedbackStatusLabel(r.status||'open'))}</span></li>`).join('')
+    : `<li class="muted">${esc(t('feedbackMineEmpty'))}</li>`;
+  const openN = state.mode==='staff' ? openFeedbackCount() : 0;
+  openSheet(`<div class="help-center-hero">
+      <div class="import-kicker">Armonia</div>
+      <h2>${esc(t('feedbackTitle'))}</h2>
+      <p>${esc(t('feedbackHint'))}</p>
+    </div>
+    <div class="help-center-grid">
+      <button class="help-center-card" type="button" id="fbBug"><span class="icon">🐛</span><b>${esc(t('feedbackTypeBug'))}</b><span>${esc(t('feedbackTypeBugHint'))}</span></button>
+      <button class="help-center-card" type="button" id="fbChange"><span class="icon">✏️</span><b>${esc(t('feedbackTypeChange'))}</b><span>${esc(t('feedbackTypeChangeHint'))}</span></button>
+      <button class="help-center-card" type="button" id="fbAdd"><span class="icon">＋</span><b>${esc(t('feedbackTypeAddition'))}</b><span>${esc(t('feedbackTypeAdditionHint'))}</span></button>
+    </div>
+    ${state.mode==='staff'?`<button type="button" class="btn sec pro-only mode-pro-block" id="fbInbox" style="margin-top:12px;width:100%">${esc(t('feedbackInbox'))}${openN?` · ${esc(t('feedbackOpenCount')(openN))}`:''}</button>`:''}
+    <div class="fb-mine" style="margin-top:14px"><b>${esc(t('feedbackMine'))}</b><ul class="clean">${mineHtml}</ul></div>`);
+  sheetEl.querySelector('#fbBug').onclick=()=>{ closeSheet(); sheetFeedbackCompose({presetType:'bug'}); };
+  sheetEl.querySelector('#fbChange').onclick=()=>{ closeSheet(); sheetFeedbackCompose({presetType:'change'}); };
+  sheetEl.querySelector('#fbAdd').onclick=()=>{ closeSheet(); sheetFeedbackCompose({presetType:'addition'}); };
+  const inbox = sheetEl.querySelector('#fbInbox');
+  if(inbox) inbox.onclick=()=>{ closeSheet(); sheetFeedbackInbox(); };
+}
+
+
 function sheetCreateListRequest({kidMode=false}={}){
   const defaultHid = kidMode
     ? (state.child?.homeHouseId || shoppingHouses()[0]?.id || 'h1')
@@ -9360,6 +9801,7 @@ function sheetCreateListRequest({kidMode=false}={}){
       ${houses.length>1?`<div class="seg house-selector" id="reqHouse">${houses.map(h=>`<button type="button" class="${defaultHid===h.id?'on':''}" data-req-house="${h.id}">${esc(h.short)}</button>`).join('')}</div>`:''}
       <label class="f"><span>${esc(t('shopRequest'))}</span>
         <input id="reqName" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('shopRequestNamePh'))}"></label>
+      <button class="btn sec sm" type="button" id="reqOcr" style="margin:0 0 8px">${ui('u-sparkle','sm')} ${esc(t('ocrSnapFill'))}</button>
       <div class="req-form-row">
         <label class="f"><span>${esc(t('shopRequestQtyPh'))}</span>
           <input id="reqQty" inputmode="decimal" autocomplete="off" placeholder="1"></label>
@@ -9385,6 +9827,23 @@ function sheetCreateListRequest({kidMode=false}={}){
     const created = createListRequest({name, qty, unit, note, houseId});
     if(created){ closeSheet(); render(); }
   };
+  sheetEl.querySelector('#reqOcr')?.addEventListener('click', async ()=>{
+    const btn=sheetEl.querySelector('#reqOcr');
+    if(btn) btn.disabled=true;
+    try{
+      const item=await ocrPickFirstItem('request');
+      if(!item){ toast(t('nothingToImport'),'info'); return; }
+      const n=sheetEl.querySelector('#reqName'); if(n) n.value=item.name||'';
+      const q=sheetEl.querySelector('#reqQty'); if(q && item.qty!=null) q.value=String(item.qty);
+      const u=sheetEl.querySelector('#reqUnit'); if(u && item.unit) u.value=item.unit;
+      const note=sheetEl.querySelector('#reqNote'); if(note && item.note && !note.value) note.value=item.note;
+      toast(t('ocrFilled'),'success');
+    }catch(error){
+      toast(friendlyAiError(error),'error',5200);
+    }finally{
+      if(btn) btn.disabled=false;
+    }
+  });
   sheetEl.querySelector('#reqSubmit').onclick = submit;
   sheetEl.querySelector('#reqName')?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); submit(); }});
   queueMicrotask(()=>sheetEl.querySelector('#reqName')?.focus());
@@ -10021,7 +10480,7 @@ async function aiExtractShopping(sourceType, content, purpose='list'){
     const result = await response.json().catch(()=>({error:'invalid-response'}));
     if(!response.ok){
       const error = new Error(result.error || 'AI request failed');
-      error.status=response.status; error.detail=result.detail||result.setup||result.error;
+      error.status=response.status; error.code=result.code; error.detail=result.detail||result.setup||result.error;
       throw error;
     }
     if(!Array.isArray(result.items)){
@@ -10043,6 +10502,37 @@ function imageFileData(file){
       }; img.src=reader.result;
     }; reader.readAsDataURL(file);
   });
+}
+
+
+/** Pick / camera-capture an image, run OCR, return first structured item (or null). */
+async function ocrPickFirstItem(purpose='request', {onStatus}={}){
+  const file = await new Promise(resolve=>{
+    const input=document.createElement('input');
+    input.type='file'; input.accept='image/*,.heic,.heif,image/heic,image/heif';
+    input.onchange=()=>resolve(input.files?.[0]||null);
+    input.click();
+  });
+  if(!file) return null;
+  const type=(file.type||'').toLowerCase();
+  const name=(file.name||'').toLowerCase();
+  const looksImage=type.startsWith('image/') || /\.(png|jpe?g|webp|heic|heif|gif)$/.test(name);
+  if(!looksImage || file.size>10*1024*1024){
+    const err=new Error('bad-image'); err.status=413; throw err;
+  }
+  if(typeof onStatus==='function') onStatus('busy');
+  const photo=await imageFileData(file);
+  const result=await aiExtractShopping('image', photo, purpose);
+  const item=(result.items||[])[0];
+  if(!item) return null;
+  return {
+    name: item.canonical_name || item.name || '',
+    qty: item.quantity,
+    unit: item.unit || '',
+    note: [item.brand, item.package_size, item.notes].filter(Boolean).join(' · '),
+    model: result.model,
+    provider: result.provider,
+  };
 }
 
 function sheetImportList(opts={}){
@@ -10102,7 +10592,7 @@ function sheetImportList(opts={}){
       rows.forEach(r => {
         const match=behavior==='merge'&&DB.listEntries.find(e=>e.houseId===hid&&listEntryFriday(e)===friday&&
           ['open','pending'].includes(e.status)&&(r.productId&&e.productId===r.productId||norm(e.name)===norm(r.name))&&norm(e.unit)===norm(r.unit));
-        if(match){ match.qty=(Number(match.qty)||0)+(Number(r.qty)||0); match.note=[match.note,r.note].filter(Boolean).join(' · '); match.aiImportId=importId; return; }
+        if(match){ match.qty=(Number(match.qty)||148)+(Number(r.qty)||148); match.note=[match.note,r.note].filter(Boolean).join(' · '); match.aiImportId=importId; return; }
         DB.listEntries.push({id:uid(),productId:r.productId,name:r.name,qty:r.qty,unit:r.unit,note:r.note||'',
           houseId:hid,fridayDate:friday,by:who.id,status:batchIsActive?'pending':'open',
           source:photo?`${imageSource||'image'}-ai`:aiMeta?'text-ai':'text-local',aiImportId:importId});
@@ -10157,7 +10647,7 @@ function sheetImportList(opts={}){
       const ctl=new AbortController(), timer=setTimeout(()=>ctl.abort(),4000);
       const response=await fetch('/api/health',{signal:ctl.signal}); clearTimeout(timer);
       const health=await response.json();
-      if(!busy) setStatus(status,health.aiConfigured?t('aiReady'):t('errConfig'),health.aiConfigured?'success':'error');
+      if(!busy) setStatus(status,(health.ocrConfigured??health.aiConfigured)?t('aiReady'):t('errConfig'),(health.ocrConfigured??health.aiConfigured)?'success':'error');
     }catch(error){ if(!busy) setStatus(status,t('errNetwork'),'error'); }
   })();
 
@@ -10392,7 +10882,7 @@ function bookFilteredLogs(){
   const q = norm(f.q||'');
   return DB.log
     .filter(l=>{
-      if(from && (l.ts||0) < from) return false;
+      if(from && (l.ts||148) < from) return false;
       if(f.employeeId && l.employeeId!==f.employeeId) return false;
       if(f.type && l.type!==f.type) return false;
       if(q){
@@ -10403,7 +10893,7 @@ function bookFilteredLogs(){
       return true;
     })
     .slice()
-    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+    .sort((a,b)=>(b.ts||148)-(a.ts||148));
 }
 function bookClearFilters(){
   state.bookFilter = {employeeId:'', type:'', q:''};
@@ -10441,7 +10931,7 @@ function bookTimelineHtml(rows){
   if(state.bookView==='byDay'){
     const groups = {};
     rows.forEach(l=>{
-      const day = iso(new Date(l.ts||0));
+      const day = iso(new Date(l.ts||148));
       (groups[day]=groups[day]||[]).push(l);
     });
     return Object.keys(groups).map(day=>`
@@ -10458,8 +10948,8 @@ function whoDidWhatCard(rows){
     const mine = rows.filter(l => l.employeeId === e.id);
     if(!mine.length) return null;
     const counts = {};
-    mine.forEach(l => { counts[l.type] = (counts[l.type]||0) + 1; });
-    return {e, n: mine.length, counts, last: Math.max(...mine.map(l=>l.ts||0))};
+    mine.forEach(l => { counts[l.type] = (counts[l.type]||148) + 1; });
+    return {e, n: mine.length, counts, last: Math.max(...mine.map(l=>l.ts||148))};
   }).filter(Boolean).sort((a,b)=> b.n - a.n);
 
   return `<div class="book-panel">
@@ -10529,8 +11019,8 @@ function shiftDiaryCard(){
   const mode=state.bookJournalMode==='rewrite'?'rewrite':'ink';
   const from=bookRangeFromTs();
   const team=Object.values(DB.shiftNotes||{})
-    .filter(n=>n && n.text && (!from || (n.ts||0)>=from) && !(n.employeeId===state.user.id && n.date===today))
-    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+    .filter(n=>n && n.text && (!from || (n.ts||148)>=from) && !(n.employeeId===state.user.id && n.date===today))
+    .sort((a,b)=>(b.ts||148)-(a.ts||148));
   const pageBody=(mine?.text||'').trim();
 
   return `<div class="journal-book">
@@ -10600,9 +11090,9 @@ function shiftDiaryCard(){
 function bookFiltersHtml(){
   const f = state.bookFilter;
   const rangeFrom = bookRangeFromTs();
-  const rangeRows = DB.log.filter(l=>!rangeFrom || (l.ts||0)>=rangeFrom);
+  const rangeRows = DB.log.filter(l=>!rangeFrom || (l.ts||148)>=rangeFrom);
   const typeBase = {};
-  rangeRows.forEach(l=>{ if(l.type) typeBase[l.type]=(typeBase[l.type]||0)+1; });
+  rangeRows.forEach(l=>{ if(l.type) typeBase[l.type]=(typeBase[l.type]||148)+1; });
 
   return `<div class="book-filters">
     <div class="book-filter-block">
@@ -10617,7 +11107,7 @@ function bookFiltersHtml(){
       <span class="book-filter-label">${t('bookTypeLabel')}</span>
       <div class="book-chips book-chips-scroll" role="group">
         <button type="button" class="book-chip ${!f.type?'on':''}" data-book-type="">${t('all')}</button>
-        ${LOG_TYPES.filter(k=>(typeBase[k]||0)>0 || f.type===k).map(k=>
+        ${LOG_TYPES.filter(k=>(typeBase[k]||148)>0 || f.type===k).map(k=>
           `<button type="button" class="book-chip ${f.type===k?'on':''}" data-book-type="${k}">${typeLabel(k)}${typeBase[k]?` · ${typeBase[k]}`:''}</button>`
         ).join('')}
       </div>
@@ -11119,7 +11609,7 @@ function buildLearnRound(g){
   g.feedback = null;
   g.lock = false;
   g.card = card;
-  g.flipKey = (g.flipKey||0)+1;
+  g.flipKey = (g.flipKey||148)+1;
 }
 
 function makeLearnGame(mode, deck, topic){
@@ -11334,7 +11824,7 @@ function makeMathGame(){
 }
 
 function nextMathRound(g){
-  const r = mathRanges(g.level||1);
+  const r = mathRanges(g.level||148);
   const ops = g.level>=3 ? ['+','-','×'] : g.level===2 ? ['+','-','×'] : ['+','-'];
   const op = ops[Math.floor(Math.random()*ops.length)];
   let a, b, ans;
@@ -11371,9 +11861,9 @@ function answerMath(choiceIdx){
   g.lock=true;
   const ok = choiceIdx===g.correct;
   if(ok){
-    g.score += 5 + Math.min(20, g.streak*2) + (g.level||1)*2;
+    g.score += 5 + Math.min(20, g.streak*2) + (g.level||148)*2;
     g.streak += 1;
-    g.solved = (g.solved||0)+1;
+    g.solved = (g.solved||148)+1;
     if(g.solved%6===0 && g.level<3) g.level += 1;
     g.feedback = {ok:true};
     g.comboBurst = g.streak>=3;
@@ -11382,7 +11872,7 @@ function answerMath(choiceIdx){
     feedback('save');
   }else{
     g.streak = 0;
-    g.lives = Math.max(0, (g.lives||1)-1);
+    g.lives = Math.max(0, (g.lives||148)-1);
     g.feedback = {ok:false, pick:choiceIdx};
     setGameCoach({
       gameId:'math', streak:0, level:g.level, lives:g.lives, score:g.score,
@@ -11418,7 +11908,7 @@ function startChildGame(id){
   state.gameId = id;
   if(state.child?.id && CHILD_GAMES.some(game=>game.id===id)){
     const stats=loadGameStats(state.child.id);
-    stats.plays={...(stats.plays||{}),[id]:Number(stats.plays?.[id]||0)+1};
+    stats.plays={...(stats.plays||{}),[id]:Number(stats.plays?.[id]||148)+1};
     stats.lastGameId=id;
     stats.lastPlayedAt=Date.now();
     DB.gameStats[gameStatsKey(state.child.id)]=stats;
@@ -11520,11 +12010,11 @@ function grantGameXp(kidId, amount, gameId){
   if(!kidId || !amount) return;
   const stats = loadGameStats(kidId);
   const today = iso(new Date());
-  stats.wins = (stats.wins||0)+1;
-  stats.xp = (stats.xp||0)+amount;
+  stats.wins = (stats.wins||148)+1;
+  stats.xp = (stats.xp||148)+amount;
   if(stats.lastDay !== today){
     const y = new Date(); y.setDate(y.getDate()-1);
-    stats.streak = stats.lastDay === iso(y) ? (stats.streak||0)+1 : 1;
+    stats.streak = stats.lastDay === iso(y) ? (stats.streak||148)+1 : 1;
     stats.lastDay = today;
   }
   DB.gameStats[gameStatsKey(kidId)] = stats;
@@ -11569,7 +12059,7 @@ function chorePendingToday(choreId, kidId){
 }
 
 function progressRingHtml(pct, centerLabel, size=64){
-  const p = Math.max(0, Math.min(100, Number(pct)||0));
+  const p = Math.max(0, Math.min(100, Number(pct)||148));
   const r = 26, c = 2*Math.PI*r, off = c*(1-p/100);
   return `<svg class="progress-ring" width="${size}" height="${size}" viewBox="0 0 64 64" role="img" aria-label="${esc(String(centerLabel))}">
     <circle class="pr-track" cx="32" cy="32" r="${r}"/>
@@ -11578,7 +12068,7 @@ function progressRingHtml(pct, centerLabel, size=64){
   </svg>`;
 }
 function levelMeterHtml(pct){
-  const p = Math.max(0, Math.min(100, Number(pct)||0));
+  const p = Math.max(0, Math.min(100, Number(pct)||148));
   return `<div class="level-meter" aria-hidden="true"><i style="width:${p}%"></i></div>`;
 }
 function widgetToneClass(tone){
@@ -11591,7 +12081,7 @@ function widgetToneClass(tone){
 /** Conic progress ring — labelled when it is the only carrier of the number. */
 function ringHtml(pct, label = '', tone = ''){
   if(pct===null || pct===undefined || pct==='') return '';
-  const p = Math.max(0, Math.min(100, Number(pct)||0));
+  const p = Math.max(0, Math.min(100, Number(pct)||148));
   const centre = label!=='' && label!=null ? String(label) : `${Math.round(p)}%`;
   const toneCls = widgetToneClass(tone);
   return `<div class="w-ring ${toneCls}" role="img" aria-label="${esc(centre)}" style="--w-pct:${p}">
@@ -11641,8 +12131,8 @@ function miniCalendarHtml(dates, activeIso){
   return `<div class="w-minical" role="img" aria-label="${esc(String(activeIso||''))}">${cells.join('')}</div>`;
 }
 function segmentedProgressHtml(done, total, wrongIdx=-1){
-  const n = Math.max(1, Number(total)||1);
-  const d = Math.max(0, Math.min(n, Number(done)||0));
+  const n = Math.max(1, Number(total)||148);
+  const d = Math.max(0, Math.min(n, Number(done)||148));
   return `<div class="seg-progress" role="img" aria-label="${d}/${n}">${Array.from({length:n},(_,i)=>
     `<i class="${i<d?'on':''} ${i===wrongIdx?'bad':''}"></i>`).join('')}</div>`;
 }
@@ -11672,7 +12162,7 @@ function kidStreakDays(kidId){
 function kidWeekXpDelta(kidId){
   const start = new Date(); start.setDate(start.getDate()-6); start.setHours(0,0,0,0);
   return (DB.xpLog||[]).filter(x=>x.kidId===kidId && (x.ts||x.at) && new Date(x.ts||x.at)>=start)
-    .reduce((s,x)=>s+(x.xp||0),0);
+    .reduce((s,x)=>s+(x.xp||148),0);
 }
 function kidStreakHtml(kidId){
   const dates = new Set(kidXpDates(kidId));
@@ -11828,11 +12318,16 @@ function sheetKidMore(){
         <span class="kid-more-ico" aria-hidden="true">${ui('u-sparkle')}</span>
         <span class="grow"><b>${esc(t('childHowTo'))}</b><span class="muted">${esc(t('childHowToHint'))}</span></span>
       </button>
+      <button type="button" class="kid-more-row" id="kidMoreFeedback">
+        <span class="kid-more-ico" aria-hidden="true">${ui('u-note')}</span>
+        <span class="grow"><b>${esc(t('feedbackTitle'))}</b><span class="muted">${esc(t('feedbackHint'))}</span></span>
+      </button>
     </div>
     <button class="btn sec" type="button" id="kidMoreClose" style="margin-top:10px">${esc(t('close'))}</button>`);
   const root = sheetEl;
   root.querySelector('#kidMoreClose').onclick=()=>closeSheet();
   root.querySelector('#kidMoreHowTo').onclick=()=>{ closeSheet(); sheetChildHowTo(); };
+  root.querySelector('#kidMoreFeedback').onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
   root.querySelectorAll('[data-child-view]').forEach(b=>{
     b.onclick=()=>{
       const next = b.dataset.childView;
@@ -12062,7 +12557,7 @@ function childStartView(c){
           ${childRateDueBannerHtml(c.id)}
           ${nextHtml}
           <section class="kid-panel">
-            <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||0))}</span></div>
+            <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||148))}</span></div>
             ${lessonRows}
           </section>
           <div class="course-grid">
@@ -12121,7 +12616,7 @@ function childStundenplanView(c){
     const b = blockDef(e.block);
     const [fh,fm] = String(b?.from||'00:00').split(':').map(Number);
     const [th,tm] = String(b?.to||'23:59').split(':').map(Number);
-    const start = fh*60+(fm||0), end = th*60+(tm||0);
+    const start = fh*60+(fm||148), end = th*60+(tm||148);
     const isNow = state.date===today && nowMin>=start && nowMin<end;
     const nowPct = isNow ? Math.round(((nowMin-start)/Math.max(1,end-start))*100) : 0;
     return `<div class="sp-block" data-sp-i="${i}">
@@ -12234,7 +12729,7 @@ function childProgressSummary(kidId){
   const game=loadGameStats(kidId);
   const staffRating=staffKidWeeklySummary(kidId,week);
   const bests=Object.entries(game.bests||{}).filter(([,value])=>Number(value)>0);
-  const plays=Object.values(game.plays||{}).reduce((sum,value)=>sum+Number(value||0),0);
+  const plays=Object.values(game.plays||{}).reduce((sum,value)=>sum+Number(value||148),0);
   return {
     week,grades,gradeAverage,gradedCount:scored.length,
     attendancePct,attendanceRecorded:attendance.length,present,
@@ -12247,19 +12742,19 @@ function childProgressSummary(kidId){
 function recommendedGameForKid(kidId){
   const stats=loadGameStats(kidId);
   const playable=CHILD_GAMES.filter(game=>game.featured && game.id!=='eduhub');
-  return playable.slice().sort((a,b)=>Number(stats.plays?.[a.id]||0)-Number(stats.plays?.[b.id]||0))[0]||CHILD_GAMES[0];
+  return playable.slice().sort((a,b)=>Number(stats.plays?.[a.id]||148)-Number(stats.plays?.[b.id]||148))[0]||CHILD_GAMES[0];
 }
 
 function staffGameProgressHtml(kidId){
   const summary=childProgressSummary(kidId);
   const rows=CHILD_GAMES
-    .filter(game=>Number(summary.game.bests?.[game.id]||0)>0 || Number(summary.game.plays?.[game.id]||0)>0)
-    .sort((a,b)=>Number(summary.game.plays?.[b.id]||0)-Number(summary.game.plays?.[a.id]||0))
+    .filter(game=>Number(summary.game.bests?.[game.id]||148)>0 || Number(summary.game.plays?.[game.id]||148)>0)
+    .sort((a,b)=>Number(summary.game.plays?.[b.id]||148)-Number(summary.game.plays?.[a.id]||148))
     .slice(0,6)
     .map(game=>`<div class="kid-game-row">
       <span class="kid-game-icon" aria-hidden="true">${game.emoji}</span>
-      <span class="grow"><b>${esc(t(game.titleKey))}</b><small>${esc(t('kidGameRounds')(Number(summary.game.plays?.[game.id]||0)))}</small></span>
-      <strong>${Number(summary.game.bests?.[game.id]||0)||'—'}</strong>
+      <span class="grow"><b>${esc(t(game.titleKey))}</b><small>${esc(t('kidGameRounds')(Number(summary.game.plays?.[game.id]||148)))}</small></span>
+      <strong>${Number(summary.game.bests?.[game.id]||148)||'—'}</strong>
     </div>`).join('');
   return rows||`<p class="muted">${esc(t('kidGameNone'))}</p>`;
 }
@@ -12672,19 +13167,19 @@ function kidWeekKey(d){
 }
 
 function gradeLabel(value){
-  const n = Math.round(Number(value)||0);
+  const n = Math.round(Number(value)||148);
   if(n>=1 && n<=6) return t('grade'+n);
   return '';
 }
 
 function clampGrade(value){
-  const n = Math.round(Number(value)||0);
+  const n = Math.round(Number(value)||148);
   return (n>=1 && n<=KID_GRADE_MAX) ? n : 0;
 }
 
 /* Legacy 1–5 star ratings (higher = better) → German 1–6 (lower = better). */
 function migrateStarsToGrade(value){
-  const n = Math.round(Number(value)||0);
+  const n = Math.round(Number(value)||148);
   if(n<1 || n>5) return clampGrade(n);
   return clampGrade(6 - n) || 5;
 }
@@ -12829,7 +13324,7 @@ function staffRatingStarsHtml(kidId, area, value){
 
 function staffRatingAreaRows(summary){
   return KID_RATE_AREAS.map(area=>{
-    const value=Number(summary.areas?.[area.id]||0);
+    const value=Number(summary.areas?.[area.id]||148);
     return `<div class="staff-rating-row"><span>${esc(t(area.key))}</span><span class="staff-rating-track"><i style="width:${gradeQualityPct(value)}%"></i></span><strong>${value?value.toFixed(1):'—'}</strong></div>`;
   }).join('');
 }
@@ -13084,9 +13579,9 @@ function childBonusView(kidId){
     </section></div>`;
 }
 
-/* ── Kids: private notes ──────────────────────────────────────────────
-   Local to the device on purpose — these are the child's own words, and
-   they are not part of the shared ops blob staff sync between phones. */
+/* ── Kids: own notes (durable via /api/kid-ops) ───────────────────────
+   Synced for the signed-in child only. Staff-authored notes on the same
+   kidId are preserved server-side and hidden from this compose list. */
 const KID_MOODS = [
   {id:'good', key:'kidMoodGood', tint:'in'},
   {id:'ok',   key:'kidMoodOk',   tint:'warn'},
@@ -13094,25 +13589,46 @@ const KID_MOODS = [
 ];
 
 function childNotizenView(kidId){
-  const mine = (DB.kidNotes||[]).filter(n=>n.kidId===kidId).sort((a,b)=>b.ts-a.ts);
-  const moods = KID_MOODS.map(m=>`<button type="button" class="kid-mood ${m.tint}" data-kid-mood="${m.id}">${esc(t(m.key))}</button>`).join('');
+  const editingId = state.kidNoteEditId || null;
+  const editing = editingId ? (DB.kidNotes||[]).find(n=>n.id===editingId && kidOwnsNoteRow(n, kidId)) : null;
+  const mine = (DB.kidNotes||[]).filter(n=>kidOwnsNoteRow(n, kidId)).sort((a,b)=>b.ts-a.ts);
+  const activeMood = (editing && editing.mood) || 'good';
+  const moods = KID_MOODS.map(m=>{
+    const on = m.id===activeMood ? ' on' : '';
+    return `<button type="button" class="kid-mood ${m.tint}${on}" data-kid-mood="${m.id}">${esc(t(m.key))}</button>`;
+  }).join('');
+  const emptyCta = `<button type="button" class="btn" id="kidNoteEmptyCta">${esc(t('kidNotesWrite'))}</button>`;
   const list = mine.length ? mine.map(n=>{
     const m = KID_MOODS.find(x=>x.id===n.mood) || KID_MOODS[0];
-    return `<article class="kid-card kid-note ${m.tint}">
+    const isEdit = editingId===n.id;
+    return `<article class="kid-card kid-note ${m.tint}${isEdit?' is-editing':''}" data-kid-note-id="${esc(n.id)}">
         <div class="kid-note-head">
           <span class="kid-note-date">${esc(new Date(n.ts).toLocaleDateString(state.lang==='el'?'el-GR':'de-DE',{weekday:'long'}))}</span>
           <span class="kid-note-mood">${esc(t(m.key))}</span>
         </div>
         <p>${esc(n.text)}</p>
+        <div class="kid-note-actions">
+          <button type="button" class="btn sm sec" data-kid-note-edit="${esc(n.id)}">${esc(t('kidNotesEdit'))}</button>
+          <button type="button" class="btn sm sec" data-kid-note-del="${esc(n.id)}">${esc(t('kidNotesDelete'))}</button>
+        </div>
       </article>`;
-  }).join('') : emptyState(ui('u-note'), t('kidNotesEmpty'));
+  }).join('') : emptyState(ui('u-note'), t('kidNotesEmpty'), t('kidNotesEmptyHint'), emptyCta);
+
+  const saveLabel = editing ? t('kidNotesUpdate') : t('kidNotesSave');
+  const cancelBtn = editing
+    ? `<button type="button" class="btn sec" id="kidNoteCancelEdit">${esc(t('kidNotesCancelEdit'))}</button>`
+    : '';
 
   return `<div data-tour="kid-notes"><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
-    <section class="kid-card">
+    <section class="kid-card kid-note-compose-card" id="kidNoteCompose">
+      <p class="eyebrow">${esc(t('kidNotesKicker'))}</p>
       <h2>${esc(t('kidNotesAsk'))}</h2>
       <div class="kid-moods" role="group">${moods}</div>
-      <textarea id="kidNoteText" class="kid-note-input" rows="3" placeholder="${esc(t('kidNotesPlaceholder'))}"></textarea>
-      <button type="button" class="btn" id="kidNoteSave">${esc(t('kidNotesSave'))}</button>
+      <textarea id="kidNoteText" class="kid-note-input" rows="3" placeholder="${esc(t('kidNotesPlaceholder'))}">${editing?esc(editing.text):''}</textarea>
+      <div class="kid-note-compose-actions">
+        <button type="button" class="btn" id="kidNoteSave">${esc(saveLabel)}</button>
+        ${cancelBtn}
+      </div>
     </section>
     ${list}</div>`;
 }
@@ -13135,20 +13651,71 @@ function bindKidExtras(root){
       btn.classList.add('on');
     });
   });
+  const focusCompose = ()=>{
+    const box = root.querySelector('#kidNoteText');
+    const card = root.querySelector('#kidNoteCompose');
+    if(card && card.scrollIntoView) card.scrollIntoView({behavior:'smooth', block:'start'});
+    if(box){ box.focus(); }
+  };
+  const emptyCta = root.querySelector('#kidNoteEmptyCta');
+  if(emptyCta) emptyCta.addEventListener('click', ()=>{
+    state.kidNoteEditId = null;
+    focusCompose();
+  });
+  root.querySelectorAll('[data-kid-note-edit]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.kidNoteEditId = btn.getAttribute('data-kid-note-edit');
+      render();
+    });
+  });
+  root.querySelectorAll('[data-kid-note-del]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-kid-note-del');
+      const kidId = state.child?.id;
+      if(!id || !kidId) return;
+      DB.kidNotes = (DB.kidNotes||[]).filter(n=>!(n.id===id && kidOwnsNoteRow(n, kidId)));
+      if(state.kidNoteEditId===id) state.kidNoteEditId = null;
+      save();
+      toast(t('kidNotesDeleted'));
+      render();
+    });
+  });
+  const cancelEdit = root.querySelector('#kidNoteCancelEdit');
+  if(cancelEdit) cancelEdit.addEventListener('click', ()=>{
+    state.kidNoteEditId = null;
+    render();
+  });
   const saveBtn = root.querySelector('#kidNoteSave');
   if(saveBtn) saveBtn.addEventListener('click', ()=>{
+    const kidId = state.child?.id;
+    if(!kidId) return;
     const box = root.querySelector('#kidNoteText');
     const text = (box && box.value || '').trim();
-    if(!text) return;
+    if(!text){ focusCompose(); return; }
     const picked = root.querySelector('[data-kid-mood].on');
+    const mood = (picked && picked.getAttribute('data-kid-mood')) || 'good';
     DB.kidNotes = DB.kidNotes || [];
-    DB.kidNotes.push({id:uid(), kidId:state.child.id, ts:Date.now(),
-                      mood:(picked && picked.getAttribute('data-kid-mood')) || 'good',
-                      text:text.slice(0,600)});
+    const editId = state.kidNoteEditId;
+    if(editId){
+      const hit = DB.kidNotes.find(n=>n.id===editId && kidOwnsNoteRow(n, kidId));
+      if(hit){
+        hit.text = text.slice(0,600);
+        hit.mood = mood;
+        hit.ts = Date.now();
+        hit.by = kidId;
+        hit.kidId = kidId;
+      }else{
+        DB.kidNotes.push({id:uid(), kidId, by:kidId, ts:Date.now(), mood, text:text.slice(0,600)});
+      }
+      state.kidNoteEditId = null;
+    }else{
+      DB.kidNotes.push({id:uid(), kidId, by:kidId, ts:Date.now(), mood, text:text.slice(0,600)});
+    }
     save();
     toast(t('kidNotesSaved'));
     render();
   });
+  if(state.kidNoteEditId) focusCompose();
 }
 
 function childAufgabenView(kidId){
@@ -13770,10 +14337,10 @@ function paintCatchFishLayer(){
       const gg=state.game;
       const fish=gg.fish.find(x=>x.id===btn.dataset.fid);
       if(!fish || gg.finished) return;
-      gg.combo=Math.min(8,(gg.combo||0)+1);
+      gg.combo=Math.min(8,(gg.combo||148)+1);
       gg.bestCombo=Math.max(gg.bestCombo,gg.combo);
       if(fish.power==='slow'){ gg.power='slow'; gg._powerT=6; }
-      if(fish.power==='star'){ gg.left=Math.min(75,(gg.left||0)+5); }
+      if(fish.power==='star'){ gg.left=Math.min(75,(gg.left||148)+5); }
       const gained=Math.max(1, fish.pts*Math.max(1,gg.combo));
       gg.score+=gained;
       gg.splashes.push({id:fish.id,x:fish.x,y:fish.y,pts:fish.power==='slow'?'🐌':`+${gained}`,t:0});
@@ -13805,10 +14372,10 @@ function tickCatch(ts){
   const dt=Math.min(0.05,(ts-g._last)/1000);
   g._last=ts;
   if(g.power==='slow'){
-    g._powerT=(g._powerT||0)-dt;
+    g._powerT=(g._powerT||148)-dt;
     if(g._powerT<=0){ g.power=null; g._powerT=0; }
   }
-  g._spawn=(g._spawn||0)+dt;
+  g._spawn=(g._spawn||148)+dt;
   const spawnEvery = g.power==='slow' ? 0.7 : 0.48;
   if(g.fish.length<(g.power==='slow'?3:5) && g._spawn>spawnEvery){
     spawnCatchFish(g);
@@ -14108,7 +14675,7 @@ function childMathView(){
       ${gameShareBar(stars, `${t('gameCatchOver')} · ${g.score} ${t('gameScore')}`)}
     </div>`;
   }
-  const lifeIcons='💚'.repeat(g.lives||0)+'🖤'.repeat(Math.max(0,3-(g.lives||0)));
+  const lifeIcons='💚'.repeat(g.lives||148)+'🖤'.repeat(Math.max(0,3-(g.lives||148)));
   return `<div class="game-shell math arcade-stage level-${g.level||1}">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
       <div class="game-stats">
@@ -14405,7 +14972,7 @@ function bindChildGames(root){
         const [a,b]=g.open, ca=g.deck[a], cb=g.deck[b];
         if(ca.pair===cb.pair){
           ca.done=cb.done=true; ca.justMatched=cb.justMatched=true;
-          g.pairs += 1; g.streak=(g.streak||0)+1; g.open=[]; g.lock=false; feedback('save');
+          g.pairs += 1; g.streak=(g.streak||148)+1; g.open=[]; g.lock=false; feedback('save');
           if(g.pairs>=MEMORY_EMOJIS.length) tryGrantGameWin('memory', g, true);
           render();
           setTimeout(()=>{
@@ -14842,7 +15409,7 @@ async function sheetBroadcastEmail(){
       });
       const data=await response.json().catch(()=>({}));
       if(!response.ok) throw new Error(data.error||String(response.status));
-      recipientCount=Number(data.count||0);
+      recipientCount=Number(data.count||148);
       emailConfigured=data.emailConfigured!==false;
       if(countEl){
         countEl.textContent=recipientCount?t('adminBroadcastRecipients')(recipientCount):t('adminBroadcastNone');
@@ -14922,7 +15489,7 @@ async function sheetBroadcastEmail(){
         });
         const data=await response.json().catch(()=>({}));
         if(response.status===429){
-          toast(t('adminBroadcastRate')(data.retryInSec||45),'error');
+          toast(t('adminBroadcastRate')(data.retryInSec||148),'error');
           return;
         }
         if(response.status===503||data.code==='email_not_configured'){
@@ -14932,7 +15499,7 @@ async function sheetBroadcastEmail(){
         if(!response.ok){
           throw new Error(data.error||String(response.status));
         }
-        const sent=Number(data.sent||0), failed=Number(data.failed||0);
+        const sent=Number(data.sent||148), failed=Number(data.failed||148);
         logEntry('ADMIN',`${t('adminEmailEveryone')}: ${subject} · ${sent}/${data.total||expected}`);
         const alsoBanner=!!sheetEl.querySelector('#broadcastAlsoBanner')?.checked;
         if(alsoBanner && sent){
@@ -15089,9 +15656,9 @@ function staffInboxItems(){
   if(isAdminUser()){
     const seen=notifPrefs().seen||{};
     Object.values(DB.profilePrefs?._lateAlerts||{})
-      .filter(alert=>alert?.id && Date.now()-Number(alert.at||0)<7*24*60*60*1000)
+      .filter(alert=>alert?.id && Date.now()-Number(alert.at||148)<7*24*60*60*1000)
       .filter(alert=>seen[`late-alert-${alert.id}`]!=='1')
-      .sort((a,b)=>Number(b.at||0)-Number(a.at||0))
+      .sort((a,b)=>Number(b.at||148)-Number(a.at||148))
       .slice(0,5)
       .forEach(alert=>items.push({
         id:`late-${alert.id}`, tone:'amber', toneLabel:t('presenceLate'),
@@ -15159,7 +15726,7 @@ function staffInboxItems(){
   try{
     if(ratingsNotifyEnabled()){
       const dueList=typeof collectRatingRemindersForNotify==='function'?collectRatingRemindersForNotify():[];
-      const ratingsDue=dueList.reduce((n,r)=>n+(r.missingCount||1),0);
+      const ratingsDue=dueList.reduce((n,r)=>n+(r.missingCount||148),0);
       if(ratingsDue>0){
         items.push({
           id:'ratings', tone:'amber', toneLabel:t('notifToneKids'),
@@ -15167,7 +15734,7 @@ function staffInboxItems(){
           meta:t('kidRateDueBanner'), jump:'kids'
         });
       }
-      const important=dueList.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||1),0);
+      const important=dueList.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||148),0);
       if(important>0 && notifPrefsResolved().reminders!==false){
         items.push({
           id:'important', tone:'amber', toneLabel:t('notifToneKids'),
@@ -15603,7 +16170,7 @@ function sheetChildHowTo(){
   if(tourBtn) tourBtn.onclick=()=>{ closeSheet(); openAppTutorial(); };
   sheetEl.querySelector('#childHowToNotifs').onclick=async()=>{
     const ok=await enableAppNotifications();
-    toast(ok?t('notifEnabled'):t('notifDenied'), ok?'success':'error');
+    toast(ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
     if(ok){ closeSheet(); runNotificationSweep({force:true}); }
   };
 }
@@ -16929,7 +17496,7 @@ function wire(){
           ids.forEach(id=>{
             const entry=DB.listEntries.find(e=>e.id===id);
             if(!entry || entry.status!=='open') return;
-            entry.qty=Math.max(1, roundStock((Number(entry.qty)||1)+delta));
+            entry.qty=Math.max(1, roundStock((Number(entry.qty)||148)+delta));
           });
           save(); feedback('toggle'); render(); return;
         }
@@ -17010,7 +17577,7 @@ function wire(){
   const enableNotifs=v.querySelector('#enableNotifs');
   if(enableNotifs) enableNotifs.onclick=async()=>{
     const ok=await enableAppNotifications();
-    toast(ok?t('notifEnabled'):t('notifDenied'), ok?'success':'error');
+    toast(ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
     if(ok) runNotificationSweep({force:true});
     render();
   };
@@ -17202,6 +17769,7 @@ function sheetMobileMore(){
   openSheet(`<div class="mobile-more-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2></div>
     <div class="mobile-more-grid">${items.map(([tab,icon,label])=>`<button type="button" data-more-tab="${tab}"><svg class="ui-ico" aria-hidden="true"><use href="#${icon}"/></svg><span>${esc(label)}</span><b aria-hidden="true">→</b></button>`).join('')}
       <button type="button" data-more-chat><svg class="ui-ico" aria-hidden="true"><use href="#u-sparkle"/></svg><span>${esc(t('navChat'))}</span><b aria-hidden="true">→</b></button>
+      <button type="button" data-more-feedback><svg class="ui-ico" aria-hidden="true"><use href="#u-note"/></svg><span>${esc(t('feedbackNav'))}</span><b aria-hidden="true">→</b></button>
     </div>`);
   sheetEl.querySelectorAll('[data-more-tab]').forEach(btn=>btn.onclick=()=>{
     closeSheet();
@@ -17215,6 +17783,8 @@ function sheetMobileMore(){
   });
   const chat=sheetEl.querySelector('[data-more-chat]');
   if(chat) chat.onclick=()=>{ closeSheet(); toggleChatPanel(); };
+  const fb=sheetEl.querySelector('[data-more-feedback]');
+  if(fb) fb.onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
 }
 document.getElementById('dockMore')?.addEventListener('click', ()=>{
   feedback('tap');
@@ -17274,6 +17844,8 @@ async function sheetSecurityAccess(){
     <div class="security-passkey-card" id="securityPin"></div>
     <div class="security-passkey-card" id="securityPasskey"><div class="muted">${t('reading')}</div></div>
     <button class="btn sec" id="securityTutorial">📘 ${t('tutorialOpen')}</button>
+    <button class="btn sec" id="securityFeedback">💬 ${t('feedbackTitle')}</button>
+    ${state.mode==='staff'?`<button class="btn sec pro-only mode-pro-block" id="securityFeedbackInbox">${t('feedbackInbox')}${openFeedbackCount()?` · ${t('feedbackOpenCount')(openFeedbackCount())}`:''}</button>`:''}
     <button class="btn sec" id="securitySwitch">↔ ${t('switchProfile')}</button>
     <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
   const profileCard=sheetEl.querySelector('#securityProfile'),card=sheetEl.querySelector('#securityPasskey');
@@ -17285,14 +17857,18 @@ async function sheetSecurityAccess(){
   const storageEl=sheetEl.querySelector('#securityStorage');
   const pref=profilePref(who.id);
   if(notifCard){
-    const perm=typeof Notification!=='undefined'?Notification.permission:'denied';
+    const cap=notifCapabilities();
+    const perm=cap.api?cap.permission:'unsupported';
     const on=!!notifPrefs().enabled && perm==='granted';
     const child=state.mode==='child';
+    const platformHint=notifCapabilityMessage(cap);
+    const canEnable=on || cap.canRequest || (perm==='granted' && !notifPrefs().enabled);
     notifCard.innerHTML=`<b class="notif-bell">${ui('u-bell')} ${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</b>
       <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(child?t('notifHintChild'):t('notifHint'))}</p>
       <p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
-      ${child?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>`:''}
-      <button class="btn ${on?'sec':''}" type="button" id="notifToggle">${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</button>
+      ${platformHint?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(platformHint)}</p>`:''}
+      ${(child||cap.ios)?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>`:''}
+      <button class="btn ${on?'sec':''}" type="button" id="notifToggle" ${canEnable?'':'disabled'}>${esc(on?t('notifEnabled'):(cap.reason==='ios-install'?t('childInstallTitle'):(child?t('notifEnableChild'):t('notifEnable'))))}</button>
       <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
       ${on?notifPrefsFormHtml({child}):''}
       <div id="notifStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`;
@@ -17300,7 +17876,7 @@ async function sheetSecurityAccess(){
       const st=notifCard.querySelector('#notifStatus');
       const ok=await enableAppNotifications();
       st.style.display='block';
-      setStatus(st, ok?t('notifEnabled'):(Notification.permission==='denied'?t('notifDenied'):t('notifEnable')), ok?'success':'error');
+      setStatus(st, ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
       if(ok) sheetSecurityAccess();
     };
     notifCard.querySelector('#notifTestBtn').onclick=async()=>{
@@ -17531,6 +18107,10 @@ async function sheetSecurityAccess(){
   }
   const tutorialButton=sheetEl.querySelector('#securityTutorial');
   if(tutorialButton) tutorialButton.onclick=openAppTutorial;
+  const feedbackButton=sheetEl.querySelector('#securityFeedback');
+  if(feedbackButton) feedbackButton.onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
+  const feedbackInboxBtn=sheetEl.querySelector('#securityFeedbackInbox');
+  if(feedbackInboxBtn) feedbackInboxBtn.onclick=()=>{ closeSheet(); sheetFeedbackInbox(); };
   const switchButton=sheetEl.querySelector('#securitySwitch');
   if(switchButton) switchButton.onclick=()=>{closeSheet();logoutServerSession();};
   const logoutButton=sheetEl.querySelector('#securityLogout');
@@ -17740,7 +18320,7 @@ function renderGatePin(who, mode = 'staff'){
       closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');notifyZoAiReady();maybePromptPasskeySetup();
     }catch(error){
       if(error.status===429){
-        const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||900)/60));
+        const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||148)/60));
         errorEl.textContent=T[state.lang].lockedFor(minutes);
       }else if(error.status===401 && Number.isInteger(error.attemptsRemaining)){
         errorEl.textContent=T[state.lang].attemptsRemaining(error.attemptsRemaining);
@@ -18125,7 +18705,7 @@ function notifPrefsResolved(){
 function minsOfDay(d){ return d.getHours()*60+d.getMinutes(); }
 function parseHm(hm){
   const [h,m]=String(hm||'00:00').split(':').map(Number);
-  return (h||0)*60+(m||0);
+  return (h||148)*60+(m||148);
 }
 function isQuietHours(now=new Date()){
   const {quietStart,quietEnd}=notifPrefsResolved();
@@ -18163,7 +18743,7 @@ try{
       if(typeof d.thingsDue==='boolean') window.__paidiaImportantThingsDue=d.thingsDue?1:0;
       else if(Array.isArray(d.missingThings)) window.__paidiaImportantThingsDue=d.missingThings.length;
       if(Array.isArray(d.reminders)){
-        window.__paidiaRatingsDueCount=d.reminders.filter(r=>r&&r.due).reduce((n,r)=>n+(r.missingCount||1),0);
+        window.__paidiaRatingsDueCount=d.reminders.filter(r=>r&&r.due).reduce((n,r)=>n+(r.missingCount||148),0);
         window.__paidiaImportantThingsDue=d.reminders.filter(r=>r&&r.thingsDue).length;
       }
     }catch{}
@@ -18184,7 +18764,7 @@ function collectRatingRemindersForNotify(opts={}){
     const name=(DB.children||[]).find(k=>k.id===r.kidId)?.name||'';
     return {
       ...r,
-      title: T[state.lang].notifRatingsDue(r.missingCount||1),
+      title: T[state.lang].notifRatingsDue(r.missingCount||148),
       body: name
         ? `${name} · ${t('kidRateDueBanner')}`
         : t('kidRateDueBanner'),
@@ -18197,7 +18777,7 @@ function childRatingsDueCount(kidId){
   try{
     const api=kidRatingsApi();
     const rem=api?.reminderState ? api.reminderState(kidId) : (typeof kidRatingReminderState==='function'?kidRatingReminderState(kidId):null);
-    if(rem) return rem.due ? (rem.missingCount||1) : 0;
+    if(rem) return rem.due ? (rem.missingCount||148) : 0;
   }catch{}
   if(typeof window.__paidiaRatingsDueCount==='number' && state.mode==='child') return window.__paidiaRatingsDueCount;
   return 0;
@@ -18205,7 +18785,7 @@ function childRatingsDueCount(kidId){
 function staffRatingsDueCount(){
   try{
     const list=collectRatingRemindersForNotify();
-    return list.reduce((n,r)=>n+(r.missingCount||1),0);
+    return list.reduce((n,r)=>n+(r.missingCount||148),0);
   }catch{}
   if(typeof window.__paidiaRatingsDueCount==='number') return window.__paidiaRatingsDueCount;
   return 0;
@@ -18215,10 +18795,10 @@ function importantThingsDueCount(kidId){
     if(kidId){
       const api=kidRatingsApi();
       const rem=api?.reminderState ? api.reminderState(kidId) : (typeof kidRatingReminderState==='function'?kidRatingReminderState(kidId):null);
-      if(rem) return rem.thingsDue ? ((rem.missingThings||[]).length||1) : 0;
+      if(rem) return rem.thingsDue ? ((rem.missingThings||[]).length||148) : 0;
     }
     const list=collectRatingRemindersForNotify();
-    return list.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||1),0);
+    return list.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||148),0);
   }catch{}
   if(typeof window.__paidiaImportantThingsDue==='number') return window.__paidiaImportantThingsDue;
   return 0;
@@ -18244,7 +18824,7 @@ async function deliverRatingReminders({force=false, kidId=null}={}){
     if(ok) shown++;
     if(prefs.reminders!==false && r.thingsDue){
       const ikey=`rating-things-${r.kidId}-${r.week||kidWeekKey()}`;
-      await deliverOnce(ikey, force, T[state.lang].notifImportantDue((r.missingThings||[]).length||1), {
+      await deliverOnce(ikey, force, T[state.lang].notifImportantDue((r.missingThings||[]).length||148), {
         tag:'paidia-rating-things-'+r.kidId,
         body:t('kidRateThingsTitle'),
         data:{url:r.url, kind:'rating-things', kidId:r.kidId},
@@ -18290,7 +18870,7 @@ function dueItemCount(){
 function updateAppBadge(count){
   try{
     if(!navigator.setAppBadge) return;
-    const n=Math.max(0,Number(count)||0);
+    const n=Math.max(0,Number(count)||148);
     if(n>0) navigator.setAppBadge(n).catch(()=>{});
     else if(navigator.clearAppBadge) navigator.clearAppBadge().catch(()=>{});
   }catch{}
@@ -18409,25 +18989,95 @@ function sheetNotifPrefs(){
     paintNotifBadge();
   };
 }
+function notifCapabilities(){
+  try{
+    if(typeof PaidiaNotify!=='undefined' && PaidiaNotify.capabilities) return PaidiaNotify.capabilities();
+  }catch{}
+  const api=typeof Notification!=='undefined';
+  const permission=api?Notification.permission:'unsupported';
+  return {
+    api, secure:!!window.isSecureContext, sw:'serviceWorker' in navigator,
+    pushManager:'PushManager' in window, ios:false, android:false,
+    standalone:false, browser:'other', permission,
+    reason:!api?'unsupported':(permission==='denied'?'denied':permission==='granted'?'granted':'default'),
+    canRequest:api && permission==='default',
+    canNotify:api && permission==='granted',
+  };
+}
+function notifCapabilityMessage(cap){
+  const c=cap||notifCapabilities();
+  if(c.reason==='ios-install') return t('notifNeedInstall');
+  if(c.reason==='insecure') return t('notifNeedSecure');
+  if(c.reason==='unsupported') return t('notifUnsupported');
+  if(c.reason==='denied') return t('notifDenied');
+  return '';
+}
+function notifEnableFailureMessage(){
+  const reason=window.__paidiaNotifLastReason||notifCapabilities().reason;
+  if(reason==='ios-install') return t('notifNeedInstall');
+  if(reason==='insecure') return t('notifNeedSecure');
+  if(reason==='unsupported') return t('notifUnsupported');
+  if(reason==='denied') return t('notifDenied');
+  if(reason==='delivery-failed') return t('notifDeliveryFailed');
+  return t('notifDenied');
+}
 async function enableAppNotifications(){
-  if(!('Notification' in window)) return false;
+  const cap=notifCapabilities();
+  window.__paidiaNotifLastReason=cap.reason;
+  if(cap.reason==='unsupported' || cap.reason==='insecure' || cap.reason==='ios-install'){
+    setNotifPrefs({enabled:false});
+    return false;
+  }
+  if(!('Notification' in window)){
+    window.__paidiaNotifLastReason='unsupported';
+    setNotifPrefs({enabled:false});
+    return false;
+  }
   let perm=Notification.permission;
   if(perm!=='granted'){
-    try{ perm=await Notification.requestPermission(); }catch{ return false; }
+    try{
+      if(typeof PaidiaNotify!=='undefined' && PaidiaNotify.requestPermission){
+        perm=await PaidiaNotify.requestPermission();
+      }else{
+        perm=await Notification.requestPermission();
+      }
+    }catch{
+      window.__paidiaNotifLastReason='denied';
+      return false;
+    }
   }
-  const ok=perm==='granted';
-  setNotifPrefs({enabled:ok});
-  if(ok){
-    try{ await registerPaidiaServiceWorker(); }catch{}
-    try{ await showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true}); }catch{}
-    try{ await runNotificationSweep({force:true}); }catch{}
+  if(perm!=='granted'){
+    window.__paidiaNotifLastReason=perm==='denied'?'denied':(perm||'denied');
+    setNotifPrefs({enabled:false});
+    return false;
   }
-  return ok;
+  setNotifPrefs({enabled:true});
+  try{ await registerPaidiaServiceWorker(); }catch{}
+  let delivered=false;
+  try{
+    delivered=await showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true});
+  }catch{ delivered=false; }
+  if(!delivered){
+    window.__paidiaNotifLastReason='delivery-failed';
+    setNotifPrefs({enabled:false});
+    return false;
+  }
+  try{
+    if(typeof PaidiaNotify!=='undefined' && PaidiaNotify.subscribePush){
+      await PaidiaNotify.subscribePush();
+    }
+  }catch{}
+  try{ await runNotificationSweep({force:true}); }catch{}
+  window.__paidiaNotifLastReason='granted';
+  return true;
 }
 async function showAppNotification(title, opts={}){
   try{
     if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return false;
     if(!opts.force && isQuietHours()) return false;
+    if(typeof PaidiaNotify!=='undefined' && PaidiaNotify.showNotification){
+      return !!(await PaidiaNotify.showNotification(title, opts));
+    }
     const prefs=notifPrefsResolved();
     const payload={
       body:opts.body||'',
@@ -18463,7 +19113,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||145),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||148),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
@@ -18677,8 +19327,8 @@ async function runNotificationSweep({force=false}={}){
   try{
     if(isAdminUser()){
       const alerts=Object.values(DB.profilePrefs?._lateAlerts||{})
-        .filter(alert=>alert?.id && Date.now()-Number(alert.at||0)<7*24*60*60*1000)
-        .sort((a,b)=>Number(a.at||0)-Number(b.at||0));
+        .filter(alert=>alert?.id && Date.now()-Number(alert.at||148)<7*24*60*60*1000)
+        .sort((a,b)=>Number(a.at||148)-Number(b.at||148));
       for(const alert of alerts){
         await deliverOnce(`late-delivered-${alert.id}`, force,
           T[state.lang].lateAlertTitle(alert.name||empName(alert.employeeId)), {

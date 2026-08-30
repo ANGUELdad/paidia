@@ -236,7 +236,7 @@ if os.environ.get("VERCEL") == "1":
     GALLERY_STATE_PATH = _tmp / "gallery.json"
     OPS_STATE_PATH = _tmp / "ops.json"
     AUTH_OVERRIDES_PATH = _tmp / "auth-overrides.json"
-ONBOARDING_VERSION = 3
+ONBOARDING_VERSION = 2
 TALK_MESSAGE_LIMIT = 200
 TALK_TOPIC_LIMIT = 120
 TALK_LOCK = threading.Lock()
@@ -1732,98 +1732,9 @@ def get_ops_for_session(since: int, session: dict) -> dict:
 
 # Keys a child's own device may write. Everything else on the ops blob is
 # staff-owned and unreachable from a child session.
-KID_OWNED_KEYS = ("kidRatings", "kidNotes", "listRequests", "xpLog")
+KID_OWNED_KEYS = ("kidRatings", "kidNotes", "listRequests")
 KID_ROW_CAP = 500
-KID_XP_CAP = 800
 
-
-def _sanitize_kid_game_stats(raw) -> dict:
-    """Keep only JSON-safe progress fields for one child's gameStats blob."""
-    if not isinstance(raw, dict):
-        return {}
-    bests_in = raw.get("bests") if isinstance(raw.get("bests"), dict) else {}
-    plays_in = raw.get("plays") if isinstance(raw.get("plays"), dict) else {}
-    bests = {}
-    for key, val in list(bests_in.items())[:80]:
-        try:
-            n = float(val)
-        except (TypeError, ValueError):
-            continue
-        if n > 0:
-            bests[str(key)[:48]] = n
-    plays = {}
-    for key, val in list(plays_in.items())[:80]:
-        try:
-            n = int(val)
-        except (TypeError, ValueError):
-            continue
-        if n > 0:
-            plays[str(key)[:48]] = min(n, 100000)
-    try:
-        streak = max(0, int(raw.get("streak") or 0))
-    except (TypeError, ValueError):
-        streak = 0
-    try:
-        wins = max(0, int(raw.get("wins") or 0))
-    except (TypeError, ValueError):
-        wins = 0
-    try:
-        xp = max(0, int(raw.get("xp") or 0))
-    except (TypeError, ValueError):
-        xp = 0
-    last_day = str(raw.get("lastDay") or "")[:16]
-    last_game = str(raw.get("lastGameId") or "")[:48]
-    try:
-        last_played = int(raw.get("lastPlayedAt") or 0)
-    except (TypeError, ValueError):
-        last_played = 0
-    return {
-        "streak": min(streak, 3650),
-        "wins": min(wins, 100000),
-        "xp": min(xp, 1000000),
-        "lastDay": last_day,
-        "bests": bests,
-        "plays": plays,
-        "lastGameId": last_game,
-        "lastPlayedAt": last_played if last_played > 0 else None,
-    }
-
-
-def _merge_kid_xp_log(kid_id: str, incoming: list) -> list:
-    """Merge this child's xpLog rows by id; stamp kidId from the session."""
-    existing = [r for r in (OPS_STATE.get("xpLog") or []) if isinstance(r, dict)]
-    others = [r for r in existing if str(r.get("kidId") or "") != kid_id]
-    by_id = {
-        str(r.get("id") or ""): r
-        for r in existing
-        if isinstance(r, dict) and str(r.get("kidId") or "") == kid_id and r.get("id")
-    }
-    for row in incoming[:KID_XP_CAP]:
-        if not isinstance(row, dict):
-            continue
-        row = dict(row)
-        rid = str(row.get("id") or "").strip()
-        if not rid:
-            continue
-        try:
-            xp = int(row.get("xp") or 0)
-        except (TypeError, ValueError):
-            continue
-        if xp <= 0:
-            continue
-        by_id[rid] = {
-            "id": rid[:64],
-            "kidId": kid_id,
-            "choreId": (str(row.get("choreId")).strip()[:64] if row.get("choreId") else None),
-            "xp": min(xp, 500),
-            "submissionId": (str(row.get("submissionId")).strip()[:80] if row.get("submissionId") else None),
-            "ts": int(row.get("ts") or time.time() * 1000),
-        }
-    mine = list(by_id.values())
-    mine.sort(key=lambda r: int(r.get("ts") or 0))
-    if len(mine) > KID_XP_CAP:
-        mine = mine[-KID_XP_CAP:]
-    return others + mine
 
 def _merge_kid_list_requests(kid_id: str, incoming: list) -> list:
     """Kids may create/edit only their own *open* shopping requests.
@@ -1909,10 +1820,6 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
                 OPS_STATE[key] = _merge_kid_list_requests(kid_id, incoming)
                 touched.append(key)
                 continue
-            if key == "xpLog":
-                OPS_STATE[key] = _merge_kid_xp_log(kid_id, incoming)
-                touched.append(key)
-                continue
             mine = []
             for row in incoming[:KID_ROW_CAP]:
                 if not isinstance(row, dict):
@@ -1927,22 +1834,6 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
             OPS_STATE[key] = others + mine
             touched.append(key)
 
-        # gameStats is a dict keyed by kidId — never accept other kids' blobs.
-        if "gameStats" in body and body.get("gameStats") is not None:
-            raw_stats = body.get("gameStats")
-            if isinstance(raw_stats, dict) and kid_id in raw_stats and isinstance(raw_stats.get(kid_id), dict):
-                raw_stats = raw_stats.get(kid_id)
-            if not isinstance(raw_stats, dict):
-                return 400, {"error": "gameStats must be an object", "code": "input"}
-            gs = OPS_STATE.get("gameStats")
-            if not isinstance(gs, dict):
-                gs = {}
-            else:
-                gs = dict(gs)
-            gs[kid_id] = _sanitize_kid_game_stats(raw_stats)
-            OPS_STATE["gameStats"] = gs
-            touched.append("gameStats")
-
         if not touched:
             return 400, {"error": "Nothing to write", "code": "input"}
 
@@ -1953,22 +1844,15 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
         except OSError:
             return 507, {"error": "Could not save", "code": "storage"}
 
-        counts = {}
-        for k in touched:
-            if k == "gameStats":
-                counts[k] = 1 if isinstance((OPS_STATE.get("gameStats") or {}).get(kid_id), dict) else 0
-            else:
-                counts[k] = len([
-                    r for r in (OPS_STATE.get(k) or [])
-                    if isinstance(r, dict) and str(r.get("kidId") or "") == kid_id
-                ])
         return 200, {
             "ok": True,
             "durable": durable,
             "kidId": kid_id,
             "revision": int(OPS_STATE["revision"]),
             "updatedAt": int(OPS_STATE["updatedAt"]),
-            "counts": counts,
+            "counts": {k: len([r for r in (OPS_STATE.get(k) or [])
+                               if isinstance(r, dict) and str(r.get("kidId") or "") == kid_id])
+                       for k in touched},
         }
 
 
@@ -3354,6 +3238,74 @@ def whatsapp_config() -> dict:
     }
 
 
+def vapid_config() -> dict:
+    """Optional Web Push VAPID keys. Public key is safe to expose to the client."""
+    public_key = (
+        os.environ.get("VAPID_PUBLIC_KEY")
+        or os.environ.get("PAIDIA_VAPID_PUBLIC_KEY")
+        or ""
+    ).strip()
+    private_key = (
+        os.environ.get("VAPID_PRIVATE_KEY")
+        or os.environ.get("PAIDIA_VAPID_PRIVATE_KEY")
+        or ""
+    ).strip()
+    contact = (
+        os.environ.get("VAPID_CONTACT")
+        or os.environ.get("PAIDIA_VAPID_CONTACT")
+        or "mailto:admin@armonia-thassos.local"
+    ).strip()
+    return {
+        "publicKey": public_key,
+        "privateKey": private_key,
+        "contact": contact,
+        "configured": bool(public_key and private_key),
+    }
+
+
+PUSH_SUBSCRIPTIONS_KEY = "push_subscriptions"
+
+
+def load_push_subscriptions() -> dict:
+    if not paidia_db:
+        return {}
+    try:
+        raw = paidia_db.get_json(PUSH_SUBSCRIPTIONS_KEY, {}) or {}
+    except Exception:
+        return {}
+    return raw if isinstance(raw, dict) else {}
+
+
+def save_push_subscription(profile_id: str, subscription: dict) -> dict:
+    """Store a PushSubscription JSON keyed by endpoint. Auth required by caller."""
+    endpoint = str((subscription or {}).get("endpoint") or "").strip()
+    if not endpoint.startswith("https://"):
+        return {"ok": False, "error": "Invalid subscription endpoint", "code": "input"}
+    keys = (subscription or {}).get("keys") if isinstance(subscription, dict) else None
+    if not isinstance(keys, dict) or not keys.get("p256dh") or not keys.get("auth"):
+        return {"ok": False, "error": "Invalid subscription keys", "code": "input"}
+    if not paidia_db:
+        return {"ok": False, "error": "Durable store unavailable", "code": "storage"}
+    store = load_push_subscriptions()
+    store[endpoint] = {
+        "profileId": str(profile_id or ""),
+        "subscription": {
+            "endpoint": endpoint,
+            "expirationTime": subscription.get("expirationTime"),
+            "keys": {
+                "p256dh": str(keys.get("p256dh")),
+                "auth": str(keys.get("auth")),
+            },
+        },
+        "updatedAt": int(time.time() * 1000),
+    }
+    if len(store) > 200:
+        ordered = sorted(store.items(), key=lambda kv: int((kv[1] or {}).get("updatedAt") or 0))
+        store = dict(ordered[-200:])
+    paidia_db.set_json(PUSH_SUBSCRIPTIONS_KEY, store)
+    return {"ok": True, "stored": True, "count": len(store)}
+
+
 def whatsapp_recipients() -> dict[str, list[str]]:
     try:
         raw = json.loads(os.environ.get("WHATSAPP_RECIPIENTS_JSON", "{}"))
@@ -4440,7 +4392,18 @@ class Handler(SimpleHTTPRequestHandler):
                 "whatsappSendEnabled": whatsapp_config()["send_enabled"],
                 "database": db_info,
                 "opsRevision": ops_rev,
-                "notifications": {"local": True, "webPush": False},
+                "notifications": {
+                    "local": True,
+                    "webPush": bool(vapid_config()["configured"]),
+                },
+            })
+            return
+        if parsed.path == "/api/push/vapid":
+            cfg = vapid_config()
+            self.json_response(200, {
+                "ok": True,
+                "configured": cfg["configured"],
+                "publicKey": cfg["publicKey"] if cfg["configured"] else "",
             })
             return
         if parsed.path == "/api/auth/health":
@@ -4675,6 +4638,7 @@ class Handler(SimpleHTTPRequestHandler):
             "/api/notify/event-email",
             "/api/notify/broadcast",
             "/api/notify/broadcast-preview",
+            "/api/push/subscribe",
             "/api/auth/login", "/api/auth/logout", "/api/auth/request-reset", "/api/auth/reset",
             "/api/auth/passkey/register/options", "/api/auth/passkey/register/verify",
             "/api/auth/passkey/login/options", "/api/auth/passkey/login/verify", "/api/auth/passkey/remove",
@@ -4778,6 +4742,19 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/whatsapp/event":
             self.handle_whatsapp_event(body)
+            return
+        if path == "/api/push/subscribe":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            if not vapid_config()["configured"]:
+                self.json_response(503, {"error": "Web Push not configured", "code": "no_vapid"})
+                return
+            sub = body.get("subscription") if isinstance(body.get("subscription"), dict) else body
+            profile_id = str(session.get("profile_id") or session.get("profileId") or "")
+            result = save_push_subscription(profile_id, sub if isinstance(sub, dict) else {})
+            self.json_response(200 if result.get("ok") else 400, result)
             return
         if path == "/api/notify/event-email":
             self.handle_event_email(body)

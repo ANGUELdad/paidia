@@ -459,6 +459,7 @@ def entry(flask_path: str = ""):
     api = _api_path(path)
 
     if request.method == "GET" and api in {"/health", "/api/health"}:
+        vapid = paidia.vapid_config()
         return _json(200, {
             "ok": True,
             "runtime": "vercel-flask",
@@ -466,12 +467,41 @@ def entry(flask_path: str = ""):
             "flask_path": flask_path,
             "request_path": request.path,
             "aiConfigured": bool(os.environ.get("GROQ_API_KEY", "").strip()),
+            "ocrConfigured": (
+                paidia.ocr_image_configured() if hasattr(paidia, "ocr_image_configured")
+                else bool((os.environ.get("XAI_API_KEY") or os.environ.get("GROK_API_KEY") or os.environ.get("GROQ_API_KEY") or "").strip())
+            ),
+            "ocrProvider": (paidia.resolve_ocr_endpoint("image") or (None,))[0] if hasattr(paidia, "resolve_ocr_endpoint") else None,
             "ai": paidia.llm_health(),
             "chatModel": paidia.CHAT_MODEL,
-            "ocrModel": paidia.OCR_MODEL,
+            "ocrModel": ((paidia.resolve_ocr_endpoint("image") or (None, None, None, paidia.OCR_MODEL))[3] if hasattr(paidia, "resolve_ocr_endpoint") else paidia.OCR_MODEL),
+            "ocrGrokModel": getattr(paidia, "XAI_OCR_MODEL", paidia.OCR_MODEL),
             "database": _db_health(),
             "driveConfigured": _drive_configured(),
+            "notifications": {
+                "local": True,
+                "webPush": bool(vapid.get("configured")),
+            },
         })
+    if request.method == "GET" and api in {"/push/vapid", "/api/push/vapid"}:
+        vapid = paidia.vapid_config()
+        return _json(200, {
+            "ok": True,
+            "configured": bool(vapid.get("configured")),
+            "publicKey": vapid.get("publicKey") if vapid.get("configured") else "",
+        })
+    if request.method == "POST" and api in {"/push/subscribe", "/api/push/subscribe"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        vapid = paidia.vapid_config()
+        if not vapid.get("configured"):
+            return _json(503, {"error": "Web Push not configured", "code": "no_vapid"})
+        body = _body()
+        sub = body.get("subscription") if isinstance(body.get("subscription"), dict) else body
+        profile_id = str(session.get("profile_id") or session.get("profileId") or "")
+        result = paidia.save_push_subscription(profile_id, sub if isinstance(sub, dict) else {})
+        return _json(200 if result.get("ok") else 400, result)
     if request.method == "GET" and api in {"/auth/health", "/api/auth/health"}:
         return _auth_health()
     if request.method == "GET" and api in {"/auth/session", "/api/auth/session"}:
@@ -588,14 +618,23 @@ def entry(flask_path: str = ""):
         session = _session_from_request()
         if not session:
             return _json(401, {"error": "Authentication required", "code": "auth_required"})
-        api_key = os.environ.get("GROQ_API_KEY", "").strip()
-        if not api_key:
-            return _json(503, {
-                "error": "Groq is not configured",
-                "code": "configuration",
-                "setup": "Set GROQ_API_KEY in Vercel env",
+        client_ip = (request.headers.get("X-Forwarded-For") or request.remote_addr or "").split(",")[0].strip()
+        rate_key = paidia.chat_rate_key(session, client_ip) if hasattr(paidia, "chat_rate_key") else str(session.get("profile_id") or "anon")
+        if hasattr(paidia, "ocr_rate_allow") and not paidia.ocr_rate_allow(rate_key):
+            return _json(429, {
+                "error": "OCR rate limit — please wait a few minutes",
+                "code": "rate_limit",
+                "retryAfter": 60,
             })
-        status, payload = paidia.run_shopping(_body(), api_key)
+        api_key = os.environ.get("GROQ_API_KEY", "").strip() or None
+        body = _body()
+        if not api_key and not getattr(paidia, "ocr_image_configured", lambda: False)():
+            return _json(503, {
+                "error": "OCR unavailable — no API key configured",
+                "code": "configuration",
+                "setup": "Set XAI_API_KEY or GROK_API_KEY (Grok OCR) or GROQ_API_KEY (fallback) in Vercel env",
+            })
+        status, payload = paidia.run_shopping(body, api_key, session=session)
         return _json(status, payload)
 
     if request.method == "POST" and api in {"/ai-schedule", "/api/ai-schedule"}:

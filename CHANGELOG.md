@@ -1,5 +1,27 @@
 # Changelog
 
+## v148 — 2026-08-30
+
+- **OCR via Grok (xAI):** `POST /api/ai-shopping` image path prefers `XAI_API_KEY` / `GROK_API_KEY` via `ocr_xai.py`. Honest `503` when no OCR key.
+- Purposes: `list` / `receipt` / `stock` (staff) + `request` (staff or kids). Rate limit + image size cap.
+- UI: Liste import + Beleg, Lager Schnell hinzufügen OCR, Anfrage OCR fill. Docs: `docs/agents/OCR_GROK.md`.
+- Cache `paidia-v148`.
+
+## v147 — 2026-08-30
+
+- **In-app feedback:** Bug / change / addition reports (DE/EL). Auto page context; optional screenshot note; severity for bugs.
+- Persist as ops `feedbackReports` (staff `/api/ops`, kids open rows via `/api/kid-ops` with triage lock).
+- Entry: Help center, Profil, staff Mehr, kids Mehr. Pro inbox triage in Profil / hub.
+- Docs: `docs/agents/FEEDBACK_SYSTEM.md`. Kids dock / Zo-Ai title / Lager·Plan untouched.
+- Cache `paidia-v147`.
+
+## v146 — 2026-08-30
+
+- **OCR via Grok (xAI):** `POST /api/ai-shopping` image path prefers `XAI_API_KEY` / `GROK_API_KEY` (OpenAI-compatible `api.x.ai`). Honest `503` when no OCR key.
+- Purposes: `list` / `receipt` / `stock` (staff) + `request` (staff or kids for Anfrage/αίτημα). Rate limit + image size cap.
+- UI: Liste import + Beleg, Lager Schnell hinzufügen OCR, Anfrage OCR fill. Docs: `docs/agents/OCR_GROK.md`.
+- Cache `paidia-v146`.
+
 ## v145 — 2026-08-30
 
 - **Spotlight tour:** replaces the Next/Next sheet carousel with real coach-marks (`data-tour` targets). Dim overlay + tooltip (DE/EL); advance by tapping the highlight or **Got it** (navigates to the next page). Skip + resume; Easy = shorter path, Pro = Kids/Momente/Buch. Persist `tourSeen` v3 in localStorage (+ `profilePrefs._tourSeen` in Easy). QA map: `docs/agents/TOUR_SYSTEM.md`.

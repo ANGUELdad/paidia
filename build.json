@@ -1,8 +1,8 @@
 {
-  "version": 145,
-  "label": "v145",
+  "version": 148,
+  "label": "v148",
   "changed": {
-    "de": "Spotlight-Tour: echte Buttons, Easy/Pro, Fortsetzen",
-    "el": "Spotlight-tour: πραγματικά κουμπιά, Easy/Pro, συνέχεια"
+    "de": "Kinder können eigene Notizen speichern (Sync-Fix)",
+    "el": "Τα παιδιά αποθηκεύουν δικές τους σημειώσεις (sync fix)"
   }
 }
