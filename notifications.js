@@ -5,6 +5,7 @@
   const PREFS_KEY = 'paidia.notif';
   const LEGACY_KEY = 'paidia.notifPrefs';
   const FIRED_KEY = 'paidia.notifFired';
+  const PUSH_KEY = 'paidia.pushEndpoint';
 
   const CAT_DEFAULTS = {
     shifts: true,
@@ -129,6 +130,70 @@
     setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
   }
 
+  function ua(){ return String((global.navigator && navigator.userAgent) || ''); }
+  function isIOS(){
+    return /iPad|iPhone|iPod/.test(ua()) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+  function isAndroid(){ return /Android/i.test(ua()); }
+  function isStandalone(){
+    try{
+      if(global.matchMedia && matchMedia('(display-mode: standalone)').matches) return true;
+      if(global.matchMedia && matchMedia('(display-mode: fullscreen)').matches) return true;
+    }catch{}
+    return !!(navigator.standalone);
+  }
+  function browserLabel(){
+    const s = ua();
+    if(/Edg\//.test(s)) return 'edge';
+    if(/Firefox\//.test(s)) return 'firefox';
+    if(/Chrome\//.test(s) && !/Edg\//.test(s)) return 'chrome';
+    if(/Safari\//.test(s) && !/Chrome\//.test(s)) return 'safari';
+    return 'other';
+  }
+
+  /**
+   * Honest capability matrix for permission UX.
+   * iOS Safari only exposes usable Web Notifications inside an installed PWA (16.4+).
+   */
+  function capabilities(){
+    const api = typeof Notification !== 'undefined';
+    const secure = !!global.isSecureContext;
+    const sw = 'serviceWorker' in navigator;
+    const pushManager = 'PushManager' in global;
+    const ios = isIOS();
+    const android = isAndroid();
+    const standalone = isStandalone();
+    const browser = browserLabel();
+    let permission = 'unsupported';
+    if(api){
+      try{ permission = Notification.permission; }catch{ permission = 'unsupported'; }
+    }
+    let reason = 'ok';
+    let canRequest = false;
+    let canNotify = false;
+    if(!secure){
+      reason = 'insecure';
+    }else if(!api){
+      reason = ios && !standalone ? 'ios-install' : 'unsupported';
+    }else if(ios && !standalone){
+      reason = 'ios-install';
+    }else if(permission === 'denied'){
+      reason = 'denied';
+    }else if(permission === 'granted'){
+      reason = 'granted';
+      canNotify = true;
+    }else{
+      reason = 'default';
+      canRequest = true;
+    }
+    return {
+      api, secure, sw, pushManager, ios, android, standalone, browser,
+      permission, reason, canRequest, canNotify,
+      localScheduled: api && secure && (permission === 'granted' || canRequest),
+      webPushReady: false,
+    };
+  }
+
   /** Reuse gate.js registration — never race a second register. */
   async function registerServiceWorker(){
     if(!('serviceWorker' in navigator) || !global.isSecureContext) return null;
@@ -141,6 +206,10 @@
   }
 
   async function requestPermission(){
+    const cap = capabilities();
+    if(cap.reason === 'unsupported' || cap.reason === 'insecure' || cap.reason === 'ios-install'){
+      return cap.reason;
+    }
     if(!('Notification' in global)) return 'unsupported';
     if(Notification.permission === 'granted'){
       savePrefs({enabled: true});
@@ -183,6 +252,9 @@
     if(prefs.vibrate !== false && !payload.silent){
       payload.vibrate = Array.isArray(opts.vibrate) ? opts.vibrate : [80, 40, 80];
     }
+    if(Array.isArray(opts.actions) && opts.actions.length){
+      payload.actions = opts.actions.slice(0, 2);
+    }
     try{
       const reg = await registerServiceWorker();
       if(reg && reg.showNotification){
@@ -205,7 +277,63 @@
     }
   }
 
-  /** Collect upcoming reminders from app data (called from app.js) */
+  function urlBase64ToUint8Array(base64String){
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    const out = new Uint8Array(raw.length);
+    for(let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+
+  async function fetchVapidPublicKey(){
+    try{
+      const res = await fetch('/api/push/vapid', {credentials: 'same-origin', cache: 'no-store'});
+      if(!res.ok) return null;
+      const data = await res.json();
+      if(data && data.configured && data.publicKey) return String(data.publicKey);
+    }catch{}
+    return null;
+  }
+
+  /** Subscribe when server has VAPID keys. No-op (returns null) if not configured. */
+  async function subscribePush(){
+    const cap = capabilities();
+    if(!cap.sw || !cap.pushManager || !cap.secure) return {ok: false, reason: 'unsupported'};
+    if(!('Notification' in global) || Notification.permission !== 'granted'){
+      return {ok: false, reason: 'permission'};
+    }
+    const publicKey = await fetchVapidPublicKey();
+    if(!publicKey) return {ok: false, reason: 'no-vapid'};
+    try{
+      const reg = await registerServiceWorker();
+      if(!reg || !reg.pushManager) return {ok: false, reason: 'no-sw'};
+      let sub = await reg.pushManager.getSubscription();
+      if(!sub){
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicKey),
+        });
+      }
+      const json = sub.toJSON();
+      try{ localStorage.setItem(PUSH_KEY, json.endpoint || ''); }catch{}
+      const res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({subscription: json}),
+      });
+      if(!res.ok){
+        const err = await res.json().catch(()=>({}));
+        return {ok: false, reason: err.code || 'subscribe-failed', subscription: json};
+      }
+      return {ok: true, subscription: json};
+    }catch(e){
+      console.warn('push subscribe failed', e);
+      return {ok: false, reason: 'subscribe-error'};
+    }
+  }
+
   function collectUpcoming(ctx, leadMinutes){
     const lead = Math.max(Number(leadMinutes) || 60, 15);
     const now = Date.now();
@@ -261,7 +389,6 @@
       });
     }
 
-    /* Kid ratings due — populated by app.js PaidiaKidRatings / emitKidRatingHooks */
     (ctx.ratingReminders || []).forEach(r=>{
       if(!r || !r.due || !r.kidId) return;
       const key = 'rating-' + r.kidId + '-' + (r.week || '');
@@ -330,5 +457,7 @@
     showNotification, syncFromContext, collectUpcoming,
     buildICS, downloadICS, updateBadge, registerServiceWorker,
     calendarMonthGrid, inQuietHours, CAT_DEFAULTS, defaultPrefs,
+    capabilities, subscribePush, fetchVapidPublicKey,
+    isIOS, isAndroid, isStandalone, browserLabel,
   };
 })(window);

@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 148,
-  label: 'v148',
+  version: 149,
+  label: 'v149',
   changed: {
-    de: 'Kinder können eigene Notizen speichern (Sync-Fix)',
-    el: 'Τα παιδιά αποθηκεύουν δικές τους σημειώσεις (sync fix)',
+    de: 'Mitteilungen: Plattform-Matrix + VAPID-Subscribe',
+    el: 'Ειδοποιήσεις: πίνακας πλατφορμών + VAPID subscribe',
   },
 };
 const T = {
@@ -19111,7 +19111,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||148),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||149),{scope:'./'};
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

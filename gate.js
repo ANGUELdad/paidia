@@ -34,8 +34,8 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 148,
-    label: 'v148',
+    version: 149,
+    label: 'v149',
     changed: {
       de: 'OCR über Grok (xAI): Liste, Beleg, Lager, Anfragen',
       el: 'OCR μέσω Grok (xAI): Λίστα, απόδειξη, αποθήκη, αιτήματα',

@@ -1,5 +1,10 @@
 # Changelog
 
+## v149 — 2026-08-30
+
+- **Notifications:** `PaidiaNotify.capabilities` + optional VAPID `subscribePush`; OS×browser matrix doc.
+- Honest iOS Home-Screen requirement and DE/EL unsupported messaging (prefs + enable flow already on main).
+
 ## v148 — 2026-08-30
 
 - **Kids Notizen:** own-profile CRUD; sync race fix; server `_merge_kid_notes` keeps staff notes; empty CTA Notiz schreiben (DE/EL).

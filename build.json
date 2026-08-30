@@ -1,8 +1,8 @@
 {
-  "version": 148,
-  "label": "v148",
+  "version": 149,
+  "label": "v149",
   "changed": {
-    "de": "Kinder können eigene Notizen speichern (Sync-Fix)",
-    "el": "Τα παιδιά αποθηκεύουν δικές τους σημειώσεις (sync fix)"
+    "de": "Mitteilungen: Plattform-Matrix + VAPID-Subscribe",
+    "el": "Ειδοποιήσεις: πίνακας πλατφορμών + VAPID subscribe"
   }
 }

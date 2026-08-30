@@ -1,19 +1,25 @@
-# Phase E — Web Push & notification automations (deferred)
+# Phase E — Web Push & notification automations (partial)
 
-Not in the current ship. Tracked so agents do not re-invent half-built push.
+## Done (v149)
 
-## Planned work
+- Local Web Notifications + SW `showNotification` with platform-honest permission UX
+- Capability matrix: [NOTIFICATIONS_MATRIX.md](NOTIFICATIONS_MATRIX.md)
+- Optional VAPID: if `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` (or `PAIDIA_VAPID_*`) are set:
+  - `GET /api/push/vapid` returns the public key
+  - Client `PaidiaNotify.subscribePush()` after enable
+  - `POST /api/push/subscribe` stores the subscription in durable KV
+  - `/api/health` → `notifications.webPush: true`
 
-- VAPID keys; `PushManager.subscribe`; store subscriptions in Postgres via `db.py`
-- `POST /api/push/subscribe` + admin `POST /api/notify/push`
-- Wire existing `sw.js` `push` listener to real payloads
-- Automations in Admin: shift start → push, low stock → push, broadcast → email+push
+## Still deferred
 
-## Current state
+- Server-side **send** (`webpush` / pywebpush) and admin `POST /api/notify/push`
+- Vercel Cron → `/api/notify/tick` for closed-app reminders
+- Automations that fan out to push (shift / stock / broadcast)
 
-- `/api/health` reports `notifications.webPush: false`
-- Local Notification API + email broadcast work while the PWA/tab can run
-- Kids get local event banners when enabled (same limitation: app open-ish)
-- Admin **Automationen** panel (`sheetAdminAutomations`) toggles local sweeps (shift / stock / late / banner) — not server push
+## Current without VAPID
 
-Do not implement VAPID unless this phase is explicitly activated.
+- Local Notification API + in-app center while the PWA/tab (or SW) can run
+- Kids local event/activity/chore/rating reminders when prefs allow
+- Admin Automationen = local sweeps only
+
+Do not invent a second push stack — extend the VAPID subscribe path above when activating sends.
