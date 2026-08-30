@@ -2830,6 +2830,41 @@
   .shop-take-name .prod-ico{margin-right:0;flex:0 0 auto}
   .shop-take-card .shop-empty.compact{margin:0;border:0;background:transparent;padding:16px 4px 8px}
 
+  /* Liste Αιτήματα / Anfragen */
+  .req-easy-row{padding:0}
+  .req-cta{width:100%;min-height:52px;font-size:16px;font-weight:800;letter-spacing:-.01em}
+  .req-form{display:grid;gap:10px;margin-top:12px}
+  .req-form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .req-filters{display:grid;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line,#e6ebe7)}
+  .req-filters .seg{flex-wrap:wrap}
+  .req-who-filter{display:grid;gap:4px;font-size:11px;font-weight:700;color:var(--muted,#4a6a74)}
+  .req-who-filter select{min-height:40px;border-radius:10px;border:1px solid var(--line,#e6ebe7);padding:0 10px;background:#fff}
+  .req-items{display:grid;gap:6px;padding:10px 12px 14px}
+  .req-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;
+    padding:10px 12px;border:1px solid var(--line,#e8eef4);border-radius:var(--radius-sm,12px);
+    background:rgba(255,255,255,.94)}
+  .req-item:has(.bulk-check){grid-template-columns:auto minmax(0,1fr) auto}
+  .req-item.selected{border-color:var(--sea,#2f5a63);box-shadow:0 0 0 1px rgba(47,90,99,.2)}
+  .req-item-main{min-width:0;display:grid;gap:3px}
+  .req-item-name{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink,#1a2822)}
+  .req-item-name b{font-weight:750}
+  .req-item-sub{font-size:11px;color:var(--muted,#4a6a74);line-height:1.35}
+  .req-status.pill{display:inline-flex;align-self:start;margin-top:2px;padding:2px 8px;border-radius:999px;
+    font-size:10px;font-weight:800;letter-spacing:.02em;background:#eef2f7;color:#4a6a74}
+  .req-status.open{background:rgba(47,90,99,.12);color:#2f5a63}
+  .req-status.accepted{background:rgba(34,120,80,.12);color:#1d6b45}
+  .req-status.bought{background:rgba(34,120,80,.18);color:#145c38}
+  .req-status.rejected{background:var(--out-tint,#fee2e2);color:var(--out,#b91c1c)}
+  .req-item-actions{display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end}
+  .req-item-actions .btn{margin:0;white-space:nowrap}
+  body.mode-easy .req-item-actions .btn{min-height:44px;padding:0 14px;font-size:13px}
+  @media(max-width:520px){
+    .req-item{grid-template-columns:minmax(0,1fr)}
+    .req-item:has(.bulk-check){grid-template-columns:auto minmax(0,1fr)}
+    .req-item-actions{justify-content:stretch}
+    .req-item-actions .btn{flex:1}
+  }
+
   /* Schedule calendar month — planner-scoped (cal-sheet keeps its own .cal-actions) */
   .plan-calendar .cal-shell{
     background:rgba(255,255,255,.92);border:1px solid var(--plan-line);border-radius:20px;
@@ -4503,6 +4538,7 @@
   body.layout-desktop:not(.mode-child) .shop-shell-plan > .ops-hero,
   body.layout-desktop:not(.mode-child) .shop-shell-plan > .shop-list-card,
   body.layout-desktop:not(.mode-child) .shop-shell-plan > .shop-take-card,
+  body.layout-desktop:not(.mode-child) .shop-shell-plan > .req-card,
   body.layout-desktop:not(.mode-child) .shop-shell-plan > .shop-history{
     grid-column:1}
   body.layout-desktop:not(.mode-child) .shop-shell-plan > .shop-command{

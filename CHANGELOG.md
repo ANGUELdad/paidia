@@ -9,7 +9,9 @@
 - DE/EL strings: `stockTideLabel`, `stockShelves`, `stockRecentMoves`, `stockJarAria`, …
 - **Kids Spiele:** five offline OSS HTML5 games in `kids-games/` (2048, Snake, Breakout, 15-Puzzle, Himmel-Hüpfer) — MIT + `kids-games/README.md` attribution; sandboxed iframe launcher; Easy featured rail + Pro full catalogue; scores via `postMessage` → `gameStats`.
 - Static allowlist `kids-games/` in `server.py` / `api/index.py`; SW caches `/kids-games/`.
-- **Liste:** Αιτήματα/Anfragen accept / reject / promote into Friday shopping list.
+- **Liste Αιτήματα / Anfragen:** `listRequests` ops key (open → accepted → bought / rejected); accept promotes into Friday `listEntries`.
+- Kids create proposals only via `/api/kid-ops` (staff-locked non-open rows); staff Easy CTA + Pro filters/bulk accept.
+- Light notification hook for open requests (`shopping` prefs, `list-req-*`).
 - Cache `paidia-v138`.
 
 ## v137 — 2026-08-30

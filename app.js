@@ -2051,7 +2051,7 @@ function load(){
 
 /** Shared across all staff devices — full operational state (survives when Postgres is configured). */
 const SHARED_KEYS = [
-  'listEntries','shoppingTrips','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
+  'listEntries','shoppingTrips','listRequests','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
   'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
   'xpLog','gameStats',
@@ -8119,18 +8119,16 @@ function viewShop(){
   const inStore = pending.length > 0;
 
   const fridayState=pending.length?t('fridayActive'):(open.length?t('fridayPlanned'):(bought.length||missing.length?t('fridayCompleted'):t('fridayPlanned')));
-  const lowStockCount = PRODUCTS().filter(p=>{
-    const q = DB.stock[stockKey(hid,p.id)]??0;
-    return q <= lowThreshold(p);
-  }).length;
+  const openReqCount = openListRequestCount(hid);
   const catOrder = [...CATS().map(c=>c.id), 'other'];
-  const shopSelecting = state.selectMode==='shop' && !inStore;
+  const shopSelecting = state.selectMode==='shop' && !inStore && state.shopPanel==='plan';
   const storeSelecting = state.selectMode==='store' && inStore;
+  const reqSelecting = state.selectMode==='requests' && !inStore && state.shopPanel==='requests';
   const hero=inStore?'':`<header class="shop-overview">
       <div class="shop-overview-copy"><p class="brand-kicker">${esc(t('shopTitle'))}</p><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div><h2>${esc(house(hid).short)}</h2><span>${esc(fridayText(friday))} · ${esc(T[state.lang].shopOverviewHint(open.length))}</span></div>
       <div class="shop-overview-stats" role="group" aria-label="${esc(t('shopTitle'))}">
         <div><b>${open.length}</b><span>${esc(t('secOpen'))}</span></div>
-        <div><b>${lowStockCount}</b><span>${esc(t('stockAttention'))}</span></div>
+        <div><b>${openReqCount}</b><span>${esc(t('shopRequests'))}</span></div>
         <div><b>${bought.length}</b><span>${esc(t('secBought'))}</span></div>
       </div>
     </header>
@@ -8147,9 +8145,10 @@ function viewShop(){
         <div class="seg shop-panel-seg" id="shopPanel">
           <button class="${state.shopPanel==='plan'?'on':''}" data-shop-panel="plan" type="button">${t('shopPlan')}</button>
           <button class="${state.shopPanel==='take'?'on':''}" data-shop-panel="take" type="button">${t('shopTake')}</button>
+          <button class="${state.shopPanel==='requests'?'on':''}" data-shop-panel="requests" type="button">${t('shopRequests')}${openReqCount?` · ${openReqCount}`:''}</button>
         </div>
         <details class="shop-more pro-only mode-pro-block"><summary aria-label="${esc(t('shopMoreActions'))}">•••</summary><div class="shop-more-popover">
-          <button class="shop-more-action ${shopSelecting?'on':''}" type="button" id="shopSelectToggle">☑ ${esc(shopSelecting?t('selectDone'):t('selectMode'))}</button>
+          <button class="shop-more-action ${(shopSelecting||reqSelecting)?'on':''}" type="button" id="${state.shopPanel==='requests'?'reqSelectToggle':'shopSelectToggle'}">☑ ${esc((shopSelecting||reqSelecting)?t('selectDone'):t('selectMode'))}</button>
           <button class="shop-more-action" type="button" data-page-act="shopScan">${ui('u-camera','sm')} ${esc(t('topScan'))}</button>
           <button class="shop-more-action" type="button" id="importList">${ui('u-receipt','sm')} ${esc(t('importList'))}</button>
           <button class="shop-more-action" type="button" data-page-act="shopHistory">${ui('u-book','sm')} ${esc(t('topHistory'))}</button>
@@ -8157,6 +8156,9 @@ function viewShop(){
       </div>
       ${state.shopPanel==='plan'?`<div class="shop-add-row"><div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋ <span>${esc(t('addToCart'))}</span></button></div>
         <button class="btn sec sm shop-auto-fill pro-only mode-pro-block" type="button" id="shopAutoFill">${ui('u-sparkle','sm')} ${t('shopAutoFill')}</button></div>`:''}
+      ${state.shopPanel==='requests'?`<div class="shop-add-row req-easy-row">
+        <button class="btn req-cta" type="button" id="shopRequestCreate">${ui('u-cart','sm')} ${esc(t('shopRequestBig'))}</button>
+      </div>`:''}
     </section>`;
 
   const takeListCard = (!inStore && state.shopPanel==='take') ? (()=>{
@@ -8178,6 +8180,73 @@ function viewShop(){
         <h3>${t('noFridayItems')}</h3>
         <p>${t('shopTakeEmptyHint')}</p>
       </div>`}
+    </section>`;
+  })() : '';
+
+  const statusLabel = st => ({
+    open: t('shopRequestOpen'),
+    accepted: t('shopRequestStatusAccepted'),
+    bought: t('shopRequestStatusBought'),
+    rejected: t('shopRequestStatusRejected'),
+  }[st] || st);
+
+  const requestsCard = (!inStore && state.shopPanel==='requests') ? (()=>{
+    const filter = state.shopRequestFilter || 'open';
+    const who = state.shopRequestWho || 'all';
+    const rows = listRequestsFor(hid, {status: filter, who});
+    const requesters = [...new Map(listRequestsFor(hid).map(r=>{
+      const id = String(r.kidId||r.requesterId||r.by||'');
+      return [id, {id, name: listRequestRequesterName(r)}];
+    }).filter(([id])=>id)).values()];
+    const rowHtml = r => {
+      const sel = reqSelecting && isSelected(r.id);
+      const whoName = listRequestRequesterName(r);
+      const qtyBit = r.qty!=null ? `${r.qty}${r.unit?` ${esc(r.unit)}`:''}` : (r.unit?esc(r.unit):'');
+      return `<article class="req-item ${r.status} ${sel?'selected':''}" data-req-row="${r.id}">
+        ${reqSelecting && r.status==='open'?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${r.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
+        <div class="req-item-main">
+          <div class="req-item-name">${ui('u-cart','sm')}<b>${esc(r.name)}</b></div>
+          <div class="req-item-sub">${qtyBit?`${qtyBit} · `:''}${esc(T[state.lang].shopRequestAskedBy(whoName))}${r.note?` · ${esc(r.note)}`:''}</div>
+          <span class="req-status pill ${r.status}">${esc(statusLabel(r.status))}</span>
+        </div>
+        ${!reqSelecting && r.status==='open'?`<div class="req-item-actions">
+          <button class="btn sm" type="button" data-req-accept="${r.id}">${ui('u-check','sm')} ${esc(t('shopRequestAccept'))}</button>
+          <button class="btn sm sec" type="button" data-req-reject="${r.id}">${esc(t('shopRequestReject'))}</button>
+        </div>`:''}
+        ${!reqSelecting && r.status==='accepted'?`<div class="req-item-actions">
+          <button class="btn sm sec" type="button" data-req-bought="${r.id}">${ui('u-check','sm')} ${esc(t('shopRequestBought'))}</button>
+        </div>`:''}
+      </article>`;
+    };
+    return `<section class="shop-list-card req-card" aria-label="${esc(t('shopRequests'))}">
+      <header class="shop-list-heading"><div><p>${esc(t('shopRequests'))}</p><span>${esc(t('shopRequestHint'))}</span></div>
+        <button class="btn sm" type="button" id="shopRequestCreateTop">${ui('u-cart','sm')} ${esc(t('shopRequestBig'))}</button>
+      </header>
+      <div class="req-filters pro-only mode-pro-block">
+        <div class="seg" id="reqStatusFilter" role="group" aria-label="${esc(t('shopRequestFilterStatus'))}">
+          ${[['open',t('shopRequestOpen')],['all',t('shopRequestFilterAll')],['accepted',t('shopRequestStatusAccepted')],['bought',t('shopRequestStatusBought')],['rejected',t('shopRequestStatusRejected')]].map(([id,label])=>
+            `<button type="button" class="${filter===id?'on':''}" data-req-filter="${id}">${esc(label)}</button>`
+          ).join('')}
+        </div>
+        ${requesters.length?`<label class="req-who-filter"><span>${esc(t('shopRequestFilterWho'))}</span>
+          <select id="reqWhoFilter">
+            <option value="all">${esc(t('shopRequestFilterAll'))}</option>
+            ${requesters.map(p=>`<option value="${esc(p.id)}" ${who===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}
+          </select></label>`:''}
+      </div>
+      ${rows.length?`<div class="req-items">${rows.map(rowHtml).join('')}</div>`:
+        `<div class="shop-empty">
+          <div class="big">${ui('u-cart')}</div>
+          <h3>${esc(t('shopRequestEmpty'))}</h3>
+          <p>${esc(t('shopRequestEmptyHint'))}</p>
+          <div class="shop-start-actions">
+            <button class="btn" type="button" id="shopRequestCreateEmpty">${esc(t('shopRequestBig'))}</button>
+          </div>
+        </div>`}
+      ${reqSelecting?bulkBarHtml([
+        {id:'req-accept', label:t('shopRequestBulkAccept')},
+        {id:'req-reject', label:t('shopRequestBulkReject'), danger:true},
+      ]):''}
     </section>`;
   })() : '';
 

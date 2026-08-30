@@ -23,7 +23,7 @@
       "id": "shop",
       "keys": ["liste", "shop", "friday", "einkauf", "cart", "ocr"],
       "files": ["app.js", "server.py"],
-      "snippet": "viewShop Friday list; store confirmBatch; /api/ai-shopping OCR (Groq)."
+      "snippet": "viewShop Friday list + Αιτήματα/Anfragen (listRequests); store confirmBatch; /api/ai-shopping OCR."
     },
     {
       "id": "stock",
