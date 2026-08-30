@@ -14,7 +14,8 @@
    | Primary tabs   | Home Plan Lager Liste Kids + Mehr   | Labeled rail + #dockZoAi    |
    | Zo-Ai          | FAB or Mehr (v109)                  | Rail button; FAB hidden     |
    | Tablet 768–899 | Phone chrome until 900 (documented) | —                           |
-   Kids chrome (mode-child) is owned separately — do not regress v142/v144. */
+   Kids chrome (mode-child) is owned separately — do not regress v142/v144.
+   Do not let staff --chrome:#fff bleed into kids dock/rail (light-on-dark labels). */
 
 :root {
   --bg: #f3f5f2;

@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 164,
-  label: 'v164',
+  version: 166,
+  label: 'v166',
   changed: {
-    de: 'Zo-Ai immer sichtbar · Tipps zu Plan, Foto & Liste',
-    el: 'Zo-Ai πάντα ορατή · συμβουλές για πλάνο, φωτό & λίστα',
+    de: 'Kids Start: linke Desktop-Leiste wieder sichtbar (dunkles Dock)',
+    el: 'Αρχή παιδιών: αριστερή μπάρα desktop ξανά ορατή',
   },
 };
 const T = {

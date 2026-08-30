@@ -1,5 +1,11 @@
 # Changelog
 
+## v166 — 2026-08-30
+
+- **Kids desktop left rail:** staff `ui-v110` white `--chrome` made the kid dock white-on-white — nav vanished, empty white left pane on Start.
+- Restore dark kids chrome (`#1b2822`) for rail + mobile dock; labeled rail buttons; brand mark; hide redundant top chip strip on desktop (rail owns nav).
+- Desktop stage gutter fixed (`--side-gutter:28px`) so kid-header no longer uses the 1180px centering bleed. Staff Plan untouched. Cache `paidia-v166`.
+
 ## v165 — 2026-08-30
 
 - **Mobile Plan · Woche stability:** portrait stays day-focus only (no 922px Voll-Woche matrix DOM — was blanking / crushing chips under the dock).

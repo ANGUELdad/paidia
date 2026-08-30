@@ -1,8 +1,8 @@
 {
-  "version": 165,
-  "label": "v165",
+  "version": 166,
+  "label": "v166",
   "changed": {
-    "de": "Plan · Woche mobil: Tag-Chips + Slots lesbar, kein Absturz",
-    "el": "Πλάνο · Εβδομάδα κινητό: chips + slots σταθερά, χωρίς κρας"
+    "de": "Kids Start: linke Desktop-Leiste wieder sichtbar (dunkles Dock)",
+    "el": "Αρχή παιδιών: αριστερή μπάρα desktop ξανά ορατή"
   }
 }
