@@ -7,6 +7,7 @@
 - Expanded weekly categories: Alltag (Schule, Zuhause, Freunde, Gefühl) plus Verhalten, Mitarbeit, Aktivitäten.
 - Important things (`thing:<choreId>`) rate daily/marked chores; Easy/Pro-friendly `.mode-easy-block` / `.mode-pro-block` sections.
 - Reminder hooks: `paidia:kid-rating-due` event, `paidia.notif` flags (`kidRatingsDue`, `ratingHooks`), `window.PaidiaKidRatings`; notifications collect `kind:'rating'`.
+- Notifications module aligned to `paidia.notif` (legacy `paidia.notifPrefs` migrate); quiet hours as HH:MM; rating/activity categories; reuse gate SW registration; server accepts grades 1–6, Verhalten/Mitarbeit/Aktivitäten, and `thing:<choreId>`.
 - Subject grades and staff summaries follow the same 1–6 scale; legacy 1–5 stars migrate once.
 - Visual feast polish within Armonia design system v2: heroes, empty states, arcade lobby.
 - Replaced teal/cyan neon Spiele hero with sea-deep stone gradient; tokenised arcade mode controls.

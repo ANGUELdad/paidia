@@ -1561,7 +1561,24 @@ def get_ops(since: int = 0) -> dict:
     return ops_snapshot(True)
 
 
-STAFF_KID_RATING_AREAS = ("school", "home", "friends", "mood")
+STAFF_KID_RATING_AREAS = (
+    "school",
+    "home",
+    "friends",
+    "mood",
+    "verhalten",
+    "mitarbeit",
+    "activities",
+)
+KID_GRADE_MIN = 1
+KID_GRADE_MAX = 6
+
+
+def _valid_staff_kid_rating_area(area: str) -> bool:
+    if area in STAFF_KID_RATING_AREAS:
+        return True
+    # Important things / chores: thing:<choreId>
+    return area.startswith("thing:") and len(area) > len("thing:")
 
 
 def staff_rating_summaries_for_kid(kid_id: str) -> list[dict]:
@@ -1579,9 +1596,14 @@ def staff_rating_summaries_for_kid(kid_id: str) -> list[dict]:
             value = float(row.get("value") or 0)
         except (TypeError, ValueError):
             continue
-        if not week or not rater_id or area not in STAFF_KID_RATING_AREAS or not 1 <= value <= 5:
+        if not week or not rater_id or not _valid_staff_kid_rating_area(area):
             continue
-        grouped.setdefault(week, []).append({"raterId": rater_id, "area": area, "value": value})
+        if not KID_GRADE_MIN <= value <= KID_GRADE_MAX:
+            continue
+        # Summaries stay area-keyed for the fixed school categories only;
+        # thing:* ratings are stored but not averaged into the weekly headline.
+        if area in STAFF_KID_RATING_AREAS:
+            grouped.setdefault(week, []).append({"raterId": rater_id, "area": area, "value": value})
 
     summaries = []
     for week, rows in sorted(grouped.items()):
@@ -1596,7 +1618,7 @@ def staff_rating_summaries_for_kid(kid_id: str) -> list[dict]:
         summaries.append({
             "kidId": kid_id,
             "week": week,
-            "average": round(sum(rater_averages) / len(rater_averages), 1),
+            "average": round(sum(rater_averages) / len(rater_averages), 1) if rater_averages else 0,
             "raterCount": len(by_rater),
             "areas": area_averages,
         })
