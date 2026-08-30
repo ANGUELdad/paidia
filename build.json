@@ -1,8 +1,8 @@
 {
-  "version": 149,
-  "label": "v149",
+  "version": 151,
+  "label": "v151",
   "changed": {
-    "de": "Mitteilungen: Plattform-Matrix + VAPID-Subscribe",
-    "el": "Ειδοποιήσεις: πίνακας πλατφορμών + VAPID subscribe"
+    "de": "Angemeldet bleiben: längere Session, Profil merken",
+    "el": "Να με θυμάσαι: μεγαλύτερη συνεδρία, αποθήκευση προφίλ"
   }
 }

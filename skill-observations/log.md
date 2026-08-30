@@ -489,3 +489,6 @@
 **Suggested improvement:** State the rule directly in the layout guidance: inside an auto-layout frame the parent owns child position, so `x`/`y` writes are discarded unless the child is absolutely positioned (`layoutPositioning = 'ABSOLUTE'`). To overlay one node on another, make the lower node a frame and append the upper node to it; to centre, use a `createAutoLayout` frame with both axes centred.
 
 **Principle:** When a layout system owns a property, assigning that property is a silent no-op, not an error. Overlay and centring are structural problems in such systems — solve them by nesting, never by coordinates.
+
+## 2026-08-30 — Button contrast v150
+- After light heroes (v145), leftover dark-hero frosted buttons (`.plan-hero-actions`, `.topbtn.ghost`, transparent `.btn.ghost`) read as empty; fix at token layer (solid white + ink/line) and convert desktop Plan hero to light stone so summary stats stay readable.

@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 149,
-  label: 'v149',
+  version: 151,
+  label: 'v151',
   changed: {
-    de: 'Mitteilungen: Plattform-Matrix + VAPID-Subscribe',
-    el: 'Ειδοποιήσεις: πίνακας πλατφορμών + VAPID subscribe',
+    de: 'Angemeldet bleiben: längere Session, Profil merken',
+    el: 'Να με θυμάσαι: μεγαλύτερη συνεδρία, αποθήκευση προφίλ',
   },
 };
 const T = {
@@ -159,6 +159,9 @@ const T = {
     uiModePage:'Nur diese Seite',
     uiModeResetPages:'Seiten-Ausnahmen zurücksetzen',
     uiModeHint:'Einfach = weniger Optionen. Pro = alles. Umschalter oben gilt für die aktuelle Seite.',
+    kidRateStaffOnly:'Deine Betreuerinnen bewerten die Woche. Hier siehst du den Team-Schnitt — Selbstbewertung ist in Pro.',
+    notifEasyHint:'Mitteilungen an — fertig. Kategorien und Ruhezeiten findest du in Pro.',
+    notifProCategories:'Für Kategorien, Ruhezeit und Ton → Pro umschalten.',
     stockHealthy:'Gut versorgt', stockLow:'Wenig', stockOutState:'Leer', productTypes:'Produkte',
     noStockResults:'Keine passenden Produkte gefunden.', openShopping:'Zur Einkaufsliste', missingFromShop:n=>`${n} Fehlmenge${n===1?'':'n'} aus dem Einkauf`,
     inTitle:'Eingang Lager', outTitle:'Ausgang Lager',
@@ -1101,6 +1104,9 @@ const T = {
     uiModePage:'Μόνο αυτή η σελίδα',
     uiModeResetPages:'Επαναφορά εξαιρέσεων σελίδων',
     uiModeHint:'Απλό = λιγότερες επιλογές. Pro = όλα. Ο διακόπτης πάνω ισχύει για την τρέχουσα σελίδα.',
+    kidRateStaffOnly:'Οι φροντιστές βαθμολογούν την εβδομάδα. Εδώ βλέπεις τον μέσο όρο της ομάδας — αυτοαξιολόγηση στο Pro.',
+    notifEasyHint:'Ειδοποιήσεις ενεργές — έτοιμο. Κατηγορίες και ώρες ησυχίας στο Pro.',
+    notifProCategories:'Για κατηγορίες, ώρες ησυχίας και ήχο → άνοιξε Pro.',
     stockHealthy:'Επαρκές', stockLow:'Λίγο', stockOutState:'Άδειο', productTypes:'Προϊόντα',
     noStockResults:'Δεν βρέθηκαν προϊόντα.', openShopping:'Στη λίστα αγορών', missingFromShop:n=>`${n} ${n===1?'έλλειψη':'ελλείψεις'} από τα ψώνια`,
     inTitle:'Είσοδος αποθήκης', outTitle:'Έξοδος αποθήκης',
@@ -2270,16 +2276,37 @@ function load(){
       MUTABLE.forEach(k => { if(saved[k] !== undefined) db[k] = saved[k]; });
     }
   }catch(e){ console.warn('load failed', e); }
-  // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
-  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','listRequests','feedbackReports','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
-    .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
-  if(!db.stock || typeof db.stock !== 'object') db.stock = {};
-  if(!db.productOverrides || typeof db.productOverrides !== 'object') db.productOverrides = {};
-  if(!db.profilePrefs || typeof db.profilePrefs !== 'object') db.profilePrefs = {};
-  if(!db.weeks || typeof db.weeks !== 'object') db.weeks = {};
-  if(!db.shiftNotes || typeof db.shiftNotes !== 'object') db.shiftNotes = {};
-  // Σπίτια χωρίς planning flag από παλιότερα saves δεν μπαίνουν στο πρόγραμμα.
-  db.houses = SEED.houses.map(h => ({...h}));
+  normalizeDbShape(db);
+  return db;
+}
+
+/** Coerce mutable collections so page renders never throw on bad local/shared data. */
+function normalizeDbShape(db = DB){
+  if(!db || typeof db !== 'object') return db;
+  [
+    'overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','listRequests',
+    'feedbackReports','customProducts','customCategories','customActivities','customReasons',
+    'customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings',
+    'staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework',
+    'schoolTimetable','chores','choreSubmissions','xpLog',
+  ].forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
+  if(!db.stock || typeof db.stock !== 'object' || Array.isArray(db.stock)) db.stock = {};
+  if(!db.productOverrides || typeof db.productOverrides !== 'object' || Array.isArray(db.productOverrides)) db.productOverrides = {};
+  if(!db.profilePrefs || typeof db.profilePrefs !== 'object' || Array.isArray(db.profilePrefs)) db.profilePrefs = {};
+  if(!db.weeks || typeof db.weeks !== 'object' || Array.isArray(db.weeks)) db.weeks = {};
+  if(!db.shiftNotes || typeof db.shiftNotes !== 'object' || Array.isArray(db.shiftNotes)) db.shiftNotes = {};
+  if(!db.gameStats || typeof db.gameStats !== 'object' || Array.isArray(db.gameStats)) db.gameStats = {};
+  // Reference tables always come from SEED (not cloud-mutable).
+  if(typeof SEED === 'object' && SEED){
+    db.houses = Array.isArray(SEED.houses) ? SEED.houses.map(h => ({...h})) : [];
+    if(!Array.isArray(db.employees) || !db.employees.length) db.employees = structuredClone(SEED.employees||[]);
+    if(!Array.isArray(db.children) || !db.children.length) db.children = structuredClone(SEED.children||[]);
+    if(!Array.isArray(db.activities) || !db.activities.length) db.activities = structuredClone(SEED.activities||[]);
+    if(!Array.isArray(db.products) || !db.products.length) db.products = structuredClone(SEED.products||[]);
+    if(!Array.isArray(db.categories) || !db.categories.length) db.categories = structuredClone(SEED.categories||[]);
+    if(!Array.isArray(db.reasons) || !db.reasons.length) db.reasons = structuredClone(SEED.reasons||[]);
+    if(!Array.isArray(db.chores) || !db.chores.length) db.chores = structuredClone(SEED.chores||[]);
+  }
   if(!Array.isArray(db.subjects) || !db.subjects.length){
     db.subjects = [
       {id:'sub-math', de:'Mathe', el:'Μαθηματικά', active:true},
@@ -2625,8 +2652,8 @@ window.addEventListener('visibilitychange', ()=>{
 
 /* Βοηθητικά */
 const uid = () => Math.random().toString(36).slice(2,10);
-const emp = id => DB.employees.find(e=>e.id===id);
-const kid = id => DB.children.find(c=>c.id===id);
+const emp = id => (DB.employees||[]).find(e=>e.id===id);
+const kid = id => (DB.children||[]).find(c=>c.id===id);
 const profilePref = id => (DB.profilePrefs && DB.profilePrefs[id]) || {};
 const profileName = person => {
   if(!person) return '';
@@ -2646,10 +2673,10 @@ const profileLabel = person => {
   return emoji ? `${emoji} ${name}` : name;
 };
 /** Προκαθορισμένες + όσες πρόσθεσε το προσωπικό μέσα από την εφαρμογή. */
-const ACTS = () => [...DB.activities, ...DB.customActivities];
+const ACTS = () => [...(DB.activities||[]), ...(DB.customActivities||[])];
 const act = id => ACTS().find(a=>a.id===id);
-const PRODUCTS = () => [...DB.products.map(applyProductOverride), ...(DB.customProducts||[]).map(applyProductOverride)];
-const CATS = () => [...DB.categories, ...(DB.customCategories||[])];
+const PRODUCTS = () => [...(DB.products||[]).map(applyProductOverride), ...(DB.customProducts||[]).map(applyProductOverride)];
+const CATS = () => [...(DB.categories||[]), ...(DB.customCategories||[])];
 const prod = id => PRODUCTS().find(p=>p.id===id);
 
 function applyProductOverride(p){
@@ -2686,9 +2713,10 @@ function persistProductFields(pid, fields){
     alias: fields.alias != null ? fields.alias : prev.alias,
   };
 }
-const house = id => DB.houses.find(h=>h.id===id);
-const planningHouses = () => DB.houses.filter(h=>h.planning!==false);
-const shoppingHouses = () => DB.houses;
+const house = id => (DB.houses||[]).find(h=>h.id===id);
+const planningHouses = () => (DB.houses||[]).filter(h=>h.planning!==false);
+const shoppingHouses = () => DB.houses||[];
+const houseShort = id => house(id)?.short || '—';
 const L = o => o ? (o[state.lang] ?? o.de ?? o.el ?? '') : '';
 const childResidence = child => child?.residenceType==='external' ? t('externalHome') : child?.homeHouseId ? house(child.homeHouseId)?.short||'' : '';
 const childChoiceLabel = child => `${child?.name||''}${childResidence(child)?` · 🏡 ${childResidence(child)}`:''}`;
@@ -3131,9 +3159,19 @@ function normalizeUiModeSurfaces(){
   if(state.mode==='staff' && state.tab==='kids' && state.kidsPane && state.kidsPane!=='directory'){
     state.kidsPane = 'directory';
   }
+  if(state.mode==='staff' && state.tab==='stock' && state.stockFilter==='all'){
+    /* Easy Lager = attention/empty + search; full shelves are Pro. */
+    state.stockFilter = 'attention';
+  }
+  if(state.mode==='staff' && state.tab==='shop' && state.shopRequestFilter && state.shopRequestFilter!=='open'){
+    state.shopRequestFilter = 'open';
+  }
   if(state.mode==='staff' && state.selectMode){
     state.selectMode = null;
     state.selectedIds = [];
+  }
+  if(state.mode==='staff' && state.stockTiles){
+    state.stockTiles = false;
   }
 }
 
@@ -3279,8 +3317,15 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   state.child=mode==='child'?authenticatedWho:null;
   state.user=mode==='staff'?authenticatedWho:null;
   try{
-    localStorage.setItem('paidia.lastMode', mode);
-    localStorage.setItem('paidia.lastProfileId', data.profileId);
+    if(data.remember){
+      localStorage.setItem('paidia.lastMode', mode);
+      localStorage.setItem('paidia.lastProfileId', data.profileId);
+      localStorage.setItem('paidia.rememberMe', '1');
+    }else{
+      localStorage.removeItem('paidia.lastMode');
+      localStorage.removeItem('paidia.lastProfileId');
+      localStorage.setItem('paidia.rememberMe', '0');
+    }
   }catch{}
   state.onboardingVersion=Number(data.onboardingVersion)||1;
   const serverDone=data.onboardingComplete===true;
@@ -3304,8 +3349,8 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
 }
 
 async function authenticateProfile(mode,who,pin){
-  let remember=true;
-  try{ remember = localStorage.getItem('paidia.rememberMe')!=='0'; }catch{}
+  let remember=false;
+  try{ remember = localStorage.getItem('paidia.rememberMe')==='1'; }catch{}
   const response=await fetch('/api/auth/login',{
     method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
     body:JSON.stringify({mode,profileId:who.id,pin,remember}),
@@ -3368,8 +3413,8 @@ async function passkeyApi(path,body){
 }
 async function loginWithPasskey(mode,who){
   if(!passkeyCapable()){const error=new Error(t('passkeyUnavailable'));error.code='unsupported';throw error;}
-  let remember=true;
-  try{ remember = localStorage.getItem('paidia.rememberMe')!=='0'; }catch{}
+  let remember=false;
+  try{ remember = localStorage.getItem('paidia.rememberMe')==='1'; }catch{}
   const options=await passkeyApi('/api/auth/passkey/login/options',{mode,profileId:who.id});
   const publicKey=decodePublicKeyOptions(options.publicKey);
   const credential=await navigator.credentials.get({publicKey});
@@ -6669,8 +6714,8 @@ function viewScheduleWeek(){
       <div class="plan-hero-actions">
         <button class="btn sm sec" type="button" data-shift="-7" aria-label="${esc(t('previousFriday')||'‹')}">‹</button>
         <button class="btn sm sec" type="button" data-shift="7" aria-label="›">›</button>
-        <button class="btn sm sec" type="button" data-page-act="importWeek" title="${esc(t('importWeek'))}">${esc(t('importWeek'))}</button>
-        <button class="btn sm sec" type="button" data-page-act="aiSchedule" title="${esc(t('aiSchedule'))}">✨ ${esc(t('aiSchedule'))}</button>
+        <button class="btn sm sec pro-only mode-pro-block" type="button" data-page-act="importWeek" title="${esc(t('importWeek'))}">${esc(t('importWeek'))}</button>
+        <button class="btn sm sec pro-only mode-pro-block" type="button" data-page-act="aiSchedule" title="${esc(t('aiSchedule'))}">✨ ${esc(t('aiSchedule'))}</button>
         <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
       </div>
       <div class="plan-week-summary">
@@ -7374,13 +7419,14 @@ function sheetEntry(e, dateStr, presets = {}){
   const dayIdx = dowIdx(new Date(dateStr+'T12:00:00'));
   feedback('open');
 
+  const easyEntry = isEasy();
   openSheet(`
     <div class="entry-sheet-head">
       <h3>${isNew ? t('newEntry') : t('edit')}</h3>
       <div class="entry-sheet-meta">
         <span class="block-pill">🕐 ${esc(t(blockId))} · ${def.from}–${def.to}</span>
       </div>
-      <button class="event-toggle ${linkedEvent?.status==='published'?'on':''}" id="fEventToggle" type="button"
+      <button class="event-toggle pro-only mode-pro-block ${linkedEvent?.status==='published'?'on':''}" id="fEventToggle" type="button"
         aria-pressed="${linkedEvent?.status==='published'?'true':'false'}">
         <span><span class="ev-ico" aria-hidden="true">${ui('u-megaphone')}</span>
           <b id="fEventToggleLabel">${linkedEvent?.status==='published'?t('eventButtonOn'):t('eventButton')}</b>
@@ -7388,7 +7434,7 @@ function sheetEntry(e, dateStr, presets = {}){
         </span>
         <span aria-hidden="true">${linkedEvent?.status==='published'?'✓':'○'}</span>
       </button>
-      <input type="checkbox" id="fAnnounce" hidden ${linkedEvent?.status==='published'?'checked':''}>
+      <input type="checkbox" id="fAnnounce" hidden ${!easyEntry && linkedEvent?.status==='published'?'checked':''}>
     </div>
 
     ${entrySec('🏠', t('house'), t('chooseMany'))}
@@ -7402,7 +7448,7 @@ function sheetEntry(e, dateStr, presets = {}){
     </div>
 
     ${entrySec('👶', t('children'))}
-    <div class="chips" id="fGroups" style="margin:-4px 0 8px">
+    <div class="chips ${easyEntry?'pro-only mode-pro-block':''}" id="fGroups" style="margin:-4px 0 8px">
       ${DB.groups.map(g=>{
         const on=g.childIds.every(id=>pickedKids.includes(id));
         return groupChipHtml(g, on);
@@ -7415,11 +7461,11 @@ function sheetEntry(e, dateStr, presets = {}){
     ${entrySec('🎯', t('activity'))}
     <div class="chips" id="fActs" style="margin:-4px 0 12px">
       ${ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}" type="button">${esc(a.emoji||'')} ${esc(L(a))}</button>`).join('')}
-      <button class="chip" id="fNewAct" style="border-style:dashed" type="button">＋ ${t('newActivity')}</button>
+      <button class="chip ${easyEntry?'pro-only mode-pro-block':''}" id="fNewAct" style="border-style:dashed" type="button">＋ ${t('newActivity')}</button>
     </div>
 
     ${entrySec('⏱', t('time'))}
-    <div class="chips" id="fTimePresets" style="margin:-4px 0 8px">
+    <div class="chips pro-only mode-pro-block" id="fTimePresets" style="margin:-4px 0 8px">
       <button class="chip" data-tp="full" type="button">${ui('u-calendar','sm')} ${t('fullBlock')} ${def.from}–${def.to}</button>
       ${['15:00','16:00','17:00','18:00','19:00','20:00']
         .filter(x => x >= def.from && x < def.to)
@@ -7434,7 +7480,7 @@ function sheetEntry(e, dateStr, presets = {}){
     <label class="f"><span>${ui('u-note','sm')} ${t('note')}</span>
       <textarea id="fNote" rows="2" placeholder="${t('notePh')}">${esc(e.note||'')}</textarea></label>
 
-    <div id="fEventFields" style="display:${linkedEvent?.status==='published'?'block':'none'}">
+    <div id="fEventFields" class="pro-only mode-pro-block" style="display:${!easyEntry && linkedEvent?.status==='published'?'block':'none'}">
       <div class="card" style="border-color:rgba(42,107,82,.28);background:#eef5f0;margin-bottom:10px">
         <div class="strong">📣 ${t('announceEvent')}</div>
         <div class="muted" id="fEventAudience">${T[state.lang].kidsNotified(pickedKids.length)} ${t('announceHint')}</div>
@@ -7447,12 +7493,12 @@ function sheetEntry(e, dateStr, presets = {}){
     </div>
 
     ${e.source==='template' ? `
-      <div class="seg" id="fScope">
+      <div class="seg pro-only mode-pro-block" id="fScope">
         <button class="on" data-s="override" type="button">${t('scopeToday')}</button>
         <button data-s="template" type="button">${t('scopeTemplate')}</button>
       </div>
-      <div class="muted" id="scopeHint" style="margin:-6px 0 12px">${t('scopeTodayHint')}</div>
-      <div class="muted" style="margin:-6px 0 12px">${t('adminOnly')}</div>` : ''}
+      <div class="muted pro-only mode-pro-block" id="scopeHint" style="margin:-6px 0 12px">${t('scopeTodayHint')}</div>
+      <div class="muted pro-only mode-pro-block" style="margin:-6px 0 12px">${t('adminOnly')}</div>` : ''}
 
     <button class="btn" id="fSave">💾 ${t('saveWithPin')}</button>
     ${!isNew && !e.cancelled ? `<button class="btn sec" id="fCancel" style="margin-top:8px">🗑 ${t('cancelToday')}</button>` : ''}
@@ -8603,8 +8649,8 @@ function sheetStockQuickAdd(){
     </div>
     <label class="f"><span>${t('stockFoodName')}</span>
       <input id="qaName" placeholder="Milch / Γάλα" autocomplete="off" enterkeyhint="done"></label>
-    <button class="btn sec sm" type="button" id="qaOcr" style="margin:0 0 10px">${ui('u-sparkle','sm')} ${esc(t('ocrSnapFill'))}</button>
-    <div class="muted" style="font-size:11px;margin:-6px 0 10px">${esc(t('ocrSnapFillHint'))}</div>
+    ${isPro()?`<button class="btn sec sm pro-only mode-pro-block" type="button" id="qaOcr" style="margin:0 0 10px">${ui('u-sparkle','sm')} ${esc(t('ocrSnapFill'))}</button>
+    <div class="muted pro-only mode-pro-block" style="font-size:11px;margin:-6px 0 10px">${esc(t('ocrSnapFillHint'))}</div>`:''}
     <div id="qaMatches" class="stock-qa-matches-wrap"></div>
     <div class="row" style="gap:8px">
       <label class="f grow"><span>${t('qty')}</span>
@@ -9799,7 +9845,7 @@ function sheetCreateListRequest({kidMode=false}={}){
       ${houses.length>1?`<div class="seg house-selector" id="reqHouse">${houses.map(h=>`<button type="button" class="${defaultHid===h.id?'on':''}" data-req-house="${h.id}">${esc(h.short)}</button>`).join('')}</div>`:''}
       <label class="f"><span>${esc(t('shopRequest'))}</span>
         <input id="reqName" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('shopRequestNamePh'))}"></label>
-      <button class="btn sec sm" type="button" id="reqOcr" style="margin:0 0 8px">${ui('u-sparkle','sm')} ${esc(t('ocrSnapFill'))}</button>
+      ${isPro()?`<button class="btn sec sm pro-only mode-pro-block" type="button" id="reqOcr" style="margin:0 0 8px">${ui('u-sparkle','sm')} ${esc(t('ocrSnapFill'))}</button>`:''}
       <div class="req-form-row">
         <label class="f"><span>${esc(t('shopRequestQtyPh'))}</span>
           <input id="reqQty" inputmode="decimal" autocomplete="off" placeholder="1"></label>
@@ -13474,9 +13520,9 @@ function childRateDueBannerHtml(kidId){
 function childBewertungenView(kidId){
   const life = KID_RATE_AREAS.filter(a=>a.group==='life');
   const school = KID_RATE_AREAS.filter(a=>a.group==='school');
-  const rowHtml = (areas, easyClass) => areas.map(a=>{
+  const rowHtml = (areas) => areas.map(a=>{
     const v = kidRating(kidId, a.id);
-    return `<div class="kid-rate-row grade-rate-row ${easyClass||''}">
+    return `<div class="kid-rate-row grade-rate-row">
       <span class="kid-rate-label">${esc(t(a.key))}</span>
       <span class="kid-grades ${a.tint}">${kidGradePickHtml(a.id, v)}</span>
     </div>`;
@@ -13486,7 +13532,7 @@ function childBewertungenView(kidId){
   const thingRows = things.length ? things.map(ch=>{
     const area = kidThingArea(ch.id);
     const v = kidRating(kidId, area);
-    return `<div class="kid-rate-row grade-rate-row mode-pro-block">
+    return `<div class="kid-rate-row grade-rate-row">
       <span class="kid-rate-label">${esc(choreLabel(ch))}</span>
       <span class="kid-grades pine">${kidGradePickHtml(area, v)}</span>
     </div>`;
@@ -13506,23 +13552,29 @@ function childBewertungenView(kidId){
     </div>`;
   }).join('');
 
-  return `<div class="kid-rate-pc" data-tour="kid-rate">
-    <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
-    ${childStaffRatingHtml(kidId)}
-    <section class="kid-card mode-easy-block">
+  /* Product intent: staff grades kids (staffKidRatings). Easy = view only; Pro may self-rate. */
+  const selfRate = isPro() ? `<section class="kid-card pro-only mode-pro-block">
       <h2>${esc(t('kidRateTitle'))}</h2>
       <p class="muted">${esc(t('kidRateLead'))}</p>
       <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
-      <div class="kid-rate-group"><span class="eyebrow">${esc(t('kidRateGroupLife'))}</span>${rowHtml(life,'mode-easy-block')}</div>
-      <div class="kid-rate-group mode-pro-block"><span class="eyebrow">${esc(t('kidRateGroupSchool'))}</span>${rowHtml(school,'mode-pro-block')}</div>
+      <div class="kid-rate-group"><span class="eyebrow">${esc(t('kidRateGroupLife'))}</span>${rowHtml(life)}</div>
+      <div class="kid-rate-group"><span class="eyebrow">${esc(t('kidRateGroupSchool'))}</span>${rowHtml(school)}</div>
     </section>
-    <section class="kid-card mode-pro-block">
+    <section class="kid-card pro-only mode-pro-block">
       <h2>${esc(t('kidRateThingsTitle'))}</h2>
       <p class="muted">${esc(t('kidRateThingsLead'))}</p>
       ${thingRows}
-    </section>
+    </section>` : `<section class="kid-card mode-easy-block">
+      <h2>${esc(t('childStaffRatingTitle'))}</h2>
+      <p class="muted">${esc(t('kidRateStaffOnly'))}</p>
+    </section>`;
+
+  return `<div class="kid-rate-pc" data-tour="kid-rate">
+    <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    ${childStaffRatingHtml(kidId)}
+    ${selfRate}
     <div class="kid-rate-layout">
-      ${childSubjectsReadonlyHtml(kidId)}
+      ${isPro()?childSubjectsReadonlyHtml(kidId):''}
       <section class="kid-card mode-easy-block">
         <h2>${esc(t('kidRateWeeks'))}</h2>
         ${trend}
@@ -16264,10 +16316,22 @@ function onTopAction(id){
   feedback('tap');
   if(id==='tutorial'){ openAppTutorial(); return; }
   if(id==='addEntry'){ sheetEntry(null, state.date); return; }
-  if(id==='importWeek'){ sheetImportWeek(); return; }
-  if(id==='aiSchedule'){ sheetAiSchedule(); return; }
-  if(id==='shopScan'){ document.getElementById('btnReceipt')?.click() || sheetImportList(); return; }
-  if(id==='shopHistory'){ sheetShoppingHistory(); return; }
+  if(id==='importWeek'){
+    if(isEasy()){ toast(t('uiModeProHint'),'info'); return; }
+    sheetImportWeek(); return;
+  }
+  if(id==='aiSchedule'){
+    if(isEasy()){ toast(t('uiModeProHint'),'info'); return; }
+    sheetAiSchedule(); return;
+  }
+  if(id==='shopScan'){
+    if(isEasy()){ toast(t('uiModeProHint'),'info'); return; }
+    document.getElementById('btnReceipt')?.click() || sheetImportList(); return;
+  }
+  if(id==='shopHistory'){
+    if(isEasy()){ toast(t('uiModeProHint'),'info'); return; }
+    sheetShoppingHistory(); return;
+  }
   if(id==='shiftFocus'){
     state.bookPane='shift';
     render();
@@ -19111,7 +19175,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||149),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||151),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

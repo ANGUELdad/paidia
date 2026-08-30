@@ -1,5 +1,12 @@
 # Changelog
 
+## v150 — 2026-08-30
+
+- **Button / chip contrast:** ghost & secondary controls use solid white + ink/pine + hairline (no empty transparent fills); `.topbtn` / `.chip` ink on light header; Easy/Pro toggle solid white track.
+- Plan hero actions ink-on-white; desktop Plan hero aligned to light stone (summary stats no longer white-on-white on mobile).
+- Header tools ≥44×44; `.btn.in` / `.out` keep white labels on semantic fills.
+- Cache `paidia-v150`.
+
 ## v149 — 2026-08-30
 
 - **Notifications:** `PaidiaNotify.capabilities` + optional VAPID `subscribePush`; OS×browser matrix doc.

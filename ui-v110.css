@@ -715,7 +715,25 @@ body.auth-pending .gate-wrap {
 .gate-main .gate-pin .pin-field { max-width: none; min-height: 44px; margin: 0; padding: 8px; border-radius: 8px !important; }
 .gate-main .gate-pin .pinpad { gap: 6px; margin-top: 4px; }
 .gate-main .gate-pin .pinpad button { min-height: 46px; padding: 8px 0; border-radius: 8px !important; font-size: 17px; }
-.gate-main .gate-remember { margin: 8px 0 0 !important; min-height: 28px; }
+.gate-main .gate-remember {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0 !important;
+  min-height: 28px;
+  font-size: 13px !important;
+  font-weight: 550;
+  color: var(--ink, #1a2822) !important;
+  cursor: pointer;
+  user-select: none;
+}
+.gate-main .gate-remember input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--brand, #2f5a63);
+  cursor: pointer;
+}
 .gate-main .gate-login-submit { width: 100%; min-height: 48px; margin-top: 8px; border-radius: 8px !important; }
 .gate-pin-links { display: grid; grid-template-columns: 1.25fr .75fr .9fr; gap: 6px; margin-top: 6px; }
 .gate-pin-links :is(.gate-forgot,.gate-back) { width: 100%; min-height: 36px; margin: 0 !important; padding: 6px; border: 0 !important; border-radius: 7px !important; background: transparent !important; color: var(--muted) !important; font-size: 11px; }
@@ -816,7 +834,8 @@ body.auth-pending .gate-wrap {
   .gate-main .gate-pin .pin-field { min-height: 40px; height: 40px; padding: 5px; font-size: 18px; }
   .gate-main .gate-pin .pinpad { gap: 5px; margin-top: 4px; }
   .gate-main .gate-pin .pinpad button { min-height: 44px; height: 44px; padding: 4px 0; }
-  .gate-main .gate-remember { min-height: 24px; margin-top: 5px !important; font-size: 11px !important; }
+  .gate-main .gate-remember { min-height: 24px; margin-top: 5px !important; font-size: 12px !important; color: var(--ink, #1a2822) !important; }
+  .gate-main .gate-remember input[type="checkbox"] { width: 16px; height: 16px; }
   .gate-main .gate-login-submit { min-height: 44px; margin-top: 5px; }
   .gate-pin-links { gap: 2px; margin-top: 2px; }
   .gate-pin-links :is(.gate-forgot,.gate-back) { min-height: 30px; padding: 3px 1px; font-size: 9.5px; }
@@ -897,10 +916,39 @@ body:not(.mode-child) :is(.btn, .page-act) {
   font-weight: 650;
 }
 
+/* Secondary / ghost: solid white + ink — never transparent “empty” fills. */
 body:not(.mode-child) :is(.btn.sec, .btn.ghost, .page-act.ghost) {
-  border-color: var(--line) !important;
+  border: 1px solid var(--line) !important;
   background: #fff !important;
   color: var(--ink) !important;
+  box-shadow: none !important;
+  min-height: 44px;
+}
+body:not(.mode-child) .btn.ghost {
+  padding: 8px 12px !important;
+  width: auto;
+  color: var(--brand) !important;
+}
+body:not(.mode-child) .btn.in {
+  border-color: var(--in) !important;
+  background: var(--in) !important;
+  color: #fff !important;
+}
+body:not(.mode-child) .btn.out {
+  border-color: var(--out) !important;
+  background: var(--out) !important;
+  color: #fff !important;
+}
+body:not(.mode-child) :is(.chip, .chip.ghost) {
+  border: 1px solid var(--line) !important;
+  background: #fff !important;
+  color: var(--ink) !important;
+}
+body:not(.mode-child) .chip.ghost { color: var(--muted) !important; }
+body:not(.mode-child) .chip.on {
+  border-color: var(--brand) !important;
+  background: var(--brand) !important;
+  color: #fff !important;
 }
 
 body:not(.mode-child) :is(input, select, textarea) {
@@ -1031,15 +1079,36 @@ body:not(.mode-child) header .who {
 }
 
 body:not(.mode-child) .topbtn {
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
-  min-height: 40px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
   padding: 0;
   border: 1px solid var(--line) !important;
   border-radius: 8px !important;
   background: #fff !important;
   color: var(--ink) !important;
+}
+body:not(.mode-child) .topbtn.ghost {
+  background: #fff !important;
+  border-color: var(--line) !important;
+  color: var(--muted) !important;
+}
+body:not(.mode-child) .topbtn.danger {
+  background: var(--out) !important;
+  border-color: var(--out) !important;
+  color: #fff !important;
+}
+body:not(.mode-child) .topbtn.ok {
+  background: var(--in) !important;
+  border-color: var(--in) !important;
+  color: #fff !important;
+}
+body:not(.mode-child) .plan-hero-actions .btn.sm {
+  background: #fff !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+  box-shadow: none !important;
 }
 
 /* Home */
@@ -2236,26 +2305,28 @@ body[data-tab="schedule"] .plan-hero {
   margin: 0 0 14px !important;
   padding: 28px 30px !important;
   overflow: hidden;
-  border: 0 !important;
+  border: 1px solid var(--line) !important;
   border-radius: 22px !important;
+  /* Light stone hero (v145+) — frosted white buttons / white stats no longer invisible. */
   background:
-    radial-gradient(circle at 86% 12%, rgba(216,182,108,.18), transparent 26%),
-    linear-gradient(120deg,#19372d,#234d3d) !important;
-  box-shadow: 0 18px 38px rgba(26,40,34,.14) !important;
-  color: #fff !important;
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(243,245,242,.78)),
+    radial-gradient(ellipse at 88% 0%, rgba(47,90,99,.08), transparent 42%),
+    #fff !important;
+  box-shadow: none !important;
+  color: var(--ink) !important;
 }
 body[data-tab="schedule"] .plan-hero::after {
   content: "";
   position: absolute;
   z-index: -1;
   inset: 0;
-  opacity: .25;
-  background: repeating-linear-gradient(113deg,transparent 0 15px,rgba(255,255,255,.025) 16px 17px);
+  opacity: .2;
+  background: repeating-linear-gradient(113deg,transparent 0 15px,rgba(26,40,34,.02) 16px 17px);
 }
 body[data-tab="schedule"] .plan-hero-copy { align-self: center; }
 body[data-tab="schedule"] .plan-hero .brand-kicker {
   margin: 0 0 9px;
-  color: #b8d9c8 !important;
+  color: var(--sea) !important;
   font: 750 10px/1 var(--font-ui);
   letter-spacing: .15em;
   text-transform: uppercase;
@@ -2263,23 +2334,23 @@ body[data-tab="schedule"] .plan-hero .brand-kicker {
 body[data-tab="schedule"] .plan-hero-date {
   max-width: 22ch;
   margin: 0 !important;
-  color: #fff !important;
+  color: var(--ink) !important;
   font: 700 clamp(31px,3.2vw,43px)/1.06 var(--font-display) !important;
   letter-spacing: -.035em;
 }
 body[data-tab="schedule"] .plan-hero-meet {
   margin: 10px 0 0;
-  color: rgba(255,255,255,.66) !important;
+  color: var(--muted) !important;
   font-size: 13px;
 }
 body[data-tab="schedule"] .plan-hero-cta {
   align-self: start !important;
   min-width: 118px !important;
   min-height: 44px;
-  border: 1px solid #d8b66c !important;
+  border: 1px solid var(--brand) !important;
   border-radius: 10px !important;
-  background: #d8b66c !important;
-  color: #183229 !important;
+  background: var(--brand) !important;
+  color: #fff !important;
   box-shadow: none !important;
 }
 
@@ -2289,7 +2360,7 @@ body[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary) {
   grid-template-columns: repeat(3,minmax(0,1fr));
   max-width: 560px;
   overflow: hidden;
-  border-top: 1px solid rgba(255,255,255,.16);
+  border-top: 1px solid var(--line);
 }
 body[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary) span {
   display: grid;
@@ -2297,11 +2368,11 @@ body[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary) span {
   padding: 15px 18px 0 0;
 }
 body[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary) b {
-  color: #fff;
+  color: var(--ink);
   font: 700 24px/1 var(--font-display);
 }
 body[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary) small {
-  color: rgba(255,255,255,.58);
+  color: var(--muted);
   font-size: 10px;
 }
 
@@ -2512,9 +2583,16 @@ body.layout-mobile[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary
   grid-column: 1 / -1;
   max-width: none;
   margin-top: 18px;
+  border-top-color: var(--line) !important;
 }
 body.layout-mobile[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary) span { padding-top: 12px; }
-body.layout-mobile[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary) b { font-size: 20px; }
+body.layout-mobile[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary) b {
+  font-size: 20px;
+  color: var(--ink) !important;
+}
+body.layout-mobile[data-tab="schedule"] :is(.plan-day-summary,.plan-week-summary) small {
+  color: var(--muted) !important;
+}
 
 body.layout-mobile[data-tab="schedule"] .plan-days {
   display: flex !important;
