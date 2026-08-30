@@ -3,110 +3,323 @@
   "topics": [
     {
       "id": "tour",
-      "keys": ["tour", "tutorial", "onboarding", "spotlight", "coach", "data-tour", "tourSeen"],
-      "files": ["app.js", "index.html", "docs/agents/TOUR_SYSTEM.md", "server.py"],
+      "keys": [
+        "tour",
+        "tutorial",
+        "onboarding",
+        "spotlight",
+        "coach",
+        "data-tour",
+        "tourSeen"
+      ],
+      "files": [
+        "app.js",
+        "index.html",
+        "docs/agents/TOUR_SYSTEM.md",
+        "server.py"
+      ],
       "snippet": "Spotlight coach-marks: buildTourSteps, openTutorial, data-tour targets, tourSeen v3, Easy/Pro paths. ONBOARDING_VERSION=3."
     },
     {
+      "id": "feedback",
+      "keys": [
+        "feedback",
+        "bug report",
+        "change request",
+        "addition",
+        "melden",
+        "αναφορά",
+        "triage",
+        "feedbackReports"
+      ],
+      "files": [
+        "app.js",
+        "server.py",
+        "index.html",
+        "docs/agents/FEEDBACK_SYSTEM.md"
+      ],
+      "snippet": "sheetFeedbackHub/Compose/Inbox; OPS key feedbackReports; kid-ops merge locks triage; Pro inbox."
+    },
+    {
       "id": "auth",
-      "keys": ["login", "pin", "passkey", "webauthn", "gate", "biometr", "face id", "finger", "session", "hello"],
-      "files": ["gate.js", "app.js", "server.py", "docs/agents/BIOMETRICS.md", ".env.example"],
+      "keys": [
+        "login",
+        "pin",
+        "passkey",
+        "webauthn",
+        "gate",
+        "biometr",
+        "face id",
+        "finger",
+        "session",
+        "hello"
+      ],
+      "files": [
+        "gate.js",
+        "app.js",
+        "server.py",
+        "docs/agents/BIOMETRICS.md",
+        ".env.example"
+      ],
       "snippet": "Cold gate.js + app.js PIN/WebAuthn. Server /api/auth/passkey/* + PAIDIA_WEBAUTHN_ORIGIN/RP_ID. Platform authenticator."
     },
     {
       "id": "gate",
-      "keys": ["entrance", "version", "changelog", "install", "pwa", "build"],
-      "files": ["gate.js", "build.json", "CHANGELOG.md", "app.js"],
+      "keys": [
+        "entrance",
+        "version",
+        "changelog",
+        "install",
+        "pwa",
+        "build"
+      ],
+      "files": [
+        "gate.js",
+        "build.json",
+        "CHANGELOG.md",
+        "app.js"
+      ],
       "snippet": "Login shows build.json version + changed.de/el on every screen. Child install hint on profiles."
     },
     {
       "id": "book",
-      "keys": ["buch", "book", "journal", "schichtbuch", "shift note", "audit", "log"],
-      "files": ["app.js", "index.html"],
+      "keys": [
+        "buch",
+        "book",
+        "journal",
+        "schichtbuch",
+        "shift note",
+        "audit",
+        "log"
+      ],
+      "files": [
+        "app.js",
+        "index.html"
+      ],
       "snippet": "viewBook panes shift|log|people. writeShiftJournalPage append ink. Filters bookRange/type/who/q/view."
     },
     {
       "id": "shop",
-      "keys": ["liste", "shop", "friday", "einkauf", "cart", "ocr"],
-      "files": ["app.js", "server.py"],
+      "keys": [
+        "liste",
+        "shop",
+        "friday",
+        "einkauf",
+        "cart",
+        "ocr"
+      ],
+      "files": [
+        "app.js",
+        "server.py"
+      ],
       "snippet": "viewShop Friday list + Αιτήματα/Anfragen (listRequests); store confirmBatch; /api/ai-shopping OCR."
     },
     {
       "id": "stock",
-      "keys": ["lager", "stock", "shift stock", "kalyvia"],
-      "files": ["app.js"],
+      "keys": [
+        "lager",
+        "stock",
+        "shift stock",
+        "kalyvia"
+      ],
+      "files": [
+        "app.js"
+      ],
       "snippet": "viewStock pantry walk; immediate ± + undo toast; sheetStockQuickAdd; OUT reason dock; shiftStockCheck Kalyvia."
     },
     {
       "id": "schedule",
-      "keys": ["plan", "schedule", "week", "template", "override", "event"],
-      "files": ["app.js"],
+      "keys": [
+        "plan",
+        "schedule",
+        "week",
+        "template",
+        "override",
+        "event"
+      ],
+      "files": [
+        "app.js"
+      ],
       "snippet": "Default week roster; day/events; Import Woche; Zo-Ai Plan (/api/ai-schedule); template + overrides"
     },
     {
       "id": "calendar",
-      "keys": ["calendar", "ics", "google", "outlook", "kalender"],
-      "files": ["app.js"],
+      "keys": [
+        "calendar",
+        "ics",
+        "google",
+        "outlook",
+        "kalender"
+      ],
+      "files": [
+        "app.js"
+      ],
       "snippet": "sheetCalendar buildIcs VALARM; googleCalUrl outlookCalUrl per person."
     },
     {
       "id": "presence",
-      "keys": ["presence", "ich bin da", "late", "shift start", "checkin"],
-      "files": ["app.js", "sw.js"],
+      "keys": [
+        "presence",
+        "ich bin da",
+        "late",
+        "shift start",
+        "checkin"
+      ],
+      "files": [
+        "app.js",
+        "sw.js"
+      ],
       "snippet": "sheetShiftPresence; shiftCheckins ops; SW notif actions → ?presence=1."
     },
     {
       "id": "email",
-      "keys": ["email", "broadcast", "smtp", "resend", "mail"],
-      "files": ["server.py", "app.js", "api/index.py", "email-preview.html"],
+      "keys": [
+        "email",
+        "broadcast",
+        "smtp",
+        "resend",
+        "mail"
+      ],
+      "files": [
+        "server.py",
+        "app.js",
+        "api/index.py",
+        "email-preview.html"
+      ],
       "snippet": "email_shell + bilingual broadcast. sheetBroadcastEmail + optional in-app banner via profilePrefs._teamNotice."
     },
     {
       "id": "notif",
-      "keys": ["notification", "mitteilung", "push", "presence", "sweep"],
-      "files": ["app.js", "sw.js", "docs/agents/WEB_PUSH_LATER.md"],
+      "keys": [
+        "notification",
+        "mitteilung",
+        "push",
+        "presence",
+        "sweep"
+      ],
+      "files": [
+        "app.js",
+        "sw.js",
+        "docs/agents/WEB_PUSH_LATER.md"
+      ],
       "snippet": "Local Notification API + platform matrix. Optional VAPID subscribe when keys set. See NOTIFICATIONS_MATRIX.md."
     },
     {
       "id": "zoai",
-      "keys": ["zo-ai", "zoai", "chat", "paidia-action", "omni", "groq"],
-      "files": ["server.py", "docs/zoai/", "app.js", "api/index.py"],
+      "keys": [
+        "zo-ai",
+        "zoai",
+        "chat",
+        "paidia-action",
+        "omni",
+        "groq"
+      ],
+      "files": [
+        "server.py",
+        "docs/zoai/",
+        "app.js",
+        "api/index.py"
+      ],
       "snippet": "llm_completion for chat/learn/quiz/caption. Keyword zoai knowledge. Confirmable actions."
     },
     {
       "id": "talk",
-      "keys": ["talk", "team", "chat staff", "gespräch"],
-      "files": ["app.js", "server.py"],
+      "keys": [
+        "talk",
+        "team",
+        "chat staff",
+        "gespräch"
+      ],
+      "files": [
+        "app.js",
+        "server.py"
+      ],
       "snippet": "viewTalk + /api/talk staff-only messaging."
     },
     {
       "id": "gallery",
-      "keys": ["gallery", "momente", "moments", "foto", "drive"],
-      "files": ["app.js", "server.py", "drive_gallery.py"],
+      "keys": [
+        "gallery",
+        "momente",
+        "moments",
+        "foto",
+        "drive"
+      ],
+      "files": [
+        "app.js",
+        "server.py",
+        "drive_gallery.py"
+      ],
       "snippet": "/api/gallery posts; optional Google Drive; caption helper."
     },
     {
       "id": "db",
-      "keys": ["postgres", "sqlite", "durable", "ops", "DATABASE_URL"],
-      "files": ["db.py", "server.py", "docs/agents/MEMORY_MAP.md"],
+      "keys": [
+        "postgres",
+        "sqlite",
+        "durable",
+        "ops",
+        "DATABASE_URL"
+      ],
+      "files": [
+        "db.py",
+        "server.py",
+        "docs/agents/MEMORY_MAP.md"
+      ],
       "snippet": "db.py keys; OPS_STATE; durableStorage on health."
     },
     {
       "id": "deploy",
-      "keys": ["vercel", "deploy", "api", "flask", "github", "upstream", "armonia-thassos"],
-      "files": ["docs/agents/DEPLOY_WIRING.md", "docs/agents/PUSH_ORIGIN.md", "vercel.json", "api/index.py", "pyproject.toml", "server.py"],
+      "keys": [
+        "vercel",
+        "deploy",
+        "api",
+        "flask",
+        "github",
+        "upstream",
+        "armonia-thassos"
+      ],
+      "files": [
+        "docs/agents/DEPLOY_WIRING.md",
+        "docs/agents/PUSH_ORIGIN.md",
+        "vercel.json",
+        "api/index.py",
+        "pyproject.toml",
+        "server.py"
+      ],
       "snippet": "Push upstream ANGUELdad/paidia → Vercel → armonia-thassos.vercel.app. Read DEPLOY_WIRING.md first."
     },
     {
       "id": "child",
-      "keys": ["kind", "child", "games", "portal", "kids", "install"],
-      "files": ["app.js", "docs/zoai/child.md", "gate.js"],
+      "keys": [
+        "kind",
+        "child",
+        "games",
+        "portal",
+        "kids",
+        "install"
+      ],
+      "files": [
+        "app.js",
+        "docs/zoai/child.md",
+        "gate.js"
+      ],
       "snippet": "renderChild tabs; install/how-to; event notifs; Zo-Ai read-only."
     },
     {
       "id": "tokens",
-      "keys": ["token", "agent", "map", "knowledge", "memory", "reduce"],
-      "files": ["AGENTS.md", "docs/agents/"],
+      "keys": [
+        "token",
+        "agent",
+        "map",
+        "knowledge",
+        "memory",
+        "reduce"
+      ],
+      "files": [
+        "AGENTS.md",
+        "docs/agents/"
+      ],
       "snippet": "Coding agents load docs/agents maps first — never full app.js/server.py."
     }
   ]
