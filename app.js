@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 153,
-  label: 'v153',
+  version: 154,
+  label: 'v154',
   changed: {
-    de: 'Login mobil: größere Tasten, PIN, Angemeldet bleiben',
-    el: 'Σύνδεση κινητό: μεγαλύτερα πλήκτρα, PIN, Να με θυμάσαι',
+    de: 'Nie mehr endloses Laden — Login auch bei Timeout, Crash-Fix',
+    el: 'Όχι ατέρμονη φόρτωση — σύνδεση με timeout, διόρθωση crash',
   },
 };
 const T = {
@@ -303,6 +303,31 @@ const T = {
     profileStorageWarn:'Kein Postgres — Daten können nach einem Deploy verloren gehen. In Vercel → Environment Variables DATABASE_URL setzen.',
     durableStorageBadge:'Server-Speicher',
     securityAccess:'Anmeldung & Sicherheit', signOut:'Abmelden', pinFallback:'Oder PIN verwenden', thisDevice:'Dieses Gerät',
+    devicesTitle:'Bekannte Geräte',
+    devicesHint:'Anmeldungen von diesem Profil — nur deine Geräte.',
+    devicesHintChild:'Deine letzten Geräte (IP gekürzt).',
+    devicesEmpty:'Noch keine gespeicherten Anmeldungen.',
+    devicesLastSeen:'Zuletzt',
+    devicesLoading:'Geräte werden geladen…',
+    devicesFailed:'Geräte konnten nicht geladen werden.',
+    auditTrailTitle:'Bewegungen',
+    auditTrailHint:'Sicherheitsprotokoll: Anmeldungen, Sperren, PIN-Reset.',
+    auditTrailEmpty:'Keine Einträge.',
+    auditTrailFilterUser:'Person',
+    auditTrailFilterDay:'Tag',
+    auditTrailFilterEvent:'Ereignis',
+    auditTrailAllEvents:'Alle Ereignisse',
+    auditTrailRefresh:'Aktualisieren',
+    auditTrailExport:'Liste kopieren',
+    auditTrailExported:'Liste in Zwischenablage.',
+    auditTrailEasyHint:'Letzte 20 Sicherheitsereignisse. Filter in Pro.',
+    auditEventLoginOk:'Anmeldung ok',
+    auditEventLoginFailed:'PIN falsch',
+    auditEventLoginLocked:'Konto gesperrt',
+    auditEventLoginBlocked:'Noch gesperrt',
+    auditEventPasskeyFailed:'Passkey fehlgeschlagen',
+    auditEventPinChanged:'PIN geändert',
+    auditEventPinReset:'PIN-Reset',
     profileDetails:'Profildaten', manageProfiles:'Profile verwalten', recoveryEmail:'E-Mail für PIN-Wiederherstellung',
     recoveryEmailHint:'An diese Adresse gehen einmalige PIN-Links und wichtige Sicherheitsmeldungen.',
     saveEmail:'E-Mail speichern', emailSaved:'E-Mail wurde gespeichert.', emailInvalid:'Gib eine gültige E-Mail-Adresse ein.',
@@ -910,7 +935,7 @@ const T = {
     adminCenter:'Admin-Zentrale', adminOverview:'Team, Aufgaben und Änderungen auf einen Blick',
     adminWarnings:'Nur Admins sehen betriebliche Warnungen', adminAllClear:'Keine aktuellen Planwarnungen',
     adminEditPlan:'Wochenplan bearbeiten', adminEditShifts:'Dienste bearbeiten', adminManageEvents:'Events verwalten',
-    adminOpenAudit:'Protokoll öffnen', adminEmailEveryone:'E-Mail an alle',
+    adminOpenAudit:'Bewegungen', adminEmailEveryone:'E-Mail an alle',
     adminBroadcastTitle:'Team-Nachricht senden',
     adminBroadcastHint:'Schickt eine markierte Armonia-E-Mail an alle Profile mit hinterlegter Adresse.',
     adminBroadcastAudience:'Empfänger',
@@ -1248,6 +1273,31 @@ const T = {
     profileStorageWarn:'Χωρίς Postgres — τα δεδομένα μπορεί να χαθούν μετά από deploy. Στο Vercel βάλε DATABASE_URL.',
     durableStorageBadge:'Αποθήκευση server',
     securityAccess:'Σύνδεση & ασφάλεια', signOut:'Αποσύνδεση', pinFallback:'Ή χρησιμοποίησε PIN', thisDevice:'Αυτή η συσκευή',
+    devicesTitle:'Γνωστές συσκευές',
+    devicesHint:'Συνδέσεις αυτού του προφίλ — μόνο οι δικές σου συσκευές.',
+    devicesHintChild:'Οι τελευταίες συσκευές σου (IP συντομευμένη).',
+    devicesEmpty:'Δεν υπάρχουν ακόμα αποθηκευμένες συνδέσεις.',
+    devicesLastSeen:'Τελευταία',
+    devicesLoading:'Φόρτωση συσκευών…',
+    devicesFailed:'Οι συσκευές δεν φορτώθηκαν.',
+    auditTrailTitle:'Κινήσεις',
+    auditTrailHint:'Πρωτόκολλο ασφαλείας: συνδέσεις, κλειδώματα, PIN-reset.',
+    auditTrailEmpty:'Καμία καταχώρηση.',
+    auditTrailFilterUser:'Άτομο',
+    auditTrailFilterDay:'Ημέρα',
+    auditTrailFilterEvent:'Γεγονός',
+    auditTrailAllEvents:'Όλα τα γεγονότα',
+    auditTrailRefresh:'Ανανέωση',
+    auditTrailExport:'Αντιγραφή λίστας',
+    auditTrailExported:'Η λίστα αντιγράφηκε.',
+    auditTrailEasyHint:'Τελευταία 20 γεγονότα ασφαλείας. Φίλτρα στο Pro.',
+    auditEventLoginOk:'Επιτυχής σύνδεση',
+    auditEventLoginFailed:'Λάθος PIN',
+    auditEventLoginLocked:'Κλείδωμα λογαριασμού',
+    auditEventLoginBlocked:'Ακόμα κλειδωμένο',
+    auditEventPasskeyFailed:'Αποτυχία Passkey',
+    auditEventPinChanged:'Αλλαγή PIN',
+    auditEventPinReset:'PIN-Reset',
     profileDetails:'Στοιχεία προφίλ', manageProfiles:'Διαχείριση προφίλ', recoveryEmail:'Email ανάκτησης PIN',
     recoveryEmailHint:'Σε αυτή τη διεύθυνση στέλνονται σύνδεσμοι PIN και σημαντικές ειδοποιήσεις ασφαλείας.',
     saveEmail:'Αποθήκευση email', emailSaved:'Το email αποθηκεύτηκε.', emailInvalid:'Βάλε έγκυρη διεύθυνση email.',
@@ -1856,7 +1906,7 @@ const T = {
     adminCenter:'Κέντρο διαχείρισης', adminOverview:'Ομάδα, εργασίες και αλλαγές με μία ματιά',
     adminWarnings:'Μόνο οι admins βλέπουν λειτουργικές προειδοποιήσεις', adminAllClear:'Δεν υπάρχουν προειδοποιήσεις προγράμματος',
     adminEditPlan:'Επεξεργασία εβδομάδας', adminEditShifts:'Επεξεργασία βαρδιών', adminManageEvents:'Διαχείριση events',
-    adminOpenAudit:'Άνοιγμα καταγραφών', adminEmailEveryone:'Email σε όλους',
+    adminOpenAudit:'Κινήσεις', adminEmailEveryone:'Email σε όλους',
     adminBroadcastTitle:'Αποστολή μηνύματος ομάδας',
     adminBroadcastHint:'Στέλνει επώνυμο Armonia email σε όλα τα προφίλ με αποθηκευμένη διεύθυνση.',
     adminBroadcastAudience:'Παραλήπτες',
@@ -2427,7 +2477,12 @@ async function pullShared({force=false}={}){
   if(sharedBusy && !force) return false;
   sharedBusy = true;
   try{
-    const response = await fetch(`/api/ops?since=${force?0:sharedRevision}`, {credentials:'same-origin'});
+    const controller = new AbortController();
+    const kill = setTimeout(()=>controller.abort(), 8000);
+    let response;
+    try{
+      response = await fetch(`/api/ops?since=${force?0:sharedRevision}`, {credentials:'same-origin', signal:controller.signal});
+    }finally{ clearTimeout(kill); }
     if(response.status === 401 || response.status === 403) return false;
     const data = await response.json().catch(()=>null);
     if(!response.ok || !data) return false;
@@ -2914,6 +2969,18 @@ const session = {
   sessionId: null,
 };
 
+function paidiaDeviceId(){
+  try{
+    let id = localStorage.getItem('paidia.device') || session.deviceId;
+    if(!id || !/^dev-[A-Za-z0-9_-]{4,48}$/.test(id)){
+      id = 'dev-' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+      localStorage.setItem('paidia.device', id);
+    }
+    session.deviceId = id;
+    return id;
+  }catch(e){ return session.deviceId || ''; }
+}
+
 /**
  * Δημόσια IP, best-effort. Ό,τι στέλνει ο client μπορεί να πλαστογραφηθεί —
  * στην παραγωγή η IP σφραγίζεται server-side (`x-forwarded-for`).
@@ -3342,6 +3409,9 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
     || readContactLocal(data.profileId, mode);
   session.sessionId=data.sessionId||session.sessionId;
   if(logLogin && mode==='staff') logEntry('LOGIN',t('loginEntry'));
+  if(data.device && data.device.deviceLabel){
+    state._lastLoginDevice=data.device;
+  }
   if(!serverDone && localDone){
     syncOnboardingComplete(state.onboardingVersion).catch(()=>{ /* keep local completion; retry next login */ });
   }
@@ -3354,7 +3424,7 @@ async function authenticateProfile(mode,who,pin){
   try{ remember = localStorage.getItem('paidia.rememberMe')==='1'; }catch{}
   const response=await fetch('/api/auth/login',{
     method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
-    body:JSON.stringify({mode,profileId:who.id,pin,remember}),
+    body:JSON.stringify({mode,profileId:who.id,pin,remember,deviceId:paidiaDeviceId()}),
   });
   const data=await response.json();
   if(!response.ok){
@@ -3419,7 +3489,7 @@ async function loginWithPasskey(mode,who){
   const options=await passkeyApi('/api/auth/passkey/login/options',{mode,profileId:who.id});
   const publicKey=decodePublicKeyOptions(options.publicKey);
   const credential=await navigator.credentials.get({publicKey});
-  const data=await passkeyApi('/api/auth/passkey/login/verify',{ceremonyId:options.ceremonyId,credential:publicKeyCredentialJSON(credential),remember});
+  const data=await passkeyApi('/api/auth/passkey/login/verify',{ceremonyId:options.ceremonyId,credential:publicKeyCredentialJSON(credential),remember,deviceId:paidiaDeviceId()});
   if(!applyAuthenticatedProfile(data,{logLogin:true}))throw new Error('Unknown profile');
   return data;
 }
@@ -3444,9 +3514,13 @@ async function restoreServerSession(){
       try{ delete window.__paidiaBootSession; }catch{}
     }else{
       data = null;
-      const response=await fetch('/api/auth/session',{credentials:'same-origin'});
-      data=await response.json();
-      if(!response.ok) data=null;
+      const controller = new AbortController();
+      const kill = setTimeout(()=>controller.abort(), 4000);
+      try{
+        const response=await fetch('/api/auth/session',{credentials:'same-origin', signal:controller.signal});
+        data=await response.json().catch(()=>null);
+        if(!response.ok) data=null;
+      }finally{ clearTimeout(kill); }
     }
     if(data && data.authenticated && applyAuthenticatedProfile(data)){
       closeGate();revealApp();render();
@@ -7450,7 +7524,7 @@ function sheetEntry(e, dateStr, presets = {}){
 
     ${entrySec('👶', t('children'))}
     <div class="chips ${easyEntry?'pro-only mode-pro-block':''}" id="fGroups" style="margin:-4px 0 8px">
-      ${DB.groups.map(g=>{
+      ${((DB.groups||[])).map(g=>{
         const on=g.childIds.every(id=>pickedKids.includes(id));
         return groupChipHtml(g, on);
       }).join('')}
@@ -7519,7 +7593,7 @@ function sheetEntry(e, dateStr, presets = {}){
   }
   const paintKids = () => {
     const kidsBox=sheetEl.querySelector('#fKids');
-    if(kidsBox) kidsBox.innerHTML=DB.children.map(c=>kidChipHtml(c, pickedKids.includes(c.id))).join('');
+    if(kidsBox) kidsBox.innerHTML=(DB.children||[]).map(c=>kidChipHtml(c, pickedKids.includes(c.id))).join('');
     sheetEl.querySelectorAll('#fKids .chip').forEach(b=>{
       b.onclick = () => {
         const id = b.dataset.c;
@@ -7852,7 +7926,7 @@ function viewStock(){
       <div class="stock-product-grid ${hid==='all'&&state.stockTiles?'tiles':''}">${products.map(productCard).join('')}</div>
     </details>`;
   }).join('');
-  const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
+  const missing=(DB.listEntries||[]).filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
   const attention=counts.empty+counts.low;
   const healthyPct=Math.round(counts.ok/Math.max(1,allProducts.length)*100);
   const location=hid==='all'?t('bothHouses'):(house(hid)?.short||'');
@@ -9330,7 +9404,7 @@ function sheetStockBoard(dir,initialPid=null){
 /* ════════════════════════════════════════════════════════════════
    Λίστες & Ψώνια
    ════════════════════════════════════════════════════════════════ */
-const shopHouse = () => state.house === 'all' ? DB.houses[0].id : state.house;
+const shopHouse = () => state.house === 'all' ? (DB.houses[0]?.id || 'h1') : (state.house || DB.houses[0]?.id || 'h1');
 
 function missReasonLabel(reason){
   if(reason==='expensive') return t('missReasonExpensive');
@@ -13849,7 +13923,7 @@ function childRewardsView(kidId){
     <div class="kid-panel-h" style="margin-top:var(--space-3)"><b>${esc(t('leaderboard'))}</b>
       <button type="button" class="chip" data-child-view="aufgaben">${esc(t('kidCourseTasks'))}</button></div>
     ${(() => {
-      const board = DB.children.map(k=>({k, xp:kidXp(k.id)})).sort((a,b)=>b.xp-a.xp).slice(0,8);
+      const board = (DB.children||[]).map(k=>({k, xp:kidXp(k.id)})).sort((a,b)=>b.xp-a.xp).slice(0,8);
       return `<div class="reward-leaderboard">${board.map((entry,i)=>{
         const isMe = entry.k.id === kidId;
         return `<div class="lb-row${isMe?' me':''}">
@@ -13869,20 +13943,32 @@ function renderChild(){
     saveLocal();
   }
   const c = state.child;
+  if(!c){
+    state.mode='staff';
+    state.tab='home';
+    return render();
+  }
   const today = iso(new Date());
   if(!state.date) state.date = today;
   // Map legacy views onto the student dock set
   if(state.childView==='week') state.childView='plan';
   if(state.childView==='events' || state.childView==='gallery'){ /* keep secondary */ }
 
-  document.getElementById('title').textContent = esc(c.name);
-  document.getElementById('who').textContent = kidViewTitle(state.childView);
-  document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
-  document.getElementById('btnUser').textContent = t('childBye');
-  document.getElementById('btnProfiles').textContent = '↔';
-  document.getElementById('btnProfiles').title = t('profilesBack');
-  document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
-  paintUiModeToggle();
+  const titleEl=document.getElementById('title');
+  const whoEl=document.getElementById('who');
+  if(titleEl) titleEl.textContent = esc(c.name);
+  if(whoEl) whoEl.textContent = kidViewTitle(state.childView);
+  const langBtn=document.getElementById('btnLang');
+  if(langBtn) langBtn.textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
+  const userBtn=document.getElementById('btnUser');
+  if(userBtn) userBtn.textContent = t('childBye');
+  const profiles=document.getElementById('btnProfiles');
+  if(profiles){
+    profiles.textContent = '↔';
+    profiles.title = t('profilesBack');
+    profiles.setAttribute('aria-label', t('switchProfile'));
+  }
+  try{ paintUiModeToggle(); }catch(err){ console.error('paintUiModeToggle failed', err); }
   const tools=document.getElementById('topTools');
   if(tools){
     const dockActivePreview = kidDockActiveView(state.childView);
@@ -13910,60 +13996,60 @@ function renderChild(){
   }
 
   const dockActive = kidDockActiveView(state.childView);
-  mountKidDock(dockActive);
+  try{ mountKidDock(dockActive); }catch(err){ console.error('mountKidDock failed', err); }
   const topMore = document.getElementById('kidTopMore');
   if(topMore) topMore.onclick = ()=>sheetKidMore();
   wireKidChrome(document.getElementById('topTools'));
 
   let viewBody;
-  if(state.childView==='today') viewBody = childStartView(c);
-  else if(state.childView==='plan') viewBody = childStundenplanView(c);
-  else if(state.childView==='aufgaben') viewBody = childAufgabenView(c.id);
-  else if(state.childView==='rewards') viewBody = childRewardsView(c.id);
-  else if(state.childView==='learn'){
-    viewBody = state.gameId ? childGamesView() : childLearnHubView();
-  }
-  else if(state.childView==='games') viewBody = childGamesView();
-  else if(state.childView==='rate') viewBody = childBewertungenView(c.id);
-  else if(state.childView==='bonus') viewBody = childBonusView(c.id);
-  else if(state.childView==='notes') viewBody = childNotizenView(c.id);
-  else if(state.childView==='events') viewBody = childEventsView(c.id);
-  else if(state.childView==='gallery') viewBody = childGalleryView();
-  else viewBody = childStartView(c);
+  try{ viewBody = childViewHtml(c); }
+  catch(err){ viewBody = pageRenderFallbackHtml(err); }
 
   applyUiModeClass();
-  document.getElementById('view').innerHTML = `
+  const viewEl = document.getElementById('view');
+  if(!viewEl){
+    console.error('missing #view');
+    try{ toast(t('unexpectedError'),'error'); }catch{}
+    return;
+  }
+  viewEl.innerHTML = `
     <div class="kid-shell">
       ${kidFirstRunHtml()}
       ${kidGuideHtml(state.childView)}
       ${viewBody}
     </div>`;
 
-  const root = document.getElementById('view');
-  wireUiModeControls(root);
-  wireKidChrome(root);
-  root.querySelectorAll('[data-date]').forEach(d=>{
-    d.onclick = () => { state.date = d.dataset.date; render(); };
-  });
-  const teamBanner=root.querySelector('#teamNoticeBanner');
-  if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
-  const childReq=root.querySelector('#childRequestBtn');
-  if(childReq) childReq.onclick=()=>sheetCreateListRequest({kidMode:true});
-  root.querySelectorAll('[data-game-challenge]').forEach(button=>{
-    button.onclick=()=>{
-      state.childView='games';
-      startChildGame(button.dataset.gameChallenge);
-    };
-  });
-  if(state.childView==='games' || state.childView==='learn') bindChildGames(root);
-  if(state.childView==='rate' || state.childView==='notes') bindKidExtras(root);
-  if(state.childView==='gallery') bindGallery(root);
-  root.querySelectorAll('[data-chore-submit]').forEach(btn=>{
-    btn.onclick = ()=>{
-      const choreId = btn.dataset.choreSubmit;
-      if(choreId && state.child) openChoreSubmitSheet(choreId, state.child.id);
-    };
-  });
+  const root = viewEl;
+  try{
+    wireUiModeControls(root);
+    wireKidChrome(root);
+    root.querySelector('#pageRenderRetry')?.addEventListener('click', ()=>{ state.childView='today'; render(); });
+    root.querySelectorAll('[data-date]').forEach(d=>{
+      d.onclick = () => { state.date = d.dataset.date; render(); };
+    });
+    const teamBanner=root.querySelector('#teamNoticeBanner');
+    if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
+    const childReq=root.querySelector('#childRequestBtn');
+    if(childReq) childReq.onclick=()=>sheetCreateListRequest({kidMode:true});
+    root.querySelectorAll('[data-game-challenge]').forEach(button=>{
+      button.onclick=()=>{
+        state.childView='games';
+        startChildGame(button.dataset.gameChallenge);
+      };
+    });
+    if(state.childView==='games' || state.childView==='learn') bindChildGames(root);
+    if(state.childView==='rate' || state.childView==='notes') bindKidExtras(root);
+    if(state.childView==='gallery') bindGallery(root);
+    root.querySelectorAll('[data-chore-submit]').forEach(btn=>{
+      btn.onclick = ()=>{
+        const choreId = btn.dataset.choreSubmit;
+        if(choreId && state.child) openChoreSubmitSheet(choreId, state.child.id);
+      };
+    });
+  }catch(err){
+    console.error('child wire failed', err);
+    try{ toast(t('unexpectedError'),'error'); }catch{}
+  }
   if(c?.id) emitKidRatingHooks(c.id);
   syncLayoutMode();
   if(state.tourActive) queueMicrotask(()=>tourPaintCurrent());
@@ -15664,7 +15750,7 @@ function sheetAdminStaff(employeeId){
   sheetEl.querySelector('#adminPersonStock').onclick=()=>go('stock');
   sheetEl.querySelector('#adminPersonShop').onclick=()=>go('shop');
   sheetEl.querySelector('#adminPersonAudit').onclick=()=>{
-    closeSheet(); state.tab='book'; state.bookPane='log'; state.bookFilter.employeeId=employeeId; render();
+    closeSheet(); setTimeout(()=>sheetSecurityAudit({profileId:employeeId}),180);
   };
   sheetEl.querySelector('#adminPersonContact').onclick=()=>{
     closeSheet(); setTimeout(()=>sheetSecurityAccess(),180);
@@ -16912,7 +16998,7 @@ function pageRenderFallbackHtml(err){
     <div class="big">${ui('u-alert')}</div>
     <h3>${esc(t('unexpectedError'))}</h3>
     <p class="muted">${esc(state.tab||state.childView||'')}</p>
-    <button class="btn" type="button" id="pageRenderRetry">${esc(t('logout')==='Profil'?'Home':'Home')}</button>
+    <button class="btn" type="button" id="pageRenderRetry">${esc(t('navHome'))}</button>
   </div>`;
 }
 
@@ -17053,8 +17139,8 @@ function wire(){
   v.querySelectorAll('[data-admin-staff]').forEach(button=>button.onclick=()=>sheetAdminStaff(button.dataset.adminStaff));
   v.querySelectorAll('[data-admin-go]').forEach(button=>button.onclick=()=>{
     const destination=button.dataset.adminGo;
-    if(destination==='audit'){state.tab='book';state.bookPane='log';state.bookRange='week';}
-    else{state.tab='schedule';setScheduleView(destination==='week'?'week':destination);}
+    if(destination==='audit'){ feedback('open'); sheetSecurityAudit(); return; }
+    state.tab='schedule';setScheduleView(destination==='week'?'week':destination);
     render();
   });
   v.querySelectorAll('[data-admin-broadcast]').forEach(button=>button.onclick=()=>{
@@ -17951,6 +18037,7 @@ async function sheetSecurityAccess(){
       </div>
     </div>
     <div id="securityStorage" class="status-box" style="margin:0 0 12px" hidden></div>
+    <div class="security-passkey-card" id="securityDevices"><div class="muted">${esc(t('devicesLoading'))}</div></div>
     <div class="security-passkey-card" id="securityNotifs"></div>
     <div class="security-passkey-card" id="securityCalendar"></div>
     <div class="security-passkey-card" id="securityUiMode"></div>
@@ -17961,16 +18048,19 @@ async function sheetSecurityAccess(){
     <button class="btn sec" id="securityTutorial">📘 ${t('tutorialOpen')}</button>
     <button class="btn sec" id="securityFeedback">💬 ${t('feedbackTitle')}</button>
     ${state.mode==='staff'?`<button class="btn sec pro-only mode-pro-block" id="securityFeedbackInbox">${t('feedbackInbox')}${openFeedbackCount()?` · ${t('feedbackOpenCount')(openFeedbackCount())}`:''}</button>`:''}
+    ${isAdminUser()?`<button class="btn sec" id="securityAuditTrail">📖 ${esc(t('auditTrailTitle'))}</button>`:''}
     <button class="btn sec" id="securitySwitch">↔ ${t('switchProfile')}</button>
     <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
   const profileCard=sheetEl.querySelector('#securityProfile'),card=sheetEl.querySelector('#securityPasskey');
   const customizeCard=sheetEl.querySelector('#securityCustomize');
   const uiModeCard=sheetEl.querySelector('#securityUiMode');
   const notifCard=sheetEl.querySelector('#securityNotifs');
+  const devicesCard=sheetEl.querySelector('#securityDevices');
   const calendarCard=sheetEl.querySelector('#securityCalendar');
   const pinCard=sheetEl.querySelector('#securityPin');
   const storageEl=sheetEl.querySelector('#securityStorage');
   const pref=profilePref(who.id);
+  fillSecurityDevicesCard(devicesCard);
   if(notifCard){
     const cap=notifCapabilities();
     const perm=cap.api?cap.permission:'unsupported';
@@ -18226,6 +18316,8 @@ async function sheetSecurityAccess(){
   if(feedbackButton) feedbackButton.onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
   const feedbackInboxBtn=sheetEl.querySelector('#securityFeedbackInbox');
   if(feedbackInboxBtn) feedbackInboxBtn.onclick=()=>{ closeSheet(); sheetFeedbackInbox(); };
+  const auditBtn=sheetEl.querySelector('#securityAuditTrail');
+  if(auditBtn) auditBtn.onclick=()=>{ closeSheet(); setTimeout(()=>sheetSecurityAudit(),180); };
   const switchButton=sheetEl.querySelector('#securitySwitch');
   if(switchButton) switchButton.onclick=()=>{closeSheet();logoutServerSession();};
   const logoutButton=sheetEl.querySelector('#securityLogout');
@@ -19250,7 +19342,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||153),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||154),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

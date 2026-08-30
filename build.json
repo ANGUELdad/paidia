@@ -1,8 +1,8 @@
 {
-  "version": 153,
-  "label": "v153",
+  "version": 154,
+  "label": "v154",
   "changed": {
-    "de": "Login mobil: größere Tasten, PIN, Angemeldet bleiben",
-    "el": "Σύνδεση κινητό: μεγαλύτερα πλήκτρα, PIN, Να με θυμάσαι"
+    "de": "Seiten-Render abgesichert: Toast statt Weißbild",
+    "el": "Ασφαλές render σελίδων: toast αντί λευκής οθόνης"
   }
 }

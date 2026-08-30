@@ -1,5 +1,12 @@
 # Changelog
 
+## v154 — 2026-08-30
+
+- **Forever-load (mobile + desktop):** gate arms a 2.8s login deadline *before* awaiting `build.json`/session; fetch timeouts on build (2.5s), session (2.5–4s), PIN login (8s), `/api/ops` (8s). SW API/shell `fetchDeadline` falls back instead of hanging. No SW reload loops.
+- **Crash after login:** null-safe PIN gate DOM; kid chrome/DOM guards; staff/kids `render` wrapped so throws toast instead of white-screen; collection helpers tolerate missing arrays.
+- Mobile sizing from v153 kept (52px PIN keys, 2-col profiles). Easy/Pro v152 + `houseShort` unchanged. Cache `paidia-v154`.
+- Client may send optional `deviceId` on login for a future device-audit sibling — server/db/api not part of this commit.
+
 ## v153 — 2026-08-30
 
 - **Mobile login sizing:** role picker, staff/kids profiles (2-col), PIN pad ≥48–52px, remember-me label ≥44–48px hit area with ink contrast (v151 cookie logic unchanged).

@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 153,
-    label: 'v153',
+    version: 154,
+    label: 'v154',
     changed: {
-      de: 'Login mobil: größere Tasten, PIN, Angemeldet bleiben',
-      el: 'Σύνδεση κινητό: μεγαλύτερα πλήκτρα, PIN, Να με θυμάσαι',
+      de: 'Seiten-Render abgesichert: Toast statt Weißbild',
+      el: 'Ασφαλές render σελίδων: toast αντί λευκής οθόνης',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -237,6 +237,18 @@
   const LAST_MODE_KEY = 'paidia.lastMode';
   const LAST_PROFILE_KEY = 'paidia.lastProfileId';
   const REMEMBER_KEY = 'paidia.rememberMe';
+  const DEVICE_KEY = 'paidia.device';
+
+  function gateDeviceId() {
+    try {
+      let id = localStorage.getItem(DEVICE_KEY);
+      if (!id || !/^dev-[A-Za-z0-9_-]{4,48}$/.test(id)) {
+        id = 'dev-' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+        localStorage.setItem(DEVICE_KEY, id);
+      }
+      return id;
+    } catch (e) { return ''; }
+  }
 
   function readLastProfile() {
     try {
@@ -532,9 +544,9 @@
     draw();
 
     const setControlsEnabled = (enabled) => {
-      loginBtn.disabled = !enabled;
-      input.disabled = !enabled;
-      pad.querySelectorAll('button').forEach((b) => { b.disabled = !enabled; });
+      if (loginBtn) loginBtn.disabled = !enabled;
+      if (input) input.disabled = !enabled;
+      if (pad) pad.querySelectorAll('button').forEach((b) => { b.disabled = !enabled; });
       const pk = body.querySelector('#gPasskey');
       if (pk) pk.disabled = !enabled;
     };
@@ -558,38 +570,38 @@
     const finish = async () => {
       if (busy || succeeded) return;
       if (buf.length < 4) {
-        errorEl.textContent = t('wrong');
+        setErr(t('wrong'));
         return;
       }
       busy = true;
       setControlsEnabled(false);
-      loginBtn.textContent = t('loading');
-      errorEl.textContent = '';
+      if (loginBtn) loginBtn.textContent = t('loading');
+      setErr('');
       draw();
       try {
         const remember = !!(body.querySelector('#gRemember') || {}).checked;
         setRememberChecked(remember);
-        const response = await fetch('/api/auth/login', {
+        const response = await fetchTimeout('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({ mode, profileId: who.id, pin: buf, remember }),
-        });
+          body: JSON.stringify({ mode, profileId: who.id, pin: buf, remember, deviceId: gateDeviceId() }),
+        }, 8000);
         const raw = await response.text();
         let data = {};
         try { data = JSON.parse(raw); } catch (error) {
-          errorEl.textContent = t('unavailable');
+          setErr(t('unavailable'));
           buf = '';
           return;
         }
         if (!response.ok) {
           if (response.status === 429) {
             const minutes = Math.max(1, Math.ceil((Number(data.retryAfter) || 900) / 60));
-            errorEl.textContent = t('locked')(minutes);
+            setErr(t('locked')(minutes));
           } else if (response.status === 401 && Number.isInteger(data.attemptsRemaining)) {
-            errorEl.textContent = t('attempts')(data.attemptsRemaining);
+            setErr(t('attempts')(data.attemptsRemaining));
           } else {
-            errorEl.textContent = response.status === 401 ? t('wrong') : t('unavailable');
+            setErr(response.status === 401 ? t('wrong') : t('unavailable'));
           }
           buf = '';
           return;
@@ -606,12 +618,12 @@
         }
         return;
       } catch (error) {
-        errorEl.textContent = t('unavailable');
+        setErr(t('unavailable'));
         buf = '';
       } finally {
         if (!succeeded) {
           busy = false;
-          loginBtn.textContent = t('login');
+          if (loginBtn) loginBtn.textContent = t('login');
           setControlsEnabled(true);
           draw();
           try { input.focus(); } catch (error) {}
@@ -623,7 +635,7 @@
       if (busy || succeeded || !passkeyCapable()) return;
       busy = true;
       setControlsEnabled(false);
-      errorEl.textContent = '';
+      setErr('');
       try {
         const options = await passkeyApi('/api/auth/passkey/login/options', { mode, profileId: who.id });
         const publicKey = decodePublicKeyOptions(options.publicKey);
@@ -634,6 +646,7 @@
           ceremonyId: options.ceremonyId,
           credential: publicKeyCredentialJSON(credential),
           remember,
+          deviceId: gateDeviceId(),
         });
         succeeded = true;
         window.__paidiaAuthed = true;
@@ -645,11 +658,11 @@
       } catch (error) {
         if (error.code === 'locked' || error.status === 429) {
           const minutes = Math.max(1, Math.ceil((Number(error.retryAfter) || 900) / 60));
-          errorEl.textContent = t('locked')(minutes);
-        } else if (error.name === 'NotAllowedError') errorEl.textContent = t('bioFail');
-        else if (error.code === 'no_passkey') errorEl.textContent = t('bioSetupNeeded');
-        else if (error.code === 'passkey_unavailable' || error.code === 'configuration') errorEl.textContent = t('bioUnavailable');
-        else errorEl.textContent = t('bioFail');
+          setErr(t('locked')(minutes));
+        } else if (error.name === 'NotAllowedError') setErr(t('bioFail'));
+        else if (error.code === 'no_passkey') setErr(t('bioSetupNeeded'));
+        else if (error.code === 'passkey_unavailable' || error.code === 'configuration') setErr(t('bioUnavailable'));
+        else setErr(t('bioFail'));
       } finally {
         if (!succeeded) {
           busy = false;
@@ -668,13 +681,16 @@
     };
 
     preloadApp();
-    body.querySelector('#gBack').onclick = () => renderProfiles(mode);
+    const backBtn = body.querySelector('#gBack');
+    if (backBtn) backBtn.onclick = () => renderProfiles(mode);
     const otherBtn = body.querySelector('#gOther');
     if (otherBtn) otherBtn.onclick = () => { clearLastProfile(); renderEntrance(); };
     const rem = body.querySelector('#gRemember');
     if (rem) rem.onchange = () => setRememberChecked(rem.checked);
-    body.querySelector('#gForgot').onclick = () => renderResetRequest(who, mode);
-    body.querySelector('#gPasskey').onclick = finishPasskey;
+    const forgotBtn = body.querySelector('#gForgot');
+    if (forgotBtn) forgotBtn.onclick = () => renderResetRequest(who, mode);
+    const pkBtn = body.querySelector('#gPasskey');
+    if (pkBtn) pkBtn.onclick = finishPasskey;
     pad.onclick = (event) => {
       const button = event.target.closest('button[data-k]');
       if (!button || button.disabled) return;
