@@ -1,5 +1,10 @@
 # Changelog
 
+## v151 — 2026-08-30
+
+- **Remember me / Angemeldet bleiben:** opt-in checkbox (DE + EL «Να με θυμάσαι»). Checked → 30-day HttpOnly (`Secure` on Vercel) session cookie + last profile id in localStorage (never the PIN). Unchecked → browser session cookie (no Max-Age) with 12h server TTL; last profile cleared.
+- Lockouts (v140) unchanged. Accessible ink contrast on the checkbox label. Cache `paidia-v151`.
+
 ## v150 — 2026-08-30
 
 - **Button / chip contrast:** ghost & secondary controls use solid white + ink/pine + hairline (no empty transparent fills); `.topbtn` / `.chip` ink on light header; Easy/Pro toggle solid white track.
