@@ -1,5 +1,12 @@
 # Changelog
 
+## v155 — 2026-08-30
+
+- **Device / IP audit:** successful and failed logins record UA parse (browser/OS label), optional client `deviceId`, IP (X-Forwarded-For on Vercel), profile, timestamp via existing `security_events` + `append_security_event`. No plaintext PINs.
+- **APIs:** `GET /api/auth/devices` (own known devices / recent logins; kids get truncated IP); `GET /api/auth/security-events` (admin full trail with profile/day/event filters; non-admin own login events only).
+- **Login UX:** Profil → Sicherheit shows known devices. Admin **Bewegungen / Κινήσεις** sheet (Easy = last 20; Pro = filters + copy list). Gate/app already send `deviceId` on PIN/passkey login (v153/v154).
+- Does not change remember-me, lockouts, or gate fetch timeouts / mobile PIN sizing. Cache `paidia-v155`.
+
 ## v154 — 2026-08-30
 
 - **Forever-load (mobile + desktop):** gate arms a 2.8s login deadline *before* awaiting `build.json`/session; fetch timeouts on build (2.5s), session (2.5–4s), PIN login (8s), `/api/ops` (8s). SW API/shell `fetchDeadline` falls back instead of hanging. No SW reload loops.

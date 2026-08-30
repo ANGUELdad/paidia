@@ -477,6 +477,160 @@ def append_security_event(event: str, profile_id: str, ip: str, details: dict | 
         pass
 
 
+def parse_user_agent(ua: str) -> dict[str, str]:
+    """Best-effort browser/OS label from User-Agent — no third-party parser."""
+    text = (ua or "").strip()[:240]
+    lower = text.lower()
+    browser = "Browser"
+    if "edg/" in lower or "edgios" in lower:
+        browser = "Edge"
+    elif "firefox/" in lower or "fxios" in lower:
+        browser = "Firefox"
+    elif "crios/" in lower or ("chrome/" in lower and "chromium" not in lower):
+        browser = "Chrome"
+    elif "safari/" in lower and "chrome/" not in lower and "chromium" not in lower:
+        browser = "Safari"
+    elif "opera" in lower or "opr/" in lower:
+        browser = "Opera"
+    os_name = "Unknown"
+    if "iphone" in lower or "ipad" in lower or "ios" in lower:
+        os_name = "iOS"
+    elif "android" in lower:
+        os_name = "Android"
+    elif "mac os x" in lower or "macintosh" in lower:
+        os_name = "macOS"
+    elif "windows" in lower:
+        os_name = "Windows"
+    elif "cros" in lower:
+        os_name = "ChromeOS"
+    elif "linux" in lower:
+        os_name = "Linux"
+    label = f"{browser} · {os_name}"
+    return {"browser": browser, "os": os_name, "label": label, "ua": text}
+
+
+def sanitize_device_id(raw: Any) -> str:
+    value = str(raw or "").strip()
+    if re.fullmatch(r"dev-[A-Za-z0-9_-]{4,48}", value):
+        return value[:52]
+    return ""
+
+
+def device_meta_from_request(handler: Any, body: dict | None = None) -> dict:
+    """Fingerprint-ish metadata: UA parse + optional client deviceId. Never stores PINs."""
+    headers = getattr(handler, "headers", None)
+    ua = ""
+    if headers is not None:
+        try:
+            ua = headers.get("User-Agent", "") or ""
+        except Exception:  # noqa: BLE001
+            ua = ""
+    parsed = parse_user_agent(ua)
+    meta = {
+        "ua": parsed["ua"],
+        "browser": parsed["browser"],
+        "os": parsed["os"],
+        "deviceLabel": parsed["label"],
+    }
+    if isinstance(body, dict):
+        device_id = sanitize_device_id(body.get("deviceId"))
+        if device_id:
+            meta["deviceId"] = device_id
+    return meta
+
+
+def mask_ip(ip: str, *, partial: bool = False) -> str:
+    value = str(ip or "").strip()
+    if not value or not partial:
+        return value
+    if ":" in value:
+        # IPv6 — keep first 3 hextets
+        parts = value.split(":")
+        keep = [p for p in parts if p][:3]
+        return ":".join(keep + ["…"]) if keep else "…"
+    octets = value.split(".")
+    if len(octets) == 4:
+        return ".".join(octets[:2] + ["*", "*"])
+    return value[:6] + "…" if len(value) > 6 else value
+
+
+LOGIN_DEVICE_EVENTS = (
+    "login_ok", "login_failed", "login_locked", "login_blocked", "passkey_login_failed",
+)
+
+
+def list_security_events_safe(**kwargs: Any) -> list[dict]:
+    if paidia_db is None:
+        return []
+    try:
+        return paidia_db.list_security_events(**kwargs)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[paidia.db] list security events failed: {exc}", flush=True)
+        return []
+
+
+def public_security_event(item: dict, *, mask: bool = False, admin: bool = False) -> dict:
+    details = item.get("details") if isinstance(item.get("details"), dict) else {}
+    # Strip anything that could accidentally carry secrets.
+    safe_details = {
+        key: details[key]
+        for key in (
+            "method", "mode", "remember", "attempts", "retryAfter", "lockSeconds",
+            "browser", "os", "deviceLabel", "deviceId", "ua",
+        )
+        if key in details and key not in {"pin", "password", "token", "currentPin", "confirmPin"}
+    }
+    if "ua" in safe_details and not admin:
+        safe_details["ua"] = str(safe_details["ua"])[:80]
+    ip = mask_ip(str(item.get("ip") or ""), partial=mask)
+    return {
+        "id": item.get("id"),
+        "ts": int(item.get("ts") or 0),
+        "event": str(item.get("event") or ""),
+        "profileId": item.get("profileId") or item.get("profile_id"),
+        "ip": ip,
+        "details": safe_details,
+        "deviceLabel": str(safe_details.get("deviceLabel") or "—"),
+        "browser": str(safe_details.get("browser") or ""),
+        "os": str(safe_details.get("os") or ""),
+        "method": str(safe_details.get("method") or ""),
+    }
+
+
+def aggregate_known_devices(events: list[dict], *, mask: bool = False, limit: int = 8) -> list[dict]:
+    """Collapse login_ok rows into recent devices keyed by deviceId or label+ip."""
+    buckets: dict[str, dict] = {}
+    order: list[str] = []
+    for item in events:
+        if item.get("event") != "login_ok":
+            continue
+        details = item.get("details") if isinstance(item.get("details"), dict) else {}
+        ip = str(item.get("ip") or "")
+        device_id = sanitize_device_id(details.get("deviceId"))
+        label = str(details.get("deviceLabel") or parse_user_agent(str(details.get("ua") or "")).get("label") or "—")
+        key = device_id or f"{label}|{ip}"
+        if key not in buckets:
+            buckets[key] = {
+                "deviceId": device_id or None,
+                "deviceLabel": label,
+                "browser": str(details.get("browser") or ""),
+                "os": str(details.get("os") or ""),
+                "ip": mask_ip(ip, partial=mask),
+                "lastSeen": int(item.get("ts") or 0),
+                "method": str(details.get("method") or ""),
+                "count": 1,
+            }
+            order.append(key)
+        else:
+            buckets[key]["count"] += 1
+            ts = int(item.get("ts") or 0)
+            if ts > int(buckets[key]["lastSeen"] or 0):
+                buckets[key]["lastSeen"] = ts
+                buckets[key]["method"] = str(details.get("method") or buckets[key]["method"])
+                buckets[key]["ip"] = mask_ip(ip, partial=mask)
+    return [buckets[key] for key in order[:limit]]
+
+
 def login_attempt_keys(client_ip: str, profile_id: str, user_known: bool) -> tuple[str, str, str]:
     """IP + profile buckets for brute-force tracking (unknown profiles share one bucket)."""
     profile_bucket = profile_id if user_known else "_unknown"
@@ -4663,6 +4817,12 @@ class Handler(SimpleHTTPRequestHandler):
                     "emailProvider": email_delivery_status()["provider"],
                 }, slide_headers)
             return
+        if parsed.path == "/api/auth/devices":
+            self.handle_auth_devices()
+            return
+        if parsed.path == "/api/auth/security-events":
+            self.handle_auth_security_events(urllib.parse.parse_qs(parsed.query))
+            return
         if parsed.path == "/api/talk":
             session = self.current_auth_session()
             if not session:
@@ -5021,7 +5181,8 @@ class Handler(SimpleHTTPRequestHandler):
 
     def finish_authentication(self, profile_id: str, mode: str, method: str = "pin",
                                extra_cookies: list[str] | None = None,
-                               remember: bool = False) -> None:
+                               remember: bool = False,
+                               body: dict | None = None) -> None:
         client_ip = self.client_ip()
         attempt_key, ip_key, profile_key = login_attempt_keys(client_ip, profile_id, True)
         clear_login_failures(attempt_key, ip_key, profile_key)
@@ -5048,9 +5209,19 @@ class Handler(SimpleHTTPRequestHandler):
         cookies = [self.set_session_cookie(token, max_age=max_age)]
         if extra_cookies:
             cookies.extend(extra_cookies)
+        device = device_meta_from_request(self, body)
         append_security_event("login_ok", profile_id, client_ip, {
-            "method": method, "mode": mode, "remember": remember_flag,
+            **device,
+            "method": method,
+            "mode": mode,
+            "remember": remember_flag,
         })
+        device_out = {
+            "deviceLabel": device.get("deviceLabel"),
+            "browser": device.get("browser"),
+            "os": device.get("os"),
+            "ip": mask_ip(client_ip, partial=(mode == "child")),
+        }
         self.json_response(200, {
             "authenticated": True, "profileId": profile_id, "mode": mode,
             "admin": bool(payload["admin"]),
@@ -5062,6 +5233,7 @@ class Handler(SimpleHTTPRequestHandler):
             "email": contact["email"],
             "phone": contact["phone"],
             "contactComplete": bool(contact["email"] and contact["phone"]),
+            "device": device_out,
         }, {"Set-Cookie": cookies if len(cookies) > 1 else cookies[0]})
 
     def handle_onboarding_complete(self, body: dict) -> None:
@@ -5105,11 +5277,13 @@ class Handler(SimpleHTTPRequestHandler):
         mode = "child" if body.get("mode") == "child" else "staff"
         pin = str(body.get("pin", ""))[:12]
         client_ip = self.client_ip()
+        device = device_meta_from_request(self, body)
         user = AUTH_USERS.get(profile_id)
         attempt_key, ip_key, profile_key = login_attempt_keys(client_ip, profile_id, bool(user))
         remaining = login_lock_remaining(attempt_key, ip_key, profile_key)
         if remaining > 0:
             append_security_event("login_blocked", profile_id or "_unknown", client_ip, {
+                **device,
                 "retryAfter": int(remaining),
             })
             self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
@@ -5124,6 +5298,7 @@ class Handler(SimpleHTTPRequestHandler):
         if not valid:
             should_lock, pair_count, lock_ttl = record_login_failure(attempt_key, ip_key, profile_key)
             append_security_event("login_failed", profile_id or "_unknown", client_ip, {
+                **device,
                 "attempts": pair_count,
                 "mode": mode,
             })
@@ -5131,6 +5306,7 @@ class Handler(SimpleHTTPRequestHandler):
                 queue_security_alert(profile_id, "repeated_failures", client_ip, {"attempts": pair_count})
             if should_lock:
                 append_security_event("login_locked", profile_id or "_unknown", client_ip, {
+                    **device,
                     "attempts": pair_count,
                     "lockSeconds": lock_ttl,
                 })
@@ -5145,7 +5321,7 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return
         remember = bool(body.get("remember"))
-        self.finish_authentication(profile_id, mode, "pin", remember=remember)
+        self.finish_authentication(profile_id, mode, "pin", remember=remember, body=body)
 
     def handle_passkey_register_options(self, body: dict) -> None:
         if not WEBAUTHN_AVAILABLE:
@@ -5286,10 +5462,12 @@ class Handler(SimpleHTTPRequestHandler):
                 stored.get("mode") != challenge["mode"]):
             should_lock, pair_count, lock_ttl = record_login_failure(attempt_key, ip_key, profile_key)
             append_security_event("passkey_login_failed", profile_id or "_unknown", client_ip, {
+                **device_meta_from_request(self, body),
                 "attempts": pair_count,
             })
             if should_lock:
                 append_security_event("login_locked", profile_id or "_unknown", client_ip, {
+                    **device_meta_from_request(self, body),
                     "attempts": pair_count, "method": "passkey", "lockSeconds": lock_ttl,
                 })
                 self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
@@ -5308,10 +5486,12 @@ class Handler(SimpleHTTPRequestHandler):
         except (InvalidAuthenticationResponse, ValueError, TypeError):
             should_lock, pair_count, lock_ttl = record_login_failure(attempt_key, ip_key, profile_key)
             append_security_event("passkey_login_failed", profile_id or "_unknown", client_ip, {
+                **device_meta_from_request(self, body),
                 "attempts": pair_count,
             })
             if should_lock:
                 append_security_event("login_locked", profile_id or "_unknown", client_ip, {
+                    **device_meta_from_request(self, body),
                     "attempts": pair_count, "method": "passkey", "lockSeconds": lock_ttl,
                 })
                 self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
@@ -5336,6 +5516,7 @@ class Handler(SimpleHTTPRequestHandler):
             challenge["profile_id"], challenge["mode"], "passkey",
             extra_cookies=[self.set_passkey_cookie(encode_passkey_device_bundle(device_bundle))],
             remember=remember,
+            body=body,
         )
 
     def handle_passkey_remove(self, body: dict) -> None:
@@ -5369,6 +5550,91 @@ class Handler(SimpleHTTPRequestHandler):
         self.json_response(200, {"loggedOut": True}, {
             "Set-Cookie": self.set_session_cookie("", max_age=0),
         })
+
+    def handle_auth_devices(self) -> None:
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        profile_id = session["profile_id"]
+        is_child = session.get("mode") == "child"
+        limit = 5 if is_child else 12
+        rows = list_security_events_safe(
+            profile_id=profile_id,
+            events=list(LOGIN_DEVICE_EVENTS),
+            limit=80,
+        )
+        devices = aggregate_known_devices(rows, mask=is_child, limit=limit)
+        recent = [
+            public_security_event(item, mask=is_child, admin=False)
+            for item in rows[:limit]
+            if item.get("event") == "login_ok"
+        ]
+        self.json_response(200, {
+            "profileId": profile_id,
+            "devices": devices,
+            "recentLogins": recent,
+            "masked": is_child,
+        })
+
+    def handle_auth_security_events(self, query: dict) -> None:
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        is_admin = bool(session.get("admin"))
+        def _q(name: str, default: str = "") -> str:
+            values = query.get(name) or []
+            return str(values[0] if values else default).strip()
+
+        try:
+            limit = int(_q("limit", "20") or "20")
+        except ValueError:
+            limit = 20
+        # Easy default 20; Pro may request up to 200.
+        limit = max(1, min(limit, 200 if is_admin else 20))
+        profile_filter = _q("profileId")
+        event_filter = _q("event")
+        day = _q("day")  # YYYY-MM-DD
+        since_ts = until_ts = None
+        if day and re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+            try:
+                from datetime import datetime, timezone
+                start = datetime.fromisoformat(day).replace(tzinfo=timezone.utc)
+                since_ts = start.timestamp()
+                until_ts = since_ts + 86400
+            except ValueError:
+                since_ts = until_ts = None
+
+        if not is_admin:
+            # Non-admins see only their own recent login devices — never full audit.
+            profile_filter = session["profile_id"]
+            events = list(LOGIN_DEVICE_EVENTS)
+            limit = min(limit, 20)
+        else:
+            events = [event_filter] if event_filter else None
+            if profile_filter and profile_filter not in AUTH_USERS and profile_filter != "_unknown":
+                self.json_response(400, {"error": "Unknown profile", "code": "profile_not_found"})
+                return
+
+        rows = list_security_events_safe(
+            profile_id=profile_filter or None,
+            events=events,
+            event=None if events else (event_filter or None),
+            since_ts=since_ts,
+            until_ts=until_ts,
+            limit=limit,
+        )
+        mask = session.get("mode") == "child" and not is_admin
+        payload = {
+            "events": [public_security_event(item, mask=mask, admin=is_admin) for item in rows],
+            "admin": is_admin,
+            "limit": limit,
+            "profileId": profile_filter or None,
+            "day": day or None,
+            "event": event_filter or None,
+        }
+        self.json_response(200, payload)
 
     def editable_profile(self, body: dict) -> tuple[dict | None, str]:
         session = self.current_auth_session()

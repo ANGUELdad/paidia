@@ -1,8 +1,8 @@
 {
-  "version": 154,
-  "label": "v154",
+  "version": 155,
+  "label": "v155",
   "changed": {
-    "de": "Seiten-Render abgesichert: Toast statt Weißbild",
-    "el": "Ασφαλές render σελίδων: toast αντί λευκής οθόνης"
+    "de": "Geräte & Bewegungen: Login-Audit, bekannte Geräte, Admin-Protokoll",
+    "el": "Συσκευές & Κινήσεις: audit σύνδεσης, γνωστές συσκευές, admin πρωτόκολλο"
   }
 }

@@ -305,10 +305,11 @@ class _FlaskHandlerBridge:
 
     def finish_authentication(self, profile_id: str, mode: str, method: str = "pin",
                                extra_cookies: list | None = None,
-                               remember: bool = False) -> None:
+                               remember: bool = False,
+                               body: dict | None = None) -> None:
         # Reuse Handler alerts (new IP / untrusted IP) + cookie minting.
         paidia.Handler.finish_authentication(
-            self, profile_id, mode, method, extra_cookies, remember=remember,
+            self, profile_id, mode, method, extra_cookies, remember=remember, body=body,
         )
 
     def editable_profile(self, body: dict):
@@ -506,6 +507,17 @@ def entry(flask_path: str = ""):
         return _auth_session()
     if request.method == "GET" and api in {"/auth/profiles", "/api/auth/profiles"}:
         return _auth_profiles()
+    if request.method == "GET" and api in {"/auth/devices", "/api/auth/devices"}:
+        return _call_handler("handle_auth_devices", None)
+    if request.method == "GET" and api in {"/auth/security-events", "/api/auth/security-events"}:
+        query = {key: request.args.getlist(key) for key in request.args}
+        bridge = _FlaskHandlerBridge()
+        paidia.hydrate_auth_from_cookie(request.cookies.get(paidia.AUTH_OVERRIDE_COOKIE, ""))
+        try:
+            paidia.Handler.handle_auth_security_events(bridge, query)
+        except Exception as exc:  # noqa: BLE001
+            return _json(500, {"error": "Audit load failed", "code": "audit_server", "detail": str(exc)[:200]})
+        return bridge.as_response()
     if request.method == "POST" and api in {"/auth/login", "/api/auth/login"}:
         return _auth_login()
     if request.method == "POST" and api in {"/auth/logout", "/api/auth/logout"}:

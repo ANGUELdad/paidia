@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 154,
-  label: 'v154',
+  version: 155,
+  label: 'v155',
   changed: {
-    de: 'Nie mehr endloses Laden — Login auch bei Timeout, Crash-Fix',
-    el: 'Όχι ατέρμονη φόρτωση — σύνδεση με timeout, διόρθωση crash',
+    de: 'Geräte & Bewegungen: Login-Audit, bekannte Geräte, Admin-Protokoll',
+    el: 'Συσκευές & Κινήσεις: audit σύνδεσης, γνωστές συσκευές, admin πρωτόκολλο',
   },
 };
 const T = {
@@ -101,6 +101,16 @@ const T = {
     aiScheduleEmpty:'Keine Einträge erkannt', aiScheduleNeedText:'Bitte Text einfügen',
     aiScheduleApplied:n=>n===1?'1 Eintrag gespeichert':`${n} Einträge gespeichert`,
     aiScheduleUnresolved:'Aktivität unklar', aiScheduleConflict:'Konflikt',
+    aiFillText:'Mit Text füllen', aiClearWeek:'AI leeren',
+    aiClearConfirm:n=>n===1?'1 AI-Eintrag dieser Woche wirklich entfernen?':`${n} AI-Einträge dieser Woche wirklich entfernen?`,
+    aiClearEmpty:'Keine AI-Einträge in dieser Woche',
+    aiClearDone:n=>n===1?'1 AI-Eintrag entfernt':`${n} AI-Einträge entfernt`,
+    prevWeek:'Vorherige Woche', nextWeek:'Nächste Woche',
+    weekPickDate:'Woche wählen',
+    weekRotateCoach:'Für die volle Woche quer halten',
+    weekRotateCoachHint:'Oder tippe „Volle Woche“ — Personenspalte bleibt links kleben.',
+    weekShowFull:'Volle Woche', weekShowDay:'Ein Tag',
+    weekSwipeHint:'Wische oder tippe Mo–So',
     dayAgenda:'Tagesablauf', weekAgenda:'Wochenübersicht', agendaEmpty:'Noch nichts geplant', agendaEmptyHint:'Füge den ersten Eintrag direkt zum Tagesablauf hinzu.', openDay:'Tag öffnen',
     tableFullscreen:'Vollbild', tableExitFullscreen:'Schließen',
     allHouses:'Kombiniert',
@@ -445,6 +455,8 @@ const T = {
     stockOutReasonHint:'Einmal wählen — gilt für die nächsten Entnahmen.',
     stockDeleteArmed:'Nochmal tippen zum Löschen',
     stockDeleteCancel:'Abbrechen',
+    stockOrderFrozen:'Reihenfolge eingefroren — Speichern oder aktualisieren zum Sortieren',
+    stockOrderRefresh:'Liste aktualisieren',
     homeMore:'Mehr heute',
     homeSignals:'Kurzüberblick',
     stockHeroHint:'Vorratsgang — tippe ± oder füge Ware schnell hinzu',
@@ -543,7 +555,11 @@ const T = {
     notifNewRequest:name=>`Neue Anfrage · ${name}`,
     selectMode:'Auswählen', selectDone:'Fertig', selectedCount:n=>`${n} gewählt`,
     bulkRemove:'Entfernen', bulkQtyMinus:'Qty −', bulkQtyPlus:'Qty ＋', bulkToList:'→ Liste',
-    bulkOut:'OUT', bulkClearEmpty:'Leeren', bulkFound:'Gefunden', bulkMissing:'Fehlt', bulkUndo:'Rückgängig',
+    bulkIn:'IN +', bulkOut:'OUT −', bulkSetQty:'Menge…', bulkMoveCat:'Regal…',
+    bulkClearEmpty:'Leeren', bulkFound:'Gefunden', bulkMissing:'Fehlt', bulkUndo:'Rückgängig',
+    bulkSetQtyTitle:'Menge setzen', bulkSetQtyHint:'Gleiche Menge für alle Gewählten',
+    bulkMoveCatTitle:'Regal wechseln', bulkMoveCatHint:'Kategorie für alle Gewählten',
+    bulkMovedCat:n=>`${n} verschoben`, bulkQtySet:n=>`${n} Mengen gesetzt`,
     bulkRemoved:n=>`${n} entfernt`, bulkListed:n=>`${n} → Liste`, bulkDecided:n=>`${n} markiert`,
     homeSignalList:'Liste', homeSignalStock:'Lager', homeCompactTitle:'Heute · kompakt',
     stockQuickList:'Alles Wenige → Liste', stockQuickListShort:'Wenige',
@@ -1071,6 +1087,16 @@ const T = {
     aiScheduleEmpty:'Δεν βρέθηκαν εγγραφές', aiScheduleNeedText:'Βάλε κείμενο',
     aiScheduleApplied:n=>n===1?'1 εγγραφή αποθηκεύτηκε':`${n} εγγραφές αποθηκεύτηκαν`,
     aiScheduleUnresolved:'Ασαφής δραστηριότητα', aiScheduleConflict:'Σύγκρουση',
+    aiFillText:'Γέμισμα με κείμενο', aiClearWeek:'Καθαρισμός AI',
+    aiClearConfirm:n=>n===1?'Να αφαιρεθεί 1 εγγραφή AI αυτής της εβδομάδας;':`Να αφαιρεθούν ${n} εγγραφές AI αυτής της εβδομάδας;`,
+    aiClearEmpty:'Καμία εγγραφή AI σε αυτή την εβδομάδα',
+    aiClearDone:n=>n===1?'1 εγγραφή AI αφαιρέθηκε':`${n} εγγραφές AI αφαιρέθηκαν`,
+    prevWeek:'Προηγούμενη εβδομάδα', nextWeek:'Επόμενη εβδομάδα',
+    weekPickDate:'Επιλογή εβδομάδας',
+    weekRotateCoach:'Γύρισε οριζόντια για όλη την εβδομάδα',
+    weekRotateCoachHint:'Ή πάτα «Όλη η εβδομάδα» — η στήλη ατόμου μένει σταθερή αριστερά.',
+    weekShowFull:'Όλη η εβδομάδα', weekShowDay:'Μία ημέρα',
+    weekSwipeHint:'Σύρε ή πάτα Δευ–Κυρ',
     dayAgenda:'Ροή ημέρας', weekAgenda:'Εικόνα εβδομάδας', agendaEmpty:'Δεν έχει προγραμματιστεί κάτι', agendaEmptyHint:'Πρόσθεσε την πρώτη εγγραφή απευθείας στη ροή της ημέρας.', openDay:'Άνοιγμα ημέρας',
     tableFullscreen:'Πλήρης οθόνη', tableExitFullscreen:'Κλείσιμο',
     allHouses:'Συνδυαστικά',
@@ -1513,7 +1539,11 @@ const T = {
     notifNewRequest:name=>`Νέο αίτημα · ${name}`,
     selectMode:'Επιλογή', selectDone:'Έτοιμο', selectedCount:n=>`${n} επιλεγμένα`,
     bulkRemove:'Διαγραφή', bulkQtyMinus:'Ποσ. −', bulkQtyPlus:'Ποσ. ＋', bulkToList:'→ Λίστα',
-    bulkOut:'OUT', bulkClearEmpty:'Άδειασμα', bulkFound:'Βρέθηκε', bulkMissing:'Λείπει', bulkUndo:'Αναίρεση',
+    bulkIn:'IN +', bulkOut:'OUT −', bulkSetQty:'Ποσ.…', bulkMoveCat:'Ράφι…',
+    bulkClearEmpty:'Άδειασμα', bulkFound:'Βρέθηκε', bulkMissing:'Λείπει', bulkUndo:'Αναίρεση',
+    bulkSetQtyTitle:'Ορισμός ποσότητας', bulkSetQtyHint:'Ίδια ποσότητα για όλα τα επιλεγμένα',
+    bulkMoveCatTitle:'Αλλαγή ραφιού', bulkMoveCatHint:'Κατηγορία για όλα τα επιλεγμένα',
+    bulkMovedCat:n=>`${n} μετακινήθηκαν`, bulkQtySet:n=>`${n} ποσότητες ορίστηκαν`,
     bulkRemoved:n=>`${n} διαγράφηκαν`, bulkListed:n=>`${n} → λίστα`, bulkDecided:n=>`${n} σημειώθηκαν`,
     homeSignalList:'Λίστα', homeSignalStock:'Αποθήκη', homeCompactTitle:'Σήμερα · συμπαγές',
     stockQuickList:'Όλα τα λίγα → λίστα', stockQuickListShort:'Λίγα',
@@ -3063,12 +3093,20 @@ const state = {
   stockPendingStep: null, // {pid, dir} waiting for OUT reason
   stockFlashPid: null,
   stockFlashDir: null,
+  /** Freeze list order while editing qty; re-sort only on Save / refresh. */
+  stockOrderFreeze: null, // {house, filter, query, order:[pid...]} | null
   shopQuery: '',
   storeShowDone: false,
   selectMode: null, // null | 'shop' | 'stock' | 'store' | 'requests'
   selectedIds: [],
   houseFilter: '',
-  date: iso(new Date()),
+  date: (function(){
+    try{
+      const v = localStorage.getItem('paidia.scheduleDate');
+      if(v && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+    }catch{}
+    return iso(new Date());
+  })(),
   bookRange: 'today', // today | week | month | all
   bookFilter: {employeeId:'', type:'', q:''},
   bookPane: 'shift', // shift | log | people
@@ -3908,6 +3946,7 @@ async function tourFinish({done=true, skipped=false}={}){
 }
 
 function openTutorial({required=false, resume=true}={}){
+  try{ tipCancelSchedule(); tipHide(); }catch{}
   try{ closeSheet(); }catch{}
   try{ closeChatPanel(); }catch{}
   const steps = buildTourSteps();
@@ -6098,6 +6137,34 @@ const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','ki
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
 const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
 const SCHEDULE_VIEW_LAST_KEY = 'paidia.scheduleViewLast';
+const SCHEDULE_DATE_KEY = 'paidia.scheduleDate';
+const WEEK_MOBILE_FULL_KEY = 'paidia.weekMobileFull';
+
+function recallScheduleDate(){
+  try{
+    const v = localStorage.getItem(SCHEDULE_DATE_KEY);
+    if(v && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  }catch{}
+  return null;
+}
+function persistScheduleDate(ds){
+  if(!ds || !/^\d{4}-\d{2}-\d{2}$/.test(ds)) return;
+  try{ localStorage.setItem(SCHEDULE_DATE_KEY, ds); }catch{}
+}
+function setScheduleDate(ds, {renderAfter=false}={}){
+  if(!ds) return;
+  state.date = ds;
+  persistScheduleDate(ds);
+  if(renderAfter) render();
+}
+function weekMobileFullMode(){
+  try{ return sessionStorage.getItem(WEEK_MOBILE_FULL_KEY)==='1'; }catch{ return false; }
+}
+function setWeekMobileFullMode(on){
+  try{ sessionStorage.setItem(WEEK_MOBILE_FULL_KEY, on?'1':'0'); }catch{}
+  document.body.classList.toggle('week-mobile-full', !!on);
+}
+
 
 function rememberScheduleView(view){
   if(!ROUTE_SCHEDULE_VIEWS.includes(view)) return;
@@ -6693,11 +6760,20 @@ function viewScheduleWeek(){
     hint:scrollHint,
   });
 
+  const focusDs = week.includes(state.date) ? state.date : week[0];
+  if(focusDs !== state.date){ state.date = focusDs; persistScheduleDate(focusDs); }
+  const focusStamp = stamps.find(s=>s.ds===focusDs) || stamps[0];
+  const focusIdx = week.indexOf(focusDs);
+  const prevDay = focusIdx > 0 ? week[focusIdx-1] : '';
+  const nextDay = focusIdx < 6 ? week[focusIdx+1] : '';
+  const mobileFull = weekMobileFullMode();
+  document.body.classList.toggle('week-mobile-full', !!mobileFull);
+
   const weekJump = `<nav class="week-jump" aria-label="${esc(t('viewWeek'))}">
     ${stamps.map(s=>{
       const count=byDate[s.ds].length;
-      return `<button type="button" class="week-jump-day ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-selected':''}"
-        data-week-focus="${s.ds}" aria-label="${esc(s.long)} ${esc(s.full)}">
+      return `<button type="button" class="week-jump-day ${s.ds===today?'is-today':''} ${s.ds===focusDs?'is-selected':''}"
+        data-week-focus="${s.ds}" aria-pressed="${s.ds===focusDs?'true':'false'}" aria-label="${esc(s.long)} ${esc(s.full)}">
         <span class="wj-name">${esc(s.name)}</span>
         <span class="wj-date">${esc(s.short)}</span>
         <span class="wj-count">${count}</span>
@@ -6756,29 +6832,66 @@ function viewScheduleWeek(){
     </div>`;
   };
 
-  const dayStack = `<div class="week-day-stack week-stack-roster" data-density="roster" aria-label="${esc(t('viewWeek'))}">
-    ${stamps.map(s=>`<section class="week-day-card week-day-table ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-selected':''}" data-date="${s.ds}">
-      <header class="week-day-card-h">
-        <span class="wd-main">
-          <span class="wd-name">${esc(s.long)}</span>
-          <span class="wd-date">${esc(s.full)}</span>
-        </span>
-        <span class="wd-meta"><b>${byDate[s.ds].length}</b>
-          <button type="button" class="week-open-day" data-jump-day="${s.ds}">${esc(t('openDay'))}</button>
-        </span>
-      </header>
-      <div class="week-day-card-body">
-        ${stackBlock(s.ds,'morning')}
-        ${stackBlock(s.ds,'afternoon')}
-        ${stackBlock(s.ds,'evening')}
-      </div>
-    </section>`).join('')}
-  </div>`;
-
-  const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   const weekEntries=week.flatMap(ds=>byDate[ds]);
   const activeDays=week.filter(ds=>byDate[ds].length).length;
   const unassignedCount=weekEntries.filter(e=>!entryEmployeeIds(e).length).length;
+  const denseWeek = weekEntries.length >= 8 || activeDays >= 4;
+  const aiFilledCount = countAiOverridesInWeek(weekKey(state.date));
+  const todayMon = weekKey(iso(new Date()));
+  const viewingThisWeek = weekKey(state.date) === todayMon;
+
+  const weekSwitcher = `<div class="week-switcher" role="group" aria-label="${esc(t('viewWeek'))}">
+    <button class="btn sm sec" type="button" data-shift="-7" aria-label="${esc(t('prevWeek'))}">‹</button>
+    <button class="btn sm sec week-today-btn ${viewingThisWeek?'on':''}" type="button" data-week-today ${viewingThisWeek?'disabled':''}>${esc(t('thisWeek'))}</button>
+    <label class="week-pick-label"><span class="sr-only">${esc(t('weekPickDate'))}</span>
+      <input type="date" class="week-pick" data-week-pick value="${esc(state.date)}" aria-label="${esc(t('weekPickDate'))}">
+    </label>
+    <button class="btn sm sec" type="button" data-shift="7" aria-label="${esc(t('nextWeek'))}">›</button>
+  </div>`;
+
+  const weekAiBar = `<div class="week-ai-bar" role="toolbar" aria-label="Zo-Ai">
+    <button class="btn primary week-ai-fill" type="button" data-page-act="aiSchedule">${esc(t('aiFillText'))}</button>
+    <button class="btn sec week-ai-clear" type="button" data-page-act="aiClearSchedule" ${aiFilledCount?'' : 'disabled'} title="${esc(t('aiClearWeek'))}">${esc(t('aiClearWeek'))}${aiFilledCount?` (${aiFilledCount})`:''}</button>
+    <button class="btn sm sec pro-only mode-pro-block" type="button" data-page-act="importWeek" title="${esc(t('importWeek'))}">${esc(t('importWeek'))}</button>
+  </div>`;
+
+  const rotateCoach = (!mobileFull && denseWeek) ? `<div class="week-rotate-coach" role="status">
+    <div class="week-rotate-copy">
+      <b>${esc(t('weekRotateCoach'))}</b>
+      <span>${esc(t('weekRotateCoachHint'))}</span>
+    </div>
+    <button type="button" class="btn sm sec" data-week-mobile-full="1">${esc(t('weekShowFull'))}</button>
+  </div>` : '';
+
+  const dayFocus = `<div class="week-day-focus week-stack-roster" data-density="roster" data-week-swipe aria-label="${esc(t('viewWeek'))}">
+    <div class="week-day-focus-nav">
+      <button type="button" class="btn sm sec" data-week-focus="${prevDay||''}" ${prevDay?'':'disabled'} aria-label="${esc(t('prevWeek'))}">‹</button>
+      <span class="week-day-focus-title">${esc(focusStamp.long)} · ${esc(focusStamp.full)}</span>
+      <button type="button" class="btn sm sec" data-week-focus="${nextDay||''}" ${nextDay?'':'disabled'} aria-label="${esc(t('nextWeek'))}">›</button>
+    </div>
+    <p class="week-swipe-hint muted">${esc(t('weekSwipeHint'))}</p>
+    <section class="week-day-card week-day-table ${focusDs===today?'is-today':''} is-selected is-focus" data-date="${focusDs}">
+      <header class="week-day-card-h">
+        <span class="wd-main">
+          <span class="wd-name">${esc(focusStamp.long)}</span>
+          <span class="wd-date">${esc(focusStamp.full)}</span>
+        </span>
+        <span class="wd-meta"><b>${byDate[focusDs].length}</b>
+          <button type="button" class="week-open-day" data-jump-day="${focusDs}">${esc(t('openDay'))}</button>
+        </span>
+      </header>
+      <div class="week-day-card-body">
+        ${stackBlock(focusDs,'morning')}
+        ${stackBlock(focusDs,'afternoon')}
+        ${stackBlock(focusDs,'evening')}
+      </div>
+    </section>
+    <div class="week-mobile-mode-row">
+      <button type="button" class="btn sec sm" data-week-mobile-full="1">${esc(t('weekShowFull'))}</button>
+    </div>
+  </div>`;
+
+  const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   return `
     <header class="plan-hero plan-hero-week">
       <div class="plan-hero-copy">
@@ -6787,12 +6900,10 @@ function viewScheduleWeek(){
         <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
       </div>
       <div class="plan-hero-actions">
-        <button class="btn sm sec" type="button" data-shift="-7" aria-label="${esc(t('previousFriday')||'‹')}">‹</button>
-        <button class="btn sm sec" type="button" data-shift="7" aria-label="›">›</button>
-        <button class="btn sm sec pro-only mode-pro-block" type="button" data-page-act="importWeek" title="${esc(t('importWeek'))}">${esc(t('importWeek'))}</button>
-        <button class="btn sm sec pro-only mode-pro-block" type="button" data-page-act="aiSchedule" title="${esc(t('aiSchedule'))}">✨ ${esc(t('aiSchedule'))}</button>
+        ${weekSwitcher}
         <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
       </div>
+      ${weekAiBar}
       <div class="plan-week-summary">
         <span><b>${weekEntries.length}</b><small>${esc(t('dueToday'))}</small></span>
         <span><b>${activeDays}</b><small>${esc(t('viewDay'))}</small></span>
@@ -6800,7 +6911,11 @@ function viewScheduleWeek(){
       </div>
     </header>
     ${weekJump}
+    ${rotateCoach}
     <div class="week-roster week-matrix-desktop" data-density="roster" data-roster="week">
+      <div class="week-mobile-matrix-bar">
+        <button type="button" class="btn sec sm" data-week-mobile-full="0">${esc(t('weekShowDay'))}</button>
+      </div>
       <div class="week-roster-block block-morning">
         <div class="plan-block-h block-h block-morning week-roster-h"><span class="t">${t('morning')}</span><span class="hrs plan-time-chip">10:00–14:00</span></div>
         ${houseTable('morning')}
@@ -6814,7 +6929,7 @@ function viewScheduleWeek(){
         ${houseTable('evening')}
       </div>
     </div>
-    ${dayStack}
+    ${dayFocus}
     ${weekNotesCard()}`;
 }
 
@@ -7184,6 +7299,40 @@ function decorateAiScheduleRows(rawEntries, weekMon){
   }).filter(r=>r.date);
 }
 
+function aiImportIdsForWeek(weekMon){
+  const week = new Set(weekDates(weekMon));
+  return (DB.aiImports||[])
+    .filter(x=>x && x.kind==='schedule' && (x.weekStart===weekMon || week.has(x.weekStart)))
+    .map(x=>x.id);
+}
+
+function countAiOverridesInWeek(weekMon){
+  const ids = new Set(aiImportIdsForWeek(weekMon));
+  if(!ids.size) return 0;
+  const week = new Set(weekDates(weekMon));
+  return (DB.overrides||[]).filter(o=>o && week.has(o.date) && o.aiImportId && ids.has(o.aiImportId)).length;
+}
+
+function clearAiScheduleWeek(){
+  const weekMon = weekKey(state.date);
+  const n = countAiOverridesInWeek(weekMon);
+  if(!n){ toast(t('aiClearEmpty'),'info'); return; }
+  const msg = T[state.lang].aiClearConfirm(n);
+  if(!window.confirm(msg)) return;
+  askPin(t('aiClearWeek'), who=>{
+    state.user = who;
+    const ids = new Set(aiImportIdsForWeek(weekMon));
+    const week = new Set(weekDates(weekMon));
+    const before = (DB.overrides||[]).length;
+    DB.overrides = (DB.overrides||[]).filter(o=>!(o && week.has(o.date) && o.aiImportId && ids.has(o.aiImportId)));
+    const removed = before - DB.overrides.length;
+    logEntry('SCHEDULE', `${t('aiClearWeek')} · ${removed}`, {weekStart:weekMon});
+    if(!save()) return;
+    render();
+    toast(T[state.lang].aiClearDone(removed),'success');
+  });
+}
+
 function sheetAiSchedule(){
   const weekMon = weekKey(state.date);
   let rows = null, busy=false, aiMeta=null, sourceText='';
@@ -7228,6 +7377,7 @@ function sheetAiSchedule(){
       if(!chosen.length){ toast(t('aiScheduleEmpty')); return; }
       askPin(t('aiScheduleTitle'), who=>{
         state.user=who;
+        const importId=uid();
         chosen.forEach(r=>{
           DB.overrides.push({
             id:uid(), date:r.date, templateId:null, block:r.block,
@@ -7235,9 +7385,9 @@ function sheetAiSchedule(){
             employeeId:r.employeeId||null, employeeIds:r.employeeId?[r.employeeId]:[],
             childIds:r.childIds||[], activityId:r.activityId,
             from:r.from||'', to:r.to||'', note:r.note||'',
+            aiImportId:importId, source:'ai-schedule',
           });
         });
-        const importId=uid();
         DB.aiImports.push({
           id:importId, ts:Date.now(), uploader:who.id, kind:'schedule',
           weekStart:weekMon, originalText:sourceText, model:aiMeta?.model||'local-parser',
@@ -7987,6 +8137,7 @@ function viewStock(){
       <div class="stock-command-row">
         <label class="stock-search">${ui('u-search','sm')}<input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}" autocomplete="off" enterkeyhint="search">${state.stockQuery?`<button type="button" id="stockClear" aria-label="${t('close')}">×</button>`:''}</label>
         ${hid!=='all'?`<button class="btn stock-primary-action stock-quick-add-btn pine-settle" type="button" id="stockQuickAdd">${ui('u-plus')} ${esc(t('stockQuickAdd'))}</button>`:''}
+        <button class="btn sec sm stock-shift-check-cta" type="button" id="stockShiftCheckEasy" title="${esc(t('shiftStockCheck'))}">${ui('u-check','sm')} ${esc(t('shiftStockCheckStart'))}</button>
         <details class="stock-more pro-only mode-pro-block"><summary aria-label="${esc(t('stockMoreActions'))}">•••</summary><div class="stock-more-popover">
           ${hid==='all'?`<button class="stock-more-action ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle">${ui('u-tasks','sm')} ${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}</button>`:''}
           ${hid!=='all'?`<button class="stock-more-action" type="button" id="stockOpenBoard">${ui('u-plus','sm')} ${esc(t('stockBoardShort'))}</button>
@@ -8529,12 +8680,12 @@ function shiftStockCheckBannerHtml(){
     return `<div class="shift-check-banner done">
       <div><b>✅ ${esc(t('shiftStockCheckDone'))}</b>
         <span>${esc(T[state.lang].shiftStockCheckToday(who?.name||done.byName||'—', fmtDT(done.at)))}</span></div>
-      <button class="btn sec sm" type="button" id="shiftStockCheckOpen">${esc(t('shiftStockCheckStart'))}</button>
+      <button class="btn sec sm" type="button" id="shiftStockCheckOpen" class="btn sm shift-check-open-btn">${esc(t('shiftStockCheckStart'))}</button>
     </div>`;
   }
   return `<div class="shift-check-banner pending">
     <div><b>☑️ ${esc(t('shiftStockCheck'))}</b><span>${esc(t('shiftStockCheckPending'))} · ${esc(t('shiftStockCheckHint'))}</span></div>
-    <button class="btn sm" type="button" id="shiftStockCheckOpen">${esc(t('shiftStockCheckStart'))}</button>
+    <button class="btn sm" type="button" id="shiftStockCheckOpen" class="btn sm shift-check-open-btn">${esc(t('shiftStockCheckStart'))}</button>
   </div>`;
 }
 
@@ -14025,7 +14176,7 @@ function renderChild(){
     wireKidChrome(root);
     root.querySelector('#pageRenderRetry')?.addEventListener('click', ()=>{ state.childView='today'; render(); });
     root.querySelectorAll('[data-date]').forEach(d=>{
-      d.onclick = () => { state.date = d.dataset.date; render(); };
+      d.onclick = () => { setScheduleDate(d.dataset.date); render(); };
     });
     const teamBanner=root.querySelector('#teamNoticeBanner');
     if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
@@ -16413,8 +16564,10 @@ function onTopAction(id){
     sheetImportWeek(); return;
   }
   if(id==='aiSchedule'){
-    if(isEasy()){ toast(t('uiModeProHint'),'info'); return; }
     sheetAiSchedule(); return;
+  }
+  if(id==='aiClearSchedule'){
+    clearAiScheduleWeek(); return;
   }
   if(id==='shopScan'){
     if(isEasy()){ toast(t('uiModeProHint'),'info'); return; }
@@ -17221,7 +17374,7 @@ function wire(){
     btn.onclick=()=>{ state.tab='kids'; state.staffKidId=btn.dataset.kidOpen; render(); };
   });
 
-  v.querySelectorAll('#shiftStockCheckOpen, #stockShiftCheck').forEach(btn=>{
+  v.querySelectorAll('#shiftStockCheckOpen, #stockShiftCheck, #stockShiftCheckEasy').forEach(btn=>{
     btn.onclick=()=>{ feedback('select'); sheetShiftStockCheck(); };
   });
   v.querySelectorAll('#shiftPresenceOpen').forEach(btn=>{
@@ -17288,7 +17441,7 @@ function wire(){
     };
   });
   v.querySelectorAll('.day').forEach(d=>{
-    d.onclick = () => { state.date = d.dataset.date; render(); };
+    d.onclick = () => { setScheduleDate(d.dataset.date); render(); };
   });
   v.querySelectorAll('[data-jump-day]').forEach(b=>{
     b.onclick = () => {
@@ -17300,22 +17453,67 @@ function wire(){
   });
   v.querySelectorAll('[data-week-focus]').forEach(b=>{
     b.onclick = () => {
-      state.date = b.dataset.weekFocus;
+      const ds = b.dataset.weekFocus;
+      if(!ds) return;
+      setScheduleDate(ds);
       feedback('select');
       render();
-      requestAnimationFrame(()=>{
-        const target=document.querySelector(`.week-day-card[data-date="${CSS.escape(state.date)}"]`);
-        if(target) try{ target.scrollIntoView({behavior:'smooth', block:'nearest'}); }catch{ /* ignore */ }
-      });
     };
   });
   v.querySelectorAll('[data-shift]').forEach(b=>{
     b.onclick = () => {
       const d = new Date(state.date+'T12:00:00');
       d.setDate(d.getDate() + Number(b.dataset.shift));
-      state.date = iso(d); render();
+      setScheduleDate(iso(d));
+      render();
     };
   });
+  v.querySelectorAll('[data-week-today]').forEach(b=>{
+    b.onclick = () => {
+      setScheduleDate(iso(new Date()));
+      feedback('select');
+      render();
+    };
+  });
+  v.querySelectorAll('[data-week-pick]').forEach(inp=>{
+    inp.onchange = () => {
+      if(!inp.value) return;
+      setScheduleDate(inp.value);
+      render();
+    };
+  });
+  v.querySelectorAll('[data-week-mobile-full]').forEach(b=>{
+    b.onclick = () => {
+      setWeekMobileFullMode(b.dataset.weekMobileFull==='1');
+      feedback('select');
+      render();
+    };
+  });
+  const swipeHost = v.querySelector('[data-week-swipe]');
+  if(swipeHost){
+    let sx=0, sy=0, tracking=false;
+    swipeHost.addEventListener('touchstart', ev=>{
+      const t=ev.changedTouches?.[0];
+      if(!t) return;
+      sx=t.clientX; sy=t.clientY; tracking=true;
+    }, {passive:true});
+    swipeHost.addEventListener('touchend', ev=>{
+      if(!tracking) return;
+      tracking=false;
+      const t=ev.changedTouches?.[0];
+      if(!t) return;
+      const dx=t.clientX-sx, dy=t.clientY-sy;
+      if(Math.abs(dx)<56 || Math.abs(dx)<Math.abs(dy)*1.2) return;
+      const week=weekDates(state.date);
+      const idx=week.indexOf(state.date);
+      if(idx<0) return;
+      const next = dx<0 ? week[idx+1] : week[idx-1];
+      if(!next) return;
+      setScheduleDate(next);
+      feedback('select');
+      render();
+    }, {passive:true});
+  }
   v.querySelectorAll('[data-open]').forEach(el=>{
     el.onclick = () => {
       const dateStr = el.dataset.entryDate || state.date;
@@ -18024,6 +18222,152 @@ document.getElementById('btnProfiles').onclick = () => {
 const gateEl = document.getElementById('gate');
 const gateBody = document.getElementById('gateBody');
 
+function formatDeviceWhen(ts){
+  const n=Number(ts)||0;
+  if(!n) return '—';
+  try{
+    return new Date(n).toLocaleString(state.lang==='el'?'el-GR':'de-DE',{
+      day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',
+    });
+  }catch{ return '—'; }
+}
+
+function auditEventLabel(event){
+  const map={
+    login_ok:'auditEventLoginOk',
+    login_failed:'auditEventLoginFailed',
+    login_locked:'auditEventLoginLocked',
+    login_blocked:'auditEventLoginBlocked',
+    passkey_login_failed:'auditEventPasskeyFailed',
+    pin_changed:'auditEventPinChanged',
+    pin_reset_request:'auditEventPinReset',
+    pin_reset_sent:'auditEventPinReset',
+    pin_reset_invalid_token:'auditEventPinReset',
+    pin_reset_unavailable:'auditEventPinReset',
+  };
+  const key=map[event];
+  return key?t(key):String(event||'—');
+}
+
+function profileLabelForAudit(profileId){
+  if(!profileId || profileId==='_unknown') return '—';
+  const person=emp(profileId);
+  if(person?.name) return person.name;
+  const kid=(DB.children||[]).find?.(c=>c && c.id===profileId);
+  if(kid?.name) return kid.name;
+  if(state.user?.id===profileId) return state.user.name;
+  if(state.child?.id===profileId) return state.child.name;
+  return String(profileId);
+}
+
+async function fillSecurityDevicesCard(card){
+  if(!card) return;
+  try{
+    const response=await fetch('/api/auth/devices',{credentials:'same-origin'});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(data.error||String(response.status));
+    const devices=Array.isArray(data.devices)?data.devices:[];
+    const child=state.mode==='child';
+    const rows=devices.slice(0, child?5:8).map(d=>`<div class="row between" style="gap:8px;padding:8px 0;border-bottom:1px solid var(--line,rgba(0,0,0,.08))">
+      <div class="grow"><b style="font-size:13px">${esc(d.deviceLabel||t('thisDevice'))}</b>
+        <div class="muted" style="font-size:11px;margin-top:2px">${esc(d.ip||'—')}${d.method?` · ${esc(d.method)}`:''}</div></div>
+      <div class="muted" style="font-size:11px;text-align:right;white-space:nowrap">${esc(t('devicesLastSeen'))}<br>${esc(formatDeviceWhen(d.lastSeen))}</div>
+    </div>`).join('');
+    card.innerHTML=`<b>📱 ${esc(t('devicesTitle'))}</b>
+      <p class="muted" style="font-size:12px;margin:6px 0 8px">${esc(child?t('devicesHintChild'):t('devicesHint'))}</p>
+      ${rows||`<p class="muted" style="margin:0">${esc(t('devicesEmpty'))}</p>`}`;
+  }catch(error){
+    card.innerHTML=`<b>📱 ${esc(t('devicesTitle'))}</b><p class="muted" style="margin:8px 0 0">${esc(t('devicesFailed'))}</p>`;
+  }
+}
+
+async function sheetSecurityAudit(opts={}){
+  if(!isAdminUser()){ toast(t('adminRequired'),'error'); return; }
+  const pro=isPro();
+  const initialProfile=String(opts.profileId||'').trim();
+  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:linear-gradient(145deg,#2a6b52,#2f5a63)">📖</div>
+    <div class="grow"><div class="muted">ARMONIA THASSOS</div><h3 style="margin:1px 0">${esc(t('auditTrailTitle'))}</h3>
+      <div class="muted">${esc(t('auditTrailHint'))}</div></div></div>
+    ${pro?`<div class="row" style="gap:8px;flex-wrap:wrap;margin:0 0 10px">
+      <label class="f grow" style="min-width:120px"><span>${esc(t('auditTrailFilterUser'))}</span>
+        <select id="auditProfile"><option value="">${esc(t('all'))}</option>
+          ${(DB.employees||[]).map(e=>`<option value="${esc(e.id)}" ${e.id===initialProfile?'selected':''}>${esc(e.name)}</option>`).join('')}
+        </select></label>
+      <label class="f" style="min-width:120px"><span>${esc(t('auditTrailFilterDay'))}</span>
+        <input type="date" id="auditDay"></label>
+      <label class="f grow" style="min-width:140px"><span>${esc(t('auditTrailFilterEvent'))}</span>
+        <select id="auditEvent">
+          <option value="">${esc(t('auditTrailAllEvents'))}</option>
+          ${['login_ok','login_failed','login_locked','login_blocked','passkey_login_failed','pin_changed','pin_reset_request','pin_reset_sent'].map(ev=>
+            `<option value="${ev}">${esc(auditEventLabel(ev))}</option>`).join('')}
+        </select></label>
+    </div>
+    <div class="row" style="gap:8px;margin:0 0 12px">
+      <button class="btn sm" type="button" id="auditRefresh">${esc(t('auditTrailRefresh'))}</button>
+      <button class="btn sm sec" type="button" id="auditExport">${esc(t('auditTrailExport'))}</button>
+    </div>`:`<p class="muted" style="font-size:12px;margin:0 0 12px">${esc(t('auditTrailEasyHint'))}</p>
+      <button class="btn sm" type="button" id="auditRefresh" style="margin-bottom:12px">${esc(t('auditTrailRefresh'))}</button>`}
+    <div id="auditList" class="security-passkey-card"><div class="muted">${esc(t('reading'))}</div></div>`);
+
+  let lastRows=[];
+  const paint=async()=>{
+    const box=sheetEl.querySelector('#auditList');
+    if(!box) return;
+    box.innerHTML=`<div class="muted">${esc(t('reading'))}</div>`;
+    const params=new URLSearchParams();
+    params.set('limit', pro?'100':'20');
+    const profileEl=sheetEl.querySelector('#auditProfile');
+    const dayEl=sheetEl.querySelector('#auditDay');
+    const eventEl=sheetEl.querySelector('#auditEvent');
+    const profileId=(profileEl?.value||initialProfile||'').trim();
+    if(profileId) params.set('profileId', profileId);
+    if(dayEl?.value) params.set('day', dayEl.value);
+    if(eventEl?.value) params.set('event', eventEl.value);
+    try{
+      const response=await fetch('/api/auth/security-events?'+params.toString(),{credentials:'same-origin'});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok) throw new Error(data.error||String(response.status));
+      lastRows=Array.isArray(data.events)?data.events:[];
+      if(!lastRows.length){
+        box.innerHTML=`<p class="muted" style="margin:0">${esc(t('auditTrailEmpty'))}</p>`;
+        return;
+      }
+      box.innerHTML=lastRows.map(row=>{
+        const d=row.details||{};
+        const who=profileLabelForAudit(row.profileId);
+        const label=auditEventLabel(row.event);
+        const device=d.deviceLabel||row.deviceLabel||'—';
+        return `<div style="padding:10px 0;border-bottom:1px solid var(--line,rgba(0,0,0,.08))">
+          <div class="row between" style="gap:8px"><b style="font-size:13px">${esc(label)}</b>
+            <span class="muted" style="font-size:11px;white-space:nowrap">${esc(formatDeviceWhen(row.ts))}</span></div>
+          <div class="muted" style="font-size:12px;margin-top:4px">${esc(who)} · ${esc(device)} · ${esc(row.ip||'—')}${d.method?` · ${esc(d.method)}`:''}</div>
+        </div>`;
+      }).join('');
+    }catch(error){
+      box.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;
+    }
+  };
+
+  sheetEl.querySelector('#auditRefresh')?.addEventListener('click',()=>{ feedback('tap'); paint(); });
+  sheetEl.querySelector('#auditExport')?.addEventListener('click',async()=>{
+    const text=lastRows.map(r=>{
+      const d=r.details||{};
+      return [formatDeviceWhen(r.ts), r.event, r.profileId||'', d.deviceLabel||'', r.ip||'', d.method||''].join('\t');
+    }).join('\n');
+    try{
+      await navigator.clipboard.writeText(text||'');
+      toast(t('auditTrailExported'),'success');
+    }catch{
+      toast(t('authUnavailable'),'error');
+    }
+  });
+  ['auditProfile','auditDay','auditEvent'].forEach(id=>{
+    const el=sheetEl.querySelector('#'+id);
+    if(el) el.onchange=()=>paint();
+  });
+  await paint();
+}
+
 async function sheetSecurityAccess(){
   const who=state.user||state.child;if(!who){openGate();return;}
   openSheet(`<div class="security-hero mail-hero">
@@ -18387,7 +18731,7 @@ function stopPinKeyboard(){
   }
 }
 
-function openGate(){ closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); renderEntrance(); }
+function openGate(){ try{ tipCancelSchedule(); tipHide(); }catch{} closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); renderEntrance(); }
 function closeGate(){ stopPinKeyboard(); gateEl.classList.remove('on'); }
 
 /** Βήμα 1 — δύο ξεχωριστές είσοδοι: Προσωπικό / Παιδιά (§31.3). */
@@ -19342,7 +19686,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||154),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||155),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

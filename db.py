@@ -291,6 +291,13 @@ def init_schema() -> None:
                     )
                     """
                 )
+                conn.execute(
+                    "CREATE INDEX IF NOT EXISTS security_events_ts_idx ON security_events (ts DESC)"
+                )
+                conn.execute(
+                    "CREATE INDEX IF NOT EXISTS security_events_profile_ts_idx "
+                    "ON security_events (profile_id, ts DESC)"
+                )
             else:
                 conn.execute(
                     """
@@ -312,6 +319,13 @@ def init_schema() -> None:
                       details TEXT NOT NULL DEFAULT '{}'
                     )
                     """
+                )
+                conn.execute(
+                    "CREATE INDEX IF NOT EXISTS security_events_ts_idx ON security_events (ts DESC)"
+                )
+                conn.execute(
+                    "CREATE INDEX IF NOT EXISTS security_events_profile_ts_idx "
+                    "ON security_events (profile_id, ts DESC)"
                 )
         _INITIALIZED = True
 
@@ -436,6 +450,146 @@ def append_security_event(event: str, profile_id: str | None, ip: str | None, de
                         json.dumps(details, ensure_ascii=False, separators=(",", ":")),
                     ),
                 )
+
+
+def _security_event_row(row: Any) -> dict:
+    """Normalise a DB/KV security event to a JSON-friendly dict (ts in ms)."""
+    if isinstance(row, dict):
+        data = dict(row)
+    else:
+        try:
+            data = dict(row)
+        except (TypeError, ValueError):
+            data = {}
+    details = data.get("details")
+    if isinstance(details, str):
+        try:
+            details = json.loads(details)
+        except (TypeError, json.JSONDecodeError):
+            details = {}
+    if not isinstance(details, dict):
+        details = {}
+    ts_raw = data.get("ts")
+    ts_ms = 0
+    if isinstance(ts_raw, (int, float)):
+        # KV stores ms; SQLite stores seconds.
+        ts_ms = int(ts_raw if ts_raw > 1e12 else ts_raw * 1000)
+    else:
+        # Postgres TIMESTAMPTZ → datetime
+        try:
+            ts_ms = int(ts_raw.timestamp() * 1000)  # type: ignore[union-attr]
+        except Exception:  # noqa: BLE001
+            ts_ms = 0
+    return {
+        "id": data.get("id"),
+        "ts": ts_ms,
+        "event": str(data.get("event") or ""),
+        "profileId": data.get("profile_id") or data.get("profileId"),
+        "ip": data.get("ip") or "",
+        "details": details,
+    }
+
+
+def list_security_events(
+    *,
+    profile_id: str | None = None,
+    event: str | None = None,
+    events: list[str] | None = None,
+    since_ts: float | None = None,
+    until_ts: float | None = None,
+    limit: int = 50,
+) -> list[dict]:
+    """Newest-first security events. Filters are optional; limit capped at 200."""
+    limit = max(1, min(int(limit or 50), 200))
+    event_set = None
+    if events:
+        event_set = {str(e).strip() for e in events if str(e).strip()}
+    elif event:
+        event_set = {str(event).strip()} if str(event).strip() else None
+
+    if using_kv():
+        listkey = KV_PREFIX + "security_events"
+        raw_rows = _kv_command("LRANGE", listkey, 0, 999) or []
+        out: list[dict] = []
+        for raw in raw_rows:
+            try:
+                parsed = json.loads(raw) if isinstance(raw, str) else raw
+            except (TypeError, json.JSONDecodeError):
+                continue
+            item = _security_event_row(parsed)
+            if profile_id and item.get("profileId") != profile_id:
+                continue
+            if event_set and item.get("event") not in event_set:
+                continue
+            ts = int(item.get("ts") or 0)
+            if since_ts is not None and ts < int(since_ts * 1000 if since_ts < 1e12 else since_ts):
+                continue
+            if until_ts is not None and ts > int(until_ts * 1000 if until_ts < 1e12 else until_ts):
+                continue
+            out.append(item)
+            if len(out) >= limit:
+                break
+        return out
+
+    init_schema()
+    since_sec = None if since_ts is None else (since_ts / 1000.0 if since_ts > 1e12 else float(since_ts))
+    until_sec = None if until_ts is None else (until_ts / 1000.0 if until_ts > 1e12 else float(until_ts))
+    with _LOCK:
+        with connect() as conn:
+            if using_postgres():
+                clauses = ["TRUE"]
+                params: list[Any] = []
+                if profile_id:
+                    clauses.append("profile_id = %s")
+                    params.append(profile_id)
+                if event_set:
+                    clauses.append("event = ANY(%s)")
+                    params.append(list(event_set))
+                if since_sec is not None:
+                    clauses.append("ts >= to_timestamp(%s)")
+                    params.append(since_sec)
+                if until_sec is not None:
+                    clauses.append("ts <= to_timestamp(%s)")
+                    params.append(until_sec)
+                params.append(limit)
+                rows = conn.execute(
+                    f"""
+                    SELECT id, ts, event, profile_id, ip, details
+                    FROM security_events
+                    WHERE {' AND '.join(clauses)}
+                    ORDER BY ts DESC
+                    LIMIT %s
+                    """,
+                    tuple(params),
+                ).fetchall()
+            else:
+                clauses = ["1=1"]
+                params = []
+                if profile_id:
+                    clauses.append("profile_id = ?")
+                    params.append(profile_id)
+                if event_set:
+                    placeholders = ",".join("?" for _ in event_set)
+                    clauses.append(f"event IN ({placeholders})")
+                    params.extend(sorted(event_set))
+                if since_sec is not None:
+                    clauses.append("ts >= ?")
+                    params.append(since_sec)
+                if until_sec is not None:
+                    clauses.append("ts <= ?")
+                    params.append(until_sec)
+                params.append(limit)
+                rows = conn.execute(
+                    f"""
+                    SELECT id, ts, event, profile_id, ip, details
+                    FROM security_events
+                    WHERE {' AND '.join(clauses)}
+                    ORDER BY ts DESC
+                    LIMIT ?
+                    """,
+                    tuple(params),
+                ).fetchall()
+    return [_security_event_row(row) for row in rows]
 
 
 def health() -> dict:
