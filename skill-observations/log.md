@@ -492,3 +492,32 @@
 
 ## 2026-08-30 — Button contrast v150
 - After light heroes (v145), leftover dark-hero frosted buttons (`.plan-hero-actions`, `.topbtn.ghost`, transparent `.btn.ghost`) read as empty; fix at token layer (solid white + ink/line) and convert desktop Plan hero to light stone so summary stats stay readable.
+
+## 2026-08-30 — Marketing logged-in screenshots
+
+- **Friction:** Root `.env` `PAIDIA_AUTH_USERS_JSON` overwrites shell exports via `load_env()` (“file values win”), so local seed PINs failed until a marketing-only env + `.env` open monkeypatch + isolated SQLite were used.
+- **Friction:** `app.js` `registerPaidiaServiceWorker` missing `)` left the app stuck on gate “Laden…” after a valid session cookie — Playwright captured splash screens until syntax was fixed.
+- **Method:** API login + cookie inject + localStorage onboarding/tour/contact markers; redact profile names to Demo in-DOM before screenshot; never commit `docs/marketing/.local-auth/`.
+- **Push:** this workspace `origin` is `anguel0z/paidia-armonia` (no ANGUELdad write); ship product shots via `upstream` (`ANGUELdad/paidia`) with `gh auth switch --user ANGUELdad`.
+
+## 2026-08-30 — Local auth double-pass without prod PINs
+
+- **Trigger:** Prod QA stuck ~52% with auth blocked; need authenticated critical-path ×2 without leaking production PINs.
+- **Insight:** Prefer existing gitignored `docs/marketing/.local-auth/` (disposable profile hashes + `pins.json`) over inventing/documenting secrets. Playwright must not `Escape` after opening Profil/Mitteilungen sheets or checks false-fail.
+- **Reusable pattern:** Local harness + report that says “local test profile available” (no PIN values) + explicit “prod still unverified for auth”.
+- **Skill candidates:** none new (process note only).
+
+## Observation 1: 2026-08-30 — Parallel-agent overwrite risk on shared auth files
+
+**Signal:** improving (workflow / verification)
+**Skill:** task-observer / general coding
+**Context:** Implementing remember-me while another agent concurrently edited gate.js/server.py/build.json; patches were silently reverted mid-task.
+**Insight:** For auth/login changes, re-verify critical markers (session_cookie_max_age, checkbox copy, version bump) immediately before commit; prefer atomic multi-file patch scripts over staggered edits when the tree is contested.
+**Suggestion:** Add a pre-commit checklist for cache-bust + auth cookie markers when shipping gate/session work.
+
+## 2026-08-30 — page render harden (no white-screen)
+
+- **Trigger:** User asked each page to work with no UI crashes; harden staff+kids render paths.
+- **Insight:** In a 19k-line vanilla `app.js`, page crashes cluster at (1) unguarded collection spreads/`find` on mutable DB arrays after corrupt local/shared sync, (2) `house(id).short` when house id is stale, (3) missing `#view`/`#title` DOM during child chrome paint. A single `normalizeDbShape` + try/catch around `staffViewHtml`/`childViewHtml` stops white-screens better than per-call-site optional chaining alone.
+- **Reusable pattern:** For SPA-without-framework apps: coerce durable state shape on load/sync; wrap the page HTML factory in try/catch that toasts and paints a retry empty-state; smoke-test helpers with node `vm` + source asserts.
+- **Skill candidates:** optional "vanilla SPA render harden" checklist if this pattern repeats.
