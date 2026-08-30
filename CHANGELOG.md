@@ -1,5 +1,12 @@
 # Changelog
 
+## v163 — 2026-08-30
+
+- **Mitteilungen aktivieren:** Tippen → Erlaubnis → echte Test-Mitteilung → Einstellungen bleiben an → Hinweise bei geöffneter App.
+- Glocken-Menü hat jetzt auch **Aktivieren**. Wenn die Mitteilung über die App-Hilfe nicht kommt, Desktop-Fallback.
+- Ehrliche Texte (DE/EL): iPhone nur nach „Zum Home-Bildschirm“, blockiert = Geräteeinstellungen, unsichere Verbindung.
+- Easy: Aktivieren + Test; Pro: Kategorien / Ruhezeit / Ton. Cache `paidia-v163`.
+
 ## v162 — 2026-08-30
 
 - **Kids Back:** every kids subpage (not Start) shows top-left **Zurück / Πίσω** (≥44px). History stack: dock/Mehr pushes prior view; Back pops (fallback Start). In-game `#gameBack` still returns to Spiele/Learn hub (OSS + native). Dock/rail kept.

@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 162,
-  label: 'v162',
+  version: 163,
+  label: 'v163',
   changed: {
-    de: 'Kids: Zurück auf Unterseiten · Verlauf Spiele→Hub→Start',
-    el: 'Kids: Πίσω στις υποσελίδες · ιστορικό Παιχνίδια→Hub→Αρχή',
+    de: 'Mitteilungen: Aktivieren funktioniert wieder · Hinweise bei geöffneter App',
+    el: 'Ειδοποιήσεις: το Ενεργοποίηση δουλεύει ξανά · με ανοιχτή εφαρμογή',
   },
 };
 const T = {
@@ -786,8 +786,8 @@ const T = {
     notifNeedSecure:'Mitteilungen brauchen eine sichere Verbindung.',
     notifDeliveryFailed:'Test konnte auf diesem Gerät nicht zugestellt werden.',
     notifDeliveryOk:'Test-Mitteilung wurde zugestellt.',
-    notifRuntimeHint:'Hinweise erscheinen, solange Armonia geöffnet ist. Mitteilungen im Hintergrund folgen später.',
-    notifDeliveryHint:'Kategorien gelten für Mitteilungen auf dem Gerät. Ohne Hintergrund-Hinweis nur bei geöffneter App.',
+    notifRuntimeHint:'Hinweise erscheinen bei geöffneter App. Hinweise im Hintergrund folgen später.',
+    notifDeliveryHint:'Kategorien gelten für Hinweise auf dem Gerät. Ohne Hintergrund nur bei geöffneter App.',
     notifPrefsTitle:'Mitteilungen',
     notifPrefsHint:'Wähle, woran dich Armonia erinnert — pro Kategorie ein- und ausschaltbar.',
     notifCatsLabel:'Kategorien',
@@ -1787,8 +1787,8 @@ const T = {
     notifNeedSecure:'Οι ειδοποιήσεις χρειάζονται ασφαλή σύνδεση.',
     notifDeliveryFailed:'Η δοκιμαστική ειδοποίηση δεν παραδόθηκε σε αυτή τη συσκευή.',
     notifDeliveryOk:'Η δοκιμαστική ειδοποίηση παραδόθηκε.',
-    notifRuntimeHint:'Οι ειδοποιήσεις εμφανίζονται όσο είναι ανοιχτό το Armonia. Ειδοποιήσεις στο παρασκήνιο έρχονται αργότερα.',
-    notifDeliveryHint:'Οι κατηγορίες ισχύουν για ειδοποιήσεις στη συσκευή. Χωρίς υπόβαθρο μόνο με ανοιχτή εφαρμογή.',
+    notifRuntimeHint:'Οι ειδοποιήσεις εμφανίζονται όσο η εφαρμογή είναι ανοιχτή. Στο παρασκήνιο έρχονται αργότερα.',
+    notifDeliveryHint:'Οι κατηγορίες ισχύουν για ειδοποιήσεις στη συσκευή. Χωρίς παρασκήνιο μόνο με ανοιχτή εφαρμογή.',
     notifPrefsTitle:'Ειδοποιήσεις',
     notifPrefsHint:'Διάλεξε τι θα σου θυμίζει το Armonia — ανά κατηγορία on/off.',
     notifCatsLabel:'Κατηγορίες',
@@ -4082,6 +4082,7 @@ function tipNotifyPageChange(){
   try{ window.PaidiaPageTips && window.PaidiaPageTips.notifyPageChange(); }catch{}
 }
 tipBindEngine();
+
 
 async function ensureContactDetails(){
   if(state.mode!=='staff' || !state.user) return;
@@ -20063,10 +20064,13 @@ function sheetNotifPrefs(){
   const perm=cap.api?cap.permission:'unsupported';
   const on=!!notifPrefs().enabled && perm==='granted';
   const canEnable=on || cap.canRequest || (perm==='granted' && !notifPrefs().enabled);
+  const platformHint=notifCapabilityMessage(cap);
   openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia</div>
     <h2>${esc(t('notifPrefsTitle'))}</h2>
     <p>${esc(isEasy()?t('notifEasyHint'):t('notifPrefsHint'))}</p></div>
-    <button class="btn ${on?'sec':''}" type="button" id="notifToggle" ${canEnable?'':'disabled'}>${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</button>
+    <button class="btn ${on?'sec':''}" type="button" id="notifToggle" ${canEnable?'':'disabled'}>${esc(on?t('notifEnabled'):(cap.reason==='ios-install'?t('childInstallTitle'):(child?t('notifEnableChild'):t('notifEnable'))))}</button>
+    ${platformHint?`<p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}
+    <p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
     <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
     ${on?notifPrefsFormHtml({child}):''}
     <button class="btn sec" type="button" id="notifPrefsClose" style="margin-top:10px">${esc(t('close'))}</button>`);
@@ -20233,7 +20237,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||162;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||163;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

@@ -1,14 +1,14 @@
 # Notifications matrix — OS × browser × what works
 
 **Scope:** Root PWA (`notifications.js`, `app.js` sweep, `sw.js`).  
-**Last updated:** 2026-08-30 (v149).
+**Last updated:** 2026-08-30 (v163).
 
 ## Delivery modes
 
 | Mode | When it fires | Needs |
 |------|----------------|-------|
 | **Local Web Notification** via `ServiceWorkerRegistration.showNotification` | While the app tab/PWA is open **or** the SW is still alive after a sweep | `Notification` permission + secure context |
-| **Page `new Notification()` fallback** | Same, when no SW registration | Desktop browsers mainly |
+| **Page `new Notification()` fallback** | Same, when no active worker yet / SW path fails | Desktop + enable fallback |
 | **In-app badge / Mitteilungen center** | Always while logged in | No OS permission |
 | **Web Push (VAPID)** | Background, even if app closed | `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` on server; client `PushManager.subscribe` → `POST /api/push/subscribe` |
 | **Email / WhatsApp** | Separate channels | Resend/SMTP / WhatsApp Cloud API |
@@ -74,6 +74,13 @@ Automations panel (`paidia.notifAuto`) can further gate shift/stock/late/friday/
 | `GET /api/push/vapid` | No | Public key if configured |
 | `POST /api/push/subscribe` | Yes (session) | Store PushSubscription in durable KV |
 | `GET /api/health` → `notifications` | No | `{ local: true, webPush: bool }` |
+
+## Enable flow (v163)
+
+1. User tap → permission prompt (must stay in the tap) → prefs on.
+2. Wait briefly for an active background helper, then show the test toast; if that fails, use the page toast.
+3. Mark “an” only if the test toast delivers.
+4. Mitteilungen center + Profil + Easy settings all share the same enable path.
 
 ## Honest UX rules
 
