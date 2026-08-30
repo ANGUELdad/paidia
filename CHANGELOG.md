@@ -1,11 +1,17 @@
 # Changelog
 
-## v160 — 2026-08-30
+## v161 — 2026-08-30
 
 - **Mehr menu open (staff + kids):** intentional open UX — mobile slides up as a solid bottom sheet; desktop opens a solid centered panel (not a tiny bottom pop). High-contrast rows, plain labels.
 - **Easy:** fewer items, larger rows (hints hidden). **Pro:** full list with short hints on kids.
-- Shared `openNavMenu` / `nav-menu-*` via `openSheet(..., {kind:'nav-menu'})`. Keeps `body.sheet-open` dock hide (Schicht-check). Kids back chrome untouched.
-- Cache `paidia-v160`.
+- Staff dock Mehr + kids dock/rail Mehr share `openNavMenu` / `nav-menu-*` via `openSheet(..., {kind:'nav-menu'})`. Keeps `body.sheet-open` dock hide (Schicht-check). Kids back chrome untouched.
+- Cache `paidia-v161`.
+
+## v160 — 2026-08-30
+
+- **Easy/Pro everywhere:** practical forks on Home, Talk, Buch, Galerie, Kids staff, child Plan — toggles + Easy hints; Pro keeps extras (stats/video/log panes/shelves/bulk).
+- **Lager Easy:** visible toolbar Hinzufügen · Foto lesen · Speichern · Aktualisieren; ± glyphs; shelves/bulk stay Pro. Centered OUT reason + order freeze from v157 kept.
+- **Contextual page tips:** dismissible help popups (`page-tips.js`); Easy fewer tips. Cache `paidia-v160`.
 
 ## v159 — 2026-08-30
 

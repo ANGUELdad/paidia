@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 160,
-  label: 'v160',
+  version: 161,
+  label: 'v161',
   changed: {
-    de: 'Easy/Pro überall · Lager Speichern/Foto lesen sichtbar',
-    el: 'Easy/Pro παντού · Αποθήκη Speichern/διάβασμα φωτό',
+    de: 'Buch-Kalender: jeden Tag im Schichtbuch lesen & schreiben',
+    el: 'Ημερολόγιο Βιβλίου: διάβασε & γράψε κάθε μέρα στο βιβλίο βάρδιας',
   },
 };
 const T = {
@@ -55,8 +55,8 @@ const T = {
     shiftDiary:'Schichtbuch', shiftDiaryHint:'Dieses Buch muss geführt werden. Jede Schicht schreibt ihre Seite — nur mit deinem Profil.',
     shiftDiaryPh:'Was geschah in der Schicht? Übergabe, Lager, Kinder, Besonderes…',
     shiftDiarySave:'Ins Buch schreiben', shiftDiarySaved:'Seite im Buch gespeichert',
-    shiftDiaryEmpty:'Noch keine Seiten in diesem Zeitraum.', shiftDiaryTeam:'Frühere Seiten',
-    shiftDiaryMine:'Heutige Seite', typeSHIFT:'Schicht',
+    shiftDiaryEmpty:'Noch keine Seiten an diesem Tag.', shiftDiaryTeam:'Seiten des Teams',
+    shiftDiaryMine:'Meine Seite', typeSHIFT:'Schicht',
     journalMustWrite:'Heutige Seite offen — muss geschrieben werden',
     journalPageDone:'Heutige Seite ist geschrieben',
     journalContinue:'Weiter schreiben (wird angehängt)',
@@ -65,10 +65,18 @@ const T = {
     journalPages:n=>n===1?'1 Seite':`${n} Seiten`,
     journalDutyHome:'Schichtbuch: heutige Seite noch leer',
     journalDutyCta:'Jetzt schreiben',
-    journalInkHint:'Neue Zeilen werden unten an die heutige Seite gehängt — wie Tinte im Buch.',
+    journalInkHint:'Neue Zeilen werden unten an die Seite gehängt — wie Tinte im Buch.',
     journalEmptyPage:'Leere Seite. Schreib, was in der Schicht passiert ist.',
     journalSigned:'gezeichnet',
     journalBrowse:'Seiten lesen',
+    journalDayDone:'Seite für diesen Tag ist geschrieben',
+    journalDayEmpty:'An diesem Tag noch nichts geschrieben',
+    bookCalHint:'Tippe einen Tag — Punkte zeigen Tage mit Einträgen.',
+    bookCalToday:'Heute',
+    bookCalLegend:'Einträge',
+    bookCalPickDay:'Tag wählen',
+    bookDayPages:'Seiten dieses Tages',
+    bookEasyHint:'Einfach: Tag tippen, Seite lesen oder schreiben.',
     typeSTOCKCHECK:'Lagercheck',
     shiftStockCheck:'Schicht-Lagercheck',
     shiftStockCheckHint:'Wer die Schicht beginnt, prüft das Lager in Kalyvia. Tippe ✓ oder „Alles ja“.',
@@ -1048,8 +1056,8 @@ const T = {
     shiftDiary:'Βιβλίο βάρδιας', shiftDiaryHint:'Αυτό το βιβλίο πρέπει να τηρείται. Κάθε βάρδια γράφει τη σελίδα της — μόνο με το προφίλ σου.',
     shiftDiaryPh:'Τι έγινε στη βάρδια; Παράδοση, αποθήκη, παιδιά, κάτι ιδιαίτερο…',
     shiftDiarySave:'Γράψε στο βιβλίο', shiftDiarySaved:'Η σελίδα αποθηκεύτηκε στο βιβλίο',
-    shiftDiaryEmpty:'Καμία σελίδα σε αυτή την περίοδο.', shiftDiaryTeam:'Προηγούμενες σελίδες',
-    shiftDiaryMine:'Σημερινή σελίδα', typeSHIFT:'Βάρδια',
+    shiftDiaryEmpty:'Καμία σελίδα αυτή τη μέρα.', shiftDiaryTeam:'Σελίδες ομάδας',
+    shiftDiaryMine:'Η σελίδα μου', typeSHIFT:'Βάρδια',
     journalMustWrite:'Η σημερινή σελίδα είναι ανοιχτή — πρέπει να γραφτεί',
     journalPageDone:'Η σημερινή σελίδα έχει γραφτεί',
     journalContinue:'Συνέχισε να γράφεις (προστίθεται)',
@@ -1058,10 +1066,18 @@ const T = {
     journalPages:n=>n===1?'1 σελίδα':`${n} σελίδες`,
     journalDutyHome:'Βιβλίο βάρδιας: η σημερινή σελίδα είναι κενή',
     journalDutyCta:'Γράψε τώρα',
-    journalInkHint:'Οι νέες γραμμές μπαίνουν κάτω στη σημερινή σελίδα — σαν μελάνι στο βιβλίο.',
+    journalInkHint:'Οι νέες γραμμές μπαίνουν κάτω στη σελίδα — σαν μελάνι στο βιβλίο.',
     journalEmptyPage:'Κενή σελίδα. Γράψε τι έγινε στη βάρδια.',
     journalSigned:'υπογραφή',
     journalBrowse:'Διάβασε σελίδες',
+    journalDayDone:'Η σελίδα για αυτή τη μέρα έχει γραφτεί',
+    journalDayEmpty:'Αυτή τη μέρα δεν έχει γραφτεί ακόμα τίποτα',
+    bookCalHint:'Πάτα μια μέρα — οι τελείες δείχνουν μέρες με καταχωρήσεις.',
+    bookCalToday:'Σήμερα',
+    bookCalLegend:'Καταχωρήσεις',
+    bookCalPickDay:'Επίλεξε μέρα',
+    bookDayPages:'Σελίδες αυτής της μέρας',
+    bookEasyHint:'Απλό: πάτα μέρα, διάβασε ή γράψε τη σελίδα.',
     typeSTOCKCHECK:'Έλεγχος αποθέματος',
     shiftStockCheck:'Έλεγχος αποθέματος βάρδιας',
     shiftStockCheckHint:'Όποιος ξεκινά τη βάρδια ελέγχει το απόθεμα στο Kalyvia. Πάτα ✓ ή «Όλα ναι».',
@@ -1591,7 +1607,7 @@ const T = {
     adminOnly:'Το μόνιμο πρότυπο το αλλάζουν μόνο η Zoi, ο Angelos και ο Dimitris.',
     whoDidWhat:'Ποιος έκανε τι', today:'Σήμερα', last7:'Τελευταίες 7 ημέρες', last30:'30 ημέρες', bookAll:'Όλα',
     bookHeroTitle:'Τι έγινε', bookHeroHint:'Φίλτρα και μία καθαρή προβολή — όχι όλα μαζί.',
-    bookJournalHero:'Βιβλίο βάρδιας', bookJournalHint:'Ένα βιβλίο που πρέπει να γράφεται. Σήμερα μία σελίδα.',
+    bookJournalHero:'Βιβλίο βάρδιας', bookJournalHint:'Πάτα το ημερολόγιο, διάλεξε μέρα, διάβασε ή γράψε τη σελίδα.',
     bookPaneLog:'Ιστορικό', bookPanePeople:'Άτομα', bookPaneShift:'Βιβλίο βάρδιας',
     bookSearchPh:'Αναζήτηση σε κείμενο, όνομα, τύπο…', bookClearFilters:'Καθαρισμός φίλτρων',
     bookViewTimeline:'Χρονολόγιο', bookViewByDay:'Ανά ημέρα', bookViewCompact:'Συμπαγές',
@@ -3131,6 +3147,8 @@ const state = {
   bookView: 'timeline', // timeline | byDay | compact
   bookJournalMode: 'ink', // ink | rewrite
   bookShowTech: false,
+  bookDate: iso(new Date()),
+  bookCalMonth: iso(new Date()).slice(0, 7) + '-01',
   chatOpen: false,
   chatMode: 'ai', // ai | talk | help
   helpMessages: [],          // active user's transcript (session-only)
@@ -11457,11 +11475,11 @@ function journalDateLabel(dateStr){
     return new Date(y,m-1,d).toLocaleDateString(state.lang==='el'?'el-GR':'de-DE',{weekday:'long',day:'numeric',month:'long'});
   }catch{ return dateStr; }
 }
-function writeShiftJournalPage(employeeId, text, {mode='ink'}={}){
+function writeShiftJournalPage(employeeId, text, {mode='ink', dateStr=null}={}){
   const addition=String(text||'').trim();
   if(!addition) return null;
-  const dateStr=iso(new Date());
-  const key=shiftNoteKey(employeeId, dateStr);
+  const day=dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? dateStr : iso(new Date());
+  const key=shiftNoteKey(employeeId, day);
   DB.shiftNotes=DB.shiftNotes||{};
   const prev=DB.shiftNotes[key];
   let next;
@@ -11472,40 +11490,159 @@ function writeShiftJournalPage(employeeId, text, {mode='ink'}={}){
     const chunk=`${stamp}\n${addition}`;
     next=(prev?.text ? `${prev.text}\n\n${chunk}` : chunk).slice(-8000);
   }
-  const entry={id:key, employeeId, date:dateStr, text:next, ts:Date.now()};
+  const entry={id:key, employeeId, date:day, text:next, ts:Date.now()};
   DB.shiftNotes[key]=entry;
-  logEntry('SHIFT', `${t('typeSHIFT')}: ${addition.slice(0,180)}`, {date:dateStr});
+  logEntry('SHIFT', `${t('typeSHIFT')}: ${addition.slice(0,180)}`, {date:day});
   return entry;
 }
+
+function bookJournalDay(){
+  const d = state.bookDate;
+  if(d && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  return iso(new Date());
+}
+
+function ensureBookCalMonth(){
+  if(!state.bookCalMonth || !/^\d{4}-\d{2}-01$/.test(state.bookCalMonth)){
+    state.bookCalMonth = bookJournalDay().slice(0, 7) + '-01';
+  }
+  return state.bookCalMonth;
+}
+
+function openBookJournal({focusWrite=false, keepDay=false}={}){
+  const today = iso(new Date());
+  if(!keepDay){
+    state.bookDate = today;
+    state.bookCalMonth = today.slice(0,7)+'-01';
+  }else{
+    ensureBookCalMonth();
+  }
+  state.tab = 'book';
+  state.bookPane = 'shift';
+  state.bookJournalMode = 'ink';
+  render();
+  if(focusWrite) queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
+}
+
+function bookJournalMarkersForMonth(y, m){
+  const markers = new Map();
+  Object.values(DB.shiftNotes||{}).forEach(n=>{
+    if(!n || !n.text || !n.date) return;
+    const [yy, mm] = String(n.date).split('-').map(Number);
+    if(yy!==y || mm!==m+1) return;
+    const cur = markers.get(n.date) || {pages:0};
+    cur.pages += 1;
+    markers.set(n.date, cur);
+  });
+  return markers;
+}
+
+function bookCalendarHtml(){
+  const today = iso(new Date());
+  const selected = bookJournalDay();
+  const cm = new Date(ensureBookCalMonth() + 'T12:00:00');
+  const y = cm.getFullYear(), m = cm.getMonth();
+  const markers = bookJournalMarkersForMonth(y, m);
+  const cells = calendarMonthGrid(y, m, markers);
+  const monthName = cm.toLocaleDateString(state.lang==='el'?'el-GR':'de-DE', {month:'long', year:'numeric'});
+  return `<section class="book-cal cal-shell" aria-label="${esc(t('viewCalendar'))}">
+    <div class="cal-head">
+      <button class="btn sm sec cal-nav" type="button" data-book-cal-shift="-1" aria-label="${esc(t('calPrev'))}">${t('calPrev')}</button>
+      <div class="cal-month">
+        <span class="cal-month-kicker">${esc(t('bookCalPickDay'))}</span>
+        <b class="cal-month-title">${esc(monthName)}</b>
+      </div>
+      <button class="btn sm sec cal-nav" type="button" data-book-cal-shift="1" aria-label="${esc(t('calNext'))}">${t('calNext')}</button>
+    </div>
+    <p class="book-cal-hint">${esc(t('bookCalHint'))}</p>
+    <div class="cal-legend" aria-hidden="true">
+      <span><i class="bk"></i>${esc(t('bookCalLegend'))}</span>
+    </div>
+    <div class="cal-weekdays">${DAY_NAMES[state.lang].map(dn=>`<span>${esc(dn.slice(0,2))}</span>`).join('')}</div>
+    <div class="cal-grid" role="grid" aria-label="${esc(monthName)}">${cells.map(c=>{
+      if(!c) return `<div class="cal-cell empty" role="presentation"></div>`;
+      const on = c.ds===selected, isToday = c.ds===today;
+      const has = !!(c.mark && c.mark.pages);
+      const dots = has ? `<span class="cal-dots"><i class="bk"></i></span>` : '';
+      return `<button type="button" class="cal-cell ${on?'on':''} ${isToday?'today':''} ${has?'has':''}" data-book-cal-date="${c.ds}"
+        role="gridcell" aria-pressed="${on?'true':'false'}"
+        aria-label="${esc(c.d + (isToday ? ' · ' + t('today') : '') + (has ? ' · ' + T[state.lang].journalPages(c.mark.pages) : ''))}">
+        <span class="cal-n">${c.d}</span>${dots}</button>`;
+    }).join('')}</div>
+    <div class="book-cal-actions">
+      <button class="btn sm sec" type="button" id="bookCalToday">${esc(t('bookCalToday'))}</button>
+      <span class="muted book-cal-sel">${esc(journalDateLabel(selected))}</span>
+    </div>
+  </section>`;
+}
+
 function shiftDiaryCard(){
   if(!state.user) return `<div class="empty">${t('noUser')}</div>`;
   const today=iso(new Date());
-  const mine=shiftNoteFor(state.user.id, today);
+  const day=bookJournalDay();
+  const isToday=day===today;
+  const mine=shiftNoteFor(state.user.id, day);
   const written=!!(mine?.text||'').trim();
   const mode=state.bookJournalMode==='rewrite'?'rewrite':'ink';
-  const from=bookRangeFromTs();
-  const team=Object.values(DB.shiftNotes||{})
-    .filter(n=>n && n.text && (!from || (n.ts||0)>=from) && !(n.employeeId===state.user.id && n.date===today))
-    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+  const dayPages=Object.values(DB.shiftNotes||{})
+    .filter(n=>n && n.text && n.date===day)
+    .sort((a,b)=>{
+      if(a.employeeId===state.user.id) return -1;
+      if(b.employeeId===state.user.id) return 1;
+      return (b.ts||0)-(a.ts||0);
+    });
+  const team=dayPages.filter(n=>n.employeeId!==state.user.id);
   const pageBody=(mine?.text||'').trim();
+  const dutyLabel = isToday
+    ? (written ? t('journalPageDone') : t('journalMustWrite'))
+    : (written ? t('journalDayDone') : t('journalDayEmpty'));
+  const dutyCls = written ? 'ok' : (isToday ? 'must' : 'ok');
+  const proArchive = isPro() ? (()=>{
+    const from=bookRangeFromTs();
+    const archive=Object.values(DB.shiftNotes||{})
+      .filter(n=>n && n.text && n.date!==day && (!from || (n.ts||0)>=from))
+      .sort((a,b)=>(b.ts||0)-(a.ts||0))
+      .slice(0,40);
+    return `<section class="journal-archive pro-only mode-pro-block">
+      <div class="row between book-panel-head">
+        <h2 style="font-size:15px">${t('journalBrowse')}</h2>
+        <span class="pill gray">${T[state.lang].journalPages(archive.length)} · ${esc(bookRangeLabel())}</span>
+      </div>
+      ${archive.length ? archive.map(n=>{
+        const e=emp(n.employeeId);
+        return `<article class="journal-past-page" data-book-cal-date="${esc(n.date||'')}" role="button" tabindex="0">
+          <header>
+            <div class="avatar" style="background:${e?.color||'#94a3b8'}">${esc(e?initials(e.name):'?')}</div>
+            <div class="grow">
+              <b>${esc(e?.name||'—')}</b>
+              <span class="muted">${esc(journalDateLabel(n.date))} · ${esc(n.date)}</span>
+            </div>
+            <span class="muted">${fmtDT(n.ts)}</span>
+          </header>
+          <div class="journal-ink past">${esc(n.text)}</div>
+        </article>`;
+      }).join('') : `<div class="empty">${t('shiftDiaryEmpty')}</div>`}
+    </section>`;
+  })() : '';
 
   return `<div class="journal-book">
-    <div class="journal-duty ${written?'ok':'must'}">
-      <span>${written?t('journalPageDone'):t('journalMustWrite')}</span>
-      <span class="pill ${written?'in':'out'}">${written?'✓':'!'}</span>
+    ${bookCalendarHtml()}
+    <div class="journal-duty ${dutyCls}">
+      <span>${dutyLabel}</span>
+      <span class="pill ${written?'in':(isToday?'out':'gray')}">${written?'✓':(isToday?'!':'·')}</span>
     </div>
-    ${shiftStockCheckBannerHtml()}
+    ${isToday ? shiftStockCheckBannerHtml() : ''}
     <article class="journal-spread" aria-label="${esc(t('shiftDiaryMine'))}">
       <div class="journal-spine" aria-hidden="true"></div>
       <div class="journal-page">
         <header class="journal-page-head">
           <div>
             <div class="journal-kicker">${esc(t('shiftDiary'))}</div>
-            <h2>${esc(journalDateLabel(today))}</h2>
+            <h2>${esc(journalDateLabel(day))}</h2>
           </div>
           <div class="journal-page-meta">
             <span>${esc(state.user.name)}</span>
-            <span>${esc(today)}</span>
+            <span>${esc(day)}</span>
           </div>
         </header>
         <div class="journal-ruled">
@@ -11532,8 +11669,8 @@ function shiftDiaryCard(){
     </div>
     <section class="journal-archive">
       <div class="row between book-panel-head">
-        <h2 style="font-size:15px">${t('journalBrowse')}</h2>
-        <span class="pill gray">${T[state.lang].journalPages(team.length)} · ${esc(bookRangeLabel())}</span>
+        <h2 style="font-size:15px">${t('bookDayPages')}</h2>
+        <span class="pill gray">${T[state.lang].journalPages(dayPages.length)}</span>
       </div>
       ${team.length ? team.map(n=>{
         const e=emp(n.employeeId);
@@ -11548,8 +11685,11 @@ function shiftDiaryCard(){
           </header>
           <div class="journal-ink past">${esc(n.text)}</div>
         </article>`;
-      }).join('') : `<div class="empty">${t('shiftDiaryEmpty')}</div>`}
+      }).join('') : (written
+        ? `<div class="empty muted">${esc(t('shiftDiaryTeam'))}: —</div>`
+        : `<div class="empty">${t('shiftDiaryEmpty')}</div>`)}
     </section>
+    ${proArchive}
   </div>`;
 }
 
@@ -17659,11 +17799,7 @@ function wire(){
   const homeShiftJournal=v.querySelector('#homeShiftJournal');
   if(homeShiftJournal) homeShiftJournal.onclick=()=>{
     feedback('open');
-    state.tab='book';
-    state.bookPane='shift';
-    state.bookJournalMode='ink';
-    render();
-    queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
+    openBookJournal({focusWrite:true});
   };
   const homeShiftEnd=v.querySelector('#homeShiftEnd');
   if(homeShiftEnd) homeShiftEnd.onclick=()=>{ feedback('open'); sheetShiftEnd(); };
@@ -18533,15 +18669,27 @@ document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   };
 });
 function sheetMobileMore(){
-  const items=[
-    ['gallery','u-camera',t('navGallery')],
-    ['talk','u-chat',t('navTalk')],
-    ['book','u-book',t('navBook')],
+  const easy = isEasy();
+  /* Easy: fewer, larger destinations. Pro: full overflow list. */
+  const items = [
+    {tab:'gallery', ico:'u-camera', label:t('navGallery')},
+    {tab:'talk', ico:'u-chat', label:t('navTalk')},
+    {tab:'book', ico:'u-book', label:t('navBook')},
   ];
-  openSheet(`<div class="mobile-more-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2></div>
-    <div class="mobile-more-grid">${items.map(([tab,icon,label])=>`<button type="button" data-more-tab="${tab}"><svg class="ui-ico" aria-hidden="true"><use href="#${icon}"/></svg><span>${esc(label)}</span><b aria-hidden="true">→</b></button>`).join('')}
-      <button type="button" data-more-chat><svg class="ui-ico" aria-hidden="true"><use href="#u-sparkle"/></svg><span>${esc(t('navChat'))}</span><b aria-hidden="true">→</b></button>
-      <button type="button" data-more-feedback><svg class="ui-ico" aria-hidden="true"><use href="#u-note"/></svg><span>${esc(t('feedbackNav'))}</span><b aria-hidden="true">→</b></button>
+  const extras = [
+    {act:'chat', ico:'u-sparkle', label:t('navChat'), pro:true},
+    {act:'feedback', ico:'u-note', label:t('feedbackNav'), pro:true},
+  ].filter(r=>!r.pro || !easy);
+  openNavMenu(`<div class="nav-menu-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2></div>
+    <div class="nav-menu-list" role="menu">
+      ${items.map(r=>navMenuRowHtml({
+        attrs:`data-more-tab="${r.tab}" role="menuitem"`,
+        ico:r.ico, label:r.label,
+      })).join('')}
+      ${extras.map(r=>navMenuRowHtml({
+        attrs:`data-more-act="${r.act}" role="menuitem"`,
+        ico:r.ico, label:r.label,
+      })).join('')}
     </div>`);
   sheetEl.querySelectorAll('[data-more-tab]').forEach(btn=>btn.onclick=()=>{
     closeSheet();
@@ -18553,10 +18701,12 @@ function sheetMobileMore(){
     render();
     requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
   });
-  const chat=sheetEl.querySelector('[data-more-chat]');
-  if(chat) chat.onclick=()=>{ closeSheet(); toggleChatPanel(); };
-  const fb=sheetEl.querySelector('[data-more-feedback]');
-  if(fb) fb.onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
+  sheetEl.querySelectorAll('[data-more-act]').forEach(btn=>btn.onclick=()=>{
+    const act = btn.dataset.moreAct;
+    closeSheet();
+    if(act==='chat') toggleChatPanel();
+    else if(act==='feedback') sheetFeedbackHub();
+  });
 }
 document.getElementById('dockMore')?.addEventListener('click', ()=>{
   feedback('tap');
@@ -20078,7 +20228,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||159;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||161;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
