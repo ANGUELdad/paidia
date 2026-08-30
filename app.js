@@ -136,6 +136,13 @@ const T = {
     addedToShopping:'Zur Einkaufsliste hinzugefügt', alreadyPlanned:'Bereits auf der Einkaufsliste',
     stockSearch:'Produkt suchen…', stockAttention:'Achtung', stockAll:'Alle', stockEmpty:'Leer',
     stockTilesOn:'Kacheln', stockTilesOff:'Liste',
+    uiModeLabel:'Bedienung', uiModeEasy:'Einfach', uiModePro:'Pro',
+    uiModeEasyHint:'Weniger Knöpfe, große Ziele, klare Schritte',
+    uiModeProHint:'Alle Filter, Bulk-Aktionen und Feineinstellungen',
+    uiModeGlobal:'Standard für alle Seiten',
+    uiModePage:'Nur diese Seite',
+    uiModeResetPages:'Seiten-Ausnahmen zurücksetzen',
+    uiModeHint:'Einfach = weniger Optionen. Pro = alles. Umschalter oben gilt für die aktuelle Seite.',
     stockHealthy:'Gut versorgt', stockLow:'Wenig', stockOutState:'Leer', productTypes:'Produkte',
     noStockResults:'Keine passenden Produkte gefunden.', openShopping:'Zur Einkaufsliste', missingFromShop:n=>`${n} Fehlmenge${n===1?'':'n'} aus dem Einkauf`,
     inTitle:'Eingang Lager', outTitle:'Ausgang Lager',
@@ -919,6 +926,13 @@ const T = {
     addedToShopping:'Προστέθηκε στη λίστα αγορών', alreadyPlanned:'Υπάρχει ήδη στη λίστα αγορών',
     stockSearch:'Αναζήτηση προϊόντος…', stockAttention:'Προσοχή', stockAll:'Όλα', stockEmpty:'Άδεια',
     stockTilesOn:'Πλακίδια', stockTilesOff:'Λίστα',
+    uiModeLabel:'Λειτουργία', uiModeEasy:'Απλό', uiModePro:'Pro',
+    uiModeEasyHint:'Λιγότερα κουμπιά, μεγάλοι στόχοι, καθαρά βήματα',
+    uiModeProHint:'Όλα τα φίλτρα, μαζικές ενέργειες και λεπτομέρειες',
+    uiModeGlobal:'Προεπιλογή για όλες τις σελίδες',
+    uiModePage:'Μόνο αυτή η σελίδα',
+    uiModeResetPages:'Επαναφορά εξαιρέσεων σελίδων',
+    uiModeHint:'Απλό = λιγότερες επιλογές. Pro = όλα. Ο διακόπτης πάνω ισχύει για την τρέχουσα σελίδα.',
     stockHealthy:'Επαρκές', stockLow:'Λίγο', stockOutState:'Άδειο', productTypes:'Προϊόντα',
     noStockResults:'Δεν βρέθηκαν προϊόντα.', openShopping:'Στη λίστα αγορών', missingFromShop:n=>`${n} ${n===1?'έλλειψη':'ελλείψεις'} από τα ψώνια`,
     inTitle:'Είσοδος αποθήκης', outTitle:'Έξοδος αποθήκης',
@@ -2604,6 +2618,182 @@ function helpRoleLabel(){
 }
 const currentProfileId = () => state.mode==='child' ? state.child?.id : state.user?.id;
 
+
+/* ── Easy / Pro ──────────────────────────────────────────────────────
+   Contract: body.mode-easy XOR body.mode-pro (+ data-density / data-ui-mode).
+   Global: localStorage paidia.uiMode + profilePrefs._uiMode (staff sync).
+   Per-page: paidia.uiModePages. Blocks: .pro-only / .mode-pro-block /
+   .easy-only (and sibling .mode-easy-block stays visible in both). */
+const UI_MODE_KEY = 'paidia.uiMode';
+const UI_MODE_PAGES_KEY = 'paidia.uiModePages';
+
+function uiModePageKey(){
+  if(state.mode==='child'){
+    let v = state.childView || 'today';
+    if(v==='game') v = 'games';
+    if(state.gameId && (v==='learn'||v==='games')) v = 'games';
+    if(['rate','bonus','notes','games','today','plan','learn','rewards','aufgaben'].includes(v)) return 'kid:'+v;
+    return 'kid:today';
+  }
+  return 'staff:'+(state.tab||'home');
+}
+
+function readUiModeGlobal(){
+  try{
+    const local = localStorage.getItem(UI_MODE_KEY);
+    if(local==='easy'||local==='pro') return local;
+  }catch{}
+  const id = currentProfileId();
+  const synced = id && DB.profilePrefs && DB.profilePrefs._uiMode && DB.profilePrefs._uiMode[id];
+  if(synced && (synced.global==='easy'||synced.global==='pro')) return synced.global;
+  return 'easy';
+}
+
+function readUiModePages(){
+  let pages = {};
+  try{ pages = JSON.parse(localStorage.getItem(UI_MODE_PAGES_KEY)||'{}')||{}; }catch{}
+  if(!pages || typeof pages!=='object') pages = {};
+  const id = currentProfileId();
+  const synced = id && DB.profilePrefs && DB.profilePrefs._uiMode && DB.profilePrefs._uiMode[id];
+  if(synced && synced.pages && typeof synced.pages==='object'){
+    pages = Object.assign({}, synced.pages, pages);
+  }
+  return pages;
+}
+
+function uiMode(){
+  const pages = readUiModePages();
+  const key = uiModePageKey();
+  if(pages[key]==='easy'||pages[key]==='pro') return pages[key];
+  return readUiModeGlobal()==='pro' ? 'pro' : 'easy';
+}
+
+function isPro(){ return uiMode()==='pro'; }
+function isEasy(){ return uiMode()!=='pro'; }
+
+function persistUiModePrefs(globalMode, pages){
+  try{
+    if(globalMode==='easy'||globalMode==='pro') localStorage.setItem(UI_MODE_KEY, globalMode);
+    if(pages && typeof pages==='object') localStorage.setItem(UI_MODE_PAGES_KEY, JSON.stringify(pages));
+  }catch{}
+  const id = currentProfileId();
+  if(!id || state.mode!=='staff') return false;
+  DB.profilePrefs = DB.profilePrefs || {};
+  DB.profilePrefs._uiMode = DB.profilePrefs._uiMode || {};
+  DB.profilePrefs._uiMode[id] = {
+    global: (globalMode==='easy'||globalMode==='pro') ? globalMode : readUiModeGlobal(),
+    pages: pages && typeof pages==='object' ? pages : readUiModePages(),
+    updatedAt: Date.now(),
+  };
+  return true;
+}
+
+function setUiMode(mode, {scope='page'}={}){
+  mode = mode==='pro' ? 'pro' : 'easy';
+  let pages = readUiModePages();
+  let globalMode = readUiModeGlobal();
+  if(scope==='global'){
+    globalMode = mode;
+    delete pages[uiModePageKey()];
+  }else if(scope==='reset'){
+    pages = {};
+  }else{
+    pages = Object.assign({}, pages, {[uiModePageKey()]: mode});
+  }
+  if(persistUiModePrefs(globalMode, pages)) save();
+  normalizeUiModeSurfaces();
+  applyUiModeClass();
+  render();
+}
+
+function normalizeUiModeSurfaces(){
+  if(!isEasy()) return;
+  if(state.mode==='staff' && state.tab==='schedule' && !['day','week'].includes(state.scheduleView)){
+    /* Keep roster day/week; advanced calendar/shift/events are Pro chrome. */
+    state.scheduleView = 'day';
+  }
+  if(state.mode==='staff' && state.tab==='book' && state.bookPane!=='shift'){
+    state.bookPane = 'shift';
+  }
+  if(state.mode==='staff' && state.tab==='kids' && state.kidsPane && state.kidsPane!=='directory'){
+    state.kidsPane = 'directory';
+  }
+  if(state.mode==='staff' && state.selectMode){
+    state.selectMode = null;
+    state.selectedIds = [];
+  }
+}
+
+function uiModeToggleHtml({compact=false, scope='page'}={}){
+  const mode = uiMode();
+  const sc = scope==='global' ? 'global' : 'page';
+  return `<div class="ui-mode-seg${compact?' is-compact':''}" role="group" aria-label="${esc(t('uiModeLabel'))}" data-ui-mode-scope="${sc}">
+    <button type="button" class="${mode==='easy'?'on':''}" data-set-ui-mode="easy" data-ui-scope="${sc}" title="${esc(t('uiModeEasyHint'))}">
+      ${ui('u-leaf','sm')}<span>${esc(t('uiModeEasy'))}</span>
+    </button>
+    <button type="button" class="${mode==='pro'?'on':''}" data-set-ui-mode="pro" data-ui-scope="${sc}" title="${esc(t('uiModeProHint'))}">
+      ${ui('u-sparkle','sm')}<span>${esc(t('uiModePro'))}</span>
+    </button>
+  </div>`;
+}
+
+function applyUiModeClass(){
+  const mode = uiMode();
+  const easy = mode==='easy';
+  document.body.classList.toggle('mode-easy', easy);
+  document.body.classList.toggle('mode-pro', !easy);
+  document.body.classList.remove('ui-easy','ui-pro','easy-mode','density-pro');
+  document.body.dataset.uiMode = mode;
+  document.body.dataset.density = mode;
+  document.querySelectorAll('#uiModeToggle [data-set-ui-mode], .ui-mode-seg [data-set-ui-mode]').forEach(btn=>{
+    btn.classList.toggle('on', btn.dataset.setUiMode===mode);
+    btn.setAttribute('aria-pressed', btn.dataset.setUiMode===mode?'true':'false');
+  });
+  const top = document.getElementById('uiModeToggle');
+  if(top) top.setAttribute('aria-label', t('uiModeLabel')+': '+(easy?t('uiModeEasy'):t('uiModePro')));
+}
+
+function wireUiModeControls(root=document){
+  root.querySelectorAll('[data-set-ui-mode]').forEach(btn=>{
+    if(btn.dataset.uiModeWired==='1') return;
+    btn.dataset.uiModeWired = '1';
+    btn.addEventListener('click', ev=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      feedback('tap');
+      setUiMode(btn.dataset.setUiMode, {scope: btn.dataset.uiScope==='global'?'global':'page'});
+    });
+  });
+  const resetBtn = root.querySelector('#uiModeResetPages');
+  if(resetBtn && resetBtn.dataset.uiModeWired!=='1'){
+    resetBtn.dataset.uiModeWired = '1';
+    resetBtn.addEventListener('click', ()=>{
+      feedback('tap');
+      setUiMode(readUiModeGlobal(), {scope:'reset'});
+      toast(t('uiModeResetPages'), 'success');
+    });
+  }
+}
+
+function paintUiModeToggle(){
+  const host = document.getElementById('uiModeToggle');
+  if(!host) return;
+  const mode = uiMode();
+  host.hidden = !(state.user || state.child);
+  host.innerHTML = `
+    <button type="button" class="ui-mode-btn ${mode==='easy'?'on':''}" data-set-ui-mode="easy" data-ui-scope="page" title="${esc(t('uiModeEasyHint'))}" aria-pressed="${mode==='easy'?'true':'false'}">
+      ${ui('u-leaf','sm')}<span>${esc(t('uiModeEasy'))}</span>
+    </button>
+    <button type="button" class="ui-mode-btn ${mode==='pro'?'on':''}" data-set-ui-mode="pro" data-ui-scope="page" title="${esc(t('uiModeProHint'))}" aria-pressed="${mode==='pro'?'true':'false'}">
+      ${ui('u-sparkle','sm')}<span>${esc(t('uiModePro'))}</span>
+    </button>`;
+  host.setAttribute('aria-label', t('uiModeLabel'));
+  host.querySelectorAll('[data-set-ui-mode]').forEach(btn=>{ btn.dataset.uiModeWired=''; });
+  wireUiModeControls(host);
+  applyUiModeClass();
+}
+
+
 function onboardingStorageKey(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
   return `paidia-onboarding:${profileId||'_'}:${mode}:${Number(version)||0}`;
 }
@@ -4095,15 +4285,16 @@ function viewGallery(){
   return `<div class="gal-shell">
     <div class="gal-hero ${hasFeed?'compact':''}">
       <div class="brand-kicker">Armonia Thassos</div>
+      <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
       <h2>${t('galleryTitle')}</h2>
       ${hasFeed?'':`<p>${t('galleryHint')}</p><p class="gal-safe-line">${esc(t('gallerySafeHint'))}</p>`}
-      <p class="gal-drive-line">${esc(state.galleryDrive?t('galleryDriveOn'):t('galleryDriveOff'))}</p>
+      <p class="gal-drive-line pro-only mode-pro-block">${esc(state.galleryDrive?t('galleryDriveOn'):t('galleryDriveOff'))}</p>
     </div>
     <div class="gal-compose-bar">
       <button class="gal-fab" type="button" id="galShare" aria-label="${esc(t('galleryShare'))}">
         <span>${ui('u-camera')}</span><b>${esc(t('galleryNewPost'))}</b>
       </button>
-      <button class="gal-refresh" type="button" id="galRefresh" aria-label="refresh">↻</button>
+      <button class="gal-refresh pro-only mode-pro-block" type="button" id="galRefresh" aria-label="refresh">↻</button>
     </div>
     ${state.galleryLoading && !posts.length?`<div class="empty">${esc(t('galleryLoading'))}</div>`:''}
     <div class="gal-feed" id="galFeed">
@@ -4426,11 +4617,12 @@ function viewTalk(){
     <header class="talk-overview">
       <div class="talk-overview-copy">
         <div class="brand-kicker">${esc(t('staffTalkChannel'))} · Armonia Thassos</div>
+        <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
         <h2>${esc(t('staffTalkTitle'))}</h2>
         <p>${esc(t('staffTalkIntro'))}</p>
         <span class="talk-private">${ui('u-person')} ${esc(t('staffTalkPrivate'))}</span>
       </div>
-      <div class="talk-overview-stats" aria-label="${esc(t('staffTalkTitle'))}">
+      <div class="talk-overview-stats pro-only mode-pro-block" aria-label="${esc(t('staffTalkTitle'))}">
         <div><b id="talkMessageCount">${cachedMessages}</b><span>${esc(t('staffTalkMessages'))}</span></div>
         <div><b id="talkOpenCount">${cachedOpen}</b><span>${esc(t('staffTalkOpenCount'))}</span></div>
         <div><b id="talkDoneCount">${cachedDone}</b><span>${esc(t('staffTalkDoneCount'))}</span></div>
@@ -4451,7 +4643,7 @@ function viewTalk(){
         <input id="talkTopicInput" maxlength="400" autocomplete="off" placeholder="${esc(t('staffTalkTopicPh'))}">
         <button class="btn sm" type="button" id="talkTopicAdd">${esc(t('staffTalkAddTopic'))}</button>
       </div>
-      <div class="talk-topic-actions">
+      <div class="talk-topic-actions pro-only mode-pro-block">
         <button class="btn ghost sm" type="button" id="talkTopicSuggest">${esc(t('staffTalkSuggest'))}</button>
         <button class="btn ghost sm" type="button" id="talkTopicClear">${esc(t('staffTalkClearDone'))}</button>
       </div>
@@ -4461,7 +4653,7 @@ function viewTalk(){
         <div class="talk-channel-mark">${ui('u-chat')}</div>
         <div><h3>${esc(t('staffTalkChat'))}</h3><span><i></i>${esc(t('staffTalkLive'))}</span></div>
         <div class="talk-channel-actions">
-          <button class="btn ghost sm" type="button" id="talkVideoOpen">${ui('u-camera')} ${esc(t('staffTalkVideoOpen'))}</button>
+          <button class="btn ghost sm pro-only mode-pro-block" type="button" id="talkVideoOpen">${ui('u-camera')} ${esc(t('staffTalkVideoOpen'))}</button>
           <button class="btn ghost sm" type="button" id="talkToZoAi">${ui('u-sparkle')} Zo-Ai</button>
         </div>
       </header>
@@ -5957,9 +6149,9 @@ function viewSchedule(){
         <div class="seg planner-seg" id="schView" role="tablist" aria-label="${esc(t('filterView'))}">
           ${viewBtn('day','u-calendar',t('viewDay'))}
           ${viewBtn('week','u-tasks',t('viewWeek'))}
-          ${viewBtn('calendar','u-calendar',t('viewCalendar'),calShort)}
+          <span class="pro-only mode-pro-block contents">${viewBtn('calendar','u-calendar',t('viewCalendar'),calShort)}
           ${viewBtn('shift','u-clock',t('viewShift'))}
-          ${viewBtn('events','u-megaphone',t('viewEvents'),eventsShort)}
+          ${viewBtn('events','u-megaphone',t('viewEvents'),eventsShort)}</span>
         </div>
         ${showHouse?`<div class="seg planner-seg planner-seg-house house-selector" id="hFilter" role="tablist" aria-label="${esc(t('filterHouse'))}">
           <button type="button" class="${state.houseFilter===''?'on':''}" data-h="" title="${esc(t('all'))}" aria-label="${esc(t('all'))}">${esc(t('all'))}</button>
@@ -5967,10 +6159,11 @@ function viewSchedule(){
         </div>`:''}`;
   return `
     <div class="planner ${sv==='day'?'plan-day':sv==='week'?'plan-week':sv==='calendar'?'plan-calendar':sv==='shift'?'plan-shift':'plan-events'}">
+      <div class="ui-mode-row plan-mode-row">${uiModeToggleHtml({compact:true})}</div>
       <div class="planner-focus-switch" role="tablist" aria-label="${esc(t('filterView'))}">
         ${viewBtn('day','u-calendar',t('viewDay'))}
         ${viewBtn('week','u-tasks',t('viewWeek'))}
-        <button type="button" class="planner-more-toggle" id="plannerMoreToggle" aria-label="${esc(t('menuFilters'))}"><b aria-hidden="true">···</b><span>${esc(t('navMore'))}</span></button>
+        <button type="button" class="planner-more-toggle pro-only mode-pro-block" id="plannerMoreToggle" aria-label="${esc(t('menuFilters'))}"><b aria-hidden="true">···</b><span>${esc(t('navMore'))}</span></button>
       </div>
       ${showHouse?`<div class="planner-mobile-house" role="tablist" aria-label="${esc(t('filterHouse'))}">
         <button type="button" class="${state.houseFilter===''?'on':''}" data-plan-house="">${esc(t('all'))}</button>
@@ -6438,7 +6631,7 @@ function viewStock(){
 
   return `<div class="stock-shell">
     <header class="stock-overview">
-      <div class="stock-overview-copy"><p class="brand-kicker">${esc(t('headerStock'))}</p><h2>${esc(location)}</h2><span>${esc(t('stockHeroHint'))}</span></div>
+      <div class="stock-overview-copy"><p class="brand-kicker">${esc(t('headerStock'))}</p><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div><h2>${esc(location)}</h2><span>${esc(t('stockHeroHint'))}</span></div>
       <div class="stock-health-ring" style="--stock-health:${healthyPct*3.6}deg" aria-label="${esc(T[state.lang].inventoryHealthyPct(healthyPct))}"><div><b>${healthyPct}%</b><span>${esc(t('stockHealthy'))}</span></div></div>
     </header>
     <div class="stock-command" aria-label="${esc(t('headerStock'))}">
@@ -6449,7 +6642,7 @@ function viewStock(){
       <div class="stock-command-row">
         <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
         ${hid!=='all'?`<button class="btn stock-primary-action" type="button" id="stockOpenBoard"><span aria-hidden="true">↕</span> ${esc(t('stockBoardShort'))}</button>`:''}
-        <details class="stock-more"><summary aria-label="${esc(t('stockMoreActions'))}">•••</summary><div class="stock-more-popover">
+        <details class="stock-more pro-only mode-pro-block"><summary aria-label="${esc(t('stockMoreActions'))}">•••</summary><div class="stock-more-popover">
           ${hid==='all'?`<button class="stock-more-action ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle">${state.stockTiles?'▦':'☰'} ${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}</button>`:''}
           ${hid!=='all'?`<button class="stock-more-action ${state.selectMode==='stock'?'on':''}" type="button" id="stockSelectToggle">☑ ${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}</button>
           <button class="stock-more-action" type="button" id="stockQuickFood">＋ ${esc(t('stockAddFoodShort'))}</button>
@@ -6460,7 +6653,7 @@ function viewStock(){
     <div class="stock-view-tabs" role="toolbar" aria-label="${esc(t('menuFilters'))}">
       <button type="button" class="${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b><span>${esc(t('stockAttention'))}</span><small>${counts.empty} ${esc(t('stockEmpty'))} · ${counts.low} ${esc(t('stockLow'))}</small></button>
       <button type="button" class="${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b><span>${esc(t('stockEmpty'))}</span><small>${esc(t('stockOutState'))}</small></button>
-      <button type="button" class="${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b><span>${esc(t('stockAll'))}</span><small>${esc(t('stockCatalogue'))}</small></button>
+      <button type="button" class="pro-only mode-pro-block ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b><span>${esc(t('stockAll'))}</span><small>${esc(t('stockCatalogue'))}</small></button>
     </div>
     ${shiftPresenceBannerHtml()}
     ${shiftStockCheckBannerHtml()}
@@ -7627,7 +7820,7 @@ function viewShop(){
   const shopSelecting = state.selectMode==='shop' && !inStore;
   const storeSelecting = state.selectMode==='store' && inStore;
   const hero=inStore?'':`<header class="shop-overview">
-      <div class="shop-overview-copy"><p class="brand-kicker">${esc(t('shopTitle'))}</p><h2>${esc(house(hid).short)}</h2><span>${esc(fridayText(friday))} · ${esc(T[state.lang].shopOverviewHint(open.length))}</span></div>
+      <div class="shop-overview-copy"><p class="brand-kicker">${esc(t('shopTitle'))}</p><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div><h2>${esc(house(hid).short)}</h2><span>${esc(fridayText(friday))} · ${esc(T[state.lang].shopOverviewHint(open.length))}</span></div>
       <div class="shop-overview-stats" role="group" aria-label="${esc(t('shopTitle'))}">
         <div><b>${open.length}</b><span>${esc(t('secOpen'))}</span></div>
         <div><b>${lowStockCount}</b><span>${esc(t('stockAttention'))}</span></div>
@@ -7648,7 +7841,7 @@ function viewShop(){
           <button class="${state.shopPanel==='plan'?'on':''}" data-shop-panel="plan" type="button">${t('shopPlan')}</button>
           <button class="${state.shopPanel==='take'?'on':''}" data-shop-panel="take" type="button">${t('shopTake')}</button>
         </div>
-        <details class="shop-more"><summary aria-label="${esc(t('shopMoreActions'))}">•••</summary><div class="shop-more-popover">
+        <details class="shop-more pro-only mode-pro-block"><summary aria-label="${esc(t('shopMoreActions'))}">•••</summary><div class="shop-more-popover">
           <button class="shop-more-action ${shopSelecting?'on':''}" type="button" id="shopSelectToggle">☑ ${esc(shopSelecting?t('selectDone'):t('selectMode'))}</button>
           <button class="shop-more-action" type="button" data-page-act="shopScan">${ui('u-camera','sm')} ${esc(t('topScan'))}</button>
           <button class="shop-more-action" type="button" id="importList">${ui('u-receipt','sm')} ${esc(t('importList'))}</button>
@@ -7656,7 +7849,7 @@ function viewShop(){
         </div></details>
       </div>
       ${state.shopPanel==='plan'?`<div class="shop-add-row"><div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋ <span>${esc(t('addToCart'))}</span></button></div>
-        <button class="btn sec sm shop-auto-fill" type="button" id="shopAutoFill">${ui('u-sparkle','sm')} ${t('shopAutoFill')}</button></div>`:''}
+        <button class="btn sec sm shop-auto-fill pro-only mode-pro-block" type="button" id="shopAutoFill">${ui('u-sparkle','sm')} ${t('shopAutoFill')}</button></div>`:''}
     </section>`;
 
   const takeListCard = (!inStore && state.shopPanel==='take') ? (()=>{
@@ -8839,13 +9032,14 @@ function viewBook(){
   return `<div class="book-page">
     <header class="book-hero ${pane==='shift'?'journal':''}">
       <div class="brand-kicker">Armonia Thassos</div>
+      <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
       <h2 class="tide-line">${esc(heroTitle)}</h2>
       <p>${esc(heroHint)}</p>
     </header>
     <div class="book-panes" role="tablist">
       <button type="button" role="tab" class="book-pane-btn ${pane==='shift'?'on':''}" data-book-pane="shift" aria-selected="${pane==='shift'}">${esc(t('bookPaneShift'))}</button>
-      <button type="button" role="tab" class="book-pane-btn ${pane==='log'?'on':''}" data-book-pane="log" aria-selected="${pane==='log'}">${esc(t('bookPaneLog'))}</button>
-      <button type="button" role="tab" class="book-pane-btn ${pane==='people'?'on':''}" data-book-pane="people" aria-selected="${pane==='people'}">${esc(t('bookPanePeople'))}</button>
+      <button type="button" role="tab" class="book-pane-btn pro-only mode-pro-block ${pane==='log'?'on':''}" data-book-pane="log" aria-selected="${pane==='log'}">${esc(t('bookPaneLog'))}</button>
+      <button type="button" role="tab" class="book-pane-btn pro-only mode-pro-block ${pane==='people'?'on':''}" data-book-pane="people" aria-selected="${pane==='people'}">${esc(t('bookPanePeople'))}</button>
     </div>
     ${pane!=='shift' ? adaptiveChrome(bookFiltersHtml(), filterMeta) : adaptiveChrome(`
       <div class="page-actions book-toolbar" role="toolbar">
@@ -9929,6 +10123,7 @@ function childStartView(c){
   return `
     <header class="kid-header tide-reveal">
       <p class="eyebrow">Armonia</p>
+      <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
       <h2>${esc(t('kidHello')(c.name))}</h2>
       <p class="kid-hello">${esc(lvName)} · ${esc(t('xpLevel')(lv))}</p>
     </header>
@@ -9959,9 +10154,9 @@ function childStartView(c){
       <button type="button" class="chip" data-child-view="rate">${esc(t('kidNavRate'))}</button>
       <button type="button" class="chip" data-child-view="bonus">${esc(t('kidBonusTitle'))}</button>
       <button type="button" class="chip" data-child-view="notes">${esc(t('kidNotesTitle'))}</button>
-      <button type="button" class="chip" data-child-view="events">${esc(t('childEvents'))}</button>
-      <button type="button" class="chip" data-child-view="gallery">${esc(t('galleryChildTab'))}</button>
-      <button type="button" class="chip" id="childHowToBtn">${esc(t('childHowTo'))}</button>
+      <button type="button" class="chip pro-only mode-pro-block" data-child-view="events">${esc(t('childEvents'))}</button>
+      <button type="button" class="chip pro-only mode-pro-block" data-child-view="gallery">${esc(t('galleryChildTab'))}</button>
+      <button type="button" class="chip pro-only mode-pro-block" id="childHowToBtn">${esc(t('childHowTo'))}</button>
     </div>
     ${teamNoticeBannerHtml()}
   `;
@@ -10218,10 +10413,10 @@ function viewKids(){
   </section>`;
   const tabs=`<div class="kids-pane-tabs" role="tablist">
     <button type="button" class="chip ${pane==='directory'?'on':''}" data-kids-pane="directory">${esc(t('navKids'))}</button>
-    <button type="button" class="chip ${pane==='attendance'?'on':''}" data-kids-pane="attendance">${esc(t('schoolAttendance'))}</button>
-    <button type="button" class="chip ${pane==='homework'?'on':''}" data-kids-pane="homework">${esc(t('schoolHomework'))}</button>
-    <button type="button" class="chip ${pane==='timetable'?'on':''}" data-kids-pane="timetable">${esc(t('schoolTimetable'))}</button>
-    ${isAdminUser()?`<button type="button" class="chip ${pane==='subjects'?'on':''}" data-kids-pane="subjects">${esc(t('schoolSubjects'))}</button>`:''}
+    <button type="button" class="chip pro-only mode-pro-block ${pane==='attendance'?'on':''}" data-kids-pane="attendance">${esc(t('schoolAttendance'))}</button>
+    <button type="button" class="chip pro-only mode-pro-block ${pane==='homework'?'on':''}" data-kids-pane="homework">${esc(t('schoolHomework'))}</button>
+    <button type="button" class="chip pro-only mode-pro-block ${pane==='timetable'?'on':''}" data-kids-pane="timetable">${esc(t('schoolTimetable'))}</button>
+    ${isAdminUser()?`<button type="button" class="chip pro-only mode-pro-block ${pane==='subjects'?'on':''}" data-kids-pane="subjects">${esc(t('schoolSubjects'))}</button>`:''}
   </div>`;
   let body='';
   if(pane==='directory') body=`${overview}<div class="kid-dir-list">${dir||emptyState(ui('u-person'), t('kidsEmpty'))}</div>`;
@@ -10233,6 +10428,7 @@ function viewKids(){
   return `<div class="kids-shell">
     <header class="ops-hero kids-hero hero-texture">
       <p class="brand-kicker">Armonia</p>
+      <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
       <h2>${esc(t('titleKids'))}</h2>
       <p>${esc(t('kidsHeroHint'))}</p>
     </header>
@@ -10877,7 +11073,8 @@ function childBewertungenView(kidId){
     </div>`;
   }).join('');
 
-  return `${childStaffRatingHtml(kidId)}
+  return `<div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    ${childStaffRatingHtml(kidId)}
     <section class="kid-card mode-easy-block">
       <h2>${esc(t('kidRateTitle'))}</h2>
       <p class="muted">${esc(t('kidRateLead'))}</p>
@@ -10929,14 +11126,15 @@ function childBonusView(kidId){
       <span class="kid-bonus-label">${esc(it.label)}</span>
       <span class="kid-bonus-pts">+${it.pts}</span>
     </div>`).join('');
-  return `<section class="kid-card kid-bonus-hero">
+  return `<div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    <section class="kid-card kid-bonus-hero">
       <span class="kid-bonus-stars" aria-hidden="true">${ui('u-sparkle')}</span>
       <div class="kid-bonus-copy">
         <b>${esc(t('kidBonusEarned')(b.earned))}</b>
         <span>${esc(t('kidBonusStreak')(b.streak))}</span>
       </div>
     </section>
-    <section class="kid-card">
+    <section class="kid-card pro-only mode-pro-block">
       <h2>${esc(t('kidBonusHow'))}</h2>
       ${items}
     </section>`;
@@ -10965,7 +11163,8 @@ function childNotizenView(kidId){
       </article>`;
   }).join('') : emptyState(ui('u-note'), t('kidNotesEmpty'));
 
-  return `<section class="kid-card">
+  return `<div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    <section class="kid-card">
       <h2>${esc(t('kidNotesAsk'))}</h2>
       <div class="kid-moods" role="group">${moods}</div>
       <textarea id="kidNoteText" class="kid-note-input" rows="3" placeholder="${esc(t('kidNotesPlaceholder'))}"></textarea>
@@ -11116,6 +11315,7 @@ function renderChild(){
   document.getElementById('btnProfiles').textContent = '↔';
   document.getElementById('btnProfiles').title = t('profilesBack');
   document.getElementById('btnProfiles').setAttribute('aria-label', t('switchProfile'));
+  paintUiModeToggle();
   const tools=document.getElementById('topTools');
   if(tools){ tools.hidden=true; tools.replaceChildren(); }
   const bottom=document.getElementById('bottomPanel');
@@ -11157,6 +11357,7 @@ function renderChild(){
   else if(state.childView==='gallery') viewBody = childGalleryView();
   else viewBody = childStartView(c);
 
+  applyUiModeClass();
   document.getElementById('view').innerHTML = `
     <div class="kid-shell">
       ${viewBody}
@@ -11164,6 +11365,7 @@ function renderChild(){
     </div>`;
 
   const root = document.getElementById('view');
+  wireUiModeControls(root);
   root.querySelectorAll('[data-child-view]').forEach(b=>{
     b.onclick = () => {
       const next = b.dataset.childView;
@@ -11423,13 +11625,14 @@ function childGamesLobby(){
       <div class="arcade-hero">
         <div class="arcade-hero-text">
           <div class="brand-kicker">Armonia Play</div>
+          <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
           <h2>${t('gamesTitle')}</h2>
           <p>${t('gamesHint')}</p>
         </div>
         ${streakChip}
       </div>
       <div class="arcade-rail featured">${featured.map((g,i)=>card(g,i)).join('')}</div>
-      <div class="arcade-grid">${rest.map((g,i)=>card(g,i+featured.length)).join('')}</div>
+      <div class="arcade-grid pro-only mode-pro-block">${rest.map((g,i)=>card(g,i+featured.length)).join('')}</div>
     </div>`;
 }
 
@@ -12971,23 +13174,24 @@ function staffInboxItems(){
     });
   }
   try{
-    const ratingsDue=typeof staffRatingsDueCount==='function'?staffRatingsDueCount():0;
-    if(ratingsDue>0){
-      items.push({
-        id:'ratings', tone:'amber', toneLabel:t('notifToneKids'),
-        title:T[state.lang].notifRatingsDue(ratingsDue),
-        meta:t('kidRateDueBanner'), jump:'kids'
-      });
-    }
-  }catch{}
-  try{
-    const important=typeof importantThingsDueCount==='function'?importantThingsDueCount():0;
-    if(important>0){
-      items.push({
-        id:'important', tone:'amber', toneLabel:t('notifToneKids'),
-        title:T[state.lang].notifImportantDue(important),
-        meta:t('kidRateThingsTitle'), jump:'kids'
-      });
+    if(ratingsNotifyEnabled()){
+      const dueList=typeof collectRatingRemindersForNotify==='function'?collectRatingRemindersForNotify():[];
+      const ratingsDue=dueList.reduce((n,r)=>n+(r.missingCount||1),0);
+      if(ratingsDue>0){
+        items.push({
+          id:'ratings', tone:'amber', toneLabel:t('notifToneKids'),
+          title:T[state.lang].notifRatingsDue(ratingsDue),
+          meta:t('kidRateDueBanner'), jump:'kids'
+        });
+      }
+      const important=dueList.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||1),0);
+      if(important>0 && notifPrefsResolved().reminders!==false){
+        items.push({
+          id:'important', tone:'amber', toneLabel:t('notifToneKids'),
+          title:T[state.lang].notifImportantDue(important),
+          meta:t('kidRateThingsTitle'), jump:'kids'
+        });
+      }
     }
   }catch{}
   const activeEnd=typeof activeShiftPresence==='function'?activeShiftPresence(state.user.id):null;
@@ -13287,6 +13491,7 @@ function viewHome(){
       <header class="home-start-hero">
         <div class="home-start-date"><span>${esc(eventDayLabel(today))}</span><i aria-hidden="true"></i></div>
         <p class="home-start-kicker">Armonia Thassos</p>
+        <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
         <h1>${esc(t('homeHello'))}${user?`, <span>${esc(user.name)}</span>`:''}</h1>
         <p class="home-start-lede">${esc(t('homeOverview'))}</p>
       </header>
@@ -13313,7 +13518,7 @@ function viewHome(){
         <button type="button" id="homeQuickBook">${ui('u-note','sm')}<span>${esc(t('headerBook'))}</span></button>
         <button type="button" data-home-jump="kids">${ui('u-person','sm')}<span>${esc(t('navKids'))}</span></button>
       </nav>
-      <details class="home-mobile-more">
+      <details class="home-mobile-more pro-only mode-pro-block">
         <summary>${esc(t('homeMore'))}<span>＋</span></summary>
         <div class="home-mobile-more-body">
           ${homeMomentsStripHtml()}
@@ -13338,7 +13543,7 @@ function viewHome(){
       <div class="block-h"><span class="t"><small>${esc(eventDayLabel(today))}</small>${esc(t('myTasks'))}</span><span class="hrs">${esc(String(todayOpen.length))}</span></div>
       <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState(ui('u-check'), t('noTasks'), t('noTasksHint'), planCta)}</div>
     </section>
-    <details class="home-more">
+    <details class="home-more pro-only mode-pro-block">
       <summary>${esc(t('homeMore'))}</summary>
       <div class="dashboard-grid home-more-grid">
         ${adminTeamPanel(today)}
@@ -13355,7 +13560,7 @@ function viewHome(){
         </section>
       </div>
     </details>
-    <div class="home-foot-actions home-desktop-foot">
+    <div class="home-foot-actions home-desktop-foot pro-only mode-pro-block">
       <button class="page-act ghost" type="button" data-page-act="tutorial">${ui('u-book','sm')} ${esc(t('topTutorial'))}</button>
       <button class="page-act ghost" type="button" id="homeCalendar">${ui('u-calendar','sm')} ${esc(t('calTitle'))}</button>
       <button class="page-act ghost" type="button" id="homeGalleryOpen">${ui('u-camera','sm')} ${esc(t('galleryTitle'))}</button>
@@ -13364,6 +13569,7 @@ function viewHome(){
     <section class="home-command-hero" aria-label="Armonia">
       <div class="home-command-copy">
         <p class="home-start-kicker">Armonia Thassos · ${esc(eventDayLabel(today))}</p>
+        <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
         <h1>${esc(t('homeHello'))}${user?`, <span>${esc(user.name)}</span>`:''}</h1>
         <p>${esc(t('homeOverview'))}</p>
         <div class="home-command-actions">
@@ -13495,6 +13701,8 @@ function paintTopChrome(){
   navChatBtn?.classList.toggle('on', !!state.chatOpen);
   navChatBtn?.setAttribute('aria-label', t('navChat'));
   document.getElementById('chatClose')?.setAttribute('aria-label', t('close'));
+
+  paintUiModeToggle();
 }
 
 function onTopAction(id){
@@ -14057,6 +14265,7 @@ function render(){
     state._routeBoot = true;
     applyRouteFromHash();
   }
+  normalizeUiModeSurfaces();
   if(state.tab==='talk' && state.mode!=='staff') state.tab='home';
   const restoreMatrixFs = document.body.classList.contains('matrix-fullscreen')
     ? (document.querySelector('.matrix-shell.is-fullscreen .matrix-toolbar-title')?.textContent || '')
@@ -14102,6 +14311,7 @@ function render(){
   // Lets the stylesheet theme a single tab without touching the rest
   // of the app's ~1000 rules. Read by body[data-tab="…"] in index.html.
   document.body.dataset.tab = state.tab || '';
+  applyUiModeClass();
 
   document.getElementById('view').innerHTML =
       state.tab==='home'     ? viewHome()
@@ -14113,6 +14323,7 @@ function render(){
     : state.tab==='talk'     ? viewTalk()
     : viewBook();
   wire();
+  wireUiModeControls(document.getElementById('view'));
   if(state.tab==='kids') wireKidsView(document.getElementById('view'));
   if(state.tab==='gallery') bindGallery(document.getElementById('view'));
   if(state.tab==='talk'){
@@ -14891,6 +15102,10 @@ document.getElementById('chatClose')?.addEventListener('click', ()=>{
 document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
 document.getElementById('btnLang').onclick = () => setLang(state.lang === 'de' ? 'el' : 'de');
 document.getElementById('btnNotifs')?.addEventListener('click', ()=>{
+  if(state.mode==='child'){
+    sheetNotifPrefs();
+    return;
+  }
   if(state.mode!=='staff'){ toast(t('notifCenterEmpty'),'info'); return; }
   sheetNotifCenter();
 });
@@ -14924,6 +15139,7 @@ async function sheetSecurityAccess(){
     <div id="securityStorage" class="status-box" style="margin:0 0 12px" hidden></div>
     <div class="security-passkey-card" id="securityNotifs"></div>
     <div class="security-passkey-card" id="securityCalendar"></div>
+    <div class="security-passkey-card" id="securityUiMode"></div>
     <div class="security-passkey-card" id="securityCustomize"></div>
     <div class="security-passkey-card email-card" id="securityProfile"><div class="muted">${t('reading')}</div></div>
     <div class="security-passkey-card" id="securityPin"></div>
@@ -14933,6 +15149,7 @@ async function sheetSecurityAccess(){
     <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
   const profileCard=sheetEl.querySelector('#securityProfile'),card=sheetEl.querySelector('#securityPasskey');
   const customizeCard=sheetEl.querySelector('#securityCustomize');
+  const uiModeCard=sheetEl.querySelector('#securityUiMode');
   const notifCard=sheetEl.querySelector('#securityNotifs');
   const calendarCard=sheetEl.querySelector('#securityCalendar');
   const pinCard=sheetEl.querySelector('#securityPin');
@@ -14942,19 +15159,13 @@ async function sheetSecurityAccess(){
     const perm=typeof Notification!=='undefined'?Notification.permission:'denied';
     const on=!!notifPrefs().enabled && perm==='granted';
     const child=state.mode==='child';
-    const prefs=notifPrefsResolved();
     notifCard.innerHTML=`<b class="notif-bell">${ui('u-bell')} ${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</b>
       <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(child?t('notifHintChild'):t('notifHint'))}</p>
       <p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
       ${child?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>`:''}
       <button class="btn ${on?'sec':''}" type="button" id="notifToggle">${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</button>
       <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
-      ${on&&!child?`<div class="notif-prefs" style="margin-top:10px;display:grid;gap:8px">
-        <label class="f"><span>${esc(t('notifQuietStart'))}</span><input type="time" id="notifQuietStart" value="${esc(prefs.quietStart)}"></label>
-        <label class="f"><span>${esc(t('notifQuietEnd'))}</span><input type="time" id="notifQuietEnd" value="${esc(prefs.quietEnd)}"></label>
-        <label class="f"><span>${esc(t('notifLeadMinutes'))}</span><input type="number" id="notifLeadMin" min="0" max="240" step="5" value="${prefs.leadMinutes}"></label>
-        <button class="btn sec sm" type="button" id="notifPrefsSave">${esc(t('saveContact'))}</button>
-      </div>`:''}
+      ${on?notifPrefsFormHtml({child}):''}
       <div id="notifStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`;
     notifCard.querySelector('#notifToggle').onclick=async()=>{
       const st=notifCard.querySelector('#notifStatus');
@@ -14972,14 +15183,11 @@ async function sheetSecurityAccess(){
     const savePrefsBtn=notifCard.querySelector('#notifPrefsSave');
     if(savePrefsBtn) savePrefsBtn.onclick=()=>{
       const st=notifCard.querySelector('#notifStatus');
-      const lead=Number(notifCard.querySelector('#notifLeadMin')?.value);
-      setNotifPrefs({
-        quietStart:notifCard.querySelector('#notifQuietStart')?.value||'22:00',
-        quietEnd:notifCard.querySelector('#notifQuietEnd')?.value||'07:00',
-        leadMinutes:Number.isFinite(lead)&&lead>=0?lead:30,
-      });
+      setNotifPrefs(collectNotifPrefsFromForm(notifCard));
+      if(state.mode==='staff'){ try{ save(); }catch{} }
       st.style.display='block';
       setStatus(st,t('autoSaved'),'success');
+      try{ runNotificationSweep({force:true}); }catch{}
     };
   }
   if(calendarCard){
@@ -14997,6 +15205,17 @@ async function sheetSecurityAccess(){
     };
     calendarCard.querySelector('#openMyCalendarMore').onclick=openCal;
   }
+  if(uiModeCard){
+    uiModeCard.innerHTML=`<b>${ui('u-leaf','sm')} ${esc(t('uiModeLabel'))}</b>
+      <p class="muted" style="font-size:12px;margin:6px 0 10px;line-height:1.45">${esc(t('uiModeHint'))}</p>
+      <div class="muted" style="font-size:11px;margin:0 0 6px">${esc(t('uiModeGlobal'))}</div>
+      ${uiModeToggleHtml({scope:'global'})}
+      <div class="muted" style="font-size:11px;margin:12px 0 6px">${esc(t('uiModePage'))}</div>
+      ${uiModeToggleHtml({scope:'page'})}
+      <button class="btn sec sm" type="button" id="uiModeResetPages" style="margin-top:10px">${esc(t('uiModeResetPages'))}</button>`;
+    uiModeCard.querySelectorAll('[data-set-ui-mode], #uiModeResetPages').forEach(el=>{ el.dataset.uiModeWired=''; });
+    wireUiModeControls(uiModeCard);
+  }
   if(customizeCard){
     customizeCard.innerHTML=`<div class="row between" style="align-items:center;gap:10px;margin-bottom:8px">
         <div><b>${t('profileSectionLook')}</b><div class="muted" style="font-size:11px;margin-top:3px">${esc(who.name)}</div></div>
@@ -15012,7 +15231,8 @@ async function sheetSecurityAccess(){
       const emoji=customizeCard.querySelector('#profileEmoji').value.trim().slice(0,4);
       const color=customizeCard.querySelector('#profileColor').value || who.color;
       DB.profilePrefs = DB.profilePrefs || {};
-      DB.profilePrefs[who.id] = {nickname, emoji, color, updatedAt:Date.now()};
+      const prevLook = DB.profilePrefs[who.id] || {};
+      DB.profilePrefs[who.id] = {...prevLook, nickname, emoji, color, updatedAt:Date.now()};
       if(save()){
         feedback('save');
         const st=customizeCard.querySelector('#profileLookStatus');
@@ -15758,6 +15978,10 @@ function notifPrefsResolved(){
     vibrate:raw.vibrate!==false,
   };
   Object.keys(cats).forEach(k=>{ if(typeof out[k]!=='boolean') out[k]=cats[k]; });
+  /* Sibling flags: keep ratings + kidRatingReminders in sync unless explicitly off */
+  if(typeof out.kidRatingReminders!=='boolean') out.kidRatingReminders=out.ratings!==false;
+  if(typeof out.kidRatingsDue!=='boolean') out.kidRatingsDue=!!raw.kidRatingsDue;
+  if(!out.ratingHooks || typeof out.ratingHooks!=='object') out.ratingHooks=raw.ratingHooks||{};
   return out;
 }
 function minsOfDay(d){ return d.getHours()*60+d.getMinutes(); }
@@ -15790,63 +16014,111 @@ function isWithinEndLeadWindow(end,leadMin,now=new Date(),graceMs=5*60*1000){
   return diff<=leadMs && diff>=-graceMs;
 }
 
-/* Sibling-owned Bewertungen UI may publish due counts via:
-   window.dispatchEvent(new CustomEvent('paidia:ratings-due',{detail:{count,important}}))
-   or set localStorage paidia.ratingsDue / paidia.importantThingsDue. */
+/* Ratings-due: prefer PaidiaKidRatings (sibling 1–6 scale UI).
+   Event: paidia:kid-rating-due · prefs: kidRatingsDue, ratingHooks, kidRatingReminders */
 try{
-  window.addEventListener('paidia:ratings-due', event=>{
+  window.addEventListener('paidia:kid-rating-due', event=>{
     try{
       const d=event?.detail||{};
-      if(typeof d.count==='number') window.__paidiaRatingsDueCount=d.count;
-      if(typeof d.important==='number') window.__paidiaImportantThingsDue=d.important;
+      if(typeof d.missingCount==='number') window.__paidiaRatingsDueCount=d.missingCount;
+      else if(typeof d.due==='boolean') window.__paidiaRatingsDueCount=d.due?1:0;
+      if(typeof d.thingsDue==='boolean') window.__paidiaImportantThingsDue=d.thingsDue?1:0;
+      else if(Array.isArray(d.missingThings)) window.__paidiaImportantThingsDue=d.missingThings.length;
+      if(Array.isArray(d.reminders)){
+        window.__paidiaRatingsDueCount=d.reminders.filter(r=>r&&r.due).reduce((n,r)=>n+(r.missingCount||1),0);
+        window.__paidiaImportantThingsDue=d.reminders.filter(r=>r&&r.thingsDue).length;
+      }
     }catch{}
   });
 }catch{}
 
-function ratingAreaIds(){
-  if(Array.isArray(window.__paidiaRatingAreas) && window.__paidiaRatingAreas.length){
-    return window.__paidiaRatingAreas.map(a=>typeof a==='string'?a:a.id).filter(Boolean);
-  }
-  if(typeof KID_RATE_AREAS!=='undefined' && Array.isArray(KID_RATE_AREAS)){
-    return KID_RATE_AREAS.map(a=>a.id);
-  }
-  return ['school','home','friends','mood'];
+function kidRatingsApi(){
+  return (typeof window!=='undefined' && window.PaidiaKidRatings) || null;
 }
-function readDueHint(key){
+function collectRatingRemindersForNotify(opts={}){
+  const api=kidRatingsApi();
+  let list=[];
   try{
-    const n=Number(localStorage.getItem(key));
-    if(Number.isFinite(n) && n>=0) return n;
-  }catch{}
-  return null;
+    if(api && typeof api.collectDue==='function') list=api.collectDue(opts)||[];
+    else if(typeof collectKidRatingReminders==='function') list=collectKidRatingReminders(opts)||[];
+  }catch{ list=[]; }
+  return (list||[]).filter(r=>r&&r.due).map(r=>{
+    const name=(DB.children||[]).find(k=>k.id===r.kidId)?.name||'';
+    return {
+      ...r,
+      title: T[state.lang].notifRatingsDue(r.missingCount||1),
+      body: name
+        ? `${name} · ${t('kidRateDueBanner')}`
+        : t('kidRateDueBanner'),
+      url: state.mode==='child' ? './?tab=home' : './?tab=kids',
+    };
+  });
 }
 function childRatingsDueCount(kidId){
-  const hinted=readDueHint('paidia.ratingsDue');
-  if(hinted!=null) return hinted;
-  if(typeof window.__paidiaRatingsDueCount==='number') return window.__paidiaRatingsDueCount;
-  if(!kidId || typeof kidRating!=='function') return 0;
-  return ratingAreaIds().filter(area=>!kidRating(kidId, area)).length;
+  if(!kidId) return 0;
+  try{
+    const api=kidRatingsApi();
+    const rem=api?.reminderState ? api.reminderState(kidId) : (typeof kidRatingReminderState==='function'?kidRatingReminderState(kidId):null);
+    if(rem) return rem.due ? (rem.missingCount||1) : 0;
+  }catch{}
+  if(typeof window.__paidiaRatingsDueCount==='number' && state.mode==='child') return window.__paidiaRatingsDueCount;
+  return 0;
 }
 function staffRatingsDueCount(){
-  const hinted=readDueHint('paidia.ratingsDue');
-  if(hinted!=null) return hinted;
+  try{
+    const list=collectRatingRemindersForNotify();
+    return list.reduce((n,r)=>n+(r.missingCount||1),0);
+  }catch{}
   if(typeof window.__paidiaRatingsDueCount==='number') return window.__paidiaRatingsDueCount;
-  if(state.mode!=='staff' || !state.user || typeof staffKidRating!=='function') return 0;
-  const kids=DB.children||[];
-  if(!kids.length) return 0;
-  const areas=ratingAreaIds();
-  let missing=0;
-  kids.forEach(kid=>{
-    areas.forEach(area=>{
-      if(!staffKidRating(kid.id, state.user.id, area)) missing++;
-    });
-  });
-  return missing;
+  return 0;
 }
-function importantThingsDueCount(){
-  const hinted=readDueHint('paidia.importantThingsDue');
-  if(hinted!=null) return hinted;
+function importantThingsDueCount(kidId){
+  try{
+    if(kidId){
+      const api=kidRatingsApi();
+      const rem=api?.reminderState ? api.reminderState(kidId) : (typeof kidRatingReminderState==='function'?kidRatingReminderState(kidId):null);
+      if(rem) return rem.thingsDue ? ((rem.missingThings||[]).length||1) : 0;
+    }
+    const list=collectRatingRemindersForNotify();
+    return list.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||1),0);
+  }catch{}
   if(typeof window.__paidiaImportantThingsDue==='number') return window.__paidiaImportantThingsDue;
   return 0;
+}
+function ratingsNotifyEnabled(prefs){
+  const p=prefs||notifPrefsResolved();
+  return p.ratings!==false && p.kidRatingReminders!==false;
+}
+async function deliverRatingReminders({force=false, kidId=null}={}){
+  const prefs=notifPrefsResolved();
+  const auto=notifAutomations();
+  if(!ratingsNotifyEnabled(prefs) || auto.ratings===false) return 0;
+  if(!isRatingsReminderWindow(new Date()) && !force) return 0;
+  const items=collectRatingRemindersForNotify(kidId?{kidId}:{});
+  let shown=0;
+  for(const r of items){
+    const key=`rating-due-${r.kidId}-${r.week||kidWeekKey()}`;
+    const ok=await deliverOnce(key, force, r.title, {
+      tag:'paidia-rating-'+r.kidId,
+      body:r.body,
+      data:{url:r.url, kind:'rating', kidId:r.kidId},
+    });
+    if(ok) shown++;
+    if(prefs.reminders!==false && r.thingsDue){
+      const ikey=`rating-things-${r.kidId}-${r.week||kidWeekKey()}`;
+      await deliverOnce(ikey, force, T[state.lang].notifImportantDue((r.missingThings||[]).length||1), {
+        tag:'paidia-rating-things-'+r.kidId,
+        body:t('kidRateThingsTitle'),
+        data:{url:r.url, kind:'rating-things', kidId:r.kidId},
+      });
+    }
+  }
+  try{
+    if(typeof PaidiaNotify!=='undefined' && PaidiaNotify.syncFromContext){
+      await PaidiaNotify.syncFromContext({ ratingReminders: items });
+    }
+  }catch{}
+  return shown;
 }
 function childChoresDueCount(kidId){
   if(!kidId) return 0;
@@ -15874,6 +16146,7 @@ function dueItemCount(){
   const todayOpen=dashboardAssignments(today,user.id).filter(e=>!completionFor(today,e.id,user.id)).length;
   const ratings=staffRatingsDueCount()>0?1:0;
   const important=importantThingsDueCount()>0?1:0;
+  try{ if(typeof emitKidRatingHooks==='function' && !window.__paidiaRatingHooksPrimed){ emitKidRatingHooks(); window.__paidiaRatingHooksPrimed=true; } }catch{}
   return todayOpen+overdue+ratings+important;
 }
 function updateAppBadge(count){
@@ -15942,6 +16215,7 @@ function collectNotifPrefsFromForm(root){
     stock:bool('notifOptStock', true),
     journal:bool('notifOptJournal', true),
     ratings:bool('notifOptRatings', true),
+    kidRatingReminders:bool('notifOptRatings', true),
     chores:bool('notifOptChores', true),
     reminders:bool('notifOptReminders', true),
   };
@@ -16117,28 +16391,8 @@ async function runNotificationSweep({force=false}={}){
             });
         }
       }
-      if(prefs.ratings!==false && auto.ratings!==false && isRatingsReminderWindow(now)){
-        const due=childRatingsDueCount(state.child.id);
-        if(due>0){
-          await deliverOnce(`child-ratings-${state.child.id}-${kidWeekKey()}`, force,
-            T[state.lang].notifRatingsDue(due), {
-              tag:'paidia-child-ratings',
-              body:t('kidRateDueBanner'),
-              data:{url:'./?tab=home'},
-            });
-        }
-      }
-      if(prefs.reminders!==false){
-        const important=importantThingsDueCount();
-        if(important>0 && isRatingsReminderWindow(now)){
-          await deliverOnce(`child-important-${state.child.id}-${kidWeekKey()}`, force,
-            T[state.lang].notifImportantDue(important), {
-              tag:'paidia-child-important',
-              body:t('kidRateThingsTitle'),
-              data:{url:'./?tab=home'},
-            });
-        }
-      }
+      try{ if(typeof emitKidRatingHooks==='function') emitKidRatingHooks(state.child.id); }catch{}
+      await deliverRatingReminders({force, kidId:state.child.id});
     }catch(err){ console.warn('child notif sweep', err); }
     return;
   }
@@ -16315,33 +16569,11 @@ async function runNotificationSweep({force=false}={}){
   }catch{}
 
   try{
-    if(prefs.ratings!==false && auto.ratings!==false && isRatingsReminderWindow(now)){
-      const due=staffRatingsDueCount();
-      if(due>0){
-        await deliverOnce(`staff-ratings-${state.user.id}-${kidWeekKey()}`, force,
-          T[state.lang].notifRatingsDue(due), {
-            tag:'paidia-staff-ratings',
-            body:t('kidRateDueBanner'),
-            data:{url:'./?tab=kids'},
-          });
-      }
-    }
-  }catch{}
-
-  try{
-    if(prefs.reminders!==false){
-      const important=importantThingsDueCount();
-      if(important>0 && isRatingsReminderWindow(now)){
-        await deliverOnce(`staff-important-${state.user.id}-${kidWeekKey()}`, force,
-          T[state.lang].notifImportantDue(important), {
-            tag:'paidia-staff-important',
-            body:t('kidRateThingsTitle'),
-            data:{url:'./?tab=kids'},
-          });
-      }
-    }
+    if(typeof emitKidRatingHooks==='function') emitKidRatingHooks();
+    await deliverRatingReminders({force});
   }catch{}
 }
+
 function scheduleNotificationSweep(){
   setTimeout(()=>runNotificationSweep(), 2500);
   setInterval(()=>runNotificationSweep(), 15*60*1000);

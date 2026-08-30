@@ -2,6 +2,7 @@
 
 ## v137 — 2026-08-30
 
+- Easy/Pro mode system: topbar + page toggles; `body.mode-easy` / `body.mode-pro` (+ `data-density`); global default in `paidia.uiMode` / `profilePrefs._uiMode`, per-page in `paidia.uiModePages`; honors `.pro-only` / `.mode-pro-block` / `.easy-only`.
 - Kids/staff ratings use German school grades **1–6** (1 = sehr gut … 6 = ungenügend) with DE/EL labels.
 - Expanded weekly categories: Alltag (Schule, Zuhause, Freunde, Gefühl) plus Verhalten, Mitarbeit, Aktivitäten.
 - Important things (`thing:<choreId>`) rate daily/marked chores; Easy/Pro-friendly `.mode-easy-block` / `.mode-pro-block` sections.

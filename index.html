@@ -4351,6 +4351,10 @@
     background:color-mix(in srgb, var(--brand) 18%, transparent); display:block}
   .home-moments-strip img{width:100%; height:100%; object-fit:cover; display:block}
   .notif-center{display:grid; gap:10px}
+  .notif-opt-grid{display:grid;gap:6px;padding:8px 0}
+  .notif-opt-label{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.7}
+  .notif-opt{display:flex;align-items:center;gap:10px;font-size:13px;margin:0}
+  .notif-opt input{width:18px;height:18px;accent-color:var(--brand,#2a6b52)}
   .notif-center-row{
     display:grid; gap:4px; padding:12px 14px; border-radius:14px; background:var(--stone-50);
     border:1px solid var(--line); text-align:left; width:100%; font:inherit; cursor:pointer; color:var(--ink)}
@@ -4925,6 +4929,35 @@
   .staff-rating-summary,.staff-rating-row,.kid-team-rating,.staff-own-rating,.staff-rating-history{
     /* sibling-owned rating chrome — keep class markers intact */}
 
+
+  /* Easy/Pro toggle chrome + block visibility (body.mode-easy | body.mode-pro) */
+  .ui-mode-toggle,.ui-mode-seg{display:inline-flex; gap:2px; padding:2px; border-radius:var(--radius-pill);
+    background:color-mix(in srgb, var(--glass-strong) 80%, transparent); border:1px solid var(--glass-rim);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px)}
+  .ui-mode-toggle{flex:0 0 auto; max-width:100%}
+  .ui-mode-btn,.ui-mode-seg button{display:inline-flex; align-items:center; gap:4px; border:0; background:transparent;
+    color:var(--muted); font:600 11px/1 Outfit, system-ui, sans-serif; letter-spacing:.02em;
+    padding:6px 10px; min-height:32px; border-radius:var(--radius-pill); cursor:pointer;
+    transition:background var(--m-fast) var(--ease-settle), color var(--m-fast) var(--ease-settle), transform var(--m-fast) var(--ease-settle)}
+  header.app-chrome .ui-mode-btn{color:#d7e6e8}
+  .ui-mode-btn.on,.ui-mode-seg button.on{background:color-mix(in srgb, var(--brand) 18%, #fff); color:var(--ink)}
+  header.app-chrome .ui-mode-btn.on{background:rgba(255,255,255,.18); color:#fff}
+  .ui-mode-btn:active,.ui-mode-seg button:active{transform:scale(.97)}
+  .ui-mode-row{display:flex; justify-content:flex-end; margin:0 0 var(--space-2)}
+  .ui-mode-seg.is-compact button span{display:none}
+  .ui-mode-seg.is-compact button{padding:6px 8px; min-width:34px; justify-content:center}
+  body.mode-easy .pro-only,
+  body.mode-easy .mode-pro-block{display:none !important}
+  body.mode-pro .easy-only{display:none !important}
+  body.mode-easy span.pro-only.contents,
+  body.mode-easy span.mode-pro-block.contents{display:none !important}
+  body.mode-pro span.pro-only.contents,
+  body.mode-pro span.mode-pro-block.contents{display:contents}
+  @media (max-width:430px){
+    .ui-mode-toggle .ui-mode-btn span{display:none}
+    .ui-mode-toggle .ui-mode-btn{min-width:34px; justify-content:center; padding:6px 8px}
+  }
+
   /* Easy / Pro density — siblings toggle body.mode-easy / .mode-pro */
   body.mode-easy .card,
   body.mode-easy .home-today-card,
@@ -4991,6 +5024,7 @@
         </div>
       </div>
       <div class="topbar-core" id="topCore" aria-label="Core actions">
+        <div class="ui-mode-toggle" id="uiModeToggle" role="group" aria-label="Easy / Pro" hidden></div>
         <button class="topbtn topbtn-bell" id="btnNotifs" type="button" title="Mitteilungen" aria-label="Mitteilungen">
           <span class="bell-ico" aria-hidden="true">🔔</span>
           <span class="bell-count" id="notifBadge" hidden>0</span>
