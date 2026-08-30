@@ -37,8 +37,8 @@
     version: 145,
     label: 'v145',
     changed: {
-      de: 'Spiele OSS/XP · Staff UI hell',
-      el: 'Παιχνίδια OSS/XP · Staff UI ανοιχτό',
+      de: 'Spotlight-Tour: echte Buttons, Easy/Pro, Fortsetzen',
+      el: 'Spotlight-tour: πραγματικά κουμπιά, Easy/Pro, συνέχεια',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

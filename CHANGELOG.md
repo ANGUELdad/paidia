@@ -2,6 +2,7 @@
 
 ## v145 — 2026-08-30
 
+- **Spotlight tour:** replaces the Next/Next sheet carousel with real coach-marks (`data-tour` targets). Dim overlay + tooltip (DE/EL); advance by tapping the highlight or **Got it** (navigates to the next page). Skip + resume; Easy = shorter path, Pro = Kids/Momente/Buch. Persist `tourSeen` v3 in localStorage (+ `profilePrefs._tourSeen` in Easy). QA map: `docs/agents/TOUR_SYSTEM.md`.
 - **Kids Spiele E2E:** OSS iframe paths absolute (`/kids-games/…`); score `postMessage` origin-checked; Easy featured + Pro catalogue launchable; Alle Spiele back-to-hub.
 - **XP / gameStats:** child devices sync bests/plays/XP via `/api/kid-ops` (same path as ratings/notes).
 - **Edu hub / PhET:** marked online-only; disabled + banner when offline.

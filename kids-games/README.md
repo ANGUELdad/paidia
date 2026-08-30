@@ -20,7 +20,7 @@ All titles: no accounts, no network calls, no analytics, works in mobile WebView
 Each game may post to the parent:
 
 ```js
-parent.postMessage({ type: 'paidia-score', gameId: 'snake', score: 12 }, '*');
+parent.postMessage({ type: 'paidia-score', gameId: 'osssnake', score: 12 }, '*');
 ```
 
 The hub records best scores via existing `gameStats` / `writeGameBest`.
