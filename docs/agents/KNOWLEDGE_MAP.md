@@ -11,7 +11,7 @@
 | Biometrics | `gate.js`, `app.js`, `server.py`, [BIOMETRICS.md](BIOMETRICS.md) | Face ID / Fingerabdruck / Hello; `PAIDIA_WEBAUTHN_*` |
 | Home / staff | `app.js` | `viewHome`, shift-start, journal duty, bento |
 | Plan / schedule | `app.js` | day/week/events matrix, overrides, template |
-| Stock | `app.js` | `viewStock`, shift stock Kalyvia, drafts |
+| Stock | `app.js` | `viewStock` pantry ± / quick-add, shift stock Kalyvia |
 | Shop / Friday | `app.js` | `viewShop`, store confirm, OCR import |
 | Book / journal | `app.js` | `viewBook`, `writeShiftJournalPage`, filters |
 | Calendar ICS | `app.js` | `sheetCalendar`, `buildIcs`, Google/Outlook URLs |

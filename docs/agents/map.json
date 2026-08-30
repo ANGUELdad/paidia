@@ -29,7 +29,7 @@
       "id": "stock",
       "keys": ["lager", "stock", "shift stock", "kalyvia"],
       "files": ["app.js"],
-      "snippet": "viewStock drafts; shiftStockCheck Kalyvia h1; want_bought → Friday list."
+      "snippet": "viewStock pantry walk; immediate ± + undo toast; sheetStockQuickAdd; OUT reason dock; shiftStockCheck Kalyvia."
     },
     {
       "id": "schedule",

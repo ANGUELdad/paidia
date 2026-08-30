@@ -7379,10 +7379,8 @@ function viewStock(){
       {id:'clear-empty', label:t('bulkClearEmpty'), danger:true},
     ]):''}
     ${hid!=='all'?(()=>{
-      const needReason=!!state.stockPendingStep || (state.selectMode==='stock' && false);
-      const showReason=needReason || !!state.stockDraftReason;
-      if(!showReason && !stockDraftEntries().length) return '';
       const draft=stockDraftEntries();
+      const needReason=!!state.stockPendingStep;
       if(draft.length){
         const ins=draft.filter(([,d])=>d>0).length;
         const outs=draft.filter(([,d])=>d<0).length;
@@ -7402,14 +7400,23 @@ function viewStock(){
           </div>
         </div>`;
       }
-      if(!needReason && !state.stockDraftReason) return '';
-      return `<div class="stock-footer-actions stock-reason-dock ${needReason?'need':''}" aria-label="${esc(t('stockOutReasonBar'))}">
-        <div class="stock-draft-head">
-          <b>${esc(t('stockOutReasonBar'))}</b>
-          <span class="muted">${esc(t('stockOutReasonHint'))}</span>
-        </div>
-        <div class="chips" id="stockQuickReasons">${REASONS().map(r=>`<button class="chip ${r.id===state.stockDraftReason?'on':''}" type="button" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}</div>
-      </div>`;
+      if(needReason){
+        return `<div class="stock-footer-actions stock-reason-dock need" aria-label="${esc(t('stockOutReasonBar'))}">
+          <div class="stock-draft-head">
+            <b>${esc(t('stockOutReasonBar'))}</b>
+            <span class="muted">${esc(t('stockOutReasonHint'))}</span>
+          </div>
+          <div class="chips" id="stockQuickReasons">${REASONS().map(r=>`<button class="chip ${r.id===state.stockDraftReason?'on':''}" type="button" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}</div>
+        </div>`;
+      }
+      if(state.stockDraftReason){
+        const reasonLabel=L(REASONS().find(r=>r.id===state.stockDraftReason)||{de:'',el:''});
+        return `<div class="stock-reason-pill" aria-label="${esc(t('stockOutReasonBar'))}">
+          <span>${esc(t('stockOutReasonBar'))}: <b>${esc(reasonLabel)}</b></span>
+          <button type="button" class="stock-reason-clear" id="stockReasonClear" aria-label="${esc(t('stockDraftClear'))}">×</button>
+        </div>`;
+      }
+      return '';
     })():''}
   </div>`;
 }
