@@ -4,16 +4,19 @@
 **Latest live at report time:** **v149** (`build.json` + `gate.js?v=149` + `ui-v110.css?v=149` + `paidia-v149` SW)  
 **Earlier passes in same session:** v143 → v144 → v145 (then siblings shipped through v149)  
 **Method:** hard-refresh gate + public asset/API probes ×2; shipped `app.js` / CSS / `notifications.js` / `sw.js` marker checks ×2.  
-**Auth:** **BLOCKED** — no documented non-secret test PIN (marketing docs explicitly say none). Did **not** invent PINs, dump secrets, or use leaked transcript PINs.  
+**Auth:** **BLOCKED on prod** — no documented non-secret test PIN (marketing docs explicitly say none). Did **not** invent PINs, dump secrets, or use leaked transcript PINs.  
 **Did not** submit prod feedback / OCR / notes payloads (would pollute shared ops).
+
+**Local authenticated follow-up (2026-08-30):** critical paths double-passed on http://127.0.0.1:5173 with disposable gitignored profiles — see [`QA_LOCAL_AUTH_DOUBLE_PASS.md`](QA_LOCAL_AUTH_DOUBLE_PASS.md) (**26/26 local**). That does **not** certify Vercel auth.
 
 ## Verdict
 
 | Scope | Readiness | Notes |
 |-------|-----------|--------|
 | Public / gate / cache / health | **~96%** | Two-pass clean; cache-bust aligned at v149 |
-| Authenticated staff + child critical paths | **0% verified** | Need credentials |
-| **Overall deployment readiness (honest)** | **~52%** | Do **not** claim 100% — in-app Home/Plan/Lager/Liste/Talk/Kids/Tour/OCR UI/Feedback compose unproven on live session |
+| Authenticated staff + child critical paths (**prod**) | **0% verified** | Still need prod test credentials |
+| Authenticated staff + child (**local only**) | **100% of listed paths** | [`QA_LOCAL_AUTH_DOUBLE_PASS.md`](QA_LOCAL_AUTH_DOUBLE_PASS.md) — not a prod substitute |
+| **Overall production deployment readiness (honest)** | **~52%** | Do **not** claim 100% — in-app Home/Plan/Lager/Liste/Talk/Kids/Tour/OCR UI/Feedback compose still **unproven on live** session |
 
 ### Top failures / blockers
 
@@ -149,6 +152,6 @@ Run each **twice** when a test PIN exists in non-secret docs. Until then: blocke
 
 ## Follow-up for a green in-app pass
 
-1. Provide a **documented non-secret test PIN** (or ephemeral QA profile) in agent-safe docs.  
+1. Provide a **documented non-secret prod test PIN** (or ephemeral QA profile) on Vercel — **not** the local disposable harness. Local auth is already covered in [`QA_LOCAL_AUTH_DOUBLE_PASS.md`](QA_LOCAL_AUTH_DOUBLE_PASS.md).  
 2. Re-run section D table twice on https://armonia-thassos.vercel.app after hard refresh.  
 3. Prefer **cancel** on feedback; one OCR snap only if ops owners OK.
