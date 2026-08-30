@@ -77,7 +77,7 @@
         "ui-v110.css",
         "index.html"
       ],
-      "snippet": "Staff+kids Mehr: openNavMenu / sheet-nav-menu. Mobile bottom sheet, desktop solid panel. Easy fewer/larger; Pro full. Preserves body.sheet-open dock hide."
+      "snippet": "Kids website menu v169: mobile hamburger openKidSiteMenu (kid-site-menu sheet); desktop dark left rail kid-dock. Staff Mehr still openNavMenu. Back chrome separate."
     },
     {
       "id": "feedback",
@@ -155,7 +155,7 @@
         "app.js",
         "index.html"
       ],
-      "snippet": "viewBook panes shift|log|people. writeShiftJournalPage append ink. Filters bookRange/type/who/q/view."
+      "snippet": "viewBook Übergabe: structured sections + ack. writeShiftJournalPage/ackShiftHandoff. Calendar unread dots. Easy write/read/ack; Pro archive/house/log."
     },
     {
       "id": "shop",

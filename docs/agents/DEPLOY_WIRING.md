@@ -99,7 +99,7 @@ Everything **except** paths starting with `api/` is rewritten to the Flask handl
 | `/api/ops` | `/api/ops` | ops sync |
 | `/api/chat` | `/api/chat` | Zo-Ai |
 
-Static allowlist is **strict** (`api/index.py` → `_STATIC_EXACT`, `icons/*`) — `.env`, source trees, and DB files are never served.
+Static allowlist is **strict** (`api/index.py` → `_STATIC_EXACT`, `icons/*`) — `.env`, source trees, and DB files are never served. Exact JS shells that must be listed: `app.js`, `gate.js`, `notifications.js`, `page-tips.js`, `zoai-tips.js`, plus `ui-v110.css` / `sw.js` / `build.json` / `manifest.webmanifest`. New client scripts need an allowlist entry or production returns `{"error":"Not found"}` (and sync `<script>` tags before `gate.js` can leave users on forever **Laden…**).
 
 ### 3.4 Request flow (diagram)
 

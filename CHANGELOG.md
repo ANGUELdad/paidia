@@ -1,19 +1,20 @@
 # Changelog
 
-## v167 — 2026-08-30
-
-- **Übergabe / Schichtbuch:** full handoff flow — outgoing shift writes structured sections (Dringend / Kinder / Lager / Aufgaben / Sonstiges); incoming shift reads and taps **Gelesen**.
-- Calendar keeps all-days browse; today spotlight; orange unread dots for unacked team pages.
-- **Easy:** write / read / ack. **Pro:** history archive, house filter, log/people panes, corrections.
-- Mitteilungen: inbox + optional OS notify when a handoff awaits read (`handover` pref).
-- Data: `shiftNotes` entries gain `sections`, `acks`, optional `houseId` (backward-compatible `text`).
-- Cache `paidia-v167`.
-
 ## v169 — 2026-08-30
 
 - **Kids website-style menu:** mobile **Menü** hamburger opens a large panel with all pages (Start · Spiele · Bewertung · Bonus · Notizen + Mehr). Desktop keeps the dark left side menu (`#1b2822` rail from v166).
 - Bottom dock removed on phone (no confusing dock-only IA). Back chrome kept. Tour opens the site menu for `kid-nav-*` targets.
 - Plain DE/EL guide copy. Staff Plan / Lager untouched. Cache `paidia-v169`.
+
+## v170 — 2026-08-30
+
+- **Übergabe / Schichtbuch:** complete handoff product — outgoing shift writes structured sections (Dringend / Kinder / Lager / Aufgaben / Sonstiges); incoming reads and taps **Gelesen**.
+- Calendar: all days + today spotlight; pine dots for entries, orange for unacked.
+- **Easy:** write / read / ack. **Pro:** archive, house filter, log/people, corrections.
+- Mitteilungen inbox + optional OS notify (`handover`) when a handoff awaits read.
+- Data model: `shiftNotes` → `sections`, `acks`, optional `houseId` (legacy `text` kept).
+- Cache `paidia-v170`.
+
 
 ## v168 — 2026-08-30
 

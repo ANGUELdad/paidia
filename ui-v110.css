@@ -4905,3 +4905,27 @@ body.layout-desktop .sheet.sheet-nav-menu.on{
     opacity:1;
   }
 }
+
+/* Kids website-style full menu (mobile hamburger) — v169 */
+.sheet.sheet-kid-site-menu{
+  max-height:min(94dvh, 820px) !important;
+  padding-bottom:calc(20px + var(--safe-b, 0px)) !important;
+}
+.nav-menu-section{
+  margin:14px 2px 6px;
+  font:800 11px/1.2 Outfit, system-ui, sans-serif;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:#3f5f54;
+}
+.nav-menu-row.on{
+  background:color-mix(in srgb, var(--brand, #2a6b52) 12%, #fff);
+  border-color:color-mix(in srgb, var(--brand, #2a6b52) 28%, #d4dbd6);
+}
+.nav-menu-row.on b{ color:var(--brand, #2a6b52); }
+body.layout-desktop .sheet.sheet-kid-site-menu,
+body.layout-desktop.sheet-kid-site-open .sheet.sheet-kid-site-menu{
+  width:min(440px, calc(100vw - 48px));
+  max-width:440px;
+  max-height:min(86dvh, 720px);
+}

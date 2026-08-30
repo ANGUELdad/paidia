@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 168,
-  label: 'v168',
+  version: 169,
+  label: 'v169',
   changed: {
-    de: 'Lager: Produkt hinzufügen klarer · Login hängt nicht mehr',
-    el: 'Αποθήκη: καθαρότερη προσθήκη · είσοδος χωρίς κρέμασμα',
+    de: 'Kids: Menü wie Website — Telefon Menü-Taste, PC Seitenleiste',
+    el: 'Παιδιά: μενού σαν ιστότοπος — τηλέφωνο Μενού, PC πλαϊνή μπάρα',
   },
 };
 const T = {
@@ -2628,7 +2628,7 @@ async function pullShared({force=false}={}){
       if(typeof data.revision === 'number') sharedRevision = data.revision;
       return false;
     }
-    const serverRev = Number(data.revision)||0;
+    const serverRev = Number(data.revision)||168;
     const serverEmpty = serverRev === 0 && !SHARED_KEYS.some(k=>sharedBucketHasData(data, k));
     const localHas = SHARED_KEYS.some(k=>sharedBucketHasData(DB, k));
     // First device seeds the server — never wipe local with an empty cloud.
@@ -3473,7 +3473,7 @@ function readOnboardingLocal(profileId=currentProfileId(), mode=state.mode, vers
 }
 /** True if this profile already finished any known tutorial version (avoids re-trap loops). */
 function readOnboardingDone(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
-  const ver=Number(version)||0;
+  const ver=Number(version)||168;
   if(readOnboardingLocal(profileId, mode, ver)) return true;
   for(let v=1; v<=Math.max(ver, 2); v++){
     if(v!==ver && readOnboardingLocal(profileId, mode, v)) return true;
@@ -3550,7 +3550,7 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
       localStorage.setItem('paidia.rememberMe', '0');
     }
   }catch{}
-  state.onboardingVersion=Number(data.onboardingVersion)||1;
+  state.onboardingVersion=Number(data.onboardingVersion)||168;
   const serverDone=data.onboardingComplete===true;
   const localDone=readOnboardingDone(data.profileId, mode, state.onboardingVersion);
   state.onboardingComplete=serverDone || localDone;
@@ -4666,7 +4666,7 @@ function applyHelpActions(actions){
         return;
       }
       if(kind==='shop_add'){
-        const qty=Number(action.qty)||1;
+        const qty=Number(action.qty)||168;
         const nm=product?L(product):(action.name||query);
         const unit=action.unit||product?.unit||'Stk';
         const friday=state.shopFriday||fridayFor();
@@ -8814,7 +8814,7 @@ function insertStockOrderPid(pid, hid=state.house){
   freeze.order.splice(insertAt, 0, pid);
 }
 function withStockScrollPreserved(run){
-  const y=window.scrollY||document.documentElement.scrollTop||0;
+  const y=window.scrollY||document.documentElement.scrollTop||168;
   const main=document.querySelector('main.app-stage');
   const mainY=main?main.scrollTop:0;
   run();
@@ -9027,7 +9027,7 @@ function shiftCheckQtyForMark(p, mark, base){
   const thr=lowThreshold(p);
   if(mark==='empty') return 0;
   if(mark==='low') return Math.min(Number(base)||0, thr) || thr;
-  return Number(base)||0;
+  return Number(base)||168;
 }
 
 function paintShiftStockCheckSheet(draft){
@@ -12159,7 +12159,7 @@ function shiftDiaryCard(){
           <span>${t('journalSigned')}</span>
           <b>${esc(state.user.name)}</b>
           ${mine?.ts?`<span class="muted">${fmtDT(mine.ts)}</span>`:''}
-          ${written?`<span class="pill gray">${esc(T[state.lang].handoffAckedBy(handoffAckCount(mine)))}</span>`:''}
+          ${written && handoffAckCount(mine)?`<span class="pill gray">${esc(T[state.lang].handoffAckedBy(handoffAckCount(mine)))}</span>`:''}
         </footer>
       </div>
     </article>
@@ -12550,7 +12550,7 @@ function readGameBest(id){
   const kidId=state.child?.id;
   const synced=kidId?Number(loadGameStats(kidId)?.bests?.[id]):0;
   if(Number.isFinite(synced) && synced>0) return synced;
-  try{ return Number(localStorage.getItem(gameBestKey(id)))||0; }catch{ return 0; }
+  try{ return Number(localStorage.getItem(gameBestKey(id)))||168; }catch{ return 0; }
 }
 function writeGameBest(id, score, {lower=false}={}){
   const prev=readGameBest(id);
@@ -14442,7 +14442,7 @@ function migrateStarsToGrade(value){
 function ensureGradeScale(row){
   if(!row || typeof row !== 'object') return 0;
   if(row.scale === 'de6') return clampGrade(row.value ?? row.score);
-  const raw = Number(row.value ?? row.score)||0;
+  const raw = Number(row.value ?? row.score)||168;
   if(raw>=1 && raw<=5){
     const next = migrateStarsToGrade(raw);
     if('value' in row) row.value = next;
@@ -14899,7 +14899,7 @@ function bindKidExtras(root){
     btn.addEventListener('click', ()=>{
       const area = btn.getAttribute('data-kid-rate');
       if(!area || area === '__none__') return;
-      const val = Number(btn.getAttribute('data-grade-val'))||0;
+      const val = Number(btn.getAttribute('data-grade-val'))||168;
       if(setKidRating(state.child.id, area, val)){
         toast(t('kidRateSaved'));
         render();
@@ -15359,7 +15359,7 @@ function childGamesLobby(){
     if(!best) return '';
     if(g.id==='learn'){
       const lv = kidLevel(best);
-      const floor = XP_LEVELS[lv]||0;
+      const floor = XP_LEVELS[lv]||168;
       const ceil = XP_LEVELS[Math.min(lv+1, XP_LEVELS.length-1)]||floor+100;
       const pct = ceil>floor ? Math.round(((best-floor)/(ceil-floor))*100) : 100;
       return `<div class="arcade-widget">${levelMeterHtml(pct)}</div>`;
@@ -15370,7 +15370,7 @@ function childGamesLobby(){
       const spark = sparklineHtml(hist.length?hist:[best], 'sea');
       return spark?`<div class="arcade-widget">${spark}</div>`:'';
     }
-    const soft = ({quiz:20,math:30,island:20,memory:100,tac:10,catch:40,rps:20,dice:6,colors:30,eduhub:10,oss2048:2048,osssnake:30,ossbreakout:200,osspuzzle15:200,osshop:20})[g.id]||20;
+    const soft = ({quiz:20,math:30,island:20,memory:100,tac:10,catch:40,rps:20,dice:6,colors:30,eduhub:10,oss2048:2048,osssnake:30,ossbreakout:200,osspuzzle15:200,osshop:20})[g.id]||168;
     const pct = Math.min(100, Math.round((best/Math.max(soft, best))*100));
     const label = g.id==='react' ? t('gameReactMs')(best) : String(best);
     return `<div class="arcade-widget">${ringHtml(pct, label, 'pine')}</div>`;
@@ -17886,6 +17886,9 @@ function mountStaffTalkChat(root){
 }
 
 function mountHelpChat(root){
+  if(!root) return;
+  try{ helpChatVoice?.stop?.(); }catch{}
+  helpChatVoice=null;
   loadHelpTranscriptForCurrentUser();
   if(!state.helpMessages.length){
     state.helpMessages.push({role:'assistant', content:helpWelcomeMessage()});
@@ -17894,7 +17897,9 @@ function mountHelpChat(root){
   let voice=null;
   const role = helpChatRole();
   const canMutate = role==='staff' || role==='admin';
+  const panelAlive = () => !!(state.chatOpen && root.isConnected && root.querySelector('#helpLog'));
   const paint = () => {
+    if(!panelAlive()) return;
     const log = root.querySelector('#helpLog');
     if(!log) return;
     log.innerHTML = state.helpMessages.map(m =>
@@ -17937,20 +17942,23 @@ function mountHelpChat(root){
       </details>
     </div>`;
   paint();
-  setTimeout(()=>root.querySelector('#helpInput')?.focus(), 20);
+  setTimeout(()=>{ if(panelAlive()) root.querySelector('#helpInput')?.focus(); }, 20);
   root.querySelector('#zoAiOpenTalk')?.addEventListener('click',()=>{ feedback('select'); openStaffTalk(); });
   fetch('/api/health',{credentials:'same-origin'}).then(r=>r.json()).then(health=>{
+    if(!panelAlive()) return;
     const banner=root.querySelector('#helpConfigStatus');
     if(!banner || health?.aiConfigured!==false) return;
     banner.hidden=false;
     banner.textContent=t('helpConfigBanner');
   }).catch(()=>{});
   if(canMutate && state.pendingHelpActions?.length){
-    sheetHelpProposals(state.pendingHelpActions,{inline:true,onDone:()=>paint()});
+    try{ sheetHelpProposals(state.pendingHelpActions,{inline:true,onDone:()=>paint()}); }catch{}
   }
   const input = root.querySelector('#helpInput');
   const send = root.querySelector('#helpSend');
+  if(!input || !send) return;
   const submit = async () => {
+    if(!panelAlive() || !input || !send) return;
     const content = input.value.trim();
     if(!content || send.disabled) return;
     voice?.stop();
@@ -17960,16 +17968,25 @@ function mountHelpChat(root){
     input.value = ''; send.disabled = true;
     const mic=root.querySelector('#helpMic'); if(mic) mic.disabled=true;
     paint();
-    const thinking = document.createElement('div');
-    thinking.className = 'chat-msg assistant'; thinking.id = 'helpThinking';
-    thinking.textContent = t('helpThinking');
-    root.querySelector('#helpLog').appendChild(thinking);
+    const log=root.querySelector('#helpLog');
+    if(log){
+      const thinking = document.createElement('div');
+      thinking.className = 'chat-msg assistant'; thinking.id = 'helpThinking';
+      thinking.textContent = t('helpThinking');
+      log.appendChild(thinking);
+    }
     try{
+      let context={};
+      try{ context=helpUiContext(); }
+      catch(ctxErr){
+        console.error('helpUiContext failed', ctxErr);
+        context={ role, lang:state.lang, mode:state.mode, canMutate };
+      }
       const response = await fetch('/api/chat', {
         method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
         body:JSON.stringify({
           messages:state.helpMessages.filter(m=>m.role==='user'||m.role==='assistant'),
-          context:helpUiContext(),
+          context,
         }),
       });
       const data = await response.json().catch(()=>({}));
@@ -17983,23 +18000,28 @@ function mountHelpChat(root){
       state.helpMessages.push({role:'assistant', content:data.message || t('helpUnavailable')});
       state.helpMessages = state.helpMessages.slice(-12);
       persistHelpTranscript();
-      paint();
-      if(canMutate && Array.isArray(data.actions) && data.actions.length){
-        sheetHelpProposals(data.actions,{inline:true,onDone:()=>paint()});
+      if(panelAlive()){
+        paint();
+        if(canMutate && Array.isArray(data.actions) && data.actions.length){
+          try{ sheetHelpProposals(data.actions,{inline:true,onDone:()=>paint()}); }catch{}
+        }
       }
     }catch(error){
       state.helpMessages.push({role:'assistant', content:friendlyAiError(error)});
       persistHelpTranscript();
-      paint();
+      if(panelAlive()) paint();
     }finally{
-      send.disabled = false;
-      if(mic) mic.disabled=false;
-      input.focus();
+      if(!panelAlive()) return;
+      try{
+        send.disabled = false;
+        if(mic) mic.disabled=false;
+        input.focus();
+      }catch{}
     }
   };
   send.onclick = submit;
   root.querySelectorAll('#helpQuick [data-q]').forEach(b=>{
-    b.onclick=()=>{ input.value=b.dataset.q; feedback('select'); submit(); };
+    b.onclick=()=>{ if(!panelAlive()) return; input.value=b.dataset.q; feedback('select'); submit(); };
   });
   input.onkeydown = e => {
     if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(); }
@@ -18009,6 +18031,7 @@ function mountHelpChat(root){
     mic:root.querySelector('#helpMic'),
     statusEl:root.querySelector('#helpVoiceStatus'),
   });
+  helpChatVoice=voice;
 }
 
 function adaptiveChrome(panelHtml, summaryMeta=''){
@@ -18098,7 +18121,7 @@ function measureChrome(){
       if(kidDock){
         const style=getComputedStyle(kidDock);
         if(style.display!=='none' && style.visibility!=='hidden'){
-          navH=Math.ceil(kidDock.getBoundingClientRect().height)||0;
+          navH=Math.ceil(kidDock.getBoundingClientRect().height)||168;
           if(navH){
             root.style.setProperty('--kid-dock-h', navH+'px');
             document.body.style.setProperty('--kid-dock-h', navH+'px');
@@ -19343,7 +19366,7 @@ const gateEl = document.getElementById('gate');
 const gateBody = document.getElementById('gateBody');
 
 function formatDeviceWhen(ts){
-  const n=Number(ts)||0;
+  const n=Number(ts)||168;
   if(!n) return '—';
   try{
     return new Date(n).toLocaleString(state.lang==='el'?'el-GR':'de-DE',{
@@ -19750,7 +19773,7 @@ async function sheetSecurityAccess(){
       };
     };
     paintProfile(data.profileId);
-    count=Number(data.passkeys)||0;
+    count=Number(data.passkeys)||168;
     const supported=passkeyCapable()&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
     card.innerHTML=`<div class="row between"><div><b>${esc(t('profileSectionBio'))} · ${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
       <p class="muted" style="font-size:11.5px;line-height:1.5">${t('passkeyHint')}</p>
@@ -20209,6 +20232,12 @@ window.addEventListener('unhandledrejection', event=>{
   event.preventDefault();
 });
 window.addEventListener('error', event=>{
+  // Script/link resource failures (e.g. tip JS 404 before allowlist) must not toast as app crashes.
+  const tag=String(event?.target?.tagName||'').toUpperCase();
+  if(tag==='SCRIPT' || tag==='LINK' || tag==='IMG'){
+    console.warn('resource load error', event.target?.src || event.target?.href || event.message);
+    return;
+  }
   console.error('unexpected UI error',event.error||event.message);
   toast(t('unexpectedError'),'error');
 });
@@ -20828,7 +20857,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||168;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||169;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
