@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 142,
-  label: 'v142',
+  version: 143,
+  label: 'v143',
   changed: {
-    de: 'Kids-Menü · Navigation Phone+Desktop',
-    el: 'Μενού παιδιών · πλοήγηση τηλ.+PC',
+    de: 'Zo-Ai Titel: Sparkle-Icon statt Roh-HTML',
+    el: 'Τίτλος Zo-Ai: εικονίδιο sparkle αντί για raw HTML',
   },
 };
 const T = {
@@ -15319,7 +15319,8 @@ function openChatPanel(mode='ai'){
   const title=document.getElementById('chatPanelTitle');
   if(title){
     title.hidden=false;
-    title.textContent = `${ui('u-sparkle')} ${t('helpChat')}`;
+    // ui() returns SVG markup — must use innerHTML (textContent escapes tags).
+    title.innerHTML = `${ui('u-sparkle')} ${esc(t('helpChat'))}`;
   }
   const closeBtn=document.getElementById('chatClose');
   if(closeBtn) closeBtn.setAttribute('aria-label', t('close'));
@@ -18007,7 +18008,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||142),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||143),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

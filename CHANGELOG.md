@@ -1,5 +1,10 @@
 # Changelog
 
+## v143 — 2026-08-30
+
+- **Zo-Ai panel title:** render sparkle via `innerHTML` + `esc(title)` — `textContent` was showing raw `<svg>…</svg> Zo-Ai`.
+- Kids nav / dock / rail untouched. Cache `paidia-v143`.
+
 ## v142 — 2026-08-30
 
 - **Kids navigation chrome:** dock mounts in `#bottomPanel` (not inside `#view`), so phone/tablet/desktop always show a menu.
