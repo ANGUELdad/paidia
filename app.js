@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 152,
-  label: 'v152',
+  version: 153,
+  label: 'v153',
   changed: {
-    de: 'Easy/Pro: echte Abläufe (Lager ±, Plan, Bewertungen, Mitteilungen)',
-    el: 'Easy/Pro: πραγματικές ροές (Αποθήκη ±, Πλάνο, Αξιολογήσεις, Ειδοποιήσεις)',
+    de: 'Login mobil: größere Tasten, PIN, Angemeldet bleiben',
+    el: 'Σύνδεση κινητό: μεγαλύτερα πλήκτρα, PIN, Να με θυμάσαι',
   },
 };
 const T = {
@@ -19250,7 +19250,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||152),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||153),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

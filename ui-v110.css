@@ -876,22 +876,38 @@ body.auth-pending .gate-wrap {
   .gate-wrap[data-gate-view="reset"] .gate-main { padding: 12px 16px; }
 }
 
-/* Short phones: keep ≥48px pad keys; scroll instead of shrinking chrome */
+/* Short phones: keep ≥48px pad keys + remember ≥44px; scroll instead of shrinking */
 @media (max-width: 380px), (max-width: 899px) and (max-height: 720px) {
   body.auth-pending .gate-wrap { grid-template-rows: 56px minmax(0,1fr); }
-  .gate-landmark { min-height: 56px; padding-block: 6px; }
-  .gate-landmark-mark { width: 32px; height: 32px; }
-  .gate-main { padding: 10px 12px max(10px, env(safe-area-inset-bottom)); }
+  .gate-landmark { min-height: 56px; padding-block: 6px; padding-inline: 14px max(12px, env(safe-area-inset-right)); }
+  .gate-landmark-mark { width: 36px; height: 36px; }
+  .gate-main { padding: 10px 14px max(12px, env(safe-area-inset-bottom)); }
   .gate-main .gate-lang { margin-bottom: 8px !important; }
+  .gate-main .gate-lang button { min-height: 44px; }
   .gate-main .gate-head { margin-bottom: 12px; }
   .gate-main .gate-head h2 { font-size: 28px !important; }
   .gate-main .gate-head .brand-kicker { margin-bottom: 5px; }
   .gate-main .gate-mode-card { min-height: 72px !important; }
-  .gate-main .gate-build { min-height: 32px; margin-top: 8px; padding: 6px 8px; }
-  .gate-main .gate-build span { font-size: 11px; }
-  .gate-main .gate-pin .pinpad button { min-height: 48px; height: 48px; }
+  .gate-main .profile[data-p] { min-height: 80px !important; }
+  .gate-main .gate-build { min-height: 36px; margin-top: 8px; padding: 8px 10px; }
+  .gate-main .gate-build span { font-size: 11px; -webkit-line-clamp: 2; }
+  .gate-main .gate-pin .pinpad button { min-height: 48px; height: auto; padding: 10px 0; font-size: 20px; }
+  .gate-main .gate-remember {
+    min-height: 48px !important;
+    padding: 10px 2px !important;
+    font-size: 15px !important;
+    font-weight: 650;
+    color: var(--ink, #1a2822) !important;
+  }
+  .gate-main .gate-remember input[type="checkbox"] {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px;
+    min-height: 24px;
+  }
+  .gate-main .gate-login-submit { min-height: 48px; }
+  .gate-pin-links :is(.gate-forgot,.gate-back) { min-height: 44px; font-size: 12px; }
   .gate-main .passkey-btn.primary-bio .pk-sub { display: none; }
-  .gate-main .gate-build span { -webkit-line-clamp: 1; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

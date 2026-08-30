@@ -1,8 +1,8 @@
 {
-  "version": 152,
-  "label": "v152",
+  "version": 153,
+  "label": "v153",
   "changed": {
-    "de": "Easy/Pro: echte Abläufe (Lager ±, Plan, Bewertungen, Mitteilungen)",
-    "el": "Easy/Pro: πραγματικές ροές (Αποθήκη ±, Πλάνο, Αξιολογήσεις, Ειδοποιήσεις)"
+    "de": "Login mobil: größere Tasten, PIN, Angemeldet bleiben",
+    "el": "Σύνδεση κινητό: μεγαλύτερα πλήκτρα, PIN, Να με θυμάσαι"
   }
 }

@@ -1,5 +1,12 @@
 # Changelog
 
+## v153 — 2026-08-30
+
+- **Mobile login sizing:** role picker, staff/kids profiles (2-col), PIN pad ≥48–52px, remember-me label ≥44–48px hit area with ink contrast (v151 cookie logic unchanged).
+- Lang / back / Forgot·Back·Other links ≥44px; safe-area bottom padding; short phones scroll instead of shrinking keys below 48px.
+- Cache `paidia-v153`. Does not regress v150/v151 ghost/topbtn white fills.
+
+
 ## v152 — 2026-08-30
 
 - **Easy/Pro practical behaviour** on every major staff + kids page (not only CSS density).
