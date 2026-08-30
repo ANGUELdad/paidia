@@ -1,8 +1,8 @@
 {
-  "version": 151,
-  "label": "v151",
+  "version": 152,
+  "label": "v152",
   "changed": {
-    "de": "Angemeldet bleiben: längere Session, Profil merken",
-    "el": "Να με θυμάσαι: μεγαλύτερη συνεδρία, αποθήκευση προφίλ"
+    "de": "Easy/Pro: echte Abläufe (Lager ±, Plan, Bewertungen, Mitteilungen)",
+    "el": "Easy/Pro: πραγματικές ροές (Αποθήκη ±, Πλάνο, Αξιολογήσεις, Ειδοποιήσεις)"
   }
 }

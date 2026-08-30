@@ -1,5 +1,34 @@
 # Changelog
 
+## v152 — 2026-08-30
+
+- **Easy/Pro practical behaviour** on every major staff + kids page (not only CSS density).
+- **Lager:** Easy = house + search + big ± / Hinzufügen + attention/empty; Pro = shelves catalogue, ••• bulk/board/select/shift-check, OCR on quick-add, recent IN/OUT ribbon.
+- **Plan:** Easy = day/week + simple add sheet; Pro = Import Woche, Zo-Ai Plan, calendar/shift/events, week notes, announce/template extras.
+- **Liste:** Easy = plan/take/requests CTA; Pro = OCR, scan, import, auto-fill, bulk select, Αιτήματα filters.
+- **Kids Bewertungen:** Easy = staff grades (`staffKidRatings`) view-only; Pro = optional self-rate.
+- **Mitteilungen:** Easy = enable + test; Pro = categories / quiet hours / sound.
+- Spotlight tour (Hilfe) kept: `data-tour` targets + Easy shorter path; Lager/Bewertung copy updated.
+- Safe `houseShort()` for missing house ids (crash coordination). Cache `paidia-v152`.
+
+### Page × Easy vs Pro
+
+| Page | Easy | Pro |
+|------|------|-----|
+| Home | Tasks + signals; primary CTAs | + Mehr (overdue/events/unassigned), tutorial/calendar/gallery |
+| Plan | Day/week, simple add | Import, Zo-Ai, calendar/shift/events, week notes, announce |
+| Lager | ± / add / search / attention | Shelves, OCR, board, bulk, recent log |
+| Liste | Cart + requests big CTA | Scan, import, auto-fill, filters, bulk |
+| Talk | Chat | Stats, topic actions, video |
+| Buch | Shift journal | Log + people panes, filters |
+| Galerie | Share feed | Drive line, refresh |
+| Kids staff | Directory + staff ratings | Attendance/HW/timetable/subjects |
+| Profile | Global+page Easy/Pro, notif enable | Full notif categories, feedback inbox |
+| Kid Start | Primary CTAs | Plan/Sterne extras, school chips |
+| Kid Spiele | Featured | Full catalogue |
+| Kid Bewertungen | Team grades only | Self-rate + things |
+| Kid Bonus/Notizen | Earned / compose | How-bonus detail |
+
 ## v151 — 2026-08-30
 
 - **Remember me / Angemeldet bleiben:** opt-in checkbox (DE + EL «Να με θυμάσαι»). Checked → 30-day HttpOnly (`Secure` on Vercel) session cookie + last profile id in localStorage (never the PIN). Unchecked → browser session cookie (no Max-Age) with 12h server TTL; last profile cleared.

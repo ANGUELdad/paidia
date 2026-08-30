@@ -10,7 +10,7 @@
 // cache-first — fresh on release, instant on every load in between. The shell
 // and build.json stay network-first so a release is picked up immediately, with
 // a cached copy as the offline fallback.
-const CACHE = 'paidia-v151';
+const CACHE = 'paidia-v152';
 const ASSETS = ['./manifest.webmanifest'];
 
 // Fresh every time: the shell and the version manifest that drives the banner.
@@ -59,14 +59,31 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
+function fetchDeadline(request, ms, init) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('sw-timeout')), ms);
+    fetch(request, init).then(
+      (res) => { clearTimeout(timer); resolve(res); },
+      (err) => { clearTimeout(timer); reject(err); }
+    );
+  });
+}
+
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Never cache the API.
+  // Never cache the API — hard timeout so hung backends cannot spin the UI forever.
   if (url.pathname.startsWith('/api/')) {
-    e.respondWith(fetch(e.request, { cache: 'no-store' }));
+    e.respondWith(
+      fetchDeadline(e.request, 10000, { cache: 'no-store' }).catch(() =>
+        new Response(JSON.stringify({ error: 'Gateway Timeout', code: 'timeout' }), {
+          status: 504,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      )
+    );
     return;
   }
 
@@ -75,7 +92,7 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(
       caches.match(e.request).then((hit) => {
         if (hit) return hit;
-        return fetch(e.request).then((res) => {
+        return fetchDeadline(e.request, 12000).then((res) => {
           if (res && res.ok) {
             const copy = res.clone();
             caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
@@ -87,10 +104,9 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Shell and build.json: network-first so a release lands at once, cache as
-  // the offline fallback.
+  // Shell and build.json: network-first with timeout → cached offline fallback.
   e.respondWith(
-    fetch(e.request)
+    fetchDeadline(e.request, 4000)
       .then((res) => {
         if (res && res.ok) {
           const copy = res.clone();
@@ -98,7 +114,7 @@ self.addEventListener('fetch', (e) => {
         }
         return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(e.request).then((hit) => hit || Response.error()))
   );
 });
 

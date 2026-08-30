@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 151,
-    label: 'v151',
+    version: 152,
+    label: 'v152',
     changed: {
-      de: 'Angemeldet bleiben: längere Session, Profil merken',
-      el: 'Να με θυμάσαι: μεγαλύτερη συνεδρία, αποθήκευση προφίλ',
+      de: 'Easy/Pro: echte Abläufe (Lager ±, Plan, Bewertungen, Mitteilungen)',
+      el: 'Easy/Pro: πραγματικές ροές (Αποθήκη ±, Πλάνο, Αξιολογήσεις, Ειδοποιήσεις)',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -468,9 +468,14 @@
   }
 
   function renderPin(who, mode) {
+    if (!who || !who.id) {
+      renderEntrance();
+      return;
+    }
     let buf = '';
     let busy = false;
     let succeeded = false;
+    try {
     paintGate('pin', `
       <div class="gate-pin">
         <div class="gate-pin-identity">
@@ -502,15 +507,27 @@
         </div>
       </div>
       ${gateBuildHtml()}`);
+    } catch (error) {
+      try { renderEntrance(); } catch (e) {}
+      return;
+    }
 
     const input = body.querySelector('#gPinInput');
     const errorEl = body.querySelector('#gpErr');
     const loginBtn = body.querySelector('#gLogin');
     const pad = body.querySelector('#gPinpad');
+    if (!input || !loginBtn || !pad) {
+      try { renderEntrance(); } catch (e) {}
+      return;
+    }
+    const setErr = (msg) => { if (errorEl) errorEl.textContent = msg || ''; };
     const draw = () => {
-      body.querySelector('#gpd').innerHTML = [0, 1, 2, 3, 4, 5]
-        .map((i) => `<i class="${i < buf.length ? 'f' : ''}${busy && i < buf.length ? ' busy' : ''}"></i>`).join('');
-      if (input.value !== buf) input.value = buf;
+      const dots = body.querySelector('#gpd');
+      if (dots) {
+        dots.innerHTML = [0, 1, 2, 3, 4, 5]
+          .map((i) => `<i class="${i < buf.length ? 'f' : ''}${busy && i < buf.length ? ' busy' : ''}"></i>`).join('');
+      }
+      if (input && input.value !== buf) input.value = buf;
     };
     draw();
 

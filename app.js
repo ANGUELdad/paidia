@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 151,
-  label: 'v151',
+  version: 152,
+  label: 'v152',
   changed: {
-    de: 'Angemeldet bleiben: längere Session, Profil merken',
-    el: 'Να με θυμάσαι: μεγαλύτερη συνεδρία, αποθήκευση προφίλ',
+    de: 'Easy/Pro: echte Abläufe (Lager ±, Plan, Bewertungen, Mitteilungen)',
+    el: 'Easy/Pro: πραγματικές ροές (Αποθήκη ±, Πλάνο, Αξιολογήσεις, Ειδοποιήσεις)',
   },
 };
 const T = {
@@ -2715,9 +2715,9 @@ function persistProductFields(pid, fields){
   };
 }
 const house = id => (DB.houses||[]).find(h=>h.id===id);
+const houseShort = id => house(id)?.short || String(id||'') || '—';
 const planningHouses = () => (DB.houses||[]).filter(h=>h.planning!==false);
 const shoppingHouses = () => DB.houses||[];
-const houseShort = id => house(id)?.short || '—';
 const L = o => o ? (o[state.lang] ?? o.de ?? o.el ?? '') : '';
 const childResidence = child => child?.residenceType==='external' ? t('externalHome') : child?.homeHouseId ? house(child.homeHouseId)?.short||'' : '';
 const childChoiceLabel = child => `${child?.name||''}${childResidence(child)?` · 🏡 ${childResidence(child)}`:''}`;
@@ -5311,7 +5311,7 @@ function talkSuggestTopics(){
       .slice(0,6)
       .forEach(e=>push(`${actLabel(e.activityId)} · ${entryTime(e)}`, 'task'));
   }
-  DB.events.filter(e=>e.status==='published' && e.date>=today)
+  (DB.events||[]).filter(e=>e.status==='published' && e.date>=today)
     .slice(0,5)
     .forEach(e=>push(`${L(e)} (${e.date} ${e.from})`, 'event'));
   const wk=DB.weeks[weekKey(today)]||{};
@@ -7254,7 +7254,7 @@ function calendarMonthGrid(year, month, markers){
 
 function exportScheduleCalendarIcs(){
   const items = [];
-  DB.events.filter(e=>e.status==='published').forEach(e=>{
+  (DB.events||[]).filter(e=>e.status==='published').forEach(e=>{
     const [hh,mm] = String(e.from||'10:00').split(':').map(Number);
     const start = new Date(e.date+'T'+String(hh||0).padStart(2,'0')+':'+String(mm||0).padStart(2,'0')+':00');
     const end = new Date(start.getTime()+7200000);
@@ -8340,7 +8340,7 @@ function applyStockDelta(pid, delta, {reasonId=null, silent=false, undoable=true
     : '';
   DB.stock[key] = Math.max(0, next);
   logEntry(dir,
-    `${dir==='IN'?t('typeIN'):t('typeOUT')} @ ${house(hid).short}` +
+    `${dir==='IN'?t('typeIN'):t('typeOUT')} @ ${houseShort(hid)}` +
     `${dir==='OUT' && reason ? ' · ' + reason : ''}: ${Math.abs(d)} ${p.unit} ${L(p)}`,
     {houseId:hid, reason: dir==='OUT' ? reason : '', productId:pid, qty:Math.abs(d), unit:p.unit,
      items:[{pid, qty:Math.abs(d)}]});
@@ -8428,7 +8428,7 @@ function commitStockDraft(){
         DB.stock[k] = Math.max(0, roundStock((DB.stock[k] ?? 0) + delta));
       });
       logEntry(d,
-        `${d==='IN'?t('typeIN'):t('typeOUT')} @ ${house(hid).short}` +
+        `${d==='IN'?t('typeIN'):t('typeOUT')} @ ${houseShort(hid)}` +
         `${d==='OUT' && reason ? ' · ' + reason : ''}: ${list.map(label).join(', ')}`,
         {houseId:hid, reason: d==='OUT' ? reason : '',
          items: list.map(([pid, delta])=>({pid, qty: Math.abs(delta)}))});
@@ -8845,7 +8845,7 @@ function sheetStockBoard(dir,initialPid=null){
   openSheet(`
     <div class="stock-board">
       <div class="stock-board-scroll">
-        <h3>${t('stockBoard')} · ${esc(house(hid).short)}</h3>
+        <h3>${t('stockBoard')} · ${esc(houseShort(hid))}</h3>
         <div class="muted" style="margin-bottom:8px">${t('stockHoldHint')}</div>
         <div class="stock-quickbar">
           <button class="btn sec" id="sbAddFood" type="button">${t('stockAddFood')}</button>
@@ -9090,7 +9090,7 @@ function sheetStockBoard(dir,initialPid=null){
 
     const section = (title, list, color) => list.length ? `
       <div class="card" style="border-color:${color}">
-        <h2>${title} · ${esc(house(hid).short)}</h2>
+        <h2>${title} · ${esc(houseShort(hid))}</h2>
         ${list.map(([pid]) => rows(pid)).join('')}
       </div>` : '';
 
@@ -9315,7 +9315,7 @@ function sheetStockBoard(dir,initialPid=null){
           DB.stock[k] = Math.max(0, round((DB.stock[k] ?? 0) + (d === 'IN' ? b.qty : -b.qty)));
         });
         logEntry(d,
-          `${d==='IN'?t('typeIN'):t('typeOUT')} @ ${house(hid).short}` +
+          `${d==='IN'?t('typeIN'):t('typeOUT')} @ ${houseShort(hid)}` +
           `${d==='OUT' && reason ? ' · ' + reason : ''}: ${list.map(label).join(', ')}`,
           {photo, houseId:hid, reason: d === 'OUT' ? reason : '',
            items: list.map(([pid, b]) => ({pid, qty: b.qty}))});
@@ -9364,7 +9364,7 @@ function listEntryFriday(e){
 }
 
 function fridayEntries(hid,friday=state.shopFriday){
-  return DB.listEntries.filter(e=>e.houseId===hid && listEntryFriday(e)===friday && e.status!=='removed');
+  return (DB.listEntries||[]).filter(e=>e.houseId===hid && listEntryFriday(e)===friday && e.status!=='removed');
 }
 
 function shoppingHistory(hid){
@@ -9385,7 +9385,7 @@ function sheetShoppingHistory(){
     const rows=items.filter(item=>item.result===kind);
     return rows.length?`<ul>${rows.map(item=>`<li><span>${esc(item.name)}${item.reason?` · ${esc(missReasonLabel(item.reason))}`:''}</span><span>${item.qty} ${esc(item.unit)}</span></li>`).join('')}</ul>`:`<div class="muted" style="font-size:11px">—</div>`;
   };
-  openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(house(hid).short)}</div><h2>🛒 ${t('shoppingHistory')}</h2><p>${t('shoppingHistoryHint')}</p></div>
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(houseShort(hid))}</div><h2>🛒 ${t('shoppingHistory')}</h2><p>${t('shoppingHistoryHint')}</p></div>
     <div class="seg house-selector" id="historyHouse" style="margin-top:12px">${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-history-house="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}</div>
     <div class="trip-history-list">${trips.length?trips.map((trip,index)=>{
       const bought=trip.items.filter(item=>item.result==='bought'),missing=trip.items.filter(item=>item.result==='missing'),who=emp(trip.completedBy);
@@ -9913,7 +9913,7 @@ function viewShop(){
   const storeSelecting = state.selectMode==='store' && inStore;
   const reqSelecting = state.selectMode==='requests' && !inStore && state.shopPanel==='requests';
   const hero=inStore?'':`<header class="shop-overview">
-      <div class="shop-overview-copy"><p class="brand-kicker">${esc(t('shopTitle'))}</p><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div><h2>${esc(house(hid).short)}</h2><span>${esc(fridayText(friday))} · ${esc(T[state.lang].shopOverviewHint(open.length))}</span></div>
+      <div class="shop-overview-copy"><p class="brand-kicker">${esc(t('shopTitle'))}</p><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div><h2>${esc(houseShort(hid))}</h2><span>${esc(fridayText(friday))} · ${esc(T[state.lang].shopOverviewHint(open.length))}</span></div>
       <div class="shop-overview-stats" role="group" aria-label="${esc(t('shopTitle'))}">
         <div><b>${open.length}</b><span>${esc(t('secOpen'))}</span></div>
         <div><b>${openReqCount}</b><span>${esc(t('shopRequests'))}</span></div>
@@ -10080,7 +10080,7 @@ function viewShop(){
           <button class="store-back" id="cancelFriday" type="button" aria-label="${t('backToCart')}">←</button>
           <div class="store-top-meta">
             <span class="store-kicker">${esc(t('storeFocus'))}</span>
-            <b>${done===pending.length?'✓ '+t('storeComplete'):esc(house(hid).short)}</b>
+            <b>${done===pending.length?'✓ '+t('storeComplete'):esc(houseShort(hid))}</b>
             <span>${esc(fridayText(friday))} · ${T[state.lang].storeLeft(remaining)}</span>
           </div>
           <div class="store-progress-copy"><b>${done}/${pending.length}</b><span>${progress}%</span></div>
@@ -10217,10 +10217,10 @@ function confirmFridayBatch(){
     DB.shoppingTrips.push({id:tripId,houseId:hid,fridayDate:friday,completedAt,completedBy:who.id,
       items:pending.map(e=>({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status,reason:e.missReason||null}))});
     logEntry('SHOP',
-      `${t('typeSHOP')} @ ${house(hid).short} — ${t('stBought')}: ${got.join(', ') || '—'}` +
+      `${t('typeSHOP')} @ ${houseShort(hid)} — ${t('stBought')}: ${got.join(', ') || '—'}` +
       ` | ${t('shortage')}: ${miss.join(', ') || '—'}`,
       {houseId:hid,tripId,items:pending.map(e=>({productId:e.productId,name:e.name,qty:e.qty,unit:e.unit,result:e.status,reason:e.missReason||null}))});
-    save(); render(); toast(`${T[state.lang].batchBooked(pending.length)} · ${T[state.lang].bookedToHouse(house(hid).short)}`,'success',4800);
+    save(); render(); toast(`${T[state.lang].batchBooked(pending.length)} · ${T[state.lang].bookedToHouse(houseShort(hid))}`,'success',4800);
   });
 }
 
@@ -10651,7 +10651,7 @@ function sheetImportList(opts={}){
         sourceType:photo?'image':'text', imageSource, originalText:sourceText, originalImage:photo,
         extractedText, model:aiMeta?.model||'local-parser', responseId:aiMeta?.responseId||null,
         aiRows:initialRows, finalRows:structuredClone(rows)});
-      logEntry('SHOP', `${t('importTitle')} @ ${house(hid).short}: ` +
+      logEntry('SHOP', `${t('importTitle')} @ ${houseShort(hid)}: ` +
         rows.map(r=>`${r.name} ${r.qty}${r.unit}`).join(', '), {houseId: hid, photo, aiImportId:importId});
       save(); closeSheet(); render();
       toast(T[state.lang].importedToFriday(fridayText(friday)),'success',4200);
@@ -10661,7 +10661,7 @@ function sheetImportList(opts={}){
   openSheet(`
     <div class="import-flow"><div class="import-hero"><div class="import-kicker">${t('importStep')}</div>
       <h2>${t('importTitle')}</h2><p>${t('importStepHint')}</p>
-      <div class="import-context"><div>${t('importDestination')}<b>${ui('u-home','sm')} ${esc(house(hid).short)}</b></div>
+      <div class="import-context"><div>${t('importDestination')}<b>${ui('u-home','sm')} ${esc(houseShort(hid))}</b></div>
         <div>${t('fridayLabel')}<b>${esc(fridayText(friday))}</b></div><div>${t('existingFriday')}<b>${existing.length} ${t('listItems')}</b></div></div></div>
     <div class="import-source-grid">
       <section class="import-source"><h3>✍️ ${t('sourceTextTitle')}</h3><p>${t('sourceTextHint')}</p>
@@ -12091,7 +12091,8 @@ function kidLevel(xp){
 }
 function kidLevelName(lv){
   const names = t('levelNames');
-  return names[Math.min(lv, names.length-1)];
+  if(!Array.isArray(names) || !names.length) return String(lv||0);
+  return names[Math.min(Math.max(0, Number(lv)||0), names.length-1)];
 }
 function choreForKid(chore, kidId){
   if(!chore.kidIds || chore.kidIds.length===0) return true;
@@ -14637,7 +14638,7 @@ function childGamesView(){
 
 function childLearnView(){
   const g=state.game; if(!g) return childGamesLobby();
-  const total=g.deck.length||LEARN_SESSION;
+  const total=(g.deck&&g.deck.length)||LEARN_SESSION;
   const heartsHtml = Array.from({length:3},(_,i)=>
     `<span class="learn-heart ${i<g.hearts?'':'broken'}">${i<g.hearts?'❤️':'💔'}</span>`
   ).join('');
@@ -15230,7 +15231,7 @@ function bindChildGames(root){
 }
 
 function staffEventsView(){
-  const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
+  const events=[...(DB.events||[])].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
   const published=events.filter(e=>e.status==='published').length, drafts=events.length-published;
   return `<section class="events-overview">
       <div><div class="brand-kicker">ARMONIA THASSOS</div><h2>🎉 ${t('eventsPanel')}</h2><div class="muted">${t('announceHint')}</div></div>
@@ -15397,7 +15398,7 @@ function adminTeamPanel(today){
   if(!isAdminUser()) return '';
   const dates=dashboardDates(0,6);
   const issues=weekDates(today).flatMap(dateStr=>validateDay(dateStr).map(issue=>({...issue,dateStr})));
-  const team=DB.employees.map(person=>{
+  const team=(DB.employees||[]).map(person=>{
     const todayItems=dashboardAssignments(today,person.id);
     const nextItems=dates.flatMap(dateStr=>dashboardAssignments(dateStr,person.id).map(e=>({e,dateStr})));
     const done=todayItems.filter(e=>completionFor(today,e.id,person.id)).length;
@@ -16073,7 +16074,7 @@ function viewHome(){
   const unassigned=[];
   dashboardDates(0,2).forEach(dateStr=>entriesFor(dateStr).filter(e=>!e.cancelled && !entryEmployeeIds(e).length)
     .forEach(e=>unassigned.push({e,dateStr})));
-  const events=[...DB.events].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
+  const events=[...(DB.events||[])].sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from));
   const journalDue=!!(user && !(shiftNoteFor(user.id, today)?.text||'').trim());
   const shiftStartCard=homeShiftStartCardHtml();
   const showJournalDuty=journalDue && !shiftStartCard;
@@ -16904,6 +16905,46 @@ function fitButtonLabels(root=document){
   });
 }
 
+function pageRenderFallbackHtml(err){
+  console.error('page render failed', err);
+  try{ toast(t('unexpectedError'), 'error', 5200); }catch{}
+  return `<div class="empty page-render-fallback" role="alert">
+    <div class="big">${ui('u-alert')}</div>
+    <h3>${esc(t('unexpectedError'))}</h3>
+    <p class="muted">${esc(state.tab||state.childView||'')}</p>
+    <button class="btn" type="button" id="pageRenderRetry">${esc(t('logout')==='Profil'?'Home':'Home')}</button>
+  </div>`;
+}
+
+function staffViewHtml(){
+  normalizeDbShape();
+  if(state.tab==='home') return viewHome();
+  if(state.tab==='gallery') return viewGallery();
+  if(state.tab==='schedule') return viewSchedule();
+  if(state.tab==='stock') return viewStock();
+  if(state.tab==='shop') return viewShop();
+  if(state.tab==='kids') return viewKids();
+  if(state.tab==='talk') return viewTalk();
+  return viewBook();
+}
+
+function childViewHtml(c){
+  normalizeDbShape();
+  if(!c) return pageRenderFallbackHtml(new Error('missing child'));
+  if(state.childView==='today') return childStartView(c);
+  if(state.childView==='plan') return childStundenplanView(c);
+  if(state.childView==='aufgaben') return childAufgabenView(c.id);
+  if(state.childView==='rewards') return childRewardsView(c.id);
+  if(state.childView==='learn') return state.gameId ? childGamesView() : childLearnHubView();
+  if(state.childView==='games') return childGamesView();
+  if(state.childView==='rate') return childBewertungenView(c.id);
+  if(state.childView==='bonus') return childBonusView(c.id);
+  if(state.childView==='notes') return childNotizenView(c.id);
+  if(state.childView==='events') return childEventsView(c.id);
+  if(state.childView==='gallery') return childGalleryView();
+  return childStartView(c);
+}
+
 function render(){
   if(state.mode === 'child' && state.child) return renderChild();
   if(!document.body.classList.contains('auth-pending') && !state._routeBoot){
@@ -16930,11 +16971,11 @@ function render(){
     zoFab.setAttribute('aria-label', t('helpChat'));
     zoFab.title = t('helpChat');
   }
-  paintTopChrome();
+  try{ paintTopChrome(); }catch(err){ console.error('paintTopChrome failed', err); }
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   const dockMore=document.getElementById('dockMore');
   if(dockMore){
-    dockMore.classList.toggle('on', ['gallery','talk','book'].includes(state.tab));
+    dockMore.classList.toggle('on', ['gallery','talk','book','kids'].includes(state.tab));
     dockMore.setAttribute('aria-label', t('navMore'));
   }
   const dockMoreLabel=document.getElementById('dockMoreLabel');
@@ -16961,22 +17002,29 @@ function render(){
   document.body.dataset.tab = state.tab || '';
   applyUiModeClass();
 
-  document.getElementById('view').innerHTML =
-      state.tab==='home'     ? viewHome()
-    : state.tab==='gallery'  ? viewGallery()
-    : state.tab==='schedule' ? viewSchedule()
-    : state.tab==='stock'    ? viewStock()
-    : state.tab==='shop'     ? viewShop()
-    : state.tab==='kids'     ? viewKids()
-    : state.tab==='talk'     ? viewTalk()
-    : viewBook();
-  wire();
-  wireUiModeControls(document.getElementById('view'));
-  if(state.tab==='kids') wireKidsView(document.getElementById('view'));
-  if(state.tab==='gallery') bindGallery(document.getElementById('view'));
-  if(state.tab==='talk'){
-    const mount=document.getElementById('talkPageMount');
-    if(mount) mountStaffTalkChat(mount);
+  const viewEl = document.getElementById('view');
+  if(!viewEl){
+    console.error('missing #view');
+    try{ toast(t('unexpectedError'),'error'); }catch{}
+    return;
+  }
+  let html;
+  try{ html = staffViewHtml(); }
+  catch(err){ html = pageRenderFallbackHtml(err); }
+  viewEl.innerHTML = html;
+  viewEl.querySelector('#pageRenderRetry')?.addEventListener('click', ()=>{ state.tab='home'; render(); });
+  try{
+    wire();
+    wireUiModeControls(viewEl);
+    if(state.tab==='kids') wireKidsView(viewEl);
+    if(state.tab==='gallery') bindGallery(viewEl);
+    if(state.tab==='talk'){
+      const mount=document.getElementById('talkPageMount');
+      if(mount) mountStaffTalkChat(mount);
+    }
+  }catch(err){
+    console.error('page wire failed', err);
+    try{ toast(t('unexpectedError'),'error'); }catch{}
   }
   if(restoreMatrixFs && state.tab==='schedule'){
     const shell=[...document.querySelectorAll('.matrix-shell')].find(s=>
@@ -19202,7 +19250,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||151),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||152),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
