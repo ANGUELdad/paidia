@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 163,
-    label: 'v163',
+    version: 164,
+    label: 'v164',
     changed: {
-      de: 'Mitteilungen: Aktivieren funktioniert wieder · Hinweise bei geöffneter App',
-      el: 'Ειδοποιήσεις: το Ενεργοποίηση δουλεύει ξανά · με ανοιχτή εφαρμογή',
+      de: 'Zo-Ai immer sichtbar · Tipps zu Plan, Foto & Liste',
+      el: 'Zo-Ai πάντα ορατή · συμβουλές για πλάνο, φωτό & λίστα',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -296,6 +296,12 @@
       tips.src = 'page-tips.js?v=' + APP_BUILD.version;
       tips.dataset.paidiaPageTips = '1';
       document.body.appendChild(tips);
+    }
+    if (!document.querySelector('script[data-paidia-zoai-tips]')) {
+      const ztips = document.createElement('script');
+      ztips.src = 'zoai-tips.js?v=' + APP_BUILD.version;
+      ztips.dataset.paidiaZoaiTips = '1';
+      document.body.appendChild(ztips);
     }
     const script = document.createElement('script');
     script.src = 'app.js?v=' + APP_BUILD.version;

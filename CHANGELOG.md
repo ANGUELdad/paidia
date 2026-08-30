@@ -1,5 +1,12 @@
 # Changelog
 
+## v164 — 2026-08-30
+
+- **Zo-Ai always FAB:** bottom-right launcher stays visible for staff + kids (above dock; compact chip in matrix/store fullscreen; not Easy-hidden).
+- **Capability tips:** random DE/EL bubbles from FAB (`zoai-tips.js` / `PaidiaZoAiTips`) — Plan fill, OCR, schedule, stock, kids ask — dismissible, open Zo-Ai on tap.
+- **Stagger with page tips:** shared `paidiaMarkCoachShown` / `__paidiaLastCoachAt` (~28s); skips when `#tipRoot` / `paidiaPageTipVisible()`; page tips skip `#zoaiTipRoot` / `body.zoai-tip-open` / `paidiaZoAiTipVisible()`. Does not change Mitteilungen enable (v163). Cache `paidia-v164`.
+
+
 ## v163 — 2026-08-30
 
 - **Mitteilungen aktivieren:** Tippen → Erlaubnis → echte Test-Mitteilung → Einstellungen bleiben an → Hinweise bei geöffneter App.

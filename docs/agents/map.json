@@ -40,6 +40,26 @@
       "snippet": "Contextual page tip popups (not tour, not Zo-Ai FAB). page-tips.js PaidiaPageTips; tipNotifyPageChange; paidia.tipsDismissed; Easy fewer; stagger via paidiaMarkCoachShown."
     },
     {
+      "id": "zoai-tips",
+      "keys": [
+        "zoai tip",
+        "zo-ai tip",
+        "fab tip",
+        "capability tip",
+        "PaidiaZoAiTips",
+        "zoai-tips",
+        "zoaiTipNotifySession"
+      ],
+      "files": [
+        "zoai-tips.js",
+        "app.js",
+        "index.html",
+        "gate.js",
+        "docs/agents/TIPS_SYSTEM.md"
+      ],
+      "snippet": "Zo-Ai FAB capability tips. PaidiaZoAiTips; zoaiTipNotifySession; stagger paidiaMarkCoachShown / paidiaPageTipVisible; #zoaiTipRoot body.zoai-tip-open."
+    },
+    {
       "id": "nav-menu",
       "keys": [
         "mehr",

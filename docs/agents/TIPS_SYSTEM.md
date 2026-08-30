@@ -47,3 +47,17 @@ No Zo-Ai “ask me about…” tips here — page chrome only (filters, ±, dock
 ## CSS
 
 `index.html`: `.tip-root`, `.tip-card`, `.tip-on`. z-index **8600** (below tour 12000).
+
+
+## Zo-Ai FAB tips (`zoai-tips.js` / `PaidiaZoAiTips`)
+
+| Rule | Behaviour |
+|------|-----------|
+| When | After login / render, first tip ~45–90s, then every **2–5 min** |
+| Persist | Dismissed ids in `localStorage` key `paidia.zoaiTipsDismissed` |
+| Skip | Gate, tour, sheet, chat open, or page tip visible |
+| Stagger | `paidiaMarkCoachShown()`; min gap **28s** with page tips |
+| Markers | `#zoaiTipRoot`, `body.zoai-tip-open`, `paidiaZoAiTipVisible()` |
+| Hooks | `zoaiTipNotifySession` after staff/kids render; hide on chat open; `zoaiTipStopAll` on gate |
+
+Thin binders in `app.js`. CSS: `.zoai-tip-*` in `index.html` (z-index **8700**).

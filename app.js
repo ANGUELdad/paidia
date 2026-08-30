@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 163,
-  label: 'v163',
+  version: 164,
+  label: 'v164',
   changed: {
-    de: 'Mitteilungen: Aktivieren funktioniert wieder · Hinweise bei geöffneter App',
-    el: 'Ειδοποιήσεις: το Ενεργοποίηση δουλεύει ξανά · με ανοιχτή εφαρμογή',
+    de: 'Zo-Ai immer sichtbar · Tipps zu Plan, Foto & Liste',
+    el: 'Zo-Ai πάντα ορατή · συμβουλές για πλάνο, φωτό & λίστα',
   },
 };
 const T = {
@@ -4083,6 +4083,28 @@ function tipNotifyPageChange(){
 }
 tipBindEngine();
 
+
+/* Zo-Ai FAB capability tips — engine in zoai-tips.js (shares coach stagger with page tips). */
+function zoaiTipBindEngine(){
+  try{
+    if(window.PaidiaZoAiTips && typeof window.PaidiaZoAiTips.bind==='function'){
+      window.PaidiaZoAiTips.bind({
+        getState: ()=>state,
+        isAdminUser,
+        feedback,
+        getGateEl: ()=>gateEl,
+        openZoAi: ()=>openChatPanel('ai'),
+      });
+    }
+  }catch{}
+}
+function zoaiTipHide(opts){ try{ window.PaidiaZoAiTips && window.PaidiaZoAiTips.hide(opts); }catch{} }
+function zoaiTipStopAll(){ try{ window.PaidiaZoAiTips && window.PaidiaZoAiTips.stop(); }catch{} }
+function zoaiTipNotifySession(){
+  zoaiTipBindEngine();
+  try{ window.PaidiaZoAiTips && window.PaidiaZoAiTips.notifySession(); }catch{}
+}
+zoaiTipBindEngine();
 
 async function ensureContactDetails(){
   if(state.mode!=='staff' || !state.user) return;
@@ -14641,6 +14663,7 @@ function renderChild(){
   syncLayoutMode();
   if(state.tourActive) queueMicrotask(()=>tourPaintCurrent());
   try{ tipNotifyPageChange(); }catch{}
+  try{ zoaiTipNotifySession(); }catch{}
 }
 
 async function openChoreSubmitSheet(choreId, kidId){
@@ -17087,6 +17110,7 @@ function openChatPanel(mode='ai'){
   mode='ai';
 
   stopTalkPanelPoll();
+  try{ zoaiTipHide(); }catch{}
   state.chatMode=mode;
   state.chatOpen=true;
   document.body.classList.add('chat-open');
@@ -17729,6 +17753,7 @@ function render(){
   else maybePromptShiftPresence();
   if(state.tourActive) queueMicrotask(()=>tourPaintCurrent());
   try{ tipNotifyPageChange(); }catch{}
+  try{ zoaiTipNotifySession(); }catch{}
 }
 
 function wire(){
@@ -19259,7 +19284,7 @@ function stopPinKeyboard(){
   }
 }
 
-function openGate(){ try{ tipCancelSchedule(); tipHide(); }catch{} closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); renderEntrance(); }
+function openGate(){ try{ tipCancelSchedule(); tipHide(); zoaiTipStopAll(); }catch{} closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); renderEntrance(); }
 function closeGate(){ stopPinKeyboard(); gateEl.classList.remove('on'); }
 
 /** Βήμα 1 — δύο ξεχωριστές είσοδοι: Προσωπικό / Παιδιά (§31.3). */
@@ -20237,7 +20262,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||163;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||164;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
