@@ -116,8 +116,9 @@ const T = {
     prevWeek:'Vorherige Woche', nextWeek:'Nächste Woche',
     weekPickDate:'Woche wählen',
     weekRotateCoach:'Für die volle Woche quer halten',
-    weekRotateCoachHint:'Oder tippe „Volle Woche“ — Personenspalte bleibt links kleben.',
+    weekRotateCoachHint:'Im Querformat erscheint die Wochen-Tabelle mit klebender Personenspalte.',
     weekShowFull:'Volle Woche', weekShowDay:'Ein Tag',
+    weekPortraitOnly:'Hochkant zeigt einen Tag — Gerät quer drehen für die volle Woche.',
     weekSwipeHint:'Wische oder tippe Mo–So',
     dayAgenda:'Tagesablauf', weekAgenda:'Wochenübersicht', agendaEmpty:'Noch nichts geplant', agendaEmptyHint:'Füge den ersten Eintrag direkt zum Tagesablauf hinzu.', openDay:'Tag öffnen',
     tableFullscreen:'Vollbild', tableExitFullscreen:'Schließen',
@@ -1117,8 +1118,9 @@ const T = {
     prevWeek:'Προηγούμενη εβδομάδα', nextWeek:'Επόμενη εβδομάδα',
     weekPickDate:'Επιλογή εβδομάδας',
     weekRotateCoach:'Γύρισε οριζόντια για όλη την εβδομάδα',
-    weekRotateCoachHint:'Ή πάτα «Όλη η εβδομάδα» — η στήλη ατόμου μένει σταθερή αριστερά.',
+    weekRotateCoachHint:'Σε οριζόντια εμφάνιση φαίνεται ο πίνακας με σταθερή στήλη ατόμου.',
     weekShowFull:'Όλη η εβδομάδα', weekShowDay:'Μία ημέρα',
+    weekPortraitOnly:'Όρθια μόνο μία μέρα — γύρισε οριζόντια για όλη την εβδομάδα.',
     weekSwipeHint:'Σύρε ή πάτα Δευ–Κυρ',
     dayAgenda:'Ροή ημέρας', weekAgenda:'Εικόνα εβδομάδας', agendaEmpty:'Δεν έχει προγραμματιστεί κάτι', agendaEmptyHint:'Πρόσθεσε την πρώτη εγγραφή απευθείας στη ροή της ημέρας.', openDay:'Άνοιγμα ημέρας',
     tableFullscreen:'Πλήρης οθόνη', tableExitFullscreen:'Κλείσιμο',
@@ -6274,6 +6276,22 @@ function setWeekMobileFullMode(on){
   try{ sessionStorage.setItem(WEEK_MOBILE_FULL_KEY, on?'1':'0'); }catch{}
   document.body.classList.toggle('week-mobile-full', !!on);
 }
+/** Portrait phone: day-focus only — full 7-day matrix DOM crashes / blank-screens at ~390px. */
+function weekPortraitMobile(){
+  try{
+    return !window.matchMedia('(min-width:900px)').matches
+      && window.matchMedia('(orientation: portrait)').matches;
+  }catch{
+    return !window.matchMedia('(min-width:900px)').matches;
+  }
+}
+function weekNeedsMatrixHtml(){
+  try{
+    if(window.matchMedia('(min-width:900px)').matches) return true;
+    if(weekPortraitMobile()) return false;
+    return true; // landscape phone — matrix via CSS / Voll Woche
+  }catch{ return true; }
+}
 
 
 function rememberScheduleView(view){
@@ -6819,6 +6837,8 @@ function viewScheduleWeek(){
   const scrollHint = state.lang==='de' ? 'Tabelle · seitlich scrollen · Zelle = hinzufügen' : 'Πίνακας · οριζόντια κύλιση · κελί = προσθήκη';
   const personLabel = state.lang==='de'?'Person':'Άτομο';
   const houseLabel = state.lang==='de'?'Haus':'Σπίτι';
+  const portraitMobile = weekPortraitMobile();
+  const needMatrix = weekNeedsMatrixHtml();
 
   const houseTable = (blockId) => matrixView(dayHeaders, visibleHouses.map(h=>({
     label:esc(h.short || h.name),
@@ -6861,14 +6881,14 @@ function viewScheduleWeek(){
       };
     }),
   });
-  const personTable = matrixView(dayHeaders, personRows, {
+  const personTable = needMatrix ? matrixView(dayHeaders, personRows, {
     label:personLabel,
     interactive:true,
     title:t('afternoon'),
     density:'roster',
     shellClass:'roster-matrix week-block-matrix block-afternoon',
     hint:scrollHint,
-  });
+  }) : '';
 
   const focusDs = week.includes(state.date) ? state.date : week[0];
   if(focusDs !== state.date){ state.date = focusDs; persistScheduleDate(focusDs); }
@@ -6876,7 +6896,13 @@ function viewScheduleWeek(){
   const focusIdx = week.indexOf(focusDs);
   const prevDay = focusIdx > 0 ? week[focusIdx-1] : '';
   const nextDay = focusIdx < 6 ? week[focusIdx+1] : '';
-  const mobileFull = weekMobileFullMode();
+  // Portrait phones stay on day-focus — full matrix HTML blank-screens / OOMs at 390px.
+  let mobileFull = !portraitMobile && weekMobileFullMode();
+  if(portraitMobile){
+    try{ sessionStorage.setItem(WEEK_MOBILE_FULL_KEY, '0'); }catch{}
+    mobileFull = false;
+  }
+  document.body.classList.toggle('week-mobile-dayforce', !!portraitMobile);
   document.body.classList.toggle('week-mobile-full', !!mobileFull);
 
   const weekJump = `<nav class="week-jump" aria-label="${esc(t('viewWeek'))}">
@@ -6912,28 +6938,36 @@ function viewScheduleWeek(){
         }).join('')}
       </div>`;
     }else{
+      // Mobile day-focus: skip empty staff rows — 8 blank 44px rows bury filled slots.
+      const peopleRows = DB.employees.map(p=>{
+        const rows = list.filter(e=>entryEmployeeIds(e).includes(p.id));
+        if(!rows.length) return '';
+        return `<div class="week-stack-tr" role="row">
+          <span class="week-stack-rh" role="rowheader">${esc(p.name)}</span>
+          <div class="week-stack-cell" role="cell">${cellItems(rows,false,ds)}</div>
+          <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" data-employee="${p.id}" aria-label="${esc(t('add'))}">＋</button>
+        </div>`;
+      }).join('');
+      const unassigned = list.filter(e=>!entryEmployeeIds(e).length);
+      const unassignedRow = `<div class="week-stack-tr" role="row">
+        <span class="week-stack-rh roster-unassigned" role="rowheader">${esc(t('unassigned'))}</span>
+        <div class="week-stack-cell" role="cell">${unassigned.length ? cellItems(unassigned,false,ds) : `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}</div>
+        <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" aria-label="${esc(t('add'))}">＋</button>
+      </div>`;
+      const emptyStaffAdd = !peopleRows && !unassigned.length
+        ? `<div class="week-stack-tr week-stack-empty-hint" role="row">
+            <span class="week-stack-rh" role="rowheader">—</span>
+            <div class="week-stack-cell" role="cell"><span class="matrix-empty">${esc(t('matrixEmpty'))}</span></div>
+            <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" aria-label="${esc(t('add'))}">＋</button>
+          </div>`
+        : '';
       body = `<div class="week-stack-table" role="table">
         <div class="week-stack-tr week-stack-thead" role="row">
           <span role="columnheader">${esc(personLabel)}</span>
           <span role="columnheader">${esc(t('dueToday'))}</span>
           <span role="columnheader" class="week-stack-add-h">${esc(t('add'))}</span>
         </div>
-        ${DB.employees.map(p=>{
-          const rows = list.filter(e=>entryEmployeeIds(e).includes(p.id));
-          return `<div class="week-stack-tr" role="row">
-            <span class="week-stack-rh" role="rowheader">${esc(p.name)}</span>
-            <div class="week-stack-cell" role="cell">${rows.length ? cellItems(rows,false,ds) : `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}</div>
-            <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" data-employee="${p.id}" aria-label="${esc(t('add'))}">＋</button>
-          </div>`;
-        }).join('')}
-        ${(()=>{
-          const rows = list.filter(e=>!entryEmployeeIds(e).length);
-          return `<div class="week-stack-tr" role="row">
-            <span class="week-stack-rh roster-unassigned" role="rowheader">${esc(t('unassigned'))}</span>
-            <div class="week-stack-cell" role="cell">${rows.length ? cellItems(rows,false,ds) : `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}</div>
-            <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" aria-label="${esc(t('add'))}">＋</button>
-          </div>`;
-        })()}
+        ${peopleRows}${unassigned.length ? unassignedRow : ''}${!peopleRows && !unassigned.length ? emptyStaffAdd : ''}
       </div>`;
     }
     return `<div class="week-stack-block block-${blockId}" data-block="${blockId}">
@@ -6965,21 +6999,19 @@ function viewScheduleWeek(){
     <button class="btn sm sec pro-only mode-pro-block" type="button" data-page-act="importWeek" title="${esc(t('importWeek'))}">${esc(t('importWeek'))}</button>
   </div>`;
 
-  const rotateCoach = (!mobileFull && denseWeek) ? `<div class="week-rotate-coach" role="status">
+  const rotateCoach = (portraitMobile && denseWeek) ? `<div class="week-rotate-coach week-rotate-coach-slim" role="status">
     <div class="week-rotate-copy">
       <b>${esc(t('weekRotateCoach'))}</b>
-      <span>${esc(t('weekRotateCoachHint'))}</span>
     </div>
-    <button type="button" class="btn sm sec" data-week-mobile-full="1">${esc(t('weekShowFull'))}</button>
   </div>` : '';
 
   const dayFocus = `<div class="week-day-focus week-stack-roster" data-density="roster" data-week-swipe aria-label="${esc(t('viewWeek'))}">
-    <div class="week-day-focus-nav">
+    ${portraitMobile ? '' : `<div class="week-day-focus-nav">
       <button type="button" class="btn sm sec" data-week-focus="${prevDay||''}" ${prevDay?'':'disabled'} aria-label="${esc(t('prevWeek'))}">‹</button>
       <span class="week-day-focus-title">${esc(focusStamp.long)} · ${esc(focusStamp.full)}</span>
       <button type="button" class="btn sm sec" data-week-focus="${nextDay||''}" ${nextDay?'':'disabled'} aria-label="${esc(t('nextWeek'))}">›</button>
     </div>
-    <p class="week-swipe-hint muted">${esc(t('weekSwipeHint'))}</p>
+    <p class="week-swipe-hint muted">${esc(t('weekSwipeHint'))}</p>`}
     <section class="week-day-card week-day-table ${focusDs===today?'is-today':''} is-selected is-focus" data-date="${focusDs}">
       <header class="week-day-card-h">
         <span class="wd-main">
@@ -6996,13 +7028,33 @@ function viewScheduleWeek(){
         ${stackBlock(focusDs,'evening')}
       </div>
     </section>
-    <div class="week-mobile-mode-row">
+    ${portraitMobile ? '' : `<div class="week-mobile-mode-row">
       <button type="button" class="btn sec sm" data-week-mobile-full="1">${esc(t('weekShowFull'))}</button>
-    </div>
+    </div>`}
   </div>`;
+
+  const matrixBlock = needMatrix ? `<div class="week-roster week-matrix-desktop" data-density="roster" data-roster="week">
+      <div class="week-mobile-matrix-bar">
+        <button type="button" class="btn sec sm" data-week-mobile-full="0">${esc(t('weekShowDay'))}</button>
+      </div>
+      <div class="week-roster-block block-morning">
+        <div class="plan-block-h block-h block-morning week-roster-h"><span class="t">${t('morning')}</span><span class="hrs plan-time-chip">10:00–14:00</span></div>
+        ${houseTable('morning')}
+      </div>
+      <div class="week-roster-block block-afternoon">
+        <div class="plan-block-h block-h block-afternoon week-roster-h"><span class="t">${t('afternoon')}</span><span class="hrs plan-time-chip">15:00–19:00</span></div>
+        ${personTable}
+      </div>
+      <div class="week-roster-block block-evening">
+        <div class="plan-block-h block-h block-evening week-roster-h"><span class="t">${t('evening')}</span><span class="hrs plan-time-chip">19:00–22:00</span></div>
+        ${houseTable('evening')}
+      </div>
+    </div>` : `<div class="week-roster week-matrix-desktop" hidden aria-hidden="true"></div>`;
 
   const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   return `
+    ${weekJump}
+    ${dayFocus}
     <header class="plan-hero plan-hero-week">
       <div class="plan-hero-copy">
         <div class="brand-kicker">${esc(t('viewWeek'))}</div>
@@ -7020,26 +7072,8 @@ function viewScheduleWeek(){
         <span><b>${unassignedCount}</b><small>${esc(t('unassigned'))}</small></span>
       </div>
     </header>
-    ${weekJump}
     ${rotateCoach}
-    <div class="week-roster week-matrix-desktop" data-density="roster" data-roster="week">
-      <div class="week-mobile-matrix-bar">
-        <button type="button" class="btn sec sm" data-week-mobile-full="0">${esc(t('weekShowDay'))}</button>
-      </div>
-      <div class="week-roster-block block-morning">
-        <div class="plan-block-h block-h block-morning week-roster-h"><span class="t">${t('morning')}</span><span class="hrs plan-time-chip">10:00–14:00</span></div>
-        ${houseTable('morning')}
-      </div>
-      <div class="week-roster-block block-afternoon">
-        <div class="plan-block-h block-h block-afternoon week-roster-h"><span class="t">${t('afternoon')}</span><span class="hrs plan-time-chip">15:00–19:00</span></div>
-        ${personTable}
-      </div>
-      <div class="week-roster-block block-evening">
-        <div class="plan-block-h block-h block-evening week-roster-h"><span class="t">${t('evening')}</span><span class="hrs plan-time-chip">19:00–22:00</span></div>
-        ${houseTable('evening')}
-      </div>
-    </div>
-    ${dayFocus}
+    ${matrixBlock}
     ${weekNotesCard()}`;
 }
 
@@ -17951,10 +17985,19 @@ function wire(){
   });
   v.querySelectorAll('[data-week-mobile-full]').forEach(b=>{
     b.onclick = () => {
+      if(b.dataset.weekMobileFull==='1' && weekPortraitMobile()){
+        toast(t('weekPortraitOnly'), 'info', 4200);
+        feedback('tap');
+        return;
+      }
       setWeekMobileFullMode(b.dataset.weekMobileFull==='1');
       feedback('select');
       render();
     };
+  });
+  queueMicrotask(()=>{
+    const sel=v.querySelector('.week-jump-day.is-selected');
+        if(sel) try{ sel.scrollIntoView({inline:'center', block:'nearest', behavior:'auto'}); }catch{}
   });
   const swipeHost = v.querySelector('[data-week-swipe]');
   if(swipeHost){
@@ -20262,7 +20305,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||164;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||165;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

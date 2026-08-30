@@ -199,7 +199,7 @@
       "files": [
         "app.js"
       ],
-      "snippet": "Default week roster; day/events; Import Woche; Zo-Ai Plan (/api/ai-schedule); template + overrides"
+      "snippet": "Week: portrait day-focus (sticky Mo–So chips); landscape/desktop matrix; Import Woche; Zo-Ai Plan"
     },
     {
       "id": "calendar",

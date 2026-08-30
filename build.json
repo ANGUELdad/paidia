@@ -1,8 +1,8 @@
 {
-  "version": 164,
-  "label": "v164",
+  "version": 165,
+  "label": "v165",
   "changed": {
-    "de": "Zo-Ai immer sichtbar · Tipps zu Plan, Foto & Liste",
-    "el": "Zo-Ai πάντα ορατή · συμβουλές για πλάνο, φωτό & λίστα"
+    "de": "Plan · Woche mobil: Tag-Chips + Slots lesbar, kein Absturz",
+    "el": "Πλάνο · Εβδομάδα κινητό: chips + slots σταθερά, χωρίς κρας"
   }
 }

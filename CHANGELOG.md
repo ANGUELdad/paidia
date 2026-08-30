@@ -1,5 +1,11 @@
 # Changelog
 
+## v165 — 2026-08-30
+
+- **Mobile Plan · Woche stability:** portrait stays day-focus only (no 922px Voll-Woche matrix DOM — was blanking / crushing chips under the dock).
+- **Readable slots:** sticky Mo–So chips (7-col grid), compact week hero + AI bar, empty afternoon staff rows hidden.
+- Landscape / desktop matrices unchanged. Cache `paidia-v165`.
+
 ## v164 — 2026-08-30
 
 - **Zo-Ai always FAB:** bottom-right launcher stays visible for staff + kids (above dock; compact chip in matrix/store fullscreen; not Easy-hidden).
