@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 161,
-  label: 'v161',
+  version: 162,
+  label: 'v162',
   changed: {
-    de: 'Buch-Kalender: jeden Tag im Schichtbuch lesen & schreiben',
-    el: 'Ημερολόγιο Βιβλίου: διάβασε & γράψε κάθε μέρα στο βιβλίο βάρδιας',
+    de: 'Kids: Zurück auf Unterseiten · Verlauf Spiele→Hub→Start',
+    el: 'Kids: Πίσω στις υποσελίδες · ιστορικό Παιχνίδια→Hub→Αρχή',
   },
 };
 const T = {
@@ -3458,6 +3458,10 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   state.mode=mode;
   state.child=mode==='child'?authenticatedWho:null;
   state.user=mode==='staff'?authenticatedWho:null;
+  if(mode==='child'){
+    state.childView = 'today';
+    try{ clearKidHist(); }catch{}
+  }
   try{
     if(data.remember){
       localStorage.setItem('paidia.lastMode', mode);
@@ -14579,7 +14583,7 @@ function renderChild(){
   const dockActive = kidDockActiveView(state.childView);
   try{ mountKidDock(dockActive); }catch(err){ console.error('mountKidDock failed', err); }
   const topMore = document.getElementById('kidTopMore');
-  if(topMore) topMore.onclick = ()=>sheetKidMore();
+  if(topMore) topMore.onclick = ()=>{ try{ feedback('open'); }catch{} sheetKidMore(); };
   wireKidChrome(document.getElementById('topTools'));
 
   let viewBody;
@@ -14596,6 +14600,7 @@ function renderChild(){
   viewEl.innerHTML = `
     <div class="kid-shell">
       ${kidFirstRunHtml()}
+      ${kidBackHtml()}
       ${kidGuideHtml(state.childView)}
       ${viewBody}
     </div>`;
@@ -14604,7 +14609,7 @@ function renderChild(){
   try{
     wireUiModeControls(root);
     wireKidChrome(root);
-    root.querySelector('#pageRenderRetry')?.addEventListener('click', ()=>{ state.childView='today'; render(); });
+    root.querySelector('#pageRenderRetry')?.addEventListener('click', ()=>{ goChildView('today'); });
     root.querySelectorAll('[data-date]').forEach(d=>{
       d.onclick = () => { setScheduleDate(d.dataset.date); render(); };
     });
@@ -14614,7 +14619,7 @@ function renderChild(){
     if(childReq) childReq.onclick=()=>sheetCreateListRequest({kidMode:true});
     root.querySelectorAll('[data-game-challenge]').forEach(button=>{
       button.onclick=()=>{
-        state.childView='games';
+        setChildView('games');
         startChildGame(button.dataset.gameChallenge);
       };
     });
@@ -20228,7 +20233,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||161;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||162;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

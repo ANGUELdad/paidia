@@ -1,5 +1,10 @@
 # Changelog
 
+## v162 — 2026-08-30
+
+- **Kids Back:** every kids subpage (not Start) shows top-left **Zurück / Πίσω** (≥44px). History stack: dock/Mehr pushes prior view; Back pops (fallback Start). In-game `#gameBack` still returns to Spiele/Learn hub (OSS + native). Dock/rail kept.
+- `setChildView` / `goChildView` / `childHist`; Start clears stack. Cache `paidia-v162`.
+
 ## v161 — 2026-08-30
 
 - **Mehr menu open (staff + kids):** intentional open UX — mobile slides up as a solid bottom sheet; desktop opens a solid centered panel (not a tiny bottom pop). High-contrast rows, plain labels.

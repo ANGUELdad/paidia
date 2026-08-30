@@ -1,8 +1,8 @@
 {
-  "version": 161,
-  "label": "v161",
+  "version": 162,
+  "label": "v162",
   "changed": {
-    "de": "Buch-Kalender: jeden Tag im Schichtbuch lesen & schreiben",
-    "el": "Ημερολόγιο Βιβλίου: διάβασε & γράψε κάθε μέρα στο βιβλίο βάρδιας"
+    "de": "Kids: Zurück auf Unterseiten · Verlauf Spiele→Hub→Start",
+    "el": "Kids: Πίσω στις υποσελίδες · ιστορικό Παιχνίδια→Hub→Αρχή"
   }
 }
