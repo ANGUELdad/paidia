@@ -1,8 +1,8 @@
 {
-  "version": 155,
-  "label": "v155",
+  "version": 156,
+  "label": "v156",
   "changed": {
-    "de": "Geräte & Bewegungen: Login-Audit, bekannte Geräte, Admin-Protokoll",
-    "el": "Συσκευές & Κινήσεις: audit σύνδεσης, γνωστές συσκευές, admin πρωτόκολλο"
+    "de": "Plan mobil: Tag-Fokus, Woche wechseln, KI füllen/leeren · Schichtcheck",
+    "el": "Πλάνο κινητό: ημέρα, αλλαγή εβδομάδας, AI γέμισμα/καθαρισμός · έλεγχος βάρδιας"
   }
 }

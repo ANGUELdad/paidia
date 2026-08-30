@@ -521,3 +521,18 @@
 - **Insight:** In a 19k-line vanilla `app.js`, page crashes cluster at (1) unguarded collection spreads/`find` on mutable DB arrays after corrupt local/shared sync, (2) `house(id).short` when house id is stale, (3) missing `#view`/`#title` DOM during child chrome paint. A single `normalizeDbShape` + try/catch around `staffViewHtml`/`childViewHtml` stops white-screens better than per-call-site optional chaining alone.
 - **Reusable pattern:** For SPA-without-framework apps: coerce durable state shape on load/sync; wrap the page HTML factory in try/catch that toasts and paints a retry empty-state; smoke-test helpers with node `vm` + source asserts.
 - **Skill candidates:** optional "vanilla SPA render harden" checklist if this pattern repeats.
+
+
+## 2026-08-30 — device audit multi-agent race
+
+- **Observation:** While shipping device/IP audit on top of v154, sibling agents concurrently rewrote `app.js` APP_BUILD (tips → plan mobile → tips again) and re-injected an unhooked tips catalog into the same working tree.
+- **Lesson:** For multi-agent ships, treat `build.json` / `APP_BUILD` / `?v=` as a single ownership token; strip unhooked sibling WIP before commit; push `upstream` (ANGUELdad/paidia) and `origin` separately with the correct GitHub user.
+- **Skill candidate:** multi-agent cache-bust ownership
+
+## 2026-08-30 — Mobile week Plan + Schichtcheck + AI fill/remove
+
+- **Trigger:** User: weekly program on mobile is a mess; wants week switch, AI fill; follow-up: shift change check broken on mobile, no AI fill/remove.
+- **Insight:** Pro-mobile was forcing the desktop 7-col matrix (unreadable). Better default = day-jump strip + one-day focus; landscape/coach for full matrix. AI fill was Easy-blocked + Pro-buried. Shift-check sheet taps fail when dock stays interactive under sheet (`sheet-open` must hide `.bottom-panel` like lightbox).
+- **Reusable pattern:** Mobile table views → day-focus first; never `mode-pro` + mobile = desktop matrix. Sheet-open always disables chrome that shares the bottom edge.
+- **Skill candidates:** mobile-chrome-css-audit (sheet-open × dock × sticky actions); schedule-mobile-week pattern.
+

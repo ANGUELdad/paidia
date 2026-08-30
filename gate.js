@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 155,
-    label: 'v155',
+    version: 156,
+    label: 'v156',
     changed: {
-      de: 'Geräte & Bewegungen: Login-Audit, bekannte Geräte, Admin-Protokoll',
-      el: 'Συσκευές & Κινήσεις: audit σύνδεσης, γνωστές συσκευές, admin πρωτόκολλο',
+      de: 'Plan mobil: Tag-Fokus, Woche wechseln, KI füllen/leeren · Schichtcheck',
+      el: 'Πλάνο κινητό: ημέρα, αλλαγή εβδομάδας, AI γέμισμα/καθαρισμός · έλεγχος βάρδιας',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -171,7 +171,7 @@
       needEmail: 'Bitte E-Mail eingeben.',
       storageFail: 'PIN konnte nicht gespeichert werden. Bitte Admin informieren.',
       resetUnavailable: 'E-Mail-Reset ist nicht eingerichtet. Bitte Admin fragen — PIN ändern geht nach Login unter Profil.',
-      resetAskAdmin: 'E-Mail-Reset ist nicht konfiguriert. Ein Admin kann dir nach der Anmeldung unter Profil → PIN helfen, oder SMTP/Resend muss eingerichtet werden.',
+      resetAskAdmin: 'E-Mail-Reset ist nicht eingerichtet. Ein Admin kann dir nach der Anmeldung unter Profil → PIN helfen, oder der E-Mail-Versand muss eingerichtet werden.',
       resetNeedProfileEmail: 'Nutze die E-Mail, die für dieses Profil gespeichert ist.',
       resetBackPin: '← Zurück zur PIN',
       rememberMe: 'Angemeldet bleiben',
@@ -219,7 +219,7 @@
       needEmail: 'Βάλε το email.',
       storageFail: 'Το PIN δεν αποθηκεύτηκε. Ενημέρωσε τον admin.',
       resetUnavailable: 'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ρώτα admin — μετά τη σύνδεση αλλάζει από Προφίλ → PIN.',
-      resetAskAdmin: 'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ένας admin μπορεί να βοηθήσει μετά τη σύνδεση στο Προφίλ → PIN, ή πρέπει να ρυθμιστεί SMTP/Resend.',
+      resetAskAdmin: 'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ένας admin μπορεί να βοηθήσει μετά τη σύνδεση στο Προφίλ → PIN, ή πρέπει να ρυθμιστεί η αποστολή email.',
       resetNeedProfileEmail: 'Χρησιμοποίησε το email που είναι αποθηκευμένο σε αυτό το προφίλ.',
       resetBackPin: '← Πίσω στο PIN',
       rememberMe: 'Να με θυμάσαι',

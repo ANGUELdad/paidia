@@ -1,4 +1,18 @@
+## v156 — 2026-08-30
+
+- **Mobile week Plan:** day-jump strip + one-day focus (swipe/jump Mo–So); readable roster cells. Dense weeks get “drehen / γύρισε οριζόντια” coach; toggle **Volle Woche** for sticky-column matrix. Desktop matrices unchanged.
+- **Week switcher** (mobile + PC): prev/next week, **Diese Woche**, date pick; selected week persists (`paidia.scheduleDate`).
+- **AI fill + AI remove** on week view for Easy and Pro: “Mit Text füllen / Γέμισμα με κείμενο” → Zo-Ai preview → apply; “AI leeren / Καθαρισμός AI” with confirm (only AI-tagged cells). Pro keeps Import Woche + extras.
+- **Schicht-Lagercheck on mobile:** dock no longer steals sheet taps; Easy+Pro CTA outside Pro •••; larger OK/save targets.
+- Cache `paidia-v156`.
+
 # Changelog
+
+## v156 — 2026-08-30
+
+- **Contextual page tips:** occasional dismissible help popups for the current staff/kids page (DE/EL). Not the spotlight tour; not Zo-Ai capability nags (FAB sibling).
+- Rules: random 45–120s after navigation; once per page/session; `paidia.tipsDismissed`; Easy fewer (`proOnly` skipped); skip PIN gate / tour / sheet / chat; `prefers-reduced-motion`; stagger vs Zo-Ai via `paidiaMarkCoachShown` (28s gap).
+- Map: [docs/agents/TIPS_SYSTEM.md](docs/agents/TIPS_SYSTEM.md). Cache `paidia-v156`.
 
 ## v155 — 2026-08-30
 

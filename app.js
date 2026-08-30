@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 155,
-  label: 'v155',
+  version: 156,
+  label: 'v156',
   changed: {
-    de: 'Geräte & Bewegungen: Login-Audit, bekannte Geräte, Admin-Protokoll',
-    el: 'Συσκευές & Κινήσεις: audit σύνδεσης, γνωστές συσκευές, admin πρωτόκολλο',
+    de: 'Buch-Kalender: jeden Tag im Schichtbuch lesen & schreiben',
+    el: 'Ημερολόγιο Βιβλίου: διάβασε & γράψε κάθε μέρα στο βιβλίο βάρδιας',
   },
 };
 const T = {
@@ -95,16 +95,16 @@ const T = {
     importWeekConflictReplace:'Ersetzen', importWeekConflictReplaceHint:'Zielwoche-Änderungen löschen, dann kopieren',
     importWeekCopyNotes:'Wochenhinweise mitkopieren', importWeekConflict:n=>n===1?'1 Konflikt':`${n} Konflikte`,
     aiSchedule:'Zo-Ai Plan', aiScheduleTitle:'Wochenplan mit Zo-Ai',
-    aiScheduleHint:'WhatsApp-Notiz, Stichpunkte oder Freitext einfügen — Zo-Ai schlägt Zellen vor. Du bestätigst.',
+    aiScheduleHint:'WhatsApp-Notiz, Stichpunkte oder Freitext einfügen — Zo-Ai schlägt Termine vor. Du bestätigst.',
     aiSchedulePh:'z.B.\nMo Nachmittag Fußball Dora\nDi Vormittag Strand Kalyvia\nMi Abend Film Limenaria',
     aiScheduleAnalyze:'Analysieren', aiScheduleApply:'In Woche übernehmen',
     aiScheduleEmpty:'Keine Einträge erkannt', aiScheduleNeedText:'Bitte Text einfügen',
     aiScheduleApplied:n=>n===1?'1 Eintrag gespeichert':`${n} Einträge gespeichert`,
     aiScheduleUnresolved:'Aktivität unklar', aiScheduleConflict:'Konflikt',
-    aiFillText:'Mit Text füllen', aiClearWeek:'AI leeren',
-    aiClearConfirm:n=>n===1?'1 AI-Eintrag dieser Woche wirklich entfernen?':`${n} AI-Einträge dieser Woche wirklich entfernen?`,
-    aiClearEmpty:'Keine AI-Einträge in dieser Woche',
-    aiClearDone:n=>n===1?'1 AI-Eintrag entfernt':`${n} AI-Einträge entfernt`,
+    aiFillText:'Mit Text füllen', aiClearWeek:'Zo-Ai-Einträge leeren',
+    aiClearConfirm:n=>n===1?'1 Zo-Ai-Eintrag dieser Woche wirklich entfernen?':`${n} Zo-Ai-Einträge dieser Woche wirklich entfernen?`,
+    aiClearEmpty:'Keine Zo-Ai-Einträge in dieser Woche',
+    aiClearDone:n=>n===1?'1 Zo-Ai-Eintrag entfernt':`${n} Zo-Ai-Einträge entfernt`,
     prevWeek:'Vorherige Woche', nextWeek:'Nächste Woche',
     weekPickDate:'Woche wählen',
     weekRotateCoach:'Für die volle Woche quer halten',
@@ -164,7 +164,7 @@ const T = {
     stockTilesOn:'Kacheln', stockTilesOff:'Liste',
     uiModeLabel:'Bedienung', uiModeEasy:'Einfach', uiModePro:'Pro',
     uiModeEasyHint:'Weniger Knöpfe, große Ziele, klare Schritte',
-    uiModeProHint:'Alle Filter, Bulk-Aktionen und Feineinstellungen',
+    uiModeProHint:'Alle Filter, Mehrfachaktionen und Feineinstellungen',
     uiModeGlobal:'Standard für alle Seiten',
     uiModePage:'Nur diese Seite',
     uiModeResetPages:'Seiten-Ausnahmen zurücksetzen',
@@ -232,16 +232,16 @@ const T = {
     authUnavailable:'Anmeldung ist gerade nicht erreichbar.', tooManyPins:'Zu viele Versuche.',
     lockedFor:n=>`Anmeldung gesperrt. Versuche es in ${n} Minute${n===1?'':'n'} erneut.`,
     attemptsRemaining:n=>`Falsche PIN. Noch ${n} Versuch${n===1?'':'e'}.`,
-    useBiometrics:'Mit Geräte-Sperre anmelden', passkey:'Passkey', passkeySetup:'Face ID / Touch ID einrichten',
+    useBiometrics:'Mit Geräte-Sperre anmelden', passkey:'Face ID', passkeySetup:'Face ID / Touch ID einrichten',
     passkeyHint:'iPhone: Face ID · Android: Fingerabdruck · Mac: Touch ID · Windows: Hello. Biometrie bleibt auf dem Gerät — nur ein öffentlicher Schlüssel wird gespeichert.',
     passkeyAdded:'Face ID / Touch ID wurde eingerichtet.', passkeyRemoved:'Biometrie-Anmeldung entfernt.', removePasskeys:'Biometrie entfernen',
     passkeyNone:'Noch nicht eingerichtet. Mit PIN anmelden, dann unten „einrichten“ tippen.',
     passkeySetupNeeded:'Zuerst mit PIN anmelden, dann unter Profil Face ID / Touch ID einrichten.',
-    passkeyConfig:'Passkey-Server ist nicht konfiguriert (Origin/RP ID). Prüfe PAIDIA_WEBAUTHN_ORIGIN auf Vercel.',
+    passkeyConfig:'Face-ID-Anmeldung ist nicht eingerichtet. Bitte die Leitung fragen.',
     emailNotFound:'E-Mail-Profil wurde nicht gefunden. Speichere zuerst Kontaktdaten oder prüfe, ob du angemeldet bist.',
     profileCustomize:'Profil anpassen', profileNickname:'Anzeigename', profileColor:'Farbe', profileEmoji:'Emoji',
     profileSaved:'Profil gespeichert', passkeyCount:n=>n===1?'1 Gerät eingerichtet':`${n} Geräte eingerichtet`,
-    passkeyUnavailable:'Dieses Gerät unterstützt keine Biometrie-Anmeldung (braucht HTTPS und Face ID / Fingerabdruck / Windows Hello).',
+    passkeyUnavailable:'Dieses Gerät unterstützt keine Anmeldung mit Face ID oder Fingerabdruck.',
     passkeyCancelled:'Abgebrochen — nichts wurde geändert.',
     profilePinTitle:'PIN ändern', profilePinHint:'Neue PIN gilt auf allen Geräten. 4–6 Ziffern.',
     profilePinCurrent:'Aktuelle PIN', profilePinNew:'Neue PIN', profilePinConfirm:'Neue PIN bestätigen',
@@ -308,9 +308,9 @@ const T = {
     adminNotifyPanelHint:'E-Mail an Profile mit Adresse. Kinder-Audience = nur Kinder-Mails.',
     adminBroadcastAlsoBanner:'Auch als Banner in der App zeigen (online)',
     adminBroadcastBannerDismiss:'Verstanden',
-    webauthnOriginWarn:'Passkey-Origin prüfen (PAIDIA_WEBAUTHN_ORIGIN) — sonst scheitert Face ID auf dem iPhone.',
-    profileStorageOk:'Datenbank aktiv — Plan, Lager, Listen und Profil überleben Deployments.',
-    profileStorageWarn:'Kein Postgres — Daten können nach einem Deploy verloren gehen. In Vercel → Environment Variables DATABASE_URL setzen.',
+    webauthnOriginWarn:'Face ID auf dem iPhone braucht eine korrekte Server-Einstellung — bitte die Leitung fragen.',
+    profileStorageOk:'Datenbank aktiv — Plan, Lager, Listen und Profil bleiben erhalten.',
+    profileStorageWarn:'Dauerhafte Speicherung fehlt — Daten können nach einem Update verloren gehen. Bitte die Leitung fragen.',
     durableStorageBadge:'Server-Speicher',
     securityAccess:'Anmeldung & Sicherheit', signOut:'Abmelden', pinFallback:'Oder PIN verwenden', thisDevice:'Dieses Gerät',
     devicesTitle:'Bekannte Geräte',
@@ -335,7 +335,7 @@ const T = {
     auditEventLoginFailed:'PIN falsch',
     auditEventLoginLocked:'Konto gesperrt',
     auditEventLoginBlocked:'Noch gesperrt',
-    auditEventPasskeyFailed:'Passkey fehlgeschlagen',
+    auditEventPasskeyFailed:'Face ID fehlgeschlagen',
     auditEventPinChanged:'PIN geändert',
     auditEventPinReset:'PIN-Reset',
     profileDetails:'Profildaten', manageProfiles:'Profile verwalten', recoveryEmail:'E-Mail für PIN-Wiederherstellung',
@@ -350,12 +350,12 @@ const T = {
     saveContact:'Kontaktdaten speichern', contactSaved:'Kontaktdaten gespeichert.',
     emailProvider:'E-Mail-Versand', emailReady:'bereit', emailNotReady:'E-Mail ist noch nicht konfiguriert',
     emailReadyHint:'PIN-Links, Tests, Events und Team-Nachrichten können zugestellt werden.',
-    emailOfflineHint:'Auf dem Server fehlen SMTP oder Resend. Ohne Versand kein PIN-Link.',
+    emailOfflineHint:'Auf dem Server fehlt der E-Mail-Versand. Ohne Versand kein PIN-Link.',
     sendTestEmail:'Test-E-Mail senden', testEmailSent:'Test-E-Mail wurde gesendet — prüfe Posteingang & Spam.', testEmailFailed:'Die Test-E-Mail konnte nicht gesendet werden.',
-    testEmailAuthFailed:'Anmeldung beim Mailversand abgelehnt. Prüfe SMTP-Passwort oder Resend-API-Key und starte neu.',
-    testEmailSenderFailed:'Absender ungültig. SMTP_FROM / RESEND_FROM muss eine echte Adresse sein.',
-    testEmailRecipientRestricted:'Empfänger abgelehnt (z. B. Resend-Testmodus nur an die Konto-Adresse).',
-    testEmailRateLimited:'Zu viele E-Mails. Warte kurz und versuche es erneut.', testEmailNetwork:'Mailserver nicht erreichbar. Auf Vercel Resend nutzen; lokal SMTP prüfen.',
+    testEmailAuthFailed:'Anmeldung beim Mailversand abgelehnt. Bitte die Leitung prüfen lassen.',
+    testEmailSenderFailed:'Absender ungültig. Bitte eine echte Absender-Adresse einrichten lassen.',
+    testEmailRecipientRestricted:'Empfänger abgelehnt (Testmodus erlaubt oft nur die Konto-Adresse).',
+    testEmailRateLimited:'Zu viele E-Mails. Warte kurz und versuche es erneut.', testEmailNetwork:'Mailserver nicht erreichbar. Bitte die Leitung prüfen lassen.',
     emailSaveFirst:'Zuerst E-Mail speichern, dann Test senden.',
     emailPreviewTitle:'So sieht die Mail aus',
     emailPreviewBody:'PIN-Reset und Sicherheitsmeldungen kommen im Armonia-Design.',
@@ -363,7 +363,7 @@ const T = {
     switchProfile:'Anderes Profil öffnen', profilesBack:'Profile',
     adminsManageEmails:'Als Admin kannst du die E-Mail jedes Profils verwalten.',
     resetUnavailable:'E-Mail-Reset ist nicht eingerichtet. Bitte Admin fragen — PIN ändern geht nach Login unter Profil.',
-    resetAskAdmin:'E-Mail-Reset ist nicht konfiguriert. Ein Admin kann dir nach der Anmeldung unter Profil → PIN helfen, oder SMTP/Resend muss eingerichtet werden.',
+    resetAskAdmin:'E-Mail-Reset ist nicht eingerichtet. Ein Admin kann dir nach der Anmeldung unter Profil → PIN helfen, oder der E-Mail-Versand muss eingerichtet werden.',
     resetNeedProfileEmail:'Nutze die E-Mail, die für dieses Profil gespeichert ist. Fehlt sie, speichere sie zuerst nach dem Login unter Profil.',
     resetBackPin:'← Zurück zur PIN',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
@@ -373,11 +373,11 @@ const T = {
     tutorialSaving:'Fortschritt wird sicher gespeichert…', tutorialDone:'Tour abgeschlossen. Willkommen!',
     tutorialSaveError:'Die Einführung konnte nicht gespeichert werden. Prüfe die Verbindung und versuche es erneut.',
     tutorialTip:'Tippe den markierten Bereich oder „Verstanden“. Du kannst jederzeit überspringen und später fortsetzen.',
-    tutorialOpen:'App-Tutorial öffnen', tutorialReplay:'Spotlight-Tour', tutorialClose:'Tutorial beenden',
+    tutorialOpen:'App-Tutorial öffnen', tutorialReplay:'App-Tour', tutorialClose:'Tutorial beenden',
     tutorialReplayTip:'Jederzeit über Hilfe (?) oder Profil. Easy = kürzer, Pro = mehr Seiten.',
-    helpCenter:'Hilfe & Zo-Ai', helpCenterHint:'Spotlight-Tour, Team-Gespräch und Zo-Ai. Zo-Ai kann mit Bestätigung Lager, Liste und Plan ändern.',
+    helpCenter:'Hilfe & Zo-Ai', helpCenterHint:'App-Tour, Team-Gespräch und Zo-Ai. Zo-Ai kann mit Bestätigung Lager, Liste und Plan ändern.',
     tutorialGotIt:'Verstanden', tutorialSkip:'Überspringen', tutorialResume:'Tour fortsetzen',
-    startTutorial:'Spotlight App-Tour', startTutorialHint:'Echte Buttons & Seiten — Easy kurz, Pro vollständig. Fortsetzen möglich.',
+    startTutorial:'App-Tour starten', startTutorialHint:'Echte Buttons & Seiten — Easy kurz, Pro vollständig. Fortsetzen möglich.',
     feedbackNav:'Feedback', feedbackTitle:'Melden & Vorschlagen',
     feedbackHint:'Fehler melden, Änderung oder Ergänzung vorschlagen. Seite wird automatisch mitgeschickt.',
     feedbackTypeBug:'Fehler', feedbackTypeChange:'Änderung', feedbackTypeAddition:'Ergänzung',
@@ -391,7 +391,7 @@ const T = {
     feedbackFieldSeverity:'Schwere (nur Fehler)', feedbackSevLow:'Niedrig', feedbackSevMed:'Mittel', feedbackSevHigh:'Hoch',
     feedbackSubmit:'Absenden', feedbackSubmitted:'Danke — gemeldet und gespeichert',
     feedbackNeedTitle:'Bitte einen Titel eingeben', feedbackNeedDesc:'Bitte kurz beschreiben',
-    feedbackInbox:'Feedback-Posteingang', feedbackInboxHint:'Offene Meldungen prüfen und triagieren (Pro).',
+    feedbackInbox:'Feedback-Posteingang', feedbackInboxHint:'Offene Meldungen prüfen und bearbeiten (Pro).',
     feedbackInboxEmpty:'Keine Meldungen.', feedbackOpenCount:n=>n===1?'1 offen':`${n} offen`,
     feedbackStatusOpen:'Offen', feedbackStatusTriaged:'In Arbeit', feedbackStatusDone:'Erledigt', feedbackStatusWont:'Nein',
     feedbackTriageNote:'Notiz (optional)', feedbackTriageSave:'Status speichern',
@@ -457,6 +457,7 @@ const T = {
     stockDeleteCancel:'Abbrechen',
     stockOrderFrozen:'Reihenfolge eingefroren — Speichern oder aktualisieren zum Sortieren',
     stockOrderRefresh:'Liste aktualisieren',
+    stockPhotoRead:'Foto lesen',
     homeMore:'Mehr heute',
     homeSignals:'Kurzüberblick',
     stockHeroHint:'Vorratsgang — tippe ± oder füge Ware schnell hinzu',
@@ -524,7 +525,7 @@ const T = {
     importStep:'Neue Liste erfassen', importStepHint:'Text und Screenshot sind immer verfügbar – auch wenn schon Einträge vorhanden sind.',
     sourceTextTitle:'Text einfügen', sourceTextHint:'Eine Zeile pro Produkt oder eine komplette Nachricht einfügen.',
     sourceImageTitle:'Screenshot / Foto', sourceImageHint:'Hochladen, einfügen oder direkt fotografieren.',
-    imagePreview:'Kleine Vorschau', changeImage:'Anderes Bild', removeImage:'Entfernen', imagePreviewHint:'Das Original wird nur für OCR verwendet und bleibt hier kompakt.',
+    imagePreview:'Kleine Vorschau', changeImage:'Anderes Bild', removeImage:'Entfernen', imagePreviewHint:'Das Original dient nur zum Einlesen und bleibt hier kompakt.',
     analyzeText:'Text analysieren', uploadImage:'Bild auswählen', existingFriday:'Bereits auf diesem Freitag',
     saveBehavior:'Wie soll gespeichert werden?', mergeSmart:'Intelligent zusammenführen', mergeSmartHint:'Gleiche Produkte werden addiert.',
     appendSeparate:'Als neue Zeilen', appendSeparateHint:'Vorhandene Einträge bleiben unverändert.',
@@ -534,8 +535,8 @@ const T = {
     noFridayItemsHint:'Tippe oben ein Produkt ein, oder importiere Text/Screenshot. Später jederzeit ergänzen.',
     fridayActive:'Einkauf läuft', fridayPlanned:'Geplant', fridayCompleted:'Abgeschlossen',
     shopPlan:'Planen', shopTake:'Mitnehmen', shopTakeHint:'Kompakt nach Gang — was mitnehmen',
-    shopTakeEmptyHint:'Unter Planen Produkte hinzufügen oder Auto aus Lager nutzen.',
-    shopAutoFill:'Auto aus Lager', shopAutoFilled:n=>`${n} Produkte ergänzt`,
+    shopTakeEmptyHint:'Unter Planen Produkte hinzufügen oder „Fehlendes aus Lager“ nutzen.',
+    shopAutoFill:'Fehlendes aus Lager', shopAutoFilled:n=>`${n} Produkte ergänzt`,
     shopRequests:'Anfragen', shopRequest:'Anfrage', shopRequestBig:'Anfrage',
     shopRequestHint:'Vorschlag für die Einkaufsliste — noch nicht übernommen.',
     shopRequestNamePh:'Was soll gekauft werden?', shopRequestQtyPh:'Menge (optional)',
@@ -554,8 +555,8 @@ const T = {
     shopRequestKidHint:'Schreibe was du brauchst — das Team prüft es.',
     notifNewRequest:name=>`Neue Anfrage · ${name}`,
     selectMode:'Auswählen', selectDone:'Fertig', selectedCount:n=>`${n} gewählt`,
-    bulkRemove:'Entfernen', bulkQtyMinus:'Qty −', bulkQtyPlus:'Qty ＋', bulkToList:'→ Liste',
-    bulkIn:'IN +', bulkOut:'OUT −', bulkSetQty:'Menge…', bulkMoveCat:'Regal…',
+    bulkRemove:'Entfernen', bulkQtyMinus:'Menge −', bulkQtyPlus:'Menge ＋', bulkToList:'→ Liste',
+    bulkIn:'Eingang +', bulkOut:'Ausgang −', bulkSetQty:'Menge…', bulkMoveCat:'Regal…',
     bulkClearEmpty:'Leeren', bulkFound:'Gefunden', bulkMissing:'Fehlt', bulkUndo:'Rückgängig',
     bulkSetQtyTitle:'Menge setzen', bulkSetQtyHint:'Gleiche Menge für alle Gewählten',
     bulkMoveCatTitle:'Regal wechseln', bulkMoveCatHint:'Kategorie für alle Gewählten',
@@ -565,7 +566,7 @@ const T = {
     stockQuickList:'Alles Wenige → Liste', stockQuickListShort:'Wenige',
     stockAddedLow:n=>`${n} auf Einkaufsliste`,
     viewCalendar:'Kalender', calPrev:'‹', calNext:'›',
-    exportCalendar:'Kalender exportieren (.ics)', upcomingEvents:'Kommende Events',
+    exportCalendar:'Kalender exportieren', upcomingEvents:'Kommende Events',
     pasteList:'Liste einfügen oder tippen',
     pastePh:'Nutella 2, Milch light 2, Wasser groß 4, Nektarinen 10–12',
     readIt:'🪄 Einlesen', shootList:'📷 Liste fotografieren',
@@ -573,14 +574,14 @@ const T = {
     alreadyOnList:'steht schon auf der Liste', qtyGuessed:'Menge geschätzt',
     nothingToImport:'Nichts erkannt',
     importList:'🪄 Liste einlesen',
-    aiReading:'AI liest und strukturiert die Liste…', aiUnavailable:'AI ist nicht erreichbar. Text wurde lokal analysiert.',
-    aiNeedsServer:'AI-Fotoerkennung ist nicht konfiguriert. Setze XAI_API_KEY / GROK_API_KEY (Grok) oder GROQ_API_KEY und starte server.py.',
-    ocrSnapFill:'Foto → OCR', ocrSnapFillHint:'Produktname und Menge aus Foto lesen (Grok).',
-    ocrUnavailable:'OCR nicht verfügbar — kein API-Schlüssel. Admin: XAI_API_KEY oder GROK_API_KEY setzen.',
-    ocrFilled:'OCR gelesen — bitte prüfen',
+    aiReading:'Zo-Ai liest und ordnet die Liste…', aiUnavailable:'Zo-Ai ist nicht erreichbar. Text wurde hier gelesen.',
+    aiNeedsServer:'Foto einlesen ist nicht eingerichtet. Bitte die Leitung fragen.',
+    ocrSnapFill:'Foto lesen', ocrSnapFillHint:'Produktname und Menge aus dem Foto übernehmen.',
+    ocrUnavailable:'Foto lesen ist nicht verfügbar. Bitte die Leitung fragen.',
+    ocrFilled:'Vom Foto übernommen — bitte prüfen',
     chooseImage:'Bild / Screenshot wählen', useCamera:'Kamera verwenden', extractedText:'Erkannter Text',
     confHigh:'Hohe Sicherheit', confMedium:'Prüfen', confLow:'Unklar', stockNow:'Bestand',
-    aiDraft:'AI-Entwurf — bitte prüfen', imageReady:'Bild bereit', itemName:'Produktname',
+    aiDraft:'Vorschlag — bitte prüfen', imageReady:'Bild bereit', itemName:'Produktname',
     vTitle:'Prüfung', vNone:'Keine Konflikte gefunden',
     vHint:'Warnungen blockieren nicht — die Leitung kann bewusst abweichen.',
     vTwoHouses:'gleichzeitig in zwei Häusern', vChildTwice:'in zwei Gruppen gleichzeitig',
@@ -592,7 +593,7 @@ const T = {
     adminOnly:'Die feste Vorlage dürfen nur Zoi, Angelos und Dimitris ändern.',
     whoDidWhat:'Wer hat was gemacht', today:'Heute', last7:'Letzte 7 Tage', last30:'30 Tage', bookAll:'Alles',
     bookHeroTitle:'Was passiert ist', bookHeroHint:'Filtern und eine klare Ansicht wählen — nicht alles auf einmal.',
-    bookJournalHero:'Schichtbuch', bookJournalHint:'Ein Buch, das geführt werden muss. Heute eine Seite schreiben.',
+    bookJournalHero:'Schichtbuch', bookJournalHint:'Kalender tippen, Tag wählen, Seite lesen oder schreiben.',
     bookPaneLog:'Verlauf', bookPanePeople:'Personen', bookPaneShift:'Schichtbuch',
     bookSearchPh:'Suche in Text, Name, Typ…', bookClearFilters:'Filter zurücksetzen',
     bookViewTimeline:'Zeitlinie', bookViewByDay:'Nach Tag', bookViewCompact:'Kompakt',
@@ -746,7 +747,7 @@ const T = {
     helpVoiceError:'Spracheingabe fehlgeschlagen. Tippe die Frage stattdessen.',
     helpVoiceReady:'Sprache erkannt — prüfe und sende.',
     helpVoiceDenied:'Mikrofon-Zugriff verweigert. Erlaube das Mikrofon in den Einstellungen.',
-    helpVoiceSecure:'Spracheingabe braucht HTTPS oder localhost.',
+    helpVoiceSecure:'Spracheingabe braucht eine sichere Verbindung.',
     helpVoiceStart:'Mikrofon wird vorbereitet…',
     helpQuickFood:'Schnell: Lager / Liste',
     helpConfirmInline:'Jetzt speichern',
@@ -766,13 +767,13 @@ const T = {
     notifEnable:'Mitteilungen aktivieren',
     notifEnabled:'Mitteilungen an',
     notifDenied:'Mitteilungen blockiert — in den Geräteeinstellungen erlauben',
-    notifUnsupported:'Dieses Gerät/Browser unterstützt keine Web-Mitteilungen.',
+    notifUnsupported:'Dieses Gerät unterstützt keine Mitteilungen.',
     notifNeedInstall:'Auf dem iPhone: zuerst „Zum Home-Bildschirm“ — Mitteilungen nur in der installierten App (iOS 16.4+).',
-    notifNeedSecure:'Mitteilungen brauchen HTTPS (oder localhost).',
+    notifNeedSecure:'Mitteilungen brauchen eine sichere Verbindung.',
     notifDeliveryFailed:'Test konnte auf diesem Gerät nicht zugestellt werden.',
     notifDeliveryOk:'Test-Mitteilung wurde zugestellt.',
-    notifRuntimeHint:'Lokale Hinweise laufen, solange Armonia (oder der Service Worker) aktiv ist. Echtes Hintergrund-Push braucht VAPID-Schlüssel auf dem Server.',
-    notifDeliveryHint:'Kategorien gelten für lokale OS-Mitteilungen. Ohne Server-Push nur bei geöffneter App / aktivem SW.',
+    notifRuntimeHint:'Hinweise erscheinen, solange Armonia geöffnet ist. Mitteilungen im Hintergrund folgen später.',
+    notifDeliveryHint:'Kategorien gelten für Mitteilungen auf dem Gerät. Ohne Hintergrund-Hinweis nur bei geöffneter App.',
     notifPrefsTitle:'Mitteilungen',
     notifPrefsHint:'Wähle, woran dich Armonia erinnert — pro Kategorie ein- und ausschaltbar.',
     notifCatsLabel:'Kategorien',
@@ -805,23 +806,23 @@ const T = {
     notifFridayShop:n=>`Freitagseinkauf · ${n} offen`,
     calTitle:'Mein Kalender',
     calHint:'Ein Klick — Dienste und Events in Apple, Google, Outlook oder jeden anderen Kalender.',
-    calDownloadAll:'Alles als .ics (Apple & alle Apps)',
-    calDownloadShifts:'Nur Dienste (.ics)',
-    calDownloadEvents:'Nur Events (.ics)',
+    calDownloadAll:'Alles als Kalenderdatei (Apple & alle Apps)',
+    calDownloadShifts:'Nur Dienste (Kalenderdatei)',
+    calDownloadEvents:'Nur Events (Kalenderdatei)',
     calGoogleNext:'Nächste in Google Kalender',
     calOutlookNext:'Nächste in Outlook',
     calNextNone:'Keine kommenden Dienste in den nächsten Wochen.',
     calSaved:'Kalenderdatei bereit — Datei öffnen und hinzufügen',
     calWeeks:'Nächste 8 Wochen',
     calAddAny:'In jeden Kalender',
-    calAddAnyHint:'Apple Kalender, Samsung, Fantastical, Thunderbird: .ics-Datei öffnen → „Alle hinzufügen“.',
+    calAddAnyHint:'Apple Kalender, Samsung, Fantastical, Thunderbird: Kalenderdatei öffnen → „Alle hinzufügen“.',
     calAddWeb:'Schnell online',
     calUpcoming:'Kommende Termine',
     calAddThis:'Diesen Termin',
-    calOneIcs:'.ics',
+    calOneIcs:'Datei',
     calGoogle:'Google',
     calOutlook:'Outlook',
-    calApple:'Apple / .ics',
+    calApple:'Apple Kalender',
     calReminder:'Erinnerung 30 Min. vor Schicht (in der Datei)',
     calOpenPerson:(name)=>`Kalender · ${name}`,
     calCount:n=>n===1?'1 Termin':`${n} Termine`,
@@ -899,7 +900,7 @@ const T = {
     lateAlertReason:'Gemeldeter Grund',
     lateAlertSeen:'Als gelesen markieren',
     shiftEndLogout:'Abmelden',
-    shiftEndLogoutHint:'PIN / Passkey',
+    shiftEndLogoutHint:'PIN / Face ID',
     shiftEndConfirm:'Schicht beenden',
     bellLabel:'Mitteilungen',
     helpActionShopRemove:(name,house)=>`🛒 entfernen: ${name} @ ${house}`,
@@ -910,7 +911,7 @@ const T = {
     helpPlaceholder:'Frag Zo-Ai…', helpSend:'Senden',
     helpThinking:'Zo-Ai prüft das…', helpUnavailable:'Zo-Ai ist gerade nicht erreichbar.',
     helpAuthExpired:'Sitzung abgelaufen. Bitte erneut anmelden und Zo-Ai nochmal fragen.',
-    helpConfigBanner:'Zo-Ai ist nicht eingerichtet. In Vercel → Environment Variables GROQ_API_KEY setzen und neu deployen.',
+    helpConfigBanner:'Zo-Ai ist noch nicht eingerichtet. Bitte die Leitung fragen.',
     askAiHelp:'Zo-Ai fragen', askAiHelpHint:'Lager, Liste, Plan — in einfacher Sprache',
     viewEvents:'Events', eventsPanel:'Events & Ankündigungen', newEvent:'Neues Event', editEvent:'Event bearbeiten',
     eventTitle:'Titel', eventDescription:'Beschreibung', eventLocation:'Ort', eventBring:'Mitbringen',
@@ -969,7 +970,7 @@ const T = {
     adminBroadcastSent:(s,f)=>f?`Gesendet: ${s} · fehlgeschlagen: ${f}`:`E-Mail an ${s} Personen gesendet.`,
     adminBroadcastFailed:'E-Mail konnte nicht gesendet werden.',
     adminBroadcastRate:s=>`Bitte ${s}s warten, bevor du erneut sendest.`,
-    adminBroadcastOffline:'E-Mail-Versand ist nicht eingerichtet (SMTP/Resend).',
+    adminBroadcastOffline:'E-Mail-Versand ist nicht eingerichtet.',
     adminToday:'Heute', adminNext7:'Nächste 7 Tage', adminDone:'Erledigt',
     adminLastAction:'Letzte Aktivität', adminNoActivity:'Noch keine Aktivität', adminDetails:'Teamdetails',
     adminFullControl:'Admins können Planung, Dienste, Events, Notizen, Bestand und Protokollkorrekturen ändern.',
@@ -982,20 +983,20 @@ const T = {
     errNetwork:'Keine Verbindung zum AI-Dienst. Prüfe Internet und Server und versuche es erneut.',
     errTimeout:'Die AI-Antwort hat zu lange gedauert. Bitte versuche es erneut.',
     errRate:'Die AI ist gerade ausgelastet. Warte kurz und versuche es erneut.',
-    errConfig:'AI/OCR ist nicht eingerichtet. Lokal: XAI_API_KEY oder GROK_API_KEY (OCR) und/oder GROQ_API_KEY in .env. Live: dieselben Keys in Vercel → Environment Variables setzen und neu deployen.',
+    errConfig:'Foto- und Texteinlesen ist nicht eingerichtet. Bitte die Leitung fragen.',
     errImage:'Das Bild konnte nicht gelesen werden. Verwende JPG, PNG oder WebP mit gut sichtbarem Text.',
     errServer:'Zo-Ai konnte die Anfrage nicht verarbeiten. Bitte versuche es erneut.',
     errFile:'Diese Datei konnte nicht geöffnet werden. Wähle ein anderes Bild.',
     errStorage:'Speichern fehlgeschlagen. Der Gerätespeicher ist möglicherweise voll.',
-    aiReady:'AI-OCR ist bereit. Füge Text ein oder lade einen Screenshot hoch.',
+    aiReady:'Einlesen ist bereit. Text einfügen oder Foto hochladen.',
     cameraDenied:'Kamerazugriff wurde abgelehnt. Erlaube die Kamera in den Browser-Einstellungen.',
     cameraBusy:'Die Kamera wird bereits von einer anderen App verwendet.',
-    cameraSecure:'Die Kamera funktioniert nur über HTTPS oder localhost.',
+    cameraSecure:'Die Kamera funktioniert nur in einer sicheren Verbindung.',
     unexpectedError:'Etwas ist schiefgelaufen. Deine Eingabe bleibt erhalten; versuche es erneut.',
     kidsCount:n=>`${n} ${n===1?'Kind':'Kinder'}`,
     chooseMany:'Mehrfachauswahl möglich', selectHouse:'Wähle mindestens ein Haus.',
     screenshotDrop:'Screenshot hier ablegen oder auswählen', screenshotPaste:'Oder Screenshot kopieren und hier ⌘V / Strg+V drücken',
-    screenshotReady:'Screenshot bereit – OCR startet…', screenshotMissing:'Die Zwischenablage enthält keinen Screenshot.',
+    screenshotReady:'Bild bereit – wird jetzt gelesen…', screenshotMissing:'Die Zwischenablage enthält keinen Screenshot.',
     pasteScreenshot:'Screenshot einfügen', pickScreenshot:'Screenshot / Foto wählen',
   },
   el: {
@@ -1081,16 +1082,16 @@ const T = {
     importWeekConflictReplace:'Αντικατάσταση', importWeekConflictReplaceHint:'Διαγραφή αλλαγών στόχου, μετά αντιγραφή',
     importWeekCopyNotes:'Αντιγραφή σημειώσεων εβδομάδας', importWeekConflict:n=>n===1?'1 σύγκρουση':`${n} συγκρούσεις`,
     aiSchedule:'Zo-Ai πρόγραμμα', aiScheduleTitle:'Εβδομαδιαίο με Zo-Ai',
-    aiScheduleHint:'Επικόλλησε σημείωση WhatsApp, λίστα ή ελεύθερο κείμενο — η Zo-Ai προτείνει κελιά. Εσύ επιβεβαιώνεις.',
+    aiScheduleHint:'Επικόλλησε σημείωση WhatsApp, λίστα ή ελεύθερο κείμενο — η Zo-Ai προτείνει ώρες. Εσύ επιβεβαιώνεις.',
     aiSchedulePh:'π.χ.\nΔευ απόγευμα ποδόσφαιρο Dora\nΤρι πρωί παραλία Kalyvia\nΤετ βράδυ ταινία Limenaria',
     aiScheduleAnalyze:'Ανάλυση', aiScheduleApply:'Εφαρμογή στην εβδομάδα',
     aiScheduleEmpty:'Δεν βρέθηκαν εγγραφές', aiScheduleNeedText:'Βάλε κείμενο',
     aiScheduleApplied:n=>n===1?'1 εγγραφή αποθηκεύτηκε':`${n} εγγραφές αποθηκεύτηκαν`,
     aiScheduleUnresolved:'Ασαφής δραστηριότητα', aiScheduleConflict:'Σύγκρουση',
-    aiFillText:'Γέμισμα με κείμενο', aiClearWeek:'Καθαρισμός AI',
-    aiClearConfirm:n=>n===1?'Να αφαιρεθεί 1 εγγραφή AI αυτής της εβδομάδας;':`Να αφαιρεθούν ${n} εγγραφές AI αυτής της εβδομάδας;`,
-    aiClearEmpty:'Καμία εγγραφή AI σε αυτή την εβδομάδα',
-    aiClearDone:n=>n===1?'1 εγγραφή AI αφαιρέθηκε':`${n} εγγραφές AI αφαιρέθηκαν`,
+    aiFillText:'Γέμισμα με κείμενο', aiClearWeek:'Καθαρισμός προτάσεων Zo-Ai',
+    aiClearConfirm:n=>n===1?'Να αφαιρεθεί 1 εγγραφή Zo-Ai αυτής της εβδομάδας;':`Να αφαιρεθούν ${n} εγγραφές Zo-Ai αυτής της εβδομάδας;`,
+    aiClearEmpty:'Καμία εγγραφή Zo-Ai σε αυτή την εβδομάδα',
+    aiClearDone:n=>n===1?'1 εγγραφή Zo-Ai αφαιρέθηκε':`${n} εγγραφές Zo-Ai αφαιρέθηκαν`,
     prevWeek:'Προηγούμενη εβδομάδα', nextWeek:'Επόμενη εβδομάδα',
     weekPickDate:'Επιλογή εβδομάδας',
     weekRotateCoach:'Γύρισε οριζόντια για όλη την εβδομάδα',
@@ -1218,16 +1219,16 @@ const T = {
     authUnavailable:'Η σύνδεση δεν είναι διαθέσιμη αυτή τη στιγμή.', tooManyPins:'Πολλές προσπάθειες.',
     lockedFor:n=>`Η σύνδεση κλειδώθηκε. Δοκίμασε ξανά σε ${n} λεπτά.`,
     attemptsRemaining:n=>`Λάθος PIN. Απομένουν ${n} προσπάθειες.`,
-    useBiometrics:'Σύνδεση με κλείδωμα συσκευής', passkey:'Passkey', passkeySetup:'Ρύθμιση Face ID / Touch ID',
+    useBiometrics:'Σύνδεση με κλείδωμα συσκευής', passkey:'Face ID', passkeySetup:'Ρύθμιση Face ID / Touch ID',
     passkeyHint:'iPhone: Face ID · Android: δακτυλικό · Mac: Touch ID · Windows: Hello. Τα βιομετρικά μένουν στη συσκευή — αποθηκεύεται μόνο δημόσιο κλειδί.',
     passkeyAdded:'Το Face ID / Touch ID ρυθμίστηκε.', passkeyRemoved:'Η βιομετρική είσοδος αφαιρέθηκε.', removePasskeys:'Αφαίρεση βιομετρικών',
     passkeyNone:'Δεν έχει ρυθμιστεί ακόμη. Μπες με PIN και πάτα παρακάτω «ρύθμιση».',
     passkeySetupNeeded:'Πρώτα σύνδεση με PIN, μετά Face ID / Touch ID από το Προφίλ.',
-    passkeyConfig:'Το Passkey server δεν είναι ρυθμισμένο (Origin/RP ID). Έλεγξε PAIDIA_WEBAUTHN_ORIGIN στο Vercel.',
+    passkeyConfig:'Η είσοδος με Face ID δεν είναι ρυθμισμένη. Ρώτα τη διεύθυνση.',
     emailNotFound:'Το email προφίλ δεν βρέθηκε. Αποθήκευσε πρώτα στοιχεία επικοινωνίας ή έλεγξε αν είσαι συνδεδεμένος.',
     profileCustomize:'Προσαρμογή προφίλ', profileNickname:'Εμφανιζόμενο όνομα', profileColor:'Χρώμα', profileEmoji:'Emoji',
     profileSaved:'Το προφίλ αποθηκεύτηκε', passkeyCount:n=>n===1?'1 συσκευή ρυθμισμένη':`${n} συσκευές ρυθμισμένες`,
-    passkeyUnavailable:'Αυτή η συσκευή δεν υποστηρίζει βιομετρική είσοδο (χρειάζεται HTTPS και Face ID / δακτυλικό / Windows Hello).',
+    passkeyUnavailable:'Αυτή η συσκευή δεν υποστηρίζει είσοδο με Face ID ή δακτυλικό αποτύπωμα.',
     passkeyCancelled:'Ακυρώθηκε — δεν άλλαξε τίποτα.',
     profilePinTitle:'Αλλαγή PIN', profilePinHint:'Το νέο PIN ισχύει σε όλες τις συσκευές. 4–6 ψηφία.',
     profilePinCurrent:'Τρέχον PIN', profilePinNew:'Νέο PIN', profilePinConfirm:'Επιβεβαίωση νέου PIN',
@@ -1294,9 +1295,9 @@ const T = {
     adminNotifyPanelHint:'Email σε προφίλ με διεύθυνση. Audience παιδιά = μόνο παιδικά emails.',
     adminBroadcastAlsoBanner:'Και ως banner στην εφαρμογή (online)',
     adminBroadcastBannerDismiss:'Το κατάλαβα',
-    webauthnOriginWarn:'Έλεγξε Passkey origin (PAIDIA_WEBAUTHN_ORIGIN) — αλλιώς αποτυγχάνει το Face ID στο iPhone.',
-    profileStorageOk:'Η βάση είναι ενεργή — πρόγραμμα, αποθήκη, λίστες και προφίλ επιβιώνουν τα deploys.',
-    profileStorageWarn:'Χωρίς Postgres — τα δεδομένα μπορεί να χαθούν μετά από deploy. Στο Vercel βάλε DATABASE_URL.',
+    webauthnOriginWarn:'Το Face ID στο iPhone χρειάζεται σωστή ρύθμιση διακομιστή — ρώτα τη διεύθυνση.',
+    profileStorageOk:'Η βάση είναι ενεργή — πρόγραμμα, αποθήκη, λίστες και προφίλ παραμένουν αποθηκευμένα.',
+    profileStorageWarn:'Λείπει μόνιμη αποθήκευση — τα δεδομένα μπορεί να χαθούν μετά από ενημέρωση. Ρώτα τη διεύθυνση.',
     durableStorageBadge:'Αποθήκευση server',
     securityAccess:'Σύνδεση & ασφάλεια', signOut:'Αποσύνδεση', pinFallback:'Ή χρησιμοποίησε PIN', thisDevice:'Αυτή η συσκευή',
     devicesTitle:'Γνωστές συσκευές',
@@ -1321,7 +1322,7 @@ const T = {
     auditEventLoginFailed:'Λάθος PIN',
     auditEventLoginLocked:'Κλείδωμα λογαριασμού',
     auditEventLoginBlocked:'Ακόμα κλειδωμένο',
-    auditEventPasskeyFailed:'Αποτυχία Passkey',
+    auditEventPasskeyFailed:'Αποτυχία Face ID',
     auditEventPinChanged:'Αλλαγή PIN',
     auditEventPinReset:'PIN-Reset',
     profileDetails:'Στοιχεία προφίλ', manageProfiles:'Διαχείριση προφίλ', recoveryEmail:'Email ανάκτησης PIN',
@@ -1336,12 +1337,12 @@ const T = {
     saveContact:'Αποθήκευση στοιχείων', contactSaved:'Τα στοιχεία αποθηκεύτηκαν.',
     emailProvider:'Αποστολή email', emailReady:'έτοιμη', emailNotReady:'Το email δεν έχει ρυθμιστεί ακόμη',
     emailReadyHint:'Σύνδεσμοι PIN, δοκιμές, events και μηνύματα ομάδας μπορούν να σταλούν.',
-    emailOfflineHint:'Στον server λείπουν SMTP ή Resend. Χωρίς αποστολή δεν υπάρχει σύνδεσμος PIN.',
+    emailOfflineHint:'Στον διακομιστή λείπει η αποστολή email. Χωρίς αποστολή δεν υπάρχει σύνδεσμος PIN.',
     sendTestEmail:'Αποστολή δοκιμαστικού email', testEmailSent:'Το δοκιμαστικό email στάλθηκε — έλεγξε εισερχόμενα & ανεπιθύμητα.', testEmailFailed:'Το δοκιμαστικό email δεν στάλθηκε.',
-    testEmailAuthFailed:'Η είσοδος στο mail απορρίφθηκε. Έλεγξε κωδικό SMTP ή Resend API key.',
-    testEmailSenderFailed:'Μη έγκυρος αποστολέας. SMTP_FROM / RESEND_FROM πρέπει να είναι πραγματικό email.',
-    testEmailRecipientRestricted:'Ο παραλήπτης απορρίφθηκε (π.χ. Resend test mode μόνο στο email του λογαριασμού).',
-    testEmailRateLimited:'Στάλθηκαν πολλά email. Περίμενε λίγο και δοκίμασε ξανά.', testEmailNetwork:'Ο mail server δεν είναι προσβάσιμος. Στο Vercel βάλε Resend· τοπικά έλεγξε SMTP.',
+    testEmailAuthFailed:'Η είσοδος στο mail απορρίφθηκε. Ζήτα έλεγχο από τη διεύθυνση.',
+    testEmailSenderFailed:'Μη έγκυρος αποστολέας. Ζήτα να οριστεί πραγματική διεύθυνση αποστολέα.',
+    testEmailRecipientRestricted:'Ο παραλήπτης απορρίφθηκε (η δοκιμαστική λειτουργία επιτρέπει συχνά μόνο το email του λογαριασμού).',
+    testEmailRateLimited:'Στάλθηκαν πολλά email. Περίμενε λίγο και δοκίμασε ξανά.', testEmailNetwork:'Ο διακομιστής mail δεν είναι προσβάσιμος. Ζήτα έλεγχο από τη διεύθυνση.',
     emailSaveFirst:'Αποθήκευσε πρώτα το email και μετά στείλε δοκιμή.',
     emailPreviewTitle:'Έτσι φαίνεται το email',
     emailPreviewBody:'PIN reset και ειδοποιήσεις ασφαλείας στο design της Armonia.',
@@ -1349,7 +1350,7 @@ const T = {
     switchProfile:'Άνοιγμα άλλου προφίλ', profilesBack:'Προφίλ',
     adminsManageEmails:'Ως admin μπορείς να διαχειριστείς το email κάθε προφίλ.',
     resetUnavailable:'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ρώτα admin — μετά τη σύνδεση αλλάζει από Προφίλ → PIN.',
-    resetAskAdmin:'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ένας admin μπορεί να βοηθήσει μετά τη σύνδεση στο Προφίλ → PIN, ή πρέπει να ρυθμιστεί SMTP/Resend.',
+    resetAskAdmin:'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ένας admin μπορεί να βοηθήσει μετά τη σύνδεση στο Προφίλ → PIN, ή πρέπει να ρυθμιστεί η αποστολή email.',
     resetNeedProfileEmail:'Χρησιμοποίησε το email που είναι αποθηκευμένο σε αυτό το προφίλ. Αν λείπει, αποθήκευσέ το μετά τη σύνδεση στο Προφίλ.',
     resetBackPin:'← Πίσω στο PIN',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
@@ -1359,11 +1360,11 @@ const T = {
     tutorialSaving:'Η πρόοδος αποθηκεύεται με ασφάλεια…', tutorialDone:'Το tour ολοκληρώθηκε. Καλώς ήρθες!',
     tutorialSaveError:'Η ξενάγηση δεν αποθηκεύτηκε. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
     tutorialTip:'Πάτα την περιοχή με φως ή «Το κατάλαβα». Μπορείς να παραλείψεις και να συνεχίσεις αργότερα.',
-    tutorialOpen:'Άνοιγμα tutorial εφαρμογής', tutorialReplay:'Spotlight-tour', tutorialClose:'Τέλος tutorial',
+    tutorialOpen:'Άνοιγμα tutorial εφαρμογής', tutorialReplay:'Περιήγηση εφαρμογής', tutorialClose:'Τέλος tutorial',
     tutorialReplayTip:'Οποτεδήποτε από το ? ή το Προφίλ. Easy = σύντομο, Pro = περισσότερες σελίδες.',
-    helpCenter:'Βοήθεια & Zo-Ai', helpCenterHint:'Spotlight-tour, συνομιλία ομάδας και Zo-Ai. Η Zo-Ai μπορεί με επιβεβαίωση να αλλάξει αποθήκη, λίστα και πρόγραμμα.',
+    helpCenter:'Βοήθεια & Zo-Ai', helpCenterHint:'Περιήγηση εφαρμογής, συνομιλία ομάδας και Zo-Ai. Η Zo-Ai μπορεί με επιβεβαίωση να αλλάξει αποθήκη, λίστα και πρόγραμμα.',
     tutorialGotIt:'Το κατάλαβα', tutorialSkip:'Παράλειψη', tutorialResume:'Συνέχεια tour',
-    startTutorial:'Spotlight tour εφαρμογής', startTutorialHint:'Πραγματικά κουμπιά & σελίδες — Easy σύντομο, Pro πλήρες.',
+    startTutorial:'Έναρξη περιήγησης', startTutorialHint:'Πραγματικά κουμπιά & σελίδες — Easy σύντομο, Pro πλήρες.',
     feedbackNav:'Αναφορά', feedbackTitle:'Αναφορά & πρόταση',
     feedbackHint:'Αναφορά σφάλματος, αίτημα αλλαγής ή προσθήκης. Η σελίδα συμπληρώνεται αυτόματα.',
     feedbackTypeBug:'Σφάλμα', feedbackTypeChange:'Αλλαγή', feedbackTypeAddition:'Προσθήκη',
@@ -1441,6 +1442,9 @@ const T = {
     stockOutReasonHint:'Διάλεξε μία φορά — ισχύει για τις επόμενες εξόδους.',
     stockDeleteArmed:'Πάτα ξανά για διαγραφή',
     stockDeleteCancel:'Ακύρωση',
+    stockOrderFrozen:'Η σειρά πάγωσε — αποθήκευση ή ανανέωση για ταξινόμηση',
+    stockOrderRefresh:'Ανανέωση λίστας',
+    stockPhotoRead:'Διάβασμα φωτό',
     homeMore:'Περισσότερα σήμερα',
     homeSignals:'Σύντομη εικόνα',
     stockHeroHint:'Διάδρομος αποθήκης — πάτα ± ή πρόσθεσε γρήγορα',
@@ -1508,7 +1512,7 @@ const T = {
     importStep:'Καταχώρηση νέας λίστας', importStepHint:'Κείμενο και screenshot είναι πάντα διαθέσιμα – ακόμη κι αν υπάρχει ήδη λίστα.',
     sourceTextTitle:'Επικόλληση κειμένου', sourceTextHint:'Μία γραμμή ανά προϊόν ή επικόλλησε ολόκληρο μήνυμα.',
     sourceImageTitle:'Screenshot / φωτογραφία', sourceImageHint:'Ανέβασε, επικόλλησε ή φωτογράφισε απευθείας.',
-    imagePreview:'Μικρή προεπισκόπηση', changeImage:'Άλλη εικόνα', removeImage:'Αφαίρεση', imagePreviewHint:'Το πρωτότυπο χρησιμοποιείται μόνο για OCR και παραμένει εδώ μικρό.',
+    imagePreview:'Μικρή προεπισκόπηση', changeImage:'Άλλη εικόνα', removeImage:'Αφαίρεση', imagePreviewHint:'Το πρωτότυπο χρησιμεύει μόνο για ανάγνωση και μένει εδώ μικρό.',
     analyzeText:'Ανάλυση κειμένου', uploadImage:'Επιλογή εικόνας', existingFriday:'Ήδη σε αυτή την Παρασκευή',
     saveBehavior:'Πώς να αποθηκευτεί;', mergeSmart:'Έξυπνη συγχώνευση', mergeSmartHint:'Τα ίδια προϊόντα προστίθενται μαζί.',
     appendSeparate:'Ως νέες γραμμές', appendSeparateHint:'Οι υπάρχουσες εγγραφές μένουν ως έχουν.',
@@ -1539,7 +1543,7 @@ const T = {
     notifNewRequest:name=>`Νέο αίτημα · ${name}`,
     selectMode:'Επιλογή', selectDone:'Έτοιμο', selectedCount:n=>`${n} επιλεγμένα`,
     bulkRemove:'Διαγραφή', bulkQtyMinus:'Ποσ. −', bulkQtyPlus:'Ποσ. ＋', bulkToList:'→ Λίστα',
-    bulkIn:'IN +', bulkOut:'OUT −', bulkSetQty:'Ποσ.…', bulkMoveCat:'Ράφι…',
+    bulkIn:'Είσοδος +', bulkOut:'Έξοδος −', bulkSetQty:'Ποσ.…', bulkMoveCat:'Ράφι…',
     bulkClearEmpty:'Άδειασμα', bulkFound:'Βρέθηκε', bulkMissing:'Λείπει', bulkUndo:'Αναίρεση',
     bulkSetQtyTitle:'Ορισμός ποσότητας', bulkSetQtyHint:'Ίδια ποσότητα για όλα τα επιλεγμένα',
     bulkMoveCatTitle:'Αλλαγή ραφιού', bulkMoveCatHint:'Κατηγορία για όλα τα επιλεγμένα',
@@ -1549,7 +1553,7 @@ const T = {
     stockQuickList:'Όλα τα λίγα → λίστα', stockQuickListShort:'Λίγα',
     stockAddedLow:n=>`${n} στη λίστα`,
     viewCalendar:'Ημερολόγιο', calPrev:'‹', calNext:'›',
-    exportCalendar:'Εξαγωγή ημερολογίου (.ics)', upcomingEvents:'Επόμενα events',
+    exportCalendar:'Εξαγωγή ημερολογίου', upcomingEvents:'Επόμενα events',
     pasteList:'Επικόλλησε ή γράψε τη λίστα',
     pastePh:'Γάλα 2, Ψωμί 4, Ντομάτες 3 kg, Νεκταρίνια 10–12',
     readIt:'🪄 Ανάγνωση', shootList:'📷 Φωτογράφισε τη λίστα',
@@ -1557,14 +1561,14 @@ const T = {
     alreadyOnList:'υπάρχει ήδη στη λίστα', qtyGuessed:'η ποσότητα είναι εκτίμηση',
     nothingToImport:'Δεν αναγνωρίστηκε τίποτα',
     importList:'🪄 Εισαγωγή λίστας',
-    aiReading:'Το AI διαβάζει και οργανώνει τη λίστα…', aiUnavailable:'Το AI δεν είναι διαθέσιμο. Το κείμενο αναλύθηκε τοπικά.',
-    aiNeedsServer:'Η ανάγνωση φωτογραφίας με AI δεν έχει ρυθμιστεί. Βάλε XAI_API_KEY / GROK_API_KEY (Grok) ή GROQ_API_KEY και εκκίνησε με server.py.',
-    ocrSnapFill:'Φωτό → OCR', ocrSnapFillHint:'Όνομα και ποσότητα από φωτογραφία (Grok).',
-    ocrUnavailable:'Το OCR δεν είναι διαθέσιμο — λείπει API key. Admin: XAI_API_KEY ή GROK_API_KEY.',
-    ocrFilled:'Διαβάστηκε με OCR — έλεγξέ το',
+    aiReading:'Η Zo-Ai διαβάζει και οργανώνει τη λίστα…', aiUnavailable:'Η Zo-Ai δεν είναι διαθέσιμη. Το κείμενο διαβάστηκε εδώ.',
+    aiNeedsServer:'Η ανάγνωση φωτογραφίας δεν έχει ρυθμιστεί. Ρώτα τη διεύθυνση.',
+    ocrSnapFill:'Διάβασε από φωτογραφία', ocrSnapFillHint:'Όνομα και ποσότητα από τη φωτογραφία.',
+    ocrUnavailable:'Η ανάγνωση φωτογραφίας δεν είναι διαθέσιμη. Ρώτα τη διεύθυνση.',
+    ocrFilled:'Από φωτογραφία — έλεγξέ το',
     chooseImage:'Επιλογή εικόνας / screenshot', useCamera:'Χρήση κάμερας', extractedText:'Κείμενο που αναγνωρίστηκε',
     confHigh:'Υψηλή βεβαιότητα', confMedium:'Χρειάζεται έλεγχο', confLow:'Ασαφές', stockNow:'Απόθεμα',
-    aiDraft:'Πρόχειρο AI — έλεγξέ το', imageReady:'Η εικόνα είναι έτοιμη', itemName:'Όνομα προϊόντος',
+    aiDraft:'Πρόταση — έλεγξέ το', imageReady:'Η εικόνα είναι έτοιμη', itemName:'Όνομα προϊόντος',
     vTitle:'Έλεγχος', vNone:'Δεν βρέθηκαν συγκρούσεις',
     vHint:'Οι προειδοποιήσεις δεν μπλοκάρουν — η υπεύθυνη μπορεί να αποκλίνει συνειδητά.',
     vTwoHouses:'ταυτόχρονα σε δύο σπίτια', vChildTwice:'σε δύο ομάδες ταυτόχρονα',
@@ -1730,7 +1734,7 @@ const T = {
     helpVoiceError:'Η φωνητική εισαγωγή απέτυχε. Γράψε την ερώτηση.',
     helpVoiceReady:'Αναγνωρίστηκε ομιλία — έλεγξε και στείλε.',
     helpVoiceDenied:'Δεν δόθηκε πρόσβαση στο μικρόφωνο. Επίτρεψέ το στις ρυθμίσεις.',
-    helpVoiceSecure:'Η φωνή χρειάζεται HTTPS ή localhost.',
+    helpVoiceSecure:'Η φωνή χρειάζεται ασφαλή σύνδεση.',
     helpVoiceStart:'Προετοιμασία μικροφώνου…',
     helpQuickFood:'Γρήγορα: ψυγείο / λίστα',
     helpConfirmInline:'Αποθήκευση τώρα',
@@ -1750,13 +1754,13 @@ const T = {
     notifEnable:'Ενεργοποίηση ειδοποιήσεων',
     notifEnabled:'Ειδοποιήσεις ενεργές',
     notifDenied:'Ειδοποιήσεις μπλοκαρισμένες — επίτρεψέ τις στις ρυθμίσεις',
-    notifUnsupported:'Αυτή η συσκευή/browser δεν υποστηρίζει ειδοποιήσεις ιστού.',
+    notifUnsupported:'Αυτή η συσκευή δεν υποστηρίζει ειδοποιήσεις.',
     notifNeedInstall:'Στο iPhone: πρώτα «Στην οθόνη Αφετηρίας» — οι ειδοποιήσεις δουλεύουν μόνο στην εγκατεστημένη εφαρμογή (iOS 16.4+).',
-    notifNeedSecure:'Οι ειδοποιήσεις χρειάζονται HTTPS (ή localhost).',
+    notifNeedSecure:'Οι ειδοποιήσεις χρειάζονται ασφαλή σύνδεση.',
     notifDeliveryFailed:'Η δοκιμαστική ειδοποίηση δεν παραδόθηκε σε αυτή τη συσκευή.',
     notifDeliveryOk:'Η δοκιμαστική ειδοποίηση παραδόθηκε.',
-    notifRuntimeHint:'Οι τοπικές ειδοποιήσεις τρέχουν όσο είναι ανοιχτό το Armonia (ή ο Service Worker). Πραγματικό push στο παρασκήνιο χρειάζεται κλειδιά VAPID στον server.',
-    notifDeliveryHint:'Οι κατηγορίες ισχύουν για τοπικές ειδοποιήσεις OS. Χωρίς server-push μόνο με ανοιχτή εφαρμογή / ενεργό SW.',
+    notifRuntimeHint:'Οι ειδοποιήσεις εμφανίζονται όσο είναι ανοιχτό το Armonia. Ειδοποιήσεις στο παρασκήνιο έρχονται αργότερα.',
+    notifDeliveryHint:'Οι κατηγορίες ισχύουν για ειδοποιήσεις στη συσκευή. Χωρίς υπόβαθρο μόνο με ανοιχτή εφαρμογή.',
     notifPrefsTitle:'Ειδοποιήσεις',
     notifPrefsHint:'Διάλεξε τι θα σου θυμίζει το Armonia — ανά κατηγορία on/off.',
     notifCatsLabel:'Κατηγορίες',
@@ -1790,23 +1794,23 @@ const T = {
     autoFridayShop:'Υπενθύμιση ψωνίων Παρασκευής',
     calTitle:'Το ημερολόγιό μου',
     calHint:'Με ένα πάτημα — βάρδιες και events σε Apple, Google, Outlook ή οποιοδήποτε ημερολόγιο.',
-    calDownloadAll:'Όλα ως .ics (Apple & όλες οι εφαρμογές)',
-    calDownloadShifts:'Μόνο βάρδιες (.ics)',
-    calDownloadEvents:'Μόνο events (.ics)',
+    calDownloadAll:'Όλα ως αρχείο ημερολογίου (Apple & όλες οι εφαρμογές)',
+    calDownloadShifts:'Μόνο βάρδιες (αρχείο ημερολογίου)',
+    calDownloadEvents:'Μόνο events (αρχείο ημερολογίου)',
     calGoogleNext:'Επόμενη στο Google Calendar',
     calOutlookNext:'Επόμενη στο Outlook',
     calNextNone:'Δεν υπάρχουν επόμενες βάρδιες στις επόμενες εβδομάδες.',
     calSaved:'Το αρχείο ημερολογίου είναι έτοιμο — άνοιξέ το και πρόσθεσε',
     calWeeks:'Επόμενες 8 εβδομάδες',
     calAddAny:'Σε οποιοδήποτε ημερολόγιο',
-    calAddAnyHint:'Apple Calendar, Samsung, Fantastical, Thunderbird: άνοιξε το .ics → «Προσθήκη όλων».',
+    calAddAnyHint:'Apple Calendar, Samsung, Fantastical, Thunderbird: άνοιξε το αρχείο ημερολογίου → «Προσθήκη όλων».',
     calAddWeb:'Γρήγορα online',
     calUpcoming:'Επόμενα',
     calAddThis:'Αυτό το συμβάν',
-    calOneIcs:'.ics',
+    calOneIcs:'Αρχείο',
     calGoogle:'Google',
     calOutlook:'Outlook',
-    calApple:'Apple / .ics',
+    calApple:'Apple ημερολόγιο',
     calReminder:'Υπενθύμιση 30 λεπτά πριν τη βάρδια (στο αρχείο)',
     calOpenPerson:(name)=>`Ημερολόγιο · ${name}`,
     calCount:n=>n===1?'1 συμβάν':`${n} συμβάντα`,
@@ -1884,7 +1888,7 @@ const T = {
     lateAlertReason:'Αιτία που δηλώθηκε',
     lateAlertSeen:'Σήμανση ως αναγνωσμένο',
     shiftEndLogout:'Αποσύνδεση',
-    shiftEndLogoutHint:'PIN / Passkey',
+    shiftEndLogoutHint:'PIN / Face ID',
     shiftEndConfirm:'Τέλος βάρδιας',
     bellLabel:'Ειδοποιήσεις',
     helpActionShopRemove:(name,house)=>`🛒 αφαίρεση: ${name} @ ${house}`,
@@ -1895,7 +1899,7 @@ const T = {
     helpPlaceholder:'Ρώτα τη Zo-Ai…', helpSend:'Αποστολή',
     helpThinking:'Η Zo-Ai το ελέγχει…', helpUnavailable:'Η Zo-Ai δεν είναι διαθέσιμη αυτή τη στιγμή.',
     helpAuthExpired:'Η συνεδρία έληξε. Ξανασυνδέσου και ρώτα τη Zo-Ai ξανά.',
-    helpConfigBanner:'Η Zo-Ai δεν είναι ρυθμισμένη. Στο Vercel → Environment Variables βάλε GROQ_API_KEY και κάνε νέο deploy.',
+    helpConfigBanner:'Η Zo-Ai δεν είναι ακόμη ρυθμισμένη. Ρώτα τη διεύθυνση.',
     askAiHelp:'Ρώτα τη Zo-Ai', askAiHelpHint:'Αποθήκη, λίστα, πρόγραμμα — με απλά λόγια',
     viewEvents:'Events', eventsPanel:'Events & ανακοινώσεις', newEvent:'Νέο event', editEvent:'Επεξεργασία event',
     eventTitle:'Τίτλος', eventDescription:'Περιγραφή', eventLocation:'Τοποθεσία', eventBring:'Τι να φέρουν',
@@ -1954,7 +1958,7 @@ const T = {
     adminBroadcastSent:(s,f)=>f?`Στάλθηκαν: ${s} · απέτυχαν: ${f}`:`Το email στάλθηκε σε ${s} άτομα.`,
     adminBroadcastFailed:'Το email δεν στάλθηκε.',
     adminBroadcastRate:s=>`Περίμενε ${s}δ πριν ξαναστείλεις.`,
-    adminBroadcastOffline:'Η αποστολή email δεν έχει ρυθμιστεί (SMTP/Resend).',
+    adminBroadcastOffline:'Η αποστολή email δεν έχει ρυθμιστεί.',
     adminToday:'Σήμερα', adminNext7:'Επόμενες 7 ημέρες', adminDone:'Ολοκληρωμένα',
     adminLastAction:'Τελευταία δραστηριότητα', adminNoActivity:'Καμία δραστηριότητα ακόμη', adminDetails:'Στοιχεία ομάδας',
     adminFullControl:'Οι admins μπορούν να αλλάζουν πρόγραμμα, βάρδιες, events, σημειώσεις, απόθεμα και διορθώσεις καταγραφών.',
@@ -1967,20 +1971,20 @@ const T = {
     errNetwork:'Δεν υπάρχει σύνδεση με το AI. Έλεγξε internet και server και δοκίμασε ξανά.',
     errTimeout:'Το AI άργησε να απαντήσει. Δοκίμασε ξανά.',
     errRate:'Το AI έχει προσωρινά μεγάλο φόρτο. Περίμενε λίγο και δοκίμασε ξανά.',
-    errConfig:'Το AI/OCR δεν έχει ρυθμιστεί. Τοπικά: XAI_API_KEY ή GROK_API_KEY (OCR) και/ή GROQ_API_KEY στο .env. Live: βάλε τα ίδια κλειδιά στο Vercel → Environment Variables και κάνε νέο deploy.',
+    errConfig:'Η ανάγνωση φωτογραφίας και κειμένου δεν έχει ρυθμιστεί. Ρώτα τη διεύθυνση.',
     errImage:'Η εικόνα δεν διαβάστηκε. Χρησιμοποίησε JPG, PNG ή WebP με καθαρό κείμενο.',
     errServer:'Η Zo-Ai δεν μπόρεσε να επεξεργαστεί το αίτημα. Δοκίμασε ξανά.',
     errFile:'Το αρχείο δεν άνοιξε. Διάλεξε άλλη εικόνα.',
     errStorage:'Η αποθήκευση απέτυχε. Ο χώρος της συσκευής μπορεί να είναι γεμάτος.',
-    aiReady:'Το AI OCR είναι έτοιμο. Βάλε κείμενο ή ανέβασε screenshot.',
+    aiReady:'Η ανάγνωση είναι έτοιμη. Βάλε κείμενο ή ανέβασε φωτογραφία.',
     cameraDenied:'Η πρόσβαση στην κάμερα απορρίφθηκε. Επίτρεψέ την από τις ρυθμίσεις του browser.',
     cameraBusy:'Η κάμερα χρησιμοποιείται ήδη από άλλη εφαρμογή.',
-    cameraSecure:'Η κάμερα λειτουργεί μόνο με HTTPS ή localhost.',
+    cameraSecure:'Η κάμερα λειτουργεί μόνο με ασφαλή σύνδεση.',
     unexpectedError:'Κάτι πήγε στραβά. Τα στοιχεία σου παραμένουν· δοκίμασε ξανά.',
     kidsCount:n=>`${n} ${n===1?'παιδί':'παιδιά'}`,
     chooseMany:'Μπορείς να επιλέξεις πολλά', selectHouse:'Διάλεξε τουλάχιστον ένα σπίτι.',
     screenshotDrop:'Άφησε ή επίλεξε screenshot εδώ', screenshotPaste:'Ή αντέγραψε screenshot και πάτησε εδώ ⌘V / Ctrl+V',
-    screenshotReady:'Το screenshot είναι έτοιμο – ξεκινά το OCR…', screenshotMissing:'Το πρόχειρο δεν περιέχει screenshot.',
+    screenshotReady:'Η εικόνα είναι έτοιμη – γίνεται ανάγνωση…', screenshotMissing:'Το πρόχειρο δεν περιέχει screenshot.',
     pasteScreenshot:'Επικόλληση screenshot', pickScreenshot:'Επιλογή screenshot / φωτο',
   },
 };
@@ -3743,7 +3747,7 @@ function buildTourSteps(){
       'Tag/Woche und Hausfilter.','Ημέρα/εβδομάδα και φίλτρο σπιτιού.'),
     mk('staff-stock','stock-command',{tab:'stock'},
       'Lager','Αποθήκη',
-      'Haus wählen, suchen, ± am Produkt. Bulk/OCR/Regale in Pro.','Διάλεξε σπίτι, αναζήτηση, ± στο προϊόν. Μαζικά/OCR/ράφια στο Pro.'),
+      'Haus wählen, suchen, ± am Produkt. Mehrfachauswahl und Foto lesen in Pro.','Διάλεξε σπίτι, αναζήτηση, ± στο προϊόν. Μαζική επιλογή και ανάγνωση φωτό στο Pro.'),
     mk('staff-shop','shop-command',{tab:'shop'},
       'Liste','Λίστα',
       'Freitag und Haus prüfen, dann Warenkorb.','Έλεγξε Παρασκευή και σπίτι, μετά καλάθι.'),
@@ -3889,7 +3893,7 @@ function tourPaintCurrent(){
   root.hidden = false;
   document.body.classList.add('tour-open');
   const de = state.lang!=='el';
-  root.querySelector('#tourKicker').textContent = de ? 'Spotlight-Tour' : 'Spotlight-tour';
+  root.querySelector('#tourKicker').textContent = de ? 'App-Tour' : 'Περιήγηση';
   root.querySelector('#tourCount').textContent = T[state.lang].tutorialStep(state.tourIndex+1, steps.length);
   root.querySelector('#tourTitle').textContent = step.title();
   root.querySelector('#tourBody').textContent = step.body();
@@ -7999,20 +8003,15 @@ function viewStock(){
   if(!houses.length){
     return `<div class="stock-page">${emptyState(ui('u-leaf'), t('selectHouse'))}</div>`;
   }
-  const productState=p=>{
-    const values=houses.map(h=>DB.stock[stockKey(h.id,p.id)]??0);
-    return values.some(q=>q===0)?'empty':values.some(q=>q<=lowThreshold(p))?'low':'ok';
-  };
+  const productState=p=>stockProductStateFor(houses,p);
   const allProducts=PRODUCTS();
   const counts={empty:0,low:0,ok:0};allProducts.forEach(p=>counts[productState(p)]++);
   const query=norm(state.stockQuery||'');
-  const visible=allProducts.filter(p=>{
-    const st=productState(p), matches=!query||norm(`${p.de} ${p.el} ${(p.alias||[]).join(' ')}`).includes(query);
-    return matches&&(!!query||state.stockFilter==='all'||state.stockFilter===st||state.stockFilter==='attention'&&st!=='ok');
-  }).sort((a,b)=>{
-    const priority={empty:0,low:1,ok:2};
-    return priority[productState(a)]-priority[productState(b)]||L(a).localeCompare(L(b),state.lang);
-  });
+  const visible=stockComputeVisible(houses, hid);
+  const orderFrozen=!!(state.stockOrderFreeze
+    && state.stockOrderFreeze.house===hid
+    && state.stockOrderFreeze.filter===state.stockFilter
+    && state.stockOrderFreeze.query===(state.stockQuery||''));
   const catIcon = cid => svgIcon(catIconId(cid), 'cat-ico');
   const jarHtml=(qty,p,st)=>{
     const fill=stockFillPct(qty,p);
@@ -8050,11 +8049,11 @@ function viewStock(){
         <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}</div>
         <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div>
       </button>
-      ${selecting?'':`<div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
-        <button class="stock-step out pine-settle" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${qty<=0?'disabled':''}>${ui('u-minus')}</button>
+      <div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
+        <button class="stock-step out pine-settle" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${qty<=0?'disabled':''}><span class="stock-step-glyph" aria-hidden="true">−</span></button>
         <div class="stock-qty">${qty}<small>${esc(p.unit)}</small></div>
-        <button class="stock-step in pine-settle" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">${ui('u-plus')}</button>
-      </div>`}
+        <button class="stock-step in pine-settle" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}"><span class="stock-step-glyph" aria-hidden="true">+</span></button>
+      </div>
     </div>`;
   };
   const openCats=Array.isArray(state.stockOpenCategories)?state.stockOpenCategories:null;
@@ -8145,6 +8144,12 @@ function viewStock(){
           <button class="stock-more-action" type="button" id="stockShiftCheck">${ui('u-check','sm')} ${esc(t('shiftStockCheck'))}</button>`:''}
         </div></details>
       </div>
+      ${hid!=='all'?`<div class="stock-easy-actions" role="toolbar" aria-label="${esc(t('headerStock'))}">
+        <button class="btn stock-easy-btn pine-settle" type="button" id="stockQuickAddEasy">${esc(t('stockQuickAdd'))}</button>
+        <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockPhotoRead">${esc(t('stockPhotoRead'))}</button>
+        <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockOrderRefresh"${orderFrozen?'':' disabled'}>${esc(orderFrozen?t('stockOrderRefresh'):t('stockDraftSave'))}</button>
+      </div>`:''}
+      ${orderFrozen?`<div class="stock-order-freeze-note" role="status"><span>${esc(t('stockOrderFrozen'))}</span><button type="button" class="btn sm sec" id="stockOrderRefreshNote">${esc(t('stockOrderRefresh'))}</button></div>`:''}
     </div>
     <div class="stock-view-tabs stock-zone-pier" role="toolbar" aria-label="${esc(t('stockZonePier'))}">
       <button type="button" class="${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b><span>${esc(t('stockAttention'))}</span><small>${counts.empty} ${esc(t('stockEmpty'))} · ${counts.low} ${esc(t('stockLow'))}</small></button>
@@ -8157,13 +8162,15 @@ function viewStock(){
     ${resultsHtml}
     ${recentHtml}
     ${state.selectMode==='stock'&&hid!=='all'?bulkBarHtml([
-      {id:'to-list', label:t('bulkToList')},
+      {id:'in', label:t('bulkIn')},
       {id:'out', label:t('bulkOut')},
+      {id:'set-qty', label:t('bulkSetQty')},
+      {id:'move-cat', label:t('bulkMoveCat')},
+      {id:'to-list', label:t('bulkToList')},
       {id:'clear-empty', label:t('bulkClearEmpty'), danger:true},
     ]):''}
     ${hid!=='all'?(()=>{
       const draft=stockDraftEntries();
-      const needReason=!!state.stockPendingStep;
       if(draft.length){
         const ins=draft.filter(([,d])=>d>0).length;
         const outs=draft.filter(([,d])=>d<0).length;
@@ -8183,16 +8190,7 @@ function viewStock(){
           </div>
         </div>`;
       }
-      if(needReason){
-        return `<div class="stock-footer-actions stock-reason-dock need" aria-label="${esc(t('stockOutReasonBar'))}">
-          <div class="stock-draft-head">
-            <b>${esc(t('stockOutReasonBar'))}</b>
-            <span class="muted">${esc(t('stockOutReasonHint'))}</span>
-          </div>
-          <div class="chips" id="stockQuickReasons">${REASONS().map(r=>`<button class="chip ${r.id===state.stockDraftReason?'on':''}" type="button" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}</div>
-        </div>`;
-      }
-      if(state.stockDraftReason){
+      if(state.stockDraftReason && !state.stockPendingStep){
         const reasonLabel=L(REASONS().find(r=>r.id===state.stockDraftReason)||{de:'',el:''});
         return `<div class="stock-reason-pill" aria-label="${esc(t('stockOutReasonBar'))}">
           <span>${esc(t('stockOutReasonBar'))}: <b>${esc(reasonLabel)}</b></span>
@@ -8201,6 +8199,7 @@ function viewStock(){
       }
       return '';
     })():''}
+    ${stockOutReasonModalHtml()}
   </div>`;
 }
 
@@ -8511,6 +8510,70 @@ function requestWantBought(pid, houseId=state.house){
   return true;
 }
 
+
+function stockProductStateFor(houses, p){
+  const values=houses.map(h=>DB.stock[stockKey(h.id,p.id)]??0);
+  return values.some(q=>q===0)?'empty':values.some(q=>q<=lowThreshold(p))?'low':'ok';
+}
+function stockSortByState(productStateFn){
+  return (a,b)=>{
+    const priority={empty:0,low:1,ok:2};
+    return priority[productStateFn(a)]-priority[productStateFn(b)]||L(a).localeCompare(L(b),state.lang);
+  };
+}
+function stockComputeVisible(houses, hid, {respectFreeze=true}={}){
+  const productState=p=>stockProductStateFor(houses,p);
+  const allProducts=PRODUCTS();
+  const query=norm(state.stockQuery||'');
+  const matchesQuery=p=>!query||norm(`${p.de} ${p.el} ${(p.alias||[]).join(' ')}`).includes(query);
+  const matchesFilter=p=>{
+    const st=productState(p);
+    return !!query||state.stockFilter==='all'||state.stockFilter===st||(state.stockFilter==='attention'&&st!=='ok');
+  };
+  const freeze=state.stockOrderFreeze;
+  const freezeOk=respectFreeze && freeze
+    && freeze.house===hid
+    && freeze.filter===state.stockFilter
+    && freeze.query===(state.stockQuery||'');
+  if(freezeOk && Array.isArray(freeze.order) && freeze.order.length){
+    const byId=new Map(allProducts.map(p=>[p.id,p]));
+    return freeze.order.map(id=>byId.get(id)).filter(p=>p && matchesQuery(p));
+  }
+  return allProducts.filter(p=>matchesQuery(p)&&matchesFilter(p)).sort(stockSortByState(productState));
+}
+function captureStockOrderFreeze(hid, houses){
+  if(state.stockOrderFreeze || !hid || hid==='all') return;
+  const order=stockComputeVisible(houses, hid, {respectFreeze:false}).map(p=>p.id);
+  if(!order.length) return;
+  state.stockOrderFreeze={ house:hid, filter:state.stockFilter, query:state.stockQuery||'', order };
+}
+function clearStockOrderFreeze(){ state.stockOrderFreeze=null; }
+function ensureStockOrderFreeze(){
+  const hid=state.house;
+  if(!hid || hid==='all') return;
+  const houses=[house(hid)].filter(Boolean);
+  captureStockOrderFreeze(hid, houses);
+}
+function stockOutReasonModalHtml(){
+  const pending=state.stockPendingStep;
+  if(!pending) return '';
+  const p=pending.pid?prod(pending.pid):null;
+  let hint=t('stockOutReasonHint');
+  if(p) hint=`${L(p)}${pending.qty!=null?` · −${pending.qty} ${p.unit||''}`:''}`;
+  else if(pending.bulkOut?.length) hint=T[state.lang].selectedCount(pending.bulkOut.length);
+  return `<div class="stock-reason-modal" id="stockReasonModal" role="dialog" aria-modal="true" aria-labelledby="stockReasonModalTitle">
+    <button type="button" class="stock-reason-modal-bg" id="stockReasonModalDismiss" aria-label="${esc(t('close'))}"></button>
+    <div class="stock-reason-modal-card" role="document">
+      <h2 id="stockReasonModalTitle">${esc(t('stockOutReasonBar'))}</h2>
+      <p class="stock-reason-modal-hint">${esc(hint)}</p>
+      <div class="stock-reason-modal-chips" id="stockQuickReasons">
+        ${REASONS().map(r=>`<button type="button" class="chip stock-reason-chip ${r.id===state.stockDraftReason?'on':''}" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}
+      </div>
+      <button type="button" class="btn sec stock-reason-modal-cancel" id="stockReasonModalCancel">${esc(t('stockDeleteCancel'))}</button>
+    </div>
+  </div>`;
+}
+
 function stockDraftEntries(){
   return Object.entries(state.stockDraft||{}).filter(([,delta])=>delta);
 }
@@ -8542,6 +8605,7 @@ function applyStockDelta(pid, delta, {reasonId=null, silent=false, undoable=true
   const hid = state.house;
   if(!hid || hid==='all'){ toast(t('selectHouse'),'info'); return false; }
   const p = prod(pid); if(!p) return false;
+  ensureStockOrderFreeze();
   const key = stockKey(hid, pid);
   const prev = DB.stock[key] ?? 0;
   let d = roundStock(delta);
@@ -8553,7 +8617,6 @@ function applyStockDelta(pid, delta, {reasonId=null, silent=false, undoable=true
     const reason = rid ? L(REASONS().find(r=>r.id===rid)) : '';
     if(!reason){
       state.stockPendingStep = {pid, dir:'OUT', qty:Math.abs(d)};
-      toast(t('stockDraftNeedReason'),'info');
       render();
       return false;
     }
@@ -8621,12 +8684,12 @@ function adjustStockDraft(pid, dir){
   const hid = state.house;
   if(hid==='all'){ toast(t('selectHouse'),'info'); return; }
   const p = prod(pid); if(!p) return;
+  ensureStockOrderFreeze();
   const step = stepFor(p);
   if(dir==='OUT' && !state.stockDraftReason){
     state.stockPendingStep = {pid, dir:'OUT', qty:step};
     feedback('tap');
     render();
-    toast(t('stockDraftNeedReason'),'info');
     return;
   }
   applyStockDelta(pid, dir==='IN' ? step : -step);
@@ -8659,6 +8722,7 @@ function commitStockDraft(){
          items: list.map(([pid, delta])=>({pid, qty: Math.abs(delta)}))});
     });
     clearStockDraft();
+    clearStockOrderFreeze();
     if(!save()) return;
     render();
     feedback('save');
@@ -8685,7 +8749,7 @@ function shiftStockCheckBannerHtml(){
   }
   return `<div class="shift-check-banner pending">
     <div><b>☑️ ${esc(t('shiftStockCheck'))}</b><span>${esc(t('shiftStockCheckPending'))} · ${esc(t('shiftStockCheckHint'))}</span></div>
-    <button class="btn sm" type="button" id="shiftStockCheckOpen" class="btn sm shift-check-open-btn">${esc(t('shiftStockCheckStart'))}</button>
+    <button class="btn sm shift-check-open-btn" type="button" id="shiftStockCheckOpen">${esc(t('shiftStockCheckStart'))}</button>
   </div>`;
 }
 
@@ -8827,7 +8891,67 @@ function wireShiftStockCheckSheet(draft, refresh){
   });
 }
 
-function sheetStockQuickAdd(){
+
+function sheetBulkStockSetQty(ids){
+  if(!ids?.length) return;
+  openSheet(`<div class="import-kicker">${esc(t('headerStock'))}</div>
+    <h2 style="margin:4px 0 8px">${esc(t('bulkSetQtyTitle'))}</h2>
+    <p class="muted" style="margin:0 0 12px">${esc(t('bulkSetQtyHint'))}</p>
+    <label class="f"><span>${esc(t('productStockQty'))}</span>
+      <input id="bulkQtyInput" type="number" inputmode="decimal" min="0" step="any" value="0"></label>
+    <button class="btn" type="button" id="bulkQtySave" style="margin-top:12px;min-height:48px">${esc(t('save'))}</button>`);
+  sheetEl.querySelector('#bulkQtySave').onclick=()=>{
+    const raw=sheetEl.querySelector('#bulkQtyInput')?.value;
+    const next=Number(String(raw||'').replace(',','.'));
+    if(!Number.isFinite(next) || next<0){ toast(t('needQty'),'error'); return; }
+    ensureStockOrderFreeze();
+    let n=0;
+    ids.forEach(pid=>{
+      const p=prod(pid); if(!p) return;
+      const cur=DB.stock[stockKey(state.house,pid)]??0;
+      const delta=roundStock(next-cur);
+      if(Math.abs(delta)<0.0001) return;
+      if(delta<0 && !state.stockDraftReason){
+        state.stockPendingStep={bulkOut:ids.filter(id=>{
+          const q=DB.stock[stockKey(state.house,id)]??0;
+          return q>next;
+        }), bulkSetTo:next};
+        closeSheet(); render(); return;
+      }
+      if(applyStockDelta(pid, delta, {silent:true, undoable:false})) n++;
+    });
+    closeSheet();
+    exitSelectMode();
+    render();
+    toast(T[state.lang].bulkQtySet(n),'success');
+  };
+}
+function sheetBulkStockMoveCat(ids){
+  if(!ids?.length) return;
+  openSheet(`<div class="import-kicker">${esc(t('headerStock'))}</div>
+    <h2 style="margin:4px 0 8px">${esc(t('bulkMoveCatTitle'))}</h2>
+    <p class="muted" style="margin:0 0 12px">${esc(t('bulkMoveCatHint'))}</p>
+    <div class="chips" id="bulkCatChips">${CATS().map(c=>`<button type="button" class="chip" data-bulk-cat="${esc(c.id)}" style="min-height:44px">${esc(L(c))}</button>`).join('')}</div>`);
+  sheetEl.querySelectorAll('[data-bulk-cat]').forEach(b=>{
+    b.onclick=()=>{
+      const cat=b.dataset.bulkCat;
+      let n=0;
+      ids.forEach(pid=>{
+        const p=prod(pid); if(!p) return;
+        persistProductFields(pid, {cat});
+        n++;
+      });
+      if(!save()) return;
+      closeSheet();
+      exitSelectMode();
+      clearStockOrderFreeze();
+      render();
+      toast(T[state.lang].bulkMovedCat(n),'success');
+    };
+  });
+}
+
+function sheetStockQuickAdd(opts={}){
   let hid = state.house === 'all' ? (DB.houses[0]?.id || 'h1') : state.house;
   let matchPid = null;
   let qty = 1;
@@ -8879,8 +9003,8 @@ function sheetStockQuickAdd(){
     </div>
     <label class="f"><span>${t('stockFoodName')}</span>
       <input id="qaName" placeholder="Milch / Γάλα" autocomplete="off" enterkeyhint="done"></label>
-    ${isPro()?`<button class="btn sec sm pro-only mode-pro-block" type="button" id="qaOcr" style="margin:0 0 10px">${ui('u-sparkle','sm')} ${esc(t('ocrSnapFill'))}</button>
-    <div class="muted pro-only mode-pro-block" style="font-size:11px;margin:-6px 0 10px">${esc(t('ocrSnapFillHint'))}</div>`:''}
+    <button class="btn sec" type="button" id="qaOcr" style="margin:0 0 10px;min-height:48px">${esc(t('stockPhotoRead'))}</button>
+    <div class="muted" style="font-size:11px;margin:-6px 0 10px">${esc(t('ocrSnapFillHint'))}</div>
     <div id="qaMatches" class="stock-qa-matches-wrap"></div>
     <div class="row" style="gap:8px">
       <label class="f grow"><span>${t('qty')}</span>
@@ -8934,6 +9058,9 @@ function sheetStockQuickAdd(){
       if(btn) btn.disabled=false;
     }
   });
+  if(opts && opts.autoOcr){
+    setTimeout(()=>sheetEl.querySelector('#qaOcr')?.click(), 120);
+  }
   sheetEl.querySelector('#qaQty')?.addEventListener('change', e=>{
     const n = Number(String(e.target.value||'').replace(',','.'));
     if(Number.isFinite(n) && n>=0) qty = roundStock(n);
@@ -17435,7 +17562,7 @@ function wire(){
   });
   v.querySelectorAll('#sHouse button, #shHouse button').forEach(b=>{
     b.onclick = () => {
-      if(b.dataset.h!==state.house) clearStockDraft();
+      if(b.dataset.h!==state.house){ clearStockDraft(); clearStockOrderFreeze(); }
       state.house = b.dataset.h;
       render();
     };
@@ -17688,6 +17815,21 @@ function wire(){
   if(stockOpenBoard) stockOpenBoard.onclick=()=>sheetStockBoard('IN');
   const stockQuickAdd=v.querySelector('#stockQuickAdd');
   if(stockQuickAdd) stockQuickAdd.onclick=()=>sheetStockQuickAdd();
+  const stockQuickAddEasy=v.querySelector('#stockQuickAddEasy');
+  if(stockQuickAddEasy) stockQuickAddEasy.onclick=()=>sheetStockQuickAdd();
+  const stockPhotoRead=v.querySelector('#stockPhotoRead');
+  if(stockPhotoRead) stockPhotoRead.onclick=()=>sheetStockQuickAdd({autoOcr:true});
+  const refreshOrder=()=>{ clearStockOrderFreeze(); feedback('toggle'); render(); };
+  v.querySelectorAll('#stockOrderRefresh, #stockOrderRefreshNote').forEach(b=>{
+    b.onclick=()=>refreshOrder();
+  });
+  const dismissReasonModal=()=>{
+    state.stockPendingStep=null;
+    feedback('toggle');
+    render();
+  };
+  v.querySelector('#stockReasonModalDismiss')?.addEventListener('click', dismissReasonModal);
+  v.querySelector('#stockReasonModalCancel')?.addEventListener('click', dismissReasonModal);
   const stockQuickList=v.querySelector('#stockQuickList');
   if(stockQuickList) stockQuickList.onclick=()=>{
     const n=autoFillShoppingFromStock(state.house);
@@ -17728,10 +17870,14 @@ function wire(){
       if(pending?.bulkOut?.length){
         const ids=pending.bulkOut;
         state.stockPendingStep=null;
+        ensureStockOrderFreeze();
         ids.forEach(pid=>{
           const p=prod(pid); if(!p) return;
           const q=DB.stock[stockKey(state.house,pid)]??0;
-          if(pending.bulkClear){
+          if(pending.bulkSetTo!=null){
+            const delta=roundStock(pending.bulkSetTo-q);
+            if(Math.abs(delta)>0.0001) applyStockDelta(pid, delta, {silent:true, undoable:false});
+          }else if(pending.bulkClear){
             if(q>0) applyStockDelta(pid, -q, {silent:true, undoable:false});
           }else if(q>0){
             applyStockDelta(pid, -stepFor(p), {silent:true, undoable:false});
@@ -17774,15 +17920,20 @@ function wire(){
     });
   }
   v.querySelectorAll('[data-stock-filter]').forEach(b=>{
-    b.onclick=()=>{state.stockFilter=b.dataset.stockFilter;render();};
+    b.onclick=()=>{
+      if(state.stockFilter!==b.dataset.stockFilter) clearStockOrderFreeze();
+      state.stockFilter=b.dataset.stockFilter;
+      render();
+    };
   });
   const stockSearch=v.querySelector('#stockSearch');
   if(stockSearch) stockSearch.oninput=()=>{
+    if((state.stockQuery||'')!==stockSearch.value) clearStockOrderFreeze();
     state.stockQuery=stockSearch.value;render();
     const next=document.querySelector('#stockSearch');if(next){next.focus();next.setSelectionRange(next.value.length,next.value.length);}
   };
   const stockClear=v.querySelector('#stockClear');
-  if(stockClear) stockClear.onclick=()=>{state.stockQuery='';render();};
+  if(stockClear) stockClear.onclick=()=>{clearStockOrderFreeze();state.stockQuery='';render();};
   const stockToList=v.querySelector('#stockToList');
   if(stockToList) stockToList.onclick=()=>{state.tab='shop';render();};
 
@@ -17907,13 +18058,23 @@ function wire(){
           toast(T[state.lang].bulkListed(n),'success');
           exitSelectMode(); render(); return;
         }
+        if(act==='in'){
+          ensureStockOrderFreeze();
+          ids.forEach(pid=>{
+            const p=prod(pid); if(!p) return;
+            applyStockDelta(pid, stepFor(p), {silent:true, undoable:false});
+          });
+          exitSelectMode(); render(); toast(t('saved'),'success'); return;
+        }
+        if(act==='set-qty'){ sheetBulkStockSetQty(ids); return; }
+        if(act==='move-cat'){ sheetBulkStockMoveCat(ids); return; }
         if(act==='out'){
           if(!state.stockDraftReason){
             state.stockPendingStep={bulkOut:ids};
-            toast(t('stockDraftNeedReason'),'info');
             render();
             return;
           }
+          ensureStockOrderFreeze();
           ids.forEach(pid=>{
             const p=prod(pid); if(!p) return;
             const q=DB.stock[stockKey(state.house,pid)]??0;
@@ -17924,10 +18085,10 @@ function wire(){
         if(act==='clear-empty'){
           if(!state.stockDraftReason){
             state.stockPendingStep={bulkOut:ids, bulkClear:true};
-            toast(t('stockDraftNeedReason'),'info');
             render();
             return;
           }
+          ensureStockOrderFreeze();
           ids.forEach(pid=>{
             const q=DB.stock[stockKey(state.house,pid)]??0;
             if(q>0) applyStockDelta(pid, -q, {silent:true, undoable:false});
@@ -18136,7 +18297,7 @@ function wire(){
 
 document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   b.onclick = () => {
-    if(b.dataset.tab!=='stock' && state.tab==='stock') clearStockDraft();
+    if(b.dataset.tab!=='stock' && state.tab==='stock'){ clearStockDraft(); clearStockOrderFreeze(); }
     if(b.dataset.tab!==state.tab) clearSelection();
     const leaving = state.tab;
     const next = b.dataset.tab;
@@ -19686,7 +19847,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||155),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||156),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
