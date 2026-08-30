@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 144,
-  label: 'v144',
+  version: 145,
+  label: 'v145',
   changed: {
-    de: 'Kids-Home Desktop · Menü + Dichte',
-    el: 'Αρχική παιδιών · μενού + πυκνότητα',
+    de: 'Staff UI: helle Heroes, Easy/Pro-Kontrast, Gate-Reset',
+    el: 'Staff UI: ανοιχτά heroes, αντίθεση Easy/Pro, gate reset',
   },
 };
 const T = {
@@ -18175,7 +18175,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||144),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||145),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

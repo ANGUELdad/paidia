@@ -1,5 +1,14 @@
 # Changelog
 
+## v145 — 2026-08-30
+
+- **Kids Spiele E2E:** OSS iframe paths absolute (`/kids-games/…`); score `postMessage` origin-checked; Easy featured + Pro catalogue launchable; Alle Spiele back-to-hub.
+- **XP / gameStats:** child devices sync bests/plays/XP via `/api/kid-ops` (same path as ratings/notes).
+- **Edu hub / PhET:** marked online-only; disabled + banner when offline.
+- **Staff UI QA P0/P1:** light Easy/Pro header contrast; white labels on `.topbtn.danger`/`.ok`; mobile Home mast (no dark `#1b382e` band); Talk/Liste overview heroes match pantry/ops light language; PIN-reset gate light stone; Plan day-chips settle easing (no bounce); header tools ≥44×44.
+- Chrome contract documented in `ui-v110.css` + `docs/agents/QA_STAFF_FIX_NOTES.md` (flat white mobile dock product call). Kids Start v144 / Zo-Ai title v143 untouched. Lager pantry / Αιτήματα left healthy.
+- Cache `paidia-v145`.
+
 ## v144 — 2026-08-30
 
 - **Kids Start / Αρχική overhaul:** denser dashboard with CTA grid (Spiele, Bewertung, Bonus, Notizen, Plan, Sterne), week trend, subjects peek, lessons + next-up.
