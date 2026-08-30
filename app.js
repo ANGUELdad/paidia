@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 169,
-  label: 'v169',
+  version: 171,
+  label: 'v171',
   changed: {
-    de: 'Kids: Menü wie Website — Telefon Menü-Taste, PC Seitenleiste',
-    el: 'Παιδιά: μενού σαν ιστότοπος — τηλέφωνο Μενού, PC πλαϊνή μπάρα',
+    de: 'Zo-Ai Chat Fix — Tip-Skripte + sicheres Öffnen/Senden/Schließen',
+    el: 'Διόρθωση Zo-Ai — tips + ασφαλές άνοιγμα/αποστολή/κλείσιμο',
   },
 };
 const T = {
@@ -2628,7 +2628,7 @@ async function pullShared({force=false}={}){
       if(typeof data.revision === 'number') sharedRevision = data.revision;
       return false;
     }
-    const serverRev = Number(data.revision)||168;
+    const serverRev = Number(data.revision)||171;
     const serverEmpty = serverRev === 0 && !SHARED_KEYS.some(k=>sharedBucketHasData(data, k));
     const localHas = SHARED_KEYS.some(k=>sharedBucketHasData(DB, k));
     // First device seeds the server — never wipe local with an empty cloud.
@@ -3473,7 +3473,7 @@ function readOnboardingLocal(profileId=currentProfileId(), mode=state.mode, vers
 }
 /** True if this profile already finished any known tutorial version (avoids re-trap loops). */
 function readOnboardingDone(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
-  const ver=Number(version)||168;
+  const ver=Number(version)||171;
   if(readOnboardingLocal(profileId, mode, ver)) return true;
   for(let v=1; v<=Math.max(ver, 2); v++){
     if(v!==ver && readOnboardingLocal(profileId, mode, v)) return true;
@@ -3550,7 +3550,7 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
       localStorage.setItem('paidia.rememberMe', '0');
     }
   }catch{}
-  state.onboardingVersion=Number(data.onboardingVersion)||168;
+  state.onboardingVersion=Number(data.onboardingVersion)||171;
   const serverDone=data.onboardingComplete===true;
   const localDone=readOnboardingDone(data.profileId, mode, state.onboardingVersion);
   state.onboardingComplete=serverDone || localDone;
@@ -4666,7 +4666,7 @@ function applyHelpActions(actions){
         return;
       }
       if(kind==='shop_add'){
-        const qty=Number(action.qty)||168;
+        const qty=Number(action.qty)||171;
         const nm=product?L(product):(action.name||query);
         const unit=action.unit||product?.unit||'Stk';
         const friday=state.shopFriday||fridayFor();
@@ -8814,7 +8814,7 @@ function insertStockOrderPid(pid, hid=state.house){
   freeze.order.splice(insertAt, 0, pid);
 }
 function withStockScrollPreserved(run){
-  const y=window.scrollY||document.documentElement.scrollTop||168;
+  const y=window.scrollY||document.documentElement.scrollTop||171;
   const main=document.querySelector('main.app-stage');
   const mainY=main?main.scrollTop:0;
   run();
@@ -9027,7 +9027,7 @@ function shiftCheckQtyForMark(p, mark, base){
   const thr=lowThreshold(p);
   if(mark==='empty') return 0;
   if(mark==='low') return Math.min(Number(base)||0, thr) || thr;
-  return Number(base)||168;
+  return Number(base)||171;
 }
 
 function paintShiftStockCheckSheet(draft){
@@ -12550,7 +12550,7 @@ function readGameBest(id){
   const kidId=state.child?.id;
   const synced=kidId?Number(loadGameStats(kidId)?.bests?.[id]):0;
   if(Number.isFinite(synced) && synced>0) return synced;
-  try{ return Number(localStorage.getItem(gameBestKey(id)))||168; }catch{ return 0; }
+  try{ return Number(localStorage.getItem(gameBestKey(id)))||171; }catch{ return 0; }
 }
 function writeGameBest(id, score, {lower=false}={}){
   const prev=readGameBest(id);
@@ -14442,7 +14442,7 @@ function migrateStarsToGrade(value){
 function ensureGradeScale(row){
   if(!row || typeof row !== 'object') return 0;
   if(row.scale === 'de6') return clampGrade(row.value ?? row.score);
-  const raw = Number(row.value ?? row.score)||168;
+  const raw = Number(row.value ?? row.score)||171;
   if(raw>=1 && raw<=5){
     const next = migrateStarsToGrade(raw);
     if('value' in row) row.value = next;
@@ -14899,7 +14899,7 @@ function bindKidExtras(root){
     btn.addEventListener('click', ()=>{
       const area = btn.getAttribute('data-kid-rate');
       if(!area || area === '__none__') return;
-      const val = Number(btn.getAttribute('data-grade-val'))||168;
+      const val = Number(btn.getAttribute('data-grade-val'))||171;
       if(setKidRating(state.child.id, area, val)){
         toast(t('kidRateSaved'));
         render();
@@ -15359,7 +15359,7 @@ function childGamesLobby(){
     if(!best) return '';
     if(g.id==='learn'){
       const lv = kidLevel(best);
-      const floor = XP_LEVELS[lv]||168;
+      const floor = XP_LEVELS[lv]||171;
       const ceil = XP_LEVELS[Math.min(lv+1, XP_LEVELS.length-1)]||floor+100;
       const pct = ceil>floor ? Math.round(((best-floor)/(ceil-floor))*100) : 100;
       return `<div class="arcade-widget">${levelMeterHtml(pct)}</div>`;
@@ -15370,7 +15370,7 @@ function childGamesLobby(){
       const spark = sparklineHtml(hist.length?hist:[best], 'sea');
       return spark?`<div class="arcade-widget">${spark}</div>`:'';
     }
-    const soft = ({quiz:20,math:30,island:20,memory:100,tac:10,catch:40,rps:20,dice:6,colors:30,eduhub:10,oss2048:2048,osssnake:30,ossbreakout:200,osspuzzle15:200,osshop:20})[g.id]||168;
+    const soft = ({quiz:20,math:30,island:20,memory:100,tac:10,catch:40,rps:20,dice:6,colors:30,eduhub:10,oss2048:2048,osssnake:30,ossbreakout:200,osspuzzle15:200,osshop:20})[g.id]||171;
     const pct = Math.min(100, Math.round((best/Math.max(soft, best))*100));
     const label = g.id==='react' ? t('gameReactMs')(best) : String(best);
     return `<div class="arcade-widget">${ringHtml(pct, label, 'pine')}</div>`;
@@ -18121,7 +18121,7 @@ function measureChrome(){
       if(kidDock){
         const style=getComputedStyle(kidDock);
         if(style.display!=='none' && style.visibility!=='hidden'){
-          navH=Math.ceil(kidDock.getBoundingClientRect().height)||168;
+          navH=Math.ceil(kidDock.getBoundingClientRect().height)||171;
           if(navH){
             root.style.setProperty('--kid-dock-h', navH+'px');
             document.body.style.setProperty('--kid-dock-h', navH+'px');
@@ -19366,7 +19366,7 @@ const gateEl = document.getElementById('gate');
 const gateBody = document.getElementById('gateBody');
 
 function formatDeviceWhen(ts){
-  const n=Number(ts)||168;
+  const n=Number(ts)||171;
   if(!n) return '—';
   try{
     return new Date(n).toLocaleString(state.lang==='el'?'el-GR':'de-DE',{
@@ -19773,7 +19773,7 @@ async function sheetSecurityAccess(){
       };
     };
     paintProfile(data.profileId);
-    count=Number(data.passkeys)||168;
+    count=Number(data.passkeys)||171;
     const supported=passkeyCapable()&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
     card.innerHTML=`<div class="row between"><div><b>${esc(t('profileSectionBio'))} · ${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
       <p class="muted" style="font-size:11.5px;line-height:1.5">${t('passkeyHint')}</p>
@@ -20857,7 +20857,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||169;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||171;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

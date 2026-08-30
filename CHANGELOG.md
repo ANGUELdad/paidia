@@ -1,5 +1,10 @@
 # Changelog
 
+## v171 — 2026-08-30
+
+- **Zo-Ai chat crash:** tip scripts (`page-tips.js` / `zoai-tips.js`) 404 on Vercel before allowlist → global `error` handler toasted “unexpected” as a fake crash; open/send/close could also throw on null DOM, tip overlays, or stuck `sheet-open`.
+- **Fix:** allowlist tip files (v168); harden `openChatPanel` / `mountHelpChat` / close (`panelAlive`, voice stop, clear tip overlays, dismiss stuck sheets); ignore SCRIPT/LINK resource errors in the toast handler. Cache `paidia-v171`.
+
 ## v169 — 2026-08-30
 
 - **Kids website-style menu:** mobile **Menü** hamburger opens a large panel with all pages (Start · Spiele · Bewertung · Bonus · Notizen + Mehr). Desktop keeps the dark left side menu (`#1b2822` rail from v166).
