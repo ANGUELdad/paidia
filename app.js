@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 136,
-  label: 'v136',
+  version: 137,
+  label: 'v137',
   changed: {
-    de: 'Supermarkt-Modus komplett neu: klare Produktentscheidungen, Einhand-Bedienung und sichere Abschlusskontrolle',
-    el: 'Πλήρης ανακατασκευή λειτουργίας supermarket: καθαρές επιλογές προϊόντων, χρήση με ένα χέρι και ασφαλής ολοκλήρωση',
+    de: 'Dienstplan-Tabelle für Woche/Schicht + visuelles Feinschliff (Design-System, Easy/Pro-Hooks)',
+    el: 'Πίνακας υπηρεσίας για εβδομάδα/βάρδια + οπτικό φινίρισμα (design system, Easy/Pro hooks)',
   },
 };
 const T = {
@@ -448,8 +448,16 @@ const T = {
     kidStarsCollected:n=>`${n} gesammelt`, kidGamesPlay:'Spielen',
     storageOffline:'Nicht dauerhaft gespeichert — Datenbank offline. Bitte Admin informieren.',
     kidNavRate:'Bewertung', kidRateTitle:'Bewertungen', kidRateKicker:'Wie lief die Woche?',
-    kidRateLead:'Tippe die Sterne. Das sehen nur du und deine Betreuerin.',
+    kidRateLead:'Noten von 1 bis 6 — wie in der Schule. Das sehen nur du und deine Betreuerin.',
     kidRateSchool:'Schule', kidRateHome:'Zuhause', kidRateFriends:'Freunde', kidRateMood:'Wie ich mich fühle',
+    kidRateVerhalten:'Verhalten', kidRateMitarbeit:'Mitarbeit', kidRateActivities:'Mitmachen bei Aktivitäten',
+    kidRateGroupLife:'Alltag & Wohlbefinden', kidRateGroupSchool:'Schule & Haltung',
+    kidRateThingsTitle:'Wichtige Dinge', kidRateThingsLead:'Wie lief es bei den wichtigen Aufgaben dieser Woche?',
+    kidRateThingsEmpty:'Keine wichtigen Dinge zum Bewerten.',
+    kidRateDueBanner:'Noch offene Bewertungen für diese Woche',
+    kidRateDueHint:n=>n===1?'1 Note fehlt noch':`${n} Noten fehlen noch`,
+    kidRateScaleHint:'1 = sehr gut · 6 = ungenügend',
+    grade1:'sehr gut', grade2:'gut', grade3:'befriedigend', grade4:'ausreichend', grade5:'mangelhaft', grade6:'ungenügend',
     kidRateWeeks:'Letzte 4 Wochen', kidRateSaved:'Bewertung gespeichert',
     kidRateEmpty:'Diese Woche noch nicht bewertet.',
     kidBonusTitle:'Bonus', kidBonusKicker:'Extra verdient',
@@ -1215,8 +1223,16 @@ const T = {
     kidNavStart:'Αρχή', kidNavPlan:'Πρόγραμμα', kidNavLearn:'Μάθηση', kidNavStars:'Αστέρια', kidNavGames:'Παιχνίδια',
     storageOffline:'Δεν αποθηκεύτηκε μόνιμα — η βάση είναι εκτός. Ενημέρωσε τον διαχειριστή.',
     kidNavRate:'Αξιολόγηση', kidRateTitle:'Αξιολογήσεις', kidRateKicker:'Πώς πήγε η εβδομάδα;',
-    kidRateLead:'Πάτα τα αστέρια. Το βλέπεις μόνο εσύ και η φροντίστριά σου.',
+    kidRateLead:'Βαθμοί από 1 έως 6 — όπως στο σχολείο. Το βλέπεις μόνο εσύ και η φροντίστριά σου.',
     kidRateSchool:'Σχολείο', kidRateHome:'Σπίτι', kidRateFriends:'Φίλοι', kidRateMood:'Πώς νιώθω',
+    kidRateVerhalten:'Συμπεριφορά', kidRateMitarbeit:'Συμμετοχή στο μάθημα', kidRateActivities:'Συμμετοχή σε δραστηριότητες',
+    kidRateGroupLife:'Καθημερινότητα & ευεξία', kidRateGroupSchool:'Σχολείο & στάση',
+    kidRateThingsTitle:'Σημαντικά πράγματα', kidRateThingsLead:'Πώς πήγαν οι σημαντικές εργασίες αυτής της εβδομάδας;',
+    kidRateThingsEmpty:'Δεν υπάρχουν σημαντικά πράγματα για αξιολόγηση.',
+    kidRateDueBanner:'Υπάρχουν ανοιχτές αξιολογήσεις για αυτή την εβδομάδα',
+    kidRateDueHint:n=>n===1?'Λείπει ακόμα 1 βαθμός':`Λείπουν ακόμα ${n} βαθμοί`,
+    kidRateScaleHint:'1 = άριστα · 6 = ανεπαρκής',
+    grade1:'άριστα', grade2:'καλά', grade3:'ικανοποιητικά', grade4:'επαρκώς', grade5:'ελλιπώς', grade6:'ανεπαρκώς',
     kidRateWeeks:'Τελευταίες 4 εβδομάδες', kidRateSaved:'Η αξιολόγηση αποθηκεύτηκε',
     kidRateEmpty:'Δεν έχεις αξιολογήσει ακόμα αυτή την εβδομάδα.',
     kidBonusTitle:'Μπόνους', kidBonusKicker:'Έξτρα κερδισμένα',
@@ -2359,12 +2375,23 @@ function emptyState(icon, title, hint='', ctaHtml=''){
   </div>`;
 }
 
+/* Map legacy emoji chrome keys → #uiSprite stroke ids (content emoji stay as data). */
+const ENTRY_ICO = {
+  '🏠':'u-home','👤':'u-person','👶':'u-child','🎯':'u-target','⏱':'u-clock',
+  '📝':'u-note','🎒':'u-bag','🔔':'u-bell','👥':'u-users','📅':'u-calendar',
+};
+function chromeIco(icon){
+  if(!icon) return ui('u-sparkle');
+  if(String(icon).includes('<svg')) return icon;
+  const id = ENTRY_ICO[icon] || (String(icon).startsWith('u-') ? icon : null);
+  return id ? ui(id) : ui('u-sparkle');
+}
 function entrySec(icon, label, hint=''){
-  return `<div class="entry-sec"><span class="sec-ico" aria-hidden="true">${icon}</span><span>${esc(label)}</span>${hint?`<span class="sec-hint">${esc(hint)}</span>`:''}</div>`;
+  return `<div class="entry-sec"><span class="sec-ico" aria-hidden="true">${chromeIco(icon)}</span><span>${esc(label)}</span>${hint?`<span class="sec-hint">${esc(hint)}</span>`:''}</div>`;
 }
 function houseOptionHtml(h, checked){
   return `<label class="check-option"><input type="checkbox" value="${h.id}" ${checked?'checked':''}>
-    <span class="opt-ico" aria-hidden="true">🏠</span>
+    <span class="opt-ico" aria-hidden="true">${ui('u-home')}</span>
     <span class="opt-label"><span>${esc(h.name)}</span></span></label>`;
 }
 function personOptionHtml(p, checked){
@@ -2379,7 +2406,7 @@ function kidChipHtml(c, on){
     <span>${esc(childChoiceLabel(c))}</span></button>`;
 }
 function groupChipHtml(g, on){
-  return `<button class="chip ${on?'on':''}" data-g="${g.id}" type="button">👥 ${esc(L(g))}</button>`;
+  return `<button class="chip ${on?'on':''}" data-g="${g.id}" type="button">${ui('u-users','sm')} ${esc(L(g))}</button>`;
 }
 
 function friendlyAiError(error){
@@ -5425,31 +5452,32 @@ function dayStamp(ds, i=dowIdx(new Date(ds+'T12:00:00'))){
 }
 
 /** Κοινό responsive table system για πρόγραμμα, βάρδιες και μελλοντικά datasets. */
-function matrixView(headers, rows, {label = '', interactive = false, title = ''} = {}){
+function matrixView(headers, rows, {label = '', interactive = false, title = '', density = 'roster', shellClass = '', hint = ''} = {}){
   const desktopMin=140 + headers.length*158;
-  const mobileMin=100 + headers.length*132;
+  const mobileMin=96 + headers.length*118;
   const headCell = h => {
     if(h && typeof h === 'object'){
       return `<div class="matrix-cell matrix-head" role="columnheader">${h.html || h.headHtml || `<span class="mh-day">${esc(h.text||h.label||'')}</span>`}</div>`;
     }
     return `<div class="matrix-cell matrix-head" role="columnheader">${esc(h)}</div>`;
   };
-  const head = `<div class="matrix-row" role="row">
+  const head = `<div class="matrix-row matrix-row-head" role="row">
     <div class="matrix-cell matrix-head matrix-label" role="columnheader">${esc(label)}</div>
     ${headers.map(headCell).join('')}
   </div>`;
   const table = `<div class="matrix" role="table" style="--cols:${headers.length};--matrix-min:${desktopMin}px;--matrix-min-mobile:${mobileMin}px" tabindex="0">
     ${head}${rows.map(r=>`<div class="matrix-row" role="row">
       <div class="matrix-cell matrix-label" role="rowheader">${r.labelHtml || r.label}</div>
-      ${r.cells.map(c=>`<div class="matrix-cell ${c.action?'matrix-action':''}" role="cell"
+      ${r.cells.map(c=>`<div class="matrix-cell ${c.action?'matrix-action':''} ${c.html?'has-items':''}" role="cell"
         ${c.action ? `tabindex="0" data-cell="${esc(c.action)}" aria-label="${esc(c.aria||t('add'))}"` : ''}>
         ${c.html || `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}${c.action ? '<span class="matrix-add" aria-hidden="true">＋</span>' : ''}
       </div>`).join('')}
     </div>`).join('')}
   </div>`;
-  return `<div class="matrix-shell">
+  return `<div class="matrix-shell ${shellClass}" data-density="${esc(density)}" data-roster="table">
     <div class="matrix-toolbar">
       <div class="matrix-toolbar-title">${esc(title || label || t('viewWeek'))}</div>
+      ${hint?`<span class="matrix-toolbar-hint">${esc(hint)}</span>`:''}
       <button class="matrix-fs-btn" type="button" data-matrix-fs aria-label="${esc(t('tableFullscreen'))}" title="${esc(t('tableFullscreen'))}">⛶ ${t('tableFullscreen')}</button>
       <button class="matrix-fs-close" type="button" data-matrix-fs-close hidden aria-label="${esc(t('tableExitFullscreen'))}">✕ ${t('tableExitFullscreen')}</button>
     </div>
@@ -5508,9 +5536,18 @@ function viewShifts(){
       aria:`${p.name} · ${s.long} ${s.full} · ${t('editShiftDay')}`,
     })),
   }));
+  const scrollHint = state.lang==='de' ? 'Seitlich scrollen · Zelle tippen zum Bearbeiten' : 'Οριζόντια κύλιση · πάτα κελί για επεξεργασία';
   return `
-    ${matrixView(headers, rows, {label:state.lang==='de'?'Person':'Άτομο', title:t('viewShift')})}
-    <div class="muted" style="margin-bottom:12px">${t('tenMinRule')}</div>
+    <div class="shift-roster" data-density="roster" data-roster="shifts">
+      ${matrixView(headers, rows, {
+        label:state.lang==='de'?'Person':'Άτομο',
+        title:t('viewShift'),
+        density:'roster',
+        shellClass:'roster-matrix shift-matrix',
+        hint:scrollHint,
+      })}
+    </div>
+    <div class="muted roster-footnote">${t('tenMinRule')}</div>
     ${validationCard(state.date)}`;
 }
 
@@ -5591,45 +5628,143 @@ function viewScheduleWeek(){
   week.forEach(ds => { byDate[ds] = entriesFor(ds).filter(e=>!e.cancelled &&
     (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter)))
     .sort((a,b)=>String(entryTime(a)||'99:99').localeCompare(String(entryTime(b)||'99:99'))); });
+  const visibleHouses=planningHouses().filter(h=>!state.houseFilter || h.id===state.houseFilter);
+  const dayHeaders = stamps.map(s=>({html:s.headHtml, text:s.text}));
+  const scrollHint = state.lang==='de' ? 'Tabelle · seitlich scrollen · Zelle = hinzufügen' : 'Πίνακας · οριζόντια κύλιση · κελί = προσθήκη';
+  const personLabel = state.lang==='de'?'Person':'Άτομο';
+  const houseLabel = state.lang==='de'?'Haus':'Σπίτι';
 
-  const dayStack = `<div class="week-day-stack" aria-label="${esc(t('viewWeek'))}">
+  const houseTable = (blockId) => matrixView(dayHeaders, visibleHouses.map(h=>({
+    label:esc(h.short || h.name),
+    cells:stamps.map(s=>{
+      const list = byDate[s.ds].filter(e=>e.block===blockId && entryHouseIds(e).includes(h.id));
+      return {
+        html:cellItems(list,true,s.ds),
+        action:`${s.ds}|${blockId}|${h.id}|`,
+        aria:`${h.name} · ${s.long} ${s.full} · ${t(blockId)} · ${t('add')}`,
+      };
+    }),
+  })), {
+    label:houseLabel,
+    interactive:true,
+    title:t(blockId),
+    density:'roster',
+    shellClass:`roster-matrix week-block-matrix block-${blockId}`,
+    hint:scrollHint,
+  });
+
+  const personRows = DB.employees.map(p=>({
+    label:esc(p.name),
+    cells:stamps.map(s=>{
+      const list = byDate[s.ds].filter(e=>e.block==='afternoon' && entryEmployeeIds(e).includes(p.id));
+      return {
+        html:cellItems(list,false,s.ds),
+        action:`${s.ds}|afternoon||${p.id}`,
+        aria:`${p.name} · ${s.long} ${s.full} · ${t('afternoon')} · ${t('add')}`,
+      };
+    }),
+  }));
+  personRows.push({
+    label:`<span class="roster-unassigned">${esc(t('unassigned'))}</span>`,
+    cells:stamps.map(s=>{
+      const list = byDate[s.ds].filter(e=>e.block==='afternoon' && !entryEmployeeIds(e).length);
+      return {
+        html:cellItems(list,false,s.ds),
+        action:`${s.ds}|afternoon||`,
+        aria:`${t('unassigned')} · ${s.long} ${s.full} · ${t('afternoon')}`,
+      };
+    }),
+  });
+  const personTable = matrixView(dayHeaders, personRows, {
+    label:personLabel,
+    interactive:true,
+    title:t('afternoon'),
+    density:'roster',
+    shellClass:'roster-matrix week-block-matrix block-afternoon',
+    hint:scrollHint,
+  });
+
+  const weekJump = `<nav class="week-jump" aria-label="${esc(t('viewWeek'))}">
     ${stamps.map(s=>{
-      const list=byDate[s.ds], count=list.length;
-      const open=s.ds===state.date || s.ds===today;
-      return `<details class="week-day-card ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-selected':''}" ${open?'open':''}>
-        <summary class="week-day-card-h" aria-label="${esc(s.long)} ${esc(s.full)}">
-          <span class="wd-main">
-            <span class="wd-name">${esc(s.long)}</span>
-            <span class="wd-date">${esc(s.full)}</span>
-          </span>
-          <span class="wd-meta"><b>${count}</b><span class="wd-go" aria-hidden="true">⌄</span></span>
-        </summary>
-        <div class="week-day-card-body">
-          <div class="schedule-agenda-list compact">${list.length?list.map(e=>scheduleAgendaEntry(e,s.ds,{compact:true})).join(''):scheduleAgendaEmpty(s.ds,{compact:true})}</div>
-          <div class="week-day-actions">
-            <button type="button" class="week-add-entry" data-add="afternoon" data-add-date="${s.ds}">${esc(t('add'))}</button>
-            <button type="button" class="week-open-day" data-jump-day="${s.ds}">${esc(t('openDay'))} →</button>
-          </div>
-        </div>
-      </details>`;
+      const count=byDate[s.ds].length;
+      return `<button type="button" class="week-jump-day ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-selected':''}"
+        data-week-focus="${s.ds}" aria-label="${esc(s.long)} ${esc(s.full)}">
+        <span class="wj-name">${esc(s.name)}</span>
+        <span class="wj-date">${esc(s.short)}</span>
+        <span class="wj-count">${count}</span>
+      </button>`;
     }).join('')}
-  </div>`;
+  </nav>`;
 
-  const weekBoard=`<section class="week-agenda-shell" aria-labelledby="weekAgendaTitle">
-    <header><div><span>${esc(t('viewWeek'))}</span><h3 id="weekAgendaTitle">${esc(t('weekAgenda'))}</h3></div></header>
-    <div class="week-agenda-board">
-      ${stamps.map(s=>{
-        const list=byDate[s.ds];
-        return `<article class="week-agenda-column ${s.ds===today?'is-today':''}">
-          <button type="button" class="week-agenda-head" data-jump-day="${s.ds}">
-            <span>${esc(s.long)}</span><b>${esc(s.short)}</b><i>${list.length}</i>
-          </button>
-          <div class="week-agenda-column-list">${list.length?list.map(e=>scheduleAgendaEntry(e,s.ds,{compact:true})).join(''):scheduleAgendaEmpty(s.ds,{compact:true})}</div>
-          <button type="button" class="week-agenda-add" data-add="afternoon" data-add-date="${s.ds}">${esc(t('add'))}</button>
-        </article>`;
-      }).join('')}
-    </div>
-  </section>`;
+  const stackBlock = (ds, blockId) => {
+    const list = byDate[ds].filter(e=>e.block===blockId);
+    const b = blockDef(blockId);
+    let body;
+    if(b.by==='house'){
+      body = `<div class="week-stack-table" role="table">
+        <div class="week-stack-tr week-stack-thead" role="row">
+          <span role="columnheader">${esc(houseLabel)}</span>
+          <span role="columnheader">${esc(t('dueToday'))}</span>
+          <span role="columnheader" class="week-stack-add-h">${esc(t('add'))}</span>
+        </div>
+        ${visibleHouses.map(h=>{
+          const rows = list.filter(e=>entryHouseIds(e).includes(h.id));
+          return `<div class="week-stack-tr" role="row">
+            <span class="week-stack-rh" role="rowheader">${esc(h.short||h.name)}</span>
+            <div class="week-stack-cell" role="cell">${rows.length ? cellItems(rows,true,ds) : `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}</div>
+            <button type="button" class="week-stack-add" data-add="${blockId}" data-house="${h.id}" data-add-date="${ds}" aria-label="${esc(t('add'))}">＋</button>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }else{
+      body = `<div class="week-stack-table" role="table">
+        <div class="week-stack-tr week-stack-thead" role="row">
+          <span role="columnheader">${esc(personLabel)}</span>
+          <span role="columnheader">${esc(t('dueToday'))}</span>
+          <span role="columnheader" class="week-stack-add-h">${esc(t('add'))}</span>
+        </div>
+        ${DB.employees.map(p=>{
+          const rows = list.filter(e=>entryEmployeeIds(e).includes(p.id));
+          return `<div class="week-stack-tr" role="row">
+            <span class="week-stack-rh" role="rowheader">${esc(p.name)}</span>
+            <div class="week-stack-cell" role="cell">${rows.length ? cellItems(rows,false,ds) : `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}</div>
+            <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" data-employee="${p.id}" aria-label="${esc(t('add'))}">＋</button>
+          </div>`;
+        }).join('')}
+        ${(()=>{
+          const rows = list.filter(e=>!entryEmployeeIds(e).length);
+          return `<div class="week-stack-tr" role="row">
+            <span class="week-stack-rh roster-unassigned" role="rowheader">${esc(t('unassigned'))}</span>
+            <div class="week-stack-cell" role="cell">${rows.length ? cellItems(rows,false,ds) : `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}</div>
+            <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" aria-label="${esc(t('add'))}">＋</button>
+          </div>`;
+        })()}
+      </div>`;
+    }
+    return `<div class="week-stack-block block-${blockId}" data-block="${blockId}">
+      <div class="week-stack-block-h"><span>${t(blockId)}</span><span class="plan-time-chip">${b.from}–${b.to}</span></div>
+      ${body}
+    </div>`;
+  };
+
+  const dayStack = `<div class="week-day-stack week-stack-roster" data-density="roster" aria-label="${esc(t('viewWeek'))}">
+    ${stamps.map(s=>`<section class="week-day-card week-day-table ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-selected':''}" data-date="${s.ds}">
+      <header class="week-day-card-h">
+        <span class="wd-main">
+          <span class="wd-name">${esc(s.long)}</span>
+          <span class="wd-date">${esc(s.full)}</span>
+        </span>
+        <span class="wd-meta"><b>${byDate[s.ds].length}</b>
+          <button type="button" class="week-open-day" data-jump-day="${s.ds}">${esc(t('openDay'))}</button>
+        </span>
+      </header>
+      <div class="week-day-card-body">
+        ${stackBlock(s.ds,'morning')}
+        ${stackBlock(s.ds,'afternoon')}
+        ${stackBlock(s.ds,'evening')}
+      </div>
+    </section>`).join('')}
+  </div>`;
 
   const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   const weekEntries=week.flatMap(ds=>byDate[ds]);
@@ -5653,8 +5788,22 @@ function viewScheduleWeek(){
         <span><b>${unassignedCount}</b><small>${esc(t('unassigned'))}</small></span>
       </div>
     </header>
+    ${weekJump}
+    <div class="week-roster week-matrix-desktop" data-density="roster" data-roster="week">
+      <div class="week-roster-block block-morning">
+        <div class="plan-block-h block-h block-morning week-roster-h"><span class="t">${t('morning')}</span><span class="hrs plan-time-chip">10:00–14:00</span></div>
+        ${houseTable('morning')}
+      </div>
+      <div class="week-roster-block block-afternoon">
+        <div class="plan-block-h block-h block-afternoon week-roster-h"><span class="t">${t('afternoon')}</span><span class="hrs plan-time-chip">15:00–19:00</span></div>
+        ${personTable}
+      </div>
+      <div class="week-roster-block block-evening">
+        <div class="plan-block-h block-h block-evening week-roster-h"><span class="t">${t('evening')}</span><span class="hrs plan-time-chip">19:00–22:00</span></div>
+        ${houseTable('evening')}
+      </div>
+    </div>
     ${dayStack}
-    ${weekBoard}
     ${weekNotesCard()}`;
 }
 
@@ -5752,8 +5901,8 @@ function viewScheduleCalendar(){
   const notifAvail = typeof Notification !== 'undefined';
   const notifGranted = notifAvail && Notification.permission === 'granted';
   const notifRow = !notifAvail ? '' : notifGranted
-    ? `<span class="cal-notif-pill" aria-live="polite">🔔 ${esc(t('notifEnabled'))}</span>`
-    : `<button class="btn sm sec" type="button" id="enableNotifs">🔔 ${esc(t('notifEnable'))}</button>`;
+    ? `<span class="cal-notif-pill notif-bell" aria-live="polite">${ui('u-bell')} ${esc(t('notifEnabled'))}</span>`
+    : `<button class="btn sm sec notif-bell" type="button" id="enableNotifs">${ui('u-bell')} ${esc(t('notifEnable'))}</button>`;
   const taskLegend = state.lang === 'el' ? 'Εργασίες' : 'Aufgaben';
   const eventLegend = state.lang === 'el' ? 'Events' : 'Events';
 
@@ -5918,18 +6067,18 @@ function sheetEntry(e, dateStr, presets = {}){
 
     ${entrySec('⏱', t('time'))}
     <div class="chips" id="fTimePresets" style="margin:-4px 0 8px">
-      <button class="chip" data-tp="full" type="button">🗓 ${t('fullBlock')} ${def.from}–${def.to}</button>
+      <button class="chip" data-tp="full" type="button">${ui('u-calendar','sm')} ${t('fullBlock')} ${def.from}–${def.to}</button>
       ${['15:00','16:00','17:00','18:00','19:00','20:00']
         .filter(x => x >= def.from && x < def.to)
-        .map(x=>`<button class="chip" data-tp="${x}" type="button">⏰ ${t('fromTime')} ${x}</button>`).join('')}
+        .map(x=>`<button class="chip" data-tp="${x}" type="button">${ui('u-clock','sm')} ${t('fromTime')} ${x}</button>`).join('')}
     </div>
     <div class="row" style="gap:10px">
-      <label class="f grow"><span>▶️ ${t('timeFrom')}</span>
+      <label class="f grow"><span>${ui('u-clock','sm')} ${t('timeFrom')}</span>
         <input type="time" id="fFrom" value="${esc(e.from || def.from)}"></label>
-      <label class="f grow"><span>⏹ ${t('timeTo')}</span>
+      <label class="f grow"><span>${ui('u-clock','sm')} ${t('timeTo')}</span>
         <input type="time" id="fTo" value="${esc(e.to || def.to)}"></label>
     </div>
-    <label class="f"><span>📝 ${t('note')}</span>
+    <label class="f"><span>${ui('u-note','sm')} ${t('note')}</span>
       <textarea id="fNote" rows="2" placeholder="${t('notePh')}">${esc(e.note||'')}</textarea></label>
 
     <div id="fEventFields" style="display:${linkedEvent?.status==='published'?'block':'none'}">
@@ -5940,7 +6089,7 @@ function sheetEntry(e, dateStr, presets = {}){
       <label class="f"><span>🏷 ${t('eventTitle')}</span><input id="fEventTitle" value="${esc(linkedEvent?L(linkedEvent):actLabel(e.activityId))}"></label>
       <div class="row" style="gap:10px">
         <label class="f grow"><span>📍 ${t('eventLocation')}</span><input id="fEventLocation" value="${esc(linkedEvent?.location||entryHouseIds(e).map(id=>house(id)?.name).filter(Boolean).join(', '))}"></label>
-        <label class="f grow"><span>🎒 ${t('eventBring')}</span><input id="fEventBring" value="${esc(linkedEvent?L(linkedEvent.bring):'')}"></label>
+        <label class="f grow"><span>${ui('u-bag','sm')} ${t('eventBring')}</span><input id="fEventBring" value="${esc(linkedEvent?L(linkedEvent.bring):'')}"></label>
       </div>
     </div>
 
@@ -8124,7 +8273,7 @@ function sheetImportList(opts={}){
   openSheet(`
     <div class="import-flow"><div class="import-hero"><div class="import-kicker">${t('importStep')}</div>
       <h2>${t('importTitle')}</h2><p>${t('importStepHint')}</p>
-      <div class="import-context"><div>${t('importDestination')}<b>🏠 ${esc(house(hid).short)}</b></div>
+      <div class="import-context"><div>${t('importDestination')}<b>${ui('u-home','sm')} ${esc(house(hid).short)}</b></div>
         <div>${t('fridayLabel')}<b>${esc(fridayText(friday))}</b></div><div>${t('existingFriday')}<b>${existing.length} ${t('listItems')}</b></div></div></div>
     <div class="import-source-grid">
       <section class="import-source"><h3>✍️ ${t('sourceTextTitle')}</h3><p>${t('sourceTextHint')}</p>
@@ -8363,7 +8512,12 @@ function sheetReceipt(){
    ════════════════════════════════════════════════════════════════ */
 const LOG_TYPES = ['IN','OUT','SHOP','SCHEDULE','EVENT','NOTES','SHIFT','STOCKCHECK','CORRECTION','LOGIN'];
 const typeLabel = ty => t('type'+ty);
-const typeIcon = ty => ({IN:'➕',OUT:'➖',SHOP:'🛒',SCHEDULE:'📅',EVENT:'🎉',NOTES:'📝',SHIFT:'📒',STOCKCHECK:'✅',CORRECTION:'✍️',LOGIN:'🔐'}[ty]||'•');
+const typeIcon = ty => ({
+  IN:ui('u-plus','sm'), OUT:ui('u-minus','sm'), SHOP:ui('u-cart','sm'),
+  SCHEDULE:ui('u-calendar','sm'), EVENT:ui('u-party','sm'), NOTES:ui('u-note','sm'),
+  SHIFT:ui('u-book','sm'), STOCKCHECK:ui('u-check','sm'), CORRECTION:ui('u-note','sm'),
+  LOGIN:ui('u-person','sm'),
+}[ty]||ui('u-sparkle','sm'));
 
 function bookRangeFromTs(){
   const now = Date.now();
@@ -9788,6 +9942,7 @@ function childStartView(c){
       </div>
     </section>
     ${childSchoolSnapshotHtml(c.id)}
+    ${childRateDueBannerHtml(c.id)}
     <section class="kid-panel">
       <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||0))}</span></div>
       ${lessonRows}
@@ -9896,17 +10051,17 @@ function matchSubject(query){
 function subjectGradeFor(kidId, subjectId, week){
   const wk = week || kidWeekKey();
   const hit = (DB.subjectGrades||[]).find(g=>g.kidId===kidId && g.subjectId===subjectId && g.week===wk);
-  return hit ? Number(hit.score)||0 : 0;
+  return hit ? ensureGradeScale(hit) : 0;
 }
 
 function setSubjectGrade(kidId, subjectId, score, note){
   ensureSchoolDb();
   const wk = kidWeekKey();
-  const sc = Math.max(1, Math.min(5, Math.round(Number(score)||0)));
-  if(!(sc>=1)) return false;
+  const sc = clampGrade(score);
+  if(!sc) return false;
   const hit = DB.subjectGrades.find(g=>g.kidId===kidId && g.subjectId===subjectId && g.week===wk);
-  if(hit){ hit.score=sc; hit.ts=Date.now(); if(note!=null) hit.note=String(note).slice(0,200); }
-  else DB.subjectGrades.push({id:uid(), kidId, subjectId, score:sc, note:note?String(note).slice(0,200):'', week:wk, ts:Date.now()});
+  if(hit){ hit.score=sc; hit.scale='de6'; hit.ts=Date.now(); if(note!=null) hit.note=String(note).slice(0,200); }
+  else DB.subjectGrades.push({id:uid(), kidId, subjectId, score:sc, scale:'de6', note:note?String(note).slice(0,200):'', week:wk, ts:Date.now()});
   return true;
 }
 
@@ -9975,17 +10130,15 @@ function staffGameProgressHtml(kidId){
 }
 
 function starsHtml(score, {interactive=false, kidId='', subjectId=''}={}){
-  const s = Math.max(0, Math.min(5, Number(score)||0));
-  const cells=[];
-  for(let i=1;i<=5;i++){
-    const on = i<=s;
-    if(interactive){
-      cells.push(`<button type="button" class="school-star ${on?'on':''}" data-grade-kid="${esc(kidId)}" data-grade-sub="${esc(subjectId)}" data-grade-val="${i}" aria-label="${i}">★</button>`);
-    }else{
-      cells.push(`<span class="school-star ${on?'on':''}" aria-hidden="true">★</span>`);
-    }
+  const s = clampGrade(score);
+  if(interactive){
+    return gradePickHtml({
+      value:s,
+      attrs:`data-grade-kid="${esc(kidId)}" data-grade-sub="${esc(subjectId)}"`,
+    });
   }
-  return `<span class="school-stars" role="img" aria-label="${s}/5">${cells.join('')}</span>`;
+  if(!s) return `<span class="grade-chip muted">—</span>`;
+  return `<span class="grade-chip" title="${esc(s+' · '+gradeLabel(s))}"><b>${s}</b><small>${esc(gradeLabel(s))}</small></span>`;
 }
 
 function homeShiftCompletionPct(user){
@@ -10105,7 +10258,11 @@ function viewKidProfile(kidId){
   }).join('');
   const rates=KID_RATE_AREAS.map(a=>{
     const v=kidRating(k.id,a.id,wk);
-    return `<div class="school-sub-row"><span class="grow">${esc(t(a.key))}</span>${starsHtml(v)}</div>`;
+    return `<div class="school-sub-row grade-rate-row"><span class="grow">${esc(t(a.key))}</span>${starsHtml(v)}</div>`;
+  }).join('');
+  const thingRates=importantThingsForKid(k.id).slice(0,6).map(ch=>{
+    const v=kidRating(k.id,kidThingArea(ch.id),wk);
+    return `<div class="school-sub-row grade-rate-row mode-pro-block"><span class="grow">${esc(choreLabel(ch))}</span>${starsHtml(v)}</div>`;
   }).join('');
   const notes=(DB.kidNotes||[]).filter(n=>n.kidId===k.id).sort((a,b)=>b.ts-a.ts).slice(0,5)
     .map(n=>`<li><small>${esc(new Date(n.ts).toLocaleDateString())}</small> ${esc(n.text||'')}</li>`).join('')
@@ -10141,7 +10298,9 @@ function viewKidProfile(kidId){
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('gameProgress'))}</span><span class="hrs">${summary.gamePlays} ${esc(t('gameRounds'))}</span></div>${staffGameProgressHtml(k.id)}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolAttendance'))}</span></div><div class="att-week">${attWeek.join('')}</div></section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolHomework'))}</span><span class="hrs">${summary.homeworkOpen} ${esc(t('homeworkOpen'))}</span></div>${hw}</section>
-      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span><span class="hrs">${esc(t('kidRateKicker'))}</span></div>${rates}</section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span><span class="hrs">${esc(t('kidRateKicker'))}</span></div>
+        <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
+        ${rates}${thingRates}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidBadges'))}</span><span class="hrs">${summary.streak} ${esc(t('kidStreak'))}</span></div>${kidBadgesHtml(xp)}</section>
     </div>
     <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNotesTitle'))}</span></div>
@@ -10281,7 +10440,7 @@ function wireKidsView(v){
   });
   v.querySelectorAll('[data-staff-rate-kid]').forEach(b=>{
     b.onclick=()=>{
-      if(setStaffKidRating(b.dataset.staffRateKid,b.dataset.staffRateArea,Number(b.dataset.staffRateValue))){
+      if(setStaffKidRating(b.dataset.staffRateKid,b.dataset.staffRateArea,Number(b.dataset.gradeVal))){
         toast(t('staffRatingSaved'),'success'); render();
       }
     };
@@ -10352,15 +10511,22 @@ function wireKidsView(v){
   };
 }
 
-/* ── Kids: weekly self-rating ──────────────────────────────────────────
-   Four areas, five stars each, one row per ISO week. Stored per kid so a
-   child's own read of the week sits next to the XP the system awards them. */
+/* ── Kids: weekly self-rating (German school grades 1–6) ───────────────
+   1 = sehr gut … 6 = ungenügend. Lower is better. Areas + thing:<choreId>
+   for wichtige Dinge. Persist via kidRatings / staffKidRatings + kid-ops. */
+const KID_GRADE_MAX = 6;
+const KID_THING_RATE_PREFIX = 'thing:';
+
 const KID_RATE_AREAS = [
-  {id:'school',  key:'kidRateSchool',  tint:'sea'},
-  {id:'home',    key:'kidRateHome',    tint:'pine'},
-  {id:'friends', key:'kidRateFriends', tint:'mark'},
-  {id:'mood',    key:'kidRateMood',    tint:'sun'},
+  {id:'school',     key:'kidRateSchool',     tint:'sea',  group:'life'},
+  {id:'home',       key:'kidRateHome',       tint:'pine', group:'life'},
+  {id:'friends',    key:'kidRateFriends',    tint:'mark', group:'life'},
+  {id:'mood',       key:'kidRateMood',       tint:'sun',  group:'life'},
+  {id:'verhalten',  key:'kidRateVerhalten',  tint:'pine', group:'school'},
+  {id:'mitarbeit',  key:'kidRateMitarbeit',  tint:'sea',  group:'school'},
+  {id:'activities', key:'kidRateActivities', tint:'sun',  group:'school'},
 ];
+const KID_RATE_AREA_IDS = new Set(KID_RATE_AREAS.map(a=>a.id));
 
 function kidWeekKey(d){
   const dt = d ? new Date(d) : new Date();
@@ -10369,19 +10535,80 @@ function kidWeekKey(d){
   return iso(dt);
 }
 
+function gradeLabel(value){
+  const n = Math.round(Number(value)||0);
+  if(n>=1 && n<=6) return t('grade'+n);
+  return '';
+}
+
+function clampGrade(value){
+  const n = Math.round(Number(value)||0);
+  return (n>=1 && n<=KID_GRADE_MAX) ? n : 0;
+}
+
+/* Legacy 1–5 star ratings (higher = better) → German 1–6 (lower = better). */
+function migrateStarsToGrade(value){
+  const n = Math.round(Number(value)||0);
+  if(n<1 || n>5) return clampGrade(n);
+  return clampGrade(6 - n) || 5;
+}
+
+function ensureGradeScale(row){
+  if(!row || typeof row !== 'object') return 0;
+  if(row.scale === 'de6') return clampGrade(row.value ?? row.score);
+  const raw = Number(row.value ?? row.score)||0;
+  if(raw>=1 && raw<=5){
+    const next = migrateStarsToGrade(raw);
+    if('value' in row) row.value = next;
+    if('score' in row) row.score = next;
+    row.scale = 'de6';
+    return next;
+  }
+  row.scale = 'de6';
+  return clampGrade(raw);
+}
+
+function gradeQualityPct(value){
+  const v = clampGrade(value);
+  if(!v) return 0;
+  return Math.round(((KID_GRADE_MAX + 1 - v) / KID_GRADE_MAX) * 100);
+}
+
+function kidThingArea(choreId){
+  return KID_THING_RATE_PREFIX + String(choreId||'');
+}
+
+function isKidThingArea(area){
+  return String(area||'').startsWith(KID_THING_RATE_PREFIX);
+}
+
+function isValidKidRateArea(area){
+  const a = String(area||'');
+  return KID_RATE_AREA_IDS.has(a) || isKidThingArea(a);
+}
+
+function importantThingsForKid(kidId){
+  return (DB.chores||[]).filter(ch=>choreForKid(ch,kidId) && (ch.daily || ch.important));
+}
+
 function kidRating(kidId, area, week){
   const wk = week || kidWeekKey();
   const hit = (DB.kidRatings||[]).find(r=>r.kidId===kidId && r.area===area && r.week===wk);
-  return hit ? Number(hit.value)||0 : 0;
+  return hit ? ensureGradeScale(hit) : 0;
 }
 
 function setKidRating(kidId, area, value){
+  if(!kidId || !isValidKidRateArea(area)) return false;
+  const score = clampGrade(value);
+  if(!score) return false;
   const wk = kidWeekKey();
   DB.kidRatings = DB.kidRatings || [];
   const hit = DB.kidRatings.find(r=>r.kidId===kidId && r.area===area && r.week===wk);
-  if(hit) hit.value = value;
-  else DB.kidRatings.push({id:uid(), kidId, area, week:wk, value, ts:Date.now()});
+  if(hit){ hit.value = score; hit.scale = 'de6'; hit.ts = Date.now(); }
+  else DB.kidRatings.push({id:uid(), kidId, area, week:wk, value:score, scale:'de6', ts:Date.now()});
   save();
+  emitKidRatingHooks(kidId);
+  return true;
 }
 
 /* One weekly evaluation per staff member and area. These records deliberately
@@ -10391,20 +10618,21 @@ function setKidRating(kidId, area, value){
 function staffKidRating(kidId, raterId, area, week){
   const wk=week||kidWeekKey();
   const hit=(DB.staffKidRatings||[]).find(r=>r.kidId===kidId && r.raterId===raterId && r.area===area && r.week===wk);
-  return hit?Number(hit.value)||0:0;
+  return hit?ensureGradeScale(hit):0;
 }
 
 function setStaffKidRating(kidId, area, value){
   const raterId=state.user?.id;
-  if(!kidId || !raterId || !KID_RATE_AREAS.some(a=>a.id===area)) return false;
+  if(!kidId || !raterId || !isValidKidRateArea(area)) return false;
   const wk=kidWeekKey();
-  const score=Math.round(Number(value)||0);
-  if(score<1 || score>5) return false;
+  const score=clampGrade(value);
+  if(!score) return false;
   DB.staffKidRatings=DB.staffKidRatings||[];
   const hit=DB.staffKidRatings.find(r=>r.kidId===kidId && r.raterId===raterId && r.area===area && r.week===wk);
-  if(hit){ hit.value=score; hit.ts=Date.now(); }
-  else DB.staffKidRatings.push({id:uid(),kidId,raterId,area,week:wk,value:score,ts:Date.now()});
+  if(hit){ hit.value=score; hit.scale='de6'; hit.ts=Date.now(); }
+  else DB.staffKidRatings.push({id:uid(),kidId,raterId,area,week:wk,value:score,scale:'de6',ts:Date.now()});
   save();
+  emitKidRatingHooks(kidId);
   return true;
 }
 
@@ -10435,19 +10663,38 @@ function staffKidWeeklySummary(kidId, week){
       ? {week:wk,average:Number(summary.average)||0,raterCount:Number(summary.raterCount)||0,areas:summary.areas||{}}
       : {week:wk,average:0,raterCount:0,areas:{}};
   }
-  const records=(DB.staffKidRatings||[]).filter(r=>r.kidId===kidId && r.week===wk && Number(r.value)>0);
+  const records=(DB.staffKidRatings||[]).filter(r=>r.kidId===kidId && r.week===wk && Number(r.value)>0)
+    .map(r=>{ ensureGradeScale(r); return r; });
   return {week:wk,...calculateStaffKidWeeklySummary(records,KID_RATE_AREAS)};
 }
 
+function gradePickHtml({area='', value=0, attrs='', interactive=true}={}){
+  const v = clampGrade(value);
+  const cells = [];
+  for(let i=1;i<=KID_GRADE_MAX;i++){
+    const on = v===i ? ' on' : '';
+    const label = `${i} — ${t('grade'+i)}`;
+    if(interactive){
+      cells.push(`<button type="button" class="grade-pick${on}" data-grade-val="${i}" ${attrs} aria-label="${esc(label)}" title="${esc(label)}"><span class="grade-num">${i}</span></button>`);
+    }else{
+      cells.push(`<span class="grade-pick${on}" aria-hidden="true"><span class="grade-num">${i}</span></span>`);
+    }
+  }
+  const hint = v ? `<span class="grade-pick-hint">${esc(v+' · '+gradeLabel(v))}</span>` : '';
+  return `<span class="grade-pick-row" role="group" aria-label="${esc(t('kidRateScaleHint'))}">${cells.join('')}</span>${hint}`;
+}
+
 function staffRatingStarsHtml(kidId, area, value){
-  return `<span class="school-stars">${[1,2,3,4,5].map(score=>`<button type="button" class="school-star${score<=value?' on':''}"
-    data-staff-rate-kid="${esc(kidId)}" data-staff-rate-area="${esc(area)}" data-staff-rate-value="${score}" aria-label="${score}/5">★</button>`).join('')}</span>`;
+  return gradePickHtml({
+    area, value,
+    attrs:`data-staff-rate-kid="${esc(kidId)}" data-staff-rate-area="${esc(area)}"`,
+  });
 }
 
 function staffRatingAreaRows(summary){
   return KID_RATE_AREAS.map(area=>{
     const value=Number(summary.areas?.[area.id]||0);
-    return `<div class="staff-rating-row"><span>${esc(t(area.key))}</span><span class="staff-rating-track"><i style="width:${Math.round(value/5*100)}%"></i></span><strong>${value?value.toFixed(1):'—'}</strong></div>`;
+    return `<div class="staff-rating-row"><span>${esc(t(area.key))}</span><span class="staff-rating-track"><i style="width:${gradeQualityPct(value)}%"></i></span><strong>${value?value.toFixed(1):'—'}</strong></div>`;
   }).join('');
 }
 
@@ -10455,12 +10702,19 @@ function staffRatingPanelHtml(kidId){
   const summary=staffKidWeeklySummary(kidId);
   const own=KID_RATE_AREAS.map(area=>{
     const value=staffKidRating(kidId,state.user?.id,area.id);
-    return `<div class="school-sub-row"><span class="grow">${esc(t(area.key))}</span>${staffRatingStarsHtml(kidId,area.id,value)}</div>`;
+    return `<div class="school-sub-row grade-rate-row"><span class="grow">${esc(t(area.key))}</span>${staffRatingStarsHtml(kidId,area.id,value)}</div>`;
+  }).join('');
+  const things=importantThingsForKid(kidId).slice(0,8).map(ch=>{
+    const area=kidThingArea(ch.id);
+    const value=staffKidRating(kidId,state.user?.id,area);
+    return `<div class="school-sub-row grade-rate-row mode-pro-block"><span class="grow">${esc(choreLabel(ch))}</span>${staffRatingStarsHtml(kidId,area,value)}</div>`;
   }).join('');
   return `<div class="block-h"><span class="t">${esc(t('staffWeekAverage'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>
-    <div class="staff-rating-summary"><b>${summary.average?summary.average.toFixed(1):'—'}<small>/5</small></b><span>${summary.raterCount?esc(t('staffRatingsCount')(summary.raterCount)):esc(t('staffRatingEmpty'))}</span></div>
+    <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
+    <div class="staff-rating-summary"><b>${summary.average?summary.average.toFixed(1):'—'}<small>/6</small></b><span>${summary.raterCount?esc(t('staffRatingsCount')(summary.raterCount)):esc(t('staffRatingEmpty'))}</span></div>
     ${staffRatingAreaRows(summary)}
-    <div class="staff-own-rating"><strong>${esc(t('staffYourRating'))}</strong>${own}</div>`;
+    <div class="staff-own-rating"><strong>${esc(t('staffYourRating'))}</strong>${own}</div>
+    ${things?`<div class="staff-own-rating mode-pro-block"><strong>${esc(t('kidRateThingsTitle'))}</strong>${things}</div>`:''}`;
 }
 
 function childStaffRatingHtml(kidId){
@@ -10472,12 +10726,13 @@ function childStaffRatingHtml(kidId){
   }
   const trend=weeks.map(item=>`<div class="kid-trend-row">
     <span class="kid-trend-wk">${esc(item.week.slice(5).replace('-','.'))}</span>
-    <span class="kid-trend-track"><span class="kid-trend-fill" style="width:${Math.round(item.average/5*100)}%"></span></span>
+    <span class="kid-trend-track"><span class="kid-trend-fill" style="width:${gradeQualityPct(item.average)}%"></span></span>
     <span class="kid-trend-val">${item.average?item.average.toFixed(1):'–'}</span>
   </div>`).join('');
-  return `<section class="kid-card child-staff-rating">
-    <div class="staff-rating-summary"><b>${summary.average?summary.average.toFixed(1):'—'}<small>/5</small></b><span><strong>${esc(t('childStaffRatingTitle'))}</strong>${esc(summary.raterCount?t('staffWeekAverageHint')(summary.raterCount):t('staffRatingEmpty'))}</span></div>
+  return `<section class="kid-card child-staff-rating mode-easy-block">
+    <div class="staff-rating-summary"><b>${summary.average?summary.average.toFixed(1):'—'}<small>/6</small></b><span><strong>${esc(t('childStaffRatingTitle'))}</strong>${esc(summary.raterCount?t('staffWeekAverageHint')(summary.raterCount):t('staffRatingEmpty'))}</span></div>
     <p class="muted">${esc(t('childStaffRatingHint'))}</p>
+    <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
     ${summary.raterCount?staffRatingAreaRows(summary):''}
     <div class="staff-rating-history">${trend}</div>
   </section>`;
@@ -10490,23 +10745,123 @@ function kidWeekAverage(kidId, week){
 }
 
 function kidStarsHtml(area, value){
+  /* Decorative XP stars only (bonus hero) — not the school grade control. */
   let out = '';
   for(let i=1;i<=5;i++){
-    out += `<button type="button" class="kid-star${i<=value?' on':''}" data-kid-rate="${esc(area)}" data-kid-rate-value="${i}" aria-label="${i}/5">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-    </button>`;
+    out += `<span class="kid-star${i<=value?' on':''}" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+    </span>`;
   }
   return out;
 }
 
+function kidGradePickHtml(area, value){
+  return gradePickHtml({
+    area, value,
+    attrs:`data-kid-rate="${esc(area)}"`,
+  });
+}
+
+function kidRatingReminderState(kidId, week){
+  const wk = week || kidWeekKey();
+  const missingAreas = KID_RATE_AREAS.filter(a=>!kidRating(kidId, a.id, wk)).map(a=>a.id);
+  const things = importantThingsForKid(kidId);
+  const missingThings = things.filter(ch=>!kidRating(kidId, kidThingArea(ch.id), wk)).map(ch=>ch.id);
+  /* Banner / due flag = core weekly categories. Thing ratings are optional hooks. */
+  const missingCount = missingAreas.length;
+  return {
+    kidId, week: wk,
+    due: missingCount > 0,
+    missingCount,
+    missingAreas,
+    missingThings,
+    thingsDue: missingThings.length > 0,
+    complete: missingCount === 0,
+    preferenceFlag: 'kidRatingsDue',
+  };
+}
+
+function collectKidRatingReminders(opts={}){
+  const week = opts.week || kidWeekKey();
+  const kids = opts.kidId
+    ? [(DB.children||[]).find(k=>k.id===opts.kidId)].filter(Boolean)
+    : (DB.children||[]);
+  return kids.map(k=>kidRatingReminderState(k.id, week)).filter(r=>r.due);
+}
+
+function emitKidRatingHooks(kidId){
+  const detail = kidId
+    ? kidRatingReminderState(kidId)
+    : { due: collectKidRatingReminders().length>0, reminders: collectKidRatingReminders() };
+  try{
+    window.dispatchEvent(new CustomEvent('paidia:kid-rating-due', { detail }));
+  }catch{}
+  try{
+    const hooks = { ...(notifPrefs().ratingHooks||{}) };
+    if(kidId){
+      hooks[kidId] = {
+        week: detail.week,
+        due: !!detail.due,
+        missingCount: detail.missingCount||0,
+        thingsDue: !!detail.thingsDue,
+        updatedAt: Date.now(),
+      };
+    }
+    const anyDue = Object.values(hooks).some(h=>h && h.due);
+    setNotifPrefs({
+      ratingHooks: hooks,
+      kidRatingsDue: anyDue,
+      kidRatingReminders: true,
+    });
+  }catch{}
+  return detail;
+}
+
+try{
+  window.PaidiaKidRatings = {
+    areas: () => KID_RATE_AREAS.slice(),
+    reminderState: kidRatingReminderState,
+    collectDue: collectKidRatingReminders,
+    emitHooks: emitKidRatingHooks,
+    scale: { min:1, max:KID_GRADE_MAX, better:'lower', labels:['sehr gut','gut','befriedigend','ausreichend','mangelhaft','ungenügend'] },
+  };
+}catch{}
+
+function childRateDueBannerHtml(kidId){
+  const rem = kidRatingReminderState(kidId);
+  if(!rem.due) return '';
+  return `<section class="kid-card kid-rate-due mode-easy-block" role="status">
+    <div class="kid-rate-due-row">
+      <span class="kid-rate-due-ico" aria-hidden="true">${ui('u-alert')}</span>
+      <div class="grow">
+        <b>${esc(t('kidRateDueBanner'))}</b>
+        <span class="muted">${esc(t('kidRateDueHint')(rem.missingCount))}</span>
+      </div>
+      <button type="button" class="chip" data-child-view="rate">${esc(t('kidNavRate'))}</button>
+    </div>
+  </section>`;
+}
+
 function childBewertungenView(kidId){
-  const rows = KID_RATE_AREAS.map(a=>{
+  const life = KID_RATE_AREAS.filter(a=>a.group==='life');
+  const school = KID_RATE_AREAS.filter(a=>a.group==='school');
+  const rowHtml = (areas, easyClass) => areas.map(a=>{
     const v = kidRating(kidId, a.id);
-    return `<div class="kid-rate-row">
+    return `<div class="kid-rate-row grade-rate-row ${easyClass||''}">
       <span class="kid-rate-label">${esc(t(a.key))}</span>
-      <span class="kid-stars ${a.tint}">${kidStarsHtml(a.id, v)}</span>
+      <span class="kid-grades ${a.tint}">${kidGradePickHtml(a.id, v)}</span>
     </div>`;
   }).join('');
+
+  const things = importantThingsForKid(kidId);
+  const thingRows = things.length ? things.map(ch=>{
+    const area = kidThingArea(ch.id);
+    const v = kidRating(kidId, area);
+    return `<div class="kid-rate-row grade-rate-row mode-pro-block">
+      <span class="kid-rate-label">${esc(choreLabel(ch))}</span>
+      <span class="kid-grades pine">${kidGradePickHtml(area, v)}</span>
+    </div>`;
+  }).join('') : `<p class="muted">${esc(t('kidRateThingsEmpty'))}</p>`;
 
   const weeks = [];
   for(let i=3;i>=0;i--){
@@ -10515,22 +10870,28 @@ function childBewertungenView(kidId){
     weeks.push({wk, avg: kidWeekAverage(kidId, wk)});
   }
   const trend = weeks.map(w=>{
-    const pct = Math.round((w.avg/5)*100);
     return `<div class="kid-trend-row">
       <span class="kid-trend-wk">${esc(w.wk.slice(5).replace('-','.'))}</span>
-      <span class="kid-trend-track"><span class="kid-trend-fill" style="width:${pct}%"></span></span>
+      <span class="kid-trend-track"><span class="kid-trend-fill" style="width:${gradeQualityPct(w.avg)}%"></span></span>
       <span class="kid-trend-val">${w.avg ? w.avg.toFixed(1) : '–'}</span>
     </div>`;
   }).join('');
 
   return `${childStaffRatingHtml(kidId)}
-    <section class="kid-card">
+    <section class="kid-card mode-easy-block">
       <h2>${esc(t('kidRateTitle'))}</h2>
       <p class="muted">${esc(t('kidRateLead'))}</p>
-      ${rows}
+      <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
+      <div class="kid-rate-group"><span class="eyebrow">${esc(t('kidRateGroupLife'))}</span>${rowHtml(life,'mode-easy-block')}</div>
+      <div class="kid-rate-group mode-pro-block"><span class="eyebrow">${esc(t('kidRateGroupSchool'))}</span>${rowHtml(school,'mode-pro-block')}</div>
+    </section>
+    <section class="kid-card mode-pro-block">
+      <h2>${esc(t('kidRateThingsTitle'))}</h2>
+      <p class="muted">${esc(t('kidRateThingsLead'))}</p>
+      ${thingRows}
     </section>
     ${childSubjectsReadonlyHtml(kidId)}
-    <section class="kid-card">
+    <section class="kid-card mode-easy-block">
       <h2>${esc(t('kidRateWeeks'))}</h2>
       ${trend}
     </section>`;
@@ -10569,7 +10930,7 @@ function childBonusView(kidId){
       <span class="kid-bonus-pts">+${it.pts}</span>
     </div>`).join('');
   return `<section class="kid-card kid-bonus-hero">
-      <span class="kid-bonus-stars" aria-hidden="true">${kidStarsHtml('__none__',3).replace(/data-kid-rate="[^"]*"/g,'').replace(/data-kid-rate-value="[^"]*"/g,'')}</span>
+      <span class="kid-bonus-stars" aria-hidden="true">${ui('u-sparkle')}</span>
       <div class="kid-bonus-copy">
         <b>${esc(t('kidBonusEarned')(b.earned))}</b>
         <span>${esc(t('kidBonusStreak')(b.streak))}</span>
@@ -10602,7 +10963,7 @@ function childNotizenView(kidId){
         </div>
         <p>${esc(n.text)}</p>
       </article>`;
-  }).join('') : emptyState('', t('kidNotesEmpty'));
+  }).join('') : emptyState(ui('u-note'), t('kidNotesEmpty'));
 
   return `<section class="kid-card">
       <h2>${esc(t('kidNotesAsk'))}</h2>
@@ -10617,11 +10978,12 @@ function bindKidExtras(root){
   root.querySelectorAll('[data-kid-rate]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const area = btn.getAttribute('data-kid-rate');
-      if(area === '__none__') return;
-      const val = Number(btn.getAttribute('data-kid-rate-value'))||0;
-      setKidRating(state.child.id, area, val);
-      toast(t('kidRateSaved'));
-      render();
+      if(!area || area === '__none__') return;
+      const val = Number(btn.getAttribute('data-grade-val'))||0;
+      if(setKidRating(state.child.id, area, val)){
+        toast(t('kidRateSaved'));
+        render();
+      }
     });
   });
   root.querySelectorAll('[data-kid-mood]').forEach(btn=>{
@@ -10834,6 +11196,7 @@ function renderChild(){
       if(choreId && state.child) openChoreSubmitSheet(choreId, state.child.id);
     };
   });
+  if(c?.id) emitKidRatingHooks(c.id);
   syncLayoutMode();
 }
 
@@ -12453,7 +12816,7 @@ function sheetAdminStaff(employeeId){
       <button class="mini-x" type="button" data-admin-remove="${esc(e.id)}" data-admin-date="${dateStr}" aria-label="${esc(t('adminRemoveAssign'))}" title="${esc(t('adminRemoveAssign'))}">×</button>
     </div>`;}).join(''):`<div class="empty">${t('noTasks')}</div>`}</div>
     <div class="block-h" style="margin-top:15px"><span class="t">🕘 ${t('adminLastAction')}</span></div>
-    <div class="admin-timeline">${activity.length?activity.map(x=>`<div class="admin-timeline-row"><span>${esc(typeIcon(x.type))}</span><span class="grow"><b>${esc(typeLabel(x.type))}</b><br>${esc(x.text)}<br><span class="muted">${fmtDT(x.ts)}</span></span></div>`).join(''):`<div class="empty">${t('adminNoActivity')}</div>`}</div>`);
+    <div class="admin-timeline">${activity.length?activity.map(x=>`<div class="admin-timeline-row"><span>${typeIcon(x.type)}</span><span class="grow"><b>${esc(typeLabel(x.type))}</b><br>${esc(x.text)}<br><span class="muted">${fmtDT(x.ts)}</span></span></div>`).join(''):`<div class="empty">${t('adminNoActivity')}</div>`}</div>`);
 
   sheetEl.querySelectorAll('[data-admin-entry]').forEach(button=>button.onclick=()=>{
     const dateStr=button.dataset.adminDate,e=entriesFor(dateStr).find(x=>x.id===button.dataset.adminEntry);
@@ -12597,6 +12960,43 @@ function staffInboxItems(){
       title:t('journalDutyHome'), meta:t('bookJournalHint'), jump:'book'
     });
   }
+  const actOpen=dashboardAssignments(today,state.user.id).filter(e=>!completionFor(today,e.id,state.user.id));
+  if(actOpen.length){
+    const first=actOpen[0];
+    const label=typeof actLabel==='function'?actLabel(first.activityId):(first.activityId||'');
+    items.push({
+      id:'acts', tone:'sea', toneLabel:t('notifTonePlan'),
+      title:T[state.lang].notifUpcomingActivity?T[state.lang].notifUpcomingActivity(label):label,
+      meta:`${actOpen.length} · ${entryTime(first)||today}`, jump:'day'
+    });
+  }
+  try{
+    const ratingsDue=typeof staffRatingsDueCount==='function'?staffRatingsDueCount():0;
+    if(ratingsDue>0){
+      items.push({
+        id:'ratings', tone:'amber', toneLabel:t('notifToneKids'),
+        title:T[state.lang].notifRatingsDue(ratingsDue),
+        meta:t('kidRateDueBanner'), jump:'kids'
+      });
+    }
+  }catch{}
+  try{
+    const important=typeof importantThingsDueCount==='function'?importantThingsDueCount():0;
+    if(important>0){
+      items.push({
+        id:'important', tone:'amber', toneLabel:t('notifToneKids'),
+        title:T[state.lang].notifImportantDue(important),
+        meta:t('kidRateThingsTitle'), jump:'kids'
+      });
+    }
+  }catch{}
+  const activeEnd=typeof activeShiftPresence==='function'?activeShiftPresence(state.user.id):null;
+  if(activeEnd?.checkin && !shiftHandoffRecord(state.user.id, today)){
+    items.push({
+      id:'handover', tone:'pine', toneLabel:t('notifToneShift'),
+      title:t('handover'), meta:t('shiftEndHandoverHint')||t('homeRailEndHint'), jump:'home-end'
+    });
+  }
   return items;
 }
 
@@ -12664,8 +13064,10 @@ function sheetNotifCenter(){
         <span class="nr-tone tone-${esc(n.tone)}">${esc(n.toneLabel)} · ${esc(n.meta||'')}</span>
       </button>`).join(''):`<p class="muted">${esc(t('notifCenterEmpty'))}</p>`}
     </div>
-    <button class="btn sec" type="button" id="notifCenterClose" style="margin-top:10px">${esc(t('close'))}</button>`);
+    <button class="btn" type="button" id="notifCenterSettings" style="margin-top:10px">${esc(t('notifOpenSettings'))}</button>
+    <button class="btn sec" type="button" id="notifCenterClose" style="margin-top:8px">${esc(t('close'))}</button>`);
   sheetEl.querySelector('#notifCenterClose').onclick=()=>closeSheet();
+  sheetEl.querySelector('#notifCenterSettings').onclick=()=>{ closeSheet(); sheetNotifPrefs(); };
   sheetEl.querySelectorAll('[data-inbox-jump]').forEach(btn=>{
     btn.onclick=()=>{ closeSheet(); runInboxJump(btn.dataset.inboxJump); };
   });
@@ -12681,6 +13083,8 @@ function runInboxJump(jump){
   if(jump==='book'){ state.tab='book'; state.bookPane='shift'; render(); return; }
   if(jump==='kids'){ state.tab='kids'; render(); return; }
   if(jump==='gallery'){ state.tab='gallery'; refreshGallery({silent:true}).finally(()=>render()); return; }
+  if(jump==='home-end'){ sheetShiftEnd(); return; }
+  if(jump==='day'){ state.tab='schedule'; state.scheduleView='day'; render(); return; }
   state.tab='schedule';
   state.scheduleView=jump==='events'?'events':'day';
   render();
@@ -13903,13 +14307,16 @@ function wire(){
       render();
     };
   });
-  v.querySelectorAll('.week-day-card > summary').forEach(summary=>{
-    summary.addEventListener('click',()=>{
-      const current=summary.parentElement;
-      v.querySelectorAll('.week-day-card[open]').forEach(card=>{
-        if(card!==current) card.open=false;
+  v.querySelectorAll('[data-week-focus]').forEach(b=>{
+    b.onclick = () => {
+      state.date = b.dataset.weekFocus;
+      feedback('select');
+      render();
+      requestAnimationFrame(()=>{
+        const target=document.querySelector(`.week-day-card[data-date="${CSS.escape(state.date)}"]`);
+        if(target) try{ target.scrollIntoView({behavior:'smooth', block:'nearest'}); }catch{ /* ignore */ }
       });
-    });
+    };
   });
   v.querySelectorAll('[data-shift]').forEach(b=>{
     b.onclick = () => {
@@ -13964,6 +14371,7 @@ function wire(){
       sheetEntry(null, dateStr, {
         block: b.dataset.add,
         houseId: b.dataset.house || undefined,
+        employeeId: b.dataset.employee || undefined,
       });
     };
   });
@@ -14535,7 +14943,7 @@ async function sheetSecurityAccess(){
     const on=!!notifPrefs().enabled && perm==='granted';
     const child=state.mode==='child';
     const prefs=notifPrefsResolved();
-    notifCard.innerHTML=`<b>🔔 ${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</b>
+    notifCard.innerHTML=`<b class="notif-bell">${ui('u-bell')} ${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</b>
       <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(child?t('notifHintChild'):t('notifHint'))}</p>
       <p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
       ${child?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>`:''}
@@ -15268,7 +15676,10 @@ function dismissTeamNotice(){
 }
 
 function notifAutomations(){
-  const base={shiftStart:true,lowStock:true,presenceLate:true,broadcastBanner:true,fridayShop:true};
+  const base={
+    shiftStart:true, lowStock:true, presenceLate:true, broadcastBanner:true,
+    fridayShop:true, activities:true, handover:true, ratings:true,
+  };
   try{
     const raw=JSON.parse(localStorage.getItem('paidia.notifAuto')||'{}')||{};
     return {...base,...raw};
@@ -15290,6 +15701,9 @@ function sheetAdminAutomations(){
     <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoPresenceLate" ${auto.presenceLate?'checked':''}><span>${esc(t('autoPresenceLate'))}</span></label>
     <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoBroadcastBanner" ${auto.broadcastBanner?'checked':''}><span>${esc(t('autoBroadcastBanner'))}</span></label>
     <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoFridayShop" ${auto.fridayShop?'checked':''}><span>${esc(t('autoFridayShop'))}</span></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoActivities" ${auto.activities!==false?'checked':''}><span>${esc(t('autoActivities'))}</span></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoHandover" ${auto.handover!==false?'checked':''}><span>${esc(t('autoHandover'))}</span></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px"><input type="checkbox" id="autoRatings" ${auto.ratings!==false?'checked':''}><span>${esc(t('autoRatings'))}</span></label>
     <button class="btn" type="button" id="autoSave">${esc(state.lang==='el'?'Αποθήκευση':'Speichern')}</button>
     <button class="btn sec" type="button" id="autoClose" style="margin-top:8px">${esc(t('close'))}</button>`);
   sheetEl.querySelector('#autoClose').onclick=()=>closeSheet();
@@ -15300,6 +15714,9 @@ function sheetAdminAutomations(){
       presenceLate:!!sheetEl.querySelector('#autoPresenceLate')?.checked,
       broadcastBanner:!!sheetEl.querySelector('#autoBroadcastBanner')?.checked,
       fridayShop:!!sheetEl.querySelector('#autoFridayShop')?.checked,
+      activities:!!sheetEl.querySelector('#autoActivities')?.checked,
+      handover:!!sheetEl.querySelector('#autoHandover')?.checked,
+      ratings:!!sheetEl.querySelector('#autoRatings')?.checked,
     });
     toast(t('autoSaved'),'success');
     closeSheet();
@@ -15312,22 +15729,36 @@ function notifPrefs(){
     if(typeof current.enabled==='boolean') return current;
     const legacy=JSON.parse(localStorage.getItem('paidia.notifPrefs')||'{}')||{};
     if(legacy.enabled===true || (typeof Notification!=='undefined' && Notification.permission==='granted')){
-      const migrated={...current,enabled:true,updatedAt:Date.now()};
+      const migrated={...current,...legacy,enabled:true,updatedAt:Date.now()};
       localStorage.setItem('paidia.notif',JSON.stringify(migrated));
       return migrated;
     }
-    return current;
+    return {...legacy,...current};
   }catch{ return {}; }
+}
+function notifCatDefaults(){
+  const fromModule=(typeof PaidiaNotify!=='undefined' && PaidiaNotify.CAT_DEFAULTS)||{};
+  return {
+    shifts:true, handover:true, activities:true, events:true,
+    shopping:true, stock:true, journal:true, ratings:true,
+    chores:true, reminders:true, ...fromModule,
+  };
 }
 function notifPrefsResolved(){
   const raw=notifPrefs();
   const lead=Number(raw.leadMinutes);
-  return {
+  const cats=notifCatDefaults();
+  const out={
+    ...cats,
     ...raw,
     quietStart:raw.quietStart||'22:00',
     quietEnd:raw.quietEnd||'07:00',
     leadMinutes:Number.isFinite(lead)&&lead>=0?lead:30,
+    sound:raw.sound!==false,
+    vibrate:raw.vibrate!==false,
   };
+  Object.keys(cats).forEach(k=>{ if(typeof out[k]!=='boolean') out[k]=cats[k]; });
+  return out;
 }
 function minsOfDay(d){ return d.getHours()*60+d.getMinutes(); }
 function parseHm(hm){
@@ -15353,10 +15784,86 @@ function isWithinLeadWindow(start,leadMin,now=new Date(),graceMs=5*60*1000){
   const leadMs=leadMin*60*1000;
   return diff<=leadMs && diff>=-graceMs;
 }
+function isWithinEndLeadWindow(end,leadMin,now=new Date(),graceMs=5*60*1000){
+  const diff=end.getTime()-now.getTime();
+  const leadMs=leadMin*60*1000;
+  return diff<=leadMs && diff>=-graceMs;
+}
+
+/* Sibling-owned Bewertungen UI may publish due counts via:
+   window.dispatchEvent(new CustomEvent('paidia:ratings-due',{detail:{count,important}}))
+   or set localStorage paidia.ratingsDue / paidia.importantThingsDue. */
+try{
+  window.addEventListener('paidia:ratings-due', event=>{
+    try{
+      const d=event?.detail||{};
+      if(typeof d.count==='number') window.__paidiaRatingsDueCount=d.count;
+      if(typeof d.important==='number') window.__paidiaImportantThingsDue=d.important;
+    }catch{}
+  });
+}catch{}
+
+function ratingAreaIds(){
+  if(Array.isArray(window.__paidiaRatingAreas) && window.__paidiaRatingAreas.length){
+    return window.__paidiaRatingAreas.map(a=>typeof a==='string'?a:a.id).filter(Boolean);
+  }
+  if(typeof KID_RATE_AREAS!=='undefined' && Array.isArray(KID_RATE_AREAS)){
+    return KID_RATE_AREAS.map(a=>a.id);
+  }
+  return ['school','home','friends','mood'];
+}
+function readDueHint(key){
+  try{
+    const n=Number(localStorage.getItem(key));
+    if(Number.isFinite(n) && n>=0) return n;
+  }catch{}
+  return null;
+}
+function childRatingsDueCount(kidId){
+  const hinted=readDueHint('paidia.ratingsDue');
+  if(hinted!=null) return hinted;
+  if(typeof window.__paidiaRatingsDueCount==='number') return window.__paidiaRatingsDueCount;
+  if(!kidId || typeof kidRating!=='function') return 0;
+  return ratingAreaIds().filter(area=>!kidRating(kidId, area)).length;
+}
+function staffRatingsDueCount(){
+  const hinted=readDueHint('paidia.ratingsDue');
+  if(hinted!=null) return hinted;
+  if(typeof window.__paidiaRatingsDueCount==='number') return window.__paidiaRatingsDueCount;
+  if(state.mode!=='staff' || !state.user || typeof staffKidRating!=='function') return 0;
+  const kids=DB.children||[];
+  if(!kids.length) return 0;
+  const areas=ratingAreaIds();
+  let missing=0;
+  kids.forEach(kid=>{
+    areas.forEach(area=>{
+      if(!staffKidRating(kid.id, state.user.id, area)) missing++;
+    });
+  });
+  return missing;
+}
+function importantThingsDueCount(){
+  const hinted=readDueHint('paidia.importantThingsDue');
+  if(hinted!=null) return hinted;
+  if(typeof window.__paidiaImportantThingsDue==='number') return window.__paidiaImportantThingsDue;
+  return 0;
+}
+function childChoresDueCount(kidId){
+  if(!kidId) return 0;
+  return (DB.chores||[]).filter(ch=>choreForKid(ch,kidId) && ch.daily && !choreDoneToday(ch.id,kidId) && !chorePendingToday(ch.id,kidId)).length;
+}
+function childPlanEntriesToday(kidId){
+  const today=iso(new Date());
+  return entriesFor(today).filter(e=>!e.cancelled && (e.childIds||[]).includes(kidId));
+}
 function dueItemCount(){
   if(state.mode==='child'&&state.child){
     const today=iso(new Date());
-    return childEventsFor(state.child.id).filter(e=>e.status==='published'&&e.date>=today).length;
+    const events=childEventsFor(state.child.id).filter(e=>e.status==='published'&&e.date>=today).length;
+    const chores=childChoresDueCount(state.child.id);
+    const ratings=childRatingsDueCount(state.child.id);
+    const acts=childPlanEntriesToday(state.child.id).length;
+    return events+chores+ratings+acts;
   }
   if(state.mode!=='staff'||!state.user) return 0;
   const today=iso(new Date()), user=state.user;
@@ -15365,7 +15872,9 @@ function dueItemCount(){
     if(!completionFor(dateStr,e.id,user.id)) overdue++;
   }));
   const todayOpen=dashboardAssignments(today,user.id).filter(e=>!completionFor(today,e.id,user.id)).length;
-  return todayOpen+overdue;
+  const ratings=staffRatingsDueCount()>0?1:0;
+  const important=importantThingsDueCount()>0?1:0;
+  return todayOpen+overdue+ratings+important;
 }
 function updateAppBadge(count){
   try{
@@ -15374,6 +15883,7 @@ function updateAppBadge(count){
     if(n>0) navigator.setAppBadge(n).catch(()=>{});
     else if(navigator.clearAppBadge) navigator.clearAppBadge().catch(()=>{});
   }catch{}
+  try{ if(typeof PaidiaNotify!=='undefined') PaidiaNotify.updateBadge(count); }catch{}
 }
 function openFridayShopCount(){
   const friday=fridayFor();
@@ -15382,10 +15892,110 @@ function openFridayShopCount(){
 function isFridayShopReminderTime(now=new Date()){
   return now.getDay()===5 && minsOfDay(now)>=9*60;
 }
+function isRatingsReminderWindow(now=new Date()){
+  const dow=now.getDay();
+  const m=minsOfDay(now);
+  return (dow===5 && m>=15*60) || dow===6 || (dow===0 && m<20*60);
+}
+function syncNotifPrefsToProfile(next){
+  const id=typeof currentProfileId==='function'?currentProfileId():null;
+  if(!id || state.mode!=='staff') return;
+  try{
+    DB.profilePrefs=DB.profilePrefs||{};
+    DB.profilePrefs._notifPrefs=DB.profilePrefs._notifPrefs||{};
+    const slim={...next};
+    delete slim.seen;
+    DB.profilePrefs._notifPrefs[id]={...slim, updatedAt:Date.now()};
+  }catch{}
+}
 function setNotifPrefs(patch){
   const next={...notifPrefs(), ...patch, updatedAt:Date.now()};
   try{ localStorage.setItem('paidia.notif', JSON.stringify(next)); }catch{}
+  try{
+    if(typeof PaidiaNotify!=='undefined' && PaidiaNotify.savePrefs){
+      const mirror={...next};
+      delete mirror.seen;
+      PaidiaNotify.savePrefs(mirror);
+    }
+  }catch{}
+  syncNotifPrefsToProfile(next);
   return next;
+}
+function collectNotifPrefsFromForm(root){
+  const lead=Number(root.querySelector('#notifLeadMin')?.value);
+  const bool=(id, fallback=true)=>{
+    const el=root.querySelector('#'+id);
+    if(!el) return fallback;
+    return !!el.checked;
+  };
+  return {
+    quietStart:root.querySelector('#notifQuietStart')?.value||'22:00',
+    quietEnd:root.querySelector('#notifQuietEnd')?.value||'07:00',
+    leadMinutes:Number.isFinite(lead)&&lead>=0?lead:30,
+    sound:bool('notifOptSound', true),
+    vibrate:bool('notifOptVibrate', true),
+    shifts:bool('notifOptShifts', true),
+    handover:bool('notifOptHandover', true),
+    activities:bool('notifOptActivities', true),
+    events:bool('notifOptEvents', true),
+    shopping:bool('notifOptShopping', true),
+    stock:bool('notifOptStock', true),
+    journal:bool('notifOptJournal', true),
+    ratings:bool('notifOptRatings', true),
+    chores:bool('notifOptChores', true),
+    reminders:bool('notifOptReminders', true),
+  };
+}
+function notifPrefsFormHtml({child=false}={}){
+  const prefs=notifPrefsResolved();
+  const row=(id,label,on)=>`<label class="notif-opt"><input type="checkbox" id="${id}" ${on?'checked':''}><span>${esc(label)}</span></label>`;
+  const staffRows=[
+    row('notifOptShifts', t('notifOptShifts'), prefs.shifts),
+    row('notifOptHandover', t('notifOptHandover'), prefs.handover),
+    row('notifOptActivities', t('notifOptActivities'), prefs.activities),
+    row('notifOptEvents', t('notifOptEvents'), prefs.events),
+    row('notifOptShopping', t('notifOptShopping'), prefs.shopping),
+    row('notifOptStock', t('notifOptStock'), prefs.stock),
+    row('notifOptJournal', t('notifOptJournal'), prefs.journal),
+    row('notifOptRatings', t('notifOptRatings'), prefs.ratings),
+    row('notifOptReminders', t('notifOptReminders'), prefs.reminders),
+  ].join('');
+  const childRows=[
+    row('notifOptEvents', t('notifOptEvents'), prefs.events),
+    row('notifOptActivities', t('notifOptActivities'), prefs.activities),
+    row('notifOptChores', t('notifOptChores'), prefs.chores),
+    row('notifOptRatings', t('notifOptRatings'), prefs.ratings),
+    row('notifOptReminders', t('notifOptReminders'), prefs.reminders),
+  ].join('');
+  return `<div class="notif-prefs" style="margin-top:10px;display:grid;gap:8px">
+    <label class="f"><span>${esc(t('notifQuietStart'))}</span><input type="time" id="notifQuietStart" value="${esc(prefs.quietStart)}"></label>
+    <label class="f"><span>${esc(t('notifQuietEnd'))}</span><input type="time" id="notifQuietEnd" value="${esc(prefs.quietEnd)}"></label>
+    <label class="f"><span>${esc(t('notifLeadMinutes'))}</span><input type="number" id="notifLeadMin" min="0" max="240" step="5" value="${prefs.leadMinutes}"></label>
+    <div class="notif-opt-grid"><div class="notif-opt-label">${esc(t('notifCatsLabel'))}</div>${child?childRows:staffRows}</div>
+    <div class="notif-opt-grid">
+      ${row('notifOptSound', t('notifOptSound'), prefs.sound)}
+      ${row('notifOptVibrate', t('notifOptVibrate'), prefs.vibrate)}
+    </div>
+    <p class="muted" style="font-size:11px;margin:0;line-height:1.4">${esc(t('notifDeliveryHint'))}</p>
+    <button class="btn sec sm" type="button" id="notifPrefsSave">${esc(t('saveContact'))}</button>
+  </div>`;
+}
+function sheetNotifPrefs(){
+  const child=state.mode==='child';
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia</div>
+    <h2>${esc(t('notifPrefsTitle'))}</h2>
+    <p>${esc(t('notifPrefsHint'))}</p></div>
+    ${notifPrefsFormHtml({child})}
+    <button class="btn sec" type="button" id="notifPrefsClose" style="margin-top:10px">${esc(t('close'))}</button>`);
+  sheetEl.querySelector('#notifPrefsClose').onclick=()=>closeSheet();
+  const saveBtn=sheetEl.querySelector('#notifPrefsSave');
+  if(saveBtn) saveBtn.onclick=()=>{
+    setNotifPrefs(collectNotifPrefsFromForm(sheetEl));
+    if(state.mode==='staff'){ try{ save(); }catch{} }
+    toast(t('autoSaved'),'success');
+    closeSheet();
+    paintNotifBadge();
+  };
 }
 async function enableAppNotifications(){
   if(!('Notification' in window)) return false;
@@ -15396,35 +16006,39 @@ async function enableAppNotifications(){
   const ok=perm==='granted';
   setNotifPrefs({enabled:ok});
   if(ok){
-    await registerPaidiaServiceWorker();
-    const delivered=await showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true});
-    if(!delivered) return false;
-    await runNotificationSweep({force:true});
+    try{ await registerPaidiaServiceWorker(); }catch{}
+    try{ await showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true}); }catch{}
+    try{ await runNotificationSweep({force:true}); }catch{}
   }
   return ok;
 }
 async function showAppNotification(title, opts={}){
-  if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return false;
-  if(!opts.force && isQuietHours()) return false;
-  const payload={
-    body:opts.body||'',
-    icon:opts.icon||'icons/icon-192.png',
-    badge:opts.badge||'icons/icon-192.png',
-    tag:opts.tag||'paidia',
-    renotify:!!opts.renotify,
-    requireInteraction:!!opts.requireInteraction,
-    data:opts.data||{url:'./'},
-  };
-  if(Array.isArray(opts.actions) && opts.actions.length){
-    payload.actions = opts.actions.slice(0, 2);
-  }
   try{
+    if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return false;
+    if(!opts.force && isQuietHours()) return false;
+    const prefs=notifPrefsResolved();
+    const payload={
+      body:opts.body||'',
+      icon:opts.icon||'icons/icon-192.png',
+      badge:opts.badge||'icons/icon-192.png',
+      tag:opts.tag||'paidia',
+      renotify:!!opts.renotify,
+      requireInteraction:!!opts.requireInteraction,
+      silent:prefs.sound===false,
+      data:opts.data||{url:'./'},
+    };
+    if(prefs.vibrate!==false && !payload.silent){
+      payload.vibrate = Array.isArray(opts.vibrate)?opts.vibrate:[80,40,80];
+    }
+    if(Array.isArray(opts.actions) && opts.actions.length){
+      payload.actions = opts.actions.slice(0, 2);
+    }
     const reg=await registerPaidiaServiceWorker();
     if(reg?.showNotification){
       await reg.showNotification(title,payload);
       return true;
     }
-    new Notification(title,payload);
+    new Notification(title,{body:payload.body,tag:payload.tag,data:payload.data,silent:payload.silent});
     return true;
   }catch(error){
     console.warn('Notification delivery failed',error);
@@ -15437,7 +16051,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||136),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||137),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
@@ -15445,163 +16059,285 @@ async function registerPaidiaServiceWorker(){
     return null;
   }
 }
-async function runNotificationSweep({force=false}={}){
-  updateAppBadge(dueItemCount());
-  if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return;
-  const prefs=notifPrefsResolved();
+function markNotifSeen(key){
+  setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+}
+async function deliverOnce(key, force, title, opts){
   const seen=notifPrefs().seen||{};
+  if(!force && seen[key]==='1') return false;
+  const delivered=await showAppNotification(title, opts);
+  if(delivered) markNotifSeen(key);
+  return delivered;
+}
+async function runNotificationSweep({force=false}={}){
+  try{ updateAppBadge(dueItemCount()); }catch{}
+  try{
+    if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return;
+  }catch{ return; }
+  const prefs=notifPrefsResolved();
+  const auto=notifAutomations();
   const now=new Date();
+  const today=iso(now);
 
-  // Child portal: upcoming events only (never staff ops)
   if(state.mode==='child' && state.child){
     try{
-      const today=iso(now);
-      for(const ev of childEventsFor(state.child.id).filter(e=>e.status==='published' && e.date>=today)){
-        const start=eventStartDate(ev);
-        if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
-        const key=`child-event-${state.child.id}-${ev.id}-${ev.date}`;
-        if(force || seen[key]!=='1'){
-          const delivered=await showAppNotification(T[state.lang].childNotifEvent(L(ev)||ev.title||'Event'),{
-            tag:'paidia-child-event-'+ev.id,
-            body: `${ev.date}${ev.from?` · ${ev.from}`:''}`,
-            data:{url:'./?tab=home'},
-          });
-          if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+      if(prefs.events!==false){
+        for(const ev of childEventsFor(state.child.id).filter(e=>e.status==='published' && e.date>=today)){
+          const start=eventStartDate(ev);
+          if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
+          await deliverOnce(`child-event-${state.child.id}-${ev.id}-${ev.date}`, force,
+            T[state.lang].childNotifEvent(L(ev)||ev.title||'Event'), {
+              tag:'paidia-child-event-'+ev.id,
+              body: `${ev.date}${ev.from?` · ${ev.from}`:''}`,
+              data:{url:'./?tab=home'},
+            });
         }
       }
-    }catch{}
+      if(prefs.activities!==false && auto.activities!==false){
+        for(const e of childPlanEntriesToday(state.child.id)){
+          const start=entryStartDate(today,e);
+          if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
+          const label=typeof actLabel==='function'?actLabel(e.activityId):(e.activityId||'');
+          const titleFn=T[state.lang].notifUpcomingActivity||T[state.lang].notifActivitySoon||T[state.lang].notifUpcomingTask;
+          await deliverOnce(`child-act-${state.child.id}-${e.id}-${today}`, force, titleFn(label), {
+            tag:'paidia-child-act-'+e.id,
+            body:entryTime(e)||today,
+            data:{url:'./?tab=home'},
+          });
+        }
+      }
+      if(prefs.chores!==false){
+        const due=childChoresDueCount(state.child.id);
+        if(due>0 && minsOfDay(now)>=16*60){
+          await deliverOnce(`child-chores-${state.child.id}-${today}`, force,
+            T[state.lang].notifChoresDue(due), {
+              tag:'paidia-child-chores',
+              body:t('choresDue'),
+              data:{url:'./?tab=home'},
+            });
+        }
+      }
+      if(prefs.ratings!==false && auto.ratings!==false && isRatingsReminderWindow(now)){
+        const due=childRatingsDueCount(state.child.id);
+        if(due>0){
+          await deliverOnce(`child-ratings-${state.child.id}-${kidWeekKey()}`, force,
+            T[state.lang].notifRatingsDue(due), {
+              tag:'paidia-child-ratings',
+              body:t('kidRateDueBanner'),
+              data:{url:'./?tab=home'},
+            });
+        }
+      }
+      if(prefs.reminders!==false){
+        const important=importantThingsDueCount();
+        if(important>0 && isRatingsReminderWindow(now)){
+          await deliverOnce(`child-important-${state.child.id}-${kidWeekKey()}`, force,
+            T[state.lang].notifImportantDue(important), {
+              tag:'paidia-child-important',
+              body:t('kidRateThingsTitle'),
+              data:{url:'./?tab=home'},
+            });
+        }
+      }
+    }catch(err){ console.warn('child notif sweep', err); }
     return;
   }
 
   if(state.mode!=='staff' || !state.user) return;
-  // Upcoming events (lead window)
+
   try{
-    const today=iso(now);
-    for(const ev of DB.events.filter(e=>e.status==='published' && e.date>=today)){
-      const start=eventStartDate(ev);
-      if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
-      const key=`event-lead-${ev.id}-${ev.date}`;
-      if(force || seen[key]!=='1'){
-        const delivered=await showAppNotification(T[state.lang].notifUpcomingEvent(L(ev)||ev.title||'Event'),{
-          tag:'paidia-event-'+ev.id,
-          body:`${ev.date}${ev.from?` · ${ev.from}`:''}`,
-          data:{url:'./?tab=schedule&open=events'},
-        });
-        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+    if(prefs.events!==false){
+      for(const ev of (DB.events||[]).filter(e=>e.status==='published' && e.date>=today)){
+        const start=eventStartDate(ev);
+        if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
+        await deliverOnce(`event-lead-${ev.id}-${ev.date}`, force,
+          T[state.lang].notifUpcomingEvent(L(ev)||ev.title||'Event'), {
+            tag:'paidia-event-'+ev.id,
+            body:`${ev.date}${ev.from?` · ${ev.from}`:''}`,
+            data:{url:'./?tab=schedule&open=events'},
+          });
       }
     }
   }catch{}
-  // Today's tasks (lead window)
+
   try{
-    const today=iso(now);
-    for(const e of dashboardAssignments(today,state.user.id)){
-      if(completionFor(today,e.id,state.user.id)) continue;
-      const start=entryStartDate(today,e);
-      if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
-      const key=`task-lead-${e.id}-${today}`;
-      if(force || seen[key]!=='1'){
-        const actLabel=L(act(e.activityId)||{de:e.activityId||'Aufgabe',el:e.activityId||'Εργασία'});
-        const delivered=await showAppNotification(T[state.lang].notifUpcomingTask(actLabel),{
+    if(prefs.activities!==false && auto.activities!==false){
+      for(const e of dashboardAssignments(today,state.user.id)){
+        if(completionFor(today,e.id,state.user.id)) continue;
+        const start=entryStartDate(today,e);
+        if(!isWithinLeadWindow(start,prefs.leadMinutes,now)) continue;
+        const label=typeof actLabel==='function'
+          ? actLabel(e.activityId)
+          : L(act(e.activityId)||{de:e.activityId||'Aktivität',el:e.activityId||'Δραστηριότητα'});
+        const titleFn=T[state.lang].notifUpcomingActivity||T[state.lang].notifUpcomingTask;
+        await deliverOnce(`task-lead-${e.id}-${today}`, force, titleFn(label), {
           tag:'paidia-task-'+e.id,
           body:entryTime(e)||today,
           data:{url:'./?tab=schedule'},
         });
-        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
       }
     }
   }catch{}
-  // Low stock attention
+
   try{
-    const houses=DB.houses||[];
-    let attention=0;
-    (typeof PRODUCTS==='function'?PRODUCTS():[]).forEach(p=>{
-      const bad=houses.some(h=>{
-        const q=DB.stock?.[stockKey(h.id,p.id)]??0;
-        return q===0 || q<=(typeof lowThreshold==='function'?lowThreshold(p):2);
+    if(prefs.stock!==false && auto.lowStock){
+      const houses=DB.houses||[];
+      let attention=0;
+      (typeof PRODUCTS==='function'?PRODUCTS():[]).forEach(p=>{
+        const bad=houses.some(h=>{
+          const q=DB.stock?.[stockKey(h.id,p.id)]??0;
+          return q===0 || q<=(typeof lowThreshold==='function'?lowThreshold(p):2);
+        });
+        if(bad) attention++;
       });
-      if(bad) attention++;
-    });
-    const key=`low-${attention}`;
-    if(attention>0 && notifAutomations().lowStock && (force || seen.low!==key)){
-      const delivered=await showAppNotification(T[state.lang].notifLowStock(attention),{tag:'paidia-low', body:t('headerStock'), data:{url:'./?tab=stock'}});
-      if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, low:key}});
+      if(attention>0){
+        const key=`low-${attention}`;
+        const seen=notifPrefs().seen||{};
+        if(force || seen.low!==key){
+          const delivered=await showAppNotification(T[state.lang].notifLowStock(attention),{
+            tag:'paidia-low', body:t('headerStock'), data:{url:'./?tab=stock'},
+          });
+          if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, low:key}});
+        }
+      }
     }
   }catch{}
-  // Shift stock check pending
+
   try{
-    if(notifAutomations().shiftStart && typeof shiftStockCheckPending==='function' && shiftStockCheckPending()){
+    if(prefs.shifts!==false && auto.shiftStart && typeof shiftStockCheckPending==='function' && shiftStockCheckPending()){
+      const seen=notifPrefs().seen||{};
       if(force || !seen.shiftCheck){
         const delivered=await showAppNotification(t('notifShiftCheck'),{tag:'paidia-shift-check', body:'Kalyvia', data:{url:'./?tab=stock'}});
         if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, shiftCheck:true}});
       }
     }
   }catch{}
-  // Shift presence / late check-in
+
   try{
-    const active=typeof activeShiftPresence==='function'?activeShiftPresence(state.user.id):null;
-    const auto=notifAutomations();
-    const allowPresence = active && !active.checkin && (auto.shiftStart || (active.late && auto.presenceLate));
-    if(allowPresence){
-      const key=`presence-${active.dateStr}-${active.shift.id}-${active.late?'late':'soon'}`;
-      if(force || seen.presence!==key){
-        const label=shiftLabel(active.shift);
-        const delivered=await showAppNotification(
-          active.late?T[state.lang].notifShiftLate(label):T[state.lang].notifShiftStart(label),
-          {
-            tag:'paidia-presence',
-            renotify:!!active.late,
-            requireInteraction:true,
-            body:active.late?t('presenceNotifBodyLate'):t('presenceNotifBodyReady'),
-            data:{url:'./?tab=home&presence=1', open:'presence'},
-            actions: active.late
-              ? [
-                  {action:'late', title:t('presenceNotifActionLate')},
-                  {action:'there', title:t('presenceNotifActionThere')},
-                ]
-              : [
-                  {action:'there', title:t('presenceNotifActionThere')},
-                ],
-          }
-        );
-        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, presence:key}});
+    if(prefs.shifts!==false){
+      const active=typeof activeShiftPresence==='function'?activeShiftPresence(state.user.id):null;
+      const allowPresence = active && !active.checkin && (auto.shiftStart || (active.late && auto.presenceLate));
+      if(allowPresence){
+        const key=`presence-${active.dateStr}-${active.shift.id}-${active.late?'late':'soon'}`;
+        const seen=notifPrefs().seen||{};
+        if(force || seen.presence!==key){
+          const label=shiftLabel(active.shift);
+          const delivered=await showAppNotification(
+            active.late?T[state.lang].notifShiftLate(label):T[state.lang].notifShiftStart(label),
+            {
+              tag:'paidia-presence',
+              renotify:!!active.late,
+              requireInteraction:true,
+              body:active.late?t('presenceNotifBodyLate'):t('presenceNotifBodyReady'),
+              data:{url:'./?tab=home&presence=1', open:'presence'},
+              actions: active.late
+                ? [
+                    {action:'late', title:t('presenceNotifActionLate')},
+                    {action:'there', title:t('presenceNotifActionThere')},
+                  ]
+                : [
+                    {action:'there', title:t('presenceNotifActionThere')},
+                  ],
+            }
+          );
+          if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, presence:key}});
+        }
       }
     }
   }catch{}
-  // Persistent late-arrival alerts for administrators
+
+  try{
+    if(prefs.handover!==false && auto.handover!==false){
+      const active=typeof activeShiftPresence==='function'?activeShiftPresence(state.user.id):null;
+      if(active?.checkin && active.end){
+        const endLead=Math.min(prefs.leadMinutes, 20);
+        if(isWithinEndLeadWindow(active.end, endLead, now)){
+          const handoffDone=!!shiftHandoffRecord(state.user.id, active.dateStr||today);
+          const journalDue=!(shiftNoteFor(state.user.id, active.dateStr||today)?.text||'').trim();
+          if(!handoffDone || journalDue){
+            const label=active.shift?.to||'';
+            await deliverOnce(`handover-${active.dateStr}-${active.shift.id}`, force,
+              T[state.lang].notifHandoverSoon(label), {
+                tag:'paidia-handover',
+                body:t('shiftEndHandoverHint')||t('handover'),
+                data:{url:'./?tab=home'},
+              });
+          }
+        }
+      }
+    }
+  }catch{}
+
+  try{
+    if(prefs.journal!==false){
+      const journalDue=!(shiftNoteFor(state.user.id, today)?.text||'').trim();
+      const active=typeof activeShiftPresence==='function'?activeShiftPresence(state.user.id):null;
+      if(journalDue && active?.checkin && minsOfDay(now)>=12*60){
+        await deliverOnce(`journal-${state.user.id}-${today}`, force, t('notifJournalDue'), {
+          tag:'paidia-journal',
+          body:t('bookJournalHint'),
+          data:{url:'./?tab=book'},
+        });
+      }
+    }
+  }catch{}
+
   try{
     if(isAdminUser()){
       const alerts=Object.values(DB.profilePrefs?._lateAlerts||{})
         .filter(alert=>alert?.id && Date.now()-Number(alert.at||0)<7*24*60*60*1000)
         .sort((a,b)=>Number(a.at||0)-Number(b.at||0));
       for(const alert of alerts){
-        const key=`late-delivered-${alert.id}`;
-        if(force || seen[key]!=='1'){
-          const delivered=await showAppNotification(T[state.lang].lateAlertTitle(alert.name||empName(alert.employeeId)),{
-            tag:`paidia-${key}`,
+        await deliverOnce(`late-delivered-${alert.id}`, force,
+          T[state.lang].lateAlertTitle(alert.name||empName(alert.employeeId)), {
+            tag:`paidia-late-delivered-${alert.id}`,
             renotify:true,
             requireInteraction:true,
             body:`${T[state.lang].lateAlertBody(alert.date,alert.from)} · ${alert.reason||'—'}`,
             data:{url:'./?tab=home'},
           });
-          if(delivered) setNotifPrefs({seen:{...notifPrefs().seen,[key]:'1'}});
-        }
       }
     }
   }catch{}
-  // Friday shopping reminder (open list items)
+
   try{
-    const auto=notifAutomations();
-    const friday=fridayFor();
-    if(auto.fridayShop && isFridayShopReminderTime(now)){
+    if(prefs.shopping!==false && auto.fridayShop && isFridayShopReminderTime(now)){
       const openCount=openFridayShopCount();
-      const key=`friday-shop-${friday}`;
-      if(openCount>0 && (force || seen[key]!=='1')){
-        const delivered=await showAppNotification(T[state.lang].notifFridayShop(openCount),{
+      const friday=fridayFor();
+      if(openCount>0){
+        await deliverOnce(`friday-shop-${friday}`, force, T[state.lang].notifFridayShop(openCount), {
           tag:'paidia-friday-shop',
           body:fridayText(friday),
           data:{url:'./?tab=shop'},
         });
-        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
+      }
+    }
+  }catch{}
+
+  try{
+    if(prefs.ratings!==false && auto.ratings!==false && isRatingsReminderWindow(now)){
+      const due=staffRatingsDueCount();
+      if(due>0){
+        await deliverOnce(`staff-ratings-${state.user.id}-${kidWeekKey()}`, force,
+          T[state.lang].notifRatingsDue(due), {
+            tag:'paidia-staff-ratings',
+            body:t('kidRateDueBanner'),
+            data:{url:'./?tab=kids'},
+          });
+      }
+    }
+  }catch{}
+
+  try{
+    if(prefs.reminders!==false){
+      const important=importantThingsDueCount();
+      if(important>0 && isRatingsReminderWindow(now)){
+        await deliverOnce(`staff-important-${state.user.id}-${kidWeekKey()}`, force,
+          T[state.lang].notifImportantDue(important), {
+            tag:'paidia-staff-important',
+            body:t('kidRateThingsTitle'),
+            data:{url:'./?tab=kids'},
+          });
       }
     }
   }catch{}
