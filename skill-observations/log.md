@@ -536,3 +536,10 @@
 - **Reusable pattern:** Mobile table views → day-focus first; never `mode-pro` + mobile = desktop matrix. Sheet-open always disables chrome that shares the bottom edge.
 - **Skill candidates:** mobile-chrome-css-audit (sheet-open × dock × sticky actions); schedule-mobile-week pattern.
 
+
+## 2026-08-30 — version bump corrupts `||0` fallbacks
+
+- **Trigger:** Parallel agents bumping `APP_BUILD` / cache `?v=` while shipping Lagercheck + Übergabe.
+- **Bug:** Global-ish replaces turned many `||0` (and `||1`) into `||168`/`||171`/`||172` — stock check qty, scrollY, game scores, grades, nav heights.
+- **Fix:** Restore from last good commit by normalizing `||N` keys; version-bump only the APP_BUILD block + `build.json` + `gate.js` APP_BUILD + `sw.js` CACHE + asset `?v=` — never `s/||0/||$VER/`.
+- **Skill candidate:** safe-semver-bump (forbid replacing numeric `||0` fallbacks).
