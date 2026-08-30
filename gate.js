@@ -34,28 +34,45 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 150,
-    label: 'v150',
+    version: 151,
+    label: 'v151',
     changed: {
-      de: 'Kontrast: Buttons/Chips lesbar auf hellen Heroes',
-      el: 'Αντίθεση: κουμπιά/chips ευανάγνωστα σε φωτεινά heroes',
+      de: 'Angemeldet bleiben: längere Session, Profil merken',
+      el: 'Να με θυμάσαι: μεγαλύτερη συνεδρία, αποθήκευση προφίλ',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
   const BUILD_RELOAD_KEY = 'paidia.buildReload';
 
+  function fetchTimeout(resource, options, ms) {
+    const controller = new AbortController();
+    const kill = setTimeout(() => controller.abort(), ms);
+    return fetch(resource, Object.assign({}, options || {}, { signal: controller.signal }))
+      .finally(() => clearTimeout(kill));
+  }
+
+  function withDeadline(promise, ms) {
+    return Promise.race([
+      promise,
+      new Promise((resolve) => setTimeout(resolve, ms)),
+    ]);
+  }
+
   // A long-lived installed PWA can still start from an older HTML shell. Check
   // the tiny network manifest before booting, clear only Paidia caches, and do
   // one cache-busted navigation. The session marker prevents reload loops.
+  // Hard timeout: a hung build.json fetch must never block login forever.
   async function refreshStaleShell() {
     try {
-      const response = await fetch('build.json?boot=' + Date.now(), { cache: 'no-store' });
+      const response = await fetchTimeout('build.json?boot=' + Date.now(), { cache: 'no-store' }, 2500);
       const remote = response.ok ? await response.json() : null;
       if (!remote || !Number.isFinite(Number(remote.version)) || Number(remote.version) === Number(APP_BUILD.version)) return false;
       const target = String(remote.version);
       if ('caches' in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.filter((key) => key.startsWith('paidia-v')).map((key) => caches.delete(key)));
+        await withDeadline((async () => {
+          const keys = await caches.keys();
+          await Promise.all(keys.filter((key) => key.startsWith('paidia-v')).map((key) => caches.delete(key)));
+        })(), 1500);
       }
       if (sessionStorage.getItem(BUILD_RELOAD_KEY) !== target) {
         sessionStorage.setItem(BUILD_RELOAD_KEY, target);
@@ -66,7 +83,7 @@
       }
       Object.assign(APP_BUILD, remote);
     } catch (error) {
-      /* Offline boot continues from the installed shell. */
+      /* Offline / timed-out boot continues from the installed shell. */
     }
     return false;
   }
@@ -83,10 +100,12 @@
     if (stored === target) return false;
     try {
       if ('caches' in window) {
-        const keys = await caches.keys();
-        await Promise.all(
-          keys.filter((k) => k !== 'paidia-v' + target).map((k) => caches.delete(k))
-        );
+        await withDeadline((async () => {
+          const keys = await caches.keys();
+          await Promise.all(
+            keys.filter((k) => k !== 'paidia-v' + target).map((k) => caches.delete(k))
+          );
+        })(), 1500);
       }
       localStorage.setItem(SW_BUILD_KEY, target);
     } catch (e) {}
@@ -203,7 +222,7 @@
       resetAskAdmin: 'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ένας admin μπορεί να βοηθήσει μετά τη σύνδεση στο Προφίλ → PIN, ή πρέπει να ρυθμιστεί SMTP/Resend.',
       resetNeedProfileEmail: 'Χρησιμοποίησε το email που είναι αποθηκευμένο σε αυτό το προφίλ.',
       resetBackPin: '← Πίσω στο PIN',
-      rememberMe: 'Να μείνω συνδεδεμένος',
+      rememberMe: 'Να με θυμάσαι',
       otherPerson: 'Άλλο άτομο',
       loadingBoot: 'Φόρτωση…',
     },
@@ -264,6 +283,17 @@
     script.src = 'app.js?v=' + APP_BUILD.version;
     script.defer = true;
     script.dataset.paidiaApp = '1';
+    script.onerror = () => {
+      window.__paidiaAuthed = false;
+      bootSettled = false;
+      const last = readLastProfile();
+      if (last) renderPin(last.who, last.mode);
+      else renderEntrance();
+      const status = body.querySelector('.gate-status, #bootStatus');
+      if (status) {
+        status.textContent = lang === 'el' ? 'Φόρτωση απέτυχε — δοκίμασε ξανά' : 'Laden fehlgeschlagen — bitte neu versuchen';
+      }
+    };
     document.body.appendChild(script);
   }
 
@@ -459,9 +489,10 @@
           <button type="button" data-k="0">0</button>
           <button type="button" data-k="clr" aria-label="Clear">C</button>
         </div>
-        <label class="gate-remember" style="display:flex;align-items:center;gap:10px;margin:12px 0 0;font-size:13px;color:var(--muted,#64748b);cursor:pointer">
-          <input type="checkbox" id="gRemember" ${rememberChecked()?'checked':''} style="width:18px;height:18px;accent-color:var(--brand,#2f5a63)">
-          <span>${esc(t('rememberMe'))}</span>
+        <label class="gate-remember" for="gRemember">
+          <input type="checkbox" id="gRemember" ${rememberChecked()?'checked':''}
+            aria-describedby="gRememberHint">
+          <span id="gRememberHint">${esc(t('rememberMe'))}</span>
         </label>
         <button class="btn gate-login-submit" id="gLogin" type="button">${t('login')}</button>
         <div class="gate-pin-links">
@@ -548,7 +579,8 @@
         }
         succeeded = true;
         window.__paidiaAuthed = true;
-        writeLastProfile(mode, who.id);
+        if (remember) writeLastProfile(mode, who.id);
+        else clearLastProfile();
         window.__paidiaBootSession = data;
         try {
           loadApp();
@@ -588,7 +620,8 @@
         });
         succeeded = true;
         window.__paidiaAuthed = true;
-        writeLastProfile(mode, who.id);
+        if (remember) writeLastProfile(mode, who.id);
+        else clearLastProfile();
         window.__paidiaBootSession = pkData;
         try { loadApp(); } catch (error) { location.replace('/?in=' + Date.now()); }
         return;
@@ -778,65 +811,75 @@
   }
 
   async function start() {
-    if (await refreshStaleShell()) return;
-    if (await purgeStaleShell()) return;
-    ensureServiceWorker();
     document.documentElement.lang = lang;
     gate.classList.add('on');
     document.body.classList.add('auth-pending');
+
     const resetToken = new URLSearchParams(location.search).get('reset');
     if (resetToken) {
       bootSettled = true;
       renderResetForm(resetToken);
+      ensureServiceWorker();
       return;
     }
-    const softTimer = setTimeout(() => {
-      if (!bootSettled && body && !body.querySelector('.gate-head, .gate-pin')) {
-        paintGate('loading', `<div class="gate-head"><div class="brand-kicker">Armonia</div>
-          <h2>${esc(t('loadingBoot')||'…')}</h2></div>`);
+
+    let softTimer = 0;
+    let bootTimer = 0;
+    const clearBootTimers = () => {
+      clearTimeout(softTimer);
+      clearTimeout(bootTimer);
+    };
+    const settleLogin = () => {
+      if (bootSettled) return;
+      bootSettled = true;
+      clearBootTimers();
+      const last = readLastProfile();
+      if (last) renderPin(last.who, last.mode);
+      else renderEntrance();
+    };
+
+    // Arm the deadline BEFORE any network wait. Previously refreshStaleShell()
+    // awaited build.json with no timeout, so a hung SW/network left "Laden…" forever
+    // and these timers never started.
+    softTimer = setTimeout(() => {
+      if (!bootSettled && body && body.dataset.gateView === 'loading') {
+        const status = document.getElementById('bootStatus');
+        if (status) status.textContent = t('loadingBoot') || '…';
       }
-    }, 800);
-    const bootTimer = setTimeout(() => {
-      if (!bootSettled) {
-        bootSettled = true;
-        clearTimeout(softTimer);
-        const last = readLastProfile();
-        if (last) renderPin(last.who, last.mode);
-        else renderEntrance();
-      }
-    }, 4500);
+    }, 600);
+    bootTimer = setTimeout(settleLogin, 2800);
+
     try {
-      const controller = new AbortController();
-      const kill = setTimeout(() => controller.abort(), 4000);
-      const response = await fetch('/api/auth/session', {
+      if (await refreshStaleShell()) {
+        clearBootTimers();
+        return;
+      }
+    } catch (error) { /* continue */ }
+
+    try { await withDeadline(purgeStaleShell(), 1200); } catch (error) { /* continue */ }
+    ensureServiceWorker();
+
+    try {
+      const response = await fetchTimeout('/api/auth/session', {
         credentials: 'same-origin',
-        signal: controller.signal,
         headers: { Accept: 'application/json' },
-      });
-      clearTimeout(kill);
+      }, 2500);
       const raw = await response.text();
       let data = {};
       try { data = JSON.parse(raw); } catch (error) { data = {}; }
       if (response.ok && data.authenticated) {
         bootSettled = true;
-        clearTimeout(bootTimer);
-        clearTimeout(softTimer);
+        clearBootTimers();
         window.__paidiaBootSession = data;
-        if (data.profileId && data.mode) writeLastProfile(data.mode, data.profileId);
+        if (data.remember && data.profileId && data.mode) writeLastProfile(data.mode, data.profileId);
+        else if (!data.remember) clearLastProfile();
         loadApp();
         return;
       }
     } catch (error) {
       /* fall through to login */
     }
-    if (!bootSettled) {
-      bootSettled = true;
-      clearTimeout(bootTimer);
-      clearTimeout(softTimer);
-      const last = readLastProfile();
-      if (last) renderPin(last.who, last.mode);
-      else renderEntrance();
-    }
+    settleLogin();
   }
 
   window.PaidiaGate = { start, loadApp, renderResetForm, renderResetRequest };

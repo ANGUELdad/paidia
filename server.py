@@ -181,6 +181,15 @@ WHATSAPP_DEDUPE_WINDOW = 10 * 60
 WHATSAPP_SENT: dict[str, float] = {}
 AUTH_SESSION_TTL = 12 * 60 * 60
 AUTH_SESSION_TTL_REMEMBER = 30 * 24 * 60 * 60
+
+
+def session_cookie_max_age(remember: bool, ttl: int | None = None) -> int | None:
+    """Cookie Max-Age for Set-Cookie. None = browser session (cleared on close)."""
+    if remember:
+        return int(ttl if ttl is not None else AUTH_SESSION_TTL_REMEMBER)
+    return None
+
+
 RESET_TOKEN_TTL = 30 * 60
 PIN_ITERATIONS = 600_000
 AUTH_COOKIE = "paidia_session"
@@ -4431,17 +4440,21 @@ class Handler(SimpleHTTPRequestHandler):
     def passkey_store_for_request(self) -> dict:
         return merge_passkey_stores(PASSKEYS, decode_passkey_device_bundle(self.passkey_device_cookie()))
 
-    def set_cookie_header(self, name: str, token: str, max_age: int) -> str:
+    def set_cookie_header(self, name: str, token: str, max_age: int | None = AUTH_SESSION_TTL) -> str:
+        """Build Set-Cookie. max_age=None → browser session cookie (no Max-Age)."""
         secure = (
             os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}
             or os.environ.get("VERCEL", "") == "1"
         )
-        parts = [f"{name}={token}", "Path=/", f"Max-Age={max_age}", "HttpOnly", "SameSite=Lax"]
+        parts = [f"{name}={token}", "Path=/"]
+        if max_age is not None:
+            parts.append(f"Max-Age={max_age}")
+        parts.extend(["HttpOnly", "SameSite=Lax"])
         if secure:
             parts.append("Secure")
         return "; ".join(parts)
 
-    def set_session_cookie(self, token: str, max_age: int = AUTH_SESSION_TTL) -> str:
+    def set_session_cookie(self, token: str, max_age: int | None = AUTH_SESSION_TTL) -> str:
         return self.set_cookie_header(AUTH_COOKIE, token, max_age)
 
     def set_passkey_cookie(self, token: str, max_age: int = PASSKEY_COOKIE_TTL) -> str:
@@ -4626,7 +4639,7 @@ class Handler(SimpleHTTPRequestHandler):
                         remember=remember,
                         session_id=session.get("session_id"),
                     )
-                    max_age = int(payload.get("ttl") or AUTH_SESSION_TTL)
+                    max_age = session_cookie_max_age(remember, payload.get("ttl"))
                     slide_headers = {"Set-Cookie": self.set_session_cookie(token, max_age=max_age)}
                     expires_ms = int(payload["expires_at"] * 1000)
                     session_id = payload.get("session_id", session_id)
@@ -5030,17 +5043,20 @@ class Handler(SimpleHTTPRequestHandler):
             elif new_ip and not first_ip:
                 queue_security_alert(profile_id, "new_ip_login", client_ip, {"attempts": 0})
         contact = profile_contact(profile_id)
-        max_age = int(payload.get("ttl") or AUTH_SESSION_TTL)
+        remember_flag = bool(payload.get("remember"))
+        max_age = session_cookie_max_age(remember_flag, payload.get("ttl"))
         cookies = [self.set_session_cookie(token, max_age=max_age)]
         if extra_cookies:
             cookies.extend(extra_cookies)
-        append_security_event("login_ok", profile_id, client_ip, {"method": method, "mode": mode})
+        append_security_event("login_ok", profile_id, client_ip, {
+            "method": method, "mode": mode, "remember": remember_flag,
+        })
         self.json_response(200, {
             "authenticated": True, "profileId": profile_id, "mode": mode,
             "admin": bool(payload["admin"]),
             "sessionId": payload["session_id"], "expiresAt": int(payload["expires_at"] * 1000),
             "authenticationMethod": method,
-            "remember": bool(payload.get("remember")),
+            "remember": remember_flag,
             "onboardingComplete": onboarding_complete(profile_id, mode),
             "onboardingVersion": ONBOARDING_VERSION,
             "email": contact["email"],

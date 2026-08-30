@@ -2412,6 +2412,7 @@ function applySharedPayload(data){
     changed=true;
   }
   if(hold && kidId) restoreKidOwnedLocal(kidId, hold);
+  if(changed) normalizeDbShape(DB);
   if(typeof data.revision === 'number'){
     sharedRevision = data.revision;
     localStorage.setItem('paidia.sharedRev', String(sharedRevision));
@@ -2726,7 +2727,7 @@ const entryEmployeeIds = e => [...new Set((e?.employeeIds?.length ? e.employeeId
 const entryHouseIds = e => [...new Set((e?.houseIds?.length ? e.houseIds : e?.houseId ? [e.houseId] : []).filter(Boolean))];
 const employeeNames = e => entryEmployeeIds(e).map(id=>emp(id)?.name).filter(Boolean).join(', ') || t('unassigned');
 const houseNames = e => entryHouseIds(e).map(id=>house(id)?.short).filter(Boolean).join(', ');
-const initials = n => n.split(/[\s.]+/).filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const initials = n => String(n||'').split(/[\s.]+/).filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase() || '?';
 const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const dowIdx = d => (d.getDay()+6)%7;
 const shiftDate = (dateStr,days) => { const d=new Date(dateStr+'T12:00:00'); d.setDate(d.getDate()+days); return iso(d); };
@@ -3630,7 +3631,7 @@ function buildTourSteps(){
       'Tag/Woche und Hausfilter.','Ημέρα/εβδομάδα και φίλτρο σπιτιού.'),
     mk('staff-stock','stock-command',{tab:'stock'},
       'Lager','Αποθήκη',
-      'Haus wählen, dann ± am Produkt.','Διάλεξε σπίτι, μετά ± στο προϊόν.'),
+      'Haus wählen, suchen, ± am Produkt. Bulk/OCR/Regale in Pro.','Διάλεξε σπίτι, αναζήτηση, ± στο προϊόν. Μαζικά/OCR/ράφια στο Pro.'),
     mk('staff-shop','shop-command',{tab:'shop'},
       'Liste','Λίστα',
       'Freitag und Haus prüfen, dann Warenkorb.','Έλεγξε Παρασκευή και σπίτι, μετά καλάθι.'),
@@ -4810,7 +4811,7 @@ function sheetHelpCenter(){
       <button class="help-center-card" id="helpFeedback" type="button"><span class="icon">💬</span><b>${esc(t('feedbackTitle'))}</b><span>${esc(t('feedbackHint'))}</span></button>
     </div>
     <p class="muted" style="margin:14px 0 0;font-size:12.5px">${ui('u-sparkle')} ${esc(t('helpChat'))} · ${esc(t('navChat'))}</p>`);
-  sheetEl.querySelector('#helpTutorial').onclick=openAppTutorial;
+  sheetEl.querySelector('#helpTutorial').onclick=()=>{ closeSheet(); openAppTutorial(); };
   sheetEl.querySelector('#helpFeedback').onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
 }
 
@@ -6019,7 +6020,7 @@ function consumePresenceDeepLink(){
   }catch{ return false; }
 }
 
-const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk'];
+const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids'];
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
 const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
 const SCHEDULE_VIEW_LAST_KEY = 'paidia.scheduleViewLast';
@@ -6749,7 +6750,7 @@ function weekNotesCard(){
   const f = (id, label, val, rows=2) => `
     <label class="f"><span>${label}</span>
       <textarea id="${id}" rows="${rows}">${esc(val||'')}</textarea></label>`;
-  return `<details class="card week-notes-card">
+  return `<details class="card week-notes-card pro-only mode-pro-block">
     <summary><span>${t('weekNotes')}</span><small>${t('remarks')}</small><b aria-hidden="true">＋</b></summary>
     <div class="week-notes-body">
     ${f('wnAfternoon', t('hintAfternoon'), wk.hintAfternoon)}
@@ -7229,7 +7230,7 @@ function calendarMarkersForMonth(y, m){
   for(let d=1; d<=daysInMonth; d++){
     const ds = y+'-'+pad(m+1)+'-'+pad(d);
     const entries = entriesFor(ds).filter(e=>!e.cancelled);
-    const events = DB.events.filter(e=>e.status==='published' && e.date===ds);
+    const events = (DB.events||[]).filter(e=>e.status==='published' && e.date===ds);
     if(entries.length || events.length){
       markers.set(ds, {tasks:entries.length, events:events.length});
     }
@@ -7289,7 +7290,7 @@ function viewScheduleCalendar(){
   const cells = calendarMonthGrid(y, m, markers);
   const monthName = cm.toLocaleDateString(state.lang==='el'?'el-GR':'de-DE', {month:'long', year:'numeric'});
   const today = iso(now);
-  const upcoming = [...DB.events].filter(e=>e.status==='published' && e.date>=today)
+  const upcoming = [...(DB.events||[])].filter(e=>e.status==='published' && e.date>=today)
     .sort((a,b)=>(a.date+a.from).localeCompare(b.date+b.from)).slice(0,6);
   const notifCap = (typeof notifCapabilities==='function') ? notifCapabilities() : {api:typeof Notification!=='undefined', permission:(typeof Notification!=='undefined'?Notification.permission:'unsupported'), reason:!('Notification' in window)?'unsupported':'default', canRequest:true};
   const notifGranted = !!notifCap.api && notifCap.permission === 'granted';
@@ -7509,11 +7510,12 @@ function sheetEntry(e, dateStr, presets = {}){
     const box = sheetEl.querySelector('#fActs');
     box.innerHTML =
       ACTS().map(a=>`<button class="chip ${a.id===pickedAct?'on':''}" data-a="${a.id}" type="button">${esc(a.emoji||'')} ${esc(L(a))}</button>`).join('') +
-      `<button class="chip" id="fNewAct" style="border-style:dashed" type="button">＋ ${t('newActivity')}</button>`;
+      `<button class="chip${isEasy()?' pro-only mode-pro-block':''}" id="fNewAct" style="border-style:dashed" type="button">＋ ${t('newActivity')}</button>`;
     box.querySelectorAll('.chip[data-a]').forEach(b=>{
       b.onclick = () => { pickedAct = b.dataset.a; feedback('select'); paintActs(); };
     });
-    box.querySelector('#fNewAct').onclick = openNewActivity;
+    const na = box.querySelector('#fNewAct');
+    if(na) na.onclick = openNewActivity;
   }
   const paintKids = () => {
     const kidsBox=sheetEl.querySelector('#fKids');
@@ -7769,7 +7771,10 @@ function recentStockMoves(hid, limit=6){
 
 function viewStock(){
   const hid = state.house;
-  const houses=hid==='all'?DB.houses:[house(hid)];
+  const houses=(hid==='all'?DB.houses:[house(hid)]).filter(Boolean);
+  if(!houses.length){
+    return `<div class="stock-page">${emptyState(ui('u-leaf'), t('selectHouse'))}</div>`;
+  }
   const productState=p=>{
     const values=houses.map(h=>DB.stock[stockKey(h.id,p.id)]??0);
     return values.some(q=>q===0)?'empty':values.some(q=>q<=lowThreshold(p))?'low':'ok';
@@ -10921,10 +10926,10 @@ function bookHasActiveFilters(){
   return !!(f.employeeId || f.type || (f.q||'').trim() || state.bookRange!=='today');
 }
 function bookFilteredLogs(){
-  const f = state.bookFilter;
+  const f = state.bookFilter || {};
   const from = bookRangeFromTs();
   const q = norm(f.q||'');
-  return DB.log
+  return (DB.log||[])
     .filter(l=>{
       if(from && (l.ts||0) < from) return false;
       if(f.employeeId && l.employeeId!==f.employeeId) return false;
@@ -11132,9 +11137,9 @@ function shiftDiaryCard(){
 }
 
 function bookFiltersHtml(){
-  const f = state.bookFilter;
+  const f = state.bookFilter || {};
   const rangeFrom = bookRangeFromTs();
-  const rangeRows = DB.log.filter(l=>!rangeFrom || (l.ts||0)>=rangeFrom);
+  const rangeRows = (DB.log||[]).filter(l=>!rangeFrom || (l.ts||0)>=rangeFrom);
   const typeBase = {};
   rangeRows.forEach(l=>{ if(l.type) typeBase[l.type]=(typeBase[l.type]||0)+1; });
 
@@ -19002,6 +19007,7 @@ function collectNotifPrefsFromForm(root){
 }
 function notifPrefsFormHtml({child=false}={}){
   const prefs=notifPrefsResolved();
+  const easy=isEasy();
   const row=(id,label,on)=>`<label class="notif-opt"><input type="checkbox" id="${id}" ${on?'checked':''}><span>${esc(label)}</span></label>`;
   const staffRows=[
     row('notifOptShifts', t('notifOptShifts'), prefs.shifts),
@@ -19021,7 +19027,13 @@ function notifPrefsFormHtml({child=false}={}){
     row('notifOptRatings', t('notifOptRatings'), prefs.ratings),
     row('notifOptReminders', t('notifOptReminders'), prefs.reminders),
   ].join('');
-  return `<div class="notif-prefs" style="margin-top:10px;display:grid;gap:8px">
+  if(easy){
+    return `<div class="notif-prefs" style="margin-top:10px;display:grid;gap:8px">
+      <p class="muted" style="font-size:12px;margin:0;line-height:1.45">${esc(t('notifEasyHint'))}</p>
+      <p class="muted" style="font-size:11px;margin:0;line-height:1.4">${esc(t('notifProCategories'))}</p>
+    </div>`;
+  }
+  return `<div class="notif-prefs pro-only mode-pro-block" style="margin-top:10px;display:grid;gap:8px">
     <label class="f"><span>${esc(t('notifQuietStart'))}</span><input type="time" id="notifQuietStart" value="${esc(prefs.quietStart)}"></label>
     <label class="f"><span>${esc(t('notifQuietEnd'))}</span><input type="time" id="notifQuietEnd" value="${esc(prefs.quietEnd)}"></label>
     <label class="f"><span>${esc(t('notifLeadMinutes'))}</span><input type="number" id="notifLeadMin" min="0" max="240" step="5" value="${prefs.leadMinutes}"></label>
@@ -19036,12 +19048,27 @@ function notifPrefsFormHtml({child=false}={}){
 }
 function sheetNotifPrefs(){
   const child=state.mode==='child';
+  const cap=notifCapabilities();
+  const perm=cap.api?cap.permission:'unsupported';
+  const on=!!notifPrefs().enabled && perm==='granted';
+  const canEnable=on || cap.canRequest || (perm==='granted' && !notifPrefs().enabled);
   openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia</div>
     <h2>${esc(t('notifPrefsTitle'))}</h2>
-    <p>${esc(t('notifPrefsHint'))}</p></div>
-    ${notifPrefsFormHtml({child})}
+    <p>${esc(isEasy()?t('notifEasyHint'):t('notifPrefsHint'))}</p></div>
+    <button class="btn ${on?'sec':''}" type="button" id="notifToggle" ${canEnable?'':'disabled'}>${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</button>
+    <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
+    ${on?notifPrefsFormHtml({child}):''}
     <button class="btn sec" type="button" id="notifPrefsClose" style="margin-top:10px">${esc(t('close'))}</button>`);
   sheetEl.querySelector('#notifPrefsClose').onclick=()=>closeSheet();
+  sheetEl.querySelector('#notifToggle')?.addEventListener('click', async ()=>{
+    const ok=await enableAppNotifications();
+    toast(ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
+    if(ok){ sheetNotifPrefs(); paintNotifBadge(); }
+  });
+  sheetEl.querySelector('#notifTestBtn')?.addEventListener('click', async ()=>{
+    const delivered=await showAppNotification(t('notifTest'),{tag:'paidia-test', body:'Armonia Thassos', force:true});
+    toast(delivered?t('notifDeliveryOk'):t('notifDeliveryFailed'), delivered?'success':'error');
+  });
   const saveBtn=sheetEl.querySelector('#notifPrefsSave');
   if(saveBtn) saveBtn.onclick=()=>{
     setNotifPrefs(collectNotifPrefsFromForm(sheetEl));

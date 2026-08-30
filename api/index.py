@@ -37,22 +37,20 @@ def _body() -> dict:
     return data if isinstance(data, dict) else {}
 
 
-def _cookie_header(token: str, max_age: int = paidia.AUTH_SESSION_TTL) -> str:
+def _cookie_header(token: str, max_age: int | None = paidia.AUTH_SESSION_TTL) -> str:
     return _cookie_header_named(paidia.AUTH_COOKIE, token, max_age=max_age)
 
 
-def _cookie_header_named(name: str, token: str, max_age: int) -> str:
+def _cookie_header_named(name: str, token: str, max_age: int | None) -> str:
+    """max_age=None → browser session cookie (no Max-Age attribute)."""
     secure = (
         os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"}
         or os.environ.get("VERCEL", "") == "1"
     )
-    parts = [
-        f"{name}={token}",
-        "Path=/",
-        f"Max-Age={max_age}",
-        "HttpOnly",
-        "SameSite=Lax",
-    ]
+    parts = [f"{name}={token}", "Path=/"]
+    if max_age is not None:
+        parts.append(f"Max-Age={max_age}")
+    parts.extend(["HttpOnly", "SameSite=Lax"])
     if secure:
         parts.append("Secure")
     return "; ".join(parts)
@@ -174,7 +172,7 @@ def _auth_session():
             remember=remember,
             session_id=session.get("session_id"),
         )
-        max_age = int(payload.get("ttl") or paidia.AUTH_SESSION_TTL)
+        max_age = paidia.session_cookie_max_age(remember, payload.get("ttl"))
         cookie = _cookie_header(token, max_age=max_age)
         expires_ms = int(payload["expires_at"] * 1000)
         session_id = payload.get("session_id", session_id)
@@ -288,10 +286,10 @@ class _FlaskHandlerBridge:
         paidia.hydrate_auth_from_cookie(self.auth_override_cookie())
         return _session_from_request()
 
-    def set_cookie_header(self, name: str, token: str, max_age: int) -> str:
+    def set_cookie_header(self, name: str, token: str, max_age: int | None) -> str:
         return _cookie_header_named(name, token, max_age=max_age)
 
-    def set_session_cookie(self, token: str, max_age: int = paidia.AUTH_SESSION_TTL) -> str:
+    def set_session_cookie(self, token: str, max_age: int | None = paidia.AUTH_SESSION_TTL) -> str:
         return _cookie_header(token, max_age=max_age)
 
     def set_passkey_cookie(self, token: str, max_age: int = paidia.PASSKEY_COOKIE_TTL) -> str:
