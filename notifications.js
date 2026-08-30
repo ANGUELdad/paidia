@@ -194,11 +194,28 @@
     };
   }
 
-  /** Reuse gate.js registration — never race a second register. */
-  async function registerServiceWorker(){
+  /**
+   * Reuse gate.js registration — never race a second register.
+   * Wait briefly for an *active* worker; showNotification needs one.
+   */
+  async function registerServiceWorker(timeoutMs){
     if(!('serviceWorker' in navigator) || !global.isSecureContext) return null;
+    const ms = Math.max(400, Number(timeoutMs) || 4500);
     try{
-      return await navigator.serviceWorker.getRegistration() || null;
+      let reg = await navigator.serviceWorker.getRegistration();
+      if(!reg){
+        // Gate registers async at boot; give it a beat before giving up.
+        await new Promise(r => setTimeout(r, 250));
+        reg = await navigator.serviceWorker.getRegistration();
+      }
+      if(!reg) return null;
+      if(reg.active) return reg;
+      const ready = navigator.serviceWorker.ready.catch(() => null);
+      const timed = new Promise(resolve => setTimeout(() => resolve(null), ms));
+      const settled = await Promise.race([ready, timed]);
+      if(settled && settled.active) return settled;
+      reg = await navigator.serviceWorker.getRegistration();
+      return (reg && reg.active) ? reg : null;
     }catch(e){
       console.warn('SW lookup failed', e);
       return null;
@@ -213,7 +230,8 @@
     if(!('Notification' in global)) return 'unsupported';
     if(Notification.permission === 'granted'){
       savePrefs({enabled: true});
-      await registerServiceWorker();
+      // Do not block the enable click on SW ready — delivery has its own wait.
+      registerServiceWorker(2000).catch(() => {});
       return 'granted';
     }
     if(Notification.permission === 'denied') return 'denied';
@@ -221,16 +239,30 @@
     try{ result = await Notification.requestPermission(); }catch{ return 'denied'; }
     if(result === 'granted'){
       savePrefs({enabled: true});
-      await registerServiceWorker();
+      registerServiceWorker(2000).catch(() => {});
     }
     return result;
   }
 
   function canNotify(opts){
     const prefs = loadPrefs();
-    if(!prefs.enabled) return false;
+    const force = !!(opts && opts.force);
+    // force = welcome/test: allow when OS permission is on even if prefs lag.
+    if(!force && !prefs.enabled) return false;
     if(!('Notification' in global) || Notification.permission !== 'granted') return false;
-    if(!(opts && opts.force) && inQuietHours(prefs)) return false;
+    if(!force && inQuietHours(prefs)) return false;
+    return true;
+  }
+
+  function showPageNotification(title, payload){
+    if(typeof Notification !== 'function') return false;
+    new Notification(title, {
+      body: payload.body || '',
+      tag: payload.tag,
+      data: payload.data,
+      icon: payload.icon,
+      silent: !!payload.silent,
+    });
     return true;
   }
 
@@ -255,14 +287,20 @@
     if(Array.isArray(opts.actions) && opts.actions.length){
       payload.actions = opts.actions.slice(0, 2);
     }
+    // SW path first (works in PWA / Android). Must have an *active* worker —
+    // calling showNotification while only installing throws and used to abort
+    // enable with no page fallback.
     try{
-      const reg = await registerServiceWorker();
-      if(reg && reg.showNotification){
+      const reg = await registerServiceWorker(opts.force ? 2500 : 4500);
+      if(reg && reg.active && typeof reg.showNotification === 'function'){
         await reg.showNotification(title, payload);
         return true;
       }
-      new Notification(title, {body, tag, data, silent: payload.silent});
-      return true;
+    }catch(e){
+      console.warn('SW notification failed', e);
+    }
+    try{
+      return showPageNotification(title, payload);
     }catch(e){
       console.warn('notification failed', e);
       return false;

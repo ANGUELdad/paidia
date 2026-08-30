@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 158,
-  label: 'v158',
+  version: 160,
+  label: 'v160',
   changed: {
-    de: 'Easy/Pro überall · Lager-Buttons sichtbar · Kontext-Tipps',
-    el: 'Easy/Pro παντού · κουμπιά Αποθήκης · συμβουλές σελίδας',
+    de: 'Easy/Pro überall · Lager Speichern/Foto lesen sichtbar',
+    el: 'Easy/Pro παντού · Αποθήκη Speichern/διάβασμα φωτό',
   },
 };
 const T = {
@@ -16393,6 +16393,11 @@ function homePcRailHtml({todayOpenCount=0}={}){
 
 function sheetNotifCenter(){
   const items=staffInboxItems();
+  const cap=notifCapabilities();
+  const perm=cap.api?cap.permission:'unsupported';
+  const on=!!notifPrefs().enabled && perm==='granted';
+  const canEnable=on || cap.canRequest || (perm==='granted' && !notifPrefs().enabled);
+  const platformHint=notifCapabilityMessage(cap);
   openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia</div>
     <h2>${esc(t('notifCenterTitle'))}</h2>
     <p>${esc(items.length?t('notifHint'):t('notifCenterEmpty'))}</p></div>
@@ -16402,10 +16407,18 @@ function sheetNotifCenter(){
         <span class="nr-tone tone-${esc(n.tone)}">${esc(n.toneLabel)} · ${esc(n.meta||'')}</span>
       </button>`).join(''):`<p class="muted">${esc(t('notifCenterEmpty'))}</p>`}
     </div>
-    <button class="btn" type="button" id="notifCenterSettings" style="margin-top:10px">${esc(t('notifOpenSettings'))}</button>
+    ${!on?`<button class="btn" type="button" id="notifCenterEnable" style="margin-top:10px" ${canEnable?'':'disabled'}>${esc(cap.reason==='ios-install'?t('childInstallTitle'):t('notifEnable'))}</button>
+      ${platformHint?`<p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}`:''}
+    <button class="btn ${on?'':'sec'}" type="button" id="notifCenterSettings" style="margin-top:10px">${esc(t('notifOpenSettings'))}</button>
     <button class="btn sec" type="button" id="notifCenterClose" style="margin-top:8px">${esc(t('close'))}</button>`);
   sheetEl.querySelector('#notifCenterClose').onclick=()=>closeSheet();
   sheetEl.querySelector('#notifCenterSettings').onclick=()=>{ closeSheet(); sheetNotifPrefs(); };
+  const enableBtn=sheetEl.querySelector('#notifCenterEnable');
+  if(enableBtn) enableBtn.onclick=async()=>{
+    const ok=await enableAppNotifications();
+    toast(ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
+    if(ok){ paintNotifBadge(); sheetNotifCenter(); }
+  };
   sheetEl.querySelectorAll('[data-inbox-jump]').forEach(btn=>{
     btn.onclick=()=>{ closeSheet(); runInboxJump(btn.dataset.inboxJump); };
   });
@@ -19965,6 +19978,8 @@ async function enableAppNotifications(){
     setNotifPrefs({enabled:false});
     return false;
   }
+  // Request permission first while still in the user-gesture stack — do not
+  // await SW registration before the prompt (browsers drop the gesture).
   let perm=Notification.permission;
   if(perm!=='granted'){
     try{
@@ -19984,11 +19999,18 @@ async function enableAppNotifications(){
     return false;
   }
   setNotifPrefs({enabled:true});
-  try{ await registerPaidiaServiceWorker(); }catch{}
+  // Warm SW in parallel; delivery waits/falls back on its own.
+  const swWarm=registerPaidiaServiceWorker(2500).catch(()=>null);
   let delivered=false;
   try{
     delivered=await showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true});
   }catch{ delivered=false; }
+  try{ await swWarm; }catch{}
+  if(!delivered){
+    try{
+      delivered=await showAppNotification(t('notifTest'),{tag:'paidia-welcome', body:t('notifHint'), force:true});
+    }catch{ delivered=false; }
+  }
   if(!delivered){
     window.__paidiaNotifLastReason='delivery-failed';
     setNotifPrefs({enabled:false});
@@ -20005,10 +20027,12 @@ async function enableAppNotifications(){
 }
 async function showAppNotification(title, opts={}){
   try{
-    if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return false;
-    if(!opts.force && isQuietHours()) return false;
+    const force=!!opts.force;
+    if((!force && !notifPrefs().enabled) || typeof Notification==='undefined' || Notification.permission!=='granted') return false;
+    if(!force && isQuietHours()) return false;
     if(typeof PaidiaNotify!=='undefined' && PaidiaNotify.showNotification){
-      return !!(await PaidiaNotify.showNotification(title, opts));
+      const ok=!!(await PaidiaNotify.showNotification(title, opts));
+      if(ok) return true;
     }
     const prefs=notifPrefsResolved();
     const payload={
@@ -20027,32 +20051,50 @@ async function showAppNotification(title, opts={}){
     if(Array.isArray(opts.actions) && opts.actions.length){
       payload.actions = opts.actions.slice(0, 2);
     }
-    const reg=await registerPaidiaServiceWorker();
-    if(reg?.showNotification){
-      await reg.showNotification(title,payload);
-      return true;
+    try{
+      const reg=await registerPaidiaServiceWorker(force?2500:4500);
+      if(reg?.active && typeof reg.showNotification==='function'){
+        await reg.showNotification(title,payload);
+        return true;
+      }
+    }catch(swErr){
+      console.warn('SW notification failed',swErr);
     }
-    new Notification(title,{body:payload.body,tag:payload.tag,data:payload.data,silent:payload.silent});
+    new Notification(title,{body:payload.body,tag:payload.tag,data:payload.data,icon:payload.icon,silent:payload.silent});
     return true;
   }catch(error){
     console.warn('Notification delivery failed',error);
     return false;
   }
 }
-async function registerPaidiaServiceWorker(){
+async function registerPaidiaServiceWorker(timeoutMs){
   if(!('serviceWorker' in navigator) || !window.isSecureContext) return null;
+  const ms=Math.max(400, Number(timeoutMs)||4500);
   try{
-      // gate.js already registers the worker; a second registration raced it
-      // and re-fired updatefound. Reuse whatever is registered.
-      const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||158),{scope:'./'});
+    // gate.js already registers; a second register raced updatefound. Reuse it.
+    let reg=await navigator.serviceWorker.getRegistration();
+    if(!reg){
+      await new Promise(r=>setTimeout(r,250));
+      reg=await navigator.serviceWorker.getRegistration();
+    }
+    if(!reg){
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||159;
+      reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
+    }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
-    return reg;
+    if(reg.active) return reg;
+    const ready=navigator.serviceWorker.ready.catch(()=>null);
+    const timed=new Promise(resolve=>setTimeout(()=>resolve(null),ms));
+    const settled=await Promise.race([ready,timed]);
+    if(settled&&settled.active) return settled;
+    reg=await navigator.serviceWorker.getRegistration();
+    return (reg&&reg.active)?reg:null;
   }catch(err){
     console.warn('SW register failed', err);
     return null;
   }
 }
+
 function markNotifSeen(key){
   setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
 }

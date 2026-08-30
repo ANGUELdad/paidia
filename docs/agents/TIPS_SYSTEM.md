@@ -26,7 +26,7 @@ Zo-Ai capability nags belong to the always-on FAB sibling; this catalog stays **
 
 Engine: **`page-tips.js`** (`window.PaidiaPageTips`). Thin binders in `app.js`. Host `#tipRoot`.
 
-## Sibling contract (Zo-Ai FAB tips)
+## Sibling contract (Zo-Ai FAB tips — `zoai-tips.js` / `PaidiaZoAiTips`)
 
 ```js
 // Before showing a Zo-Ai capability tip:

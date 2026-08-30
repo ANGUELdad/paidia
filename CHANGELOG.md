@@ -1,16 +1,30 @@
 # Changelog
 
+## v160 — 2026-08-30
+
+- **Mehr menu open (staff + kids):** intentional open UX — mobile slides up as a solid bottom sheet; desktop opens a solid centered panel (not a tiny bottom pop). High-contrast rows, plain labels.
+- **Easy:** fewer items, larger rows (hints hidden). **Pro:** full list with short hints on kids.
+- Shared `openNavMenu` / `nav-menu-*` via `openSheet(..., {kind:'nav-menu'})`. Keeps `body.sheet-open` dock hide (Schicht-check). Kids back chrome untouched.
+- Cache `paidia-v160`.
+
+## v159 — 2026-08-30
+
+- **Buch calendar:** month view on Schichtbuch / Übergabe — pick any day, dots mark days with entries, read & write that day’s page.
+- **Easy:** calendar + day page + write. **Pro:** same calendar + range archive, log/people panes, filters/search.
+- Reuses Plan month-grid helper; stone/pine/sea styling. Dock / Easy-Pro toggle / Lager-Plan siblings unchanged. Cache `paidia-v159`.
+
 ## v158 — 2026-08-30
 
-- **Contextual page tips:** occasional dismissible help popups for the current staff/kids page (DE/EL). Engine in `page-tips.js`; not the spotlight tour; not Zo-Ai capability nags (FAB sibling).
-- Tip copy is plain language (Foto lesen / ανάγνωση φωτό — no OCR/Bulk/Kommandozeile).
-- Rules: random 45–120s after navigation; once per page/session; `paidia.tipsDismissed`; Easy fewer (`proOnly` skipped); skip PIN gate / tour / sheet / chat; `prefers-reduced-motion`; stagger vs Zo-Ai via `paidiaMarkCoachShown` (28s gap).
-- Map: [docs/agents/TIPS_SYSTEM.md](docs/agents/TIPS_SYSTEM.md). Cache `paidia-v158`.
+- **Easy/Pro everywhere:** practical forks on Home, Talk, Buch, Galerie, Kids staff, child Plan — toggles + Easy hints; Pro keeps extras (stats/video/log panes/shelves/bulk).
+- **Lager Easy:** visible toolbar Hinzufügen · Foto lesen · Speichern · Aktualisieren; ± glyphs; shelves/bulk stay Pro. Centered OUT reason + order freeze from v157 kept.
+- **Contextual page tips:** dismissible help popups (`page-tips.js`); Easy fewer tips. Cache `paidia-v158`.
 
 ## v157 — 2026-08-30
 
-- **Plain-language UI (DE/EL):** user-visible strings drop OCR/VAPID/API/SW/Bulk/Screenshot/.ics/KI jargon — e.g. Foto lesen, Fehlendes aus Lager, Zo-Ai, Kalenderdatei, Bildschirmfoto. Config errors ask the Leitung, not env var names.
-- Keys/purpose codes and docs/agents unchanged. Cache `paidia-v157`.
+- **Lager OUT reason:** Abgang-Grund picker is a **centered modal** (dim backdrop, large chips) — no longer a bottom dock under a long list.
+- **Order freeze:** ± / qty edits keep list order frozen; re-sort only on **Liste aktualisieren** / draft Save / filter·house·search change.
+- **Easy:** visible toolbar — Hinzufügen · Foto lesen · Liste aktualisieren; clear **+ / −** glyphs on every row (also while selecting).
+- **Pro bulk:** IN +, OUT −, Menge…, Regal…, → Liste, Leeren. Cache `paidia-v157`.
 
 ## v156 — 2026-08-30
 
