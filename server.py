@@ -142,6 +142,11 @@ def load_env(path: str = ".env") -> None:
 
 
 load_env()
+
+try:
+    import ocr_xai
+except ImportError:  # pragma: no cover
+    ocr_xai = None  # type: ignore
 HOST = os.environ.get("PAIDIA_HOST", "127.0.0.1")
 PORT = int(os.environ.get("PAIDIA_PORT", "5173"))
 # Groq retired llama-3.3-70b-versatile / llama-3.1-8b-instant on 2026-08-16.
@@ -292,6 +297,8 @@ OPS_KEYS = (
     "attendance",
     "homework",
     "schoolTimetable",
+    # In-app bug / change / addition reports (staff + kids create; staff triage).
+    "feedbackReports",
 )
 OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks", "gameStats"}
 OPS_LIST_CAPS = {
@@ -309,6 +316,7 @@ OPS_LIST_CAPS = {
     "listEntries": 4000,
     "shoppingTrips": 4000,
     "listRequests": 4000,
+    "feedbackReports": 2000,
     "log": 2500,
     "stockChecks": 800,
     "shiftCheckins": 2000,
@@ -1732,8 +1740,10 @@ def get_ops_for_session(since: int, session: dict) -> dict:
 
 # Keys a child's own device may write. Everything else on the ops blob is
 # staff-owned and unreachable from a child session.
-KID_OWNED_KEYS = ("kidRatings", "kidNotes", "listRequests")
+KID_OWNED_KEYS = ("kidRatings", "kidNotes", "listRequests", "feedbackReports")
 KID_ROW_CAP = 500
+FEEDBACK_TYPES = frozenset({"bug", "change", "addition"})
+FEEDBACK_SEVERITIES = frozenset({"low", "medium", "high"})
 
 
 def _merge_kid_list_requests(kid_id: str, incoming: list) -> list:
@@ -1790,6 +1800,64 @@ def _merge_kid_list_requests(kid_id: str, incoming: list) -> list:
     return others + locked + open_rows
 
 
+
+def _merge_kid_feedback_reports(kid_id: str, incoming: list) -> list:
+    """Kids may create only their own *open* feedback reports.
+
+    Staff triage (triaged / done / wontfix) is locked server-side so a later
+    child push cannot reopen or rewrite a decided report.
+    """
+    existing = [r for r in (OPS_STATE.get("feedbackReports") or []) if isinstance(r, dict)]
+    others = [r for r in existing if str(r.get("kidId") or r.get("authorId") or "") != kid_id]
+    locked = [
+        r for r in existing
+        if str(r.get("kidId") or r.get("authorId") or "") == kid_id
+        and str(r.get("status") or "open") != "open"
+    ]
+    locked_ids = {str(r.get("id") or "") for r in locked if r.get("id")}
+    open_rows = []
+    for row in incoming[:KID_ROW_CAP]:
+        if not isinstance(row, dict):
+            continue
+        row = dict(row)
+        rid = str(row.get("id") or "").strip()
+        if rid and rid in locked_ids:
+            continue
+        title = str(row.get("title") or "").strip()
+        if not title:
+            continue
+        ftype = str(row.get("type") or "bug").strip().lower()
+        if ftype not in FEEDBACK_TYPES:
+            ftype = "bug"
+        sev = str(row.get("severity") or "").strip().lower() or None
+        if ftype != "bug":
+            sev = None
+        elif sev not in FEEDBACK_SEVERITIES:
+            sev = "medium"
+        open_rows.append({
+            "id": rid or f"fb-{kid_id}-{int(time.time() * 1000)}-{len(open_rows)}",
+            "type": ftype,
+            "title": title[:120],
+            "description": str(row.get("description") or "").strip()[:2000],
+            "context": str(row.get("context") or "").strip()[:160],
+            "contextKey": str(row.get("contextKey") or "").strip()[:80],
+            "screenshotNote": str(row.get("screenshotNote") or "").strip()[:240],
+            "severity": sev,
+            "status": "open",
+            "authorType": "child",
+            "authorId": kid_id,
+            "authorName": str(row.get("authorName") or "").strip()[:80],
+            "kidId": kid_id,
+            "by": kid_id,
+            "createdAt": int(row.get("createdAt") or time.time() * 1000),
+            "updatedAt": int(row.get("updatedAt") or time.time() * 1000),
+            "triageNote": None,
+            "triagedBy": None,
+            "triagedAt": None,
+        })
+    return others + locked + open_rows
+
+
 def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
     """Let a child device persist its own ratings, notes, and shopping requests.
 
@@ -1797,7 +1865,7 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
     rows belonging to itself. Ownership is taken from the session and stamped on
     every row, so a forged kidId in the payload is ignored rather than trusted —
     a child cannot write another child's data, and cannot reach staff ops at all.
-    listRequests are proposals only: non-open statuses stay staff-locked.
+    listRequests / feedbackReports are proposals only: non-open statuses stay staff-locked.
     """
     if session.get("mode") != "child":
         return 403, {"error": "Child session required", "code": "child_required"}
@@ -1818,6 +1886,10 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
                 return 400, {"error": f"{key} must be a list", "code": "input"}
             if key == "listRequests":
                 OPS_STATE[key] = _merge_kid_list_requests(kid_id, incoming)
+                touched.append(key)
+                continue
+            if key == "feedbackReports":
+                OPS_STATE[key] = _merge_kid_feedback_reports(kid_id, incoming)
                 touched.append(key)
                 continue
             mine = []
@@ -2238,44 +2310,88 @@ def run_gallery_caption(body: dict, api_key: str) -> tuple[int, dict]:
         }
 
 
-def run_shopping(body: dict, api_key: str) -> tuple[int, dict]:
-    """Shared shopping OCR/AI handler for local server and Vercel Flask."""
+def run_shopping(body: dict, api_key: str | None = None, *, session: dict | None = None) -> tuple[int, dict]:
+    """Shared shopping OCR/AI handler. Image OCR prefers xAI Grok via ocr_xai."""
     source_type = body.get("sourceType")
-    purpose = body.get("purpose", "list")
+    purpose = str(body.get("purpose") or "list").strip().lower()
     content = body.get("content", "")
     if source_type not in {"text", "image"} or not isinstance(content, str) or not content:
-        return 400, {"error": "sourceType and content are required"}
+        return 400, {"error": "sourceType and content are required", "code": "input"}
+    if purpose not in {"list", "receipt", "stock", "request"}:
+        purpose = "list"
 
-    purpose_prompt = ("\nThe image is a supermarket receipt: extract purchased product lines, "
-                      "ignore totals, tax, payment, store metadata, and discount-only lines."
-                      if purpose == "receipt" else "")
-    user_content = [{"type": "text", "text": PROMPT + purpose_prompt}]
+    mode = "child" if (session or {}).get("mode") == "child" else "staff"
+    if source_type == "image" and mode != "staff" and purpose != "request":
+        return 403, {
+            "error": "Image OCR is staff-only (kids may OCR an Anfrage / αίτημα name)",
+            "code": "staff_required",
+        }
+
     if source_type == "image":
         if not content.startswith("data:image/"):
-            return 400, {"error": "Image must be a data URL"}
+            return 400, {"error": "Image must be a data URL", "code": "input"}
+        max_chars = getattr(ocr_xai, "OCR_MAX_IMAGE_CHARS", 2_800_000) if ocr_xai else 2_800_000
+        if len(content) > max_chars:
+            return 413, {
+                "error": "Image too large for OCR — use a smaller photo",
+                "code": "too_large",
+                "maxChars": max_chars,
+            }
+
+    endpoint = None
+    if ocr_xai:
+        endpoint = ocr_xai.resolve_ocr_endpoint(
+            source_type, groq_ocr_model=OCR_MODEL, groq_chat_model=CHAT_MODEL
+        )
+    if api_key and not endpoint and source_type == "text":
+        endpoint = ("groq", GROQ_URL, api_key, CHAT_MODEL)
+    if not endpoint:
+        setup = (
+            "Set XAI_API_KEY or GROK_API_KEY for Grok OCR (preferred), "
+            "or GROQ_API_KEY for Groq vision fallback"
+            if source_type == "image"
+            else "Set GROQ_API_KEY for text AI parse (or paste text for local parser)"
+        )
+        return 503, {
+            "error": "OCR unavailable — no API key configured",
+            "code": "configuration",
+            "setup": setup,
+        }
+    provider, url, key, model_name = endpoint
+
+    purpose_extra = ocr_xai.purpose_prompt(purpose) if ocr_xai else (
+        "\nThe image is a supermarket receipt." if purpose == "receipt" else ""
+    )
+    user_content: list[dict] = [{"type": "text", "text": PROMPT + purpose_extra}]
+    if source_type == "image":
         user_content.append({"type": "image_url", "image_url": {"url": content}})
     else:
         user_content.append({"type": "text", "text": "SOURCE LIST:\n" + content[:50000]})
 
-    shopping_model = OCR_MODEL if source_type == "image" else CHAT_MODEL
-    request_body = {
-        "model": shopping_model,
+    request_body: dict[str, Any] = {
+        "model": model_name,
         "messages": [{"role": "user", "content": user_content}],
         "temperature": 0.1,
         "max_completion_tokens": 2000 if source_type == "image" else 1600,
         "response_format": {"type": "json_object"},
     }
-    if source_type == "image":
-        request_body.update({
-            "reasoning_effort": "none",
-            "reasoning_format": "hidden",
-        })
+    if source_type == "image" and provider == "groq":
+        request_body.update({"reasoning_effort": "none", "reasoning_format": "hidden"})
+    if provider == "xai":
+        request_body["max_tokens"] = request_body.pop("max_completion_tokens", 2000)
+
     try:
-        response = groq_completion(api_key, request_body)
+        if ocr_xai:
+            response = ocr_xai.openai_compatible_completion(url, key, request_body)
+        else:
+            response = groq_completion(key, request_body)
         parsed = parse_json_output(completion_text(response))
+        if purpose == "request" and isinstance(parsed.get("items"), list):
+            parsed["items"] = parsed["items"][:3]
         return 200, {
             **parsed,
-            "model": response.get("model", shopping_model),
+            "model": response.get("model", model_name),
+            "provider": provider,
             "responseId": response.get("id"),
         }
     except urllib.error.HTTPError as exc:
@@ -2287,6 +2403,7 @@ def run_shopping(body: dict, api_key: str) -> tuple[int, dict]:
             "error": "AI extraction failed",
             "code": code,
         }
+
 
 
 def run_schedule_parse(body: dict, api_key: str) -> tuple[int, dict]:
@@ -4377,6 +4494,8 @@ class Handler(SimpleHTTPRequestHandler):
                 "ok": True,
                 "driveConfigured": bool(paidia_drive and paidia_drive.drive_configured()),
                 "aiConfigured": bool(os.environ.get("GROQ_API_KEY")) or omni_ok,
+                "ocrConfigured": bool(ocr_xai and ocr_xai.ocr_image_configured(groq_ocr_model=OCR_MODEL, groq_chat_model=CHAT_MODEL)),
+                "ocrProvider": (ocr_xai.resolve_ocr_endpoint("image", groq_ocr_model=OCR_MODEL, groq_chat_model=CHAT_MODEL) or (None,))[0] if ocr_xai else None,
                 "ai": llm_health(),
                 "llmProvider": provider,
                 "omniroute": {
@@ -4385,7 +4504,8 @@ class Handler(SimpleHTTPRequestHandler):
                     "model": OMNIROUTE_CHAT_MODEL,
                     "mode": PAIDIA_LLM_PROVIDER,
                 },
-                "ocrModel": OCR_MODEL,
+                "ocrModel": ((ocr_xai.resolve_ocr_endpoint("image", groq_ocr_model=OCR_MODEL, groq_chat_model=CHAT_MODEL) or (None, None, None, OCR_MODEL))[3] if ocr_xai else OCR_MODEL),
+                "ocrGrokModel": getattr(ocr_xai, "XAI_OCR_MODEL", OCR_MODEL) if ocr_xai else OCR_MODEL,
                 "chatModel": model,
                 "whatsappConfigured": bool(whatsapp_config()["access_token"] and
                                              whatsapp_config()["phone_number_id"]),
@@ -4767,6 +4887,22 @@ class Handler(SimpleHTTPRequestHandler):
             return
 
         api_key = os.environ.get("GROQ_API_KEY")
+        if path == "/api/ai-shopping":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            rate_key = chat_rate_key(session, self.client_ip())
+            if ocr_xai and not ocr_xai.ocr_rate_allow(rate_key):
+                self.json_response(429, {
+                    "error": "OCR rate limit — please wait a few minutes",
+                    "code": "rate_limit",
+                    "retryAfter": 60,
+                })
+                return
+            status, payload = run_shopping(body, api_key, session=session)
+            self.json_response(status, payload)
+            return
         if path == "/api/chat":
             if not self.current_auth_session():
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
@@ -4818,13 +4954,6 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return
 
-        if path == "/api/ai-shopping":
-            if not self.current_auth_session():
-                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
-                return
-            status, payload = run_shopping(body, api_key)
-            self.json_response(status, payload)
-            return
         if path == "/api/ai-schedule":
             if not self.current_auth_session():
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
@@ -5708,7 +5837,8 @@ class Handler(SimpleHTTPRequestHandler):
         self.json_response(status, {"ok": bool(result.get("sent")), **result})
 
     def handle_shopping(self, body: dict, api_key: str) -> None:
-        status, payload = run_shopping(body, api_key)
+        session = self.current_auth_session()
+        status, payload = run_shopping(body, api_key, session=session)
         self.json_response(status, payload)
 
     def handle_chat(self, body: dict, api_key: str) -> None:
