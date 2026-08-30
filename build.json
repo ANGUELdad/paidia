@@ -1,8 +1,8 @@
 {
-  "version": 171,
-  "label": "v171",
+  "version": 173,
+  "label": "v173",
   "changed": {
-    "de": "Zo-Ai Chat Fix — Tip-Skripte + sicheres Öffnen/Senden/Schließen",
-    "el": "Διόρθωση Zo-Ai — tips + ασφαλές άνοιγμα/αποστολή/κλείσιμο"
+    "de": "Lagercheck: OK / wenig / leer — große Buttons, klar speichern",
+    "el": "Έλεγχος αποθήκης: OK / λίγο / άδειο — μεγάλα κουμπιά"
   }
 }

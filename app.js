@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 171,
-  label: 'v171',
+  version: 173,
+  label: 'v173',
   changed: {
-    de: 'Zo-Ai Chat Fix — Tip-Skripte + sicheres Öffnen/Senden/Schließen',
-    el: 'Διόρθωση Zo-Ai — tips + ασφαλές άνοιγμα/αποστολή/κλείσιμο',
+    de: 'Lagercheck: OK / wenig / leer — große Buttons, klar speichern',
+    el: 'Έλεγχος αποθήκης: OK / λίγο / άδειο — μεγάλα κουμπιά',
   },
 };
 const T = {
@@ -2628,7 +2628,7 @@ async function pullShared({force=false}={}){
       if(typeof data.revision === 'number') sharedRevision = data.revision;
       return false;
     }
-    const serverRev = Number(data.revision)||171;
+    const serverRev = Number(data.revision)||0;
     const serverEmpty = serverRev === 0 && !SHARED_KEYS.some(k=>sharedBucketHasData(data, k));
     const localHas = SHARED_KEYS.some(k=>sharedBucketHasData(DB, k));
     // First device seeds the server — never wipe local with an empty cloud.
@@ -3473,7 +3473,7 @@ function readOnboardingLocal(profileId=currentProfileId(), mode=state.mode, vers
 }
 /** True if this profile already finished any known tutorial version (avoids re-trap loops). */
 function readOnboardingDone(profileId=currentProfileId(), mode=state.mode, version=state.onboardingVersion){
-  const ver=Number(version)||171;
+  const ver=Number(version)||0;
   if(readOnboardingLocal(profileId, mode, ver)) return true;
   for(let v=1; v<=Math.max(ver, 2); v++){
     if(v!==ver && readOnboardingLocal(profileId, mode, v)) return true;
@@ -3550,7 +3550,7 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
       localStorage.setItem('paidia.rememberMe', '0');
     }
   }catch{}
-  state.onboardingVersion=Number(data.onboardingVersion)||171;
+  state.onboardingVersion=Number(data.onboardingVersion)||1;
   const serverDone=data.onboardingComplete===true;
   const localDone=readOnboardingDone(data.profileId, mode, state.onboardingVersion);
   state.onboardingComplete=serverDone || localDone;
@@ -4666,7 +4666,7 @@ function applyHelpActions(actions){
         return;
       }
       if(kind==='shop_add'){
-        const qty=Number(action.qty)||171;
+        const qty=Number(action.qty)||1;
         const nm=product?L(product):(action.name||query);
         const unit=action.unit||product?.unit||'Stk';
         const friday=state.shopFriday||fridayFor();
@@ -8814,7 +8814,7 @@ function insertStockOrderPid(pid, hid=state.house){
   freeze.order.splice(insertAt, 0, pid);
 }
 function withStockScrollPreserved(run){
-  const y=window.scrollY||document.documentElement.scrollTop||171;
+  const y=window.scrollY||document.documentElement.scrollTop||0;
   const main=document.querySelector('main.app-stage');
   const mainY=main?main.scrollTop:0;
   run();
@@ -9027,7 +9027,7 @@ function shiftCheckQtyForMark(p, mark, base){
   const thr=lowThreshold(p);
   if(mark==='empty') return 0;
   if(mark==='low') return Math.min(Number(base)||0, thr) || thr;
-  return Number(base)||171;
+  return Number(base)||0;
 }
 
 function paintShiftStockCheckSheet(draft){
@@ -11876,7 +11876,7 @@ function handoffPageCardHtml(n, {mine=false}={}){
       </div>
       <div class="handoff-page-meta">
         <span class="muted">${fmtDT(n.ts)}</span>
-        <span class="pill ${need?'out':(acks?'in':'gray')}">${need?esc(t('handoffAckPending')):esc(T[state.lang].handoffAckedBy(Math.max(acks, mine?0:acks)))}</span>
+        <span class="pill ${need?'out':(acks?'in':'gray')}">${need?esc(t('handoffAckPending')):(acks?esc(T[state.lang].handoffAckedBy(acks)):esc(fmtDT(n.ts)))}</span>
       </div>
     </header>
     ${handoffSectionsHtml(handoffSectionsFromEntry(n))}
@@ -12084,7 +12084,8 @@ function shiftDiaryCard(){
     </div>
   </div>` : '';
 
-  const incomingBlock = `<section class="handoff-incoming ${incoming.length?'has':''}">
+  const showIncoming = incoming.length > 0 || isToday;
+  const incomingBlock = showIncoming ? `<section class="handoff-incoming ${incoming.length?'has':''}">
     <div class="row between book-panel-head">
       <h2 style="font-size:15px">${esc(t('handoffIncoming'))}</h2>
       <span class="pill ${incoming.length?'out':'gray'}">${incoming.length||'·'}</span>
@@ -12092,7 +12093,7 @@ function shiftDiaryCard(){
     ${incoming.length
       ? incoming.map(n=>handoffPageCardHtml(n)).join('')
       : `<div class="empty muted">${esc(t('handoffIncomingEmpty'))}</div>`}
-  </section>`;
+  </section>` : '';
 
   const proArchive = isPro() ? (()=>{
     const from=bookRangeFromTs();
@@ -12550,7 +12551,7 @@ function readGameBest(id){
   const kidId=state.child?.id;
   const synced=kidId?Number(loadGameStats(kidId)?.bests?.[id]):0;
   if(Number.isFinite(synced) && synced>0) return synced;
-  try{ return Number(localStorage.getItem(gameBestKey(id)))||171; }catch{ return 0; }
+  try{ return Number(localStorage.getItem(gameBestKey(id)))||0; }catch{ return 0; }
 }
 function writeGameBest(id, score, {lower=false}={}){
   const prev=readGameBest(id);
@@ -14442,7 +14443,7 @@ function migrateStarsToGrade(value){
 function ensureGradeScale(row){
   if(!row || typeof row !== 'object') return 0;
   if(row.scale === 'de6') return clampGrade(row.value ?? row.score);
-  const raw = Number(row.value ?? row.score)||171;
+  const raw = Number(row.value ?? row.score)||0;
   if(raw>=1 && raw<=5){
     const next = migrateStarsToGrade(raw);
     if('value' in row) row.value = next;
@@ -14899,7 +14900,7 @@ function bindKidExtras(root){
     btn.addEventListener('click', ()=>{
       const area = btn.getAttribute('data-kid-rate');
       if(!area || area === '__none__') return;
-      const val = Number(btn.getAttribute('data-grade-val'))||171;
+      const val = Number(btn.getAttribute('data-grade-val'))||0;
       if(setKidRating(state.child.id, area, val)){
         toast(t('kidRateSaved'));
         render();
@@ -15359,7 +15360,7 @@ function childGamesLobby(){
     if(!best) return '';
     if(g.id==='learn'){
       const lv = kidLevel(best);
-      const floor = XP_LEVELS[lv]||171;
+      const floor = XP_LEVELS[lv]||0;
       const ceil = XP_LEVELS[Math.min(lv+1, XP_LEVELS.length-1)]||floor+100;
       const pct = ceil>floor ? Math.round(((best-floor)/(ceil-floor))*100) : 100;
       return `<div class="arcade-widget">${levelMeterHtml(pct)}</div>`;
@@ -15370,7 +15371,7 @@ function childGamesLobby(){
       const spark = sparklineHtml(hist.length?hist:[best], 'sea');
       return spark?`<div class="arcade-widget">${spark}</div>`:'';
     }
-    const soft = ({quiz:20,math:30,island:20,memory:100,tac:10,catch:40,rps:20,dice:6,colors:30,eduhub:10,oss2048:2048,osssnake:30,ossbreakout:200,osspuzzle15:200,osshop:20})[g.id]||171;
+    const soft = ({quiz:20,math:30,island:20,memory:100,tac:10,catch:40,rps:20,dice:6,colors:30,eduhub:10,oss2048:2048,osssnake:30,ossbreakout:200,osspuzzle15:200,osshop:20})[g.id]||20;
     const pct = Math.min(100, Math.round((best/Math.max(soft, best))*100));
     const label = g.id==='react' ? t('gameReactMs')(best) : String(best);
     return `<div class="arcade-widget">${ringHtml(pct, label, 'pine')}</div>`;
@@ -16979,6 +16980,17 @@ function staffInboxItems(){
       title:t('journalDutyHome'), meta:t('bookJournalHint'), jump:'book'
     });
   }
+  if(state.user){
+    unackedHandoffsFor(state.user.id, {days:2}).slice(0,3).forEach(n=>{
+      const who=emp(n.employeeId);
+      items.push({
+        id:'handoff-'+n.id, tone:'pine', toneLabel:t('notifToneShift'),
+        title:t('handoffUnreadTitle'),
+        meta:T[state.lang].handoffUnreadMeta(who?.name||'—'),
+        jump:'book'
+      });
+    });
+  }
   const actOpen=dashboardAssignments(today,state.user.id).filter(e=>!completionFor(today,e.id,state.user.id));
   if(actOpen.length){
     const first=actOpen[0];
@@ -18121,7 +18133,7 @@ function measureChrome(){
       if(kidDock){
         const style=getComputedStyle(kidDock);
         if(style.display!=='none' && style.visibility!=='hidden'){
-          navH=Math.ceil(kidDock.getBoundingClientRect().height)||171;
+          navH=Math.ceil(kidDock.getBoundingClientRect().height)||0;
           if(navH){
             root.style.setProperty('--kid-dock-h', navH+'px');
             document.body.style.setProperty('--kid-dock-h', navH+'px');
@@ -19243,24 +19255,53 @@ function wire(){
   const shiftSave=v.querySelector('#shiftNoteSave');
   if(shiftSave) shiftSave.onclick=()=>{
     if(!state.user){ toast(t('noUser'),'error'); return; }
-    const text=(v.querySelector('#shiftNoteText')?.value||'').trim();
-    if(!text){ toast(t('shiftDiaryPh'),'error'); return; }
+    const sections=readHandoffFormSections(v);
+    if(!handoffSectionsHaveContent(sections)){ toast(t('handoffNeedContent'),'error'); return; }
     const mode=state.bookJournalMode==='rewrite'?'rewrite':'ink';
     const day=bookJournalDay();
+    const houseId=isPro()?(state.bookHouse||null):null;
     askPin(t('shiftDiary'), who=>{
       state.user=who;
-      writeShiftJournalPage(who.id, text, {mode, dateStr:day});
+      writeShiftJournalPage(who.id, '', {mode, dateStr:day, sections, houseId});
       if(!save()) return;
       state.bookJournalMode='ink';
       render();
       feedback('save');
       toast(t('shiftDiarySaved'),'success');
+      try{
+        if(typeof showAppNotification==='function' && notifPrefsResolved().handover!==false){
+          showAppNotification(t('shiftDiarySaved'), {
+            tag:'paidia-handoff-posted',
+            body:t('handoffFlowWriteHint'),
+            data:{url:'./?tab=book'},
+          });
+        }
+      }catch{}
       if(state._resumeShiftEnd){
         state._resumeShiftEnd=false;
         setTimeout(()=>sheetShiftEnd(),160);
       }
     });
   };
+  v.querySelectorAll('[data-handoff-ack]').forEach(btn=>{
+    btn.onclick=()=>{
+      if(!state.user){ toast(t('noUser'),'error'); return; }
+      const id=btn.dataset.handoffAck;
+      if(!id || !DB.shiftNotes?.[id]) return;
+      ackShiftHandoff(id, state.user.id);
+      if(!save()) return;
+      feedback('save');
+      toast(t('handoffAcked'),'success');
+      paintNotifBadge();
+      render();
+    };
+  });
+  v.querySelectorAll('[data-book-house]').forEach(b=>{
+    b.onclick=()=>{
+      state.bookHouse = b.dataset.bookHouse || '';
+      feedback('toggle'); render();
+    };
+  });
 }
 
 document.querySelectorAll('nav button[data-tab]').forEach(b=>{
@@ -19366,7 +19407,7 @@ const gateEl = document.getElementById('gate');
 const gateBody = document.getElementById('gateBody');
 
 function formatDeviceWhen(ts){
-  const n=Number(ts)||171;
+  const n=Number(ts)||0;
   if(!n) return '—';
   try{
     return new Date(n).toLocaleString(state.lang==='el'?'el-GR':'de-DE',{
@@ -19773,7 +19814,7 @@ async function sheetSecurityAccess(){
       };
     };
     paintProfile(data.profileId);
-    count=Number(data.passkeys)||171;
+    count=Number(data.passkeys)||0;
     const supported=passkeyCapable()&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
     card.innerHTML=`<div class="row between"><div><b>${esc(t('profileSectionBio'))} · ${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
       <p class="muted" style="font-size:11.5px;line-height:1.5">${t('passkeyHint')}</p>
@@ -20857,7 +20898,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||171;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||173;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
@@ -21071,6 +21112,19 @@ async function runNotificationSweep({force=false}={}){
         await deliverOnce(`journal-${state.user.id}-${today}`, force, t('notifJournalDue'), {
           tag:'paidia-journal',
           body:t('bookJournalHint'),
+          data:{url:'./?tab=book'},
+        });
+      }
+    }
+  }catch{}
+
+  try{
+    if(prefs.handover!==false && state.user){
+      for(const n of unackedHandoffsFor(state.user.id, {days:2}).slice(0,5)){
+        const who=emp(n.employeeId);
+        await deliverOnce(`handoff-read-${n.id}-${state.user.id}`, force, t('handoffUnreadTitle'), {
+          tag:'paidia-handoff-'+n.id,
+          body:T[state.lang].handoffUnreadMeta(who?.name||'—'),
           data:{url:'./?tab=book'},
         });
       }

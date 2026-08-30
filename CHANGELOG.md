@@ -1,5 +1,21 @@
 # Changelog
 
+## v173 — 2026-08-30
+
+- **Lagercheck Easy:** open check → product cards → big **OK / Wenig / Leer** (DE) · **OK / Λίγο / Άδειο** (EL) → Speichern.
+- Progress bar; in-place marks (no sheet flicker/scroll jump); attention-first order; Rest OK + Speichern.
+- Entry: Easy toolbar **Lagercheck**, clear banners on Lager / Plan / Home / Buch; Pro keeps ••• entry.
+- Centered desktop panel; mobile full sheet; dock stays hidden via `sheet-open`.
+- Also restores accidental `||0` → version-number corruption from parallel bumps (v169+). Does not change add-product sheet or order freeze (v168). Cache `paidia-v173`.
+
+## v172 — 2026-08-30
+
+- **Übergabe complete (builds on v168 UI):** structured sections actually **save**; incoming taps **Gelesen**; calendar unread dots; today spotlight.
+- Fixed broken save (still targeted removed `#shiftNoteText`); wired ack buttons + Pro house filter.
+- Mitteilungen: inbox rows + OS notify (`handover`) when a team handoff awaits read.
+- Easy = write/read/ack; Pro = archive, house chips, log/people, corrections.
+- Cache `paidia-v172`.
+
 ## v171 — 2026-08-30
 
 - **Zo-Ai chat crash:** tip scripts (`page-tips.js` / `zoai-tips.js`) 404 on Vercel before allowlist → global `error` handler toasted “unexpected” as a fake crash; open/send/close could also throw on null DOM, tip overlays, or stuck `sheet-open`.
@@ -10,16 +26,6 @@
 - **Kids website-style menu:** mobile **Menü** hamburger opens a large panel with all pages (Start · Spiele · Bewertung · Bonus · Notizen + Mehr). Desktop keeps the dark left side menu (`#1b2822` rail from v166).
 - Bottom dock removed on phone (no confusing dock-only IA). Back chrome kept. Tour opens the site menu for `kid-nav-*` targets.
 - Plain DE/EL guide copy. Staff Plan / Lager untouched. Cache `paidia-v169`.
-
-## v170 — 2026-08-30
-
-- **Übergabe / Schichtbuch:** complete handoff product — outgoing shift writes structured sections (Dringend / Kinder / Lager / Aufgaben / Sonstiges); incoming reads and taps **Gelesen**.
-- Calendar: all days + today spotlight; pine dots for entries, orange for unacked.
-- **Easy:** write / read / ack. **Pro:** archive, house filter, log/people, corrections.
-- Mitteilungen inbox + optional OS notify (`handover`) when a handoff awaits read.
-- Data model: `shiftNotes` → `sections`, `acks`, optional `houseId` (legacy `text` kept).
-- Cache `paidia-v170`.
-
 
 ## v168 — 2026-08-30
 
@@ -45,7 +51,6 @@
 - **Zo-Ai always FAB:** bottom-right launcher stays visible for staff + kids (above dock; compact chip in matrix/store fullscreen; not Easy-hidden).
 - **Capability tips:** random DE/EL bubbles from FAB (`zoai-tips.js` / `PaidiaZoAiTips`) — Plan fill, OCR, schedule, stock, kids ask — dismissible, open Zo-Ai on tap.
 - **Stagger with page tips:** shared `paidiaMarkCoachShown` / `__paidiaLastCoachAt` (~28s); skips when `#tipRoot` / `paidiaPageTipVisible()`; page tips skip `#zoaiTipRoot` / `body.zoai-tip-open` / `paidiaZoAiTipVisible()`. Does not change Mitteilungen enable (v163). Cache `paidia-v164`.
-
 
 ## v163 — 2026-08-30
 
@@ -118,7 +123,6 @@
 - **Mobile login sizing:** role picker, staff/kids profiles (2-col), PIN pad ≥48–52px, remember-me label ≥44–48px hit area with ink contrast (v151 cookie logic unchanged).
 - Lang / back / Forgot·Back·Other links ≥44px; safe-area bottom padding; short phones scroll instead of shrinking keys below 48px.
 - Cache `paidia-v153`. Does not regress v150/v151 ghost/topbtn white fills.
-
 
 ## v152 — 2026-08-30
 
