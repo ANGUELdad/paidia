@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 157,
-    label: 'v157',
+    version: 158,
+    label: 'v158',
     changed: {
-      de: 'Lager: Abgang-Grund mittig · Liste friert bei ± · Easy-Buttons',
-      el: 'Αποθήκη: λόγος εξόδου στο κέντρο · σταθερή σειρά ± · κουμπιά Easy',
+      de: 'Tipps + klare Worte: Foto lesen statt Fachjargon',
+      el: 'Συμβουλές + απλά λόγια: ανάγνωση φωτό χωρίς τεχνικούς όρους',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -291,6 +291,12 @@
   function loadApp() {
     window.__paidiaAuthed = true;
     if (document.querySelector('script[data-paidia-app]')) return;
+    if (!document.querySelector('script[data-paidia-page-tips]')) {
+      const tips = document.createElement('script');
+      tips.src = 'page-tips.js?v=' + APP_BUILD.version;
+      tips.dataset.paidiaPageTips = '1';
+      document.body.appendChild(tips);
+    }
     const script = document.createElement('script');
     script.src = 'app.js?v=' + APP_BUILD.version;
     script.defer = true;

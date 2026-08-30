@@ -21,6 +21,25 @@
       "snippet": "Spotlight coach-marks: buildTourSteps, openTutorial, data-tour targets, tourSeen v3, Easy/Pro paths. ONBOARDING_VERSION=3."
     },
     {
+      "id": "page-tips",
+      "keys": [
+        "tips",
+        "page tip",
+        "contextual tip",
+        "coach tip",
+        "tipsDismissed",
+        "tipNotifyPageChange",
+        "page-tips"
+      ],
+      "files": [
+        "page-tips.js",
+        "app.js",
+        "index.html",
+        "docs/agents/TIPS_SYSTEM.md"
+      ],
+      "snippet": "Contextual page tip popups (not tour, not Zo-Ai FAB). page-tips.js PaidiaPageTips; tipNotifyPageChange; paidia.tipsDismissed; Easy fewer; stagger via paidiaMarkCoachShown."
+    },
+    {
       "id": "feedback",
       "keys": [
         "feedback",

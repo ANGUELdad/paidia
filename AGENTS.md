@@ -9,7 +9,8 @@
 5. [docs/agents/map.json](docs/agents/map.json) — keyword → files/snippet
 6. [docs/agents/BIOMETRICS.md](docs/agents/BIOMETRICS.md) — Face ID / Android fingerprint
 7. [docs/agents/TOUR_SYSTEM.md](docs/agents/TOUR_SYSTEM.md) — spotlight tour / `data-tour` QA
-8. [docs/agents/FEEDBACK_SYSTEM.md](docs/agents/FEEDBACK_SYSTEM.md) — bug / change / addition reports
+8. [docs/agents/TIPS_SYSTEM.md](docs/agents/TIPS_SYSTEM.md) — contextual page tip popups
+9. [docs/agents/FEEDBACK_SYSTEM.md](docs/agents/FEEDBACK_SYSTEM.md) — bug / change / addition reports
 9. [docs/agents/OCR_GROK.md](docs/agents/OCR_GROK.md) — Liste/Lager OCR via xAI Grok
 
 **Never** paste full `app.js` or `server.py` into context.

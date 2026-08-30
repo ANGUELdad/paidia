@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 157,
-  label: 'v157',
+  version: 158,
+  label: 'v158',
   changed: {
-    de: 'Lager: Abgang-Grund mittig · Liste friert bei ± · Easy-Buttons',
-    el: 'Αποθήκη: λόγος εξόδου στο κέντρο · σταθερή σειρά ± · κουμπιά Easy',
+    de: 'Easy/Pro überall · Lager-Buttons sichtbar · Kontext-Tipps',
+    el: 'Easy/Pro παντού · κουμπιά Αποθήκης · συμβουλές σελίδας',
   },
 };
 const T = {
@@ -46,9 +46,9 @@ const T = {
     galleryByKid:'Kind', galleryByStaff:'Team', galleryChildTab:'Momente',
     galleryComment:'Kommentar', galleryCommentPh:'Schreib etwas Nettes…', galleryCommentSend:'Senden',
     galleryComments:n=>n===1?'1 Kommentar':`${n} Kommentare`,
-    galleryCaptionAi:'KI-Bildtext', galleryCaptionAiLoading:'KI schreibt…', galleryCaptionAiFail:'KI-Bildtext fehlgeschlagen',
+    galleryCaptionAi:'Zo-Ai Bildtext', galleryCaptionAiLoading:'Zo-Ai schreibt…', galleryCaptionAiFail:'Bildtext fehlgeschlagen',
     galleryReactStar:'Stern', galleryReactClap:'Klatschen',
-    gallerySafeHint:'Sichere Momente — KI prüft Texte auf Unfreundliches',
+    gallerySafeHint:'Sichere Momente — Zo-Ai prüft Texte auf Unfreundliches',
     galleryBlocked:'Das geht hier nicht — bitte freundlich bleiben',
     galleryFlagged:'Zur Prüfung markiert', galleryReport:'Melden', galleryReportOk:'Gemeldet — Team prüft',
     gallerySafetyFail:'Sicherheitscheck fehlgeschlagen — später erneut',
@@ -146,7 +146,7 @@ const T = {
     wantBought:'Das soll gekauft werden', wantBoughtDone:'Bereits angefragt',
     wantBoughtToast:'Für Freitagseinkauf vorgemerkt',
     startListTitle:'Neue Einkaufsliste starten',
-    startListHint:'Wähle Freitag und Haus oben. Tippe das erste Produkt ein — oder importiere Text/Screenshot.',
+    startListHint:'Wähle Freitag und Haus oben. Tippe das erste Produkt ein — oder übernimm Text/Foto.',
     startListAdd:'Erstes Produkt hinzufügen',
     startListFromStock:'Personal: im Lager „Das soll gekauft werden“ tippen.',
     pickOneHouse:'Bitte zuerst ein Haus wählen.',
@@ -387,7 +387,7 @@ const T = {
     feedbackFieldTitle:'Kurz-Titel', feedbackTitlePh:'z.B. Lager ± speichert nicht',
     feedbackFieldDesc:'Beschreibung', feedbackDescPh:'Was passiert? Was erwartest du?',
     feedbackFieldContext:'Seite / Kontext', feedbackContextAuto:'automatisch',
-    feedbackFieldShot:'Screenshot-Hinweis (optional)', feedbackShotPh:'z.B. Foto folgt per WhatsApp / wo du es siehst',
+    feedbackFieldShot:'Foto-Hinweis (optional)', feedbackShotPh:'z.B. Foto folgt per WhatsApp / wo du es siehst',
     feedbackFieldSeverity:'Schwere (nur Fehler)', feedbackSevLow:'Niedrig', feedbackSevMed:'Mittel', feedbackSevHigh:'Hoch',
     feedbackSubmit:'Absenden', feedbackSubmitted:'Danke — gemeldet und gespeichert',
     feedbackNeedTitle:'Bitte einen Titel eingeben', feedbackNeedDesc:'Bitte kurz beschreiben',
@@ -458,6 +458,11 @@ const T = {
     stockOrderFrozen:'Reihenfolge eingefroren — Speichern oder aktualisieren zum Sortieren',
     stockOrderRefresh:'Liste aktualisieren',
     stockPhotoRead:'Foto lesen',
+    talkEasyHint:'Schreib kurz dem Team. Themen-Extras und Video findest du in Pro.',
+    bookEasyHint:'Schichtnotiz schreiben — volles Protokoll und Wer-was in Pro.',
+    galleryEasyHint:'Foto teilen und liken. Drive-Status und Aktualisieren in Pro.',
+    homeEasyHint:'Deine heutigen Aufgaben zuerst — Mehr-Details in Pro.',
+    kidsEasyHint:'Kinder öffnen — Schule und Noten-Extras in Pro.',
     homeMore:'Mehr heute',
     homeSignals:'Kurzüberblick',
     stockHeroHint:'Vorratsgang — tippe ± oder füge Ware schnell hinzu',
@@ -518,13 +523,13 @@ const T = {
     bookedToHouse:n=>`Gekauft und in ${n} eingebucht`, backToCart:'Zurück zum Warenkorb', externalHome:'Anderes Zuhause', customProducts:'Weitere Produkte',
     chooseShoppingHouse:'1. Haus auswählen', shoppingHouseHint:'Auch Julian groß, Valeria und Lea — nur für Einkauf/Bestand, nicht im Wochenplan.',
     fullBlock:'Ganzer Block', fromTime:'ab', timeFrom:'Von', timeTo:'Bis',
-    importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto', fromScreenshot:'Screenshot',
+    importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto', fromScreenshot:'Bildschirmfoto',
     listJourneyTitle:'Freitagseinkauf', listJourneyHint:'Eine vollständige Liste pro Haus und echtem Freitagsdatum.',
     addToFriday:'Liste hinzufügen', chooseFriday:'Freitag wählen', previousFriday:'Vorheriger Freitag', nextFriday:'Nächster Freitag',
     fridayLabel:'Freitag', listItems:'Positionen', completedItems:'Erledigt', openItems:'Offen',
-    importStep:'Neue Liste erfassen', importStepHint:'Text und Screenshot sind immer verfügbar – auch wenn schon Einträge vorhanden sind.',
+    importStep:'Neue Liste erfassen', importStepHint:'Text und Foto sind immer verfügbar – auch wenn schon Einträge vorhanden sind.',
     sourceTextTitle:'Text einfügen', sourceTextHint:'Eine Zeile pro Produkt oder eine komplette Nachricht einfügen.',
-    sourceImageTitle:'Screenshot / Foto', sourceImageHint:'Hochladen, einfügen oder direkt fotografieren.',
+    sourceImageTitle:'Bildschirmfoto / Foto', sourceImageHint:'Hochladen, einfügen oder direkt fotografieren.',
     imagePreview:'Kleine Vorschau', changeImage:'Anderes Bild', removeImage:'Entfernen', imagePreviewHint:'Das Original dient nur zum Einlesen und bleibt hier kompakt.',
     analyzeText:'Text analysieren', uploadImage:'Bild auswählen', existingFriday:'Bereits auf diesem Freitag',
     saveBehavior:'Wie soll gespeichert werden?', mergeSmart:'Intelligent zusammenführen', mergeSmartHint:'Gleiche Produkte werden addiert.',
@@ -532,7 +537,7 @@ const T = {
     replaceFriday:'Freitag ersetzen', replaceFridayHint:'Offene Einträge dieses Freitags werden ersetzt.',
     importDestination:'Ziel', importSource:'Quelle', importReview:'Vorschau & Korrektur',
     importedToFriday:d=>`Liste für Freitag, ${d}, gespeichert`, noFridayItems:'Für diesen Freitag gibt es noch keine Liste.',
-    noFridayItemsHint:'Tippe oben ein Produkt ein, oder importiere Text/Screenshot. Später jederzeit ergänzen.',
+    noFridayItemsHint:'Tippe oben ein Produkt ein, oder übernimm Text/Foto. Später jederzeit ergänzen.',
     fridayActive:'Einkauf läuft', fridayPlanned:'Geplant', fridayCompleted:'Abgeschlossen',
     shopPlan:'Planen', shopTake:'Mitnehmen', shopTakeHint:'Kompakt nach Gang — was mitnehmen',
     shopTakeEmptyHint:'Unter Planen Produkte hinzufügen oder „Fehlendes aus Lager“ nutzen.',
@@ -579,7 +584,7 @@ const T = {
     ocrSnapFill:'Foto lesen', ocrSnapFillHint:'Produktname und Menge aus dem Foto übernehmen.',
     ocrUnavailable:'Foto lesen ist nicht verfügbar. Bitte die Leitung fragen.',
     ocrFilled:'Vom Foto übernommen — bitte prüfen',
-    chooseImage:'Bild / Screenshot wählen', useCamera:'Kamera verwenden', extractedText:'Erkannter Text',
+    chooseImage:'Bild / Foto wählen', useCamera:'Kamera verwenden', extractedText:'Erkannter Text',
     confHigh:'Hohe Sicherheit', confMedium:'Prüfen', confLow:'Unklar', stockNow:'Bestand',
     aiDraft:'Vorschlag — bitte prüfen', imageReady:'Bild bereit', itemName:'Produktname',
     vTitle:'Prüfung', vNone:'Keine Konflikte gefunden',
@@ -605,6 +610,7 @@ const T = {
     close:'Schließen', menuFilters:'Filter', menuDone:'Fertig',
     childToday:'Heute', childEvents:'Events', childWeek:'Woche', childGames:'Spiele', childRewards:'Belohnungen',
     kidNavStart:'Start', kidNavPlan:'Plan', kidNavLearn:'Lernen', kidNavStars:'Sterne', kidNavGames:'Spiele',
+    kidBack:'Zurück',
     kidHello:n=>`Hallo, ${n}`, kidLevelCard:n=>`Stufe ${n}`, kidXpOf:(a,b)=>`${a} / ${b} Sterne`,
     kidXpRemain:n=>`Noch ${n} bis zur nächsten Stufe`, kidTodayLessons:'Heute',
     kidLessonsDone:(d,t)=>`${d} von ${t} fertig`, kidNextUp:'Als Nächstes',
@@ -650,7 +656,7 @@ const T = {
     choresDue:'Heutige Aufgaben', choresDone:'Erledigte Aufgaben', choresAll:'Alle Aufgaben',
     choreSubmitProof:'Aufgabe einreichen', chorePhotoHint:'Foto machen oder beschreiben, was du getan hast',
     choreProofLabel:'Beweis eingeben…', choreProofPh:'z. B. «Ich habe das Zimmer aufgeräumt und das Bett gemacht»',
-    choreAiChecking:'AI prüft deine Aufgabe…', choreAiApproved:'Super! Aufgabe bestätigt ✓',
+    choreAiChecking:'Zo-Ai prüft deine Aufgabe…', choreAiApproved:'Super! Aufgabe bestätigt ✓',
     choreAiRejected:'Nicht ganz — probier es nochmal!', choreAiError:'Konnte nicht prüfen. Warte auf Betreuer.',
     choreSubmit:'Einreichen', choreDone:'Erledigt ✓', chorePending:'In Prüfung…',
     choreXpEarned:n=>`+${n} ⭐ verdient!`, choreAlreadyDone:'Heute schon erledigt',
@@ -671,7 +677,7 @@ const T = {
     gameDice:'Würfel', gameDiceHint:'Würfle · wer ist dran?',
     gameSimon:'Simon', gameSimonHint:'Merk dir die Farben · tippe die Reihe',
     gameColors:'Farbtreffer', gameColorsHint:'Tippe die richtige Farbe · Tempo!',
-    gameLearn:'Griechisch lernen', gameLearnHint:'20 Karten · Themen · KI · wie Duolingo',
+    gameLearn:'Griechisch lernen', gameLearnHint:'20 Karten · Themen · Zo-Ai · wie Duolingo',
     gameQuiz:'Wissen', gameQuizHint:'14 Fragen · Natur, Griechenland, Spa',
     gameMath:'Rechnen', gameMathHint:'Stufen · Leben · Tempo!',
     gameIsland:'Insel-Pfad', gameIslandHint:'3D-Pfad · Thassos & Natur · ~4 Min',
@@ -716,7 +722,7 @@ const T = {
     gameFishCatch:'Fisch tippen',
     gameLearnHintPlay:'Wähle die richtige Übersetzung',
     gameLearnDeToEl:'DE → EL', gameLearnElToDe:'EL → DE',
-    gameLearnAi:'KI zufällig', gameLearnAiLoading:'KI lädt…', gameLearnAiFail:'KI nicht erreichbar — lokale Karten',
+    gameLearnAi:'Zo-Ai zufällig', gameLearnAiLoading:'Zo-Ai lädt…', gameLearnAiFail:'Zo-Ai nicht erreichbar — lokale Karten',
     gameLearnCorrect:'Richtig!', gameLearnWrong:'Nicht ganz —', gameLearnHearts:'Leben',
     gameLearnRound:'Runde', gameLearnDone:'Lektion geschafft!', gameLearnXp:'XP',
     gameXpEarned:n=>`+${n} ⭐ Bonus!`, gameStreak:n=>`${n} Tage Serie`,
@@ -980,24 +986,24 @@ const T = {
     whatsappSkipped:'In-App veröffentlicht; für WhatsApp sind noch keine Empfänger eingerichtet.',
     whatsappFailed:'Das Event ist in der App veröffentlicht, aber WhatsApp konnte nicht gesendet werden.',
     changesSaved:'Änderungen gespeichert', retry:'Bitte erneut versuchen.',
-    errNetwork:'Keine Verbindung zum AI-Dienst. Prüfe Internet und Server und versuche es erneut.',
-    errTimeout:'Die AI-Antwort hat zu lange gedauert. Bitte versuche es erneut.',
-    errRate:'Die AI ist gerade ausgelastet. Warte kurz und versuche es erneut.',
+    errNetwork:'Keine Verbindung zu Zo-Ai. Prüfe Internet und versuche es erneut.',
+    errTimeout:'Zo-Ai hat zu lange gebraucht. Bitte versuche es erneut.',
+    errRate:'Zo-Ai ist gerade ausgelastet. Warte kurz und versuche es erneut.',
     errConfig:'Foto- und Texteinlesen ist nicht eingerichtet. Bitte die Leitung fragen.',
     errImage:'Das Bild konnte nicht gelesen werden. Verwende JPG, PNG oder WebP mit gut sichtbarem Text.',
     errServer:'Zo-Ai konnte die Anfrage nicht verarbeiten. Bitte versuche es erneut.',
     errFile:'Diese Datei konnte nicht geöffnet werden. Wähle ein anderes Bild.',
     errStorage:'Speichern fehlgeschlagen. Der Gerätespeicher ist möglicherweise voll.',
     aiReady:'Einlesen ist bereit. Text einfügen oder Foto hochladen.',
-    cameraDenied:'Kamerazugriff wurde abgelehnt. Erlaube die Kamera in den Browser-Einstellungen.',
+    cameraDenied:'Kamerazugriff wurde abgelehnt. Erlaube die Kamera in den Geräteeinstellungen.',
     cameraBusy:'Die Kamera wird bereits von einer anderen App verwendet.',
     cameraSecure:'Die Kamera funktioniert nur in einer sicheren Verbindung.',
     unexpectedError:'Etwas ist schiefgelaufen. Deine Eingabe bleibt erhalten; versuche es erneut.',
     kidsCount:n=>`${n} ${n===1?'Kind':'Kinder'}`,
     chooseMany:'Mehrfachauswahl möglich', selectHouse:'Wähle mindestens ein Haus.',
-    screenshotDrop:'Screenshot hier ablegen oder auswählen', screenshotPaste:'Oder Screenshot kopieren und hier ⌘V / Strg+V drücken',
-    screenshotReady:'Bild bereit – wird jetzt gelesen…', screenshotMissing:'Die Zwischenablage enthält keinen Screenshot.',
-    pasteScreenshot:'Screenshot einfügen', pickScreenshot:'Screenshot / Foto wählen',
+    screenshotDrop:'Bild hier ablegen oder auswählen', screenshotPaste:'Oder Bild kopieren und hier ⌘V / Strg+V drücken',
+    screenshotReady:'Bild bereit – wird jetzt gelesen…', screenshotMissing:'Die Zwischenablage enthält kein Bild.',
+    pasteScreenshot:'Bild einfügen', pickScreenshot:'Bild / Foto wählen',
   },
   el: {
     appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navMore:'Άλλα',
@@ -1033,9 +1039,9 @@ const T = {
     galleryByKid:'Παιδί', galleryByStaff:'Ομάδα', galleryChildTab:'Στιγμές',
     galleryComment:'Σχόλιο', galleryCommentPh:'Γράψε κάτι ωραίο…', galleryCommentSend:'Αποστολή',
     galleryComments:n=>n===1?'1 σχόλιο':`${n} σχόλια`,
-    galleryCaptionAi:'AI λεζάντα', galleryCaptionAiLoading:'Το AI γράφει…', galleryCaptionAiFail:'Αποτυχία λεζάντας',
+    galleryCaptionAi:'Λεζάντα Zo-Ai', galleryCaptionAiLoading:'Η Zo-Ai γράφει…', galleryCaptionAiFail:'Αποτυχία λεζάντας',
     galleryReactStar:'Αστέρι', galleryReactClap:'Χειροκρότημα',
-    gallerySafeHint:'Ασφαλείς στιγμές — το AI ελέγχει για μη φιλικό περιεχόμενο',
+    gallerySafeHint:'Ασφαλείς στιγμές — η Zo-Ai ελέγχει για μη φιλικό περιεχόμενο',
     galleryBlocked:'Αυτό δεν επιτρέπεται — μείνε φιλικός/ή',
     galleryFlagged:'Σημειώθηκε για έλεγχο', galleryReport:'Αναφορά', galleryReportOk:'Αναφέρθηκε — η ομάδα ελέγχει',
     gallerySafetyFail:'Έλεγχος ασφαλείας απέτυχε — δοκίμασε αργότερα',
@@ -1133,7 +1139,7 @@ const T = {
     wantBought:'Θέλω να αγοραστεί', wantBoughtDone:'Ήδη ζητήθηκε',
     wantBoughtToast:'Προστέθηκε στα ψώνια Παρασκευής',
     startListTitle:'Ξεκίνα νέα λίστα αγορών',
-    startListHint:'Διάλεξε Παρασκευή και σπίτι πάνω. Γράψε το πρώτο προϊόν — ή εισήγαγε κείμενο/screenshot.',
+    startListHint:'Διάλεξε Παρασκευή και σπίτι πάνω. Γράψε το πρώτο προϊόν — ή πάρε κείμενο/φωτό.',
     startListAdd:'Προσθήκη πρώτου προϊόντος',
     startListFromStock:'Προσωπικό: στο απόθεμα πάτα «Θέλω να αγοραστεί».',
     pickOneHouse:'Διάλεξε πρώτα ένα σπίτι.',
@@ -1374,11 +1380,11 @@ const T = {
     feedbackFieldTitle:'Σύντομος τίτλος', feedbackTitlePh:'π.χ. Το ± στο Lager δεν αποθηκεύει',
     feedbackFieldDesc:'Περιγραφή', feedbackDescPh:'Τι συμβαίνει; Τι περίμενες;',
     feedbackFieldContext:'Σελίδα / πλαίσιο', feedbackContextAuto:'αυτόματα',
-    feedbackFieldShot:'Σημείωση screenshot (προαιρετικό)', feedbackShotPh:'π.χ. φωτό στο WhatsApp / πού το βλέπεις',
+    feedbackFieldShot:'Σημείωση φωτό (προαιρετικό)', feedbackShotPh:'π.χ. φωτό στο WhatsApp / πού το βλέπεις',
     feedbackFieldSeverity:'Σοβαρότητα (μόνο σφάλμα)', feedbackSevLow:'Χαμηλή', feedbackSevMed:'Μεσαία', feedbackSevHigh:'Υψηλή',
     feedbackSubmit:'Αποστολή', feedbackSubmitted:'Ευχαριστούμε — αποθηκεύτηκε',
     feedbackNeedTitle:'Βάλε έναν τίτλο', feedbackNeedDesc:'Γράψε μια σύντομη περιγραφή',
-    feedbackInbox:'Εισερχόμενα feedback', feedbackInboxHint:'Έλεγχος και triage ανοιχτών αναφορών (Pro).',
+    feedbackInbox:'Εισερχόμενα feedback', feedbackInboxHint:'Έλεγχος και επεξεργασία ανοιχτών αναφορών (Pro).',
     feedbackInboxEmpty:'Καμία αναφορά.', feedbackOpenCount:n=>n===1?'1 ανοιχτή':`${n} ανοιχτές`,
     feedbackStatusOpen:'Ανοιχτό', feedbackStatusTriaged:'Σε εξέλιξη', feedbackStatusDone:'Έγινε', feedbackStatusWont:'Όχι',
     feedbackTriageNote:'Σημείωση (προαιρετικό)', feedbackTriageSave:'Αποθήκευση κατάστασης',
@@ -1449,6 +1455,7 @@ const T = {
     bookEasyHint:'Σημείωση βάρδιας — πλήρες πρωτόκολλο και ποιος-τι στο Pro.',
     galleryEasyHint:'Μοίρασε φωτό και like. Κατάσταση Drive και ανανέωση στο Pro.',
     homeEasyHint:'Πρώτα οι σημερινές εργασίες — περισσότερα στο Pro.',
+    kidsEasyHint:'Άνοιξε παιδί — σχολείο και βαθμοί στο Pro.',
     homeMore:'Περισσότερα σήμερα',
     homeSignals:'Σύντομη εικόνα',
     stockHeroHint:'Διάδρομος αποθήκης — πάτα ± ή πρόσθεσε γρήγορα',
@@ -1509,13 +1516,13 @@ const T = {
     bookedToHouse:n=>`Αγοράστηκαν και καταχωρήθηκαν στο ${n}`, backToCart:'Πίσω στο καλάθι', externalHome:'Άλλο σπίτι', customProducts:'Άλλα προϊόντα',
     chooseShoppingHouse:'1. Επίλεξε σπίτι', shoppingHouseHint:'Και Julian groß, Valeria, Lea — μόνο για ψώνια/απόθεμα, όχι στο πρόγραμμα.',
     fullBlock:'Όλο το μπλοκ', fromTime:'από', timeFrom:'Από', timeTo:'Έως',
-    importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία', fromScreenshot:'Screenshot',
+    importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία', fromScreenshot:'Στιγμιότυπο',
     listJourneyTitle:'Ψώνια Παρασκευής', listJourneyHint:'Μία πλήρης λίστα ανά σπίτι και πραγματική ημερομηνία Παρασκευής.',
     addToFriday:'Προσθήκη λίστας', chooseFriday:'Επιλογή Παρασκευής', previousFriday:'Προηγούμενη Παρασκευή', nextFriday:'Επόμενη Παρασκευή',
     fridayLabel:'Παρασκευή', listItems:'Είδη', completedItems:'Ολοκληρωμένα', openItems:'Ανοιχτά',
-    importStep:'Καταχώρηση νέας λίστας', importStepHint:'Κείμενο και screenshot είναι πάντα διαθέσιμα – ακόμη κι αν υπάρχει ήδη λίστα.',
+    importStep:'Καταχώρηση νέας λίστας', importStepHint:'Κείμενο και φωτογραφία είναι πάντα διαθέσιμα – ακόμη κι αν υπάρχει ήδη λίστα.',
     sourceTextTitle:'Επικόλληση κειμένου', sourceTextHint:'Μία γραμμή ανά προϊόν ή επικόλλησε ολόκληρο μήνυμα.',
-    sourceImageTitle:'Screenshot / φωτογραφία', sourceImageHint:'Ανέβασε, επικόλλησε ή φωτογράφισε απευθείας.',
+    sourceImageTitle:'Στιγμιότυπο / φωτογραφία', sourceImageHint:'Ανέβασε, επικόλλησε ή φωτογράφισε απευθείας.',
     imagePreview:'Μικρή προεπισκόπηση', changeImage:'Άλλη εικόνα', removeImage:'Αφαίρεση', imagePreviewHint:'Το πρωτότυπο χρησιμεύει μόνο για ανάγνωση και μένει εδώ μικρό.',
     analyzeText:'Ανάλυση κειμένου', uploadImage:'Επιλογή εικόνας', existingFriday:'Ήδη σε αυτή την Παρασκευή',
     saveBehavior:'Πώς να αποθηκευτεί;', mergeSmart:'Έξυπνη συγχώνευση', mergeSmartHint:'Τα ίδια προϊόντα προστίθενται μαζί.',
@@ -1523,7 +1530,7 @@ const T = {
     replaceFriday:'Αντικατάσταση Παρασκευής', replaceFridayHint:'Αντικαθιστά τα ανοιχτά είδη αυτής της Παρασκευής.',
     importDestination:'Προορισμός', importSource:'Πηγή', importReview:'Προεπισκόπηση & διόρθωση',
     importedToFriday:d=>`Η λίστα για την Παρασκευή ${d} αποθηκεύτηκε`, noFridayItems:'Δεν υπάρχει ακόμη λίστα για αυτή την Παρασκευή.',
-    noFridayItemsHint:'Γράψε πάνω ένα προϊόν, ή εισήγαγε κείμενο/screenshot. Μπορείς να συμπληρώνεις ανά πάσα στιγμή.',
+    noFridayItemsHint:'Γράψε πάνω ένα προϊόν, ή πάρε κείμενο/φωτό. Μπορείς να συμπληρώνεις ανά πάσα στιγμή.',
     fridayActive:'Τα ψώνια τρέχουν', fridayPlanned:'Προγραμματισμένη', fridayCompleted:'Ολοκληρωμένη',
     shopPlan:'Σχεδιασμός', shopTake:'Παίρνω', shopTakeHint:'Συμπαγής λίστα ανά διάδρομο — τι παίρνω',
     shopTakeEmptyHint:'Πρόσθεσε προϊόντα στον Σχεδιασμό ή χρησιμοποίησε Αυτόματα από αποθήκη.',
@@ -1570,7 +1577,7 @@ const T = {
     ocrSnapFill:'Διάβασε από φωτογραφία', ocrSnapFillHint:'Όνομα και ποσότητα από τη φωτογραφία.',
     ocrUnavailable:'Η ανάγνωση φωτογραφίας δεν είναι διαθέσιμη. Ρώτα τη διεύθυνση.',
     ocrFilled:'Από φωτογραφία — έλεγξέ το',
-    chooseImage:'Επιλογή εικόνας / screenshot', useCamera:'Χρήση κάμερας', extractedText:'Κείμενο που αναγνωρίστηκε',
+    chooseImage:'Επιλογή εικόνας / φωτό', useCamera:'Χρήση κάμερας', extractedText:'Κείμενο που αναγνωρίστηκε',
     confHigh:'Υψηλή βεβαιότητα', confMedium:'Χρειάζεται έλεγχο', confLow:'Ασαφές', stockNow:'Απόθεμα',
     aiDraft:'Πρόταση — έλεγξέ το', imageReady:'Η εικόνα είναι έτοιμη', itemName:'Όνομα προϊόντος',
     vTitle:'Έλεγχος', vNone:'Δεν βρέθηκαν συγκρούσεις',
@@ -1596,6 +1603,7 @@ const T = {
     close:'Κλείσιμο', menuFilters:'Φίλτρα', menuDone:'Έτοιμο',
     childToday:'Σήμερα', childEvents:'Events', childWeek:'Εβδομάδα', childGames:'Παιχνίδια', childRewards:'Βραβεία',
     kidNavStart:'Αρχή', kidNavPlan:'Πρόγραμμα', kidNavLearn:'Μάθηση', kidNavStars:'Αστέρια', kidNavGames:'Παιχνίδια',
+    kidBack:'Πίσω',
     storageOffline:'Δεν αποθηκεύτηκε μόνιμα — η βάση είναι εκτός. Ενημέρωσε τον διαχειριστή.',
     kidNavRate:'Αξιολόγηση', kidRateTitle:'Αξιολογήσεις', kidRateKicker:'Πώς πήγε η εβδομάδα;',
     kidRateLead:'Βαθμοί από 1 έως 6 — όπως στο σχολείο. Το βλέπεις μόνο εσύ και η φροντίστριά σου.',
@@ -1641,7 +1649,7 @@ const T = {
     choresDue:'Αποστολές σήμερα', choresDone:'Ολοκληρωμένες', choresAll:'Όλες οι αποστολές',
     choreSubmitProof:'Υποβολή αποστολής', chorePhotoHint:'Τράβηξε φωτογραφία ή γράψε τι έκανες',
     choreProofLabel:'Γράψε την απόδειξη…', choreProofPh:'π.χ. «Τακτοποίησα το δωμάτιό μου και έστρωσα το κρεβάτι»',
-    choreAiChecking:'Το AI ελέγχει…', choreAiApproved:'Μπράβο! Αποστολή επιβεβαιώθηκε ✓',
+    choreAiChecking:'Η Zo-Ai ελέγχει…', choreAiApproved:'Μπράβο! Αποστολή επιβεβαιώθηκε ✓',
     choreAiRejected:'Όχι ακριβώς — δοκίμασε ξανά!', choreAiError:'Δεν ήταν δυνατός ο έλεγχος. Περίμενε τον φροντιστή.',
     choreSubmit:'Υποβολή', choreDone:'Ολοκληρώθηκε ✓', chorePending:'Σε έλεγχο…',
     choreXpEarned:n=>`+${n} ⭐ κερδίθηκαν!`, choreAlreadyDone:'Ήδη ολοκληρώθηκε σήμερα',
@@ -1662,7 +1670,7 @@ const T = {
     gameDice:'Ζάρι', gameDiceHint:'Ρίξε · ποιος είναι σειρά;',
     gameSimon:'Simon', gameSimonHint:'Θυμήσου τα χρώματα · πάτα τη σειρά',
     gameColors:'Χρώματα', gameColorsHint:'Πάτα το σωστό χρώμα · γρήγορα!',
-    gameLearn:'Μάθε Ελληνικά', gameLearnHint:'20 κάρτες · θέματα · AI · σαν Duolingo',
+    gameLearn:'Μάθε Ελληνικά', gameLearnHint:'20 κάρτες · θέματα · Zo-Ai · σαν Duolingo',
     gameQuiz:'Γνώση', gameQuizHint:'14 ερωτήσεις · φύση, Ελλάδα, spa',
     gameMath:'Μαθηματικά', gameMathHint:'Επίπεδα · ζωές · γρήγορα!',
     gameIsland:'Μονοπάτι νησιού', gameIslandHint:'3D μονοπάτι · Θάσος & φύση · ~4 λεπτά',
@@ -1707,7 +1715,7 @@ const T = {
     gameFishCatch:'Πάτα το ψάρι',
     gameLearnHintPlay:'Διάλεξε τη σωστή μετάφραση',
     gameLearnDeToEl:'DE → EL', gameLearnElToDe:'EL → DE',
-    gameLearnAi:'AI τυχαία', gameLearnAiLoading:'Το AI φορτώνει…', gameLearnAiFail:'AI μη διαθέσιμο — τοπικές κάρτες',
+    gameLearnAi:'Zo-Ai τυχαία', gameLearnAiLoading:'Η Zo-Ai φορτώνει…', gameLearnAiFail:'Η Zo-Ai δεν είναι διαθέσιμη — τοπικές κάρτες',
     gameLearnCorrect:'Σωστά!', gameLearnWrong:'Όχι ακριβώς —', gameLearnHearts:'Ζωές',
     gameLearnRound:'Γύρος', gameLearnDone:'Μάθημα ολοκληρώθηκε!', gameLearnXp:'XP',
     gameXpEarned:n=>`+${n} ⭐ μπόνους!`, gameStreak:n=>`${n} μέρες σερί`,
@@ -1972,24 +1980,24 @@ const T = {
     whatsappSkipped:'Δημοσιεύτηκε στην εφαρμογή· δεν έχουν ακόμη ρυθμιστεί παραλήπτες WhatsApp.',
     whatsappFailed:'Το event δημοσιεύτηκε στην εφαρμογή, αλλά η αποστολή WhatsApp απέτυχε.',
     changesSaved:'Οι αλλαγές αποθηκεύτηκαν', retry:'Δοκίμασε ξανά.',
-    errNetwork:'Δεν υπάρχει σύνδεση με το AI. Έλεγξε internet και server και δοκίμασε ξανά.',
-    errTimeout:'Το AI άργησε να απαντήσει. Δοκίμασε ξανά.',
-    errRate:'Το AI έχει προσωρινά μεγάλο φόρτο. Περίμενε λίγο και δοκίμασε ξανά.',
+    errNetwork:'Δεν υπάρχει σύνδεση με τη Zo-Ai. Έλεγξε το internet και δοκίμασε ξανά.',
+    errTimeout:'Η Zo-Ai άργησε να απαντήσει. Δοκίμασε ξανά.',
+    errRate:'Η Zo-Ai έχει προσωρινά μεγάλο φόρτο. Περίμενε λίγο και δοκίμασε ξανά.',
     errConfig:'Η ανάγνωση φωτογραφίας και κειμένου δεν έχει ρυθμιστεί. Ρώτα τη διεύθυνση.',
     errImage:'Η εικόνα δεν διαβάστηκε. Χρησιμοποίησε JPG, PNG ή WebP με καθαρό κείμενο.',
     errServer:'Η Zo-Ai δεν μπόρεσε να επεξεργαστεί το αίτημα. Δοκίμασε ξανά.',
     errFile:'Το αρχείο δεν άνοιξε. Διάλεξε άλλη εικόνα.',
     errStorage:'Η αποθήκευση απέτυχε. Ο χώρος της συσκευής μπορεί να είναι γεμάτος.',
     aiReady:'Η ανάγνωση είναι έτοιμη. Βάλε κείμενο ή ανέβασε φωτογραφία.',
-    cameraDenied:'Η πρόσβαση στην κάμερα απορρίφθηκε. Επίτρεψέ την από τις ρυθμίσεις του browser.',
+    cameraDenied:'Η πρόσβαση στην κάμερα απορρίφθηκε. Επίτρεψέ την από τις ρυθμίσεις της συσκευής.',
     cameraBusy:'Η κάμερα χρησιμοποιείται ήδη από άλλη εφαρμογή.',
     cameraSecure:'Η κάμερα λειτουργεί μόνο με ασφαλή σύνδεση.',
     unexpectedError:'Κάτι πήγε στραβά. Τα στοιχεία σου παραμένουν· δοκίμασε ξανά.',
     kidsCount:n=>`${n} ${n===1?'παιδί':'παιδιά'}`,
     chooseMany:'Μπορείς να επιλέξεις πολλά', selectHouse:'Διάλεξε τουλάχιστον ένα σπίτι.',
-    screenshotDrop:'Άφησε ή επίλεξε screenshot εδώ', screenshotPaste:'Ή αντέγραψε screenshot και πάτησε εδώ ⌘V / Ctrl+V',
-    screenshotReady:'Η εικόνα είναι έτοιμη – γίνεται ανάγνωση…', screenshotMissing:'Το πρόχειρο δεν περιέχει screenshot.',
-    pasteScreenshot:'Επικόλληση screenshot', pickScreenshot:'Επιλογή screenshot / φωτο',
+    screenshotDrop:'Άφησε ή επίλεξε εικόνα εδώ', screenshotPaste:'Ή αντέγραψε εικόνα και πάτησε εδώ ⌘V / Ctrl+V',
+    screenshotReady:'Η εικόνα είναι έτοιμη – γίνεται ανάγνωση…', screenshotMissing:'Το πρόχειρο δεν περιέχει εικόνα.',
+    pasteScreenshot:'Επικόλληση εικόνας', pickScreenshot:'Επιλογή εικόνας / φωτό',
   },
 };
 
@@ -3075,6 +3083,8 @@ const state = {
   kidsPane: 'directory',
   scheduleView: 'week',
   childView: 'today',
+  /** Kids view history for Back (Spiele→hub→Start). Views only; games are an overlay. */
+  childHist: [],
   kidNoteEditId: null,
   gameId: null,
   game: null,
@@ -3610,19 +3620,32 @@ const sheetBg = document.getElementById('sheetBg');
 let sheetLocked = false;
 let stockBoardUiAbort = null;
 
-function openSheet(html, {dismissable = true} = {}){
+function openSheet(html, {dismissable = true, kind = ''} = {}){
   exitMatrixFullscreen();
   if(state.chatOpen) closeChatPanel();
   document.querySelectorAll('.stock-hold-menu,.drag-ghost').forEach(el=>el.remove());
   sheetLocked = !dismissable;
   document.getElementById('app').inert = sheetLocked;
+  const isNavMenu = kind === 'nav-menu';
+  /* Keep sheet-open so dock/Zo-Ai stay untouchable (Schicht-check etc.). */
   document.body.classList.add('sheet-open');
+  document.body.classList.toggle('sheet-nav-menu-open', isNavMenu);
+  sheetEl.classList.toggle('sheet-nav-menu', isNavMenu);
   sheetEl.setAttribute('role','dialog');
   sheetEl.setAttribute('aria-modal','true');
+  if(isNavMenu) sheetEl.setAttribute('aria-label', t('navMore'));
+  else sheetEl.removeAttribute('aria-label');
+  /* Drop .on first so slide/panel enter actually animates (no same-frame pop). */
+  sheetEl.classList.remove('on');
+  sheetBg.classList.add('on');
   sheetEl.innerHTML = (dismissable
-    ? `<button class="sheet-close" type="button" aria-label="${esc(t('close'))}" title="${esc(t('close'))}">×</button><div class="grabber"></div>`
+    ? `<button class="sheet-close" type="button" aria-label="${esc(t('close'))}" title="${esc(t('close'))}">×</button><div class="grabber${isNavMenu?' nav-menu-grabber':''}" aria-hidden="true"></div>`
     : '') + html;
-  sheetEl.classList.add('on'); sheetBg.classList.add('on');
+  void sheetEl.offsetWidth;
+  requestAnimationFrame(()=>{
+    if(!document.body.classList.contains('sheet-open')) return;
+    sheetEl.classList.add('on');
+  });
   const x = sheetEl.querySelector('.sheet-close');
   if(x) x.onclick = closeSheet;
 }
@@ -3631,14 +3654,26 @@ function closeSheet(){
   stockBoardUiAbort?.abort();
   stockBoardUiAbort = null;
   document.getElementById('app').inert = false;
-  document.body.classList.remove('sheet-open');
+  document.body.classList.remove('sheet-open', 'sheet-nav-menu-open');
   sheetEl.removeAttribute('role');sheetEl.removeAttribute('aria-modal');
-  sheetEl.classList.remove('on'); sheetBg.classList.remove('on');
+  sheetEl.removeAttribute('aria-label');
+  sheetEl.classList.remove('on', 'sheet-nav-menu'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
   stopCamera();
   document.querySelectorAll('.stock-hold-menu,.drag-ghost').forEach(el=>el.remove());
   sheetEl.replaceChildren();
   scheduleMeasureChrome();
+}
+
+/** Shared Mehr / overflow row — plain label, optional short hint (Pro). */
+function navMenuRowHtml({attrs = '', ico, label, hint = ''}){
+  return `<button type="button" class="nav-menu-row" ${attrs}>
+    <span class="nav-menu-ico" aria-hidden="true">${ui(ico)}</span>
+    <span class="nav-menu-copy"><b>${esc(label)}</b>${hint?`<span class="nav-menu-hint">${esc(hint)}</span>`:''}</span>
+  </button>`;
+}
+function openNavMenu(html){
+  openSheet(html, {dismissable:true, kind:'nav-menu'});
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -3751,7 +3786,7 @@ function buildTourSteps(){
       'Tag/Woche und Hausfilter.','Ημέρα/εβδομάδα και φίλτρο σπιτιού.'),
     mk('staff-stock','stock-command',{tab:'stock'},
       'Lager','Αποθήκη',
-      'Haus, Suche, ±, Hinzufügen und Foto lesen sind sichtbar. Bulk und Regale in Pro.','Σπίτι, αναζήτηση, ±, Προσθήκη και διάβασμα φωτό είναι ορατά. Μαζικά & ράφια στο Pro.'),
+      'Haus, Suche, ±, Hinzufügen und Foto lesen sind sichtbar. Mehrfachauswahl und Regale in Pro.','Σπίτι, αναζήτηση, ±, Προσθήκη και διάβασμα φωτό είναι ορατά. Μαζική επιλογή & ράφια στο Pro.'),
     mk('staff-shop','shop-command',{tab:'shop'},
       'Liste','Λίστα',
       'Freitag und Haus prüfen, dann Warenkorb.','Έλεγξε Παρασκευή και σπίτι, μετά καλάθι.'),
@@ -3826,8 +3861,7 @@ function tourPlaceStep(step){
   if(state.mode==='child'){
     const v = step.place.childView;
     if(v && state.childView!==v){
-      if(v!=='games' && v!=='learn'){ try{ stopChildGameTimers(); }catch{} state.gameId=null; state.game=null; }
-      state.childView = v;
+      setChildView(v, {push:false});
       changed = true;
     }
   }else{
@@ -4005,6 +4039,27 @@ async function ensureOnboarding({afterLogin=false}={}){
   }
   await openMandatoryTutorial();
 }
+
+/* Contextual page tips — engine in page-tips.js (survives sibling app.js churn). */
+function tipBindEngine(){
+  try{
+    if(window.PaidiaPageTips && typeof window.PaidiaPageTips.bind==='function'){
+      window.PaidiaPageTips.bind({
+        getState: ()=>state,
+        isEasy,
+        feedback,
+        getGateEl: ()=>gateEl,
+      });
+    }
+  }catch{}
+}
+function tipCancelSchedule(){ try{ window.PaidiaPageTips && window.PaidiaPageTips.cancel(); }catch{} }
+function tipHide(opts){ try{ window.PaidiaPageTips && window.PaidiaPageTips.hide(opts); }catch{} }
+function tipNotifyPageChange(){
+  tipBindEngine();
+  try{ window.PaidiaPageTips && window.PaidiaPageTips.notifyPageChange(); }catch{}
+}
+tipBindEngine();
 
 async function ensureContactDetails(){
   if(state.mode!=='staff' || !state.user) return;
@@ -8018,6 +8073,9 @@ function viewStock(){
     && state.stockOrderFreeze.house===hid
     && state.stockOrderFreeze.filter===state.stockFilter
     && state.stockOrderFreeze.query===(state.stockQuery||''));
+  const draftPending=stockDraftEntries().length;
+  const easySaveLabel=draftPending?t('stockDraftSave'):t('stockOrderRefresh');
+  const easySaveOn=!!(draftPending||orderFrozen);
   const catIcon = cid => svgIcon(catIconId(cid), 'cat-ico');
   const jarHtml=(qty,p,st)=>{
     const fill=stockFillPct(qty,p);
@@ -8153,7 +8211,8 @@ function viewStock(){
       ${hid!=='all'?`<div class="stock-easy-actions" role="toolbar" aria-label="${esc(t('headerStock'))}">
         <button class="btn stock-easy-btn pine-settle" type="button" id="stockQuickAddEasy">${esc(t('stockQuickAdd'))}</button>
         <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockPhotoRead">${esc(t('stockPhotoRead'))}</button>
-        <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockOrderRefresh"${orderFrozen?'':' disabled'}>${esc(t('stockOrderRefresh'))}</button>
+        <button class="btn pine-settle stock-easy-btn" type="button" id="stockEasySave"${easySaveOn?'':' disabled'}>${esc(easySaveLabel)}</button>
+        <button class="btn sec stock-easy-btn" type="button" id="stockOrderRefresh"${orderFrozen?'':' disabled'}>${esc(t('stockOrderRefresh'))}</button>
       </div>`:''}
       ${orderFrozen?`<div class="stock-order-freeze-note" role="status"><span>${esc(t('stockOrderFrozen'))}</span><button type="button" class="btn sm sec" id="stockOrderRefreshNote">${esc(t('stockOrderRefresh'))}</button></div>`:''}
     </div>
@@ -12381,6 +12440,95 @@ function leaveChildGame(){
   render();
 }
 
+function clearKidHist(){
+  state.childHist = [];
+}
+
+function pushKidHist(view){
+  const v = view || 'today';
+  if(!Array.isArray(state.childHist)) state.childHist = [];
+  const stack = state.childHist;
+  if(stack[stack.length - 1] === v) return;
+  stack.push(v);
+  if(stack.length > 24) stack.splice(0, stack.length - 24);
+}
+
+/** Central kids navigation — pushes history except when landing on Start / clearHist. */
+function setChildView(next, opts={}){
+  if(!next) return;
+  const cur = state.childView || 'today';
+  if(next !== 'games' && next !== 'learn'){
+    try{ stopChildGameTimers(); }catch{}
+    state.gameId = null;
+    state.game = null;
+  }
+  if(next === 'learn'){
+    try{ stopChildGameTimers(); }catch{}
+    state.gameId = null;
+    state.game = null;
+  }
+  if(opts.clearHist || next === 'today'){
+    clearKidHist();
+  }else if(opts.push !== false && next !== cur){
+    pushKidHist(cur);
+  }
+  state.childView = next;
+}
+
+function goChildView(next, opts){
+  setChildView(next, opts);
+  if(next === 'gallery'){
+    refreshGallery({silent:true}).finally(()=>render());
+    return;
+  }
+  render();
+}
+
+function kidShowBackChrome(){
+  if(state.mode !== 'child') return false;
+  if(state.gameId) return false; // in-game #gameBack owns return-to-hub
+  const v = state.childView || 'today';
+  return v !== 'today';
+}
+
+function kidBackHtml(){
+  if(!kidShowBackChrome()) return '';
+  return `<div class="kid-back-bar">
+    <button type="button" class="kid-back-btn" id="kidBackBtn" aria-label="${esc(t('kidBack'))}">
+      <span class="kid-back-chevron" aria-hidden="true">←</span>
+      <span>${esc(t('kidBack'))}</span>
+    </button>
+  </div>`;
+}
+
+function kidGoBack(){
+  try{ feedback('select'); }catch{}
+  if(state.gameId){
+    leaveChildGame();
+    return;
+  }
+  const stack = Array.isArray(state.childHist) ? state.childHist : [];
+  let prev = null;
+  while(stack.length){
+    const cand = stack.pop();
+    if(cand && cand !== (state.childView || 'today')){ prev = cand; break; }
+  }
+  state.childHist = stack;
+  const target = prev || 'today';
+  if(target === 'today') clearKidHist();
+  if(target !== 'games' && target !== 'learn'){
+    try{ stopChildGameTimers(); }catch{}
+    state.gameId = null;
+    state.game = null;
+  }
+  state.childView = target;
+  if(target === 'gallery'){
+    refreshGallery({silent:true}).finally(()=>render());
+    return;
+  }
+  render();
+}
+
 /** Score bridge from sandboxed kids-games/* iframes → gameStats. */
 function onOssGameMessage(ev){
   const data = ev?.data;
@@ -12708,44 +12856,44 @@ function kidDockHtml(active){
 }
 
 function sheetKidMore(){
+  const easy = isEasy();
   const rows = [
     {id:'plan', label:t('kidNavPlan'), ico:'u-calendar', hint:t('kidGuideHintPlan')},
     {id:'learn', label:t('kidNavLearn'), ico:'u-book', hint:t('kidGuideHintLearn')},
     {id:'rewards', label:t('kidNavStars'), ico:'u-sparkle', hint:t('kidGuideHintStars')},
-    {id:'aufgaben', label:t('kidCourseTasks'), ico:'u-tasks', hint:t('kidGuideHintStart')},
+    {id:'aufgaben', label:t('kidCourseTasks'), ico:'u-tasks', hint:t('kidGuideHintStart'), pro:true},
     {id:'events', label:t('childEvents'), ico:'u-party', hint:t('childHowToEvents'), pro:true},
     {id:'gallery', label:t('galleryChildTab')||t('navGallery'), ico:'u-camera', hint:t('childHowToGallery'), pro:true},
-  ];
-  openSheet(`<div class="mobile-more-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2>
-    <p class="muted">${esc(t('childHowToMore'))}</p></div>
-    <div class="kid-more-list">${rows.map(r=>`
-      <button type="button" class="kid-more-row ${r.pro?'pro-only mode-pro-block':''}" data-child-view="${r.id}">
-        <span class="kid-more-ico" aria-hidden="true">${ui(r.ico)}</span>
-        <span class="grow"><b>${esc(r.label)}</b><span class="muted">${esc(r.hint)}</span></span>
-      </button>`).join('')}
-      <button type="button" class="kid-more-row" id="kidMoreHowTo">
-        <span class="kid-more-ico" aria-hidden="true">${ui('u-sparkle')}</span>
-        <span class="grow"><b>${esc(t('childHowTo'))}</b><span class="muted">${esc(t('childHowToHint'))}</span></span>
-      </button>
-      <button type="button" class="kid-more-row" id="kidMoreFeedback">
-        <span class="kid-more-ico" aria-hidden="true">${ui('u-note')}</span>
-        <span class="grow"><b>${esc(t('feedbackTitle'))}</b><span class="muted">${esc(t('feedbackHint'))}</span></span>
-      </button>
-    </div>
-    <button class="btn sec" type="button" id="kidMoreClose" style="margin-top:10px">${esc(t('close'))}</button>`);
+  ].filter(r=>!r.pro || !easy);
+  const extras = [
+    {id:'howto', label:t('childHowTo'), ico:'u-sparkle', hint:easy?'':t('childHowToHint')},
+    {id:'feedback', label:t('feedbackTitle'), ico:'u-note', hint:easy?'':t('feedbackHint'), pro:true},
+  ].filter(r=>!r.pro || !easy);
+  openNavMenu(`<div class="nav-menu-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2></div>
+    <div class="nav-menu-list" role="menu">
+      ${rows.map(r=>navMenuRowHtml({
+        attrs:`data-child-view="${r.id}" role="menuitem"`,
+        ico:r.ico, label:r.label, hint:easy?'':r.hint,
+      })).join('')}
+      ${extras.map(r=>navMenuRowHtml({
+        attrs:`data-kid-more-act="${r.id}" role="menuitem"`,
+        ico:r.ico, label:r.label, hint:r.hint,
+      })).join('')}
+    </div>`);
   const root = sheetEl;
-  root.querySelector('#kidMoreClose').onclick=()=>closeSheet();
-  root.querySelector('#kidMoreHowTo').onclick=()=>{ closeSheet(); sheetChildHowTo(); };
-  root.querySelector('#kidMoreFeedback').onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
+  root.querySelectorAll('[data-kid-more-act]').forEach(b=>{
+    b.onclick=()=>{
+      const act = b.dataset.kidMoreAct;
+      closeSheet();
+      if(act==='howto') sheetChildHowTo();
+      else if(act==='feedback') sheetFeedbackHub();
+    };
+  });
   root.querySelectorAll('[data-child-view]').forEach(b=>{
     b.onclick=()=>{
       const next = b.dataset.childView;
       closeSheet();
-      if(next !== 'games' && next !== 'learn'){ stopChildGameTimers(); state.gameId=null; state.game=null; }
-      if(next==='learn'){ state.gameId=null; state.game=null; }
-      state.childView = next;
-      if(next==='gallery'){ refreshGallery({silent:true}).finally(()=>render()); return; }
-      render();
+      goChildView(next);
     };
   });
 }
@@ -12757,11 +12905,7 @@ function wireKidChrome(root){
     b.onclick = () => {
       const next = b.dataset.childView;
       if(!next) return;
-      if(next !== 'games' && next !== 'learn'){ stopChildGameTimers(); state.gameId=null; state.game=null; }
-      if(next==='learn'){ state.gameId=null; state.game=null; }
-      state.childView = next;
-      if(next==='gallery'){ refreshGallery({silent:true}).finally(()=>render()); return; }
-      render();
+      goChildView(next);
     };
   });
   const howTo = root?.querySelector('#childHowToBtn');
@@ -12776,6 +12920,11 @@ function wireKidChrome(root){
       try{ localStorage.setItem('paidia.kidGuideSeen','1'); }catch{}
       dismiss.closest('.kid-first-run')?.remove();
     };
+  }
+  const backBtn = root?.querySelector('#kidBackBtn');
+  if(backBtn && backBtn.dataset.kidNavWired!=='1'){
+    backBtn.dataset.kidNavWired = '1';
+    backBtn.onclick = ()=>kidGoBack();
   }
 }
 
@@ -12798,12 +12947,13 @@ function mountKidDock(active){
   const dock = bottom.querySelector('nav.kid-dock');
   wireKidChrome(dock);
   const more = dock?.querySelector('#kidDockMore');
-  if(more) more.onclick = ()=>sheetKidMore();
+  if(more) more.onclick = ()=>{ try{ feedback('open'); }catch{} sheetKidMore(); };
 }
 
 function unmountKidDock(){
   const bottom = document.getElementById('bottomPanel');
   if(!bottom) return;
+  clearKidHist();
   bottom.classList.remove('is-kid-chrome');
   bottom.querySelector('nav.kid-dock')?.remove();
   const staffNav = bottom.querySelector('nav.dock[data-staff-dock]');
@@ -13038,7 +13188,12 @@ function childStundenplanView(c){
     </div>`;
   }).join('') : emptyState(svgUse('i-kid-plan',28), t('nothingToday'));
   return `
-    <header class="kid-header"><p class="eyebrow">Armonia</p><h2>${esc(t('kidPlanTitle'))}</h2></header>
+    <header class="kid-header">
+      <p class="eyebrow">Armonia</p>
+      <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+      <h2>${esc(t('kidPlanTitle'))}</h2>
+      ${isEasy()?`<p class="muted easy-only" style="margin:4px 0 0;font-size:13px">${esc(t('kidGuideHintEasy'))}</p>`:''}
+    </header>
     <div class="stundenplan">
       <div class="sp-week">${days}</div>
       <div class="sp-rail">${blocks}</div>
@@ -13239,10 +13394,10 @@ function viewKids(){
         <span class="kid-dir-metrics">
           <span><b>${summary.gradeAverage||'—'}</b>${esc(t('gradeAverage'))}</span>
           <span><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:'—'}</b>${esc(t('schoolAttendance'))}</span>
-          <span><b>${summary.homeworkOpen}</b>${esc(t('schoolHomework'))}</span>
+          <span class="pro-only mode-pro-block"><b>${summary.homeworkOpen}</b>${esc(t('schoolHomework'))}</span>
           <span><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):'—'}</b>${esc(t('staffWeekAverage'))}</span>
-          <span><b>${summary.xp}</b>XP · Lv ${summary.level}</span>
-          <span><b>${summary.game.wins||0}</b>${esc(t('gameWins'))}</span>
+          <span class="pro-only mode-pro-block"><b>${summary.xp}</b>XP · Lv ${summary.level}</span>
+          <span class="pro-only mode-pro-block"><b>${summary.game.wins||0}</b>${esc(t('gameWins'))}</span>
         </span>
       </span>
       <span class="kid-dir-arrow" aria-hidden="true">→</span>
@@ -13275,6 +13430,7 @@ function viewKids(){
       <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
       <h2>${esc(t('titleKids'))}</h2>
       <p>${esc(t('kidsHeroHint'))}</p>
+      ${isEasy()?`<p class="easy-only muted">${esc(t('kidsEasyHint'))}</p>`:''}
     </header>
     ${tabs}
     ${body}
@@ -14338,6 +14494,7 @@ function renderChild(){
   if(c?.id) emitKidRatingHooks(c.id);
   syncLayoutMode();
   if(state.tourActive) queueMicrotask(()=>tourPaintCurrent());
+  try{ tipNotifyPageChange(); }catch{}
 }
 
 async function openChoreSubmitSheet(choreId, kidId){
@@ -16381,8 +16538,7 @@ function sheetShiftEnd(){
     if(journalDue){
       closeSheet();
       state._resumeShiftEnd=true;
-      state.tab='book'; state.bookPane='shift'; state.bookJournalMode='ink'; render();
-      queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
+      openBookJournal({focusWrite:true});
       toast(t('shiftEndBook'),'info');
       return;
     }
@@ -16471,6 +16627,7 @@ function viewHome(){
         <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
         <h1>${esc(t('homeHello'))}${user?`, <span>${esc(user.name)}</span>`:''}</h1>
         <p class="home-start-lede">${esc(t('homeOverview'))}</p>
+        ${isEasy()?`<p class="easy-only muted home-easy-hint">${esc(t('homeEasyHint'))}</p>`:''}
       </header>
       ${shiftStartCard}
       ${showJournalDuty?`<button class="mobile-alert-row" type="button" id="homeWriteBook">
@@ -16549,6 +16706,7 @@ function viewHome(){
         <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
         <h1>${esc(t('homeHello'))}${user?`, <span>${esc(user.name)}</span>`:''}</h1>
         <p>${esc(t('homeOverview'))}</p>
+        ${isEasy()?`<p class="easy-only muted home-easy-hint">${esc(t('homeEasyHint'))}</p>`:''}
         <div class="home-command-actions">
           <button class="home-primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
           <button class="home-secondary" type="button" id="homeQuickBook">${ui('u-note','sm')} ${esc(t('headerBook'))}</button>
@@ -17411,6 +17569,7 @@ function render(){
   if(consumePresenceDeepLink()) queueMicrotask(()=>sheetShiftPresence());
   else maybePromptShiftPresence();
   if(state.tourActive) queueMicrotask(()=>tourPaintCurrent());
+  try{ tipNotifyPageChange(); }catch{}
 }
 
 function wire(){
@@ -17469,18 +17628,12 @@ function wire(){
   const homeWriteBook=v.querySelector('#homeWriteBook');
   if(homeWriteBook) homeWriteBook.onclick=()=>{
     feedback('open');
-    state.tab='book';
-    state.bookPane='shift';
-    state.bookJournalMode='ink';
-    render();
-    queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
+    openBookJournal({focusWrite:true});
   };
   const homeQuickBook=v.querySelector('#homeQuickBook');
   if(homeQuickBook) homeQuickBook.onclick=()=>{
     feedback('open');
-    state.tab='book';
-    state.bookPane='shift';
-    render();
+    openBookJournal();
   };
   const teamBanner=v.querySelector('#teamNoticeBanner');
   if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
@@ -17830,6 +17983,11 @@ function wire(){
   v.querySelectorAll('#stockOrderRefresh, #stockOrderRefreshNote').forEach(b=>{
     b.onclick=()=>refreshOrder();
   });
+  const stockEasySave=v.querySelector('#stockEasySave');
+  if(stockEasySave) stockEasySave.onclick=()=>{
+    if(stockDraftEntries().length){ commitStockDraft(); return; }
+    refreshOrder();
+  };
   const dismissReasonModal=()=>{
     state.stockPendingStep=null;
     feedback('toggle');
@@ -18760,8 +18918,7 @@ async function sheetSecurityAccess(){
     const paintProfile=selectedId=>{
       const selected=profiles.find(p=>p.profileId===selectedId)||profiles[0];if(!selected)return;
       const ready=!!profilesData.emailConfigured;
-      const providerLabel=profilesData.emailProvider==='smtp'?'Gmail / SMTP'
-        :profilesData.emailProvider==='resend'?'Resend':t('emailNotReady');
+      const providerLabel=ready?(state.lang==='el'?'E-Mail έτοιμο':'E-Mail bereit'):t('emailNotReady');
       const previewTitle=state.lang==='el'?'Email λειτουργεί':'E-Mail funktioniert';
       profileCard.innerHTML=`<div class="email-panel">
         <div class="email-panel-top">
@@ -19888,7 +20045,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||157),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||158),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

@@ -24,6 +24,8 @@ Core: `buildTourSteps`, `tourPaintCurrent`, `tourAdvance`, `tourFinish` in `app.
 
 `TOUR_VERSION` / client `state.onboardingVersion` = **3**.
 
+Related: lightweight **page tips** (not tour) — [TIPS_SYSTEM.md](TIPS_SYSTEM.md). Zo-Ai capability tips stay on the FAB sibling.
+
 ## Easy vs Pro
 
 - **Easy:** shorter path — one (or few) highlights per major page; `proOnly` steps skipped.
