@@ -40,6 +40,26 @@
       "snippet": "Contextual page tip popups (not tour, not Zo-Ai FAB). page-tips.js PaidiaPageTips; tipNotifyPageChange; paidia.tipsDismissed; Easy fewer; stagger via paidiaMarkCoachShown."
     },
     {
+      "id": "nav-menu",
+      "keys": [
+        "mehr",
+        "menu",
+        "nav menu",
+        "overflow",
+        "sheetMobileMore",
+        "sheetKidMore",
+        "openNavMenu",
+        "dockMore",
+        "kidDockMore"
+      ],
+      "files": [
+        "app.js",
+        "ui-v110.css",
+        "index.html"
+      ],
+      "snippet": "Staff+kids Mehr: openNavMenu / sheet-nav-menu. Mobile bottom sheet, desktop solid panel. Easy fewer/larger; Pro full. Preserves body.sheet-open dock hide."
+    },
+    {
       "id": "feedback",
       "keys": [
         "feedback",
