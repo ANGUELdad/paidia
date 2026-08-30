@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 137,
-    label: 'v137',
+    version: 138,
+    label: 'v138',
     changed: {
-      de: 'Dienstplan-Tabelle für Woche/Schicht + visuelles Feinschliff (Design-System, Easy/Pro-Hooks)',
-      el: 'Πίνακας υπηρεσίας για εβδομάδα/βάρδια + οπτικό φινίρισμα (design system, Easy/Pro hooks)',
+      de: 'Lager-Vorratsgang · Kids-Spiele · Liste-Αιτήματα',
+      el: 'Αποθήκη-διάδρομος · Παιχνίδια Kids · Λίστα-Αιτήματα',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

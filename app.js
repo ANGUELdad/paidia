@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 137,
-  label: 'v137',
+  version: 138,
+  label: 'v138',
   changed: {
-    de: 'Dienstplan-Tabelle für Woche/Schicht + visuelles Feinschliff (Design-System, Easy/Pro-Hooks)',
-    el: 'Πίνακας υπηρεσίας για εβδομάδα/βάρδια + οπτικό φινίρισμα (design system, Easy/Pro hooks)',
+    de: 'Lager-Vorratsgang · Kids-Spiele · Liste-Αιτήματα',
+    el: 'Αποθήκη-διάδρομος · Παιχνίδια Kids · Λίστα-Αιτήματα',
   },
 };
 const T = {
@@ -331,10 +331,17 @@ const T = {
     stockDraftPending:'Noch nicht gespeichert',
     homeMore:'Mehr heute',
     homeSignals:'Kurzüberblick',
-    stockHeroHint:'Bestände prüfen und Bewegung buchen',
+    stockHeroHint:'Vorratsgang — Regale prüfen, Gläser füllen, Bewegung buchen',
+    stockTideLabel:'Vorratssicherheit',
+    stockShelves:'Regale',
+    stockShelfHint:n=>n===1?'1 Regalzone':`${n} Regalzonen`,
+    stockZonePier:'Bestandslage',
+    stockRecentMoves:'Letzte Bewegungen',
+    stockNoRecent:'Noch keine gebuchten Bewegungen.',
+    stockJarAria:(name,pct)=>`${name}: ${pct}% Füllstand`,
     stockNeedsAction:'Jetzt prüfen',
     stockNeedsActionHint:n=>n===1?'1 Produkt braucht Nachschub oder eine Prüfung.':`${n} Produkte brauchen Nachschub oder eine Prüfung.`,
-    stockCatalogue:'Gesamter Bestand nach Kategorie',
+    stockCatalogue:'Regale nach Kategorie',
     stockMoreActions:'Weitere Aktionen',
     stockAllHealthy:'Alles ist ausreichend vorhanden.',
     shopHeroHint:'Freitagsliste planen, mitnehmen, im Laden abhaken',
@@ -401,6 +408,23 @@ const T = {
     shopPlan:'Planen', shopTake:'Mitnehmen', shopTakeHint:'Kompakt nach Gang — was mitnehmen',
     shopTakeEmptyHint:'Unter Planen Produkte hinzufügen oder Auto aus Lager nutzen.',
     shopAutoFill:'Auto aus Lager', shopAutoFilled:n=>`${n} Produkte ergänzt`,
+    shopRequests:'Anfragen', shopRequest:'Anfrage', shopRequestBig:'Anfrage',
+    shopRequestHint:'Vorschlag für die Einkaufsliste — noch nicht übernommen.',
+    shopRequestNamePh:'Was soll gekauft werden?', shopRequestQtyPh:'Menge (optional)',
+    shopRequestNotePh:'Notiz (optional)', shopRequestCreate:'Anfrage senden',
+    shopRequestUnit:'Einheit',
+    shopRequestCreated:'Anfrage gespeichert', shopRequestNeedName:'Bitte einen Namen eingeben.',
+    shopRequestEmpty:'Keine offenen Anfragen', shopRequestEmptyHint:'Kinder und Team können Produkte vorschlagen. Du entscheidest.',
+    shopRequestAccept:'Übernehmen', shopRequestReject:'Ablehnen', shopRequestBought:'Erledigt',
+    shopRequestAccepted:'In die Liste übernommen', shopRequestRejected:'Anfrage abgelehnt',
+    shopRequestMarkedBought:'Anfrage als gekauft markiert',
+    shopRequestOpen:'Offen', shopRequestStatusAccepted:'Übernommen',
+    shopRequestStatusBought:'Gekauft', shopRequestStatusRejected:'Abgelehnt',
+    shopRequestFilterAll:'Alle', shopRequestFilterStatus:'Status', shopRequestFilterWho:'Von',
+    shopRequestBulkAccept:'Übernehmen', shopRequestBulkReject:'Ablehnen',
+    shopRequestAskedBy:name=>`von ${name}`, shopRequestMine:'Meine Anfragen',
+    shopRequestKidHint:'Schreibe was du brauchst — das Team prüft es.',
+    notifNewRequest:name=>`Neue Anfrage · ${name}`,
     selectMode:'Auswählen', selectDone:'Fertig', selectedCount:n=>`${n} gewählt`,
     bulkRemove:'Entfernen', bulkQtyMinus:'Qty −', bulkQtyPlus:'Qty ＋', bulkToList:'→ Liste',
     bulkOut:'OUT', bulkClearEmpty:'Leeren', bulkFound:'Gefunden', bulkMissing:'Fehlt', bulkUndo:'Rückgängig',
@@ -497,7 +521,7 @@ const T = {
     adminApprove:'Genehmigen', adminReject:'Ablehnen', adminNoReviews:'Keine offenen Einreichungen',
     adminAddChore:'Aufgabe hinzufügen', adminChoreTitle:'Aufgaben-Titel', adminChoreXp:'XP-Punkte',
     adminChoreSaved:'Aufgabe gespeichert', adminChosenKids:'Für wen?',
-    gamesTitle:'Spiele', gamesHint:'Längere Runden · ~3–5 Min · Lernen, Wissen, Rechnen & Klassiker',
+    gamesTitle:'Spiele', gamesHint:'Längere Runden · Offline-Klassiker & Lernen · Easy = Highlights',
     gamesPlayTime:'~3–5 Min',
     gameMemory:'Memory', gameMemoryHint:'Finde die Paare · so wenig Züge wie möglich',
     gameTac:'XO', gameTacHint:'Hol 3 in einer Reihe gegen den PC',
@@ -512,6 +536,13 @@ const T = {
     gameMath:'Rechnen', gameMathHint:'Stufen · Leben · Tempo!',
     gameIsland:'Insel-Pfad', gameIslandHint:'3D-Pfad · Thassos & Natur · ~4 Min',
     gameEduHub:'Lern-Spiele', gameEduHubHint:'Kostenlose Bildungs-Spiele (PhET) · sicher',
+    gameOss2048:'2048', gameOss2048Hint:'Zahlen mergen · offline · MIT',
+    gameOssSnake:'Schlange', gameOssSnakeHint:'Iss · wachse · nicht anstoßen',
+    gameOssBreakout:'Breakout', gameOssBreakoutHint:'Schläger + Ball · alle Steine',
+    gameOssPuzzle15:'15-Puzzle', gameOssPuzzle15Hint:'Schiebe die Zahlen in Reihenfolge',
+    gameOssHop:'Himmel-Hüpfer', gameOssHopHint:'Tippe zum Flattern · Highscore',
+    gameOssLicense:'Open Source · lokal · ohne Account',
+    gameOssAttr:'Eigenständige MIT-Implementierung · Quellen: kids-games/README.md',
     gameIslandHintPlay:'Beantworte und steige den 3D-Pfad hinauf',
     gameIslandStep:'Station', gameIslandDone:'Insel erkundet!',
     eduOpen:'Öffnen', eduClose:'Schließen', eduSandbox:'Sicherer Modus · nur Lern-Seiten',
@@ -1121,10 +1152,17 @@ const T = {
     stockDraftPending:'Δεν αποθηκεύτηκε ακόμη',
     homeMore:'Περισσότερα σήμερα',
     homeSignals:'Σύντομη εικόνα',
-    stockHeroHint:'Έλεγχος αποθέματος και κίνηση',
+    stockHeroHint:'Διάδρομος αποθήκης — ράφια, στάθμη, κίνηση',
+    stockTideLabel:'Ασφάλεια αποθέματος',
+    stockShelves:'Ράφια',
+    stockShelfHint:n=>n===1?'1 ζώνη ραφιού':`${n} ζώνες ραφιών`,
+    stockZonePier:'Κατάσταση αποθέματος',
+    stockRecentMoves:'Τελευταίες κινήσεις',
+    stockNoRecent:'Δεν υπάρχουν ακόμα καταχωρημένες κινήσεις.',
+    stockJarAria:(name,pct)=>`${name}: στάθμη ${pct}%`,
     stockNeedsAction:'Χρειάζονται έλεγχο',
     stockNeedsActionHint:n=>n===1?'1 προϊόν χρειάζεται αναπλήρωση ή έλεγχο.':`${n} προϊόντα χρειάζονται αναπλήρωση ή έλεγχο.`,
-    stockCatalogue:'Όλο το απόθεμα ανά κατηγορία',
+    stockCatalogue:'Ράφια ανά κατηγορία',
     stockMoreActions:'Περισσότερες ενέργειες',
     stockAllHealthy:'Όλα τα προϊόντα έχουν επαρκές απόθεμα.',
     shopHeroHint:'Λίστα Παρασκευής · προετοιμασία · επιβεβαίωση στο μαγαζί',
@@ -1191,6 +1229,23 @@ const T = {
     shopPlan:'Σχεδιασμός', shopTake:'Παίρνω', shopTakeHint:'Συμπαγής λίστα ανά διάδρομο — τι παίρνω',
     shopTakeEmptyHint:'Πρόσθεσε προϊόντα στον Σχεδιασμό ή χρησιμοποίησε Αυτόματα από αποθήκη.',
     shopAutoFill:'Αυτόματα από αποθήκη', shopAutoFilled:n=>`${n} προϊόντα προστέθηκαν`,
+    shopRequests:'Αιτήματα', shopRequest:'Αίτημα', shopRequestBig:'Αίτημα',
+    shopRequestHint:'Πρόταση για τη λίστα αγορών — δεν έχει μπει ακόμη.',
+    shopRequestNamePh:'Τι να αγοραστεί;', shopRequestQtyPh:'Ποσότητα (προαιρετικά)',
+    shopRequestNotePh:'Σημείωση (προαιρετικά)', shopRequestCreate:'Αποστολή αιτήματος',
+    shopRequestUnit:'Μονάδα',
+    shopRequestCreated:'Το αίτημα αποθηκεύτηκε', shopRequestNeedName:'Γράψε όνομα προϊόντος.',
+    shopRequestEmpty:'Δεν υπάρχουν ανοιχτά αιτήματα', shopRequestEmptyHint:'Παιδιά και ομάδα προτείνουν προϊόντα. Εσύ αποφασίζεις.',
+    shopRequestAccept:'Αποδοχή', shopRequestReject:'Απόρριψη', shopRequestBought:'Ολοκληρώθηκε',
+    shopRequestAccepted:'Μπήκε στη λίστα', shopRequestRejected:'Το αίτημα απορρίφθηκε',
+    shopRequestMarkedBought:'Σημειώθηκε ως αγορασμένο',
+    shopRequestOpen:'Ανοιχτά', shopRequestStatusAccepted:'Αποδεκτά',
+    shopRequestStatusBought:'Αγορασμένα', shopRequestStatusRejected:'Απορριφθέντα',
+    shopRequestFilterAll:'Όλα', shopRequestFilterStatus:'Κατάσταση', shopRequestFilterWho:'Από',
+    shopRequestBulkAccept:'Αποδοχή', shopRequestBulkReject:'Απόρριψη',
+    shopRequestAskedBy:name=>`από ${name}`, shopRequestMine:'Τα αιτήματά μου',
+    shopRequestKidHint:'Γράψε τι χρειάζεσαι — η ομάδα το ελέγχει.',
+    notifNewRequest:name=>`Νέο αίτημα · ${name}`,
     selectMode:'Επιλογή', selectDone:'Έτοιμο', selectedCount:n=>`${n} επιλεγμένα`,
     bulkRemove:'Διαγραφή', bulkQtyMinus:'Ποσ. −', bulkQtyPlus:'Ποσ. ＋', bulkToList:'→ Λίστα',
     bulkOut:'OUT', bulkClearEmpty:'Άδειασμα', bulkFound:'Βρέθηκε', bulkMissing:'Λείπει', bulkUndo:'Αναίρεση',
@@ -1287,7 +1342,7 @@ const T = {
     adminApprove:'Έγκριση', adminReject:'Απόρριψη', adminNoReviews:'Καμία εκκρεμής υποβολή',
     adminAddChore:'Προσθήκη αποστολής', adminChoreTitle:'Τίτλος', adminChoreXp:'Πόντοι XP',
     adminChoreSaved:'Αποστολή αποθηκεύτηκε', adminChosenKids:'Για ποιον;',
-    gamesTitle:'Παιχνίδια', gamesHint:'Μεγαλύτερες γύρες · ~3–5 λεπτά · Ελληνικά, γνώση, μαθηματικά',
+    gamesTitle:'Παιχνίδια', gamesHint:'Μεγαλύτερες γύρες · offline κλασικά & μάθηση · Easy = highlights',
     gamesPlayTime:'~3–5 λεπτά',
     gameMemory:'Μνήμη', gameMemoryHint:'Βρες τα ζευγάρια · όσο λιγότερες κινήσεις',
     gameTac:'XO', gameTacHint:'Κάνε 3 στη σειρά κόντρα στον PC',
@@ -1302,6 +1357,13 @@ const T = {
     gameMath:'Μαθηματικά', gameMathHint:'Επίπεδα · ζωές · γρήγορα!',
     gameIsland:'Μονοπάτι νησιού', gameIslandHint:'3D μονοπάτι · Θάσος & φύση · ~4 λεπτά',
     gameEduHub:'Παιχνίδια μάθησης', gameEduHubHint:'Δωρεάν εκπαιδευτικά (PhET) · ασφαλές',
+    gameOss2048:'2048', gameOss2048Hint:'Ένωσε αριθμούς · offline · MIT',
+    gameOssSnake:'Φίδι', gameOssSnakeHint:'Φάε · μεγάλωσε · μην χτυπήσεις',
+    gameOssBreakout:'Breakout', gameOssBreakoutHint:'Ρακέτα + μπάλα · όλα τα τούβλα',
+    gameOssPuzzle15:'Παζλ 15', gameOssPuzzle15Hint:'Μετακίνησε τους αριθμούς στη σειρά',
+    gameOssHop:'Ουράνιο Άλμα', gameOssHopHint:'Πάτα για φτερούγισμα · highscore',
+    gameOssLicense:'Open Source · τοπικά · χωρίς λογαριασμό',
+    gameOssAttr:'Ανεξάρτητη MIT υλοποίηση · πηγές: kids-games/README.md',
     gameIslandHintPlay:'Απάντησε και ανέβα στο 3D μονοπάτι',
     gameIslandStep:'Σταθμός', gameIslandDone:'Εξερεύνησες το νησί!',
     eduOpen:'Άνοιγμα', eduClose:'Κλείσιμο', eduSandbox:'Ασφαλής λειτουργία · μόνο μάθηση',
@@ -1928,6 +1990,7 @@ const SEED = {
           → missing (δεν υπήρχε στο σουπερμάρκετ — μένει στη λίστα ως έλλειψη) */
   listEntries: [],
   shoppingTrips: [],
+  listRequests: [],
   stock: {},
   log: [],
   shiftNotes: {},
@@ -1949,7 +2012,7 @@ const SEED = {
 /* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
 const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
-const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'stock', 'log',
+const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'listRequests', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
                  'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable'];
@@ -1965,7 +2028,7 @@ function load(){
     }
   }catch(e){ console.warn('load failed', e); }
   // Παλιά αποθηκευμένα μπορεί να λείπουν πίνακες· κράτα ασφαλή defaults.
-  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
+  ['overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','listRequests','customProducts','customCategories','customActivities','customReasons','customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable']
     .forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object') db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object') db.productOverrides = {};
@@ -2185,6 +2248,7 @@ async function pushKidOps(){
   const body = {
     kidRatings: (DB.kidRatings||[]).filter(r=>r && r.kidId===kidId),
     kidNotes:   (DB.kidNotes||[]).filter(n=>n && n.kidId===kidId),
+    listRequests: (DB.listRequests||[]).filter(r=>r && r.kidId===kidId && r.status==='open'),
   };
   try{
     const res = await fetch('/api/kid-ops', {
@@ -2552,6 +2616,8 @@ const state = {
   house: 'h1',
   shopFriday: fridayFor(),
   shopPanel: 'plan',
+  shopRequestFilter: 'open',
+  shopRequestWho: 'all',
   calendarMonth: null,
   stockFilter: 'attention',
   stockQuery: '',
@@ -2561,7 +2627,7 @@ const state = {
   stockDraftReason: null,
   shopQuery: '',
   storeShowDone: false,
-  selectMode: null, // null | 'shop' | 'stock' | 'store'
+  selectMode: null, // null | 'shop' | 'stock' | 'store' | 'requests'
   selectedIds: [],
   houseFilter: '',
   date: iso(new Date()),
@@ -5303,7 +5369,7 @@ function consumePresenceDeepLink(){
 
 const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk'];
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
-const ROUTE_SHOP_PANELS = ['plan','take','store'];
+const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
 
 function routeFromHash(){
   const raw = (location.hash || '').replace(/^#/, '').trim();
@@ -5346,7 +5412,7 @@ function hashForState(){
       const pending = fridayEntries(shopHouse()).some(e=>e.status==='pending');
       if(pending) return '#shop/store';
     }catch{}
-    const panel = state.shopPanel === 'take' ? 'take' : 'plan';
+    const panel = ['take','requests'].includes(state.shopPanel) ? state.shopPanel : 'plan';
     return `#shop/${panel}`;
   }
   return '';
@@ -6548,6 +6614,19 @@ const catIconId  = cid => CAT_ICON[cid] || 'fork-knife';
 const prodIconId = pr  => (pr && PROD_ICON[pr.de]) || catIconId(pr && pr.cat);
 const svgIcon = (id, cls) => `<svg class="${cls}" aria-hidden="true"><use href="#f-${id}"/></svg>`;
 
+/** Soft “full jar” ceiling for the tactile fill meter (not a hard max). */
+function stockFillPct(qty, p){
+  const full = Math.max(lowThreshold(p) * 4, stepFor(p) * 4, 1);
+  return Math.max(0, Math.min(100, Math.round((Number(qty)||0) / full * 100)));
+}
+function recentStockMoves(hid, limit=6){
+  return (DB.log||[])
+    .filter(l=>(l.type==='IN'||l.type==='OUT') && l.productId && (hid==='all'||l.houseId===hid))
+    .slice()
+    .reverse()
+    .slice(0, limit);
+}
+
 function viewStock(){
   const hid = state.house;
   const houses=hid==='all'?DB.houses:[house(hid)];
@@ -6559,19 +6638,25 @@ function viewStock(){
   const counts={empty:0,low:0,ok:0};allProducts.forEach(p=>counts[productState(p)]++);
   const query=norm(state.stockQuery||'');
   const visible=allProducts.filter(p=>{
-    const st=productState(p), matches=!query||norm(`${p.de} ${p.el}`).includes(query);
+    const st=productState(p), matches=!query||norm(`${p.de} ${p.el} ${(p.alias||[]).join(' ')}`).includes(query);
     return matches&&(!!query||state.stockFilter==='all'||state.stockFilter===st||state.stockFilter==='attention'&&st!=='ok');
   }).sort((a,b)=>{
     const priority={empty:0,low:1,ok:2};
     return priority[productState(a)]-priority[productState(b)]||L(a).localeCompare(L(b),state.lang);
   });
   const catIcon = cid => svgIcon(catIconId(cid), 'cat-ico');
+  const jarHtml=(qty,p,st)=>{
+    const fill=stockFillPct(qty,p);
+    return `<span class="stock-jar ${st}" style="--fill:${fill}%" title="${esc(T[state.lang].stockJarAria(L(p),fill))}" aria-hidden="true"><span class="stock-jar-fill"></span></span>`;
+  };
   const productCard=p=>{
     const st=productState(p);
     if(hid==='all'){
       if(state.stockTiles){
         const qtyLine=houses.map(h=>`${esc(h.short)} ${DB.stock[stockKey(h.id,p.id)]??0}`).join(' · ');
+        const avg=houses.reduce((s,h)=>s+(DB.stock[stockKey(h.id,p.id)]??0),0)/Math.max(1,houses.length);
         return `<button class="stock-tile ${st}" type="button" data-stock-product="${p.id}" aria-label="${t('tapProduct')}: ${esc(L(p))}">
+          ${jarHtml(avg,p,st)}
           <span class="stock-tile-name">${esc(L(p))}</span>
           <b class="stock-tile-qty">${houses.map(h=>DB.stock[stockKey(h.id,p.id)]??0).join('/')}</b>
           <span class="stock-tile-meta">${qtyLine}</span>
@@ -6580,7 +6665,7 @@ function viewStock(){
       const quantities=houses.map(h=>`<div class="stock-qty"><span class="stock-state">${esc(h.short)}</span>${DB.stock[stockKey(h.id,p.id)]??0}<small>${esc(p.unit)}</small></div>`).join('');
       return `<div class="stock-product ${st} multi-house">
         <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div class="stock-product-name">${esc(L(p))}</div>
-        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ✎</div></button>
+        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div></button>
         <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div></div>`;
     }
     const qty=DB.stock[stockKey(hid,p.id)]??0;
@@ -6592,23 +6677,36 @@ function viewStock(){
     const sel=selecting && isSelected(p.id);
     return `<div class="stock-product ${st} has-stepper ${delta?'drafting':''} ${sel?'selected':''}">
       ${selecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${p.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
+      ${jarHtml(preview,p,st)}
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
         <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}${pending}</div>
-        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ✎</div>
+        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div>
       </button>
       ${selecting?'':`<div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
-        <button class="stock-step out" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${preview<=0&&delta<=0?'disabled':''}>−</button>
+        <button class="stock-step out pine-settle" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${preview<=0&&delta<=0?'disabled':''}>${ui('u-minus','sm')}</button>
         <div class="stock-qty ${delta>0?'draft-in':delta<0?'draft-out':''}">${preview}<small>${esc(p.unit)}</small></div>
-        <button class="stock-step in" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">＋</button>
+        <button class="stock-step in pine-settle" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">${ui('u-plus','sm')}</button>
       </div>`}
     </div>`;
   };
+  const openCats=Array.isArray(state.stockOpenCategories)?state.stockOpenCategories:null;
   const categoryHtml=CATS().map((c,index)=>{
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
     const hasDraft=hid!=='all'&&products.some(p=>state.stockDraft[p.id]);
-    const shouldOpen=hasDraft||index===0;
-    return `<details class="stock-category" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"${shouldOpen?' open':''}><summary><span class="cat-ico-wrap">${catIcon(c.id)}</span><span>${esc(L(c))}</span>
-      <span class="stock-cat-count">${products.length}</span></summary><div class="stock-product-grid ${hid==='all'&&state.stockTiles?'tiles':''}">${products.map(productCard).join('')}</div></details>`;
+    const catEmpty=products.filter(p=>productState(p)==='empty').length;
+    const catLow=products.filter(p=>productState(p)==='low').length;
+    const shouldOpen=hasDraft||(openCats?openCats.includes(c.id):index===0);
+    const badges=`${catEmpty?`<span class="stock-shelf-badge empty">${catEmpty}</span>`:''}${catLow?`<span class="stock-shelf-badge low">${catLow}</span>`:''}`;
+    return `<details class="stock-category stock-shelf" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"${shouldOpen?' open':''}>
+      <summary>
+        <span class="stock-shelf-rail" aria-hidden="true"></span>
+        <span class="cat-ico-wrap">${catIcon(c.id)}</span>
+        <span class="stock-shelf-label">${esc(L(c))}</span>
+        ${badges}
+        <span class="stock-cat-count">${products.length}</span>
+      </summary>
+      <div class="stock-product-grid ${hid==='all'&&state.stockTiles?'tiles':''}">${products.map(productCard).join('')}</div>
+    </details>`;
   }).join('');
   const missing=DB.listEntries.filter(e=>e.status==='missing'&&(hid==='all'||e.houseId===hid));
   const attention=counts.empty+counts.low;
@@ -6617,48 +6715,78 @@ function viewStock(){
   const flatView=!!query||state.stockFilter!=='all';
   const resultTitle=query?`${t('stockSearch')} · ${visible.length}`:state.stockFilter==='empty'?`${t('stockEmpty')} · ${visible.length}`:`${t('stockNeedsAction')} · ${visible.length}`;
   const resultHint=query?state.stockQuery:state.stockFilter==='empty'?t('stockOutState'):T[state.lang].stockNeedsActionHint(visible.length);
+  const shelfCount=CATS().filter(c=>allProducts.some(p=>p.cat===c.id)).length;
+  const moves=recentStockMoves(hid, 6);
+  const recentHtml=isPro()?`<section class="stock-recent pro-only mode-pro-block" aria-label="${esc(t('stockRecentMoves'))}">
+      <header class="stock-section-heading compact"><div><p>${esc(t('stockRecentMoves'))}</p></div></header>
+      ${moves.length?`<ol class="stock-recent-ribbon">${moves.map((m,i)=>{
+        const p=prod(m.productId);
+        const who=emp(m.employeeId)?.name||'';
+        return `<li class="stock-recent-item ${m.type==='IN'?'in':'out'}" style="--i:${i}">
+          <span class="stock-recent-dot" aria-hidden="true"></span>
+          <span class="stock-recent-body">
+            <b>${esc(p?L(p):(m.text||'').split(' · ')[0]||'—')}</b>
+            <small>${m.type==='IN'?'+':'-'}${esc(m.qty??'')} ${esc(m.unit||'')} · ${esc(fmtDT(m.ts))}${who?` · ${esc(who)}`:''}</small>
+          </span>
+        </li>`;
+      }).join('')}</ol>`:`<p class="stock-recent-empty muted">${esc(t('stockNoRecent'))}</p>`}
+    </section>`:'';
   const resultsHtml=flatView
     ? `<section class="stock-priority" aria-label="${esc(resultTitle)}">
-        <header class="stock-section-heading"><div><p>${esc(resultTitle)}</p><span>${esc(resultHint)}</span></div>
-          ${!query&&state.stockFilter==='attention'&&attention&&hid!=='all'?`<button class="btn sec sm" type="button" id="stockQuickList">${ui('u-cart','sm')} ${esc(t('stockQuickList'))}</button>`:''}
+        <header class="stock-section-heading"><div><p class="tide-line">${esc(resultTitle)}</p><span>${esc(resultHint)}</span></div>
+          ${!query&&state.stockFilter==='attention'&&attention&&hid!=='all'?`<button class="btn sec sm pine-settle" type="button" id="stockQuickList">${ui('u-cart','sm')} ${esc(t('stockQuickList'))}</button>`:''}
         </header>
         <div class="stock-priority-grid">${visible.map(productCard).join('')||emptyState(ui('u-check'),t('stockAllHealthy'),'',state.stockQuery?`<button class="btn sm sec" type="button" id="stockEmptyClear">${esc(t('stockClearSearch'))}</button>`:'')}</div>
       </section>`
     : `<section class="stock-catalogue" aria-label="${esc(t('stockCatalogue'))}">
-        <header class="stock-section-heading"><div><p>${esc(t('stockCatalogue'))}</p><span>${allProducts.length} ${esc(t('productTypes'))}</span></div></header>
-        <div class="stock-categories">${categoryHtml||emptyState(ui('u-search'),t('noStockResults'),t('noStockHint'))}</div>
+        <header class="stock-section-heading"><div><p class="tide-line">${esc(t('stockShelves'))}</p><span>${esc(T[state.lang].stockShelfHint(shelfCount))} · ${allProducts.length} ${esc(t('productTypes'))}</span></div></header>
+        <div class="stock-categories stock-shelf-islands">${categoryHtml||emptyState(ui('u-search'),t('noStockResults'),t('noStockHint'))}</div>
       </section>`;
 
   return `<div class="stock-shell">
-    <header class="stock-overview">
-      <div class="stock-overview-copy"><p class="brand-kicker">${esc(t('headerStock'))}</p><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div><h2>${esc(location)}</h2><span>${esc(t('stockHeroHint'))}</span></div>
-      <div class="stock-health-ring" style="--stock-health:${healthyPct*3.6}deg" aria-label="${esc(T[state.lang].inventoryHealthyPct(healthyPct))}"><div><b>${healthyPct}%</b><span>${esc(t('stockHealthy'))}</span></div></div>
+    <header class="stock-overview stock-pantry-hero">
+      <div class="stock-overview-copy">
+        <p class="brand-kicker">${esc(t('headerStock'))}</p>
+        <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+        <h2 class="tide-line">${esc(location)}</h2>
+        <span>${esc(t('stockHeroHint'))}</span>
+      </div>
+      <div class="stock-tide" role="img" aria-label="${esc(T[state.lang].inventoryHealthyPct(healthyPct))}">
+        <div class="stock-tide-meta"><b>${healthyPct}%</b><span>${esc(t('stockTideLabel'))}</span></div>
+        <div class="stock-tide-track"><span class="stock-tide-fill" style="width:${healthyPct}%"></span></div>
+        <div class="stock-tide-legend">
+          <span class="ok">${counts.ok} ${esc(t('stockHealthy'))}</span>
+          <span class="low">${counts.low} ${esc(t('stockLow'))}</span>
+          <span class="empty">${counts.empty} ${esc(t('stockEmpty'))}</span>
+        </div>
+      </div>
     </header>
     <div class="stock-command" aria-label="${esc(t('headerStock'))}">
       <div class="seg house-selector" id="sHouse" aria-label="${t('filterHouse')}">
-        ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-person','sm')} ${esc(h.short)}</button>`).join('')}
+        ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-home','sm')} ${esc(h.short)}</button>`).join('')}
         <button class="${hid==='all'?'on':''}" data-h="all">${t('bothHouses')}</button>
       </div>
       <div class="stock-command-row">
-        <label class="stock-search"><span>⌕</span><input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}">${state.stockQuery?'<button type="button" id="stockClear" aria-label="'+t('close')+'">×</button>':''}</label>
-        ${hid!=='all'?`<button class="btn stock-primary-action" type="button" id="stockOpenBoard"><span aria-hidden="true">↕</span> ${esc(t('stockBoardShort'))}</button>`:''}
+        <label class="stock-search">${ui('u-search','sm')}<input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}" autocomplete="off" enterkeyhint="search">${state.stockQuery?`<button type="button" id="stockClear" aria-label="${t('close')}">×</button>`:''}</label>
+        ${hid!=='all'?`<button class="btn stock-primary-action pine-settle" type="button" id="stockOpenBoard">${ui('u-plus','sm')} ${esc(t('stockBoardShort'))}</button>`:''}
         <details class="stock-more pro-only mode-pro-block"><summary aria-label="${esc(t('stockMoreActions'))}">•••</summary><div class="stock-more-popover">
-          ${hid==='all'?`<button class="stock-more-action ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle">${state.stockTiles?'▦':'☰'} ${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}</button>`:''}
-          ${hid!=='all'?`<button class="stock-more-action ${state.selectMode==='stock'?'on':''}" type="button" id="stockSelectToggle">☑ ${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}</button>
-          <button class="stock-more-action" type="button" id="stockQuickFood">＋ ${esc(t('stockAddFoodShort'))}</button>
-          <button class="stock-more-action" type="button" id="stockShiftCheck">☑ ${esc(t('shiftStockCheck'))}</button>`:''}
+          ${hid==='all'?`<button class="stock-more-action ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle">${ui('u-tasks','sm')} ${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}</button>`:''}
+          ${hid!=='all'?`<button class="stock-more-action ${state.selectMode==='stock'?'on':''}" type="button" id="stockSelectToggle">${ui('u-check','sm')} ${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}</button>
+          <button class="stock-more-action" type="button" id="stockQuickFood">${ui('u-plus','sm')} ${esc(t('stockAddFoodShort'))}</button>
+          <button class="stock-more-action" type="button" id="stockShiftCheck">${ui('u-check','sm')} ${esc(t('shiftStockCheck'))}</button>`:''}
         </div></details>
       </div>
     </div>
-    <div class="stock-view-tabs" role="toolbar" aria-label="${esc(t('menuFilters'))}">
+    <div class="stock-view-tabs stock-zone-pier" role="toolbar" aria-label="${esc(t('stockZonePier'))}">
       <button type="button" class="${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b><span>${esc(t('stockAttention'))}</span><small>${counts.empty} ${esc(t('stockEmpty'))} · ${counts.low} ${esc(t('stockLow'))}</small></button>
       <button type="button" class="${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b><span>${esc(t('stockEmpty'))}</span><small>${esc(t('stockOutState'))}</small></button>
-      <button type="button" class="pro-only mode-pro-block ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b><span>${esc(t('stockAll'))}</span><small>${esc(t('stockCatalogue'))}</small></button>
+      <button type="button" class="pro-only mode-pro-block ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b><span>${esc(t('stockShelves'))}</span><small>${esc(t('stockCatalogue'))}</small></button>
     </div>
     ${shiftPresenceBannerHtml()}
     ${shiftStockCheckBannerHtml()}
-    ${missing.length?`<div class="stock-notice"><span>⚠️</span><b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
+    ${missing.length?`<div class="stock-notice">${ui('u-alert','sm')}<b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
     ${resultsHtml}
+    ${recentHtml}
     ${state.selectMode==='stock'&&hid!=='all'?bulkBarHtml([
       {id:'to-list', label:t('bulkToList')},
       {id:'out', label:t('bulkOut')},
@@ -6681,7 +6809,7 @@ function viewStock(){
         ${reasons}
         <div class="stock-draft-actions">
           <button class="btn sec" type="button" id="stockDraftClear">${t('stockDraftClear')}</button>
-          <button class="btn" type="button" id="stockDraftSave">${ui('u-check','sm')} ${t('stockDraftSave')}</button>
+          <button class="btn pine-settle" type="button" id="stockDraftSave">${ui('u-check','sm')} ${t('stockDraftSave')}</button>
         </div>
       </div>`;
     })():''}
@@ -7801,6 +7929,185 @@ function autoFillShoppingFromStock(hid){
   if(added){ if(!save()) return 0; toast(t('shopAutoFilled')(added),'success'); }
   else toast(t('stockHealthy'),'info');
   return added;
+}
+
+const LIST_REQ_STATUSES = ['open','accepted','bought','rejected'];
+
+function ensureListRequests(){
+  if(!Array.isArray(DB.listRequests)) DB.listRequests = [];
+  return DB.listRequests;
+}
+
+function listRequestRequesterName(req){
+  if(!req) return '—';
+  if(req.requesterType==='child' || req.kidId){
+    const c = kid(req.kidId || req.requesterId);
+    return c?.name || '—';
+  }
+  const e = emp(req.requesterId || req.by);
+  return e?.name || '—';
+}
+
+function listRequestsFor(hid, {status, who}={}){
+  const rows = ensureListRequests().filter(r=>{
+    if(!r || r.status==='removed') return false;
+    if(hid && r.houseId && r.houseId!==hid) return false;
+    if(status && status!=='all' && r.status!==status) return false;
+    if(who && who!=='all'){
+      const rid = String(r.kidId||r.requesterId||r.by||'');
+      if(rid!==who) return false;
+    }
+    return true;
+  });
+  return rows.sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+}
+
+function openListRequestCount(hid){
+  return listRequestsFor(hid,{status:'open'}).length;
+}
+
+function notifyListRequestCreated(req){
+  try{
+    const prefs = (typeof notifPrefsResolved==='function') ? notifPrefsResolved() : {};
+    if(prefs.shopping===false) return;
+    const title = T[state.lang].notifNewRequest(req.name);
+    const body = T[state.lang].shopRequestAskedBy(listRequestRequesterName(req));
+    if(typeof deliverOnce==='function'){
+      deliverOnce(`list-req-${req.id}`, false, title, {
+        tag:'paidia-list-request',
+        body,
+        data:{url:'./#shop/requests'},
+      });
+    }
+  }catch{}
+}
+
+function createListRequest({name, qty, unit, note, houseId}={}){
+  const clean = String(name||'').trim();
+  if(!clean){ toast(t('shopRequestNeedName'),'error'); return null; }
+  const hid = houseId || shopHouse();
+  if(!hid || hid==='all'){ toast(t('selectHouse'),'info'); return null; }
+  let q = null;
+  if(qty!==undefined && qty!==null && String(qty).trim()!==''){
+    const n = Number(qty);
+    if(Number.isFinite(n) && n>0) q = roundStock(n);
+  }
+  const child = state.mode==='child' && state.child;
+  const req = {
+    id: uid(),
+    name: clean.slice(0,120),
+    qty: q,
+    unit: String(unit||'').trim().slice(0,24),
+    note: String(note||'').trim().slice(0,240),
+    houseId: hid,
+    fridayDate: state.shopFriday || fridayFor(),
+    status: 'open',
+    requesterType: child ? 'child' : 'staff',
+    requesterId: child ? state.child.id : (state.user?.id||null),
+    kidId: child ? state.child.id : null,
+    by: child ? state.child.id : (state.user?.id||null),
+    createdAt: Date.now(),
+    decidedAt: null,
+    decidedBy: null,
+    listEntryId: null,
+    rejectReason: null,
+  };
+  ensureListRequests().push(req);
+  if(!save()) return null;
+  feedback('save');
+  toast(t('shopRequestCreated'),'success');
+  if(state.mode==='staff') notifyListRequestCreated(req);
+  return req;
+}
+
+function acceptListRequest(reqId, whoId){
+  const req = ensureListRequests().find(r=>r.id===reqId);
+  if(!req || req.status!=='open') return false;
+  const hid = req.houseId || shopHouse();
+  const friday = req.fridayDate || state.shopFriday || fridayFor();
+  const product = matchProduct(req.name);
+  const entry = {
+    id: uid(),
+    productId: product?.id || null,
+    name: req.name,
+    qty: req.qty!=null ? req.qty : (product ? Math.max(stepFor(product),1) : 1),
+    unit: req.unit || product?.unit || 'x',
+    note: req.note || '',
+    houseId: hid,
+    fridayDate: friday,
+    by: whoId || state.user?.id || null,
+    status: 'open',
+    fromRequestId: req.id,
+  };
+  DB.listEntries.push(entry);
+  req.status = 'accepted';
+  req.listEntryId = entry.id;
+  req.decidedAt = Date.now();
+  req.decidedBy = whoId || state.user?.id || null;
+  return true;
+}
+
+function rejectListRequest(reqId, whoId, reason=''){
+  const req = ensureListRequests().find(r=>r.id===reqId);
+  if(!req || req.status!=='open') return false;
+  req.status = 'rejected';
+  req.decidedAt = Date.now();
+  req.decidedBy = whoId || state.user?.id || null;
+  req.rejectReason = String(reason||'').trim().slice(0,160) || null;
+  return true;
+}
+
+function markListRequestBought(reqId, whoId){
+  const req = ensureListRequests().find(r=>r.id===reqId);
+  if(!req || !['open','accepted'].includes(req.status)) return false;
+  req.status = 'bought';
+  req.decidedAt = Date.now();
+  req.decidedBy = whoId || state.user?.id || null;
+  return true;
+}
+
+function sheetCreateListRequest({kidMode=false}={}){
+  const defaultHid = kidMode
+    ? (state.child?.homeHouseId || shoppingHouses()[0]?.id || 'h1')
+    : shopHouse();
+  const houses = shoppingHouses();
+  openSheet(`<div class="help-center-hero">
+      <div class="import-kicker">${ui('u-cart')}</div>
+      <h2>${esc(t('shopRequestBig'))}</h2>
+      <p>${esc(kidMode?t('shopRequestKidHint'):t('shopRequestHint'))}</p>
+    </div>
+    <div class="req-form">
+      ${houses.length>1?`<div class="seg house-selector" id="reqHouse">${houses.map(h=>`<button type="button" class="${defaultHid===h.id?'on':''}" data-req-house="${h.id}">${esc(h.short)}</button>`).join('')}</div>`:''}
+      <label class="f"><span>${esc(t('shopRequest'))}</span>
+        <input id="reqName" autocomplete="off" enterkeyhint="next" placeholder="${esc(t('shopRequestNamePh'))}"></label>
+      <div class="req-form-row">
+        <label class="f"><span>${esc(t('shopRequestQtyPh'))}</span>
+          <input id="reqQty" inputmode="decimal" autocomplete="off" placeholder="1"></label>
+        <label class="f"><span>${esc(t('unit')||'Unit')}</span>
+          <input id="reqUnit" autocomplete="off" placeholder="x" maxlength="12"></label>
+      </div>
+      <label class="f"><span>${esc(t('shopRequestNotePh'))}</span>
+        <input id="reqNote" autocomplete="off" enterkeyhint="done" placeholder="${esc(t('shopRequestNotePh'))}"></label>
+      <button class="btn" type="button" id="reqSubmit">${ui('u-check','sm')} ${esc(t('shopRequestCreate'))}</button>
+    </div>`);
+  let houseId = defaultHid;
+  sheetEl.querySelectorAll('[data-req-house]').forEach(b=>{
+    b.onclick=()=>{
+      houseId = b.dataset.reqHouse;
+      sheetEl.querySelectorAll('[data-req-house]').forEach(x=>x.classList.toggle('on', x.dataset.reqHouse===houseId));
+    };
+  });
+  const submit = ()=>{
+    const name = sheetEl.querySelector('#reqName')?.value||'';
+    const qty = sheetEl.querySelector('#reqQty')?.value;
+    const unit = sheetEl.querySelector('#reqUnit')?.value||'';
+    const note = sheetEl.querySelector('#reqNote')?.value||'';
+    const created = createListRequest({name, qty, unit, note, houseId});
+    if(created){ closeSheet(); render(); }
+  };
+  sheetEl.querySelector('#reqSubmit').onclick = submit;
+  sheetEl.querySelector('#reqName')?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); submit(); }});
+  queueMicrotask(()=>sheetEl.querySelector('#reqName')?.focus());
 }
 
 function viewShop(){
@@ -9159,11 +9466,16 @@ function childEventsView(cid){
 }
 
 const CHILD_GAMES = [
+  {id:'oss2048', emoji:'🔢', icon:'u-sparkle', titleKey:'gameOss2048', hintKey:'gameOss2048Hint', tint:'#b45309', featured:true, xp:6, src:'kids-games/merge2048/index.html'},
+  {id:'osssnake', emoji:'🐍', icon:'u-leaf', titleKey:'gameOssSnake', hintKey:'gameOssSnakeHint', tint:'#2a6b52', featured:true, xp:5, src:'kids-games/snake/index.html'},
+  {id:'osspuzzle15', emoji:'🧩', icon:'u-tasks', titleKey:'gameOssPuzzle15', hintKey:'gameOssPuzzle15Hint', tint:'#0e7490', featured:true, xp:5, src:'kids-games/puzzle15/index.html'},
   {id:'learn', emoji:'🇬🇷', icon:'u-book', titleKey:'gameLearn', hintKey:'gameLearnHint', tint:'#0d9488', featured:true, xp:10},
   {id:'quiz', emoji:'🧠', icon:'u-sparkle', titleKey:'gameQuiz', hintKey:'gameQuizHint', tint:'#2a6b52', featured:true, xp:8},
-  {id:'math', emoji:'➕', icon:'u-plus', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', featured:true, xp:6},
-  {id:'island', emoji:'🏝️', icon:'u-leaf', titleKey:'gameIsland', hintKey:'gameIslandHint', tint:'#0e7490', featured:true, xp:8},
-  {id:'eduhub', emoji:'🎓', icon:'u-book', titleKey:'gameEduHub', hintKey:'gameEduHubHint', tint:'#0369a1', featured:true},
+  {id:'ossbreakout', emoji:'🧱', icon:'u-party', titleKey:'gameOssBreakout', hintKey:'gameOssBreakoutHint', tint:'#0369a1', xp:5, src:'kids-games/breakout/index.html'},
+  {id:'osshop', emoji:'🌤️', icon:'u-sparkle', titleKey:'gameOssHop', hintKey:'gameOssHopHint', tint:'#0284c7', xp:5, src:'kids-games/hop/index.html'},
+  {id:'math', emoji:'➕', icon:'u-plus', titleKey:'gameMath', hintKey:'gameMathHint', tint:'#c2410c', xp:6},
+  {id:'island', emoji:'🏝️', icon:'u-leaf', titleKey:'gameIsland', hintKey:'gameIslandHint', tint:'#0e7490', xp:8},
+  {id:'eduhub', emoji:'🎓', icon:'u-book', titleKey:'gameEduHub', hintKey:'gameEduHubHint', tint:'#0369a1'},
   {id:'memory', emoji:'🃏', titleKey:'gameMemory', hintKey:'gameMemoryHint', tint:'#0f766e', xp:5},
   {id:'tac', emoji:'❌', titleKey:'gameTac', hintKey:'gameTacHint', tint:'#c2410c', xp:4},
   {id:'catch', emoji:'🐟', titleKey:'gameCatch', hintKey:'gameCatchHint', tint:'#0369a1', xp:5},
@@ -9807,6 +10119,8 @@ function startChildGame(id){
     state.game = makeIslandGame();
   }else if(id==='eduhub'){
     state.game = {embed:null};
+  }else if(CHILD_GAMES.find(g=>g.id===id)?.src){
+    state.game = {score:0, startedAt:Date.now()};
   }else state.game = null;
   render();
 }
@@ -9818,6 +10132,26 @@ function leaveChildGame(){
   if(state.mode==='child' && !['learn','games'].includes(state.childView))
     state.childView = 'games';
   render();
+}
+
+/** Score bridge from sandboxed kids-games/* iframes → gameStats. */
+function onOssGameMessage(ev){
+  const data = ev?.data;
+  if(!data || data.type!=='paidia-score') return;
+  const meta = CHILD_GAMES.find(g=>g.id===data.gameId && g.src);
+  if(!meta || state.gameId!==meta.id) return;
+  const score = Number(data.score);
+  if(!Number.isFinite(score) || score<=0) return;
+  writeGameBest(meta.id, score);
+  if(state.game) state.game.score = Math.max(Number(state.game.score)||0, score);
+  const el = document.querySelector('.game-shell.oss .game-stats b');
+  if(el) el.textContent = String(readGameBest(meta.id)||score);
+  const pass = score >= (meta.id==='oss2048'?128:meta.id==='ossbreakout'?80:10);
+  tryGrantGameWin(meta.id, state.game, pass);
+}
+if(typeof window!=='undefined' && !window.__paidiaOssScoreBound){
+  window.__paidiaOssScoreBound = true;
+  window.addEventListener('message', onOssGameMessage);
 }
 
 function gameStatsKey(kidId){ return kidId||'anon'; }
@@ -11593,7 +11927,7 @@ function childGamesLobby(){
       const spark = sparklineHtml(hist.length?hist:[best], 'sea');
       return spark?`<div class="arcade-widget">${spark}</div>`:'';
     }
-    const soft = ({quiz:20,math:30,island:20,memory:100,tac:10,catch:40,rps:20,dice:6,colors:30,eduhub:10})[g.id]||20;
+    const soft = ({quiz:20,math:30,island:20,memory:100,tac:10,catch:40,rps:20,dice:6,colors:30,eduhub:10,oss2048:2048,osssnake:30,ossbreakout:200,osspuzzle15:200,osshop:20})[g.id]||20;
     const pct = Math.min(100, Math.round((best/Math.max(soft, best))*100));
     const label = g.id==='react' ? t('gameReactMs')(best) : String(best);
     return `<div class="arcade-widget">${ringHtml(pct, label, 'pine')}</div>`;
@@ -12018,7 +12352,32 @@ function childEduHubView(){
   </div>`;
 }
 
+function childOssFrameView(meta){
+  const g=state.game; if(!g || !meta?.src) return childGamesLobby();
+  const lang = state.lang==='el'?'el':'de';
+  const src = `${meta.src}?v=${APP_BUILD.version}&lang=${lang}`;
+  const best = readGameBest(meta.id);
+  return `<div class="game-shell oss">
+    <div class="game-top">
+      <button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
+      <span class="game-oss-chip">${esc(t('gameOssLicense'))}</span>
+      ${best?`<div class="game-stats"><span>${t('gameBest')}: <b>${best}</b></span></div>`:''}
+    </div>
+    <div class="edu-frame-wrap oss-frame-wrap">
+      <iframe class="edu-frame oss-frame" title="${esc(t(meta.titleKey))}"
+        src="${esc(src)}"
+        sandbox="allow-scripts allow-same-origin"
+        referrerpolicy="no-referrer"
+        allow="fullscreen"
+        loading="eager"></iframe>
+    </div>
+    <p class="game-oss-attr">${esc(t('gameOssAttr'))}</p>
+  </div>`;
+}
+
 function childGamesView(){
+  const meta = CHILD_GAMES.find(g=>g.id===state.gameId);
+  if(meta?.src) return childOssFrameView(meta);
   if(state.gameId==='learn') return childLearnView();
   if(state.gameId==='quiz') return childQuizView();
   if(state.gameId==='math') return childMathView();
@@ -16325,7 +16684,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||137),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||138),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

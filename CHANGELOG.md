@@ -1,5 +1,14 @@
 # Changelog
 
+## v138 — 2026-08-30
+
+- **Lager / pantry walk:** replaced dark teal “health ring” with stone/sea glass hero + horizontal tide fill (Vorratssicherheit).
+- Tactile **jar meters** on stock rows (fill vs soft full = 4× low threshold); pine-settle ± steppers with stroke icons.
+- **Category shelf islands** with stone rail, empty/low badges; search aliases; zone pier filters (Easy: attention/empty; Pro: shelves + recent moves ribbon from `DB.log`).
+- Easy density: larger steppers; Pro: bulk/more menu, tiles toggle, shift check, recent IN/OUT ribbon.
+- DE/EL strings: `stockTideLabel`, `stockShelves`, `stockRecentMoves`, `stockJarAria`, …
+- Cache `paidia-v138` (also ships sibling Kids Spiele + Liste Αιτήματα work).
+
 ## v137 — 2026-08-30
 
 - Easy/Pro mode system: topbar + page toggles; `body.mode-easy` / `body.mode-pro` (+ `data-density`); global default in `paidia.uiMode` / `profilePrefs._uiMode`, per-page in `paidia.uiModePages`; honors `.pro-only` / `.mode-pro-block` / `.easy-only`.
