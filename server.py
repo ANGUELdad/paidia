@@ -1740,7 +1740,7 @@ def get_ops_for_session(since: int, session: dict) -> dict:
 
 # Keys a child's own device may write. Everything else on the ops blob is
 # staff-owned and unreachable from a child session.
-KID_OWNED_KEYS = ("kidRatings", "kidNotes", "listRequests", "feedbackReports")
+KID_OWNED_KEYS = ("kidRatings", "kidNotes", "listRequests", "xpLog", "feedbackReports")
 KID_ROW_CAP = 500
 FEEDBACK_TYPES = frozenset({"bug", "change", "addition"})
 FEEDBACK_SEVERITIES = frozenset({"low", "medium", "high"})
@@ -1858,6 +1858,38 @@ def _merge_kid_feedback_reports(kid_id: str, incoming: list) -> list:
     return others + locked + open_rows
 
 
+def _merge_kid_notes(kid_id: str, incoming: list) -> list:
+    """Child may CRUD only their own note rows; staff-authored notes stay locked."""
+    existing = [r for r in (OPS_STATE.get("kidNotes") or []) if isinstance(r, dict)]
+    others = [r for r in existing if str(r.get("kidId") or "") != kid_id]
+    staff_kept = []
+    for r in existing:
+        if str(r.get("kidId") or "") != kid_id:
+            continue
+        by = str(r.get("by") or "").strip()
+        if by and by != kid_id:
+            staff_kept.append(r)
+    mine = []
+    for row in incoming[:KID_ROW_CAP]:
+        if not isinstance(row, dict):
+            continue
+        row = dict(row)
+        by = str(row.get("by") or "").strip()
+        if by and by != kid_id:
+            continue
+        text = str(row.get("text") or "").strip()[:2000]
+        if not text:
+            continue
+        mood = str(row.get("mood") or "good").strip()[:24] or "good"
+        rid = str(row.get("id") or "").strip() or f"kn-{kid_id}-{int(time.time() * 1000)}-{len(mine)}"
+        try:
+            ts = int(row.get("ts") or time.time() * 1000)
+        except (TypeError, ValueError):
+            ts = int(time.time() * 1000)
+        mine.append({"id": rid, "kidId": kid_id, "by": kid_id, "text": text, "mood": mood, "ts": ts})
+    return others + staff_kept + mine
+
+
 def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
     """Let a child device persist its own ratings, notes, and shopping requests.
 
@@ -1886,6 +1918,10 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
                 return 400, {"error": f"{key} must be a list", "code": "input"}
             if key == "listRequests":
                 OPS_STATE[key] = _merge_kid_list_requests(kid_id, incoming)
+                touched.append(key)
+                continue
+            if key == "kidNotes":
+                OPS_STATE[key] = _merge_kid_notes(kid_id, incoming)
                 touched.append(key)
                 continue
             if key == "feedbackReports":

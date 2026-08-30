@@ -2,6 +2,7 @@
 
 ## v148 — 2026-08-30
 
+- **Kids Notizen:** own-profile CRUD; sync race fix; server `_merge_kid_notes` keeps staff notes; empty CTA Notiz schreiben (DE/EL).
 - **OCR via Grok (xAI):** `POST /api/ai-shopping` image path prefers `XAI_API_KEY` / `GROK_API_KEY` via `ocr_xai.py`. Honest `503` when no OCR key.
 - Purposes: `list` / `receipt` / `stock` (staff) + `request` (staff or kids). Rate limit + image size cap.
 - UI: Liste import + Beleg, Lager Schnell hinzufügen OCR, Anfrage OCR fill. Docs: `docs/agents/OCR_GROK.md`.

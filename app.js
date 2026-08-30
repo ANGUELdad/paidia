@@ -2539,15 +2539,13 @@ async function pushKidOps(epoch){
     kidRatings: (DB.kidRatings||[]).filter(r=>r && r.kidId===kidId),
     kidNotes:   (DB.kidNotes||[]).filter(n=>kidOwnsNoteRow(n, kidId)),
     listRequests: (DB.listRequests||[]).filter(r=>r && r.kidId===kidId && r.status==='open'),
+    feedbackReports: (DB.feedbackReports||[]).filter(r=>r && (r.kidId===kidId || r.authorId===kidId) && r.status==='open'),
   };
   if(typeof loadGameStats === 'function'){
     try{ body.gameStats = loadGameStats(kidId); }catch(_){}
   }
   if(Array.isArray(DB.xpLog)){
     body.xpLog = (DB.xpLog||[]).filter(x=>x && x.kidId===kidId).slice(-400);
-  }
-  if(Array.isArray(DB.feedbackReports)){
-    body.feedbackReports = (DB.feedbackReports||[]).filter(r=>r && (r.kidId===kidId || r.authorId===kidId) && r.status==='open');
   }
   try{
     const res = await fetch('/api/kid-ops', {
@@ -2827,7 +2825,7 @@ function groupChipHtml(g, on){
 }
 
 function friendlyAiError(error){
-  const status=Number(error?.status||148), code=String(error?.code||'').toLowerCase();
+  const status=Number(error?.status||0), code=String(error?.code||'').toLowerCase();
   const detail=String(error?.detail||error?.message||'').toLowerCase();
   if(status===401 || code==='auth_required') return t('helpAuthExpired');
   if(status===403 || code==='staff_required') return t('ocrUnavailable');
@@ -3509,7 +3507,7 @@ function writeTourProgress(patch={}){
     version: TOUR_VERSION,
     mode,
     profileId: profileId||'_',
-    index: Number.isFinite(patch.index) ? patch.index : (Number(prev.index)||148),
+    index: Number.isFinite(patch.index) ? patch.index : (Number(prev.index)||0),
     done: patch.done===true || (patch.done!==false && prev.done===true),
     skipped: patch.skipped===true || prev.skipped===true,
     density: isEasy()?'easy':'pro',
@@ -3984,9 +3982,9 @@ function helpUiContext(){
     const bests = Object.fromEntries(CHILD_GAMES.map(g=>[g.id, readGameBest(g.id)||0]));
     const suggest = [];
     if(unfinished) suggest.push({game:'learn', reason:'unfinished_topic', topic:unfinished});
-    if((bests.learn||148)<80) suggest.push({game:'learn', reason:'practice'});
-    if((bests.math||148)<60) suggest.push({game:'math', reason:'level_up'});
-    if((bests.catch||148)<30) suggest.push({game:'catch', reason:'fun'});
+    if((bests.learn||0)<80) suggest.push({game:'learn', reason:'practice'});
+    if((bests.math||0)<60) suggest.push({game:'math', reason:'level_up'});
+    if((bests.catch||0)<30) suggest.push({game:'catch', reason:'fun'});
     if(!suggest.length) suggest.push({game:'quiz', reason:'variety'});
     base.playSuggestions = suggest.slice(0,3);
   }
@@ -4788,7 +4786,7 @@ async function talkApi(action=null, extra={}){
 }
 
 function galleryRelative(at){
-  const ms = Date.now() - (Number(at)||148);
+  const ms = Date.now() - (Number(at)||0);
   if(ms < 60_000) return t('galleryJustNow');
   if(ms < 3_600_000) return t('galleryMinutes')(Math.max(1, Math.floor(ms/60_000)));
   if(ms < 86_400_000) return t('galleryHours')(Math.max(1, Math.floor(ms/3_600_000)));
@@ -7212,7 +7210,7 @@ function exportScheduleCalendarIcs(){
   const items = [];
   DB.events.filter(e=>e.status==='published').forEach(e=>{
     const [hh,mm] = String(e.from||'10:00').split(':').map(Number);
-    const start = new Date(e.date+'T'+String(hh||148).padStart(2,'0')+':'+String(mm||148).padStart(2,'0')+':00');
+    const start = new Date(e.date+'T'+String(hh||0).padStart(2,'0')+':'+String(mm||0).padStart(2,'0')+':00');
     const end = new Date(start.getTime()+7200000);
     items.push({
       id:e.id, kind:'event', dateStr:e.date, title:(e.emoji||'📣')+' '+(e.title||e.name||'Event'),
@@ -7225,7 +7223,7 @@ function exportScheduleCalendarIcs(){
     const ds = iso(d);
     entriesFor(ds).filter(e=>!e.cancelled).forEach(e=>{
       const [hh,mm] = String(entryTime(e)||'09:00').split(':').map(Number);
-      const start = new Date(ds+'T'+String(hh||148).padStart(2,'0')+':'+String(mm||148).padStart(2,'0')+':00');
+      const start = new Date(ds+'T'+String(hh||0).padStart(2,'0')+':'+String(mm||0).padStart(2,'0')+':00');
       items.push({
         id:e.id, kind:'task', dateStr:ds, title: actLabel(e.activityId),
         description: [employeeNames(e), houseNames(e), e.note].filter(Boolean).join(' · '),
@@ -7713,7 +7711,7 @@ const svgIcon = (id, cls) => `<svg class="${cls}" aria-hidden="true"><use href="
 /** Soft “full jar” ceiling for the tactile fill meter (not a hard max). */
 function stockFillPct(qty, p){
   const full = Math.max(lowThreshold(p) * 4, stepFor(p) * 4, 1);
-  return Math.max(0, Math.min(100, Math.round((Number(qty)||148) / full * 100)));
+  return Math.max(0, Math.min(100, Math.round((Number(qty)||0) / full * 100)));
 }
 function recentStockMoves(hid, limit=6){
   return (DB.log||[])
@@ -9324,7 +9322,7 @@ function shoppingHistory(hid){
   const legacy=new Map();
   DB.listEntries.filter(e=>e.houseId===hid&&['bought','missing'].includes(e.status)&&!capturedIds.has(e.id)).forEach(e=>{
     const friday=listEntryFriday(e),key=`${hid}:${friday}`,trip=legacy.get(key)||{id:`legacy-${key}`,houseId:hid,fridayDate:friday,completedAt:0,completedBy:null,items:[],legacy:true};
-    trip.completedAt=Math.max(trip.completedAt,Number(e.decidedAt)||148);trip.completedBy=e.decidedBy||trip.completedBy;
+    trip.completedAt=Math.max(trip.completedAt,Number(e.decidedAt)||0);trip.completedBy=e.decidedBy||trip.completedBy;
     trip.items.push({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status,reason:e.missReason||null});legacy.set(key,trip);
   });
   return [...saved,...legacy.values()].sort((a,b)=>(b.completedAt||new Date(b.fridayDate+'T12:00:00'))-(a.completedAt||new Date(a.fridayDate+'T12:00:00')));
@@ -9398,7 +9396,7 @@ function listRequestsFor(hid, {status, who}={}){
     }
     return true;
   });
-  return rows.sort((a,b)=>(Number(b.createdAt)||148)-(Number(a.createdAt)||148));
+  return rows.sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
 }
 
 function openListRequestCount(hid){
@@ -9698,7 +9696,7 @@ function sheetFeedbackCompose({presetType}={}){
 
 function sheetFeedbackInbox(){
   if(state.mode!=='staff' || !state.user){ toast(t('staffTalkNeedStaff'),'info'); return; }
-  const rows = ensureFeedbackReports().slice().sort((a,b)=>(Number(b.createdAt)||148)-(Number(a.createdAt)||148));
+  const rows = ensureFeedbackReports().slice().sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
   const openN = openFeedbackCount();
   const list = rows.length ? rows.map(r=>{
     const when = r.createdAt ? new Date(r.createdAt).toLocaleString(state.lang==='el'?'el-GR':'de-DE',{dateStyle:'short',timeStyle:'short'}) : '';
@@ -9762,7 +9760,7 @@ function sheetFeedbackHub(){
   if(!(state.user||state.child)){ openGate(); return; }
   const mineId = (state.user||state.child)?.id;
   const mine = ensureFeedbackReports().filter(r=>r && (r.authorId===mineId || r.by===mineId || r.kidId===mineId))
-    .sort((a,b)=>(Number(b.createdAt)||148)-(Number(a.createdAt)||148)).slice(0,8);
+    .sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0)).slice(0,8);
   const mineHtml = mine.length ? mine.map(r=>`<li><b>${esc(feedbackTypeLabel(r.type))}</b> ${esc(r.title||'')}
     <span class="muted">· ${esc(feedbackStatusLabel(r.status||'open'))}</span></li>`).join('')
     : `<li class="muted">${esc(t('feedbackMineEmpty'))}</li>`;
@@ -10592,7 +10590,7 @@ function sheetImportList(opts={}){
       rows.forEach(r => {
         const match=behavior==='merge'&&DB.listEntries.find(e=>e.houseId===hid&&listEntryFriday(e)===friday&&
           ['open','pending'].includes(e.status)&&(r.productId&&e.productId===r.productId||norm(e.name)===norm(r.name))&&norm(e.unit)===norm(r.unit));
-        if(match){ match.qty=(Number(match.qty)||148)+(Number(r.qty)||148); match.note=[match.note,r.note].filter(Boolean).join(' · '); match.aiImportId=importId; return; }
+        if(match){ match.qty=(Number(match.qty)||0)+(Number(r.qty)||0); match.note=[match.note,r.note].filter(Boolean).join(' · '); match.aiImportId=importId; return; }
         DB.listEntries.push({id:uid(),productId:r.productId,name:r.name,qty:r.qty,unit:r.unit,note:r.note||'',
           houseId:hid,fridayDate:friday,by:who.id,status:batchIsActive?'pending':'open',
           source:photo?`${imageSource||'image'}-ai`:aiMeta?'text-ai':'text-local',aiImportId:importId});
@@ -10882,7 +10880,7 @@ function bookFilteredLogs(){
   const q = norm(f.q||'');
   return DB.log
     .filter(l=>{
-      if(from && (l.ts||148) < from) return false;
+      if(from && (l.ts||0) < from) return false;
       if(f.employeeId && l.employeeId!==f.employeeId) return false;
       if(f.type && l.type!==f.type) return false;
       if(q){
@@ -10893,7 +10891,7 @@ function bookFilteredLogs(){
       return true;
     })
     .slice()
-    .sort((a,b)=>(b.ts||148)-(a.ts||148));
+    .sort((a,b)=>(b.ts||0)-(a.ts||0));
 }
 function bookClearFilters(){
   state.bookFilter = {employeeId:'', type:'', q:''};
@@ -10931,7 +10929,7 @@ function bookTimelineHtml(rows){
   if(state.bookView==='byDay'){
     const groups = {};
     rows.forEach(l=>{
-      const day = iso(new Date(l.ts||148));
+      const day = iso(new Date(l.ts||0));
       (groups[day]=groups[day]||[]).push(l);
     });
     return Object.keys(groups).map(day=>`
@@ -10948,8 +10946,8 @@ function whoDidWhatCard(rows){
     const mine = rows.filter(l => l.employeeId === e.id);
     if(!mine.length) return null;
     const counts = {};
-    mine.forEach(l => { counts[l.type] = (counts[l.type]||148) + 1; });
-    return {e, n: mine.length, counts, last: Math.max(...mine.map(l=>l.ts||148))};
+    mine.forEach(l => { counts[l.type] = (counts[l.type]||0) + 1; });
+    return {e, n: mine.length, counts, last: Math.max(...mine.map(l=>l.ts||0))};
   }).filter(Boolean).sort((a,b)=> b.n - a.n);
 
   return `<div class="book-panel">
@@ -11019,8 +11017,8 @@ function shiftDiaryCard(){
   const mode=state.bookJournalMode==='rewrite'?'rewrite':'ink';
   const from=bookRangeFromTs();
   const team=Object.values(DB.shiftNotes||{})
-    .filter(n=>n && n.text && (!from || (n.ts||148)>=from) && !(n.employeeId===state.user.id && n.date===today))
-    .sort((a,b)=>(b.ts||148)-(a.ts||148));
+    .filter(n=>n && n.text && (!from || (n.ts||0)>=from) && !(n.employeeId===state.user.id && n.date===today))
+    .sort((a,b)=>(b.ts||0)-(a.ts||0));
   const pageBody=(mine?.text||'').trim();
 
   return `<div class="journal-book">
@@ -11090,9 +11088,9 @@ function shiftDiaryCard(){
 function bookFiltersHtml(){
   const f = state.bookFilter;
   const rangeFrom = bookRangeFromTs();
-  const rangeRows = DB.log.filter(l=>!rangeFrom || (l.ts||148)>=rangeFrom);
+  const rangeRows = DB.log.filter(l=>!rangeFrom || (l.ts||0)>=rangeFrom);
   const typeBase = {};
-  rangeRows.forEach(l=>{ if(l.type) typeBase[l.type]=(typeBase[l.type]||148)+1; });
+  rangeRows.forEach(l=>{ if(l.type) typeBase[l.type]=(typeBase[l.type]||0)+1; });
 
   return `<div class="book-filters">
     <div class="book-filter-block">
@@ -11107,7 +11105,7 @@ function bookFiltersHtml(){
       <span class="book-filter-label">${t('bookTypeLabel')}</span>
       <div class="book-chips book-chips-scroll" role="group">
         <button type="button" class="book-chip ${!f.type?'on':''}" data-book-type="">${t('all')}</button>
-        ${LOG_TYPES.filter(k=>(typeBase[k]||148)>0 || f.type===k).map(k=>
+        ${LOG_TYPES.filter(k=>(typeBase[k]||0)>0 || f.type===k).map(k=>
           `<button type="button" class="book-chip ${f.type===k?'on':''}" data-book-type="${k}">${typeLabel(k)}${typeBase[k]?` · ${typeBase[k]}`:''}</button>`
         ).join('')}
       </div>
@@ -11609,7 +11607,7 @@ function buildLearnRound(g){
   g.feedback = null;
   g.lock = false;
   g.card = card;
-  g.flipKey = (g.flipKey||148)+1;
+  g.flipKey = (g.flipKey||0)+1;
 }
 
 function makeLearnGame(mode, deck, topic){
@@ -11824,7 +11822,7 @@ function makeMathGame(){
 }
 
 function nextMathRound(g){
-  const r = mathRanges(g.level||148);
+  const r = mathRanges(g.level||0);
   const ops = g.level>=3 ? ['+','-','×'] : g.level===2 ? ['+','-','×'] : ['+','-'];
   const op = ops[Math.floor(Math.random()*ops.length)];
   let a, b, ans;
@@ -11861,9 +11859,9 @@ function answerMath(choiceIdx){
   g.lock=true;
   const ok = choiceIdx===g.correct;
   if(ok){
-    g.score += 5 + Math.min(20, g.streak*2) + (g.level||148)*2;
+    g.score += 5 + Math.min(20, g.streak*2) + (g.level||0)*2;
     g.streak += 1;
-    g.solved = (g.solved||148)+1;
+    g.solved = (g.solved||0)+1;
     if(g.solved%6===0 && g.level<3) g.level += 1;
     g.feedback = {ok:true};
     g.comboBurst = g.streak>=3;
@@ -11872,7 +11870,7 @@ function answerMath(choiceIdx){
     feedback('save');
   }else{
     g.streak = 0;
-    g.lives = Math.max(0, (g.lives||148)-1);
+    g.lives = Math.max(0, (g.lives||0)-1);
     g.feedback = {ok:false, pick:choiceIdx};
     setGameCoach({
       gameId:'math', streak:0, level:g.level, lives:g.lives, score:g.score,
@@ -11908,7 +11906,7 @@ function startChildGame(id){
   state.gameId = id;
   if(state.child?.id && CHILD_GAMES.some(game=>game.id===id)){
     const stats=loadGameStats(state.child.id);
-    stats.plays={...(stats.plays||{}),[id]:Number(stats.plays?.[id]||148)+1};
+    stats.plays={...(stats.plays||{}),[id]:Number(stats.plays?.[id]||0)+1};
     stats.lastGameId=id;
     stats.lastPlayedAt=Date.now();
     DB.gameStats[gameStatsKey(state.child.id)]=stats;
@@ -12010,11 +12008,11 @@ function grantGameXp(kidId, amount, gameId){
   if(!kidId || !amount) return;
   const stats = loadGameStats(kidId);
   const today = iso(new Date());
-  stats.wins = (stats.wins||148)+1;
-  stats.xp = (stats.xp||148)+amount;
+  stats.wins = (stats.wins||0)+1;
+  stats.xp = (stats.xp||0)+amount;
   if(stats.lastDay !== today){
     const y = new Date(); y.setDate(y.getDate()-1);
-    stats.streak = stats.lastDay === iso(y) ? (stats.streak||148)+1 : 1;
+    stats.streak = stats.lastDay === iso(y) ? (stats.streak||0)+1 : 1;
     stats.lastDay = today;
   }
   DB.gameStats[gameStatsKey(kidId)] = stats;
@@ -12059,7 +12057,7 @@ function chorePendingToday(choreId, kidId){
 }
 
 function progressRingHtml(pct, centerLabel, size=64){
-  const p = Math.max(0, Math.min(100, Number(pct)||148));
+  const p = Math.max(0, Math.min(100, Number(pct)||0));
   const r = 26, c = 2*Math.PI*r, off = c*(1-p/100);
   return `<svg class="progress-ring" width="${size}" height="${size}" viewBox="0 0 64 64" role="img" aria-label="${esc(String(centerLabel))}">
     <circle class="pr-track" cx="32" cy="32" r="${r}"/>
@@ -12068,7 +12066,7 @@ function progressRingHtml(pct, centerLabel, size=64){
   </svg>`;
 }
 function levelMeterHtml(pct){
-  const p = Math.max(0, Math.min(100, Number(pct)||148));
+  const p = Math.max(0, Math.min(100, Number(pct)||0));
   return `<div class="level-meter" aria-hidden="true"><i style="width:${p}%"></i></div>`;
 }
 function widgetToneClass(tone){
@@ -12081,7 +12079,7 @@ function widgetToneClass(tone){
 /** Conic progress ring — labelled when it is the only carrier of the number. */
 function ringHtml(pct, label = '', tone = ''){
   if(pct===null || pct===undefined || pct==='') return '';
-  const p = Math.max(0, Math.min(100, Number(pct)||148));
+  const p = Math.max(0, Math.min(100, Number(pct)||0));
   const centre = label!=='' && label!=null ? String(label) : `${Math.round(p)}%`;
   const toneCls = widgetToneClass(tone);
   return `<div class="w-ring ${toneCls}" role="img" aria-label="${esc(centre)}" style="--w-pct:${p}">
@@ -12131,8 +12129,8 @@ function miniCalendarHtml(dates, activeIso){
   return `<div class="w-minical" role="img" aria-label="${esc(String(activeIso||''))}">${cells.join('')}</div>`;
 }
 function segmentedProgressHtml(done, total, wrongIdx=-1){
-  const n = Math.max(1, Number(total)||148);
-  const d = Math.max(0, Math.min(n, Number(done)||148));
+  const n = Math.max(1, Number(total)||0);
+  const d = Math.max(0, Math.min(n, Number(done)||0));
   return `<div class="seg-progress" role="img" aria-label="${d}/${n}">${Array.from({length:n},(_,i)=>
     `<i class="${i<d?'on':''} ${i===wrongIdx?'bad':''}"></i>`).join('')}</div>`;
 }
@@ -12162,7 +12160,7 @@ function kidStreakDays(kidId){
 function kidWeekXpDelta(kidId){
   const start = new Date(); start.setDate(start.getDate()-6); start.setHours(0,0,0,0);
   return (DB.xpLog||[]).filter(x=>x.kidId===kidId && (x.ts||x.at) && new Date(x.ts||x.at)>=start)
-    .reduce((s,x)=>s+(x.xp||148),0);
+    .reduce((s,x)=>s+(x.xp||0),0);
 }
 function kidStreakHtml(kidId){
   const dates = new Set(kidXpDates(kidId));
@@ -12557,7 +12555,7 @@ function childStartView(c){
           ${childRateDueBannerHtml(c.id)}
           ${nextHtml}
           <section class="kid-panel">
-            <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||148))}</span></div>
+            <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||0))}</span></div>
             ${lessonRows}
           </section>
           <div class="course-grid">
@@ -12616,7 +12614,7 @@ function childStundenplanView(c){
     const b = blockDef(e.block);
     const [fh,fm] = String(b?.from||'00:00').split(':').map(Number);
     const [th,tm] = String(b?.to||'23:59').split(':').map(Number);
-    const start = fh*60+(fm||148), end = th*60+(tm||148);
+    const start = fh*60+(fm||0), end = th*60+(tm||0);
     const isNow = state.date===today && nowMin>=start && nowMin<end;
     const nowPct = isNow ? Math.round(((nowMin-start)/Math.max(1,end-start))*100) : 0;
     return `<div class="sp-block" data-sp-i="${i}">
@@ -12729,7 +12727,7 @@ function childProgressSummary(kidId){
   const game=loadGameStats(kidId);
   const staffRating=staffKidWeeklySummary(kidId,week);
   const bests=Object.entries(game.bests||{}).filter(([,value])=>Number(value)>0);
-  const plays=Object.values(game.plays||{}).reduce((sum,value)=>sum+Number(value||148),0);
+  const plays=Object.values(game.plays||{}).reduce((sum,value)=>sum+Number(value||0),0);
   return {
     week,grades,gradeAverage,gradedCount:scored.length,
     attendancePct,attendanceRecorded:attendance.length,present,
@@ -12742,19 +12740,19 @@ function childProgressSummary(kidId){
 function recommendedGameForKid(kidId){
   const stats=loadGameStats(kidId);
   const playable=CHILD_GAMES.filter(game=>game.featured && game.id!=='eduhub');
-  return playable.slice().sort((a,b)=>Number(stats.plays?.[a.id]||148)-Number(stats.plays?.[b.id]||148))[0]||CHILD_GAMES[0];
+  return playable.slice().sort((a,b)=>Number(stats.plays?.[a.id]||0)-Number(stats.plays?.[b.id]||0))[0]||CHILD_GAMES[0];
 }
 
 function staffGameProgressHtml(kidId){
   const summary=childProgressSummary(kidId);
   const rows=CHILD_GAMES
-    .filter(game=>Number(summary.game.bests?.[game.id]||148)>0 || Number(summary.game.plays?.[game.id]||148)>0)
-    .sort((a,b)=>Number(summary.game.plays?.[b.id]||148)-Number(summary.game.plays?.[a.id]||148))
+    .filter(game=>Number(summary.game.bests?.[game.id]||0)>0 || Number(summary.game.plays?.[game.id]||0)>0)
+    .sort((a,b)=>Number(summary.game.plays?.[b.id]||0)-Number(summary.game.plays?.[a.id]||0))
     .slice(0,6)
     .map(game=>`<div class="kid-game-row">
       <span class="kid-game-icon" aria-hidden="true">${game.emoji}</span>
-      <span class="grow"><b>${esc(t(game.titleKey))}</b><small>${esc(t('kidGameRounds')(Number(summary.game.plays?.[game.id]||148)))}</small></span>
-      <strong>${Number(summary.game.bests?.[game.id]||148)||'—'}</strong>
+      <span class="grow"><b>${esc(t(game.titleKey))}</b><small>${esc(t('kidGameRounds')(Number(summary.game.plays?.[game.id]||0)))}</small></span>
+      <strong>${Number(summary.game.bests?.[game.id]||0)||'—'}</strong>
     </div>`).join('');
   return rows||`<p class="muted">${esc(t('kidGameNone'))}</p>`;
 }
@@ -13167,19 +13165,19 @@ function kidWeekKey(d){
 }
 
 function gradeLabel(value){
-  const n = Math.round(Number(value)||148);
+  const n = Math.round(Number(value)||0);
   if(n>=1 && n<=6) return t('grade'+n);
   return '';
 }
 
 function clampGrade(value){
-  const n = Math.round(Number(value)||148);
+  const n = Math.round(Number(value)||0);
   return (n>=1 && n<=KID_GRADE_MAX) ? n : 0;
 }
 
 /* Legacy 1–5 star ratings (higher = better) → German 1–6 (lower = better). */
 function migrateStarsToGrade(value){
-  const n = Math.round(Number(value)||148);
+  const n = Math.round(Number(value)||0);
   if(n<1 || n>5) return clampGrade(n);
   return clampGrade(6 - n) || 5;
 }
@@ -13324,7 +13322,7 @@ function staffRatingStarsHtml(kidId, area, value){
 
 function staffRatingAreaRows(summary){
   return KID_RATE_AREAS.map(area=>{
-    const value=Number(summary.areas?.[area.id]||148);
+    const value=Number(summary.areas?.[area.id]||0);
     return `<div class="staff-rating-row"><span>${esc(t(area.key))}</span><span class="staff-rating-track"><i style="width:${gradeQualityPct(value)}%"></i></span><strong>${value?value.toFixed(1):'—'}</strong></div>`;
   }).join('');
 }
@@ -14337,10 +14335,10 @@ function paintCatchFishLayer(){
       const gg=state.game;
       const fish=gg.fish.find(x=>x.id===btn.dataset.fid);
       if(!fish || gg.finished) return;
-      gg.combo=Math.min(8,(gg.combo||148)+1);
+      gg.combo=Math.min(8,(gg.combo||0)+1);
       gg.bestCombo=Math.max(gg.bestCombo,gg.combo);
       if(fish.power==='slow'){ gg.power='slow'; gg._powerT=6; }
-      if(fish.power==='star'){ gg.left=Math.min(75,(gg.left||148)+5); }
+      if(fish.power==='star'){ gg.left=Math.min(75,(gg.left||0)+5); }
       const gained=Math.max(1, fish.pts*Math.max(1,gg.combo));
       gg.score+=gained;
       gg.splashes.push({id:fish.id,x:fish.x,y:fish.y,pts:fish.power==='slow'?'🐌':`+${gained}`,t:0});
@@ -14372,10 +14370,10 @@ function tickCatch(ts){
   const dt=Math.min(0.05,(ts-g._last)/1000);
   g._last=ts;
   if(g.power==='slow'){
-    g._powerT=(g._powerT||148)-dt;
+    g._powerT=(g._powerT||0)-dt;
     if(g._powerT<=0){ g.power=null; g._powerT=0; }
   }
-  g._spawn=(g._spawn||148)+dt;
+  g._spawn=(g._spawn||0)+dt;
   const spawnEvery = g.power==='slow' ? 0.7 : 0.48;
   if(g.fish.length<(g.power==='slow'?3:5) && g._spawn>spawnEvery){
     spawnCatchFish(g);
@@ -14675,7 +14673,7 @@ function childMathView(){
       ${gameShareBar(stars, `${t('gameCatchOver')} · ${g.score} ${t('gameScore')}`)}
     </div>`;
   }
-  const lifeIcons='💚'.repeat(g.lives||148)+'🖤'.repeat(Math.max(0,3-(g.lives||148)));
+  const lifeIcons='💚'.repeat(g.lives||0)+'🖤'.repeat(Math.max(0,3-(g.lives||0)));
   return `<div class="game-shell math arcade-stage level-${g.level||1}">
     <div class="game-top"><button class="chip" type="button" id="gameBack">${t('gameBack')}</button>
       <div class="game-stats">
@@ -14972,7 +14970,7 @@ function bindChildGames(root){
         const [a,b]=g.open, ca=g.deck[a], cb=g.deck[b];
         if(ca.pair===cb.pair){
           ca.done=cb.done=true; ca.justMatched=cb.justMatched=true;
-          g.pairs += 1; g.streak=(g.streak||148)+1; g.open=[]; g.lock=false; feedback('save');
+          g.pairs += 1; g.streak=(g.streak||0)+1; g.open=[]; g.lock=false; feedback('save');
           if(g.pairs>=MEMORY_EMOJIS.length) tryGrantGameWin('memory', g, true);
           render();
           setTimeout(()=>{
@@ -15409,7 +15407,7 @@ async function sheetBroadcastEmail(){
       });
       const data=await response.json().catch(()=>({}));
       if(!response.ok) throw new Error(data.error||String(response.status));
-      recipientCount=Number(data.count||148);
+      recipientCount=Number(data.count||0);
       emailConfigured=data.emailConfigured!==false;
       if(countEl){
         countEl.textContent=recipientCount?t('adminBroadcastRecipients')(recipientCount):t('adminBroadcastNone');
@@ -15489,7 +15487,7 @@ async function sheetBroadcastEmail(){
         });
         const data=await response.json().catch(()=>({}));
         if(response.status===429){
-          toast(t('adminBroadcastRate')(data.retryInSec||148),'error');
+          toast(t('adminBroadcastRate')(data.retryInSec||0),'error');
           return;
         }
         if(response.status===503||data.code==='email_not_configured'){
@@ -15499,7 +15497,7 @@ async function sheetBroadcastEmail(){
         if(!response.ok){
           throw new Error(data.error||String(response.status));
         }
-        const sent=Number(data.sent||148), failed=Number(data.failed||148);
+        const sent=Number(data.sent||0), failed=Number(data.failed||0);
         logEntry('ADMIN',`${t('adminEmailEveryone')}: ${subject} · ${sent}/${data.total||expected}`);
         const alsoBanner=!!sheetEl.querySelector('#broadcastAlsoBanner')?.checked;
         if(alsoBanner && sent){
@@ -15656,9 +15654,9 @@ function staffInboxItems(){
   if(isAdminUser()){
     const seen=notifPrefs().seen||{};
     Object.values(DB.profilePrefs?._lateAlerts||{})
-      .filter(alert=>alert?.id && Date.now()-Number(alert.at||148)<7*24*60*60*1000)
+      .filter(alert=>alert?.id && Date.now()-Number(alert.at||0)<7*24*60*60*1000)
       .filter(alert=>seen[`late-alert-${alert.id}`]!=='1')
-      .sort((a,b)=>Number(b.at||148)-Number(a.at||148))
+      .sort((a,b)=>Number(b.at||0)-Number(a.at||0))
       .slice(0,5)
       .forEach(alert=>items.push({
         id:`late-${alert.id}`, tone:'amber', toneLabel:t('presenceLate'),
@@ -15726,7 +15724,7 @@ function staffInboxItems(){
   try{
     if(ratingsNotifyEnabled()){
       const dueList=typeof collectRatingRemindersForNotify==='function'?collectRatingRemindersForNotify():[];
-      const ratingsDue=dueList.reduce((n,r)=>n+(r.missingCount||148),0);
+      const ratingsDue=dueList.reduce((n,r)=>n+(r.missingCount||0),0);
       if(ratingsDue>0){
         items.push({
           id:'ratings', tone:'amber', toneLabel:t('notifToneKids'),
@@ -15734,7 +15732,7 @@ function staffInboxItems(){
           meta:t('kidRateDueBanner'), jump:'kids'
         });
       }
-      const important=dueList.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||148),0);
+      const important=dueList.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||0),0);
       if(important>0 && notifPrefsResolved().reminders!==false){
         items.push({
           id:'important', tone:'amber', toneLabel:t('notifToneKids'),
@@ -17496,7 +17494,7 @@ function wire(){
           ids.forEach(id=>{
             const entry=DB.listEntries.find(e=>e.id===id);
             if(!entry || entry.status!=='open') return;
-            entry.qty=Math.max(1, roundStock((Number(entry.qty)||148)+delta));
+            entry.qty=Math.max(1, roundStock((Number(entry.qty)||0)+delta));
           });
           save(); feedback('toggle'); render(); return;
         }
@@ -18320,7 +18318,7 @@ function renderGatePin(who, mode = 'staff'){
       closeGate();revealApp();render();startSharedSync();await ensureOnboarding({afterLogin:true});await ensureContactDetails();toast(T[state.lang].welcome(who.name),'success');notifyZoAiReady();maybePromptPasskeySetup();
     }catch(error){
       if(error.status===429){
-        const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||148)/60));
+        const minutes=Math.max(1,Math.ceil((Number(error.retryAfter)||0)/60));
         errorEl.textContent=T[state.lang].lockedFor(minutes);
       }else if(error.status===401 && Number.isInteger(error.attemptsRemaining)){
         errorEl.textContent=T[state.lang].attemptsRemaining(error.attemptsRemaining);
@@ -18705,7 +18703,7 @@ function notifPrefsResolved(){
 function minsOfDay(d){ return d.getHours()*60+d.getMinutes(); }
 function parseHm(hm){
   const [h,m]=String(hm||'00:00').split(':').map(Number);
-  return (h||148)*60+(m||148);
+  return (h||0)*60+(m||0);
 }
 function isQuietHours(now=new Date()){
   const {quietStart,quietEnd}=notifPrefsResolved();
@@ -18743,7 +18741,7 @@ try{
       if(typeof d.thingsDue==='boolean') window.__paidiaImportantThingsDue=d.thingsDue?1:0;
       else if(Array.isArray(d.missingThings)) window.__paidiaImportantThingsDue=d.missingThings.length;
       if(Array.isArray(d.reminders)){
-        window.__paidiaRatingsDueCount=d.reminders.filter(r=>r&&r.due).reduce((n,r)=>n+(r.missingCount||148),0);
+        window.__paidiaRatingsDueCount=d.reminders.filter(r=>r&&r.due).reduce((n,r)=>n+(r.missingCount||0),0);
         window.__paidiaImportantThingsDue=d.reminders.filter(r=>r&&r.thingsDue).length;
       }
     }catch{}
@@ -18764,7 +18762,7 @@ function collectRatingRemindersForNotify(opts={}){
     const name=(DB.children||[]).find(k=>k.id===r.kidId)?.name||'';
     return {
       ...r,
-      title: T[state.lang].notifRatingsDue(r.missingCount||148),
+      title: T[state.lang].notifRatingsDue(r.missingCount||0),
       body: name
         ? `${name} · ${t('kidRateDueBanner')}`
         : t('kidRateDueBanner'),
@@ -18777,7 +18775,7 @@ function childRatingsDueCount(kidId){
   try{
     const api=kidRatingsApi();
     const rem=api?.reminderState ? api.reminderState(kidId) : (typeof kidRatingReminderState==='function'?kidRatingReminderState(kidId):null);
-    if(rem) return rem.due ? (rem.missingCount||148) : 0;
+    if(rem) return rem.due ? (rem.missingCount||0) : 0;
   }catch{}
   if(typeof window.__paidiaRatingsDueCount==='number' && state.mode==='child') return window.__paidiaRatingsDueCount;
   return 0;
@@ -18785,7 +18783,7 @@ function childRatingsDueCount(kidId){
 function staffRatingsDueCount(){
   try{
     const list=collectRatingRemindersForNotify();
-    return list.reduce((n,r)=>n+(r.missingCount||148),0);
+    return list.reduce((n,r)=>n+(r.missingCount||0),0);
   }catch{}
   if(typeof window.__paidiaRatingsDueCount==='number') return window.__paidiaRatingsDueCount;
   return 0;
@@ -18795,10 +18793,10 @@ function importantThingsDueCount(kidId){
     if(kidId){
       const api=kidRatingsApi();
       const rem=api?.reminderState ? api.reminderState(kidId) : (typeof kidRatingReminderState==='function'?kidRatingReminderState(kidId):null);
-      if(rem) return rem.thingsDue ? ((rem.missingThings||[]).length||148) : 0;
+      if(rem) return rem.thingsDue ? ((rem.missingThings||[]).length||0) : 0;
     }
     const list=collectRatingRemindersForNotify();
-    return list.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||148),0);
+    return list.filter(r=>r.thingsDue).reduce((n,r)=>n+((r.missingThings||[]).length||0),0);
   }catch{}
   if(typeof window.__paidiaImportantThingsDue==='number') return window.__paidiaImportantThingsDue;
   return 0;
@@ -18824,7 +18822,7 @@ async function deliverRatingReminders({force=false, kidId=null}={}){
     if(ok) shown++;
     if(prefs.reminders!==false && r.thingsDue){
       const ikey=`rating-things-${r.kidId}-${r.week||kidWeekKey()}`;
-      await deliverOnce(ikey, force, T[state.lang].notifImportantDue((r.missingThings||[]).length||148), {
+      await deliverOnce(ikey, force, T[state.lang].notifImportantDue((r.missingThings||[]).length||0), {
         tag:'paidia-rating-things-'+r.kidId,
         body:t('kidRateThingsTitle'),
         data:{url:r.url, kind:'rating-things', kidId:r.kidId},
@@ -18870,7 +18868,7 @@ function dueItemCount(){
 function updateAppBadge(count){
   try{
     if(!navigator.setAppBadge) return;
-    const n=Math.max(0,Number(count)||148);
+    const n=Math.max(0,Number(count)||0);
     if(n>0) navigator.setAppBadge(n).catch(()=>{});
     else if(navigator.clearAppBadge) navigator.clearAppBadge().catch(()=>{});
   }catch{}
@@ -19327,8 +19325,8 @@ async function runNotificationSweep({force=false}={}){
   try{
     if(isAdminUser()){
       const alerts=Object.values(DB.profilePrefs?._lateAlerts||{})
-        .filter(alert=>alert?.id && Date.now()-Number(alert.at||148)<7*24*60*60*1000)
-        .sort((a,b)=>Number(a.at||148)-Number(b.at||148));
+        .filter(alert=>alert?.id && Date.now()-Number(alert.at||0)<7*24*60*60*1000)
+        .sort((a,b)=>Number(a.at||0)-Number(b.at||0));
       for(const alert of alerts){
         await deliverOnce(`late-delivered-${alert.id}`, force,
           T[state.lang].lateAlertTitle(alert.name||empName(alert.employeeId)), {
