@@ -1,8 +1,8 @@
 {
-  "version": 156,
-  "label": "v156",
+  "version": 157,
+  "label": "v157",
   "changed": {
-    "de": "Plan mobil: Tag-Fokus, Woche wechseln, KI füllen/leeren · Schichtcheck",
-    "el": "Πλάνο κινητό: ημέρα, αλλαγή εβδομάδας, AI γέμισμα/καθαρισμός · έλεγχος βάρδιας"
+    "de": "Lager: Abgang-Grund mittig · Liste friert bei ± · Easy-Buttons",
+    "el": "Αποθήκη: λόγος εξόδου στο κέντρο · σταθερή σειρά ± · κουμπιά Easy"
   }
 }

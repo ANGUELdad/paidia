@@ -1,3 +1,12 @@
+# Changelog
+
+## v157 — 2026-08-30
+
+- **Lager OUT reason:** Abgang-Grund picker is a **centered modal** (dim backdrop, large chips) — no longer a bottom dock under a long list.
+- **Order freeze:** ± / qty edits keep list order frozen; re-sort only on **Liste aktualisieren** / draft Save / filter·house·search change.
+- **Easy:** visible toolbar — Hinzufügen · Foto lesen · Liste aktualisieren; clear **+ / −** glyphs on every row (also while selecting).
+- **Pro bulk:** IN +, OUT −, Menge…, Regal…, → Liste, Leeren. Cache `paidia-v157`.
+
 ## v156 — 2026-08-30
 
 - **Mobile week Plan:** day-jump strip + one-day focus (swipe/jump Mo–So); readable roster cells. Dense weeks get “drehen / γύρισε οριζόντια” coach; toggle **Volle Woche** for sticky-column matrix. Desktop matrices unchanged.

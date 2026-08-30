@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 156,
-  label: 'v156',
+  version: 157,
+  label: 'v157',
   changed: {
-    de: 'Buch-Kalender: jeden Tag im Schichtbuch lesen & schreiben',
-    el: 'Ημερολόγιο Βιβλίου: διάβασε & γράψε κάθε μέρα στο βιβλίο βάρδιας',
+    de: 'Lager: Abgang-Grund mittig · Liste friert bei ± · Easy-Buttons',
+    el: 'Αποθήκη: λόγος εξόδου στο κέντρο · σταθερή σειρά ± · κουμπιά Easy',
   },
 };
 const T = {
@@ -1444,7 +1444,11 @@ const T = {
     stockDeleteCancel:'Ακύρωση',
     stockOrderFrozen:'Η σειρά πάγωσε — αποθήκευση ή ανανέωση για ταξινόμηση',
     stockOrderRefresh:'Ανανέωση λίστας',
-    stockPhotoRead:'Διάβασμα φωτό',
+    stockPhotoRead:'Διάβασε από φωτογραφία',
+    talkEasyHint:'Γράψε σύντομα στην ομάδα. Extra θέματα και βίντεο στο Pro.',
+    bookEasyHint:'Σημείωση βάρδιας — πλήρες πρωτόκολλο και ποιος-τι στο Pro.',
+    galleryEasyHint:'Μοίρασε φωτό και like. Κατάσταση Drive και ανανέωση στο Pro.',
+    homeEasyHint:'Πρώτα οι σημερινές εργασίες — περισσότερα στο Pro.',
     homeMore:'Περισσότερα σήμερα',
     homeSignals:'Σύντομη εικόνα',
     stockHeroHint:'Διάδρομος αποθήκης — πάτα ± ή πρόσθεσε γρήγορα',
@@ -3747,7 +3751,7 @@ function buildTourSteps(){
       'Tag/Woche und Hausfilter.','Ημέρα/εβδομάδα και φίλτρο σπιτιού.'),
     mk('staff-stock','stock-command',{tab:'stock'},
       'Lager','Αποθήκη',
-      'Haus wählen, suchen, ± am Produkt. Mehrfachauswahl und Foto lesen in Pro.','Διάλεξε σπίτι, αναζήτηση, ± στο προϊόν. Μαζική επιλογή και ανάγνωση φωτό στο Pro.'),
+      'Haus, Suche, ±, Hinzufügen und Foto lesen sind sichtbar. Bulk und Regale in Pro.','Σπίτι, αναζήτηση, ±, Προσθήκη και διάβασμα φωτό είναι ορατά. Μαζικά & ράφια στο Pro.'),
     mk('staff-shop','shop-command',{tab:'shop'},
       'Liste','Λίστα',
       'Freitag und Haus prüfen, dann Warenkorb.','Έλεγξε Παρασκευή και σπίτι, μετά καλάθι.'),
@@ -5124,6 +5128,7 @@ function viewGallery(){
       <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
       <h2>${t('galleryTitle')}</h2>
       ${hasFeed?'':`<p>${t('galleryHint')}</p><p class="gal-safe-line">${esc(t('gallerySafeHint'))}</p>`}
+      ${isEasy()?`<p class="easy-only muted">${esc(t('galleryEasyHint'))}</p>`:''}
       <p class="gal-drive-line pro-only mode-pro-block">${esc(state.galleryDrive?t('galleryDriveOn'):t('galleryDriveOff'))}</p>
     </div>
     <div class="gal-compose-bar">
@@ -5456,6 +5461,7 @@ function viewTalk(){
         <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
         <h2>${esc(t('staffTalkTitle'))}</h2>
         <p>${esc(t('staffTalkIntro'))}</p>
+        ${isEasy()?`<p class="easy-only muted talk-easy-hint">${esc(t('talkEasyHint'))}</p>`:''}
         <span class="talk-private">${ui('u-person')} ${esc(t('staffTalkPrivate'))}</span>
       </div>
       <div class="talk-overview-stats pro-only mode-pro-block" aria-label="${esc(t('staffTalkTitle'))}">
@@ -5475,7 +5481,7 @@ function viewTalk(){
       </div>
       <p class="muted talk-topics-hint">${esc(t('staffTalkTopicsHint'))}</p>
       <div id="talkTopicsList" class="talk-topics-list"></div>
-      <div class="talk-topic-add">
+      <div class="talk-topic-add ${isEasy()?'easy-topic-add':''}">
         <input id="talkTopicInput" maxlength="400" autocomplete="off" placeholder="${esc(t('staffTalkTopicPh'))}">
         <button class="btn sm" type="button" id="talkTopicAdd">${esc(t('staffTalkAddTopic'))}</button>
       </div>
@@ -8147,7 +8153,7 @@ function viewStock(){
       ${hid!=='all'?`<div class="stock-easy-actions" role="toolbar" aria-label="${esc(t('headerStock'))}">
         <button class="btn stock-easy-btn pine-settle" type="button" id="stockQuickAddEasy">${esc(t('stockQuickAdd'))}</button>
         <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockPhotoRead">${esc(t('stockPhotoRead'))}</button>
-        <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockOrderRefresh"${orderFrozen?'':' disabled'}>${esc(orderFrozen?t('stockOrderRefresh'):t('stockDraftSave'))}</button>
+        <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockOrderRefresh"${orderFrozen?'':' disabled'}>${esc(t('stockOrderRefresh'))}</button>
       </div>`:''}
       ${orderFrozen?`<div class="stock-order-freeze-note" role="status"><span>${esc(t('stockOrderFrozen'))}</span><button type="button" class="btn sm sec" id="stockOrderRefreshNote">${esc(t('stockOrderRefresh'))}</button></div>`:''}
     </div>
@@ -11582,6 +11588,7 @@ function viewBook(){
       <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
       <h2 class="tide-line">${esc(heroTitle)}</h2>
       <p>${esc(heroHint)}</p>
+      ${isEasy()?`<p class="easy-only muted">${esc(t('bookEasyHint'))}</p>`:''}
     </header>
     <div class="book-panes" role="tablist">
       <button type="button" role="tab" class="book-pane-btn ${pane==='shift'?'on':''}" data-book-pane="shift" aria-selected="${pane==='shift'}">${esc(t('bookPaneShift'))}</button>
@@ -11590,11 +11597,11 @@ function viewBook(){
     </div>
     ${pane!=='shift' ? adaptiveChrome(bookFiltersHtml(), filterMeta) : adaptiveChrome(`
       <div class="page-actions book-toolbar" role="toolbar">
-        <button class="page-act ${state.bookRange==='today'?'on':''}" type="button" data-book-range="today">${esc(t('today'))}</button>
-        <button class="page-act ${state.bookRange==='week'?'on':''}" type="button" data-book-range="week">${esc(t('last7'))}</button>
-        <button class="page-act ${state.bookRange==='month'?'on':''}" type="button" data-book-range="month">${esc(t('last30'))}</button>
-        <button class="page-act ghost" type="button" data-page-act="bookFix">${esc(t('topFix'))}</button>
-      </div>`, bookRangeLabel())}
+        <button class="page-act ${bookJournalDay()===iso(new Date())?'on':''}" type="button" id="bookCalTodayBar">${esc(t('bookCalToday'))}</button>
+        <button class="page-act pro-only mode-pro-block ${state.bookRange==='week'?'on':''}" type="button" data-book-range="week">${esc(t('last7'))}</button>
+        <button class="page-act pro-only mode-pro-block ${state.bookRange==='month'?'on':''}" type="button" data-book-range="month">${esc(t('last30'))}</button>
+        <button class="page-act ghost pro-only mode-pro-block" type="button" data-page-act="bookFix">${esc(t('topFix'))}</button>
+      </div>`, journalDateLabel(bookJournalDay()))}
     ${body}
   </div>`;
 }
@@ -16254,7 +16261,7 @@ function runInboxJump(jump){
   if(jump==='stockcheck'){ sheetShiftStockCheck(); return; }
   if(jump==='stock'){ state.tab='stock'; clearSelection(); render(); return; }
   if(jump==='shop'){ state.tab='shop'; state.shopPanel='plan'; clearSelection(); render(); return; }
-  if(jump==='book'){ state.tab='book'; state.bookPane='shift'; render(); return; }
+  if(jump==='book'){ openBookJournal(); return; }
   if(jump==='kids'){ state.tab='kids'; render(); return; }
   if(jump==='gallery'){ state.tab='gallery'; refreshGallery({silent:true}).finally(()=>render()); return; }
   if(jump==='home-end'){ sheetShiftEnd(); return; }
@@ -17354,7 +17361,7 @@ function render(){
   });
   if(state.tab!=='talk') stopTalkPanelPoll();
 
-  const stockDraftActive=state.tab==='stock' && state.house!=='all' && (stockDraftEntries().length>0 || !!state.stockPendingStep);
+  const stockDraftActive=state.tab==='stock' && state.house!=='all' && stockDraftEntries().length>0;
   const storeDock=state.tab==='shop' && fridayEntries(shopHouse()).some(e=>e.status==='pending');
   // Only shift the Zo-Ai FAB when the draft footer is actually on screen.
   document.body.classList.toggle('has-stock-dock', stockDraftActive);
@@ -18273,15 +18280,49 @@ function wire(){
     state.bookJournalMode = shiftMode.dataset.journalMode==='rewrite'?'rewrite':'ink';
     feedback('toggle'); render();
   };
+  const pickBookDay = (ds)=>{
+    if(!ds || !/^\d{4}-\d{2}-\d{2}$/.test(ds)) return;
+    state.bookDate = ds;
+    state.bookCalMonth = ds.slice(0,7)+'-01';
+    state.bookJournalMode = 'ink';
+    feedback('toggle'); render();
+  };
+  v.querySelectorAll('[data-book-cal-date]').forEach(b=>{
+    const go = () => pickBookDay(b.dataset.bookCalDate);
+    b.onclick = go;
+    if(b.tagName==='ARTICLE') b.onkeydown = (ev)=>{
+      if(ev.key==='Enter' || ev.key===' '){ ev.preventDefault(); go(); }
+    };
+  });
+  v.querySelectorAll('[data-book-cal-shift]').forEach(b=>{
+    b.onclick = ()=>{
+      const base = new Date(ensureBookCalMonth()+'T12:00:00');
+      base.setMonth(base.getMonth()+Number(b.dataset.bookCalShift||0));
+      state.bookCalMonth = iso(base).slice(0,7)+'-01';
+      feedback('toggle'); render();
+    };
+  });
+  const jumpToday = ()=>{
+    const today = iso(new Date());
+    state.bookDate = today;
+    state.bookCalMonth = today.slice(0,7)+'-01';
+    state.bookRange = 'today';
+    feedback('toggle'); render();
+  };
+  const bookCalToday = v.querySelector('#bookCalToday');
+  if(bookCalToday) bookCalToday.onclick = jumpToday;
+  const bookCalTodayBar = v.querySelector('#bookCalTodayBar');
+  if(bookCalTodayBar) bookCalTodayBar.onclick = jumpToday;
   const shiftSave=v.querySelector('#shiftNoteSave');
   if(shiftSave) shiftSave.onclick=()=>{
     if(!state.user){ toast(t('noUser'),'error'); return; }
     const text=(v.querySelector('#shiftNoteText')?.value||'').trim();
     if(!text){ toast(t('shiftDiaryPh'),'error'); return; }
     const mode=state.bookJournalMode==='rewrite'?'rewrite':'ink';
+    const day=bookJournalDay();
     askPin(t('shiftDiary'), who=>{
       state.user=who;
-      writeShiftJournalPage(who.id, text, {mode});
+      writeShiftJournalPage(who.id, text, {mode, dateStr:day});
       if(!save()) return;
       state.bookJournalMode='ink';
       render();
@@ -19847,7 +19888,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||156),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||157),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){
