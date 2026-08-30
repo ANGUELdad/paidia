@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 141,
-  label: 'v141',
+  version: 142,
+  label: 'v142',
   changed: {
-    de: 'Lager ± Sofort · Schnell-Hinzufügen',
-    el: 'Αποθήκη ± άμεσα · γρήγορη προσθήκη',
+    de: 'Kids-Menü · Navigation Phone+Desktop',
+    el: 'Μενού παιδιών · πλοήγηση τηλ.+PC',
   },
 };
 const T = {
@@ -247,13 +247,33 @@ const T = {
     childInstallIos:'iPhone: Teilen → „Zum Home-Bildschirm“ → Hinzufügen',
     childInstallAndroid:'Android: Menü ⋮ → „App installieren“ oder „Zum Startbildschirm“',
     childHowTo:'So geht’s',
-    childHowToHint:'Heute · Events · Woche · Momente · Spiele · Zo-Ai',
-    childHowToToday:'Heute: dein Tag und was ansteht',
-    childHowToEvents:'Events: Feiern und Ausflüge',
-    childHowToWeek:'Woche: Überblick',
-    childHowToGallery:'Momente: schöne Fotos',
-    childHowToGames:'Spiele: lernen und Spaß',
+    childHowToHint:'Start · Spiele · Bewertung · Bonus · Notizen — Plus Plan, Lernen, Sterne',
+    childHowToToday:'Start: dein Tag, Aufgaben und nächste Schritte',
+    childHowToEvents:'Events: Feiern und Ausflüge (unter Mehr)',
+    childHowToWeek:'Plan: dein Stundenplan der Woche',
+    childHowToGallery:'Momente: schöne Fotos (unter Mehr)',
+    childHowToGames:'Spiele: lernen und Spaß — Zurück führt zum Hub',
     childHowToZoai:'Zo-Ai: Fragen stellen (ändert nichts allein)',
+    childHowToRate:'Bewertung: Noten für die Woche (1–6)',
+    childHowToBonus:'Bonus: Extra-Sterne und wie du sie verdienst',
+    childHowToNotes:'Notizen: nur für dich',
+    childHowToMore:'Mehr: Plan, Lernen, Sterne und Hilfe',
+    kidGuideWelcome:'Willkommen in deiner App',
+    kidGuideWelcomeHint:'Unten findest du das Menü: Start, Spiele, Bewertung, Bonus, Notizen. Über Mehr erreichst du Plan und Sterne.',
+    kidGuideGotIt:'Alles klar',
+    kidGuideWhere:'Du bist hier',
+    kidGuideNext:'Als Nächstes',
+    kidGuideHintStart:'Schau deinen Tag an oder öffne Spiele.',
+    kidGuideHintGames:'Wähle ein Spiel. Mit „Alle Spiele“ kommst du zurück.',
+    kidGuideHintRate:'Vergib Noten für diese Woche — 1 ist sehr gut.',
+    kidGuideHintBonus:'Sieh, wie du Extra-Sterne verdienen kannst.',
+    kidGuideHintNotes:'Schreib auf, was du nicht vergessen willst.',
+    kidGuideHintPlan:'Dein Stundenplan — tippe einen Tag an.',
+    kidGuideHintLearn:'Lernen und Quiz — in Einfach nur die wichtigsten.',
+    kidGuideHintStars:'Deine Sterne, Streak und Abzeichen.',
+    kidGuideHintMore:'Weitere Seiten: Plan, Lernen, Sterne.',
+    kidGuideHintEasy:'Tippe unten auf einen Menüpunkt.',
+    kidGuideHintPro:'Menü unten (Telefon) oder links (Tablet/PC). Mehr öffnet Plan, Lernen, Sterne.',
     childNotifEvent:title=>`Event · ${title}`,
     adminBroadcastPreview:'So sieht die Mail aus',
     adminBroadcastLang:'Sprache der Mail',
@@ -1103,13 +1123,33 @@ const T = {
     childInstallIos:'iPhone: Κοινή χρήση → «Στην οθόνη Αφετηρίας» → Προσθήκη',
     childInstallAndroid:'Android: Μενού ⋮ → «Εγκατάσταση εφαρμογής» ή «Στην αρχική οθόνη»',
     childHowTo:'Πώς δουλεύει',
-    childHowToHint:'Σήμερα · Events · Εβδομάδα · Στιγμές · Παιχνίδια · Zo-Ai',
-    childHowToToday:'Σήμερα: η μέρα σου',
-    childHowToEvents:'Events: γιορτές και εκδρομές',
-    childHowToWeek:'Εβδομάδα: επισκόπηση',
-    childHowToGallery:'Στιγμές: ωραίες φωτογραφίες',
-    childHowToGames:'Παιχνίδια: μάθηση και διασκέδαση',
+    childHowToHint:'Αρχή · Παιχνίδια · Αξιολόγηση · Μπόνους · Σημειώσεις — συν Πρόγραμμα, Μάθηση, Αστέρια',
+    childHowToToday:'Αρχή: η μέρα σου, αποστολές και επόμενα βήματα',
+    childHowToEvents:'Events: γιορτές και εκδρομές (στα Άλλα)',
+    childHowToWeek:'Πρόγραμμα: το ωρολόγιο της εβδομάδας',
+    childHowToGallery:'Στιγμές: ωραίες φωτογραφίες (στα Άλλα)',
+    childHowToGames:'Παιχνίδια: μάθηση και διασκέδαση — «Όλα» σε γυρίζει πίσω',
     childHowToZoai:'Zo-Ai: κάνε ερωτήσεις (δεν αλλάζει τίποτα μόνο του)',
+    childHowToRate:'Αξιολόγηση: βαθμοί για την εβδομάδα (1–6)',
+    childHowToBonus:'Μπόνους: έξτρα αστέρια και πώς τα κερδίζεις',
+    childHowToNotes:'Σημειώσεις: μόνο για σένα',
+    childHowToMore:'Άλλα: Πρόγραμμα, Μάθηση, Αστέρια και βοήθεια',
+    kidGuideWelcome:'Καλώς ήρθες στην εφαρμογή σου',
+    kidGuideWelcomeHint:'Κάτω είναι το μενού: Αρχή, Παιχνίδια, Αξιολόγηση, Μπόνους, Σημειώσεις. Στα Άλλα βρίσκεις Πρόγραμμα και Αστέρια.',
+    kidGuideGotIt:'Εντάξει',
+    kidGuideWhere:'Είσαι εδώ',
+    kidGuideNext:'Επόμενο',
+    kidGuideHintStart:'Δες τη μέρα σου ή άνοιξε παιχνίδια.',
+    kidGuideHintGames:'Διάλεξε παιχνίδι. Με «Όλα τα παιχνίδια» γυρνάς πίσω.',
+    kidGuideHintRate:'Βάλε βαθμούς για αυτή την εβδομάδα — το 1 είναι άριστα.',
+    kidGuideHintBonus:'Δες πώς κερδίζεις έξτρα αστέρια.',
+    kidGuideHintNotes:'Γράψε ό,τι δεν θες να ξεχάσεις.',
+    kidGuideHintPlan:'Το ωρολόγιό σου — πάτα μια μέρα.',
+    kidGuideHintLearn:'Μάθηση και κουίζ — στο Απλό μόνο τα βασικά.',
+    kidGuideHintStars:'Τα αστέρια, η σειρά και τα σήματά σου.',
+    kidGuideHintMore:'Άλλες σελίδες: Πρόγραμμα, Μάθηση, Αστέρια.',
+    kidGuideHintEasy:'Πάτα κάτω ένα κουμπί του μενού.',
+    kidGuideHintPro:'Μενού κάτω (τηλέφωνο) ή αριστερά (τάμπλετ/PC). Τα Άλλα ανοίγουν Πρόγραμμα, Μάθηση, Αστέρια.',
     childNotifEvent:title=>`Event · ${title}`,
     adminBroadcastPreview:'Έτσι φαίνεται το email',
     adminBroadcastLang:'Γλώσσα email',
@@ -11347,19 +11387,194 @@ function childLessonPast(entry, dateStr){
   const end = new Date(); end.setHours(hh||23, mm||59, 0, 0);
   return Date.now() > end.getTime();
 }
+function kidDockActiveView(view){
+  const v = view || state.childView || 'today';
+  if(v==='aufgaben') return 'today';
+  if(['today','games','rate','bonus','notes'].includes(v)) return v;
+  return 'more';
+}
+
+function kidViewTitle(view){
+  const v = view || state.childView || 'today';
+  if(v==='today' || v==='aufgaben') return t('kidNavStart');
+  if(v==='plan') return t('kidPlanTitle');
+  if(v==='learn') return t('kidNavLearn');
+  if(v==='rewards') return t('kidSterneTitle');
+  if(v==='games') return t('kidNavGames');
+  if(v==='rate') return t('kidRateTitle');
+  if(v==='bonus') return t('kidBonusTitle');
+  if(v==='notes') return t('kidNotesTitle');
+  if(v==='events') return t('childEvents');
+  if(v==='gallery') return t('galleryChildTab') || t('navGallery');
+  return t('kidNavStart');
+}
+
+function kidViewHint(view){
+  const v = view || state.childView || 'today';
+  if(v==='today' || v==='aufgaben') return t('kidGuideHintStart');
+  if(v==='games') return t('kidGuideHintGames');
+  if(v==='rate') return t('kidGuideHintRate');
+  if(v==='bonus') return t('kidGuideHintBonus');
+  if(v==='notes') return t('kidGuideHintNotes');
+  if(v==='plan') return t('kidGuideHintPlan');
+  if(v==='learn') return t('kidGuideHintLearn');
+  if(v==='rewards') return t('kidGuideHintStars');
+  return t('kidGuideHintMore');
+}
+
+function kidFirstRunHtml(){
+  try{ if(localStorage.getItem('paidia.kidGuideSeen')==='1') return ''; }catch{}
+  return `<aside class="kid-first-run" role="status">
+    <div class="kid-first-run-copy">
+      <b>${esc(t('kidGuideWelcome'))}</b>
+      <p>${esc(t('kidGuideWelcomeHint'))}</p>
+    </div>
+    <button type="button" class="btn sm" id="kidGuideDismiss">${esc(t('kidGuideGotIt'))}</button>
+  </aside>`;
+}
+
+function kidGuideHtml(view){
+  const title = kidViewTitle(view);
+  const hint = kidViewHint(view);
+  const modeHint = isPro() ? t('kidGuideHintPro') : t('kidGuideHintEasy');
+  return `<div class="kid-guide" role="status">
+    <div class="kid-guide-where">
+      <span class="eyebrow">${esc(t('kidGuideWhere'))}</span>
+      <b>${esc(title)}</b>
+      <span class="kid-guide-hint">${esc(hint)}</span>
+    </div>
+    <div class="kid-guide-actions">
+      <span class="kid-guide-mode easy-only">${esc(t('kidGuideNext'))}: ${esc(modeHint)}</span>
+      <span class="kid-guide-mode pro-only mode-pro-block">${esc(modeHint)}</span>
+      <button type="button" class="chip" id="childHowToBtn">${ui('u-sparkle','sm')} ${esc(t('childHowTo'))}</button>
+    </div>
+  </div>`;
+}
+
 function kidDockHtml(active){
   const items = [
-    {id:'today', label:t('kidNavStart'), ico:'#i-kid-start'},
-    {id:'plan', label:t('kidNavPlan'), ico:'#i-kid-plan'},
-    {id:'learn', label:t('kidNavLearn'), ico:'#i-kid-learn'},
-    {id:'rewards', label:t('kidNavStars'), ico:'#i-kid-stars'},
-    {id:'games', label:t('kidNavGames'), ico:'#i-kid-games'},
+    {id:'today', label:t('kidNavStart'), ico:'u-home'},
+    {id:'games', label:t('kidNavGames'), ico:'u-party'},
+    {id:'rate', label:t('kidNavRate'), ico:'u-target'},
+    {id:'bonus', label:t('kidBonusTitle'), ico:'u-sparkle'},
+    {id:'notes', label:t('kidNotesTitle'), ico:'u-note'},
   ];
-  return `<nav class="kid-dock" aria-label="Kids">${items.map(it=>`
+  return `<nav class="kid-dock" aria-label="Kids" data-kid-dock>
+    ${items.map(it=>`
     <button type="button" class="${active===it.id?'on':''}" data-child-view="${it.id}">
-      <svg class="i nav-ico" aria-hidden="true"><use href="${it.ico}"/></svg>
+      ${ui(it.ico,'nav-ico')}
       <span>${esc(it.label)}</span>
-    </button>`).join('')}</nav>`;
+    </button>`).join('')}
+    <button type="button" class="kid-dock-more ${active==='more'?'on':''}" id="kidDockMore" aria-haspopup="dialog" aria-label="${esc(t('navMore'))}">
+      ${ui('u-plus','nav-ico')}
+      <span>${esc(t('navMore'))}</span>
+    </button>
+  </nav>`;
+}
+
+function sheetKidMore(){
+  const rows = [
+    {id:'plan', label:t('kidNavPlan'), ico:'u-calendar', hint:t('kidGuideHintPlan')},
+    {id:'learn', label:t('kidNavLearn'), ico:'u-book', hint:t('kidGuideHintLearn')},
+    {id:'rewards', label:t('kidNavStars'), ico:'u-sparkle', hint:t('kidGuideHintStars')},
+    {id:'aufgaben', label:t('kidCourseTasks'), ico:'u-tasks', hint:t('kidGuideHintStart')},
+    {id:'events', label:t('childEvents'), ico:'u-party', hint:t('childHowToEvents'), pro:true},
+    {id:'gallery', label:t('galleryChildTab')||t('navGallery'), ico:'u-camera', hint:t('childHowToGallery'), pro:true},
+  ];
+  openSheet(`<div class="mobile-more-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2>
+    <p class="muted">${esc(t('childHowToMore'))}</p></div>
+    <div class="kid-more-list">${rows.map(r=>`
+      <button type="button" class="kid-more-row ${r.pro?'pro-only mode-pro-block':''}" data-child-view="${r.id}">
+        <span class="kid-more-ico" aria-hidden="true">${ui(r.ico)}</span>
+        <span class="grow"><b>${esc(r.label)}</b><span class="muted">${esc(r.hint)}</span></span>
+      </button>`).join('')}
+      <button type="button" class="kid-more-row" id="kidMoreHowTo">
+        <span class="kid-more-ico" aria-hidden="true">${ui('u-sparkle')}</span>
+        <span class="grow"><b>${esc(t('childHowTo'))}</b><span class="muted">${esc(t('childHowToHint'))}</span></span>
+      </button>
+    </div>
+    <button class="btn sec" type="button" id="kidMoreClose" style="margin-top:10px">${esc(t('close'))}</button>`);
+  const root = sheetEl;
+  root.querySelector('#kidMoreClose').onclick=()=>closeSheet();
+  root.querySelector('#kidMoreHowTo').onclick=()=>{ closeSheet(); sheetChildHowTo(); };
+  root.querySelectorAll('[data-child-view]').forEach(b=>{
+    b.onclick=()=>{
+      const next = b.dataset.childView;
+      closeSheet();
+      if(next !== 'games' && next !== 'learn'){ stopChildGameTimers(); state.gameId=null; state.game=null; }
+      if(next==='learn'){ state.gameId=null; state.game=null; }
+      state.childView = next;
+      if(next==='gallery'){ refreshGallery({silent:true}).finally(()=>render()); return; }
+      render();
+    };
+  });
+}
+
+function wireKidChrome(root){
+  root?.querySelectorAll('[data-child-view]').forEach(b=>{
+    if(b.dataset.kidNavWired==='1') return;
+    b.dataset.kidNavWired = '1';
+    b.onclick = () => {
+      const next = b.dataset.childView;
+      if(!next) return;
+      if(next !== 'games' && next !== 'learn'){ stopChildGameTimers(); state.gameId=null; state.game=null; }
+      if(next==='learn'){ state.gameId=null; state.game=null; }
+      state.childView = next;
+      if(next==='gallery'){ refreshGallery({silent:true}).finally(()=>render()); return; }
+      render();
+    };
+  });
+  const howTo = root?.querySelector('#childHowToBtn');
+  if(howTo && howTo.dataset.kidNavWired!=='1'){
+    howTo.dataset.kidNavWired = '1';
+    howTo.onclick = ()=>sheetChildHowTo();
+  }
+  const dismiss = root?.querySelector('#kidGuideDismiss');
+  if(dismiss && dismiss.dataset.kidNavWired!=='1'){
+    dismiss.dataset.kidNavWired = '1';
+    dismiss.onclick = ()=>{
+      try{ localStorage.setItem('paidia.kidGuideSeen','1'); }catch{}
+      dismiss.closest('.kid-first-run')?.remove();
+    };
+  }
+}
+
+function mountKidDock(active){
+  const bottom = document.getElementById('bottomPanel');
+  if(!bottom) return;
+  bottom.style.display = '';
+  bottom.classList.add('is-kid-chrome');
+  const staffNav = bottom.querySelector('nav.dock[data-staff-dock]');
+  if(staffNav){
+    staffNav.style.display = 'none';
+    staffNav.classList.add('is-staff-hidden');
+  }
+  const brand = bottom.querySelector('.dock-brand');
+  if(brand) brand.hidden = false;
+  const dockZo = document.getElementById('dockZoAi');
+  if(dockZo) dockZo.hidden = true;
+  bottom.querySelector('nav.kid-dock')?.remove();
+  bottom.insertAdjacentHTML('beforeend', kidDockHtml(active));
+  const dock = bottom.querySelector('nav.kid-dock');
+  wireKidChrome(dock);
+  const more = dock?.querySelector('#kidDockMore');
+  if(more) more.onclick = ()=>sheetKidMore();
+}
+
+function unmountKidDock(){
+  const bottom = document.getElementById('bottomPanel');
+  if(!bottom) return;
+  bottom.classList.remove('is-kid-chrome');
+  bottom.querySelector('nav.kid-dock')?.remove();
+  const staffNav = bottom.querySelector('nav.dock[data-staff-dock]');
+  if(staffNav){
+    staffNav.style.display = '';
+    staffNav.classList.remove('is-staff-hidden');
+  }
+  const brand = bottom.querySelector('.dock-brand');
+  if(brand) brand.hidden = false;
+  const dockZo = document.getElementById('dockZoAi');
+  if(dockZo) dockZo.hidden = false;
 }
 
 function childSchoolSnapshotHtml(kidId){
@@ -11460,12 +11675,11 @@ function childStartView(c){
     ${childGameChallengeHtml(c.id)}
     <div class="kid-secondary">
       <button type="button" class="chip" id="childRequestBtn">${esc(t('shopRequestBig'))}</button>
-      <button type="button" class="chip" data-child-view="rate">${esc(t('kidNavRate'))}</button>
-      <button type="button" class="chip" data-child-view="bonus">${esc(t('kidBonusTitle'))}</button>
-      <button type="button" class="chip" data-child-view="notes">${esc(t('kidNotesTitle'))}</button>
+      <button type="button" class="chip" data-child-view="plan">${esc(t('kidNavPlan'))}</button>
+      <button type="button" class="chip" data-child-view="learn">${esc(t('kidNavLearn'))}</button>
+      <button type="button" class="chip" data-child-view="rewards">${esc(t('kidNavStars'))}</button>
       <button type="button" class="chip pro-only mode-pro-block" data-child-view="events">${esc(t('childEvents'))}</button>
       <button type="button" class="chip pro-only mode-pro-block" data-child-view="gallery">${esc(t('galleryChildTab'))}</button>
-      <button type="button" class="chip pro-only mode-pro-block" id="childHowToBtn">${esc(t('childHowTo'))}</button>
     </div>
     ${teamNoticeBannerHtml()}
   `;
@@ -12618,7 +12832,7 @@ function renderChild(){
   if(state.childView==='events' || state.childView==='gallery'){ /* keep secondary */ }
 
   document.getElementById('title').textContent = esc(c.name);
-  document.getElementById('who').textContent = t('myWeek');
+  document.getElementById('who').textContent = kidViewTitle(state.childView);
   document.getElementById('btnLang').textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   document.getElementById('btnUser').textContent = t('childBye');
   document.getElementById('btnProfiles').textContent = '↔';
@@ -12627,11 +12841,6 @@ function renderChild(){
   paintUiModeToggle();
   const tools=document.getElementById('topTools');
   if(tools){ tools.hidden=true; tools.replaceChildren(); }
-  const bottom=document.getElementById('bottomPanel');
-  if(bottom) bottom.style.display='none';
-  document.querySelector('nav')?.classList.add('is-staff-hidden');
-  const staffNav = document.querySelector('nav.dock');
-  if(staffNav) staffNav.style.display='none';
   document.body.classList.add('mode-child');
   document.body.classList.remove('has-stock-dock','has-store-dock');
   document.body.classList.toggle('chat-open', !!state.chatOpen);
@@ -12643,12 +12852,8 @@ function renderChild(){
     zoFab.title = t('helpChat');
   }
 
-  const dockActive = ['today','plan','learn','rewards','games'].includes(state.childView)
-    ? state.childView
-    : (state.childView==='aufgaben'?'today'
-      : state.childView==='games'? 'games'
-      : (state.childView==='rate'||state.childView==='bonus')? 'rewards'
-      : state.childView==='notes'? 'today':'today');
+  const dockActive = kidDockActiveView(state.childView);
+  mountKidDock(dockActive);
 
   let viewBody;
   if(state.childView==='today') viewBody = childStartView(c);
@@ -12669,29 +12874,19 @@ function renderChild(){
   applyUiModeClass();
   document.getElementById('view').innerHTML = `
     <div class="kid-shell">
+      ${kidFirstRunHtml()}
+      ${kidGuideHtml(state.childView)}
       ${viewBody}
-      ${kidDockHtml(dockActive)}
     </div>`;
 
   const root = document.getElementById('view');
   wireUiModeControls(root);
-  root.querySelectorAll('[data-child-view]').forEach(b=>{
-    b.onclick = () => {
-      const next = b.dataset.childView;
-      if(next !== 'games' && next !== 'learn'){ stopChildGameTimers(); state.gameId=null; state.game=null; }
-      if(next==='learn'){ state.gameId=null; state.game=null; }
-      state.childView = next;
-      if(next==='gallery'){ refreshGallery({silent:true}).finally(()=>render()); return; }
-      render();
-    };
-  });
+  wireKidChrome(root);
   root.querySelectorAll('[data-date]').forEach(d=>{
     d.onclick = () => { state.date = d.dataset.date; render(); };
   });
   const teamBanner=root.querySelector('#teamNoticeBanner');
   if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
-  const howTo=root.querySelector('#childHowToBtn');
-  if(howTo) howTo.onclick=()=>sheetChildHowTo();
   const childReq=root.querySelector('#childRequestBtn');
   if(childReq) childReq.onclick=()=>sheetCreateListRequest({kidMode:true});
   root.querySelectorAll('[data-game-challenge]').forEach(button=>{
@@ -14936,13 +15131,17 @@ function viewHome(){
 function sheetChildHowTo(){
   openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia</div>
     <h2>${esc(t('childHowTo'))}</h2><p>${esc(t('childHowToHint'))}</p></div>
-    <ul style="list-style:none;padding:0;margin:12px 0;display:grid;gap:8px">
-      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToToday'))}</li>
-      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToEvents'))}</li>
-      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToWeek'))}</li>
-      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToGallery'))}</li>
-      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToGames'))}</li>
-      <li style="padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff">${esc(t('childHowToZoai'))}</li>
+    <ul class="kid-howto-list">
+      <li>${esc(t('childHowToToday'))}</li>
+      <li>${esc(t('childHowToGames'))}</li>
+      <li>${esc(t('childHowToRate'))}</li>
+      <li>${esc(t('childHowToBonus'))}</li>
+      <li>${esc(t('childHowToNotes'))}</li>
+      <li>${esc(t('childHowToWeek'))}</li>
+      <li>${esc(t('childHowToMore'))}</li>
+      <li class="pro-only mode-pro-block">${esc(t('childHowToEvents'))}</li>
+      <li class="pro-only mode-pro-block">${esc(t('childHowToGallery'))}</li>
+      <li>${esc(t('childHowToZoai'))}</li>
     </ul>
     <p class="muted" style="font-size:12px;line-height:1.45">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>
     <button class="btn" type="button" id="childHowToNotifs">${esc(t('notifEnableChild'))}</button>
@@ -15500,8 +15699,12 @@ function syncLayoutMode(){
     document.querySelectorAll('.adaptive-chrome.is-open').forEach(box=>box.classList.remove('is-open'));
     document.body.classList.remove('adaptive-open');
   }
-  const rail=document.querySelector('nav.dock')||document.querySelector('nav');
-  if(desktop && rail && rail.style.display!=='none'){
+  const childMode=document.body.classList.contains('mode-child');
+  const kidDock=document.querySelector('nav.kid-dock');
+  const staffRail=document.querySelector('nav.dock[data-staff-dock]')||document.querySelector('nav.dock');
+  if(desktop && childMode && kidDock){
+    document.documentElement.style.setProperty('--rail-w', '180px');
+  }else if(desktop && staffRail && staffRail.style.display!=='none' && !childMode){
     document.documentElement.style.setProperty('--rail-w', '220px');
   }else{
     document.documentElement.style.setProperty('--rail-w', '0px');
@@ -15520,32 +15723,46 @@ function measureChrome(){
   let navH=0;
   if(childMode){
     const kidDock=document.querySelector('.kid-dock');
-    if(kidDock){
+    if(desktop){
+      navH=0;
+      root.style.setProperty('--kid-dock-h', '0px');
+      document.body.style.setProperty('--kid-dock-h', '0px');
+      root.style.setProperty('--rail-w', '180px');
+      document.body.style.setProperty('--rail-w', '180px');
+    }else if(kidDock){
       const style=getComputedStyle(kidDock);
       if(style.display!=='none' && style.visibility!=='hidden'){
         navH=Math.ceil(kidDock.getBoundingClientRect().height)||64;
       }
+      root.style.setProperty('--kid-dock-h', navH+'px');
+      document.body.style.setProperty('--kid-dock-h', navH+'px');
+      root.style.setProperty('--rail-w', '0px');
+      document.body.style.setProperty('--rail-w', '0px');
     }else{
       navH=64;
-    }
-    root.style.setProperty('--kid-dock-h', navH+'px');
-    document.body.style.setProperty('--kid-dock-h', navH+'px');
-  }else{
-    root.style.setProperty('--kid-dock-h', '0px');
-  }
-  if(!navHidden && !childMode){
-    if(desktop){
-      navH=0;
-      root.style.setProperty('--rail-w', '220px');
-      document.body.style.setProperty('--rail-w', '220px');
-    }else{
-      navH=Math.ceil(nav.getBoundingClientRect().height);
+      root.style.setProperty('--kid-dock-h', '64px');
+      document.body.style.setProperty('--kid-dock-h', '64px');
       root.style.setProperty('--rail-w', '0px');
       document.body.style.setProperty('--rail-w', '0px');
     }
   }else{
-    root.style.setProperty('--rail-w', '0px');
-    document.body.style.setProperty('--rail-w', '0px');
+    root.style.setProperty('--kid-dock-h', '0px');
+  }
+  if(!childMode){
+    if(!navHidden){
+      if(desktop){
+        navH=0;
+        root.style.setProperty('--rail-w', '220px');
+        document.body.style.setProperty('--rail-w', '220px');
+      }else{
+        navH=Math.ceil(nav.getBoundingClientRect().height);
+        root.style.setProperty('--rail-w', '0px');
+        document.body.style.setProperty('--rail-w', '0px');
+      }
+    }else{
+      root.style.setProperty('--rail-w', '0px');
+      document.body.style.setProperty('--rail-w', '0px');
+    }
   }
   const dockEl=document.querySelector('.stock-footer-actions, .store-finish.bottom-dock');
   let dockH=0;
@@ -15612,9 +15829,12 @@ function render(){
   document.body.classList.remove('mode-child');
   document.body.classList.remove('store-fullscreen');
   document.body.classList.remove('matrix-fullscreen');
+  unmountKidDock();
   const bottom=document.getElementById('bottomPanel');
   if(bottom) bottom.style.display='';
-  document.querySelector('nav').style.display = '';
+  document.querySelector('nav')?.classList.remove('is-staff-hidden');
+  const staffNav = document.querySelector('nav.dock[data-staff-dock], nav.dock');
+  if(staffNav) staffNav.style.display = '';
   const zoFab=document.getElementById('navChat');
   if(zoFab){
     zoFab.hidden=false;
@@ -17787,7 +18007,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||141),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||142),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

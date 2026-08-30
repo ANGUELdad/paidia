@@ -1,5 +1,14 @@
 # Changelog
 
+## v142 — 2026-08-30
+
+- **Kids navigation chrome:** dock mounts in `#bottomPanel` (not inside `#view`), so phone/tablet/desktop always show a menu.
+- Primary tabs: Start · Spiele · Bewertung · Bonus · Notizen · Mehr (Plan, Lernen, Sterne, Hilfe).
+- Desktop/tablet (≥900px): left kid rail instead of a stretched phone dock; mobile keeps a capped bottom pill.
+- Guidance: first-run tip, “where am I / next” strip, updated So geht’s (DE/EL); Easy + Pro.
+- Stroke `ui()` dock icons. Spiele OSS iframe still has back-to-hub. Staff/auth/Lager/Plan untouched.
+- Cache `paidia-v142`.
+
 ## v141 — 2026-08-30
 
 - **Lager add/remove overhaul:** one-tap ± commits immediately (no draft/save for row steppers) with undo toast.
