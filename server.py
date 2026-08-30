@@ -211,6 +211,8 @@ LOGIN_LOCK_TTL = env_int("PAIDIA_LOGIN_LOCK_SECONDS", 900)
 LOGIN_MAX_ATTEMPTS = env_int("PAIDIA_LOGIN_MAX_ATTEMPTS", 5)
 IP_MAX_FAILURES = env_int("PAIDIA_IP_MAX_FAILURES", 20)
 PROFILE_MAX_FAILURES = env_int("PAIDIA_PROFILE_MAX_FAILURES", 12)
+RESET_CONFIRM_MAX = env_int("PAIDIA_RESET_CONFIRM_MAX", 8)
+RESET_CONFIRM_WINDOW = env_int("PAIDIA_RESET_CONFIRM_WINDOW_SECONDS", 600)
 SECURITY_ALERT_AFTER = env_int("PAIDIA_SECURITY_ALERT_AFTER", 3)
 SECURITY_ALERT_COOLDOWN = env_int("PAIDIA_SECURITY_ALERT_COOLDOWN", 3600)
 SECURITY_STATE_PATH = Path(os.environ.get("PAIDIA_SECURITY_STATE_PATH", ".paidia-security-state.json"))
@@ -456,6 +458,96 @@ def append_security_event(event: str, profile_id: str, ip: str, details: dict | 
             os.chmod(SECURITY_LOG_PATH, 0o600)
     except OSError:
         pass
+
+
+def login_attempt_keys(client_ip: str, profile_id: str, user_known: bool) -> tuple[str, str, str]:
+    """IP + profile buckets for brute-force tracking (unknown profiles share one bucket)."""
+    profile_bucket = profile_id if user_known else "_unknown"
+    return (
+        f"pair:{client_ip}:{profile_bucket}",
+        f"ip:{client_ip}",
+        f"profile:{profile_bucket}",
+    )
+
+
+def _prune_fail_bucket(store: dict[str, list[float]], key: str, now: float) -> list[float]:
+    stamps = [stamp for stamp in store.get(key, []) if now - stamp < LOGIN_WINDOW]
+    if stamps:
+        store[key] = stamps
+    else:
+        store.pop(key, None)
+    return stamps
+
+
+def compute_lock_ttl(failure_count: int, threshold: int) -> int:
+    """Backoff after repeated lock waves — still capped so local unlock stays workable."""
+    waves = max(1, failure_count // max(1, threshold))
+    multiplier = 2 ** min(waves - 1, 2)  # 1×, 2×, 4×
+    return int(LOGIN_LOCK_TTL * multiplier)
+
+
+def login_lock_remaining(attempt_key: str, ip_key: str, profile_key: str) -> float:
+    """Seconds left on any active lock for these buckets (0 if unlocked)."""
+    now = time.time()
+    with AUTH_LOCK:
+        _prune_fail_bucket(LOGIN_FAILURES, attempt_key, now)
+        _prune_fail_bucket(IP_LOGIN_FAILURES, ip_key, now)
+        _prune_fail_bucket(PROFILE_LOGIN_FAILURES, profile_key, now)
+        lock_until = max(
+            LOGIN_LOCKS.get(attempt_key, 0),
+            LOGIN_LOCKS.get(ip_key, 0),
+            LOGIN_LOCKS.get(profile_key, 0),
+        )
+        if lock_until <= now:
+            LOGIN_LOCKS.pop(attempt_key, None)
+            LOGIN_LOCKS.pop(ip_key, None)
+            LOGIN_LOCKS.pop(profile_key, None)
+            return 0.0
+        return lock_until - now
+
+
+def record_login_failure(attempt_key: str, ip_key: str, profile_key: str) -> tuple[bool, int, int]:
+    """Record a failed PIN/auth attempt. Returns (locked, pair_count, lock_ttl_seconds)."""
+    now = time.time()
+    with AUTH_LOCK:
+        LOGIN_FAILURES.setdefault(attempt_key, []).append(now)
+        IP_LOGIN_FAILURES.setdefault(ip_key, []).append(now)
+        PROFILE_LOGIN_FAILURES.setdefault(profile_key, []).append(now)
+        pair_count = len(_prune_fail_bucket(LOGIN_FAILURES, attempt_key, now))
+        ip_count = len(_prune_fail_bucket(IP_LOGIN_FAILURES, ip_key, now))
+        profile_count = len(_prune_fail_bucket(PROFILE_LOGIN_FAILURES, profile_key, now))
+        should_lock = (
+            pair_count >= LOGIN_MAX_ATTEMPTS
+            or ip_count >= IP_MAX_FAILURES
+            or profile_count >= PROFILE_MAX_FAILURES
+        )
+        lock_ttl = 0
+        if should_lock:
+            lock_ttl = max(
+                compute_lock_ttl(pair_count, LOGIN_MAX_ATTEMPTS) if pair_count >= LOGIN_MAX_ATTEMPTS else 0,
+                compute_lock_ttl(ip_count, IP_MAX_FAILURES) if ip_count >= IP_MAX_FAILURES else 0,
+                compute_lock_ttl(profile_count, PROFILE_MAX_FAILURES) if profile_count >= PROFILE_MAX_FAILURES else 0,
+                LOGIN_LOCK_TTL,
+            )
+            lock_until = now + lock_ttl
+            if pair_count >= LOGIN_MAX_ATTEMPTS:
+                LOGIN_LOCKS[attempt_key] = lock_until
+            if ip_count >= IP_MAX_FAILURES:
+                LOGIN_LOCKS[ip_key] = lock_until
+            if profile_count >= PROFILE_MAX_FAILURES:
+                LOGIN_LOCKS[profile_key] = lock_until
+        return should_lock, pair_count, lock_ttl
+
+
+def clear_login_failures(attempt_key: str, ip_key: str, profile_key: str) -> None:
+    """Reset failure counters and locks after a successful authentication."""
+    with AUTH_LOCK:
+        LOGIN_FAILURES.pop(attempt_key, None)
+        IP_LOGIN_FAILURES.pop(ip_key, None)
+        PROFILE_LOGIN_FAILURES.pop(profile_key, None)
+        LOGIN_LOCKS.pop(attempt_key, None)
+        LOGIN_LOCKS.pop(ip_key, None)
+        LOGIN_LOCKS.pop(profile_key, None)
 
 
 def hash_pin(pin: str) -> str:
@@ -2197,6 +2289,62 @@ def run_shopping(body: dict, api_key: str) -> tuple[int, dict]:
         }
 
 
+def run_schedule_parse(body: dict, api_key: str) -> tuple[int, dict]:
+    """Parse free-text roster notes into week matrix draft entries."""
+    text = body.get("text") or body.get("content") or ""
+    if not isinstance(text, str) or not text.strip():
+        return 400, {"error": "text is required"}
+    week_start = body.get("weekStart") or ""
+    week_dates = body.get("weekDates") or []
+    locale = body.get("locale") or "de"
+    context = {
+        "weekStart": week_start,
+        "weekDates": week_dates,
+        "locale": locale,
+        "activities": body.get("activities") or [],
+        "employees": body.get("employees") or [],
+        "houses": body.get("houses") or [],
+        "blocks": body.get("blocks") or [],
+        "children": body.get("children") or [],
+    }
+    user_content = (
+        SCHEDULE_PROMPT
+        + "\n\nCONTEXT:\n"
+        + json.dumps(context, ensure_ascii=False)[:12000]
+        + "\n\nSOURCE TEXT:\n"
+        + text.strip()[:50000]
+    )
+    request_body = {
+        "model": CHAT_MODEL,
+        "messages": [{"role": "user", "content": user_content}],
+        "temperature": 0.1,
+        "max_completion_tokens": 2200,
+        "response_format": {"type": "json_object"},
+    }
+    try:
+        response = groq_completion(api_key, request_body)
+        parsed = parse_json_output(completion_text(response))
+        entries = parsed.get("entries") if isinstance(parsed, dict) else None
+        if not isinstance(entries, list):
+            return 502, {"error": "invalid-result", "code": "parse"}
+        return 200, {
+            "extracted_text": parsed.get("extracted_text") or text[:2000],
+            "language": parsed.get("language") or locale,
+            "entries": entries[:80],
+            "model": response.get("model", CHAT_MODEL),
+            "responseId": response.get("id"),
+        }
+    except urllib.error.HTTPError as exc:
+        status, payload = provider_error(exc)
+        return status, payload
+    except (urllib.error.URLError, TimeoutError, ValueError, json.JSONDecodeError, TypeError) as exc:
+        code = "timeout" if isinstance(exc, TimeoutError) else "provider"
+        return (504 if code == "timeout" else 502), {
+            "error": "AI schedule parse failed",
+            "code": code,
+        }
+
+
 def _empty_passkey_store() -> dict:
     return {"credentials": {}, "user_handles": {}}
 
@@ -3203,6 +3351,46 @@ name, canonical_name, quantity, unit, category, brand, package_size, notes, conf
 (high, medium, or low), and ambiguous (boolean). Do not add other fields."""
 
 
+SCHEDULE_PROMPT = """You extract a weekly care-ops schedule (Armonia Thassos / PAIDIA) from free text.
+The text may be a WhatsApp dump, bullet list, German, Greek, or mixed shorthand.
+Map each placement into the week matrix. Use ONLY the catalogues provided in CONTEXT.
+
+Rules:
+- block must be one of: morning, afternoon, evening
+- Prefer activityId / employeeId / houseId from CONTEXT when names match; else set activityQuery / employeeQuery / houseQuery
+- date must be YYYY-MM-DD and must be one of weekDates; or set dayIndex 0=Mon … 6=Sun
+- morning/evening are usually house-based; afternoon is usually person-based
+- Do not invent children, staff, houses, or activities that are not in CONTEXT
+- confidence: high|medium|low; put leftover wording in note or raw
+- This is a draft only — never claim the schedule was saved
+
+Return ONLY a JSON object:
+{
+  "extracted_text": "...",
+  "language": "de|el|en",
+  "entries": [
+    {
+      "date": "YYYY-MM-DD",
+      "dayIndex": 0,
+      "block": "morning|afternoon|evening",
+      "activityId": "a01 or null",
+      "activityQuery": "Fußball",
+      "employeeId": "e1 or null",
+      "employeeQuery": "Dora",
+      "houseId": "h1 or null",
+      "houseQuery": "Kalyvia",
+      "childQueries": [],
+      "from": "",
+      "to": "",
+      "note": "",
+      "raw": "original line",
+      "confidence": "high"
+    }
+  ]
+}
+"""
+
+
 HELP_PROMPT_BASE = """You are Zo-Ai, the friendly in-app personal assistant for PAIDIA / Armonia Thassos
 (a residential child-care operations app). Reply in the language used by the user (German, Greek, or English).
 Speak simply and clearly — many caregivers are not tech-experts. Be practical and safety-aware.
@@ -4141,6 +4329,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if parsed.path == "/api/auth/health":
             delivery = email_delivery_status()
+            reset = pin_reset_status()
             db_info = paidia_db.health() if paidia_db else {"ok": False, "backend": "none"}
             self.json_response(200, {
                 "ok": True,
@@ -4148,6 +4337,8 @@ class Handler(SimpleHTTPRequestHandler):
                 "profilesWithEmail": sum(1 for user in AUTH_USERS.values() if user["email"]),
                 "emailConfigured": delivery["configured"],
                 "emailProvider": delivery["provider"],
+                "pinResetReady": reset["ready"],
+                "publicUrlConfigured": reset["publicUrlConfigured"],
                 "secureCookie": os.environ.get("PAIDIA_COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
                 "securityMonitoring": True,
                 "securityEmailReady": bool(delivery["configured"] and security_alert_recipients()),
@@ -4155,6 +4346,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "trustedNetworksConfigured": len(TRUSTED_NETWORKS),
                 "trustedProxyNetworksConfigured": len(TRUSTED_PROXY_NETWORKS),
                 "loginAttemptLimit": LOGIN_MAX_ATTEMPTS,
+                "loginLockSeconds": LOGIN_LOCK_TTL,
                 "passkeysAvailable": WEBAUTHN_AVAILABLE,
                 "passkeyCredentials": len(PASSKEYS["credentials"]),
                 "passkeyOrigin": WEBAUTHN_ORIGIN,
@@ -4361,7 +4553,7 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(200, {"received": True})
             return
         if path not in {
-            "/api/ai-shopping", "/api/chat", "/api/learn", "/api/quiz", "/api/gallery/caption",
+            "/api/ai-shopping", "/api/ai-schedule", "/api/chat", "/api/learn", "/api/quiz", "/api/gallery/caption",
             "/api/chore-verify",
             "/api/talk", "/api/gallery", "/api/ops", "/api/kid-ops", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/notify/event-email",
@@ -4540,6 +4732,13 @@ class Handler(SimpleHTTPRequestHandler):
             status, payload = run_shopping(body, api_key)
             self.json_response(status, payload)
             return
+        if path == "/api/ai-schedule":
+            if not self.current_auth_session():
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            status, payload = run_schedule_parse(body, api_key)
+            self.json_response(status, payload)
+            return
         if path == "/api/chore-verify":
             if not self.current_auth_session():
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
@@ -4553,6 +4752,8 @@ class Handler(SimpleHTTPRequestHandler):
                                extra_cookies: list[str] | None = None,
                                remember: bool = False) -> None:
         client_ip = self.client_ip()
+        attempt_key, ip_key, profile_key = login_attempt_keys(client_ip, profile_id, True)
+        clear_login_failures(attempt_key, ip_key, profile_key)
         try:
             token, payload = encode_session_token(profile_id, mode, method, remember=remember)
         except RuntimeError:
@@ -4575,6 +4776,7 @@ class Handler(SimpleHTTPRequestHandler):
         cookies = [self.set_session_cookie(token, max_age=max_age)]
         if extra_cookies:
             cookies.extend(extra_cookies)
+        append_security_event("login_ok", profile_id, client_ip, {"method": method, "mode": mode})
         self.json_response(200, {
             "authenticated": True, "profileId": profile_id, "mode": mode,
             "admin": bool(payload["admin"]),
@@ -4630,27 +4832,14 @@ class Handler(SimpleHTTPRequestHandler):
         pin = str(body.get("pin", ""))[:12]
         client_ip = self.client_ip()
         user = AUTH_USERS.get(profile_id)
-        profile_bucket = profile_id if user else "_unknown"
-        attempt_key = f"pair:{client_ip}:{profile_bucket}"
-        ip_key = f"ip:{client_ip}"
-        profile_key = f"profile:{profile_bucket}"
-        now = time.time()
-        with AUTH_LOCK:
-            failures = [stamp for stamp in LOGIN_FAILURES.get(attempt_key, []) if now - stamp < LOGIN_WINDOW]
-            ip_failures = [stamp for stamp in IP_LOGIN_FAILURES.get(ip_key, []) if now - stamp < LOGIN_WINDOW]
-            profile_failures = [stamp for stamp in PROFILE_LOGIN_FAILURES.get(profile_key, []) if now - stamp < LOGIN_WINDOW]
-            LOGIN_FAILURES[attempt_key] = failures
-            IP_LOGIN_FAILURES[ip_key] = ip_failures
-            PROFILE_LOGIN_FAILURES[profile_key] = profile_failures
-            lock_until = max(LOGIN_LOCKS.get(attempt_key, 0), LOGIN_LOCKS.get(ip_key, 0),
-                             LOGIN_LOCKS.get(profile_key, 0))
-            if lock_until <= now:
-                LOGIN_LOCKS.pop(attempt_key, None)
-                LOGIN_LOCKS.pop(ip_key, None)
-                LOGIN_LOCKS.pop(profile_key, None)
-        if lock_until > now:
+        attempt_key, ip_key, profile_key = login_attempt_keys(client_ip, profile_id, bool(user))
+        remaining = login_lock_remaining(attempt_key, ip_key, profile_key)
+        if remaining > 0:
+            append_security_event("login_blocked", profile_id or "_unknown", client_ip, {
+                "retryAfter": int(remaining),
+            })
             self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
-                                     "retryAfter": max(1, int(lock_until - now))})
+                                     "retryAfter": max(1, int(remaining))})
             return
         if not (user and user["mode"] == mode and re.fullmatch(r"\d{4,6}", pin)):
             # Burn the same PBKDF2 cost when the profile is missing / wrong mode.
@@ -4659,38 +4848,28 @@ class Handler(SimpleHTTPRequestHandler):
         else:
             valid = verify_pin(pin, user["pin_hash"])
         if not valid:
-            with AUTH_LOCK:
-                LOGIN_FAILURES.setdefault(attempt_key, []).append(now)
-                IP_LOGIN_FAILURES.setdefault(ip_key, []).append(now)
-                PROFILE_LOGIN_FAILURES.setdefault(profile_key, []).append(now)
-                pair_count = len(LOGIN_FAILURES[attempt_key])
-                ip_count = len(IP_LOGIN_FAILURES[ip_key])
-                profile_count = len(PROFILE_LOGIN_FAILURES[profile_key])
-                should_lock = (pair_count >= LOGIN_MAX_ATTEMPTS or ip_count >= IP_MAX_FAILURES or
-                               profile_count >= PROFILE_MAX_FAILURES)
-                if should_lock:
-                    lock_until = now + LOGIN_LOCK_TTL
-                    if pair_count >= LOGIN_MAX_ATTEMPTS:
-                        LOGIN_LOCKS[attempt_key] = lock_until
-                    if ip_count >= IP_MAX_FAILURES:
-                        LOGIN_LOCKS[ip_key] = lock_until
-                    if profile_count >= PROFILE_MAX_FAILURES:
-                        LOGIN_LOCKS[profile_key] = lock_until
+            should_lock, pair_count, lock_ttl = record_login_failure(attempt_key, ip_key, profile_key)
+            append_security_event("login_failed", profile_id or "_unknown", client_ip, {
+                "attempts": pair_count,
+                "mode": mode,
+            })
             if user and user["mode"] == "staff" and pair_count == SECURITY_ALERT_AFTER:
                 queue_security_alert(profile_id, "repeated_failures", client_ip, {"attempts": pair_count})
             if should_lock:
+                append_security_event("login_locked", profile_id or "_unknown", client_ip, {
+                    "attempts": pair_count,
+                    "lockSeconds": lock_ttl,
+                })
                 if user and user["mode"] == "staff":
                     queue_security_alert(profile_id, "login_locked", client_ip, {"attempts": pair_count})
                 self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
-                                         "retryAfter": LOGIN_LOCK_TTL})
+                                         "retryAfter": lock_ttl or LOGIN_LOCK_TTL})
                 return
             self.json_response(401, {
                 "error": "Invalid profile or PIN", "code": "invalid_pin",
                 "attemptsRemaining": max(0, LOGIN_MAX_ATTEMPTS - pair_count),
             })
             return
-        with AUTH_LOCK:
-            LOGIN_FAILURES.pop(attempt_key, None)
         remember = bool(body.get("remember"))
         self.finish_authentication(profile_id, mode, "pin", remember=remember)
 
@@ -4818,11 +4997,30 @@ class Handler(SimpleHTTPRequestHandler):
                 challenge.get("expires_at", 0) <= time.time() or not isinstance(credential, dict)):
             self.json_response(400, {"error": "Passkey request expired; try again", "code": "challenge_expired"})
             return
+        profile_id = str(challenge.get("profile_id") or "")
+        client_ip = self.client_ip()
+        attempt_key, ip_key, profile_key = login_attempt_keys(client_ip, profile_id, bool(AUTH_USERS.get(profile_id)))
+        remaining = login_lock_remaining(attempt_key, ip_key, profile_key)
+        if remaining > 0:
+            self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
+                                     "retryAfter": max(1, int(remaining))})
+            return
         credential_id = str(credential.get("id") or credential.get("rawId") or "")
         store = self.passkey_store_for_request()
         stored = store["credentials"].get(credential_id)
         if (not stored or stored.get("profile_id") != challenge["profile_id"] or
                 stored.get("mode") != challenge["mode"]):
+            should_lock, pair_count, lock_ttl = record_login_failure(attempt_key, ip_key, profile_key)
+            append_security_event("passkey_login_failed", profile_id or "_unknown", client_ip, {
+                "attempts": pair_count,
+            })
+            if should_lock:
+                append_security_event("login_locked", profile_id or "_unknown", client_ip, {
+                    "attempts": pair_count, "method": "passkey", "lockSeconds": lock_ttl,
+                })
+                self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
+                                         "retryAfter": lock_ttl or LOGIN_LOCK_TTL})
+                return
             self.json_response(401, {"error": "Passkey does not belong to this profile", "code": "verification_failed"})
             return
         try:
@@ -4834,6 +5032,17 @@ class Handler(SimpleHTTPRequestHandler):
                 require_user_verification=True,
             )
         except (InvalidAuthenticationResponse, ValueError, TypeError):
+            should_lock, pair_count, lock_ttl = record_login_failure(attempt_key, ip_key, profile_key)
+            append_security_event("passkey_login_failed", profile_id or "_unknown", client_ip, {
+                "attempts": pair_count,
+            })
+            if should_lock:
+                append_security_event("login_locked", profile_id or "_unknown", client_ip, {
+                    "attempts": pair_count, "method": "passkey", "lockSeconds": lock_ttl,
+                })
+                self.json_response(429, {"error": "Too many PIN attempts", "code": "locked",
+                                         "retryAfter": lock_ttl or LOGIN_LOCK_TTL})
+                return
             self.json_response(401, {"error": "Face ID / fingerprint verification failed", "code": "verification_failed"})
             return
         stored = dict(stored)
@@ -5034,11 +5243,24 @@ class Handler(SimpleHTTPRequestHandler):
     def handle_auth_request_reset(self, body: dict) -> None:
         profile_id = str(body.get("profileId", "")).strip()
         email = str(body.get("email", "")).strip().lower()[:320]
+        client_ip = self.client_ip()
+        reset = pin_reset_status()
+        # System-wide: never pretend email works when delivery / public URL is missing.
+        if not reset["ready"]:
+            append_security_event("pin_reset_unavailable", profile_id or "_unknown", client_ip, {
+                "emailConfigured": reset["emailConfigured"],
+                "publicUrlConfigured": reset["publicUrlConfigured"],
+            })
+            self.json_response(503, {
+                "error": "Email PIN reset is not configured. Ask an admin to reset your PIN.",
+                "code": "reset_unavailable",
+            })
+            return
         generic = {
             "accepted": True,
             "message": "If the email matches this profile, a reset link will be sent.",
         }
-        rate_key = hashlib.sha256(f"{self.client_address[0]}:{email}".encode()).hexdigest()
+        rate_key = hashlib.sha256(f"reset-req:{client_ip}:{email or profile_id}".encode()).hexdigest()
         now = time.time()
         with AUTH_LOCK:
             if now - RESET_REQUESTS.get(rate_key, 0) < 60:
@@ -5047,9 +5269,10 @@ class Handler(SimpleHTTPRequestHandler):
             RESET_REQUESTS[rate_key] = now
         user = AUTH_USERS.get(profile_id)
         if not user or not email or not user["email"] or not hmac.compare_digest(email, user["email"]):
-            self.json_response(200, generic)
-            return
-        if not email_delivery_status()["configured"]:
+            # Same response either way — no profile/email enumeration.
+            append_security_event("pin_reset_request", profile_id or "_unknown", client_ip, {
+                "matched": False,
+            })
             self.json_response(200, generic)
             return
         raw_token = mint_reset_token(profile_id, user.get("pin_hash", ""))
@@ -5057,35 +5280,58 @@ class Handler(SimpleHTTPRequestHandler):
         localish = any(x in configured for x in ("127.0.0.1", "localhost", "0.0.0.0")) if configured else True
         # Never build reset links from untrusted Host headers in production.
         if os.environ.get("VERCEL") == "1" and (not configured or localish):
-            append_security_event("pin_reset_public_url_missing", profile_id, self.client_ip(), {})
+            append_security_event("pin_reset_public_url_missing", profile_id, client_ip, {})
             self.json_response(200, generic)
             return
         public_url = configured if (configured and not localish) else public_base_url(self.headers)
         if any(x in public_url for x in ("127.0.0.1", "localhost", "0.0.0.0")) and os.environ.get("VERCEL") == "1":
-            append_security_event("pin_reset_public_url_local", profile_id, self.client_ip(), {})
+            append_security_event("pin_reset_public_url_local", profile_id, client_ip, {})
             self.json_response(200, generic)
             return
         reset_url = f"{public_url}/?reset={urllib.parse.quote(raw_token)}"
         try:
             send_pin_reset_email(email, reset_url)
+            append_security_event("pin_reset_sent", profile_id, client_ip, {})
         except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
-            append_security_event("pin_reset_email_failed", profile_id, self.client_ip(), {})
+            append_security_event("pin_reset_email_failed", profile_id, client_ip, {})
         self.json_response(200, generic)
 
     def handle_auth_reset(self, body: dict) -> None:
         token = str(body.get("token", ""))
         pin = str(body.get("pin", ""))
         confirm = str(body.get("confirmPin", ""))
+        client_ip = self.client_ip()
+        # Brute-force / spray protection on token confirmation.
+        confirm_key = f"reset-confirm:{client_ip}"
+        now = time.time()
+        with AUTH_LOCK:
+            stamps = [s for s in LOGIN_FAILURES.get(confirm_key, []) if now - s < RESET_CONFIRM_WINDOW]
+            LOGIN_FAILURES[confirm_key] = stamps
+            if len(stamps) >= RESET_CONFIRM_MAX:
+                self.json_response(429, {
+                    "error": "Too many reset attempts",
+                    "code": "locked",
+                    "retryAfter": RESET_CONFIRM_WINDOW,
+                })
+                return
         if pin != confirm or not re.fullmatch(r"\d{4,6}", pin):
+            with AUTH_LOCK:
+                LOGIN_FAILURES.setdefault(confirm_key, []).append(now)
             self.json_response(400, {"error": "PINs must match and contain 4 to 6 digits", "code": "invalid_pin"})
             return
         parsed = parse_reset_token(token)
         if not parsed:
+            with AUTH_LOCK:
+                LOGIN_FAILURES.setdefault(confirm_key, []).append(now)
+            append_security_event("pin_reset_invalid_token", "_unknown", client_ip, {})
             self.json_response(400, {"error": "Reset link is invalid or expired", "code": "invalid_token"})
             return
         profile_id, fingerprint = parsed
         user = AUTH_USERS.get(profile_id)
         if not user or pin_fingerprint(user.get("pin_hash", "")) != fingerprint:
+            with AUTH_LOCK:
+                LOGIN_FAILURES.setdefault(confirm_key, []).append(now)
+            append_security_event("pin_reset_invalid_token", profile_id, client_ip, {})
             self.json_response(400, {"error": "Reset link is invalid or expired", "code": "invalid_token"})
             return
         old_hash = user["pin_hash"]
@@ -5104,9 +5350,11 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(507, {"error": "The new PIN could not be saved", "code": "storage"})
             return
         with AUTH_LOCK:
+            LOGIN_FAILURES.pop(confirm_key, None)
             for session_token, session in list(AUTH_SESSIONS.items()):
                 if session["profile_id"] == profile_id:
                     AUTH_SESSIONS.pop(session_token, None)
+        append_security_event("pin_changed", profile_id, client_ip, {"method": "email_reset"})
         recipient = (user.get("email") or "").strip()
         if recipient and email_delivery_status()["configured"]:
             profile_name = {
@@ -5119,7 +5367,7 @@ class Handler(SimpleHTTPRequestHandler):
             try:
                 send_pin_changed_email(recipient, profile_name)
             except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
-                append_security_event("pin_changed_email_failed", profile_id, self.client_ip(), {})
+                append_security_event("pin_changed_email_failed", profile_id, client_ip, {})
         try:
             override_cookie = encode_auth_override_cookie(AUTH_OVERRIDES)
         except RuntimeError:

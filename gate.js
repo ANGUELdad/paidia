@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 138,
-    label: 'v138',
+    version: 141,
+    label: 'v141',
     changed: {
-      de: 'Lager-Vorratsgang · Kids-Spiele · Liste-Αιτήματα',
-      el: 'Αποθήκη-διάδρομος · Παιχνίδια Kids · Λίστα-Αιτήματα',
+      de: 'Lager ± Sofort · Schnell-Hinzufügen',
+      el: 'Αποθήκη ± άμεσα · γρήγορη προσθήκη',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -151,7 +151,8 @@
       invalidReset: 'Link ungültig oder PINs stimmen nicht.',
       needEmail: 'Bitte E-Mail eingeben.',
       storageFail: 'PIN konnte nicht gespeichert werden. Bitte Admin informieren.',
-      resetUnavailable: 'E-Mail-Reset ist gerade nicht verfügbar. Bitte Admin fragen.',
+      resetUnavailable: 'E-Mail-Reset ist nicht eingerichtet. Bitte Admin fragen — PIN ändern geht nach Login unter Profil.',
+      resetAskAdmin: 'E-Mail-Reset ist nicht konfiguriert. Ein Admin kann dir nach der Anmeldung unter Profil → PIN helfen, oder SMTP/Resend muss eingerichtet werden.',
       resetNeedProfileEmail: 'Nutze die E-Mail, die für dieses Profil gespeichert ist.',
       resetBackPin: '← Zurück zur PIN',
       rememberMe: 'Angemeldet bleiben',
@@ -198,7 +199,8 @@
       invalidReset: 'Άκυρος σύνδεσμος ή τα PIN δεν ταιριάζουν.',
       needEmail: 'Βάλε το email.',
       storageFail: 'Το PIN δεν αποθηκεύτηκε. Ενημέρωσε τον admin.',
-      resetUnavailable: 'Η αλλαγή PIN με email δεν είναι διαθέσιμη τώρα. Ρώτα τον admin.',
+      resetUnavailable: 'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ρώτα admin — μετά τη σύνδεση αλλάζει από Προφίλ → PIN.',
+      resetAskAdmin: 'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ένας admin μπορεί να βοηθήσει μετά τη σύνδεση στο Προφίλ → PIN, ή πρέπει να ρυθμιστεί SMTP/Resend.',
       resetNeedProfileEmail: 'Χρησιμοποίησε το email που είναι αποθηκευμένο σε αυτό το προφίλ.',
       resetBackPin: '← Πίσω στο PIN',
       rememberMe: 'Να μείνω συνδεδεμένος',
@@ -429,6 +431,7 @@
       const error = new Error(data.error || 'Passkey request failed');
       error.status = response.status;
       error.code = data.code;
+      if (data.retryAfter != null) error.retryAfter = data.retryAfter;
       throw error;
     }
     return data;
@@ -590,7 +593,10 @@
         try { loadApp(); } catch (error) { location.replace('/?in=' + Date.now()); }
         return;
       } catch (error) {
-        if (error.name === 'NotAllowedError') errorEl.textContent = t('bioFail');
+        if (error.code === 'locked' || error.status === 429) {
+          const minutes = Math.max(1, Math.ceil((Number(error.retryAfter) || 900) / 60));
+          errorEl.textContent = t('locked')(minutes);
+        } else if (error.name === 'NotAllowedError') errorEl.textContent = t('bioFail');
         else if (error.code === 'no_passkey') errorEl.textContent = t('bioSetupNeeded');
         else if (error.code === 'passkey_unavailable' || error.code === 'configuration') errorEl.textContent = t('bioUnavailable');
         else errorEl.textContent = t('bioFail');
@@ -654,28 +660,42 @@
           <div class="gate-mail-mark">A</div>
           <div class="gate-mail-eyebrow">Armonia Thassos</div>
           <h3>${t('resetTitle')}</h3>
-          <p>${t('resetNeedProfileEmail')}</p>
+          <p id="resetHeroSub">${t('resetNeedProfileEmail')}</p>
         </div>
         <div class="pa" style="background:${safeColor(who.color)};margin:14px auto 0">${initials(who.name)}</div>
         <div class="sub" style="margin-top:8px">${esc(who.name)}</div>
-        <label class="gate-field"><span>${t('email')}</span>
-          <input type="email" id="resetEmail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>
-        <div class="gate-status" id="resetStatus" role="status" aria-live="polite"></div>
-        <button class="btn" id="resetSend" type="button">${t('sendLink')}</button>
+        <div id="resetFormBlock">
+          <label class="gate-field"><span>${t('email')}</span>
+            <input type="email" id="resetEmail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>
+          <div class="gate-status" id="resetStatus" role="status" aria-live="polite"></div>
+          <button class="btn" id="resetSend" type="button">${t('sendLink')}</button>
+        </div>
         <button class="gate-back" type="button" id="resetBack">${t('resetBackPin')}</button>
       </div>${gateBuildHtml()}`);
     const status = body.querySelector('#resetStatus');
     const button = body.querySelector('#resetSend');
+    const formBlock = body.querySelector('#resetFormBlock');
+    const heroSub = body.querySelector('#resetHeroSub');
     body.querySelector('#resetBack').onclick = () => renderPin(who, mode);
+
+    const showUnavailable = () => {
+      if (heroSub) heroSub.textContent = t('resetAskAdmin');
+      if (formBlock) {
+        formBlock.innerHTML = `<div class="gate-status error" role="status">${esc(t('resetUnavailable'))}</div>`;
+      }
+    };
+
     fetch('/api/auth/health', { credentials: 'same-origin' }).then((r) => r.json()).then((health) => {
       if (health?.pinResetReady === false || health?.emailConfigured === false) {
-        setGateStatus(status, t('resetUnavailable'), 'error');
-        button.disabled = true;
-        button.dataset.locked = '1';
+        showUnavailable();
       }
-    }).catch(() => {});
-    button.onclick = async () => {
-      const email = body.querySelector('#resetEmail').value.trim();
+    }).catch(() => {
+      // Fail closed: never pretend a link was emailed when health is unknown.
+      showUnavailable();
+    });
+    if (button) button.onclick = async () => {
+      const emailEl = body.querySelector('#resetEmail');
+      const email = (emailEl && emailEl.value || '').trim();
       if (!email) { setGateStatus(status, t('needEmail'), 'error'); return; }
       button.disabled = true;
       setGateStatus(status, lang === 'el' ? 'Αποστολή…' : 'Senden…', '');
@@ -686,12 +706,17 @@
           credentials: 'same-origin',
           body: JSON.stringify({ profileId: who.id, email }),
         });
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 503 || data.code === 'reset_unavailable') {
+          showUnavailable();
+          return;
+        }
         if (!response.ok) throw new Error(String(response.status));
         setGateStatus(status, t('linkSent'), 'success');
       } catch (error) {
         setGateStatus(status, t('unavailable'), 'error');
       } finally {
-        if (!button.dataset.locked) button.disabled = false;
+        if (button && !button.dataset.locked) button.disabled = false;
       }
     };
     setTimeout(() => body.querySelector('#resetEmail')?.focus(), 40);

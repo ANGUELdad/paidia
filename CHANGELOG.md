@@ -1,5 +1,30 @@
 # Changelog
 
+## v141 — 2026-08-30
+
+- **Lager add/remove overhaul:** one-tap ± commits immediately (no draft/save for row steppers) with undo toast.
+- Sticky OUT reason dock on first −; later consumes reuse the reason until cleared.
+- Primary **Schnell hinzufügen** sheet: name, qty, category, house; live duplicate detection; fills existing or creates custom product.
+- Pro: bulk paste (one line per product, optional qty); stock board / bulk select stay in ••• menu.
+- Easy: huge ± and Add CTA; Pro: denser steppers + tools. Delete product = two-step confirm (no fat-finger).
+- Pantry walk (jars, shelves, tide) kept. DE/EL strings. Cache `paidia-v141`.
+
+## v140 — 2026-08-30
+
+- **Auth brute-force:** PIN (and failed passkey) login tracked by IP + profile + pair; lockout after N failures with progressive backoff (1×→2×→4× of `PAIDIA_LOGIN_LOCK_SECONDS`, default 15 min). Counters and locks clear on successful login. Security events via `append_security_event` (`login_failed`, `login_locked`, `login_ok`, …).
+- Defaults unchanged for local dev: 5 attempts / 10 min window / 15 min lock (`PAIDIA_LOGIN_*`). Wrong PIN still works until the limit; wait out the lock or succeed once to reset.
+- **Forgot PIN / email:** no more fake “link sent” when SMTP/Resend (or public URL on Vercel) is missing — API returns `503 reset_unavailable`; UI shows honest DE/EL “ask admin / Profil → PIN”. Real email reset still works when delivery is configured. Reset-confirm attempts rate-limited by IP.
+- `/api/auth/health` now includes `pinResetReady` locally (parity with Vercel).
+- Cache `paidia-v140`.
+
+## v139 — 2026-08-30
+
+- **Plan default = Woche:** staff Plan opens on the weekly roster (not Tag); Easy invalid views fall back to week; session remembers last sub-tab when leaving Plan.
+- **Import Woche:** copy date-specific overrides from a source week into the current week with preview; default merge, gaps-only, Pro replace; optional week notes; PIN confirm.
+- **Zo-Ai Plan:** paste WhatsApp/notes/bullets → `/api/ai-schedule` proposes matrix cells → review → PIN apply (local parser fallback).
+- DE/EL strings for import + AI schedule; week hero actions; roster tables unchanged.
+- Cache `paidia-v139`.
+
 ## v138 — 2026-08-30
 
 - **Lager / pantry walk:** replaced dark teal “health ring” with stone/sea glass hero + horizontal tide fill (Vorratssicherheit).

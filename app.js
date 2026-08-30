@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 138,
-  label: 'v138',
+  version: 141,
+  label: 'v141',
   changed: {
-    de: 'Lager-Vorratsgang · Kids-Spiele · Liste-Αιτήματα',
-    el: 'Αποθήκη-διάδρομος · Παιχνίδια Kids · Λίστα-Αιτήματα',
+    de: 'Lager ± Sofort · Schnell-Hinzufügen',
+    el: 'Αποθήκη ± άμεσα · γρήγορη προσθήκη',
   },
 };
 const T = {
@@ -85,6 +85,22 @@ const T = {
     shiftStockCheckFixed:'Korrigiert',
     shiftStockCheckProgress:(a,b)=>`${a}/${b} geprüft`,
     viewDay:'Tag', viewWeek:'Woche', filterView:'Ansicht', filterHouse:'Haus',
+    importWeek:'Woche importieren', importWeekTitle:'Woche importieren',
+    importWeekHint:'Kopiere Einträge aus einer anderen Woche in die aktuelle Woche.',
+    importWeekSource:'Quellwoche', importWeekTarget:'Zielwoche', importWeekPreview:'Vorschau',
+    importWeekEmpty:'Keine Einträge in der Quellwoche', importWeekConfirm:'Woche übernehmen',
+    importWeekCopied:n=>n===1?'1 Eintrag übernommen':`${n} Einträge übernommen`,
+    importWeekConflictMerge:'Zusammenführen', importWeekConflictMergeHint:'Neue Einträge hinzufügen, Doppelte überspringen',
+    importWeekConflictSkip:'Nur Lücken', importWeekConflictSkipHint:'Nur leere Zellen füllen',
+    importWeekConflictReplace:'Ersetzen', importWeekConflictReplaceHint:'Zielwoche-Änderungen löschen, dann kopieren',
+    importWeekCopyNotes:'Wochenhinweise mitkopieren', importWeekConflict:n=>n===1?'1 Konflikt':`${n} Konflikte`,
+    aiSchedule:'Zo-Ai Plan', aiScheduleTitle:'Wochenplan mit Zo-Ai',
+    aiScheduleHint:'WhatsApp-Notiz, Stichpunkte oder Freitext einfügen — Zo-Ai schlägt Zellen vor. Du bestätigst.',
+    aiSchedulePh:'z.B.\nMo Nachmittag Fußball Dora\nDi Vormittag Strand Kalyvia\nMi Abend Film Limenaria',
+    aiScheduleAnalyze:'Analysieren', aiScheduleApply:'In Woche übernehmen',
+    aiScheduleEmpty:'Keine Einträge erkannt', aiScheduleNeedText:'Bitte Text einfügen',
+    aiScheduleApplied:n=>n===1?'1 Eintrag gespeichert':`${n} Einträge gespeichert`,
+    aiScheduleUnresolved:'Aktivität unklar', aiScheduleConflict:'Konflikt',
     dayAgenda:'Tagesablauf', weekAgenda:'Wochenübersicht', agendaEmpty:'Noch nichts geplant', agendaEmptyHint:'Füge den ersten Eintrag direkt zum Tagesablauf hinzu.', openDay:'Tag öffnen',
     tableFullscreen:'Vollbild', tableExitFullscreen:'Schließen',
     allHouses:'Kombiniert',
@@ -274,7 +290,8 @@ const T = {
     contactCardTitle:'Kontakt & Wiederherstellung',
     switchProfile:'Anderes Profil öffnen', profilesBack:'Profile',
     adminsManageEmails:'Als Admin kannst du die E-Mail jedes Profils verwalten.',
-    resetUnavailable:'E-Mail-Reset ist gerade nicht verfügbar. Bitte Admin fragen.',
+    resetUnavailable:'E-Mail-Reset ist nicht eingerichtet. Bitte Admin fragen — PIN ändern geht nach Login unter Profil.',
+    resetAskAdmin:'E-Mail-Reset ist nicht konfiguriert. Ein Admin kann dir nach der Anmeldung unter Profil → PIN helfen, oder SMTP/Resend muss eingerichtet werden.',
     resetNeedProfileEmail:'Nutze die E-Mail, die für dieses Profil gespeichert ist. Fehlt sie, speichere sie zuerst nach dem Login unter Profil.',
     resetBackPin:'← Zurück zur PIN',
     gateTrace:'Jede Buchung wird mit Name, Zeit, Gerät und IP erfasst.',
@@ -329,9 +346,27 @@ const T = {
     stockDraftNeedReason:'Für Ausgang einen Grund wählen.',
     stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
     stockDraftPending:'Noch nicht gespeichert',
+    stockQuickAdd:'Hinzufügen',
+    stockQuickAddTitle:'Schnell hinzufügen',
+    stockQuickAddHint:'Name, Menge, Regal — fertig. Doppelte Namen werden erkannt.',
+    stockQuickAddCta:'Ins Lager',
+    stockAddExisting:'Menge dazu',
+    stockDupHint:'Ähnliches Produkt gefunden — tippe zum Auffüllen.',
+    stockDupExact:'Bereits vorhanden',
+    stockBulkPaste:'Mehrere auf einmal',
+    stockBulkPasteHint:'Eine Zeile pro Produkt. Optional Menge: Milch 2',
+    stockBulkPastePh:'Milch 2\nEier\nÖl 1',
+    stockBulkAdded:n=>n===1?'1 Produkt angelegt':`${n} Produkte angelegt`,
+    stockStepDone:(name,delta,unit)=>`${delta>0?'+':''}${delta} ${unit} · ${name}`,
+    stockUndone:'Rückgängig gemacht',
+    stockUndo:'Rückgängig',
+    stockOutReasonBar:'Grund für −',
+    stockOutReasonHint:'Einmal wählen — gilt für die nächsten Entnahmen.',
+    stockDeleteArmed:'Nochmal tippen zum Löschen',
+    stockDeleteCancel:'Abbrechen',
     homeMore:'Mehr heute',
     homeSignals:'Kurzüberblick',
-    stockHeroHint:'Vorratsgang — Regale prüfen, Gläser füllen, Bewegung buchen',
+    stockHeroHint:'Vorratsgang — tippe ± oder füge Ware schnell hinzu',
     stockTideLabel:'Vorratssicherheit',
     stockShelves:'Regale',
     stockShelfHint:n=>n===1?'1 Regalzone':`${n} Regalzonen`,
@@ -906,6 +941,22 @@ const T = {
     shiftStockCheckFixed:'Διορθώθηκε',
     shiftStockCheckProgress:(a,b)=>`${a}/${b} ελέγχθηκαν`,
     viewDay:'Ημέρα', viewWeek:'Εβδομάδα', filterView:'Προβολή', filterHouse:'Σπίτι',
+    importWeek:'Εισαγωγή εβδομάδας', importWeekTitle:'Εισαγωγή εβδομάδας',
+    importWeekHint:'Αντιγραφή εγγραφών από άλλη εβδομάδα στην τρέχουσα.',
+    importWeekSource:'Πηγή', importWeekTarget:'Προορισμός', importWeekPreview:'Προεπισκόπηση',
+    importWeekEmpty:'Καμία εγγραφή στην πηγή', importWeekConfirm:'Εφαρμογή εβδομάδας',
+    importWeekCopied:n=>n===1?'1 εγγραφή εφαρμόστηκε':`${n} εγγραφές εφαρμόστηκαν`,
+    importWeekConflictMerge:'Συγχώνευση', importWeekConflictMergeHint:'Προσθήκη νέων, παράλειψη διπλότυπων',
+    importWeekConflictSkip:'Μόνο κενά', importWeekConflictSkipHint:'Γέμισμα μόνο κενών κελιών',
+    importWeekConflictReplace:'Αντικατάσταση', importWeekConflictReplaceHint:'Διαγραφή αλλαγών στόχου, μετά αντιγραφή',
+    importWeekCopyNotes:'Αντιγραφή σημειώσεων εβδομάδας', importWeekConflict:n=>n===1?'1 σύγκρουση':`${n} συγκρούσεις`,
+    aiSchedule:'Zo-Ai πρόγραμμα', aiScheduleTitle:'Εβδομαδιαίο με Zo-Ai',
+    aiScheduleHint:'Επικόλλησε σημείωση WhatsApp, λίστα ή ελεύθερο κείμενο — η Zo-Ai προτείνει κελιά. Εσύ επιβεβαιώνεις.',
+    aiSchedulePh:'π.χ.\nΔευ απόγευμα ποδόσφαιρο Dora\nΤρι πρωί παραλία Kalyvia\nΤετ βράδυ ταινία Limenaria',
+    aiScheduleAnalyze:'Ανάλυση', aiScheduleApply:'Εφαρμογή στην εβδομάδα',
+    aiScheduleEmpty:'Δεν βρέθηκαν εγγραφές', aiScheduleNeedText:'Βάλε κείμενο',
+    aiScheduleApplied:n=>n===1?'1 εγγραφή αποθηκεύτηκε':`${n} εγγραφές αποθηκεύτηκαν`,
+    aiScheduleUnresolved:'Ασαφής δραστηριότητα', aiScheduleConflict:'Σύγκρουση',
     dayAgenda:'Ροή ημέρας', weekAgenda:'Εικόνα εβδομάδας', agendaEmpty:'Δεν έχει προγραμματιστεί κάτι', agendaEmptyHint:'Πρόσθεσε την πρώτη εγγραφή απευθείας στη ροή της ημέρας.', openDay:'Άνοιγμα ημέρας',
     tableFullscreen:'Πλήρης οθόνη', tableExitFullscreen:'Κλείσιμο',
     allHouses:'Συνδυαστικά',
@@ -1095,7 +1146,8 @@ const T = {
     contactCardTitle:'Επικοινωνία & ανάκτηση',
     switchProfile:'Άνοιγμα άλλου προφίλ', profilesBack:'Προφίλ',
     adminsManageEmails:'Ως admin μπορείς να διαχειριστείς το email κάθε προφίλ.',
-    resetUnavailable:'Η αλλαγή PIN με email δεν είναι διαθέσιμη τώρα. Ρώτα τον admin.',
+    resetUnavailable:'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ρώτα admin — μετά τη σύνδεση αλλάζει από Προφίλ → PIN.',
+    resetAskAdmin:'Η αλλαγή PIN με email δεν είναι ρυθμισμένη. Ένας admin μπορεί να βοηθήσει μετά τη σύνδεση στο Προφίλ → PIN, ή πρέπει να ρυθμιστεί SMTP/Resend.',
     resetNeedProfileEmail:'Χρησιμοποίησε το email που είναι αποθηκευμένο σε αυτό το προφίλ. Αν λείπει, αποθήκευσέ το μετά τη σύνδεση στο Προφίλ.',
     resetBackPin:'← Πίσω στο PIN',
     gateTrace:'Κάθε κίνηση καταγράφεται με όνομα, ώρα, συσκευή και IP.',
@@ -1150,9 +1202,27 @@ const T = {
     stockDraftNeedReason:'Για έξοδο διάλεξε λόγο.',
     stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
     stockDraftPending:'Δεν αποθηκεύτηκε ακόμη',
+    stockQuickAdd:'Προσθήκη',
+    stockQuickAddTitle:'Γρήγορη προσθήκη',
+    stockQuickAddHint:'Όνομα, ποσότητα, ράφι — έτοιμο. Διπλά ονόματα εντοπίζονται.',
+    stockQuickAddCta:'Στην αποθήκη',
+    stockAddExisting:'Προσθήκη ποσότητας',
+    stockDupHint:'Παρόμοιο προϊόν — πάτα για αναπλήρωση.',
+    stockDupExact:'Υπάρχει ήδη',
+    stockBulkPaste:'Πολλά μαζί',
+    stockBulkPasteHint:'Μία γραμμή ανά προϊόν. Προαιρετικά ποσότητα: Γάλα 2',
+    stockBulkPastePh:'Γάλα 2\nΑυγά\nΛάδι 1',
+    stockBulkAdded:n=>n===1?'1 προϊόν προστέθηκε':`${n} προϊόντα προστέθηκαν`,
+    stockStepDone:(name,delta,unit)=>`${delta>0?'+':''}${delta} ${unit} · ${name}`,
+    stockUndone:'Αναιρέθηκε',
+    stockUndo:'Αναίρεση',
+    stockOutReasonBar:'Λόγος για −',
+    stockOutReasonHint:'Διάλεξε μία φορά — ισχύει για τις επόμενες εξόδους.',
+    stockDeleteArmed:'Πάτα ξανά για διαγραφή',
+    stockDeleteCancel:'Ακύρωση',
     homeMore:'Περισσότερα σήμερα',
     homeSignals:'Σύντομη εικόνα',
-    stockHeroHint:'Διάδρομος αποθήκης — ράφια, στάθμη, κίνηση',
+    stockHeroHint:'Διάδρομος αποθήκης — πάτα ± ή πρόσθεσε γρήγορα',
     stockTideLabel:'Ασφάλεια αποθέματος',
     stockShelves:'Ράφια',
     stockShelfHint:n=>n===1?'1 ζώνη ραφιού':`${n} ζώνες ραφιών`,
@@ -2407,13 +2477,44 @@ const fmtDT = ts => new Date(ts).toLocaleString(state.lang==='de'?'de-DE':'el-GR
 const kidNames = ids => (ids||[]).map(i=>kid(i)?.name).filter(Boolean).join(', ');
 
 let toastT;
+let toastActionHandler = null;
 function toast(msg, type='info', duration){
   const el = document.getElementById('toast');
+  if(!el) return;
+  toastActionHandler = null;
   el.textContent = msg;
   el.className = `toast on ${type}`;
   el.setAttribute('role', type==='error' ? 'alert' : 'status');
   clearTimeout(toastT);
   toastT = setTimeout(()=>el.classList.remove('on'), duration || (type==='error'?4800:3000));
+}
+/** Action toast (e.g. Undo after ±). `onAction` runs once if the button is tapped. */
+function toastAction(msg, {type='success', actionLabel='', onAction=null, duration=5200}={}){
+  const el = document.getElementById('toast');
+  if(!el) return;
+  toastActionHandler = typeof onAction==='function' ? onAction : null;
+  el.className = `toast on ${type}${toastActionHandler?' has-action':''}`;
+  el.setAttribute('role', type==='error' ? 'alert' : 'status');
+  el.innerHTML = `<span class="toast-msg">${esc(msg)}</span>${
+    toastActionHandler && actionLabel
+      ? `<button type="button" class="toast-action" id="toastActionBtn">${esc(actionLabel)}</button>`
+      : ''}`;
+  const btn = el.querySelector('#toastActionBtn');
+  if(btn){
+    btn.onclick = ev=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      const fn = toastActionHandler;
+      toastActionHandler = null;
+      el.classList.remove('on');
+      if(fn) fn();
+    };
+  }
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>{
+    toastActionHandler = null;
+    el.classList.remove('on');
+  }, duration);
 }
 
 function setStatus(el, message='', type='info'){
@@ -2601,7 +2702,7 @@ const state = {
   tab: 'home',
   staffKidId: null,
   kidsPane: 'directory',
-  scheduleView: 'day',
+  scheduleView: 'week',
   childView: 'today',
   gameId: null,
   game: null,
@@ -2625,6 +2726,9 @@ const state = {
   stockTiles: localStorage.getItem('paidia.stockTiles')==='1',
   stockDraft: {},
   stockDraftReason: null,
+  stockPendingStep: null, // {pid, dir} waiting for OUT reason
+  stockFlashPid: null,
+  stockFlashDir: null,
   shopQuery: '',
   storeShowDone: false,
   selectMode: null, // null | 'shop' | 'stock' | 'store' | 'requests'
@@ -2776,7 +2880,7 @@ function normalizeUiModeSurfaces(){
   if(!isEasy()) return;
   if(state.mode==='staff' && state.tab==='schedule' && !['day','week'].includes(state.scheduleView)){
     /* Keep roster day/week; advanced calendar/shift/events are Pro chrome. */
-    state.scheduleView = 'day';
+    state.scheduleView = 'week';
   }
   if(state.mode==='staff' && state.tab==='book' && state.bookPane!=='shift'){
     state.bookPane = 'shift';
@@ -5370,6 +5474,33 @@ function consumePresenceDeepLink(){
 const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk'];
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
 const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
+const SCHEDULE_VIEW_LAST_KEY = 'paidia.scheduleViewLast';
+
+function rememberScheduleView(view){
+  if(!ROUTE_SCHEDULE_VIEWS.includes(view)) return;
+  try{ sessionStorage.setItem(SCHEDULE_VIEW_LAST_KEY, view); }catch{}
+}
+
+function recalledScheduleView(){
+  try{
+    const v = sessionStorage.getItem(SCHEDULE_VIEW_LAST_KEY);
+    if(ROUTE_SCHEDULE_VIEWS.includes(v)){
+      if(isEasy() && !['day','week'].includes(v)) return 'week';
+      return v;
+    }
+  }catch{}
+  return 'week';
+}
+
+function setScheduleView(view, {persist=true}={}){
+  if(!ROUTE_SCHEDULE_VIEWS.includes(view)) view = 'week';
+  if(isEasy() && !['day','week'].includes(view)) view = 'week';
+  state.scheduleView = view;
+  if(view === 'calendar' && !state.calendarMonth){
+    state.calendarMonth = iso(new Date()).slice(0, 7) + '-01';
+  }
+  if(persist) rememberScheduleView(view);
+}
 
 function routeFromHash(){
   const raw = (location.hash || '').replace(/^#/, '').trim();
@@ -5387,12 +5518,9 @@ function applyRouteFromHash(){
   const route = routeFromHash();
   if(!route) return false;
   state.tab = route.tab;
-  if(route.scheduleView) state.scheduleView = route.scheduleView;
+  if(route.scheduleView) setScheduleView(route.scheduleView, {persist:true});
   if(route.shopPanel){
     state.shopPanel = route.shopPanel === 'store' ? 'plan' : route.shopPanel;
-  }
-  if(state.tab === 'schedule' && state.scheduleView === 'calendar' && !state.calendarMonth){
-    state.calendarMonth = iso(new Date()).slice(0, 7) + '-01';
   }
   return true;
 }
@@ -5404,8 +5532,8 @@ function hashForState(){
   if(state.tab === 'talk') return '#talk';
   if(state.tab === 'stock') return '#stock';
   if(state.tab === 'schedule'){
-    const sv = state.scheduleView || 'day';
-    return ROUTE_SCHEDULE_VIEWS.includes(sv) ? `#schedule/${sv}` : '#schedule/day';
+    const sv = state.scheduleView || 'week';
+    return ROUTE_SCHEDULE_VIEWS.includes(sv) ? `#schedule/${sv}` : '#schedule/week';
   }
   if(state.tab === 'shop'){
     try{
@@ -6038,6 +6166,8 @@ function viewScheduleWeek(){
       <div class="plan-hero-actions">
         <button class="btn sm sec" type="button" data-shift="-7" aria-label="${esc(t('previousFriday')||'‹')}">‹</button>
         <button class="btn sm sec" type="button" data-shift="7" aria-label="›">›</button>
+        <button class="btn sm sec" type="button" data-page-act="importWeek" title="${esc(t('importWeek'))}">${esc(t('importWeek'))}</button>
+        <button class="btn sm sec" type="button" data-page-act="aiSchedule" title="${esc(t('aiSchedule'))}">✨ ${esc(t('aiSchedule'))}</button>
         <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
       </div>
       <div class="plan-week-summary">
@@ -6085,6 +6215,463 @@ function weekNotesCard(){
     ${wk.createdBy ? `<div class="muted" style="margin-top:9px">${t('createdBy')}: ${esc(emp(wk.createdBy)?.name||'—')} · ${fmtDT(wk.createdAt)}</div>` : ''}
     </div>
   </details>`;
+}
+
+function formatWeekRangeLabel(anchorStr){
+  const week = weekDates(anchorStr);
+  const first = new Date(week[0]+'T12:00:00');
+  const last = new Date(week[6]+'T12:00:00');
+  return `${first.getDate()}.${first.getMonth()+1}. – ${last.getDate()}.${last.getMonth()+1}.${last.getFullYear()}`;
+}
+
+function scheduleOverrideFingerprint(o){
+  if(o.templateId) return `t:${o.templateId}`;
+  const houses = (o.houseIds?.length ? o.houseIds : (o.houseId ? [o.houseId] : [])).slice().sort().join(',');
+  const people = (o.employeeIds?.length ? o.employeeIds : (o.employeeId ? [o.employeeId] : [])).slice().sort().join(',');
+  return `x:${o.block||''}|${o.activityId||''}|${houses}|${people}|${o.from||''}|${o.to||''}|${!!o.cancelled}`;
+}
+
+function weekOverrideCandidates(sourceMon){
+  const src = weekDates(sourceMon);
+  const srcSet = new Set(src);
+  return (DB.overrides||[]).filter(o => srcSet.has(o.date) && o.date);
+}
+
+function planWeekImport(sourceMon, targetMon, mode='merge'){
+  const src = weekDates(sourceMon);
+  const dst = weekDates(targetMon);
+  const dateMap = Object.fromEntries(src.map((s,i)=>[s, dst[i]]));
+  const sourceRows = weekOverrideCandidates(sourceMon);
+  const dstSet = new Set(dst);
+  const targetByDate = {};
+  dst.forEach(ds=>{
+    targetByDate[ds] = (DB.overrides||[]).filter(o=>o.date===ds);
+  });
+  const planned = [];
+  let conflicts = 0;
+  sourceRows.forEach(o=>{
+    const targetDate = dateMap[o.date];
+    if(!targetDate) return;
+    const fp = scheduleOverrideFingerprint(o);
+    const existing = (targetByDate[targetDate]||[]).find(x=>scheduleOverrideFingerprint(x)===fp);
+    const cellBusy = (targetByDate[targetDate]||[]).some(x=>{
+      if(o.templateId) return x.templateId===o.templateId;
+      if(x.templateId || x.cancelled) return false;
+      return x.block===o.block && (
+        (o.employeeId||o.employeeIds?.length)
+          ? entryEmployeeIds(x).some(id=>entryEmployeeIds(o).includes(id))
+          : entryHouseIds(x).some(id=>entryHouseIds(o).includes(id)) || (!entryHouseIds(o).length && !entryHouseIds(x).length)
+      );
+    });
+    if(mode==='skip' && (existing || cellBusy)){ conflicts++; return; }
+    if(mode==='merge' && existing){ conflicts++; return; }
+    planned.push({
+      source:o,
+      targetDate,
+      replaceId: mode==='merge' && cellBusy && !existing ? null : (existing?.id||null),
+      conflict: !!(existing || cellBusy),
+    });
+    if(existing || cellBusy) conflicts++;
+  });
+  return {sourceMon, targetMon, src, dst, dateMap, sourceRows, planned, conflicts, dstSet};
+}
+
+function applyWeekImportPlan(plan, {mode='merge', copyNotes=true}={}){
+  if(mode==='replace'){
+    DB.overrides = (DB.overrides||[]).filter(o=>!plan.dstSet.has(o.date));
+  }
+  let applied = 0;
+  plan.planned.forEach(row=>{
+    if(mode==='merge' && row.replaceId){
+      const ex = DB.overrides.find(o=>o.id===row.replaceId);
+      if(ex){
+        Object.assign(ex, {
+          block:row.source.block, activityId:row.source.activityId,
+          houseId:row.source.houseId||null, houseIds:row.source.houseIds||(row.source.houseId?[row.source.houseId]:[]),
+          employeeId:row.source.employeeId||null, employeeIds:row.source.employeeIds||(row.source.employeeId?[row.source.employeeId]:[]),
+          childIds:[...(row.source.childIds||[])],
+          from:row.source.from||'', to:row.source.to||'', time:row.source.time||'',
+          note:row.source.note||'', cancelled:!!row.source.cancelled,
+          templateId:row.source.templateId||null,
+        });
+        applied++;
+        return;
+      }
+    }
+    const o = row.source;
+    DB.overrides.push({
+      id:uid(), date:row.targetDate, templateId:o.templateId||null,
+      block:o.block, activityId:o.activityId,
+      houseId:o.houseId||null, houseIds:o.houseIds||(o.houseId?[o.houseId]:[]),
+      employeeId:o.employeeId||null, employeeIds:o.employeeIds||(o.employeeId?[o.employeeId]:[]),
+      childIds:[...(o.childIds||[])],
+      from:o.from||'', to:o.to||'', time:o.time||'',
+      note:o.note||'', cancelled:!!o.cancelled,
+    });
+    applied++;
+  });
+  if(copyNotes){
+    const srcNotes = DB.weeks[plan.sourceMon];
+    if(srcNotes){
+      DB.weeks[plan.targetMon] = {
+        ...(mode==='replace' ? {} : (DB.weeks[plan.targetMon]||{})),
+        hintAfternoon: srcNotes.hintAfternoon||'',
+        projects: srcNotes.projects||'',
+        materials: srcNotes.materials||'',
+        remarks: srcNotes.remarks||'',
+        createdBy: state.user?.id, createdAt: Date.now(),
+      };
+    }
+  }
+  return applied;
+}
+
+function weekImportSourceOptions(currentMon){
+  const keys = new Set([currentMon]);
+  // Relative weeks around today / current
+  for(let w=-8; w<=2; w++){
+    if(w===0) continue;
+    const d = new Date(currentMon+'T12:00:00');
+    d.setDate(d.getDate() + w*7);
+    keys.add(weekKey(iso(d)));
+  }
+  (DB.overrides||[]).forEach(o=>{ if(o.date) keys.add(weekKey(o.date)); });
+  Object.keys(DB.weeks||{}).forEach(k=>keys.add(k));
+  return [...keys].filter(k=>k!==currentMon).sort().reverse().slice(0,16);
+}
+
+function sheetImportWeek(){
+  const targetMon = weekKey(state.date);
+  const sources = weekImportSourceOptions(targetMon);
+  let sourceMon = sources[0] || targetMon;
+  let mode = isEasy() ? 'merge' : 'merge';
+  let copyNotes = true;
+  let plan = planWeekImport(sourceMon, targetMon, mode);
+
+  const drawPreview = () => {
+    plan = planWeekImport(sourceMon, targetMon, mode);
+    const box = sheetEl.querySelector('#iwPreview');
+    if(!box) return;
+    if(!plan.sourceRows.length){
+      box.innerHTML = `<div class="empty">${esc(t('importWeekEmpty'))}</div>`;
+      return;
+    }
+    const rows = plan.planned.slice(0,40).map(row=>{
+      const o = row.source;
+      const label = o.cancelled
+        ? `✕ ${esc(actLabel(o.activityId)||o.templateId||'—')}`
+        : esc(actLabel(o.activityId)||'—');
+      const who = o.templateId ? `template` :
+        (entryEmployeeIds(o).length ? employeeNames(o) : (houseNames(o)||t('unassigned')));
+      return `<div class="import-review-row">
+        <div><b>${label}</b>
+          <div class="muted" style="font-size:10.5px">${esc(row.source.date)} → ${esc(row.targetDate)} · ${esc(t(o.block||'afternoon'))} · ${esc(who)}</div>
+          ${row.conflict?`<span class="pill ovr">${esc(t('aiScheduleConflict'))}</span>`:''}
+        </div></div>`;
+    }).join('');
+    box.innerHTML = `<div class="import-review"><div class="import-review-head"><div><b>${esc(t('importWeekPreview'))}</b>
+      <div class="muted" style="font-size:10.5px">${plan.planned.length}/${plan.sourceRows.length} · ${T[state.lang].importWeekConflict(plan.conflicts)}</div></div>
+      <span class="pill gray">${plan.planned.length}</span></div>
+      <div class="import-review-body">${rows||`<div class="empty">${esc(t('importWeekEmpty'))}</div>`}</div></div>`;
+  };
+
+  openSheet(`<div class="import-flow">
+    <div class="import-hero"><div class="import-kicker">Plan</div>
+      <h2>${esc(t('importWeekTitle'))}</h2><p>${esc(t('importWeekHint'))}</p>
+      <div class="import-context">
+        <div>${esc(t('importWeekTarget'))}<b>${esc(formatWeekRangeLabel(targetMon))}</b></div>
+        <div>${esc(t('importWeekSource'))}<b id="iwSourceLbl">${esc(formatWeekRangeLabel(sourceMon))}</b></div>
+      </div></div>
+    <label class="f"><span>${esc(t('importWeekSource'))}</span>
+      <select id="iwSource">${sources.map(k=>`<option value="${esc(k)}" ${k===sourceMon?'selected':''}>${esc(formatWeekRangeLabel(k))}</option>`).join('')
+        ||`<option value="${esc(targetMon)}">${esc(formatWeekRangeLabel(targetMon))}</option>`}</select></label>
+    <div class="merge-choice">
+      <label><input type="radio" name="iwMode" value="merge" checked><b>${esc(t('importWeekConflictMerge'))}</b><small>${esc(t('importWeekConflictMergeHint'))}</small></label>
+      <label><input type="radio" name="iwMode" value="skip"><b>${esc(t('importWeekConflictSkip'))}</b><small>${esc(t('importWeekConflictSkipHint'))}</small></label>
+      <label class="pro-only mode-pro-block"><input type="radio" name="iwMode" value="replace"><b>${esc(t('importWeekConflictReplace'))}</b><small>${esc(t('importWeekConflictReplaceHint'))}</small></label>
+    </div>
+    <label class="check" style="display:flex;gap:8px;align-items:center;margin:8px 0">
+      <input type="checkbox" id="iwNotes" checked> ${esc(t('importWeekCopyNotes'))}</label>
+    <div id="iwPreview"></div>
+    <div class="import-savebar"><button class="btn" type="button" id="iwSave">${esc(t('importWeekConfirm'))}</button></div>
+  </div>`);
+
+  drawPreview();
+  sheetEl.querySelector('#iwSource').onchange = e => {
+    sourceMon = e.target.value;
+    const lbl = sheetEl.querySelector('#iwSourceLbl');
+    if(lbl) lbl.textContent = formatWeekRangeLabel(sourceMon);
+    drawPreview();
+  };
+  sheetEl.querySelectorAll('input[name="iwMode"]').forEach(r=>{
+    r.onchange = () => { mode = r.value; drawPreview(); };
+  });
+  sheetEl.querySelector('#iwNotes').onchange = e => { copyNotes = !!e.target.checked; };
+  sheetEl.querySelector('#iwSave').onclick = () => {
+    plan = planWeekImport(sourceMon, targetMon, mode);
+    if(!plan.planned.length && mode!=='replace'){ toast(t('importWeekEmpty')); return; }
+    askPin(t('importWeekTitle'), who => {
+      state.user = who;
+      const n = applyWeekImportPlan(plan, {mode, copyNotes});
+      logEntry('SCHEDULE', `${t('importWeek')} ${sourceMon} → ${targetMon} · ${n}`);
+      if(!save()) return;
+      closeSheet();
+      setScheduleView('week');
+      render();
+      toast(T[state.lang].importWeekCopied(n),'success');
+    });
+  };
+}
+
+function matchHouseQuery(query){
+  const n = norm(query||'');
+  if(!n) return null;
+  return planningHouses().find(h=>norm(h.short)===n || norm(h.name)===n || norm(h.short).includes(n) || norm(h.name).includes(n))||null;
+}
+
+function parseScheduleTextLocal(text, weekMon){
+  const week = weekDates(weekMon);
+  const dayMap = {
+    mo:0, mon:0, montag:0, δευ:0, δευτερα:0, 'δευτέρα':0,
+    di:1, die:1, dienstag:1, τρι:1, τριτη:1, 'τρίτη':1,
+    mi:2, mit:2, mittwoch:2, τετ:2, τεταρτη:2, 'τετάρτη':2,
+    do:3, don:3, donnerstag:3, πεμ:3, πεμπτη:3, 'πέμπτη':3,
+    fr:4, fre:4, freitag:4, παρ:4, παρασκευη:4, 'παρασκευή':4,
+    sa:5, sam:5, samstag:5, σαβ:5, σαββατο:5, 'σάββατο':5,
+    so:6, son:6, sonntag:6, κυρ:6, κυριακη:6, 'κυριακή':6,
+  };
+  const blockMap = {
+    morgen: 'morning', vormittag: 'morning', morning: 'morning', πρωι: 'morning', 'πρωί': 'morning', πρωινό: 'morning',
+    nachmittag: 'afternoon', afternoon: 'afternoon', απογευμα: 'afternoon', 'απόγευμα': 'afternoon',
+    abend: 'evening', evening: 'evening', βραδυ: 'evening', 'βράδυ': 'evening',
+  };
+  const entries = [];
+  String(text||'').split(/\n+/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
+    const low = norm(line);
+    let dayIdx = null, block = 'afternoon';
+    Object.entries(dayMap).forEach(([k,v])=>{ if(low.includes(k)) dayIdx = v; });
+    Object.entries(blockMap).forEach(([k,v])=>{ if(low.includes(k)) block = v; });
+    if(dayIdx==null) return;
+    const empHit = (DB.employees||[]).find(e=>low.includes(norm(e.name)));
+    const houseHit = planningHouses().find(h=>low.includes(norm(h.short))||low.includes(norm(h.name)));
+    let activity = null;
+    let best = -1;
+    (DB.activities||[]).forEach(a=>{
+      [a.de,a.el,a.en].filter(Boolean).forEach(name=>{
+        const nn = norm(name);
+        if(nn.length>=3 && low.includes(nn) && nn.length>best){ activity=a; best=nn.length; }
+      });
+    });
+    if(!activity){
+      const rest = line.replace(/^(mo|di|mi|do|fr|sa|so|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag|δευ|τρι|τετ|πεμ|παρ|σαβ|κυρ)[^\s]*/i,'').trim();
+      activity = matchActivity(rest.split(/\s+/).slice(0,3).join(' '));
+    }
+    entries.push({
+      date: week[dayIdx],
+      block,
+      activityQuery: activity ? L(activity) : line,
+      activityId: activity?.id || null,
+      employeeQuery: empHit?.name || '',
+      employeeId: empHit?.id || null,
+      houseQuery: houseHit?.short || '',
+      houseId: houseHit?.id || null,
+      note: '',
+      confidence: activity ? 'medium' : 'low',
+      raw: line,
+    });
+  });
+  return {entries, extracted_text: text, model: 'local-parser'};
+}
+
+async function aiExtractSchedule(text, weekMon){
+  if(location.protocol==='file:'){
+    const error=new Error('file-protocol'); error.status=503; throw error;
+  }
+  const week = weekDates(weekMon);
+  const ctl = new AbortController();
+  const timer = setTimeout(()=>ctl.abort(), 90000);
+  try{
+    const response = await fetch('/api/ai-schedule', {
+      method:'POST', signal:ctl.signal, credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        text: String(text||'').slice(0,50000),
+        locale: state.lang,
+        weekStart: weekMon,
+        weekDates: week,
+        activities: (DB.activities||[]).slice(0,100).map(a=>({id:a.id, de:a.de, el:a.el, en:a.en})),
+        employees: (DB.employees||[]).map(e=>({id:e.id, name:e.name})),
+        houses: planningHouses().map(h=>({id:h.id, name:h.short||h.name})),
+        blocks: BLOCKS.map(b=>({id:b.id, from:b.from, to:b.to, by:b.by})),
+        children: (DB.children||[]).map(k=>({id:k.id, name:k.name})),
+      }),
+    });
+    const result = await response.json().catch(()=>({error:'invalid-response'}));
+    if(!response.ok){
+      const error = new Error(result.error || 'AI request failed');
+      error.status=response.status; error.detail=result.detail||result.setup||result.error;
+      throw error;
+    }
+    if(!Array.isArray(result.entries)){
+      const error=new Error('invalid-result'); error.status=502; throw error;
+    }
+    return result;
+  }finally{ clearTimeout(timer); }
+}
+
+function decorateAiScheduleRows(rawEntries, weekMon){
+  const week = weekDates(weekMon);
+  const weekSet = new Set(week);
+  return (rawEntries||[]).map(row=>{
+    const date = weekSet.has(row.date) ? row.date
+      : (Number.isInteger(row.dayIndex) && row.dayIndex>=0 && row.dayIndex<=6 ? week[row.dayIndex] : null);
+    const block = blockDef(row.block) ? row.block : 'afternoon';
+    const activity = row.activityId && act(row.activityId) ? act(row.activityId)
+      : matchActivity(row.activityQuery||row.activity||'');
+    const employee = row.employeeId && emp(row.employeeId) ? emp(row.employeeId)
+      : matchEmployee(row.employeeQuery||row.employee||'');
+    const houseHit = row.houseId && house(row.houseId) ? house(row.houseId)
+      : matchHouseQuery(row.houseQuery||row.house||'');
+    const childIds = [];
+    (row.childQueries||row.children||[]).forEach(q=>{
+      const k = matchKid(q);
+      if(k) childIds.push(k.id);
+    });
+    (row.childIds||[]).forEach(id=>{ if(DB.children.find(k=>k.id===id)) childIds.push(id); });
+    const existing = date ? entriesFor(date).filter(e=>!e.cancelled && e.block===block && (
+      employee ? entryEmployeeIds(e).includes(employee.id)
+        : houseHit ? entryHouseIds(e).includes(houseHit.id)
+        : true
+    )) : [];
+    return {
+      date, block,
+      activityId: activity?.id||null,
+      activityLabel: activity ? L(activity) : (row.activityQuery||row.activity||'?'),
+      employeeId: employee?.id||null,
+      employeeLabel: employee?.name||'',
+      houseId: houseHit?.id||null,
+      houseLabel: houseHit?.short||houseHit?.name||'',
+      childIds: [...new Set(childIds)],
+      from: row.from||'', to: row.to||'', note: row.note||'',
+      confidence: row.confidence|| (activity?'medium':'low'),
+      raw: row.raw||row.activityQuery||'',
+      conflict: existing.length>0,
+      include: !!(date && activity),
+    };
+  }).filter(r=>r.date);
+}
+
+function sheetAiSchedule(){
+  const weekMon = weekKey(state.date);
+  let rows = null, busy=false, aiMeta=null, sourceText='';
+
+  const draw = () => {
+    const box = sheetEl.querySelector('#asRows');
+    if(!box) return;
+    if(!rows){ box.innerHTML=''; return; }
+    if(!rows.length){
+      box.innerHTML = `<div class="empty">${esc(t('aiScheduleEmpty'))}</div>`;
+      return;
+    }
+    box.innerHTML = `<div class="import-review"><div class="import-review-head"><div><b>${esc(t('importWeekPreview'))}</b>
+      <div class="muted" style="font-size:10.5px">${esc(t('checkBeforeSave')||t('aiScheduleHint'))}</div></div>
+      <span class="pill gray">${rows.filter(r=>r.include).length}/${rows.length}</span></div>
+      <div class="import-review-body">${rows.map((r,i)=>`<div class="import-review-row">
+        <label style="display:flex;gap:8px;align-items:flex-start;flex:1">
+          <input type="checkbox" data-inc="${i}" ${r.include?'checked':''}>
+          <div><b>${esc(r.activityLabel)}</b>
+            <div class="muted" style="font-size:10.5px">${esc(r.date)} · ${esc(t(r.block))} · ${esc(r.employeeLabel||r.houseLabel||t('unassigned'))}</div>
+            ${r.note?`<div class="muted" style="font-size:10.5px">${esc(r.note)}</div>`:''}
+            <div style="margin-top:4px">
+              <span class="pill ${confidenceClass(r.confidence)}">${confidenceLabel(r.confidence)}</span>
+              ${!r.activityId?`<span class="pill ovr">${esc(t('aiScheduleUnresolved'))}</span>`:''}
+              ${r.conflict?`<span class="pill ovr">${esc(t('aiScheduleConflict'))}</span>`:''}
+            </div>
+          </div>
+        </label>
+        <button class="mini-x" data-rm="${i}" type="button" aria-label="${esc(t('close'))}">×</button>
+      </div>`).join('')}</div></div>
+      <div class="import-savebar"><button class="btn" type="button" id="asSave">${esc(t('aiScheduleApply'))} (${rows.filter(r=>r.include).length})</button></div>`;
+
+    box.querySelectorAll('[data-inc]').forEach(inp=>{
+      inp.onchange=()=>{ rows[+inp.dataset.inc].include=inp.checked; draw(); };
+    });
+    box.querySelectorAll('[data-rm]').forEach(b=>{
+      b.onclick=()=>{ rows.splice(+b.dataset.rm,1); draw(); };
+    });
+    const sv=box.querySelector('#asSave');
+    if(sv) sv.onclick=()=>{
+      const chosen=rows.filter(r=>r.include && r.activityId && r.date);
+      if(!chosen.length){ toast(t('aiScheduleEmpty')); return; }
+      askPin(t('aiScheduleTitle'), who=>{
+        state.user=who;
+        chosen.forEach(r=>{
+          DB.overrides.push({
+            id:uid(), date:r.date, templateId:null, block:r.block,
+            houseId:r.houseId||null, houseIds:r.houseId?[r.houseId]:[],
+            employeeId:r.employeeId||null, employeeIds:r.employeeId?[r.employeeId]:[],
+            childIds:r.childIds||[], activityId:r.activityId,
+            from:r.from||'', to:r.to||'', note:r.note||'',
+          });
+        });
+        const importId=uid();
+        DB.aiImports.push({
+          id:importId, ts:Date.now(), uploader:who.id, kind:'schedule',
+          weekStart:weekMon, originalText:sourceText, model:aiMeta?.model||'local-parser',
+          responseId:aiMeta?.responseId||null, finalRows:structuredClone(chosen),
+        });
+        logEntry('SCHEDULE', `Zo-Ai · ${t('aiSchedule')} · ${chosen.length}`, {aiImportId:importId});
+        if(!save()) return;
+        closeSheet();
+        setScheduleView('week');
+        render();
+        toast(T[state.lang].aiScheduleApplied(chosen.length),'success');
+      });
+    };
+  };
+
+  openSheet(`<div class="import-flow">
+    <div class="import-hero"><div class="import-kicker">Zo-Ai</div>
+      <h2>${esc(t('aiScheduleTitle'))}</h2><p>${esc(t('aiScheduleHint'))}</p>
+      <div class="import-context"><div>${esc(t('importWeekTarget'))}<b>${esc(formatWeekRangeLabel(weekMon))}</b></div></div>
+    </div>
+    <section class="import-source"><h3>✍️ ${esc(t('aiScheduleTitle'))}</h3>
+      <textarea id="asTxt" rows="8" placeholder="${esc(t('aiSchedulePh'))}"></textarea>
+      <div class="import-action-row"><button class="btn" type="button" id="asParse">✨ ${esc(t('aiScheduleAnalyze'))}</button></div>
+    </section>
+    <div id="asStatus" class="status-box"></div>
+    <div id="asRows"></div>
+  </div>`);
+
+  const status=sheetEl.querySelector('#asStatus');
+  (async()=>{
+    if(location.protocol==='file:'){ setStatus(status,t('errConfig'),'error'); return; }
+    try{
+      const ctl=new AbortController(), timer=setTimeout(()=>ctl.abort(),4000);
+      const response=await fetch('/api/health',{signal:ctl.signal}); clearTimeout(timer);
+      const health=await response.json();
+      if(!busy) setStatus(status,health.aiConfigured?t('aiReady'):t('errConfig'),health.aiConfigured?'success':'error');
+    }catch{ if(!busy) setStatus(status,t('errNetwork'),'error'); }
+  })();
+
+  sheetEl.querySelector('#asParse').onclick = async () => {
+    const text = sheetEl.querySelector('#asTxt').value.trim();
+    if(!text){ toast(t('aiScheduleNeedText')); return; }
+    sourceText = text;
+    busy=true; setStatus(status,t('aiReading'),'busy'); rows=null; draw();
+    try{
+      const result = await aiExtractSchedule(text, weekMon);
+      aiMeta = {model:result.model, responseId:result.responseId};
+      rows = decorateAiScheduleRows(result.entries, weekMon);
+      setStatus(status, rows.length ? `${rows.length}` : t('aiScheduleEmpty'), rows.length?'success':'error');
+    }catch(error){
+      aiMeta = {model:'local-parser'};
+      const local = parseScheduleTextLocal(text, weekMon);
+      rows = decorateAiScheduleRows(local.entries, weekMon);
+      setStatus(status, t('aiUnavailable'), rows.length?'success':'error');
+    }
+    busy=false; draw();
+  };
 }
 
 function calendarMarkersForMonth(y, m){
@@ -6670,32 +7257,31 @@ function viewStock(){
     }
     const qty=DB.stock[stockKey(hid,p.id)]??0;
     const step=stepFor(p);
-    const delta=state.stockDraft[p.id]||0;
-    const preview=roundStock(qty+delta);
-    const pending=delta?`<span class="stock-pending ${delta>0?'in':'out'}">${delta>0?'+':''}${delta}</span>`:'';
     const selecting=state.selectMode==='stock' && hid!=='all';
     const sel=selecting && isSelected(p.id);
-    return `<div class="stock-product ${st} has-stepper ${delta?'drafting':''} ${sel?'selected':''}">
+    const flash=state.stockFlashPid===p.id?(state.stockFlashDir==='IN'?'flash-in':'flash-out'):'';
+    const pendingOut=state.stockPendingStep?.pid===p.id;
+    return `<div class="stock-product ${st} has-stepper ${flash} ${pendingOut?'await-reason':''} ${sel?'selected':''}" data-stock-row="${p.id}">
       ${selecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${p.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
-      ${jarHtml(preview,p,st)}
+      ${jarHtml(qty,p,st)}
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
-        <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}${pending}</div>
+        <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}</div>
         <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div>
       </button>
       ${selecting?'':`<div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
-        <button class="stock-step out pine-settle" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${preview<=0&&delta<=0?'disabled':''}>${ui('u-minus','sm')}</button>
-        <div class="stock-qty ${delta>0?'draft-in':delta<0?'draft-out':''}">${preview}<small>${esc(p.unit)}</small></div>
-        <button class="stock-step in pine-settle" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">${ui('u-plus','sm')}</button>
+        <button class="stock-step out pine-settle" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${qty<=0?'disabled':''}>${ui('u-minus')}</button>
+        <div class="stock-qty">${qty}<small>${esc(p.unit)}</small></div>
+        <button class="stock-step in pine-settle" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}">${ui('u-plus')}</button>
       </div>`}
     </div>`;
   };
   const openCats=Array.isArray(state.stockOpenCategories)?state.stockOpenCategories:null;
   const categoryHtml=CATS().map((c,index)=>{
     const products=visible.filter(p=>p.cat===c.id);if(!products.length)return '';
-    const hasDraft=hid!=='all'&&products.some(p=>state.stockDraft[p.id]);
+    const hasFocus=hid!=='all'&&products.some(p=>state.stockFlashPid===p.id||state.stockPendingStep?.pid===p.id);
     const catEmpty=products.filter(p=>productState(p)==='empty').length;
     const catLow=products.filter(p=>productState(p)==='low').length;
-    const shouldOpen=hasDraft||(openCats?openCats.includes(c.id):index===0);
+    const shouldOpen=hasFocus||(openCats?openCats.includes(c.id):index===0);
     const badges=`${catEmpty?`<span class="stock-shelf-badge empty">${catEmpty}</span>`:''}${catLow?`<span class="stock-shelf-badge low">${catLow}</span>`:''}`;
     return `<details class="stock-category stock-shelf" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"${shouldOpen?' open':''}>
       <summary>
@@ -6768,11 +7354,11 @@ function viewStock(){
       </div>
       <div class="stock-command-row">
         <label class="stock-search">${ui('u-search','sm')}<input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}" autocomplete="off" enterkeyhint="search">${state.stockQuery?`<button type="button" id="stockClear" aria-label="${t('close')}">×</button>`:''}</label>
-        ${hid!=='all'?`<button class="btn stock-primary-action pine-settle" type="button" id="stockOpenBoard">${ui('u-plus','sm')} ${esc(t('stockBoardShort'))}</button>`:''}
+        ${hid!=='all'?`<button class="btn stock-primary-action stock-quick-add-btn pine-settle" type="button" id="stockQuickAdd">${ui('u-plus')} ${esc(t('stockQuickAdd'))}</button>`:''}
         <details class="stock-more pro-only mode-pro-block"><summary aria-label="${esc(t('stockMoreActions'))}">•••</summary><div class="stock-more-popover">
           ${hid==='all'?`<button class="stock-more-action ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle">${ui('u-tasks','sm')} ${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}</button>`:''}
-          ${hid!=='all'?`<button class="stock-more-action ${state.selectMode==='stock'?'on':''}" type="button" id="stockSelectToggle">${ui('u-check','sm')} ${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}</button>
-          <button class="stock-more-action" type="button" id="stockQuickFood">${ui('u-plus','sm')} ${esc(t('stockAddFoodShort'))}</button>
+          ${hid!=='all'?`<button class="stock-more-action" type="button" id="stockOpenBoard">${ui('u-plus','sm')} ${esc(t('stockBoardShort'))}</button>
+          <button class="stock-more-action ${state.selectMode==='stock'?'on':''}" type="button" id="stockSelectToggle">${ui('u-check','sm')} ${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}</button>
           <button class="stock-more-action" type="button" id="stockShiftCheck">${ui('u-check','sm')} ${esc(t('shiftStockCheck'))}</button>`:''}
         </div></details>
       </div>
@@ -6793,24 +7379,36 @@ function viewStock(){
       {id:'clear-empty', label:t('bulkClearEmpty'), danger:true},
     ]):''}
     ${hid!=='all'?(()=>{
+      const needReason=!!state.stockPendingStep || (state.selectMode==='stock' && false);
+      const showReason=needReason || !!state.stockDraftReason;
+      if(!showReason && !stockDraftEntries().length) return '';
       const draft=stockDraftEntries();
-      if(!draft.length) return '';
-      const ins=draft.filter(([,d])=>d>0).length;
-      const outs=draft.filter(([,d])=>d<0).length;
-      const reasons=outs?`<div class="stock-draft-reasons" id="stockDraftReasons">
-        <div class="muted" style="font-size:11px;margin-bottom:6px">${t('reason')}</div>
-        <div class="chips">${REASONS().map(r=>`<button class="chip ${r.id===state.stockDraftReason?'on':''}" type="button" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}</div>
-      </div>`:'';
-      return `<div class="stock-footer-actions stock-draft-dock" aria-label="${t('stockDraftPending')}">
+      if(draft.length){
+        const ins=draft.filter(([,d])=>d>0).length;
+        const outs=draft.filter(([,d])=>d<0).length;
+        const reasons=outs?`<div class="stock-draft-reasons" id="stockDraftReasons">
+          <div class="muted" style="font-size:11px;margin-bottom:6px">${t('reason')}</div>
+          <div class="chips">${REASONS().map(r=>`<button class="chip ${r.id===state.stockDraftReason?'on':''}" type="button" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}</div>
+        </div>`:'';
+        return `<div class="stock-footer-actions stock-draft-dock" aria-label="${t('stockDraftPending')}">
+          <div class="stock-draft-head">
+            <b>${T[state.lang].stockDraftSummary(draft.length,ins,outs)}</b>
+            <span class="muted">${t('stockDraftPending')}</span>
+          </div>
+          ${reasons}
+          <div class="stock-draft-actions">
+            <button class="btn sec" type="button" id="stockDraftClear">${t('stockDraftClear')}</button>
+            <button class="btn pine-settle" type="button" id="stockDraftSave">${ui('u-check','sm')} ${t('stockDraftSave')}</button>
+          </div>
+        </div>`;
+      }
+      if(!needReason && !state.stockDraftReason) return '';
+      return `<div class="stock-footer-actions stock-reason-dock ${needReason?'need':''}" aria-label="${esc(t('stockOutReasonBar'))}">
         <div class="stock-draft-head">
-          <b>${T[state.lang].stockDraftSummary(draft.length,ins,outs)}</b>
-          <span class="muted">${t('stockDraftPending')}</span>
+          <b>${esc(t('stockOutReasonBar'))}</b>
+          <span class="muted">${esc(t('stockOutReasonHint'))}</span>
         </div>
-        ${reasons}
-        <div class="stock-draft-actions">
-          <button class="btn sec" type="button" id="stockDraftClear">${t('stockDraftClear')}</button>
-          <button class="btn pine-settle" type="button" id="stockDraftSave">${ui('u-check','sm')} ${t('stockDraftSave')}</button>
-        </div>
+        <div class="chips" id="stockQuickReasons">${REASONS().map(r=>`<button class="chip ${r.id===state.stockDraftReason?'on':''}" type="button" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}</div>
       </div>`;
     })():''}
   </div>`;
@@ -6852,7 +7450,16 @@ function sheetStockDetail(pid,hid=state.house){
     <div class="product-qty-grid">${qtyInputs}</div>
 
     <button class="btn" type="button" id="editProdSave" style="margin-top:12px">💾 ${t('productSave')}</button>
-    ${isCustom?`<button class="btn sec" type="button" id="editProdDelete" style="margin-top:8px">🗑 ${t('productDelete')}</button>`:''}
+    ${isCustom?`<div class="stock-delete-wrap" id="editProdDeleteWrap">
+      <button class="btn sec stock-delete-btn" type="button" id="editProdDelete">🗑 ${t('productDelete')}</button>
+      <div class="stock-delete-confirm" hidden>
+        <p class="muted">${esc(t('stockDeleteArmed'))}</p>
+        <div class="row" style="gap:8px">
+          <button class="btn sec" type="button" id="editProdDeleteCancel">${esc(t('stockDeleteCancel'))}</button>
+          <button class="btn out" type="button" id="editProdDeleteConfirm">🗑 ${esc(t('productDelete'))}</button>
+        </div>
+      </div>
+    </div>`:''}
 
     <div class="block-h" style="margin-top:14px"><span class="t">${t('productQuickActions')}</span></div>
     ${hid!=='all'?`<div class="stock-actions"><button class="btn in" id="detailIn">${t('stockIn')}</button><button class="btn out" id="detailOut">${t('stockOut')}</button></div>`:''}
@@ -6918,7 +7525,20 @@ function sheetStockDetail(pid,hid=state.house){
 
   sheetEl.querySelector('#editProdDelete')?.addEventListener('click',()=>{
     if(!isCustom) return;
-    if(!confirm(t('productDeleteConfirm'))) return;
+    const wrap=sheetEl.querySelector('#editProdDeleteWrap');
+    const confirm=wrap?.querySelector('.stock-delete-confirm');
+    const arm=wrap?.querySelector('#editProdDelete');
+    if(confirm){ confirm.hidden=false; if(arm) arm.hidden=true; }
+  });
+  sheetEl.querySelector('#editProdDeleteCancel')?.addEventListener('click',()=>{
+    const wrap=sheetEl.querySelector('#editProdDeleteWrap');
+    const confirm=wrap?.querySelector('.stock-delete-confirm');
+    const arm=wrap?.querySelector('#editProdDelete');
+    if(confirm) confirm.hidden=true;
+    if(arm) arm.hidden=false;
+  });
+  sheetEl.querySelector('#editProdDeleteConfirm')?.addEventListener('click',()=>{
+    if(!isCustom) return;
     askPin(t('productDelete'), ()=>{
       DB.customProducts=(DB.customProducts||[]).filter(x=>x.id!==pid);
       delete DB.productOverrides?.[pid];
@@ -7107,21 +7727,121 @@ function stockDraftEntries(){
 function clearStockDraft(){
   state.stockDraft = {};
   state.stockDraftReason = null;
+  state.stockPendingStep = null;
 }
+
+let stockUndoPayload = null;
+
+function findStockNameMatches(raw, limit=5){
+  const q = norm(raw||'');
+  if(!q || q.length < 2) return [];
+  const scored = PRODUCTS().map(p=>{
+    const names = [p.de, p.el, ...(p.alias||[])].map(norm).filter(Boolean);
+    let score = 0;
+    for(const n of names){
+      if(n === q) score = Math.max(score, 100);
+      else if(n.startsWith(q)) score = Math.max(score, 80);
+      else if(n.includes(q)) score = Math.max(score, 50);
+    }
+    return {p, score};
+  }).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||L(a.p).localeCompare(L(b.p),state.lang));
+  return scored.slice(0, limit);
+}
+
+function applyStockDelta(pid, delta, {reasonId=null, silent=false, undoable=true}={}){
+  const hid = state.house;
+  if(!hid || hid==='all'){ toast(t('selectHouse'),'info'); return false; }
+  const p = prod(pid); if(!p) return false;
+  const key = stockKey(hid, pid);
+  const prev = DB.stock[key] ?? 0;
+  let d = roundStock(delta);
+  if(d < 0 && prev + d < -0.0001) d = roundStock(-prev);
+  if(Math.abs(d) < 0.0001) return false;
+  const dir = d > 0 ? 'IN' : 'OUT';
+  if(dir === 'OUT'){
+    const rid = reasonId || state.stockDraftReason;
+    const reason = rid ? L(REASONS().find(r=>r.id===rid)) : '';
+    if(!reason){
+      state.stockPendingStep = {pid, dir:'OUT', qty:Math.abs(d)};
+      toast(t('stockDraftNeedReason'),'info');
+      render();
+      return false;
+    }
+    state.stockDraftReason = rid;
+  }
+  const next = roundStock(prev + d);
+  const reason = dir==='OUT'
+    ? L(REASONS().find(r=>r.id===(reasonId||state.stockDraftReason)))
+    : '';
+  DB.stock[key] = Math.max(0, next);
+  logEntry(dir,
+    `${dir==='IN'?t('typeIN'):t('typeOUT')} @ ${house(hid).short}` +
+    `${dir==='OUT' && reason ? ' · ' + reason : ''}: ${Math.abs(d)} ${p.unit} ${L(p)}`,
+    {houseId:hid, reason: dir==='OUT' ? reason : '', productId:pid, qty:Math.abs(d), unit:p.unit,
+     items:[{pid, qty:Math.abs(d)}]});
+  if(!save()){
+    DB.stock[key] = prev;
+    return false;
+  }
+  if(undoable){
+    stockUndoPayload = {hid, pid, prev, next:DB.stock[key], dir, d, unit:p.unit, name:L(p), reason};
+  }
+  state.stockFlashPid = pid;
+  state.stockFlashDir = dir;
+  state.stockPendingStep = null;
+  if(!silent){
+    feedback(dir==='IN'?'save':'tap');
+    render();
+    toastAction(T[state.lang].stockStepDone(L(p), d, p.unit), {
+      type:'success',
+      actionLabel:t('stockUndo'),
+      onAction:()=>undoLastStockStep(),
+    });
+    setTimeout(()=>{
+      if(state.stockFlashPid===pid){ state.stockFlashPid=null; state.stockFlashDir=null; }
+      const row=document.querySelector(`[data-stock-row="${pid}"]`);
+      if(row) row.classList.remove('flash-in','flash-out');
+    }, 700);
+  }
+  return true;
+}
+
+function undoLastStockStep(){
+  const u = stockUndoPayload;
+  if(!u) return;
+  stockUndoPayload = null;
+  const key = stockKey(u.hid, u.pid);
+  const cur = DB.stock[key] ?? 0;
+  // Only undo if nobody else changed the qty since.
+  if(Math.abs(cur - u.next) > 0.0001){ toast(t('stockUndone'),'info'); return; }
+  DB.stock[key] = u.prev;
+  const rev = u.d > 0 ? 'OUT' : 'IN';
+  logEntry(rev,
+    `${t('stockUndo')} · ${u.name}: ${u.d>0?'−':'+'}${Math.abs(u.d)} ${u.unit} @ ${house(u.hid)?.short||''}`,
+    {houseId:u.hid, productId:u.pid, qty:Math.abs(u.d), unit:u.unit, undo:true,
+     items:[{pid:u.pid, qty:Math.abs(u.d)}]});
+  if(!save()){ DB.stock[key]=cur; return; }
+  feedback('toggle');
+  render();
+  toast(t('stockUndone'),'success');
+}
+
 function adjustStockDraft(pid, dir){
+  // Immediate ± (draft kept only for Pro bulk select).
   const hid = state.house;
   if(hid==='all'){ toast(t('selectHouse'),'info'); return; }
   const p = prod(pid); if(!p) return;
   const step = stepFor(p);
-  const base = DB.stock[stockKey(hid, pid)] ?? 0;
-  let delta = roundStock((state.stockDraft[pid] || 0) + (dir==='IN' ? step : -step));
-  if(base + delta < -0.0001) delta = roundStock(-base);
-  if(Math.abs(delta) < 0.0001) delete state.stockDraft[pid];
-  else state.stockDraft[pid] = delta;
-  if(!stockDraftEntries().some(([,d])=>d<0)) state.stockDraftReason = null;
-  feedback('tap');
-  render();
+  if(dir==='OUT' && !state.stockDraftReason){
+    state.stockPendingStep = {pid, dir:'OUT', qty:step};
+    feedback('tap');
+    render();
+    toast(t('stockDraftNeedReason'),'info');
+    return;
+  }
+  applyStockDelta(pid, dir==='IN' ? step : -step);
 }
+
 function commitStockDraft(){
   const hid = state.house;
   if(hid==='all'){ toast(t('selectHouse'),'info'); return; }
@@ -7136,7 +7856,7 @@ function commitStockDraft(){
     const label = ([pid, delta]) => `${Math.abs(delta)} ${prod(pid).unit} ${L(prod(pid))}`;
     const ins = entries.filter(([,d])=>d>0);
     const outList = entries.filter(([,d])=>d<0);
-    [[ 'IN', ins ], [ 'OUT', outList ]].forEach(([d, list])=>{
+    [['IN', ins ], [ 'OUT', outList ]].forEach(([d, list])=>{
       if(!list.length) return;
       list.forEach(([pid, delta])=>{
         const k = stockKey(hid, pid);
@@ -7315,6 +8035,184 @@ function wireShiftStockCheckSheet(draft, refresh){
       toast(t('shiftStockCheckDone'),'success');
     });
   });
+}
+
+function sheetStockQuickAdd(){
+  let hid = state.house === 'all' ? (DB.houses[0]?.id || 'h1') : state.house;
+  let matchPid = null;
+  let qty = 1;
+  let unit = 'Stk';
+  let cat = CATS()[0]?.id || 'custom';
+
+  const paint = ()=>{
+    const name = (sheetEl.querySelector('#qaName')?.value || '').trim();
+    const matches = findStockNameMatches(name);
+    const exact = matches.find(m=>m.score>=100);
+    if(exact) matchPid = exact.p.id;
+    else if(matchPid && !matches.some(m=>m.p.id===matchPid)) matchPid = null;
+    const matchBox = sheetEl.querySelector('#qaMatches');
+    if(matchBox){
+      matchBox.innerHTML = matches.length
+        ? `<div class="stock-qa-dup-hint">${esc(exact?t('stockDupExact'):t('stockDupHint'))}</div>
+           <div class="stock-qa-matches">${matches.map(({p,score})=>`
+             <button type="button" class="stock-qa-match ${p.id===matchPid?'on':''}" data-match="${p.id}">
+               <span>${esc(L(p))}</span>
+               <small>${DB.stock[stockKey(hid,p.id)]??0} ${esc(p.unit)}${score>=100?' · ✓':''}</small>
+             </button>`).join('')}</div>`
+        : '';
+      matchBox.querySelectorAll('[data-match]').forEach(b=>{
+        b.onclick=()=>{
+          matchPid = b.dataset.match;
+          const p = prod(matchPid);
+          if(p){
+            unit = p.unit;
+            cat = p.cat;
+            const u = sheetEl.querySelector('#qaUnit'); if(u) u.value = unit;
+            const c = sheetEl.querySelector('#qaCat'); if(c) c.value = cat;
+            qty = stepFor(p);
+            const q = sheetEl.querySelector('#qaQty'); if(q) q.value = String(qty);
+          }
+          paint();
+        };
+      });
+    }
+    const cta = sheetEl.querySelector('#qaSave');
+    if(cta) cta.textContent = matchPid ? t('stockAddExisting') : t('stockQuickAddCta');
+  };
+
+  openSheet(`<div class="stock-quick-add">
+    <div class="import-kicker">${esc(t('headerStock'))}</div>
+    <h2 style="margin:4px 0 6px">${esc(t('stockQuickAddTitle'))}</h2>
+    <p class="muted" style="margin:0 0 12px">${esc(t('stockQuickAddHint'))}</p>
+    <div class="seg house-selector" id="qaHouse" aria-label="${t('filterHouse')}">
+      ${DB.houses.map(h=>`<button type="button" class="${hid===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
+    </div>
+    <label class="f"><span>${t('stockFoodName')}</span>
+      <input id="qaName" placeholder="Milch / Γάλα" autocomplete="off" enterkeyhint="done"></label>
+    <div id="qaMatches" class="stock-qa-matches-wrap"></div>
+    <div class="row" style="gap:8px">
+      <label class="f grow"><span>${t('qty')}</span>
+        <input id="qaQty" type="number" inputmode="decimal" min="0" step="any" value="1"></label>
+      <label class="f grow"><span>${t('stockFoodUnit')}</span>
+        <select id="qaUnit"><option>Stk</option><option>L</option><option>g</option><option>kg</option></select></label>
+    </div>
+    <label class="f"><span>${t('stockFoodCat')}</span>
+      <select id="qaCat">${CATS().map(c=>`<option value="${esc(c.id)}">${esc(L(c))}</option>`).join('')}</select></label>
+    ${isPro()?`<details class="stock-qa-bulk pro-only mode-pro-block">
+      <summary>${esc(t('stockBulkPaste'))}</summary>
+      <p class="muted" style="font-size:12px;margin:6px 0">${esc(t('stockBulkPasteHint'))}</p>
+      <textarea id="qaBulk" rows="5" placeholder="${esc(t('stockBulkPastePh'))}"></textarea>
+      <button class="btn sec" type="button" id="qaBulkSave" style="margin-top:8px">${esc(t('stockBulkPaste'))}</button>
+    </details>`:''}
+    <button class="btn pine-settle stock-qa-cta" type="button" id="qaSave">${esc(t('stockQuickAddCta'))}</button>
+  </div>`);
+
+  sheetEl.querySelectorAll('#qaHouse button').forEach(b=>{
+    b.onclick=()=>{
+      hid = b.dataset.h;
+      sheetEl.querySelectorAll('#qaHouse button').forEach(x=>x.classList.toggle('on', x===b));
+      paint();
+    };
+  });
+  const nameInp = sheetEl.querySelector('#qaName');
+  nameInp?.addEventListener('input', ()=>{ matchPid=null; paint(); });
+  nameInp?.addEventListener('keydown', ev=>{
+    if(ev.key==='Enter'){ ev.preventDefault(); sheetEl.querySelector('#qaSave')?.click(); }
+  });
+  sheetEl.querySelector('#qaQty')?.addEventListener('change', e=>{
+    const n = Number(String(e.target.value||'').replace(',','.'));
+    if(Number.isFinite(n) && n>=0) qty = roundStock(n);
+  });
+  sheetEl.querySelector('#qaUnit')?.addEventListener('change', e=>{ unit = e.target.value || 'Stk'; });
+  sheetEl.querySelector('#qaCat')?.addEventListener('change', e=>{ cat = e.target.value || 'custom'; });
+
+  const commitOne = (pid, addQty)=>{
+    const prevHouse = state.house;
+    state.house = hid;
+    const ok = applyStockDelta(pid, addQty, {silent:true, undoable:true});
+    state.house = prevHouse;
+    return ok;
+  };
+
+  sheetEl.querySelector('#qaSave').onclick=()=>{
+    const name = (sheetEl.querySelector('#qaName')?.value || '').trim();
+    qty = Number(String(sheetEl.querySelector('#qaQty')?.value||'1').replace(',','.'));
+    unit = sheetEl.querySelector('#qaUnit')?.value || 'Stk';
+    cat = sheetEl.querySelector('#qaCat')?.value || 'custom';
+    if(!Number.isFinite(qty) || qty<=0){ toast(t('needQty'),'error'); return; }
+    qty = roundStock(qty);
+
+    if(matchPid){
+      const p = prod(matchPid);
+      if(!p){ toast(t('needQty'),'error'); return; }
+      if(!commitOne(matchPid, qty)) return;
+      closeSheet();
+      state.house = hid;
+      render();
+      toastAction(T[state.lang].stockStepDone(L(p), qty, p.unit), {
+        type:'success', actionLabel:t('stockUndo'), onAction:()=>undoLastStockStep(),
+      });
+      return;
+    }
+    if(!name){ toast(t('stockFoodName'),'error'); nameInp?.focus(); return; }
+    const dup = findStockNameMatches(name).find(m=>m.score>=100);
+    if(dup){
+      matchPid = dup.p.id;
+      paint();
+      toast(t('stockDupExact'),'info');
+      return;
+    }
+    DB.customProducts ||= [];
+    const created={id:'cp-'+uid(),cat,de:name,el:name,unit,alias:[],custom:true};
+    DB.customProducts.push(created);
+    if(!save()){ DB.customProducts=DB.customProducts.filter(p=>p.id!==created.id); return; }
+    if(!commitOne(created.id, qty)){
+      // product exists with 0 — still ok
+    }
+    closeSheet();
+    state.house = hid;
+    feedback('save');
+    render();
+    toastAction(T[state.lang].stockStepDone(name, qty, unit), {
+      type:'success', actionLabel:t('stockUndo'), onAction:()=>undoLastStockStep(),
+    });
+  };
+
+  sheetEl.querySelector('#qaBulkSave')?.addEventListener('click',()=>{
+    const raw = sheetEl.querySelector('#qaBulk')?.value || '';
+    const lines = raw.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+    if(!lines.length){ toast(t('pickSomething')); return; }
+    let n = 0;
+    const prevHouse = state.house;
+    state.house = hid;
+    lines.forEach(line=>{
+      const m = line.match(/^(.*?)(?:\s+(\d+(?:[.,]\d+)?))?$/);
+      const nm = (m?.[1]||line).trim();
+      if(!nm) return;
+      let q = m?.[2] != null ? Number(String(m[2]).replace(',','.')) : 1;
+      if(!Number.isFinite(q) || q<=0) q = 1;
+      q = roundStock(q);
+      const hit = findStockNameMatches(nm).find(x=>x.score>=80);
+      let pid = hit?.p.id;
+      if(!pid){
+        DB.customProducts ||= [];
+        const created={id:'cp-'+uid(),cat,de:nm,el:nm,unit,alias:[],custom:true};
+        DB.customProducts.push(created);
+        pid = created.id;
+      }
+      if(applyStockDelta(pid, q, {silent:true, undoable:false})) n++;
+    });
+    state.house = prevHouse;
+    if(!n){ toast(t('pickSomething'),'error'); return; }
+    closeSheet();
+    state.house = hid;
+    feedback('save');
+    render();
+    toast(T[state.lang].stockBulkAdded(n),'success');
+  });
+
+  nameInp?.focus();
+  paint();
 }
 
 function sheetStockBoard(dir,initialPid=null){
@@ -13409,7 +14307,8 @@ function sheetAdminStaff(employeeId){
   const go=(tab,view)=>{
     closeSheet();
     state.tab=tab;
-    if(view) state.scheduleView=view;
+    if(view && tab==='schedule') setScheduleView(view);
+    else if(view) state.scheduleView=view;
     if(tab==='schedule') state.date=today;
     render();
   };
@@ -14140,6 +15039,8 @@ function onTopAction(id){
   feedback('tap');
   if(id==='tutorial'){ openAppTutorial(); return; }
   if(id==='addEntry'){ sheetEntry(null, state.date); return; }
+  if(id==='importWeek'){ sheetImportWeek(); return; }
+  if(id==='aiSchedule'){ sheetAiSchedule(); return; }
   if(id==='shopScan'){ document.getElementById('btnReceipt')?.click() || sheetImportList(); return; }
   if(id==='shopHistory'){ sheetShoppingHistory(); return; }
   if(id==='shiftFocus'){
@@ -14730,7 +15631,7 @@ function render(){
   });
   if(state.tab!=='talk') stopTalkPanelPoll();
 
-  const stockDraftActive=state.tab==='stock' && state.house!=='all' && stockDraftEntries().length>0;
+  const stockDraftActive=state.tab==='stock' && state.house!=='all' && (stockDraftEntries().length>0 || !!state.stockPendingStep);
   const storeDock=state.tab==='shop' && fridayEntries(shopHouse()).some(e=>e.status==='pending');
   // Only shift the Zo-Ai FAB when the draft footer is actually on screen.
   document.body.classList.toggle('has-stock-dock', stockDraftActive);
@@ -14788,7 +15689,7 @@ function wire(){
   v.querySelectorAll('[data-admin-go]').forEach(button=>button.onclick=()=>{
     const destination=button.dataset.adminGo;
     if(destination==='audit'){state.tab='book';state.bookPane='log';state.bookRange='week';}
-    else{state.tab='schedule';state.scheduleView=destination;}
+    else{state.tab='schedule';setScheduleView(destination==='week'?'week':destination);}
     render();
   });
   v.querySelectorAll('[data-admin-broadcast]').forEach(button=>button.onclick=()=>{
@@ -14807,7 +15708,7 @@ function wire(){
   };
 
   const homeAllEvents=v.querySelector('#homeAllEvents');
-  if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';state.scheduleView='events';render();};
+  if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';setScheduleView('events');render();};
   v.querySelectorAll('[data-home-jump]').forEach(btn=>{
     btn.onclick=()=>{
       feedback('tap');
@@ -14817,7 +15718,7 @@ function wire(){
       if(jump==='kids'){ state.tab='kids'; state.staffKidId=null; render(); return; }
       if(jump==='gallery'){ state.tab='gallery'; refreshGallery({silent:true}).finally(()=>render()); return; }
       state.tab='schedule';
-      state.scheduleView=jump==='events'?'events':'day';
+      setScheduleView(jump==='events'?'events':jump==='week'?'week':'day');
       render();
     };
   });
@@ -14906,10 +15807,7 @@ function wire(){
   v.querySelectorAll('[data-v]').forEach(b=>{
     b.onclick = () => {
       exitMatrixFullscreen();
-      state.scheduleView = b.dataset.v;
-      if(state.scheduleView === 'calendar' && !state.calendarMonth){
-        state.calendarMonth = iso(new Date()).slice(0, 7) + '-01';
-      }
+      setScheduleView(b.dataset.v);
       syncLocationHash();
       render();
     };
@@ -14944,7 +15842,7 @@ function wire(){
   v.querySelectorAll('[data-jump-day]').forEach(b=>{
     b.onclick = () => {
       state.date = b.dataset.jumpDay;
-      state.scheduleView = 'day';
+      setScheduleView('day');
       feedback('select');
       render();
     };
@@ -15139,17 +16037,19 @@ function wire(){
   });
   const stockOpenBoard=v.querySelector('#stockOpenBoard');
   if(stockOpenBoard) stockOpenBoard.onclick=()=>sheetStockBoard('IN');
+  const stockQuickAdd=v.querySelector('#stockQuickAdd');
+  if(stockQuickAdd) stockQuickAdd.onclick=()=>sheetStockQuickAdd();
   const stockQuickList=v.querySelector('#stockQuickList');
   if(stockQuickList) stockQuickList.onclick=()=>{
     const n=autoFillShoppingFromStock(state.house);
     if(n){ state.tab='shop'; state.shopPanel='plan'; render(); }
   };
   const stockQuickFood=v.querySelector('#stockQuickFood');
-  if(stockQuickFood) stockQuickFood.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddFood')?.click(), 80); };
+  if(stockQuickFood) stockQuickFood.onclick=()=>sheetStockQuickAdd();
   const stockEmptyClear=v.querySelector('#stockEmptyClear');
   if(stockEmptyClear) stockEmptyClear.onclick=()=>{ state.stockQuery=''; feedback('toggle'); render(); };
   const stockEmptyAdd=v.querySelector('#stockEmptyAdd');
-  if(stockEmptyAdd) stockEmptyAdd.onclick=()=>{ sheetStockBoard('IN'); setTimeout(()=>sheetEl.querySelector('#sbAddFood')?.click(), 80); };
+  if(stockEmptyAdd) stockEmptyAdd.onclick=()=>sheetStockQuickAdd();
   const stockTilesToggle=v.querySelector('#stockTilesToggle');
   if(stockTilesToggle) stockTilesToggle.onclick=()=>{
     state.stockTiles=!state.stockTiles;
@@ -15166,10 +16066,45 @@ function wire(){
     adjustStockDraft(pid, dir);
   });
   v.querySelectorAll('[data-draft-reason]').forEach(b=>{
-    b.onclick=()=>{ state.stockDraftReason=b.dataset.draftReason; feedback('select'); render(); };
+    b.onclick=()=>{
+      state.stockDraftReason=b.dataset.draftReason;
+      feedback('select');
+      const pending=state.stockPendingStep;
+      if(pending?.pid && pending.dir==='OUT'){
+        const p=prod(pending.pid);
+        const qty=pending.qty || (p?stepFor(p):1);
+        applyStockDelta(pending.pid, -qty);
+        return;
+      }
+      if(pending?.bulkOut?.length){
+        const ids=pending.bulkOut;
+        state.stockPendingStep=null;
+        ids.forEach(pid=>{
+          const p=prod(pid); if(!p) return;
+          const q=DB.stock[stockKey(state.house,pid)]??0;
+          if(pending.bulkClear){
+            if(q>0) applyStockDelta(pid, -q, {silent:true, undoable:false});
+          }else if(q>0){
+            applyStockDelta(pid, -stepFor(p), {silent:true, undoable:false});
+          }
+        });
+        exitSelectMode();
+        render();
+        toast(t('saved'),'success');
+        return;
+      }
+      render();
+    };
   });
   const stockDraftClear=v.querySelector('#stockDraftClear');
   if(stockDraftClear) stockDraftClear.onclick=()=>{ clearStockDraft(); feedback('toggle'); render(); };
+  const stockReasonClear=v.querySelector('#stockReasonClear');
+  if(stockReasonClear) stockReasonClear.onclick=()=>{
+    state.stockDraftReason=null;
+    state.stockPendingStep=null;
+    feedback('toggle');
+    render();
+  };
   const stockDraftSave=v.querySelector('#stockDraftSave');
   if(stockDraftSave) stockDraftSave.onclick=()=>commitStockDraft();
   const stockCategories=[...v.querySelectorAll('[data-stock-category]')];
@@ -15324,18 +16259,31 @@ function wire(){
           exitSelectMode(); render(); return;
         }
         if(act==='out'){
-          ids.forEach(pid=>adjustStockDraft(pid,'OUT'));
-          exitSelectMode(); render(); return;
+          if(!state.stockDraftReason){
+            state.stockPendingStep={bulkOut:ids};
+            toast(t('stockDraftNeedReason'),'info');
+            render();
+            return;
+          }
+          ids.forEach(pid=>{
+            const p=prod(pid); if(!p) return;
+            const q=DB.stock[stockKey(state.house,pid)]??0;
+            if(q>0) applyStockDelta(pid, -stepFor(p), {silent:true, undoable:false});
+          });
+          exitSelectMode(); render(); toast(t('saved'),'success'); return;
         }
         if(act==='clear-empty'){
+          if(!state.stockDraftReason){
+            state.stockPendingStep={bulkOut:ids, bulkClear:true};
+            toast(t('stockDraftNeedReason'),'info');
+            render();
+            return;
+          }
           ids.forEach(pid=>{
-            const key=stockKey(state.house,pid);
-            const qty=DB.stock[key]??0;
-            const delta=state.stockDraft[pid]||0;
-            const target=-(qty+delta);
-            if(target) state.stockDraft[pid]=(state.stockDraft[pid]||0)+target;
+            const q=DB.stock[stockKey(state.house,pid)]??0;
+            if(q>0) applyStockDelta(pid, -q, {silent:true, undoable:false});
           });
-          exitSelectMode(); render(); return;
+          exitSelectMode(); render(); toast(t('saved'),'success'); return;
         }
       }
       if(state.selectMode==='store'){
@@ -15372,7 +16320,7 @@ function wire(){
     };
   });
   v.querySelectorAll('[data-cal-date]').forEach(b=>{
-    b.onclick=()=>{ state.date=b.dataset.calDate; state.scheduleView='day'; render(); };
+    b.onclick=()=>{ state.date=b.dataset.calDate; setScheduleView('day'); render(); };
   });
   const exportIcs=v.querySelector('#exportIcs');
   if(exportIcs) exportIcs.onclick=exportScheduleCalendarIcs;
@@ -15541,7 +16489,16 @@ document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   b.onclick = () => {
     if(b.dataset.tab!=='stock' && state.tab==='stock') clearStockDraft();
     if(b.dataset.tab!==state.tab) clearSelection();
-    state.tab = b.dataset.tab;
+    const leaving = state.tab;
+    const next = b.dataset.tab;
+    if(leaving === 'schedule' && next !== 'schedule') rememberScheduleView(state.scheduleView || 'week');
+    if(next === 'schedule' && leaving !== 'schedule'){
+      const route = routeFromHash();
+      if(!(route && route.tab === 'schedule' && route.scheduleView)){
+        setScheduleView(recalledScheduleView(), {persist:false});
+      }
+    }
+    state.tab = next;
     syncLocationHash();
     if(state.tab==='gallery'){
       state.galleryLoading = true;
@@ -16186,41 +17143,50 @@ function renderResetRequest(who,mode){
         <div class="gate-mail-mark">A</div>
         <div class="gate-mail-eyebrow">Armonia Thassos</div>
         <h3>${t('resetPinTitle')}</h3>
-        <p>${t('resetNeedProfileEmail')}</p>
+        <p id="resetHeroSub">${t('resetNeedProfileEmail')}</p>
       </div>
       <div class="pa" style="background:${esc(pinColor)};margin:14px auto 0">${initials(who.name)}</div>
       <div class="sub" style="margin-top:8px">${esc(who.name)}</div>
-      <label class="f" style="text-align:left;margin-top:14px"><span>${t('emailLabel')}</span>
-        <input type="email" id="resetEmail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>
-      <div id="resetStatus" class="status-box" style="min-height:36px;font-size:12.5px;display:none" role="status" aria-live="polite"></div>
-      <button class="btn" id="resetSend">${t('sendResetLink')}</button>
+      <div id="resetFormBlock">
+        <label class="f" style="text-align:left;margin-top:14px"><span>${t('emailLabel')}</span>
+          <input type="email" id="resetEmail" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>
+        <div id="resetStatus" class="status-box" style="min-height:36px;font-size:12.5px;display:none" role="status" aria-live="polite"></div>
+        <button class="btn" id="resetSend">${t('sendResetLink')}</button>
+      </div>
       <button class="gate-back" id="resetBack" type="button">${t('resetBackPin')}</button>
     </div>${gateMeta()}`);
   const status=gateBody.querySelector('#resetStatus');
   const button=gateBody.querySelector('#resetSend');
+  const formBlock=gateBody.querySelector('#resetFormBlock');
+  const heroSub=gateBody.querySelector('#resetHeroSub');
   gateBody.querySelector('#resetBack').onclick=()=>renderGatePin(who,mode);
-  fetch('/api/auth/health',{credentials:'same-origin'}).then(r=>r.json()).then(health=>{
-    if(health?.pinResetReady===false || health?.emailConfigured===false){
-      status.style.display='block';
-      setStatus(status,t('resetUnavailable'),'error');
-      button.disabled=true;
+  const showUnavailable=()=>{
+    if(heroSub) heroSub.textContent=t('resetAskAdmin');
+    if(formBlock){
+      formBlock.innerHTML=`<div class="status-box error" style="display:block;margin-top:14px;font-size:12.5px" role="status">${esc(t('resetUnavailable'))}</div>`;
     }
-  }).catch(()=>{});
-  button.onclick=async()=>{
-    const email=gateBody.querySelector('#resetEmail').value.trim();
-    if(!email || !gateBody.querySelector('#resetEmail').validity.valid){
-      status.style.display='block'; setStatus(status,t('emailLabel'),'error'); return;
+  };
+  fetch('/api/auth/health',{credentials:'same-origin'}).then(r=>r.json()).then(health=>{
+    if(health?.pinResetReady===false || health?.emailConfigured===false) showUnavailable();
+  }).catch(()=>{ showUnavailable(); });
+  if(button) button.onclick=async()=>{
+    const emailEl=gateBody.querySelector('#resetEmail');
+    const email=(emailEl&&emailEl.value||'').trim();
+    if(!email || !(emailEl&&emailEl.validity.valid)){
+      if(status){ status.style.display='block'; setStatus(status,t('emailLabel'),'error'); }
+      return;
     }
     button.disabled=true;
-    status.style.display='block';
-    setStatus(status, state.lang==='el'?'Αποστολή…':'Senden…','');
+    if(status){ status.style.display='block'; setStatus(status, state.lang==='el'?'Αποστολή…':'Senden…',''); }
     try{
       const response=await fetch('/api/auth/request-reset',{method:'POST',headers:{'Content-Type':'application/json'},
         credentials:'same-origin', body:JSON.stringify({profileId:who.id,email})});
+      const data=await response.json().catch(()=>({}));
+      if(response.status===503 || data.code==='reset_unavailable'){ showUnavailable(); return; }
       if(!response.ok) throw new Error(String(response.status));
       setStatus(status,t('resetLinkSent'),'success');
     }catch(error){setStatus(status,t('authUnavailable'),'error');}
-    finally{ if(!button.dataset.locked) button.disabled=false; }
+    finally{ if(button && !button.dataset.locked) button.disabled=false; }
   };
 }
 
@@ -16814,7 +17780,7 @@ async function registerPaidiaServiceWorker(){
       // gate.js already registers the worker; a second registration raced it
       // and re-fired updatefound. Reuse whatever is registered.
       const reg=await navigator.serviceWorker.getRegistration()
-        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||138),{scope:'./'});
+        || await navigator.serviceWorker.register('./sw.js?v='+((typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||141),{scope:'./'});
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
     return reg;
   }catch(err){

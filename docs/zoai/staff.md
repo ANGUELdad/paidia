@@ -8,6 +8,9 @@ Tasks for today, overdue, events. Open Zo-Ai from the banner or chat. Team Talk 
 
 ## Plan (schedule tables)
 
+- Default landing is **Woche** (weekly roster matrices). Tag / Events / Dienste remain available; last sub-tab is restored when you leave Plan and come back in the same session.
+- **Import Woche** copies date-specific overrides from another week into the current week (merge / gaps-only / replace). Confirm + PIN.
+- **Zo-Ai Plan** accepts pasted free text (WhatsApp notes, bullets); proposes matrix cells; Confirm + PIN applies.
 - Views: Tag / Woche / matrix / Events / Dienste
 - Filter house: Kalyvia, Limenaria, combined — filter does not delete entries
 - Tap a cell/entry to edit; times show on each cell line

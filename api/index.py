@@ -136,6 +136,8 @@ def _auth_health():
         "emailConfigured": delivery["configured"],
         "pinResetReady": reset["ready"],
         "publicUrlConfigured": reset["publicUrlConfigured"],
+        "loginAttemptLimit": paidia.LOGIN_MAX_ATTEMPTS,
+        "loginLockSeconds": paidia.LOGIN_LOCK_TTL,
         "runtime": "vercel-flask",
         "onboardingVersion": paidia.ONBOARDING_VERSION,
         "usersConfigured": bool(paidia.AUTH_USERS),
@@ -594,6 +596,20 @@ def entry(flask_path: str = ""):
                 "setup": "Set GROQ_API_KEY in Vercel env",
             })
         status, payload = paidia.run_shopping(_body(), api_key)
+        return _json(status, payload)
+
+    if request.method == "POST" and api in {"/ai-schedule", "/api/ai-schedule"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        api_key = os.environ.get("GROQ_API_KEY", "").strip()
+        if not api_key:
+            return _json(503, {
+                "error": "Groq is not configured",
+                "code": "configuration",
+                "setup": "Set GROQ_API_KEY in Vercel env",
+            })
+        status, payload = paidia.run_schedule_parse(_body(), api_key)
         return _json(status, payload)
 
     if request.method == "POST" and api in {"/chat", "/api/chat"}:

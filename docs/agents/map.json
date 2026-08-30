@@ -35,7 +35,7 @@
       "id": "schedule",
       "keys": ["plan", "schedule", "week", "template", "override", "event"],
       "files": ["app.js"],
-      "snippet": "Day/week/events views; template + overrides; events publish for kids."
+      "snippet": "Default week roster; day/events; Import Woche; Zo-Ai Plan (/api/ai-schedule); template + overrides"
     },
     {
       "id": "calendar",
