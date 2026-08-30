@@ -10,7 +10,7 @@
 // cache-first — fresh on release, instant on every load in between. The shell
 // and build.json stay network-first so a release is picked up immediately, with
 // a cached copy as the offline fallback.
-const CACHE = 'paidia-v166';
+const CACHE = 'paidia-v169';
 const ASSETS = ['./manifest.webmanifest'];
 
 // Fresh every time: the shell and the version manifest that drives the banner.
@@ -88,18 +88,21 @@ self.addEventListener('fetch', (e) => {
   }
 
   // Immutable, version-stamped assets: serve from cache, fill on first miss.
+  // Always .catch — a hung caches.match / network must never stall <script> tags.
   if (isImmutable(url)) {
     e.respondWith(
       caches.match(e.request).then((hit) => {
         if (hit) return hit;
-        return fetchDeadline(e.request, 12000).then((res) => {
+        return fetchDeadline(e.request, 8000).then((res) => {
           if (res && res.ok) {
             const copy = res.clone();
             caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
           }
           return res;
         });
-      })
+      }).catch(() =>
+        fetchDeadline(e.request, 8000).catch(() => Response.error())
+      )
     );
     return;
   }

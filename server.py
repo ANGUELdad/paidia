@@ -4898,6 +4898,9 @@ class Handler(SimpleHTTPRequestHandler):
             "build.json",
             # Calendar + native-style notification helpers (window.PaidiaNotify).
             "notifications.js",
+            # Contextual page tips + Zo-Ai FAB tips (index.html / loadApp).
+            "page-tips.js",
+            "zoai-tips.js",
             # Local-only design reference. Exact match, no directory
             # fallthrough — the Vercel handler (api/index.py) has its own
             # allowlist and does not serve this.

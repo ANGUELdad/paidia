@@ -390,6 +390,9 @@ _STATIC_EXACT = frozenset({
     "build.json",
     # Calendar + native-style notification helpers (window.PaidiaNotify).
     "notifications.js",
+    # Contextual page tips + Zo-Ai FAB tips (index.html / loadApp).
+    "page-tips.js",
+    "zoai-tips.js",
 })
 _ICON_SUFFIXES = frozenset({".png", ".svg", ".ico", ".webp", ".jpg", ".jpeg"})
 _KIDS_GAME_SUFFIXES = frozenset({".html", ".js", ".css", ".txt", ".md", ".svg", ".png", ".webp"})

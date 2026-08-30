@@ -34,7 +34,7 @@ Without a usable OCR key, the API returns **`503`** with `code: configuration` �
 |---------|----------|---------|
 | Liste → Liste hinzufügen | `sheetImportList` | `list` |
 | Liste → Beleg scannen | `sheetReceipt` | `receipt` |
-| Lager → Schnell hinzufügen | `sheetStockQuickAdd` OCR | `stock` |
+| Lager → Schnell hinzufügen | `sheetStockQuickAdd` Foto lesen | `stock` |
 | Liste → Anfrage / αίτημα | `sheetCreateListRequest` OCR | `request` |
 
 ## Health

@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 166,
-  label: 'v166',
+  version: 168,
+  label: 'v168',
   changed: {
-    de: 'Kids Start: linke Desktop-Leiste wieder sichtbar (dunkles Dock)',
-    el: 'Αρχή παιδιών: αριστερή μπάρα desktop ξανά ορατή',
+    de: 'Lager: Produkt hinzufügen klarer · Login hängt nicht mehr',
+    el: 'Αποθήκη: καθαρότερη προσθήκη · είσοδος χωρίς κρέμασμα',
   },
 };
 const T = {
@@ -53,45 +53,76 @@ const T = {
     galleryFlagged:'Zur Prüfung markiert', galleryReport:'Melden', galleryReportOk:'Gemeldet — Team prüft',
     gallerySafetyFail:'Sicherheitscheck fehlgeschlagen — später erneut',
     shiftDiary:'Schichtbuch', shiftDiaryHint:'Dieses Buch muss geführt werden. Jede Schicht schreibt ihre Seite — nur mit deinem Profil.',
-    shiftDiaryPh:'Was geschah in der Schicht? Übergabe, Lager, Kinder, Besonderes…',
-    shiftDiarySave:'Ins Buch schreiben', shiftDiarySaved:'Seite im Buch gespeichert',
-    shiftDiaryEmpty:'Noch keine Seiten an diesem Tag.', shiftDiaryTeam:'Seiten des Teams',
-    shiftDiaryMine:'Meine Seite', typeSHIFT:'Schicht',
-    journalMustWrite:'Heutige Seite offen — muss geschrieben werden',
-    journalPageDone:'Heutige Seite ist geschrieben',
+    shiftDiaryPh:'Kurz und klar — was die nächste Schicht wissen muss…',
+    shiftDiarySave:'Übergabe speichern', shiftDiarySaved:'Übergabe gespeichert',
+    shiftDiaryEmpty:'Noch keine Übergabe an diesem Tag.', shiftDiaryTeam:'Vom Team',
+    shiftDiaryMine:'Meine Übergabe', typeSHIFT:'Schicht',
+    journalMustWrite:'Heutige Übergabe offen — bitte schreiben',
+    journalPageDone:'Heutige Übergabe ist geschrieben',
     journalContinue:'Weiter schreiben (wird angehängt)',
     journalRewrite:'Seite neu fassen',
     journalRewriteSave:'Seite ersetzen',
     journalPages:n=>n===1?'1 Seite':`${n} Seiten`,
-    journalDutyHome:'Schichtbuch: heutige Seite noch leer',
+    journalDutyHome:'Übergabe: heutige Seite noch leer',
     journalDutyCta:'Jetzt schreiben',
-    journalInkHint:'Neue Zeilen werden unten an die Seite gehängt — wie Tinte im Buch.',
-    journalEmptyPage:'Leere Seite. Schreib, was in der Schicht passiert ist.',
+    journalInkHint:'Neue Zeilen hängen unten an — Abschnitte bleiben klar getrennt.',
+    journalEmptyPage:'Noch leer. Schreib, was die nächste Schicht wissen muss.',
     journalSigned:'gezeichnet',
-    journalBrowse:'Seiten lesen',
-    journalDayDone:'Seite für diesen Tag ist geschrieben',
+    journalBrowse:'Frühere Übergaben',
+    journalDayDone:'Übergabe für diesen Tag ist geschrieben',
     journalDayEmpty:'An diesem Tag noch nichts geschrieben',
-    bookCalHint:'Tippe einen Tag — Punkte zeigen Tage mit Einträgen.',
+    bookCalHint:'Tippe einen Tag. Punkte = Einträge · Orange = noch ungelesen.',
     bookCalToday:'Heute',
     bookCalLegend:'Einträge',
+    bookCalLegendUnread:'Ungelesen',
     bookCalPickDay:'Tag wählen',
-    bookDayPages:'Seiten dieses Tages',
-    bookEasyHint:'Einfach: Tag tippen, Seite lesen oder schreiben.',
+    bookDayPages:'Übergaben dieses Tages',
+    bookEasyHint:'Einfach: lesen, schreiben, bestätigen. Kalender für alle Tage.',
+    handoffFlowTitle:'So läuft die Übergabe',
+    handoffFlowWrite:'Schreiben',
+    handoffFlowWriteHint:'Was die nächste Schicht wissen muss',
+    handoffFlowRead:'Lesen & bestätigen',
+    handoffFlowReadHint:'Nächste Schicht tippt „Gelesen“',
+    handoffSecUrgent:'Dringend',
+    handoffSecKids:'Kinder',
+    handoffSecStock:'Lager',
+    handoffSecTasks:'Offene Aufgaben',
+    handoffSecNote:'Sonstiges',
+    handoffSecUrgentPh:'Sofort wichtig für die nächste Schicht…',
+    handoffSecKidsPh:'Stimmung, Termine, Besonderes bei den Kindern…',
+    handoffSecStockPh:'Leer, nachbestellt, Kühlschrank…',
+    handoffSecTasksPh:'Was noch offen ist oder übernommen werden muss…',
+    handoffSecNotePh:'Alles andere in kurzen Sätzen…',
+    handoffIncoming:'Für dich zu lesen',
+    handoffIncomingEmpty:'Nichts Offenes von anderen.',
+    handoffAck:'Gelesen',
+    handoffAcked:'Übergabe gelesen',
+    handoffAckedBy:n=>n===1?'1× gelesen':`${n}× gelesen`,
+    handoffAckPending:'Noch ungelesen',
+    handoffUnreadTitle:'Neue Übergabe zum Lesen',
+    handoffUnreadMeta:name=>`von ${name}`,
+    handoffMineSpotlight:'Heute — deine Übergabe',
+    handoffHouseLabel:'Haus (optional)',
+    handoffHouseAll:'Alle Häuser',
+    handoffNeedContent:'Mindestens ein Feld ausfüllen',
     typeSTOCKCHECK:'Lagercheck',
-    shiftStockCheck:'Schicht-Lagercheck',
-    shiftStockCheckHint:'Wer die Schicht beginnt, prüft das Lager in Kalyvia. Tippe ✓ oder „Alles ja“.',
-    shiftStockCheckStart:'Lagercheck starten',
+    shiftStockCheck:'Lagercheck',
+    shiftStockCheckHint:'Für jedes Produkt tippen: OK, wenig oder leer. Dann speichern.',
+    shiftStockCheckStart:'Lagercheck',
     shiftStockCheckDone:'Lagercheck erledigt',
-    shiftStockCheckAllYes:'Alles ja',
-    shiftStockCheckSave:'Check speichern',
-    shiftStockCheckNeedAll:'Bitte alle Positionen mit ✓ oder „Alles ja“ bestätigen.',
-    shiftStockCheckSaved:(n,name)=>`Lagercheck · ${n} Positionen · ${name}`,
+    shiftStockCheckAllYes:'Rest OK',
+    shiftStockCheckSave:'Speichern',
+    shiftStockCheckNeedAll:'Noch nicht alles geprüft.',
+    shiftStockCheckSaved:(n,name)=>`Lagercheck · ${n} Produkte · ${name}`,
     shiftStockCheckToday:(name,when)=>`Heute geprüft von ${name} · ${when}`,
-    shiftStockCheckPending:'Noch kein Lagercheck heute',
-    shiftStockCheckQty:'Ist-Menge',
+    shiftStockCheckPending:'Heute noch nicht geprüft',
+    shiftStockCheckQty:'Menge',
     shiftStockCheckOk:'OK',
+    shiftStockCheckLow:'Wenig',
+    shiftStockCheckEmpty:'Leer',
     shiftStockCheckFixed:'Korrigiert',
-    shiftStockCheckProgress:(a,b)=>`${a}/${b} geprüft`,
+    shiftStockCheckProgress:(a,b)=>`${a} von ${b}`,
+    shiftStockCheckBannerGo:'Jetzt prüfen',
     viewDay:'Tag', viewWeek:'Woche', filterView:'Ansicht', filterHouse:'Haus',
     importWeek:'Woche importieren', importWeekTitle:'Woche importieren',
     importWeekHint:'Kopiere Einträge aus einer anderen Woche in die aktuelle Woche.',
@@ -281,7 +312,7 @@ const T = {
     childHowToNotes:'Notizen: nur für dich',
     childHowToMore:'Mehr: Plan, Lernen, Sterne und Hilfe',
     kidGuideWelcome:'Willkommen in deiner App',
-    kidGuideWelcomeHint:'Unten findest du das Menü: Start, Spiele, Bewertung, Bonus, Notizen. Über Mehr erreichst du Plan und Sterne.',
+    kidGuideWelcomeHint:'Öffne Menü oben: Start, Spiele, Bewertung, Bonus, Notizen. Unter Mehr findest du Plan und Sterne.',
     kidGuideGotIt:'Alles klar',
     kidGuideWhere:'Du bist hier',
     kidGuideNext:'Als Nächstes',
@@ -294,8 +325,12 @@ const T = {
     kidGuideHintLearn:'Lernen und Quiz — in Einfach nur die wichtigsten.',
     kidGuideHintStars:'Deine Sterne, Streak und Abzeichen.',
     kidGuideHintMore:'Weitere Seiten: Plan, Lernen, Sterne.',
-    kidGuideHintEasy:'Tippe unten auf einen Menüpunkt.',
-    kidGuideHintPro:'Menü unten (Telefon) oder links (Tablet/PC). Mehr öffnet Plan, Lernen, Sterne.',
+    kidGuideHintEasy:'Tippe auf Menü und wähle eine Seite.',
+    kidGuideHintPro:'Telefon: Menü-Taste. Tablet/PC: linkes Menü. Mehr = Plan, Lernen, Sterne.',
+    kidMenu:'Menü',
+    kidMenuTitle:'Menü',
+    kidMenuPages:'Seiten',
+    kidMenuMoreLabel:'Mehr',
     kidHomeDash:'Dein Tag',
     kidHomeCtaTitle:'Wohin als Nächstes?',
     kidHomeCtaGames:'Spiele öffnen',
@@ -447,12 +482,14 @@ const T = {
     stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
     stockDraftPending:'Noch nicht gespeichert',
     stockQuickAdd:'Hinzufügen',
-    stockQuickAddTitle:'Schnell hinzufügen',
-    stockQuickAddHint:'Name, Menge, Regal — fertig. Doppelte Namen werden erkannt.',
+    stockQuickAddTitle:'Produkt hinzufügen',
+    stockQuickAddHint:'Name und Menge reichen. Ähnliche Namen werden sofort erkannt.',
     stockQuickAddCta:'Ins Lager',
     stockAddExisting:'Menge dazu',
-    stockDupHint:'Ähnliches Produkt gefunden — tippe zum Auffüllen.',
-    stockDupExact:'Bereits vorhanden',
+    stockDupHint:'Ähnliches Produkt — tippe, um aufzufüllen statt neu anzulegen.',
+    stockDupExact:'Schon im Lager — tippe zum Auffüllen',
+    stockQaHouse:'Haus',
+    stockQaQty:'Menge',
     stockBulkPaste:'Mehrere auf einmal',
     stockBulkPasteHint:'Eine Zeile pro Produkt. Optional Menge: Milch 2',
     stockBulkPastePh:'Milch 2\nEier\nÖl 1',
@@ -468,7 +505,7 @@ const T = {
     stockOrderRefresh:'Liste aktualisieren',
     stockPhotoRead:'Foto lesen',
     talkEasyHint:'Schreib kurz dem Team. Themen-Extras und Video findest du in Pro.',
-    bookEasyHint:'Schichtnotiz schreiben — volles Protokoll und Wer-was in Pro.',
+    bookEasyHint:'Lesen, schreiben, bestätigen — Protokoll und Filter in Pro.',
     galleryEasyHint:'Foto teilen und liken. Drive-Status und Aktualisieren in Pro.',
     homeEasyHint:'Deine heutigen Aufgaben zuerst — Mehr-Details in Pro.',
     kidsEasyHint:'Kinder öffnen — Schule und Noten-Extras in Pro.',
@@ -607,8 +644,8 @@ const T = {
     adminOnly:'Die feste Vorlage dürfen nur Zoi, Angelos und Dimitris ändern.',
     whoDidWhat:'Wer hat was gemacht', today:'Heute', last7:'Letzte 7 Tage', last30:'30 Tage', bookAll:'Alles',
     bookHeroTitle:'Was passiert ist', bookHeroHint:'Filtern und eine klare Ansicht wählen — nicht alles auf einmal.',
-    bookJournalHero:'Schichtbuch', bookJournalHint:'Kalender tippen, Tag wählen, Seite lesen oder schreiben.',
-    bookPaneLog:'Verlauf', bookPanePeople:'Personen', bookPaneShift:'Schichtbuch',
+    bookJournalHero:'Übergabe', bookJournalHint:'Schreiben · Lesen · Bestätigen — Kalender für jeden Tag.',
+    bookPaneLog:'Verlauf', bookPanePeople:'Personen', bookPaneShift:'Übergabe',
     bookSearchPh:'Suche in Text, Name, Typ…', bookClearFilters:'Filter zurücksetzen',
     bookViewTimeline:'Zeitlinie', bookViewByDay:'Nach Tag', bookViewCompact:'Kompakt',
     bookShowTech:'IP & Gerät zeigen', bookHideTech:'Technik ausblenden',
@@ -1055,45 +1092,76 @@ const T = {
     galleryFlagged:'Σημειώθηκε για έλεγχο', galleryReport:'Αναφορά', galleryReportOk:'Αναφέρθηκε — η ομάδα ελέγχει',
     gallerySafetyFail:'Έλεγχος ασφαλείας απέτυχε — δοκίμασε αργότερα',
     shiftDiary:'Βιβλίο βάρδιας', shiftDiaryHint:'Αυτό το βιβλίο πρέπει να τηρείται. Κάθε βάρδια γράφει τη σελίδα της — μόνο με το προφίλ σου.',
-    shiftDiaryPh:'Τι έγινε στη βάρδια; Παράδοση, αποθήκη, παιδιά, κάτι ιδιαίτερο…',
-    shiftDiarySave:'Γράψε στο βιβλίο', shiftDiarySaved:'Η σελίδα αποθηκεύτηκε στο βιβλίο',
-    shiftDiaryEmpty:'Καμία σελίδα αυτή τη μέρα.', shiftDiaryTeam:'Σελίδες ομάδας',
-    shiftDiaryMine:'Η σελίδα μου', typeSHIFT:'Βάρδια',
-    journalMustWrite:'Η σημερινή σελίδα είναι ανοιχτή — πρέπει να γραφτεί',
-    journalPageDone:'Η σημερινή σελίδα έχει γραφτεί',
+    shiftDiaryPh:'Σύντομα και καθαρά — τι πρέπει να ξέρει η επόμενη βάρδια…',
+    shiftDiarySave:'Αποθήκευση παράδοσης', shiftDiarySaved:'Η παράδοση αποθηκεύτηκε',
+    shiftDiaryEmpty:'Καμία παράδοση αυτή τη μέρα.', shiftDiaryTeam:'Από την ομάδα',
+    shiftDiaryMine:'Η παράδοσή μου', typeSHIFT:'Βάρδια',
+    journalMustWrite:'Η σημερινή παράδοση είναι ανοιχτή — γράψε την',
+    journalPageDone:'Η σημερινή παράδοση έχει γραφτεί',
     journalContinue:'Συνέχισε να γράφεις (προστίθεται)',
     journalRewrite:'Ξαναγράψε τη σελίδα',
     journalRewriteSave:'Αντικατάσταση σελίδας',
     journalPages:n=>n===1?'1 σελίδα':`${n} σελίδες`,
-    journalDutyHome:'Βιβλίο βάρδιας: η σημερινή σελίδα είναι κενή',
+    journalDutyHome:'Παράδοση: η σημερινή σελίδα είναι κενή',
     journalDutyCta:'Γράψε τώρα',
-    journalInkHint:'Οι νέες γραμμές μπαίνουν κάτω στη σελίδα — σαν μελάνι στο βιβλίο.',
-    journalEmptyPage:'Κενή σελίδα. Γράψε τι έγινε στη βάρδια.',
+    journalInkHint:'Οι νέες γραμμές μπαίνουν κάτω — οι ενότητες μένουν καθαρές.',
+    journalEmptyPage:'Ακόμα κενό. Γράψε τι πρέπει να ξέρει η επόμενη βάρδια.',
     journalSigned:'υπογραφή',
-    journalBrowse:'Διάβασε σελίδες',
-    journalDayDone:'Η σελίδα για αυτή τη μέρα έχει γραφτεί',
+    journalBrowse:'Παλιότερες παραδόσεις',
+    journalDayDone:'Η παράδοση για αυτή τη μέρα έχει γραφτεί',
     journalDayEmpty:'Αυτή τη μέρα δεν έχει γραφτεί ακόμα τίποτα',
-    bookCalHint:'Πάτα μια μέρα — οι τελείες δείχνουν μέρες με καταχωρήσεις.',
+    bookCalHint:'Πάτα μια μέρα. Τελείες = καταχωρήσεις · πορτοκαλί = μη διαβασμένο.',
     bookCalToday:'Σήμερα',
     bookCalLegend:'Καταχωρήσεις',
+    bookCalLegendUnread:'Μη διαβασμένο',
     bookCalPickDay:'Επίλεξε μέρα',
-    bookDayPages:'Σελίδες αυτής της μέρας',
-    bookEasyHint:'Απλό: πάτα μέρα, διάβασε ή γράψε τη σελίδα.',
+    bookDayPages:'Παραδόσεις αυτής της μέρας',
+    bookEasyHint:'Απλό: διάβασε, γράψε, επιβεβαίωσε. Ημερολόγιο για όλες τις μέρες.',
+    handoffFlowTitle:'Πώς γίνεται η παράδοση',
+    handoffFlowWrite:'Γράψε',
+    handoffFlowWriteHint:'Τι πρέπει να ξέρει η επόμενη βάρδια',
+    handoffFlowRead:'Διάβασε & επιβεβαίωσε',
+    handoffFlowReadHint:'Η επόμενη βάρδια πατά «Διαβάστηκε»',
+    handoffSecUrgent:'Επείγον',
+    handoffSecKids:'Παιδιά',
+    handoffSecStock:'Αποθήκη',
+    handoffSecTasks:'Ανοιχτές εργασίες',
+    handoffSecNote:'Άλλα',
+    handoffSecUrgentPh:'Άμεσα σημαντικό για την επόμενη βάρδια…',
+    handoffSecKidsPh:'Διάθεση, ραντεβού, κάτι ιδιαίτερο με τα παιδιά…',
+    handoffSecStockPh:'Άδειο, παραγγελία, ψυγείο…',
+    handoffSecTasksPh:'Τι μένει ανοιχτό ή πρέπει να αναλάβει κάποιος…',
+    handoffSecNotePh:'Ό,τι άλλο με σύντομες προτάσεις…',
+    handoffIncoming:'Για να διαβάσεις',
+    handoffIncomingEmpty:'Τίποτα ανοιχτό από άλλους.',
+    handoffAck:'Διαβάστηκε',
+    handoffAcked:'Η παράδοση διαβάστηκε',
+    handoffAckedBy:n=>n===1?'1× διαβάστηκε':`${n}× διαβάστηκε`,
+    handoffAckPending:'Ακόμα μη διαβασμένο',
+    handoffUnreadTitle:'Νέα παράδοση για διάβασμα',
+    handoffUnreadMeta:name=>`από ${name}`,
+    handoffMineSpotlight:'Σήμερα — η παράδοσή σου',
+    handoffHouseLabel:'Σπίτι (προαιρετικά)',
+    handoffHouseAll:'Όλα τα σπίτια',
+    handoffNeedContent:'Συμπλήρωσε τουλάχιστον ένα πεδίο',
     typeSTOCKCHECK:'Έλεγχος αποθέματος',
-    shiftStockCheck:'Έλεγχος αποθέματος βάρδιας',
-    shiftStockCheckHint:'Όποιος ξεκινά τη βάρδια ελέγχει το απόθεμα στο Kalyvia. Πάτα ✓ ή «Όλα ναι».',
-    shiftStockCheckStart:'Έναρξη ελέγχου',
-    shiftStockCheckDone:'Ο έλεγχος ολοκληρώθηκε',
-    shiftStockCheckAllYes:'Όλα ναι',
-    shiftStockCheckSave:'Αποθήκευση ελέγχου',
-    shiftStockCheckNeedAll:'Επιβεβαίωσε όλα με ✓ ή «Όλα ναι».',
+    shiftStockCheck:'Έλεγχος αποθήκης',
+    shiftStockCheckHint:'Για κάθε προϊόν πάτα: OK, λίγο ή άδειο. Μετά αποθήκευση.',
+    shiftStockCheckStart:'Έλεγχος',
+    shiftStockCheckDone:'Ο έλεγχος έγινε',
+    shiftStockCheckAllYes:'Τα υπόλοιπα OK',
+    shiftStockCheckSave:'Αποθήκευση',
+    shiftStockCheckNeedAll:'Δεν ελέγχθηκαν όλα ακόμα.',
     shiftStockCheckSaved:(n,name)=>`Έλεγχος · ${n} είδη · ${name}`,
     shiftStockCheckToday:(name,when)=>`Σήμερα έλεγξε ο/η ${name} · ${when}`,
-    shiftStockCheckPending:'Δεν έγινε ακόμα έλεγχος σήμερα',
+    shiftStockCheckPending:'Σήμερα δεν ελέγχθηκε ακόμα',
     shiftStockCheckQty:'Ποσότητα',
     shiftStockCheckOk:'OK',
+    shiftStockCheckLow:'Λίγο',
+    shiftStockCheckEmpty:'Άδειο',
     shiftStockCheckFixed:'Διορθώθηκε',
-    shiftStockCheckProgress:(a,b)=>`${a}/${b} ελέγχθηκαν`,
+    shiftStockCheckProgress:(a,b)=>`${a} από ${b}`,
+    shiftStockCheckBannerGo:'Έλεγχος τώρα',
     viewDay:'Ημέρα', viewWeek:'Εβδομάδα', filterView:'Προβολή', filterHouse:'Σπίτι',
     importWeek:'Εισαγωγή εβδομάδας', importWeekTitle:'Εισαγωγή εβδομάδας',
     importWeekHint:'Αντιγραφή εγγραφών από άλλη εβδομάδα στην τρέχουσα.',
@@ -1283,7 +1351,7 @@ const T = {
     childHowToNotes:'Σημειώσεις: μόνο για σένα',
     childHowToMore:'Άλλα: Πρόγραμμα, Μάθηση, Αστέρια και βοήθεια',
     kidGuideWelcome:'Καλώς ήρθες στην εφαρμογή σου',
-    kidGuideWelcomeHint:'Κάτω είναι το μενού: Αρχή, Παιχνίδια, Αξιολόγηση, Μπόνους, Σημειώσεις. Στα Άλλα βρίσκεις Πρόγραμμα και Αστέρια.',
+    kidGuideWelcomeHint:'Άνοιξε Μενού πάνω: Αρχή, Παιχνίδια, Αξιολόγηση, Μπόνους, Σημειώσεις. Στα Άλλα βρίσκεις Πρόγραμμα και Αστέρια.',
     kidGuideGotIt:'Εντάξει',
     kidGuideWhere:'Είσαι εδώ',
     kidGuideNext:'Επόμενο',
@@ -1296,8 +1364,12 @@ const T = {
     kidGuideHintLearn:'Μάθηση και κουίζ — στο Απλό μόνο τα βασικά.',
     kidGuideHintStars:'Τα αστέρια, η σειρά και τα σήματά σου.',
     kidGuideHintMore:'Άλλες σελίδες: Πρόγραμμα, Μάθηση, Αστέρια.',
-    kidGuideHintEasy:'Πάτα κάτω ένα κουμπί του μενού.',
-    kidGuideHintPro:'Μενού κάτω (τηλέφωνο) ή αριστερά (τάμπλετ/PC). Τα Άλλα ανοίγουν Πρόγραμμα, Μάθηση, Αστέρια.',
+    kidGuideHintEasy:'Πάτα Μενού και διάλεξε σελίδα.',
+    kidGuideHintPro:'Τηλέφωνο: κουμπί Μενού. Τάμπλετ/PC: αριστερό μενού. Άλλα = Πρόγραμμα, Μάθηση, Αστέρια.',
+    kidMenu:'Μενού',
+    kidMenuTitle:'Μενού',
+    kidMenuPages:'Σελίδες',
+    kidMenuMoreLabel:'Άλλα',
     kidHomeDash:'Η μέρα σου',
     kidHomeCtaTitle:'Πού μετά;',
     kidHomeCtaGames:'Άνοιξε παιχνίδια',
@@ -1449,12 +1521,14 @@ const T = {
     stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
     stockDraftPending:'Δεν αποθηκεύτηκε ακόμη',
     stockQuickAdd:'Προσθήκη',
-    stockQuickAddTitle:'Γρήγορη προσθήκη',
-    stockQuickAddHint:'Όνομα, ποσότητα, ράφι — έτοιμο. Διπλά ονόματα εντοπίζονται.',
+    stockQuickAddTitle:'Προσθήκη προϊόντος',
+    stockQuickAddHint:'Όνομα και ποσότητα αρκούν. Παρόμοια ονόματα εντοπίζονται αμέσως.',
     stockQuickAddCta:'Στην αποθήκη',
     stockAddExisting:'Προσθήκη ποσότητας',
-    stockDupHint:'Παρόμοιο προϊόν — πάτα για αναπλήρωση.',
-    stockDupExact:'Υπάρχει ήδη',
+    stockDupHint:'Παρόμοιο προϊόν — πάτα για αναπλήρωση, όχι νέο.',
+    stockDupExact:'Υπάρχει ήδη — πάτα για αναπλήρωση',
+    stockQaHouse:'Σπίτι',
+    stockQaQty:'Ποσότητα',
     stockBulkPaste:'Πολλά μαζί',
     stockBulkPasteHint:'Μία γραμμή ανά προϊόν. Προαιρετικά ποσότητα: Γάλα 2',
     stockBulkPastePh:'Γάλα 2\nΑυγά\nΛάδι 1',
@@ -1468,9 +1542,9 @@ const T = {
     stockDeleteCancel:'Ακύρωση',
     stockOrderFrozen:'Η σειρά πάγωσε — αποθήκευση ή ανανέωση για ταξινόμηση',
     stockOrderRefresh:'Ανανέωση λίστας',
-    stockPhotoRead:'Διάβασε από φωτογραφία',
+    stockPhotoRead:'Διάβασε φωτό',
     talkEasyHint:'Γράψε σύντομα στην ομάδα. Extra θέματα και βίντεο στο Pro.',
-    bookEasyHint:'Σημείωση βάρδιας — πλήρες πρωτόκολλο και ποιος-τι στο Pro.',
+    bookEasyHint:'Διάβασε, γράψε, επιβεβαίωσε — πρωτόκολλο και φίλτρα στο Pro.',
     galleryEasyHint:'Μοίρασε φωτό και like. Κατάσταση Drive και ανανέωση στο Pro.',
     homeEasyHint:'Πρώτα οι σημερινές εργασίες — περισσότερα στο Pro.',
     kidsEasyHint:'Άνοιξε παιδί — σχολείο και βαθμοί στο Pro.',
@@ -1609,8 +1683,8 @@ const T = {
     adminOnly:'Το μόνιμο πρότυπο το αλλάζουν μόνο η Zoi, ο Angelos και ο Dimitris.',
     whoDidWhat:'Ποιος έκανε τι', today:'Σήμερα', last7:'Τελευταίες 7 ημέρες', last30:'30 ημέρες', bookAll:'Όλα',
     bookHeroTitle:'Τι έγινε', bookHeroHint:'Φίλτρα και μία καθαρή προβολή — όχι όλα μαζί.',
-    bookJournalHero:'Βιβλίο βάρδιας', bookJournalHint:'Πάτα το ημερολόγιο, διάλεξε μέρα, διάβασε ή γράψε τη σελίδα.',
-    bookPaneLog:'Ιστορικό', bookPanePeople:'Άτομα', bookPaneShift:'Βιβλίο βάρδιας',
+    bookJournalHero:'Παράδοση', bookJournalHint:'Γράψε · Διάβασε · Επιβεβαίωσε — ημερολόγιο για κάθε μέρα.',
+    bookPaneLog:'Ιστορικό', bookPanePeople:'Άτομα', bookPaneShift:'Παράδοση',
     bookSearchPh:'Αναζήτηση σε κείμενο, όνομα, τύπο…', bookClearFilters:'Καθαρισμός φίλτρων',
     bookViewTimeline:'Χρονολόγιο', bookViewByDay:'Ανά ημέρα', bookViewCompact:'Συμπαγές',
     bookShowTech:'Εμφάνιση IP & συσκευής', bookHideTech:'Απόκρυψη τεχνικών',
@@ -3151,6 +3225,7 @@ const state = {
   bookShowTech: false,
   bookDate: iso(new Date()),
   bookCalMonth: iso(new Date()).slice(0, 7) + '-01',
+  bookHouse: '',
   chatOpen: false,
   chatMode: 'ai', // ai | talk | help
   helpMessages: [],          // active user's transcript (session-only)
@@ -3650,14 +3725,22 @@ function openSheet(html, {dismissable = true, kind = ''} = {}){
   document.querySelectorAll('.stock-hold-menu,.drag-ghost').forEach(el=>el.remove());
   sheetLocked = !dismissable;
   document.getElementById('app').inert = sheetLocked;
-  const isNavMenu = kind === 'nav-menu';
+  const isNavMenu = kind === 'nav-menu' || kind === 'kid-site-menu';
+  const isKidSite = kind === 'kid-site-menu';
+  const isShiftCheck = kind === 'shift-check';
   /* Keep sheet-open so dock/Zo-Ai stay untouchable (Schicht-check etc.). */
   document.body.classList.add('sheet-open');
   document.body.classList.toggle('sheet-nav-menu-open', isNavMenu);
+  document.body.classList.toggle('sheet-kid-site-open', isKidSite);
+  document.body.classList.toggle('sheet-shift-check-open', isShiftCheck);
   sheetEl.classList.toggle('sheet-nav-menu', isNavMenu);
+  sheetEl.classList.toggle('sheet-kid-site-menu', isKidSite);
+  sheetEl.classList.toggle('sheet-shift-check', isShiftCheck);
   sheetEl.setAttribute('role','dialog');
   sheetEl.setAttribute('aria-modal','true');
-  if(isNavMenu) sheetEl.setAttribute('aria-label', t('navMore'));
+  if(isShiftCheck) sheetEl.setAttribute('aria-label', t('shiftStockCheck'));
+  else if(isKidSite) sheetEl.setAttribute('aria-label', t('kidMenuTitle'));
+  else if(isNavMenu) sheetEl.setAttribute('aria-label', t('navMore'));
   else sheetEl.removeAttribute('aria-label');
   /* Drop .on first so slide/panel enter actually animates (no same-frame pop). */
   sheetEl.classList.remove('on');
@@ -3678,10 +3761,10 @@ function closeSheet(){
   stockBoardUiAbort?.abort();
   stockBoardUiAbort = null;
   document.getElementById('app').inert = false;
-  document.body.classList.remove('sheet-open', 'sheet-nav-menu-open');
+  document.body.classList.remove('sheet-open', 'sheet-nav-menu-open', 'sheet-kid-site-open', 'sheet-shift-check-open');
   sheetEl.removeAttribute('role');sheetEl.removeAttribute('aria-modal');
   sheetEl.removeAttribute('aria-label');
-  sheetEl.classList.remove('on', 'sheet-nav-menu'); sheetBg.classList.remove('on');
+  sheetEl.classList.remove('on', 'sheet-nav-menu', 'sheet-kid-site-menu', 'sheet-shift-check'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
   stopCamera();
   document.querySelectorAll('.stock-hold-menu,.drag-ghost').forEach(el=>el.remove());
@@ -3690,8 +3773,8 @@ function closeSheet(){
 }
 
 /** Shared Mehr / overflow row — plain label, optional short hint (Pro). */
-function navMenuRowHtml({attrs = '', ico, label, hint = ''}){
-  return `<button type="button" class="nav-menu-row" ${attrs}>
+function navMenuRowHtml({attrs = '', ico, label, hint = '', on = false}){
+  return `<button type="button" class="nav-menu-row${on?' on':''}" ${attrs}>
     <span class="nav-menu-ico" aria-hidden="true">${ui(ico)}</span>
     <span class="nav-menu-copy"><b>${esc(label)}</b>${hint?`<span class="nav-menu-hint">${esc(hint)}</span>`:''}</span>
   </button>`;
@@ -3876,7 +3959,14 @@ function tourEnsureRoot(){
 
 function tourFindTarget(sel){
   if(!sel) return null;
-  return document.querySelector(`[data-tour="${sel}"]`);
+  let el = document.querySelector(`[data-tour="${sel}"]`);
+  if(!el && state.mode==='child' && String(sel).startsWith('kid-nav-')){
+    try{
+      if(!document.body.classList.contains('sheet-kid-site-open')) openKidSiteMenu();
+    }catch{}
+    el = document.querySelector(`[data-tour="${sel}"]`);
+  }
+  return el;
 }
 
 function tourPlaceStep(step){
@@ -4175,20 +4265,23 @@ async function ensureContactDetails(){
 function helpInventoryContext(){
   const canMutate=state.mode==='staff' && !!state.user;
   if(!canMutate) return {canMutate:false};
-  const houses=DB.houses.map(h=>({id:h.id,name:h.short||L(h)||h.id, full:h.name}));
+  try{ normalizeDbShape(DB); }catch{}
+  const housesList=Array.isArray(DB.houses)?DB.houses:[];
+  const listEntries=Array.isArray(DB.listEntries)?DB.listEntries:[];
+  const houses=housesList.map(h=>({id:h.id,name:h.short||L(h)||h.id, full:h.name}));
   const active=state.house;
   const products=PRODUCTS().map(p=>{
     const stock={};
-    DB.houses.forEach(h=>{stock[h.id]=DB.stock[stockKey(h.id,p.id)]??0;});
+    housesList.forEach(h=>{stock[h.id]=DB.stock?.[stockKey(h.id,p.id)]??0;});
     return {
       id:p.id, name:L(p), unit:p.unit, aliases:[p.de,p.el,p.en,...(p.alias||[])].filter(Boolean),
       stock, activeStock:stock[active]??0,
     };
   });
-  const low=products.filter(p=>DB.houses.some(h=>(p.stock[h.id]??0)<=lowThreshold(prod(p.id)||{unit:p.unit})))
+  const low=products.filter(p=>housesList.some(h=>(p.stock[h.id]??0)<=lowThreshold(prod(p.id)||{unit:p.unit})))
     .slice(0,50)
     .map(p=>({id:p.id,name:p.name,unit:p.unit,stock:p.stock}));
-  const openShop=DB.listEntries.filter(e=>['open','pending'].includes(e.status)).slice(0,40).map(e=>({
+  const openShop=listEntries.filter(e=>['open','pending'].includes(e.status)).slice(0,40).map(e=>({
     name:e.name,qty:e.qty,unit:e.unit,houseId:e.houseId,status:e.status,
   }));
   const focusProducts=products
@@ -4880,7 +4973,7 @@ function sheetHelpProposals(actions, {inline=false, onDone=null}={}){
   if(inline){
     const box=document.querySelector('#chatBody #helpProposeBox')
       || document.querySelector('#helpProposeBox')
-      || sheetEl.querySelector('#helpProposeBox');
+      || sheetEl?.querySelector?.('#helpProposeBox');
     if(!box){
       // Never auto-apply — fall back to sheet confirm UI.
       inline=false;
@@ -7743,6 +7836,7 @@ function viewSchedule(){
         <button type="button" class="${state.houseFilter===''?'on':''}" data-plan-house="">${esc(t('all'))}</button>
         ${planningHouses().map(h=>`<button type="button" class="${state.houseFilter===h.id?'on':''}" data-plan-house="${h.id}">${esc(h.short)}</button>`).join('')}
       </div>`:''}
+      ${typeof shiftStockCheckPending==='function' && shiftStockCheckPending() ? shiftStockCheckBannerHtml() : ''}
       <div class="adaptive-chrome planner-chrome-wrap">
         <button type="button" class="adaptive-chrome-summary" data-adaptive-toggle aria-expanded="false">
           <span class="adaptive-summary-label">${esc(t('menuFilters'))}</span>
@@ -8279,7 +8373,7 @@ function viewStock(){
       <div class="stock-command-row">
         <label class="stock-search">${ui('u-search','sm')}<input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}" autocomplete="off" enterkeyhint="search">${state.stockQuery?`<button type="button" id="stockClear" aria-label="${t('close')}">×</button>`:''}</label>
         ${hid!=='all'?`<button class="btn stock-primary-action stock-quick-add-btn pine-settle" type="button" id="stockQuickAdd">${ui('u-plus')} ${esc(t('stockQuickAdd'))}</button>`:''}
-        <button class="btn sec sm stock-shift-check-cta" type="button" id="stockShiftCheckEasy" title="${esc(t('shiftStockCheck'))}">${ui('u-check','sm')} ${esc(t('shiftStockCheckStart'))}</button>
+        <button class="btn sec sm stock-shift-check-cta pro-only mode-pro-block" type="button" id="stockShiftCheckEasy" title="${esc(t('shiftStockCheck'))}">${ui('u-check','sm')} ${esc(t('shiftStockCheckStart'))}</button>
         <details class="stock-more pro-only mode-pro-block"><summary aria-label="${esc(t('stockMoreActions'))}">•••</summary><div class="stock-more-popover">
           ${hid==='all'?`<button class="stock-more-action ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle">${ui('u-tasks','sm')} ${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}</button>`:''}
           ${hid!=='all'?`<button class="stock-more-action" type="button" id="stockOpenBoard">${ui('u-plus','sm')} ${esc(t('stockBoardShort'))}</button>
@@ -8289,6 +8383,7 @@ function viewStock(){
       </div>
       ${hid!=='all'?`<div class="stock-easy-actions" role="toolbar" aria-label="${esc(t('headerStock'))}">
         <button class="btn stock-easy-btn pine-settle" type="button" id="stockQuickAddEasy">${esc(t('stockQuickAdd'))}</button>
+        <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockShiftCheckEasyBar">${esc(t('shiftStockCheckStart'))}</button>
         <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockPhotoRead">${esc(t('stockPhotoRead'))}</button>
         <button class="btn pine-settle stock-easy-btn" type="button" id="stockEasySave"${easySaveOn?'':' disabled'}>${esc(easySaveLabel)}</button>
         <button class="btn sec stock-easy-btn" type="button" id="stockOrderRefresh"${orderFrozen?'':' disabled'}>${esc(t('stockOrderRefresh'))}</button>
@@ -8698,6 +8793,36 @@ function ensureStockOrderFreeze(){
   const houses=[house(hid)].filter(Boolean);
   captureStockOrderFreeze(hid, houses);
 }
+/** Keep list order stable after add: freeze, then slot new pid in-category (no full re-sort). */
+function insertStockOrderPid(pid, hid=state.house){
+  if(!pid || !hid || hid==='all') return;
+  const prevHouse=state.house;
+  state.house=hid;
+  ensureStockOrderFreeze();
+  state.house=prevHouse;
+  const freeze=state.stockOrderFreeze;
+  if(!freeze || freeze.house!==hid || !Array.isArray(freeze.order)) return;
+  if(freeze.order.includes(pid)) return;
+  const p=prod(pid);
+  let insertAt=freeze.order.length;
+  if(p){
+    for(let i=freeze.order.length-1;i>=0;i--){
+      const op=prod(freeze.order[i]);
+      if(op && op.cat===p.cat){ insertAt=i+1; break; }
+    }
+  }
+  freeze.order.splice(insertAt, 0, pid);
+}
+function withStockScrollPreserved(run){
+  const y=window.scrollY||document.documentElement.scrollTop||0;
+  const main=document.querySelector('main.app-stage');
+  const mainY=main?main.scrollTop:0;
+  run();
+  requestAnimationFrame(()=>{
+    window.scrollTo(0, y);
+    if(main) main.scrollTop=mainY;
+  });
+}
 function stockOutReasonModalHtml(){
   const pending=state.stockPendingStep;
   if(!pending) return '';
@@ -8886,107 +9011,134 @@ function shiftStockCheckBannerHtml(){
   if(done){
     const who=emp(done.by);
     return `<div class="shift-check-banner done">
-      <div><b>✅ ${esc(t('shiftStockCheckDone'))}</b>
+      <div><b>${esc(t('shiftStockCheckDone'))}</b>
         <span>${esc(T[state.lang].shiftStockCheckToday(who?.name||done.byName||'—', fmtDT(done.at)))}</span></div>
-      <button class="btn sec sm" type="button" id="shiftStockCheckOpen" class="btn sm shift-check-open-btn">${esc(t('shiftStockCheckStart'))}</button>
+      <button class="btn sec shift-check-open-btn" type="button" id="shiftStockCheckOpen">${esc(t('shiftStockCheckStart'))}</button>
     </div>`;
   }
   return `<div class="shift-check-banner pending">
-    <div><b>☑️ ${esc(t('shiftStockCheck'))}</b><span>${esc(t('shiftStockCheckPending'))} · ${esc(t('shiftStockCheckHint'))}</span></div>
-    <button class="btn sm shift-check-open-btn" type="button" id="shiftStockCheckOpen">${esc(t('shiftStockCheckStart'))}</button>
+    <div><b>${esc(t('shiftStockCheck'))}</b>
+      <span>${esc(t('shiftStockCheckPending'))}. ${esc(t('shiftStockCheckHint'))}</span></div>
+    <button class="btn shift-check-open-btn" type="button" id="shiftStockCheckOpen">${esc(t('shiftStockCheckBannerGo'))}</button>
   </div>`;
 }
 
+function shiftCheckQtyForMark(p, mark, base){
+  const thr=lowThreshold(p);
+  if(mark==='empty') return 0;
+  if(mark==='low') return Math.min(Number(base)||0, thr) || thr;
+  return Number(base)||0;
+}
+
 function paintShiftStockCheckSheet(draft){
-  const products=PRODUCTS();
+  const products=draft.order.map(id=>prod(id)).filter(Boolean);
   const done=Object.keys(draft.marks).length;
   const total=products.length;
+  const pct=total?Math.round(done/total*100):0;
   const rows=products.map(p=>{
-    const mark=draft.marks[p.id];
+    const mark=draft.marks[p.id]||'';
     const qty=draft.qtys[p.id] ?? (DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0);
-    return `<div class="shift-check-row ${mark?'is-ok':''}" data-check-pid="${p.id}">
+    const tone=mark?`is-${mark}`:'';
+    return `<article class="shift-check-card ${tone}" data-check-pid="${p.id}">
       <div class="shift-check-main">
         <b>${esc(L(p))}</b>
-        <span class="muted">${esc(p.unit)}</span>
+        <span class="shift-check-meta">${esc(String(qty))} ${esc(p.unit)}</span>
       </div>
-      <label class="shift-check-qty"><span>${esc(t('shiftStockCheckQty'))}</span>
-        <input type="number" inputmode="decimal" min="0" step="any" data-check-qty="${p.id}" value="${qty}" ${mark?'disabled':''}>
-      </label>
-      <button class="shift-check-ok ${mark?'on':''}" type="button" data-check-ok="${p.id}">${mark?'✓':esc(t('shiftStockCheckOk'))}</button>
-    </div>`;
+      <div class="shift-check-status" role="group" aria-label="${esc(L(p))}">
+        <button type="button" class="shift-check-mark ok ${mark==='ok'?'on':''}" data-check-mark="ok" data-check-pid="${p.id}">${esc(t('shiftStockCheckOk'))}</button>
+        <button type="button" class="shift-check-mark low ${mark==='low'?'on':''}" data-check-mark="low" data-check-pid="${p.id}">${esc(t('shiftStockCheckLow'))}</button>
+        <button type="button" class="shift-check-mark empty ${mark==='empty'?'on':''}" data-check-mark="empty" data-check-pid="${p.id}">${esc(t('shiftStockCheckEmpty'))}</button>
+      </div>
+    </article>`;
   }).join('');
   return `<div class="shift-check-flow">
-    <div class="import-kicker">${esc(house(SHIFT_STOCK_HOUSE)?.short||'Kalyvia')}</div>
-    <h2 style="margin:4px 0 6px">${esc(t('shiftStockCheck'))}</h2>
-    <p class="muted" style="margin:0 0 10px">${esc(t('shiftStockCheckHint'))}</p>
-    <div class="shift-check-progress">${esc(T[state.lang].shiftStockCheckProgress(done,total))}</div>
-    <div class="shift-check-list">${rows}</div>
+    <header class="shift-check-head">
+      <p class="brand-kicker">${esc(house(SHIFT_STOCK_HOUSE)?.short||'Kalyvia')}</p>
+      <h2>${esc(t('shiftStockCheck'))}</h2>
+      <p>${esc(t('shiftStockCheckHint'))}</p>
+      <div class="shift-check-progress" id="shiftCheckProgress" aria-live="polite">
+        <b>${esc(T[state.lang].shiftStockCheckProgress(done,total))}</b>
+        <span class="shift-check-bar"><i style="width:${pct}%"></i></span>
+      </div>
+    </header>
+    <div class="shift-check-list" id="shiftCheckList">${rows}</div>
     <div class="shift-check-actions">
       <button class="btn sec" type="button" id="shiftCheckAllYes">${esc(t('shiftStockCheckAllYes'))}</button>
-      <button class="btn" type="button" id="shiftCheckSave" ${done<total?'disabled':''}>${esc(t('shiftStockCheckSave'))}</button>
+      <button class="btn pine-settle" type="button" id="shiftCheckSave" ${done<total?'disabled':''}>${esc(t('shiftStockCheckSave'))}</button>
     </div>
   </div>`;
 }
 
 function sheetShiftStockCheck(){
-  const products=PRODUCTS();
+  const houses=[house(SHIFT_STOCK_HOUSE)].filter(Boolean);
+  const products=PRODUCTS().slice().sort(stockSortByState(p=>stockProductStateFor(houses,p)));
   const draft={
+    order:products.map(p=>p.id),
     marks:{},
+    base:Object.fromEntries(products.map(p=>[p.id, DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0])),
     qtys:Object.fromEntries(products.map(p=>[p.id, DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0])),
   };
-  const refresh=()=>{
-    openSheet(paintShiftStockCheckSheet(draft));
-    wireShiftStockCheckSheet(draft, refresh);
-  };
-  refresh();
+  openSheet(paintShiftStockCheckSheet(draft), {kind:'shift-check'});
+  wireShiftStockCheckSheet(draft);
 }
 
-function wireShiftStockCheckSheet(draft, refresh){
-  const parseQty=raw=>{
-    const n=Number(String(raw||'').replace(',','.'));
-    return Number.isFinite(n) && n>=0 ? roundStock(n) : null;
+function wireShiftStockCheckSheet(draft){
+  const products=()=>draft.order.map(id=>prod(id)).filter(Boolean);
+  const syncChrome=()=>{
+    const total=draft.order.length;
+    const done=Object.keys(draft.marks).length;
+    const pct=total?Math.round(done/total*100):0;
+    const prog=sheetEl.querySelector('#shiftCheckProgress');
+    if(prog){
+      const b=prog.querySelector('b');
+      if(b) b.textContent=T[state.lang].shiftStockCheckProgress(done,total);
+      const fill=prog.querySelector('i');
+      if(fill) fill.style.width=`${pct}%`;
+    }
+    const save=sheetEl.querySelector('#shiftCheckSave');
+    if(save) save.disabled=done<total;
   };
-  sheetEl.querySelectorAll('[data-check-qty]').forEach(input=>{
-    input.onchange=()=>{
-      const pid=input.dataset.checkQty;
-      const next=parseQty(input.value);
-      if(next==null){ input.value=draft.qtys[pid]; toast(t('needQty'),'error'); return; }
-      draft.qtys[pid]=next;
-    };
-  });
-  sheetEl.querySelectorAll('[data-check-ok]').forEach(btn=>{
-    btn.onclick=()=>{
-      const pid=btn.dataset.checkOk;
-      const input=sheetEl.querySelector(`[data-check-qty="${pid}"]`);
-      const next=parseQty(input?.value);
-      if(next==null){ toast(t('needQty'),'error'); return; }
-      draft.qtys[pid]=next;
-      draft.marks[pid]='ok';
-      feedback('select');
-      refresh();
-    };
+  const paintCard=(pid)=>{
+    const card=sheetEl.querySelector(`.shift-check-card[data-check-pid="${pid}"]`);
+    if(!card) return;
+    const p=prod(pid);
+    const mark=draft.marks[pid]||'';
+    const qty=draft.qtys[pid]??0;
+    card.classList.remove('is-ok','is-low','is-empty');
+    if(mark) card.classList.add(`is-${mark}`);
+    const meta=card.querySelector('.shift-check-meta');
+    if(meta && p) meta.textContent=`${qty} ${p.unit}`;
+    card.querySelectorAll('[data-check-mark]').forEach(btn=>{
+      btn.classList.toggle('on', btn.dataset.checkMark===mark);
+    });
+  };
+  const applyMark=(pid, mark)=>{
+    const p=prod(pid); if(!p) return;
+    const base=draft.base[pid] ?? (DB.stock[stockKey(SHIFT_STOCK_HOUSE,pid)]??0);
+    draft.marks[pid]=mark;
+    draft.qtys[pid]=shiftCheckQtyForMark(p, mark, base);
+    paintCard(pid);
+    syncChrome();
+    feedback('select');
+  };
+  sheetEl.querySelector('#shiftCheckList')?.addEventListener('click', ev=>{
+    const btn=ev.target.closest('[data-check-mark]');
+    if(!btn) return;
+    applyMark(btn.dataset.checkPid, btn.dataset.checkMark);
   });
   sheetEl.querySelector('#shiftCheckAllYes')?.addEventListener('click',()=>{
-    sheetEl.querySelectorAll('[data-check-qty]').forEach(input=>{
-      const pid=input.dataset.checkQty;
-      if(draft.marks[pid]) return;
-      const next=parseQty(input.value);
-      if(next==null) return;
-      draft.qtys[pid]=next;
-      draft.marks[pid]='ok';
+    products().forEach(p=>{
+      if(draft.marks[p.id]) return;
+      draft.marks[p.id]='ok';
+      draft.qtys[p.id]=draft.base[p.id] ?? (DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0);
+      paintCard(p.id);
     });
-    PRODUCTS().forEach(p=>{
-      if(!draft.marks[p.id]){
-        draft.qtys[p.id]=draft.qtys[p.id]??(DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0);
-        draft.marks[p.id]='ok';
-      }
-    });
+    syncChrome();
     feedback('save');
-    refresh();
   });
   sheetEl.querySelector('#shiftCheckSave')?.addEventListener('click',()=>{
-    const products=PRODUCTS();
-    if(products.some(p=>!draft.marks[p.id])){
+    const list=products();
+    if(list.some(p=>!draft.marks[p.id])){
       toast(t('shiftStockCheckNeedAll'),'error');
       return;
     }
@@ -8996,18 +9148,19 @@ function wireShiftStockCheckSheet(draft, refresh){
       const now=Date.now();
       const items=[];
       const fixes=[];
-      products.forEach(p=>{
+      list.forEach(p=>{
         const prev=DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0;
         const next=draft.qtys[p.id]??prev;
-        const status=next===prev?'ok':'fixed';
-        items.push({productId:p.id,name:L(p),qty:next,prev,status,unit:p.unit});
+        const mark=draft.marks[p.id]||'ok';
+        const status=next===prev ? mark : (mark==='ok'?'fixed':mark);
+        items.push({productId:p.id,name:L(p),qty:next,prev,status,mark,unit:p.unit});
         if(next!==prev){
           DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]=next;
           const delta=roundStock(next-prev);
-          fixes.push({productId:p.id,name:L(p),delta,unit:p.unit});
+          fixes.push({productId:p.id,name:L(p),delta,unit:p.unit,mark});
           logEntry(delta>0?'IN':'OUT',
             `${delta>0?t('typeIN'):t('typeOUT')} @ ${house(SHIFT_STOCK_HOUSE).short} · ${t('shiftStockCheck')}: ${L(p)} ${delta>0?'+':''}${delta} ${p.unit}`,
-            {houseId:SHIFT_STOCK_HOUSE, productId:p.id, qty:Math.abs(delta), unit:p.unit, stockCheck:true});
+            {houseId:SHIFT_STOCK_HOUSE, productId:p.id, qty:Math.abs(delta), unit:p.unit, stockCheck:true, mark});
         }
       });
       DB.stockChecks=DB.stockChecks||[];
@@ -9018,7 +9171,7 @@ function wireShiftStockCheckSheet(draft, refresh){
         by:who.id,
         byName:who.name,
         at:now,
-        allYes:fixes.length===0,
+        allYes:fixes.length===0 && items.every(i=>i.mark==='ok'),
         items,
       });
       if(DB.stockChecks.length>400) DB.stockChecks=DB.stockChecks.slice(-400);
@@ -9102,6 +9255,15 @@ function sheetStockQuickAdd(opts={}){
   let unit = 'Stk';
   let cat = CATS()[0]?.id || 'custom';
 
+  const syncQtyField = ()=>{
+    const q = sheetEl.querySelector('#qaQty');
+    if(q) q.value = String(qty);
+  };
+  const readQty = ()=>{
+    const n = Number(String(sheetEl.querySelector('#qaQty')?.value||'1').replace(',','.'));
+    if(Number.isFinite(n) && n>=0) qty = roundStock(n);
+    syncQtyField();
+  };
   const paint = ()=>{
     const name = (sheetEl.querySelector('#qaName')?.value || '').trim();
     const matches = findStockNameMatches(name);
@@ -9111,7 +9273,7 @@ function sheetStockQuickAdd(opts={}){
     const matchBox = sheetEl.querySelector('#qaMatches');
     if(matchBox){
       matchBox.innerHTML = matches.length
-        ? `<div class="stock-qa-dup-hint">${esc(exact?t('stockDupExact'):t('stockDupHint'))}</div>
+        ? `<div class="stock-qa-dup-hint ${exact?'exact':''}">${esc(exact?t('stockDupExact'):t('stockDupHint'))}</div>
            <div class="stock-qa-matches">${matches.map(({p,score})=>`
              <button type="button" class="stock-qa-match ${p.id===matchPid?'on':''}" data-match="${p.id}">
                <span>${esc(L(p))}</span>
@@ -9128,43 +9290,65 @@ function sheetStockQuickAdd(opts={}){
             const u = sheetEl.querySelector('#qaUnit'); if(u) u.value = unit;
             const c = sheetEl.querySelector('#qaCat'); if(c) c.value = cat;
             qty = stepFor(p);
-            const q = sheetEl.querySelector('#qaQty'); if(q) q.value = String(qty);
+            syncQtyField();
           }
           paint();
         };
       });
     }
+    const locked = !!matchPid;
+    sheetEl.querySelector('#qaUnit')?.toggleAttribute('disabled', locked);
+    sheetEl.querySelector('#qaCat')?.toggleAttribute('disabled', locked);
+    sheetEl.querySelector('.stock-qa-meta')?.classList.toggle('is-locked', locked);
     const cta = sheetEl.querySelector('#qaSave');
     if(cta) cta.textContent = matchPid ? t('stockAddExisting') : t('stockQuickAddCta');
   };
 
   openSheet(`<div class="stock-quick-add">
-    <div class="import-kicker">${esc(t('headerStock'))}</div>
-    <h2 style="margin:4px 0 6px">${esc(t('stockQuickAddTitle'))}</h2>
-    <p class="muted" style="margin:0 0 12px">${esc(t('stockQuickAddHint'))}</p>
-    <div class="seg house-selector" id="qaHouse" aria-label="${t('filterHouse')}">
-      ${DB.houses.map(h=>`<button type="button" class="${hid===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
+    <header class="stock-qa-head">
+      <p class="import-kicker">${esc(t('headerStock'))}</p>
+      <h2>${esc(t('stockQuickAddTitle'))}</h2>
+      <p class="stock-qa-hint">${esc(t('stockQuickAddHint'))}</p>
+    </header>
+    <div class="stock-qa-section">
+      <span class="stock-qa-label">${esc(t('stockQaHouse'))}</span>
+      <div class="seg house-selector stock-qa-houses" id="qaHouse" aria-label="${esc(t('filterHouse'))}">
+        ${DB.houses.map(h=>`<button type="button" class="${hid===h.id?'on':''}" data-h="${h.id}">${esc(h.short)}</button>`).join('')}
+      </div>
     </div>
-    <label class="f"><span>${t('stockFoodName')}</span>
-      <input id="qaName" placeholder="Milch / Γάλα" autocomplete="off" enterkeyhint="done"></label>
-    <button class="btn sec" type="button" id="qaOcr" style="margin:0 0 10px;min-height:48px">${esc(t('stockPhotoRead'))}</button>
-    <div class="muted" style="font-size:11px;margin:-6px 0 10px">${esc(t('ocrSnapFillHint'))}</div>
-    <div id="qaMatches" class="stock-qa-matches-wrap"></div>
-    <div class="row" style="gap:8px">
-      <label class="f grow"><span>${t('qty')}</span>
-        <input id="qaQty" type="number" inputmode="decimal" min="0" step="any" value="1"></label>
-      <label class="f grow"><span>${t('stockFoodUnit')}</span>
-        <select id="qaUnit"><option>Stk</option><option>L</option><option>g</option><option>kg</option></select></label>
+    <label class="f stock-qa-name">
+      <span>${esc(t('stockFoodName'))}</span>
+      <input id="qaName" class="stock-qa-name-input" placeholder="Milch / Γάλα" autocomplete="off" enterkeyhint="done" autocapitalize="sentences">
+    </label>
+    <div id="qaMatches" class="stock-qa-matches-wrap" aria-live="polite"></div>
+    <button class="btn sec stock-qa-photo" type="button" id="qaOcr">${esc(t('stockPhotoRead'))}</button>
+    <p class="stock-qa-photo-hint">${esc(t('ocrSnapFillHint'))}</p>
+    <div class="stock-qa-qty-block">
+      <span class="stock-qa-label">${esc(t('stockQaQty'))}</span>
+      <div class="stock-qa-qty-row">
+        <div class="stock-qa-stepper" role="group" aria-label="${esc(t('stockQaQty'))}">
+          <button type="button" class="stock-qa-step" id="qaQtyMinus" aria-label="−">−</button>
+          <input id="qaQty" type="number" inputmode="decimal" min="0" step="any" value="1">
+          <button type="button" class="stock-qa-step" id="qaQtyPlus" aria-label="+">+</button>
+        </div>
+        <select id="qaUnit" class="stock-qa-unit" aria-label="${esc(t('stockFoodUnit'))}">
+          <option>Stk</option><option>L</option><option>ml</option><option>g</option><option>kg</option><option>Pkg</option>
+        </select>
+      </div>
     </div>
-    <label class="f"><span>${t('stockFoodCat')}</span>
-      <select id="qaCat">${CATS().map(c=>`<option value="${esc(c.id)}">${esc(L(c))}</option>`).join('')}</select></label>
+    <div class="stock-qa-meta">
+      <label class="f"><span>${esc(t('stockFoodCat'))}</span>
+        <select id="qaCat">${CATS().map(c=>`<option value="${esc(c.id)}">${esc(L(c))}</option>`).join('')}</select></label>
+    </div>
     ${isPro()?`<details class="stock-qa-bulk pro-only mode-pro-block">
       <summary>${esc(t('stockBulkPaste'))}</summary>
-      <p class="muted" style="font-size:12px;margin:6px 0">${esc(t('stockBulkPasteHint'))}</p>
-      <textarea id="qaBulk" rows="5" placeholder="${esc(t('stockBulkPastePh'))}"></textarea>
-      <button class="btn sec" type="button" id="qaBulkSave" style="margin-top:8px">${esc(t('stockBulkPaste'))}</button>
+      <p class="muted stock-qa-bulk-hint">${esc(t('stockBulkPasteHint'))}</p>
+      <textarea id="qaBulk" rows="4" placeholder="${esc(t('stockBulkPastePh'))}"></textarea>
+      <button class="btn sec" type="button" id="qaBulkSave">${esc(t('stockBulkPaste'))}</button>
     </details>`:''}
-    <button class="btn pine-settle stock-qa-cta" type="button" id="qaSave">${esc(t('stockQuickAddCta'))}</button>
+    <div class="stock-qa-footer">
+      <button class="btn pine-settle stock-qa-cta" type="button" id="qaSave">${esc(t('stockQuickAddCta'))}</button>
+    </div>
   </div>`);
 
   sheetEl.querySelectorAll('#qaHouse button').forEach(b=>{
@@ -9179,16 +9363,29 @@ function sheetStockQuickAdd(opts={}){
   nameInp?.addEventListener('keydown', ev=>{
     if(ev.key==='Enter'){ ev.preventDefault(); sheetEl.querySelector('#qaSave')?.click(); }
   });
+  sheetEl.querySelector('#qaQtyMinus')?.addEventListener('click', ()=>{
+    readQty();
+    const step = matchPid ? stepFor(prod(matchPid)) : (unit==='Stk'||unit==='Pkg'?1:0.5);
+    qty = roundStock(Math.max(0, qty - step));
+    if(qty<=0) qty = step;
+    syncQtyField();
+  });
+  sheetEl.querySelector('#qaQtyPlus')?.addEventListener('click', ()=>{
+    readQty();
+    const step = matchPid ? stepFor(prod(matchPid)) : (unit==='Stk'||unit==='Pkg'?1:0.5);
+    qty = roundStock(qty + step);
+    syncQtyField();
+  });
   sheetEl.querySelector('#qaOcr')?.addEventListener('click', async ()=>{
     const btn=sheetEl.querySelector('#qaOcr');
-    if(btn) btn.disabled=true;
+    if(btn){ btn.disabled=true; btn.textContent=t('stockPhotoRead')+'…'; }
     try{
       const item=await ocrPickFirstItem('stock');
       if(!item){ toast(t('nothingToImport'),'info'); return; }
       if(nameInp) nameInp.value=item.name||'';
       if(item.qty!=null && Number.isFinite(Number(item.qty))){
         qty=roundStock(Number(item.qty));
-        const q=sheetEl.querySelector('#qaQty'); if(q) q.value=String(qty);
+        syncQtyField();
       }
       if(item.unit){
         unit=normalizeUnit(item.unit,'Stk');
@@ -9199,16 +9396,13 @@ function sheetStockQuickAdd(opts={}){
     }catch(error){
       toast(friendlyAiError(error),'error',5200);
     }finally{
-      if(btn) btn.disabled=false;
+      if(btn){ btn.disabled=false; btn.textContent=t('stockPhotoRead'); }
     }
   });
   if(opts && opts.autoOcr){
     setTimeout(()=>sheetEl.querySelector('#qaOcr')?.click(), 120);
   }
-  sheetEl.querySelector('#qaQty')?.addEventListener('change', e=>{
-    const n = Number(String(e.target.value||'').replace(',','.'));
-    if(Number.isFinite(n) && n>=0) qty = roundStock(n);
-  });
+  sheetEl.querySelector('#qaQty')?.addEventListener('change', ()=>readQty());
   sheetEl.querySelector('#qaUnit')?.addEventListener('change', e=>{ unit = e.target.value || 'Stk'; });
   sheetEl.querySelector('#qaCat')?.addEventListener('change', e=>{ cat = e.target.value || 'custom'; });
 
@@ -9219,25 +9413,28 @@ function sheetStockQuickAdd(opts={}){
     state.house = prevHouse;
     return ok;
   };
+  const finishAdd = (pid, labelName, addQty, addUnit)=>{
+    insertStockOrderPid(pid, hid);
+    closeSheet();
+    state.house = hid;
+    withStockScrollPreserved(()=>render());
+    toastAction(T[state.lang].stockStepDone(labelName, addQty, addUnit), {
+      type:'success', actionLabel:t('stockUndo'), onAction:()=>undoLastStockStep(),
+    });
+  };
 
   sheetEl.querySelector('#qaSave').onclick=()=>{
     const name = (sheetEl.querySelector('#qaName')?.value || '').trim();
-    qty = Number(String(sheetEl.querySelector('#qaQty')?.value||'1').replace(',','.'));
+    readQty();
     unit = sheetEl.querySelector('#qaUnit')?.value || 'Stk';
     cat = sheetEl.querySelector('#qaCat')?.value || 'custom';
     if(!Number.isFinite(qty) || qty<=0){ toast(t('needQty'),'error'); return; }
-    qty = roundStock(qty);
 
     if(matchPid){
       const p = prod(matchPid);
       if(!p){ toast(t('needQty'),'error'); return; }
       if(!commitOne(matchPid, qty)) return;
-      closeSheet();
-      state.house = hid;
-      render();
-      toastAction(T[state.lang].stockStepDone(L(p), qty, p.unit), {
-        type:'success', actionLabel:t('stockUndo'), onAction:()=>undoLastStockStep(),
-      });
+      finishAdd(matchPid, L(p), qty, p.unit);
       return;
     }
     if(!name){ toast(t('stockFoodName'),'error'); nameInp?.focus(); return; }
@@ -9248,20 +9445,20 @@ function sheetStockQuickAdd(opts={}){
       toast(t('stockDupExact'),'info');
       return;
     }
+    // Freeze current list BEFORE catalogue grows — avoids empty-new items jumping to top.
+    {
+      const prevHouse = state.house;
+      state.house = hid;
+      ensureStockOrderFreeze();
+      state.house = prevHouse;
+    }
     DB.customProducts ||= [];
     const created={id:'cp-'+uid(),cat,de:name,el:name,unit,alias:[],custom:true};
     DB.customProducts.push(created);
     if(!save()){ DB.customProducts=DB.customProducts.filter(p=>p.id!==created.id); return; }
-    if(!commitOne(created.id, qty)){
-      // product exists with 0 — still ok
-    }
-    closeSheet();
-    state.house = hid;
+    commitOne(created.id, qty);
     feedback('save');
-    render();
-    toastAction(T[state.lang].stockStepDone(name, qty, unit), {
-      type:'success', actionLabel:t('stockUndo'), onAction:()=>undoLastStockStep(),
-    });
+    finishAdd(created.id, name, qty, unit);
   };
 
   sheetEl.querySelector('#qaBulkSave')?.addEventListener('click',()=>{
@@ -9269,8 +9466,10 @@ function sheetStockQuickAdd(opts={}){
     const lines = raw.split(/\n+/).map(s=>s.trim()).filter(Boolean);
     if(!lines.length){ toast(t('pickSomething')); return; }
     let n = 0;
+    const addedPids = [];
     const prevHouse = state.house;
     state.house = hid;
+    ensureStockOrderFreeze();
     lines.forEach(line=>{
       const m = line.match(/^(.*?)(?:\s+(\d+(?:[.,]\d+)?))?$/);
       const nm = (m?.[1]||line).trim();
@@ -9280,20 +9479,26 @@ function sheetStockQuickAdd(opts={}){
       q = roundStock(q);
       const hit = findStockNameMatches(nm).find(x=>x.score>=80);
       let pid = hit?.p.id;
+      let createdNew = false;
       if(!pid){
         DB.customProducts ||= [];
         const created={id:'cp-'+uid(),cat,de:nm,el:nm,unit,alias:[],custom:true};
         DB.customProducts.push(created);
         pid = created.id;
+        createdNew = true;
       }
-      if(applyStockDelta(pid, q, {silent:true, undoable:false})) n++;
+      if(applyStockDelta(pid, q, {silent:true, undoable:false})){
+        n++;
+        if(createdNew) addedPids.push(pid);
+      }
     });
     state.house = prevHouse;
     if(!n){ toast(t('pickSomething'),'error'); return; }
+    addedPids.forEach(pid=>insertStockOrderPid(pid, hid));
     closeSheet();
     state.house = hid;
     feedback('save');
-    render();
+    withStockScrollPreserved(()=>render());
     toast(T[state.lang].stockBulkAdded(n),'success');
   });
 
@@ -11536,23 +11741,203 @@ function journalDateLabel(dateStr){
     return new Date(y,m-1,d).toLocaleDateString(state.lang==='el'?'el-GR':'de-DE',{weekday:'long',day:'numeric',month:'long'});
   }catch{ return dateStr; }
 }
-function writeShiftJournalPage(employeeId, text, {mode='ink', dateStr=null}={}){
-  const addition=String(text||'').trim();
-  if(!addition) return null;
-  const day=dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? dateStr : iso(new Date());
-  const key=shiftNoteKey(employeeId, day);
-  DB.shiftNotes=DB.shiftNotes||{};
-  const prev=DB.shiftNotes[key];
-  let next;
-  if(mode==='rewrite'){
-    next=addition.slice(0,8000);
-  }else{
-    const stamp=`— ${journalTimeLabel()} —`;
-    const chunk=`${stamp}\n${addition}`;
-    next=(prev?.text ? `${prev.text}\n\n${chunk}` : chunk).slice(-8000);
+
+const HANDOFF_SECTION_KEYS = ['urgent','kids','stock','tasks','note'];
+
+function emptyHandoffSections(){
+  return {urgent:'', kids:'', stock:'', tasks:'', note:''};
+}
+function normalizeHandoffSections(raw){
+  const out = emptyHandoffSections();
+  if(!raw || typeof raw !== 'object') return out;
+  HANDOFF_SECTION_KEYS.forEach(k=>{
+    const v = String(raw[k]||'').trim();
+    if(v) out[k] = v.slice(0, 2000);
+  });
+  return out;
+}
+function handoffSectionsFromEntry(entry){
+  if(entry?.sections && typeof entry.sections === 'object'){
+    return normalizeHandoffSections(entry.sections);
   }
-  const entry={id:key, employeeId, date:day, text:next, ts:Date.now()};
-  DB.shiftNotes[key]=entry;
+  const out = emptyHandoffSections();
+  const text = String(entry?.text||'').trim();
+  if(text) out.note = text;
+  return out;
+}
+function handoffSectionsHaveContent(sections){
+  const s = normalizeHandoffSections(sections);
+  return HANDOFF_SECTION_KEYS.some(k=>!!s[k]);
+}
+function composeHandoffText(sections){
+  const s = normalizeHandoffSections(sections);
+  const labels = {
+    urgent: t('handoffSecUrgent'),
+    kids: t('handoffSecKids'),
+    stock: t('handoffSecStock'),
+    tasks: t('handoffSecTasks'),
+    note: t('handoffSecNote'),
+  };
+  const parts = [];
+  HANDOFF_SECTION_KEYS.forEach(k=>{
+    if(!s[k]) return;
+    parts.push(`${labels[k]}:\n${s[k]}`);
+  });
+  return parts.join('\n\n').slice(0, 8000);
+}
+function handoffAckCount(entry){
+  return Object.keys(entry?.acks||{}).length;
+}
+function handoffAckedBy(entry, employeeId){
+  if(!entry || !employeeId) return false;
+  if(entry.employeeId === employeeId) return true;
+  return !!(entry.acks && entry.acks[employeeId]);
+}
+function handoffNeedsAck(entry, employeeId){
+  if(!entry || !employeeId) return false;
+  if(entry.employeeId === employeeId) return false;
+  if(!(String(entry.text||'').trim())) return false;
+  return !handoffAckedBy(entry, employeeId);
+}
+function unackedHandoffsFor(employeeId, {dateStr=null, days=3}={}){
+  if(!employeeId) return [];
+  const today = iso(new Date());
+  let from = dateStr;
+  if(!from){
+    const d = new Date();
+    d.setDate(d.getDate()-(days-1));
+    from = iso(d);
+  }
+  return Object.values(DB.shiftNotes||{})
+    .filter(n=>{
+      if(!n || n.employeeId===employeeId) return false;
+      if(!(String(n.text||'').trim())) return false;
+      if(dateStr) return n.date===dateStr && handoffNeedsAck(n, employeeId);
+      return n.date>=from && n.date<=today && handoffNeedsAck(n, employeeId);
+    })
+    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+}
+function readHandoffFormSections(root=document){
+  const out = emptyHandoffSections();
+  HANDOFF_SECTION_KEYS.forEach(k=>{
+    const el = root.querySelector(`[data-handoff-sec="${k}"]`);
+    if(el) out[k] = String(el.value||'').trim();
+  });
+  return out;
+}
+function ackShiftHandoff(noteKey, employeeId){
+  DB.shiftNotes = DB.shiftNotes || {};
+  const entry = DB.shiftNotes[noteKey];
+  if(!entry || !employeeId || entry.employeeId===employeeId) return null;
+  const who = emp(employeeId);
+  entry.acks = Object.assign({}, entry.acks||{}, {
+    [employeeId]: {ts:Date.now(), name:who?.name||employeeId},
+  });
+  DB.shiftNotes[noteKey] = entry;
+  logEntry('SHIFT', `${t('handoffAcked')}: ${who?.name||employeeId}`);
+  return entry;
+}
+function handoffSectionsHtml(sections, {editable=false, mode='ink', seed=null}={}){
+  const s = editable
+    ? (mode==='rewrite' ? normalizeHandoffSections(seed||sections) : emptyHandoffSections())
+    : normalizeHandoffSections(sections);
+  if(editable){
+    return `<div class="handoff-sections write">
+      ${HANDOFF_SECTION_KEYS.map(k=>`<label class="f handoff-sec">
+        <span>${esc(t('handoffSec'+k.charAt(0).toUpperCase()+k.slice(1)))}</span>
+        <textarea data-handoff-sec="${k}" rows="${k==='note'?3:2}" placeholder="${esc(t('handoffSec'+k.charAt(0).toUpperCase()+k.slice(1)+'Ph'))}">${esc(s[k]||'')}</textarea>
+      </label>`).join('')}
+    </div>`;
+  }
+  const filled = HANDOFF_SECTION_KEYS.filter(k=>s[k]);
+  if(!filled.length){
+    const legacy = String(seed?.text||sections?.text||'').trim();
+    return legacy
+      ? `<div class="journal-ink">${esc(legacy)}</div>`
+      : `<div class="journal-blank">${esc(t('journalEmptyPage'))}</div>`;
+  }
+  return `<div class="handoff-sections read">${filled.map(k=>`
+    <div class="handoff-sec-block ${k==='urgent'?'is-urgent':''}">
+      <div class="handoff-sec-label">${esc(t('handoffSec'+k.charAt(0).toUpperCase()+k.slice(1)))}</div>
+      <div class="handoff-sec-body">${esc(s[k])}</div>
+    </div>`).join('')}</div>`;
+}
+function handoffPageCardHtml(n, {mine=false}={}){
+  const e = emp(n.employeeId);
+  const need = !mine && handoffNeedsAck(n, state.user?.id);
+  const acks = handoffAckCount(n);
+  const house = n.houseId ? houseShort(n.houseId) : '';
+  return `<article class="journal-past-page handoff-page ${need?'needs-ack':''}" data-handoff-id="${esc(n.id||'')}">
+    <header>
+      <div class="avatar" style="background:${e?.color||'#94a3b8'}">${esc(e?initials(e.name):'?')}</div>
+      <div class="grow">
+        <b>${esc(e?.name||'—')}</b>
+        <span class="muted">${esc(journalDateLabel(n.date))}${house?` · ${esc(house)}`:''}</span>
+      </div>
+      <div class="handoff-page-meta">
+        <span class="muted">${fmtDT(n.ts)}</span>
+        <span class="pill ${need?'out':(acks?'in':'gray')}">${need?esc(t('handoffAckPending')):esc(T[state.lang].handoffAckedBy(Math.max(acks, mine?0:acks)))}</span>
+      </div>
+    </header>
+    ${handoffSectionsHtml(handoffSectionsFromEntry(n))}
+    ${need?`<div class="handoff-ack-row">
+      <button class="btn" type="button" data-handoff-ack="${esc(n.id)}">${esc(t('handoffAck'))}</button>
+    </div>`:''}
+  </article>`;
+}
+
+function writeShiftJournalPage(employeeId, text, {mode='ink', dateStr=null, sections=null, houseId=null}={}){
+  const day = dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? dateStr : iso(new Date());
+  const key = shiftNoteKey(employeeId, day);
+  DB.shiftNotes = DB.shiftNotes || {};
+  const prev = DB.shiftNotes[key];
+  let nextSections = emptyHandoffSections();
+  let addition = '';
+
+  if(sections && typeof sections === 'object'){
+    const incoming = normalizeHandoffSections(sections);
+    if(!handoffSectionsHaveContent(incoming)) return null;
+    addition = composeHandoffText(incoming);
+    if(mode==='rewrite' || !prev){
+      nextSections = incoming;
+    }else{
+      nextSections = handoffSectionsFromEntry(prev);
+      const stamp = `— ${journalTimeLabel()} —`;
+      HANDOFF_SECTION_KEYS.forEach(k=>{
+        if(!incoming[k]) return;
+        nextSections[k] = nextSections[k]
+          ? `${nextSections[k]}\n\n${stamp}\n${incoming[k]}`
+          : incoming[k];
+      });
+    }
+  }else{
+    addition = String(text||'').trim();
+    if(!addition) return null;
+    if(mode==='rewrite'){
+      nextSections.note = addition.slice(0,8000);
+    }else{
+      nextSections = handoffSectionsFromEntry(prev);
+      const stamp = `— ${journalTimeLabel()} —`;
+      nextSections.note = nextSections.note
+        ? `${nextSections.note}\n\n${stamp}\n${addition}`
+        : addition;
+    }
+  }
+
+  const composed = composeHandoffText(nextSections) || addition;
+  if(!composed.trim()) return null;
+  const hid = houseId || (isPro() ? (state.bookHouse||null) : null) || prev?.houseId || null;
+  const entry = {
+    id: key,
+    employeeId,
+    date: day,
+    text: composed.slice(0,8000),
+    sections: nextSections,
+    houseId: hid || null,
+    acks: {},
+    ts: Date.now(),
+  };
+  DB.shiftNotes[key] = entry;
   logEntry('SHIFT', `${t('typeSHIFT')}: ${addition.slice(0,180)}`, {date:day});
   return entry;
 }
@@ -11582,17 +11967,22 @@ function openBookJournal({focusWrite=false, keepDay=false}={}){
   state.bookPane = 'shift';
   state.bookJournalMode = 'ink';
   render();
-  if(focusWrite) queueMicrotask(()=>document.getElementById('shiftNoteText')?.focus());
+  if(focusWrite) queueMicrotask(()=>{
+    const first = document.querySelector('[data-handoff-sec="urgent"]') || document.getElementById('shiftNoteText');
+    first?.focus();
+  });
 }
 
 function bookJournalMarkersForMonth(y, m){
+  const me = state.user?.id;
   const markers = new Map();
   Object.values(DB.shiftNotes||{}).forEach(n=>{
     if(!n || !n.text || !n.date) return;
     const [yy, mm] = String(n.date).split('-').map(Number);
     if(yy!==y || mm!==m+1) return;
-    const cur = markers.get(n.date) || {pages:0};
+    const cur = markers.get(n.date) || {pages:0, unread:0};
     cur.pages += 1;
+    if(me && handoffNeedsAck(n, me)) cur.unread += 1;
     markers.set(n.date, cur);
   });
   return markers;
@@ -11618,21 +12008,41 @@ function bookCalendarHtml(){
     <p class="book-cal-hint">${esc(t('bookCalHint'))}</p>
     <div class="cal-legend" aria-hidden="true">
       <span><i class="bk"></i>${esc(t('bookCalLegend'))}</span>
+      <span><i class="ur"></i>${esc(t('bookCalLegendUnread'))}</span>
     </div>
     <div class="cal-weekdays">${DAY_NAMES[state.lang].map(dn=>`<span>${esc(dn.slice(0,2))}</span>`).join('')}</div>
     <div class="cal-grid" role="grid" aria-label="${esc(monthName)}">${cells.map(c=>{
       if(!c) return `<div class="cal-cell empty" role="presentation"></div>`;
       const on = c.ds===selected, isToday = c.ds===today;
       const has = !!(c.mark && c.mark.pages);
-      const dots = has ? `<span class="cal-dots"><i class="bk"></i></span>` : '';
-      return `<button type="button" class="cal-cell ${on?'on':''} ${isToday?'today':''} ${has?'has':''}" data-book-cal-date="${c.ds}"
+      const unread = !!(c.mark && c.mark.unread);
+      const dots = has
+        ? `<span class="cal-dots"><i class="bk"></i>${unread?'<i class="ur"></i>':''}</span>`
+        : '';
+      return `<button type="button" class="cal-cell ${on?'on':''} ${isToday?'today':''} ${has?'has':''} ${unread?'unread':''}" data-book-cal-date="${c.ds}"
         role="gridcell" aria-pressed="${on?'true':'false'}"
-        aria-label="${esc(c.d + (isToday ? ' · ' + t('today') : '') + (has ? ' · ' + T[state.lang].journalPages(c.mark.pages) : ''))}">
+        aria-label="${esc(c.d + (isToday ? ' · ' + t('today') : '') + (has ? ' · ' + T[state.lang].journalPages(c.mark.pages) : '') + (unread ? ' · ' + t('bookCalLegendUnread') : ''))}">
         <span class="cal-n">${c.d}</span>${dots}</button>`;
     }).join('')}</div>
     <div class="book-cal-actions">
       <button class="btn sm sec" type="button" id="bookCalToday">${esc(t('bookCalToday'))}</button>
       <span class="muted book-cal-sel">${esc(journalDateLabel(selected))}</span>
+    </div>
+  </section>`;
+}
+
+function handoffFlowHtml(){
+  return `<section class="handoff-flow" aria-label="${esc(t('handoffFlowTitle'))}">
+    <div class="handoff-flow-kicker">${esc(t('handoffFlowTitle'))}</div>
+    <div class="handoff-flow-steps">
+      <div class="handoff-flow-step">
+        <span class="num" aria-hidden="true">1</span>
+        <div><b>${esc(t('handoffFlowWrite'))}</b><span>${esc(t('handoffFlowWriteHint'))}</span></div>
+      </div>
+      <div class="handoff-flow-step">
+        <span class="num" aria-hidden="true">2</span>
+        <div><b>${esc(t('handoffFlowRead'))}</b><span>${esc(t('handoffFlowReadHint'))}</span></div>
+      </div>
     </div>
   </section>`;
 }
@@ -11646,22 +12056,53 @@ function shiftDiaryCard(){
   const written=!!(mine?.text||'').trim();
   const mode=state.bookJournalMode==='rewrite'?'rewrite':'ink';
   const dayPages=Object.values(DB.shiftNotes||{})
-    .filter(n=>n && n.text && n.date===day)
+    .filter(n=>{
+      if(!n || !n.text || n.date!==day) return false;
+      if(isPro() && state.bookHouse && n.houseId && n.houseId!==state.bookHouse) return false;
+      return true;
+    })
     .sort((a,b)=>{
       if(a.employeeId===state.user.id) return -1;
       if(b.employeeId===state.user.id) return 1;
+      const au = handoffNeedsAck(a, state.user.id) ? 0 : 1;
+      const bu = handoffNeedsAck(b, state.user.id) ? 0 : 1;
+      if(au!==bu) return au-bu;
       return (b.ts||0)-(a.ts||0);
     });
   const team=dayPages.filter(n=>n.employeeId!==state.user.id);
-  const pageBody=(mine?.text||'').trim();
+  const incoming = team.filter(n=>handoffNeedsAck(n, state.user.id));
   const dutyLabel = isToday
     ? (written ? t('journalPageDone') : t('journalMustWrite'))
     : (written ? t('journalDayDone') : t('journalDayEmpty'));
   const dutyCls = written ? 'ok' : (isToday ? 'must' : 'ok');
+  const mineSections = handoffSectionsFromEntry(mine);
+  const housePicker = isPro() ? `<div class="handoff-house-row pro-only mode-pro-block">
+    <span class="book-filter-label">${esc(t('handoffHouseLabel'))}</span>
+    <div class="book-chips" role="group">
+      <button type="button" class="book-chip ${!state.bookHouse?'on':''}" data-book-house="">${esc(t('handoffHouseAll'))}</button>
+      ${(DB.houses||[]).map(h=>`<button type="button" class="book-chip ${state.bookHouse===h.id?'on':''}" data-book-house="${esc(h.id)}">${esc(h.short||h.name)}</button>`).join('')}
+    </div>
+  </div>` : '';
+
+  const incomingBlock = `<section class="handoff-incoming ${incoming.length?'has':''}">
+    <div class="row between book-panel-head">
+      <h2 style="font-size:15px">${esc(t('handoffIncoming'))}</h2>
+      <span class="pill ${incoming.length?'out':'gray'}">${incoming.length||'·'}</span>
+    </div>
+    ${incoming.length
+      ? incoming.map(n=>handoffPageCardHtml(n)).join('')
+      : `<div class="empty muted">${esc(t('handoffIncomingEmpty'))}</div>`}
+  </section>`;
+
   const proArchive = isPro() ? (()=>{
     const from=bookRangeFromTs();
     const archive=Object.values(DB.shiftNotes||{})
-      .filter(n=>n && n.text && n.date!==day && (!from || (n.ts||0)>=from))
+      .filter(n=>{
+        if(!n || !n.text || n.date===day) return false;
+        if(from && (n.ts||0)<from) return false;
+        if(state.bookHouse && n.houseId && n.houseId!==state.bookHouse) return false;
+        return true;
+      })
       .sort((a,b)=>(b.ts||0)-(a.ts||0))
       .slice(0,40);
     return `<section class="journal-archive pro-only mode-pro-block">
@@ -11680,19 +12121,22 @@ function shiftDiaryCard(){
             </div>
             <span class="muted">${fmtDT(n.ts)}</span>
           </header>
-          <div class="journal-ink past">${esc(n.text)}</div>
+          ${handoffSectionsHtml(handoffSectionsFromEntry(n))}
         </article>`;
       }).join('') : `<div class="empty">${t('shiftDiaryEmpty')}</div>`}
     </section>`;
   })() : '';
 
   return `<div class="journal-book">
+    ${handoffFlowHtml()}
     ${bookCalendarHtml()}
-    <div class="journal-duty ${dutyCls}">
-      <span>${dutyLabel}</span>
+    ${housePicker}
+    <div class="journal-duty ${dutyCls} ${isToday?'is-today':''}">
+      <span>${isToday?`<b class="handoff-today-mark">${esc(t('handoffMineSpotlight'))}</b> · `:''}${dutyLabel}</span>
       <span class="pill ${written?'in':(isToday?'out':'gray')}">${written?'✓':(isToday?'!':'·')}</span>
     </div>
     ${isToday ? shiftStockCheckBannerHtml() : ''}
+    ${incomingBlock}
     <article class="journal-spread" aria-label="${esc(t('shiftDiaryMine'))}">
       <div class="journal-spine" aria-hidden="true"></div>
       <div class="journal-page">
@@ -11707,22 +12151,21 @@ function shiftDiaryCard(){
           </div>
         </header>
         <div class="journal-ruled">
-          ${pageBody
-            ? `<div class="journal-ink">${esc(pageBody)}</div>`
+          ${written
+            ? handoffSectionsHtml(mineSections)
             : `<div class="journal-blank">${esc(t('journalEmptyPage'))}</div>`}
         </div>
         <footer class="journal-sign">
           <span>${t('journalSigned')}</span>
           <b>${esc(state.user.name)}</b>
           ${mine?.ts?`<span class="muted">${fmtDT(mine.ts)}</span>`:''}
+          ${written?`<span class="pill gray">${esc(T[state.lang].handoffAckedBy(handoffAckCount(mine)))}</span>`:''}
         </footer>
       </div>
     </article>
     <div class="journal-write">
       <p class="journal-write-hint">${mode==='rewrite'?t('journalRewrite'):t('journalInkHint')}</p>
-      <label class="f"><span>${mode==='rewrite'?t('journalRewrite'):t('journalContinue')}</span>
-        <textarea id="shiftNoteText" rows="5" placeholder="${esc(t('shiftDiaryPh'))}">${mode==='rewrite'?esc(pageBody):''}</textarea>
-      </label>
+      ${handoffSectionsHtml(mineSections, {editable:true, mode, seed:mineSections})}
       <div class="journal-write-actions">
         <button class="btn" id="shiftNoteSave" type="button">${mode==='rewrite'?t('journalRewriteSave'):t('shiftDiarySave')}</button>
         ${written?`<button class="btn sec" id="shiftNoteMode" type="button" data-journal-mode="${mode==='rewrite'?'ink':'rewrite'}">${mode==='rewrite'?t('journalContinue'):t('journalRewrite')}</button>`:''}
@@ -11733,22 +12176,13 @@ function shiftDiaryCard(){
         <h2 style="font-size:15px">${t('bookDayPages')}</h2>
         <span class="pill gray">${T[state.lang].journalPages(dayPages.length)}</span>
       </div>
-      ${team.length ? team.map(n=>{
-        const e=emp(n.employeeId);
-        return `<article class="journal-past-page">
-          <header>
-            <div class="avatar" style="background:${e?.color||'#94a3b8'}">${esc(e?initials(e.name):'?')}</div>
-            <div class="grow">
-              <b>${esc(e?.name||'—')}</b>
-              <span class="muted">${esc(journalDateLabel(n.date))} · ${esc(n.date)}</span>
-            </div>
-            <span class="muted">${fmtDT(n.ts)}</span>
-          </header>
-          <div class="journal-ink past">${esc(n.text)}</div>
-        </article>`;
-      }).join('') : (written
-        ? `<div class="empty muted">${esc(t('shiftDiaryTeam'))}: —</div>`
-        : `<div class="empty">${t('shiftDiaryEmpty')}</div>`)}
+      ${(()=>{
+        const rest=team.filter(n=>!handoffNeedsAck(n, state.user.id));
+        if(rest.length) return rest.map(n=>handoffPageCardHtml(n)).join('');
+        if(incoming.length) return `<div class="empty muted">${esc(t('shiftDiaryTeam'))}: —</div>`;
+        if(written) return `<div class="empty muted">${esc(t('shiftDiaryTeam'))}: —</div>`;
+        return `<div class="empty">${t('shiftDiaryEmpty')}</div>`;
+      })()}
     </section>
     ${proArchive}
   </div>`;
@@ -13035,15 +13469,40 @@ function kidGuideHtml(view){
   </div>`;
 }
 
-function kidDockHtml(active){
-  const items = [
-    {id:'today', label:t('kidNavStart'), ico:'u-home'},
-    {id:'games', label:t('kidNavGames'), ico:'u-party'},
-    {id:'rate', label:t('kidNavRate'), ico:'u-target'},
-    {id:'bonus', label:t('kidBonusTitle'), ico:'u-sparkle'},
-    {id:'notes', label:t('kidNotesTitle'), ico:'u-note'},
+function kidPrimaryNavItems(){
+  return [
+    {id:'today', label:t('kidNavStart'), ico:'u-home', hint:t('kidGuideHintStart')},
+    {id:'games', label:t('kidNavGames'), ico:'u-party', hint:t('kidGuideHintGames')},
+    {id:'rate', label:t('kidNavRate'), ico:'u-target', hint:t('kidGuideHintRate')},
+    {id:'bonus', label:t('kidBonusTitle'), ico:'u-sparkle', hint:t('kidGuideHintBonus')},
+    {id:'notes', label:t('kidNotesTitle'), ico:'u-note', hint:t('kidGuideHintNotes')},
   ];
-  return `<nav class="kid-dock" aria-label="Kids" data-kid-dock>
+}
+
+function kidMoreNavItems(){
+  const easy = isEasy();
+  return [
+    {id:'plan', label:t('kidNavPlan'), ico:'u-calendar', hint:t('kidGuideHintPlan')},
+    {id:'learn', label:t('kidNavLearn'), ico:'u-book', hint:t('kidGuideHintLearn')},
+    {id:'rewards', label:t('kidNavStars'), ico:'u-sparkle', hint:t('kidGuideHintStars')},
+    {id:'aufgaben', label:t('kidCourseTasks'), ico:'u-tasks', hint:t('kidGuideHintStart'), pro:true},
+    {id:'events', label:t('childEvents'), ico:'u-party', hint:t('childHowToEvents'), pro:true},
+    {id:'gallery', label:t('galleryChildTab')||t('navGallery'), ico:'u-camera', hint:t('childHowToGallery'), pro:true},
+  ].filter(r=>!r.pro || !easy);
+}
+
+function kidMoreExtraItems(){
+  const easy = isEasy();
+  return [
+    {id:'howto', label:t('childHowTo'), ico:'u-sparkle', hint:easy?'':t('childHowToHint')},
+    {id:'feedback', label:t('feedbackTitle'), ico:'u-note', hint:easy?'':t('feedbackHint'), pro:true},
+  ].filter(r=>!r.pro || !easy);
+}
+
+function kidDockHtml(active){
+  const items = kidPrimaryNavItems();
+  return `<nav class="kid-dock" aria-label="${esc(t('kidMenuTitle'))}" data-kid-dock>
+    <p class="kid-dock-label" aria-hidden="true">${esc(t('kidMenuPages'))}</p>
     ${items.map(it=>`
     <button type="button" class="${active===it.id?'on':''}" data-child-view="${it.id}" data-tour="kid-nav-${it.id}">
       ${ui(it.ico,'nav-ico')}
@@ -13056,32 +13515,7 @@ function kidDockHtml(active){
   </nav>`;
 }
 
-function sheetKidMore(){
-  const easy = isEasy();
-  const rows = [
-    {id:'plan', label:t('kidNavPlan'), ico:'u-calendar', hint:t('kidGuideHintPlan')},
-    {id:'learn', label:t('kidNavLearn'), ico:'u-book', hint:t('kidGuideHintLearn')},
-    {id:'rewards', label:t('kidNavStars'), ico:'u-sparkle', hint:t('kidGuideHintStars')},
-    {id:'aufgaben', label:t('kidCourseTasks'), ico:'u-tasks', hint:t('kidGuideHintStart'), pro:true},
-    {id:'events', label:t('childEvents'), ico:'u-party', hint:t('childHowToEvents'), pro:true},
-    {id:'gallery', label:t('galleryChildTab')||t('navGallery'), ico:'u-camera', hint:t('childHowToGallery'), pro:true},
-  ].filter(r=>!r.pro || !easy);
-  const extras = [
-    {id:'howto', label:t('childHowTo'), ico:'u-sparkle', hint:easy?'':t('childHowToHint')},
-    {id:'feedback', label:t('feedbackTitle'), ico:'u-note', hint:easy?'':t('feedbackHint'), pro:true},
-  ].filter(r=>!r.pro || !easy);
-  openNavMenu(`<div class="nav-menu-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2></div>
-    <div class="nav-menu-list" role="menu">
-      ${rows.map(r=>navMenuRowHtml({
-        attrs:`data-child-view="${r.id}" role="menuitem"`,
-        ico:r.ico, label:r.label, hint:easy?'':r.hint,
-      })).join('')}
-      ${extras.map(r=>navMenuRowHtml({
-        attrs:`data-kid-more-act="${r.id}" role="menuitem"`,
-        ico:r.ico, label:r.label, hint:r.hint,
-      })).join('')}
-    </div>`);
-  const root = sheetEl;
+function wireKidSiteMenuRoot(root){
   root.querySelectorAll('[data-kid-more-act]').forEach(b=>{
     b.onclick=()=>{
       const act = b.dataset.kidMoreAct;
@@ -13097,6 +13531,50 @@ function sheetKidMore(){
       goChildView(next);
     };
   });
+}
+
+/** Full website-style kids menu (mobile hamburger / desktop Mehr overflow). */
+function openKidSiteMenu(){
+  const easy = isEasy();
+  const active = kidDockActiveView(state.childView);
+  const primary = kidPrimaryNavItems();
+  const more = kidMoreNavItems();
+  const extras = kidMoreExtraItems();
+  openSheet(`<div class="nav-menu-head kid-site-menu-head">
+      <span class="brand-kicker">Armonia</span>
+      <h2>${esc(t('kidMenuTitle'))}</h2>
+    </div>
+    <p class="nav-menu-section">${esc(t('kidMenuPages'))}</p>
+    <div class="nav-menu-list" role="menu">
+      ${primary.map(r=>navMenuRowHtml({
+        attrs:`data-child-view="${r.id}" role="menuitem" data-tour="kid-nav-${r.id}"`,
+        ico:r.ico, label:r.label, hint:easy?'':r.hint, on:active===r.id,
+      })).join('')}
+    </div>
+    <p class="nav-menu-section">${esc(t('kidMenuMoreLabel'))}</p>
+    <div class="nav-menu-list" role="menu">
+      ${more.map(r=>navMenuRowHtml({
+        attrs:`data-child-view="${r.id}" role="menuitem"`,
+        ico:r.ico, label:r.label, hint:easy?'':r.hint, on:active==='more' && ['plan','learn','rewards'].includes(r.id),
+      })).join('')}
+      ${extras.map(r=>navMenuRowHtml({
+        attrs:`data-kid-more-act="${r.id}" role="menuitem"${r.id==='howto'?' data-tour="kid-nav-more"':''}`,
+        ico:r.ico, label:r.label, hint:r.hint,
+      })).join('')}
+    </div>`, {dismissable:true, kind:'kid-site-menu'});
+  wireKidSiteMenuRoot(sheetEl);
+}
+
+function sheetKidMore(){
+  /* Prefer full site menu so kids always see Start…Notizen + Mehr in one place. */
+  openKidSiteMenu();
+}
+
+function kidMenuBtnHtml(){
+  return `<button type="button" class="kid-menu-btn" id="kidMenuBtn" data-tour="kid-nav-more" aria-haspopup="dialog" aria-expanded="false" aria-label="${esc(t('kidMenu'))}">
+    <span class="kid-menu-burger" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span>${esc(t('kidMenu'))}</span>
+  </button>`;
 }
 
 function wireKidChrome(root){
@@ -13127,35 +13605,46 @@ function wireKidChrome(root){
     backBtn.dataset.kidNavWired = '1';
     backBtn.onclick = ()=>kidGoBack();
   }
+  const menuBtn = root?.querySelector('#kidMenuBtn');
+  if(menuBtn && menuBtn.dataset.kidNavWired!=='1'){
+    menuBtn.dataset.kidNavWired = '1';
+    menuBtn.onclick = ()=>{ try{ feedback('open'); }catch{} openKidSiteMenu(); };
+  }
 }
 
 function mountKidDock(active){
   const bottom = document.getElementById('bottomPanel');
   if(!bottom) return;
+  const desktop = document.body.classList.contains('layout-desktop')
+    || window.matchMedia('(min-width:900px)').matches;
   bottom.style.display = '';
   bottom.classList.add('is-kid-chrome');
+  bottom.classList.toggle('is-kid-mobile-menu', !desktop);
   const staffNav = bottom.querySelector('nav.dock[data-staff-dock]');
   if(staffNav){
     staffNav.style.display = 'none';
     staffNav.classList.add('is-staff-hidden');
   }
   const brand = bottom.querySelector('.dock-brand');
-  if(brand) brand.hidden = false;
+  if(brand) brand.hidden = !desktop;
   const dockZo = document.getElementById('dockZoAi');
   if(dockZo) dockZo.hidden = true;
   bottom.querySelector('nav.kid-dock')?.remove();
-  bottom.insertAdjacentHTML('beforeend', kidDockHtml(active));
-  const dock = bottom.querySelector('nav.kid-dock');
-  wireKidChrome(dock);
-  const more = dock?.querySelector('#kidDockMore');
-  if(more) more.onclick = ()=>{ try{ feedback('open'); }catch{} sheetKidMore(); };
+  /* Desktop: visible side site menu. Mobile: hamburger in header owns nav. */
+  if(desktop){
+    bottom.insertAdjacentHTML('beforeend', kidDockHtml(active));
+    const dock = bottom.querySelector('nav.kid-dock');
+    wireKidChrome(dock);
+    const more = dock?.querySelector('#kidDockMore');
+    if(more) more.onclick = ()=>{ try{ feedback('open'); }catch{} openKidSiteMenu(); };
+  }
 }
 
 function unmountKidDock(){
   const bottom = document.getElementById('bottomPanel');
   if(!bottom) return;
   clearKidHist();
-  bottom.classList.remove('is-kid-chrome');
+  bottom.classList.remove('is-kid-chrome', 'is-kid-mobile-menu');
   bottom.querySelector('nav.kid-dock')?.remove();
   const staffNav = bottom.querySelector('nav.dock[data-staff-dock]');
   if(staffNav){
@@ -14613,17 +15102,9 @@ function renderChild(){
   try{ paintUiModeToggle(); }catch(err){ console.error('paintUiModeToggle failed', err); }
   const tools=document.getElementById('topTools');
   if(tools){
-    const dockActivePreview = kidDockActiveView(state.childView);
     tools.hidden = false;
-    tools.innerHTML = `<div class="kid-top-nav" role="navigation" aria-label="Kids">
-      ${[
-        {id:'today', label:t('kidNavStart')},
-        {id:'games', label:t('kidNavGames')},
-        {id:'rate', label:t('kidNavRate')},
-        {id:'bonus', label:t('kidBonusTitle')},
-        {id:'notes', label:t('kidNotesTitle')},
-      ].map(it=>`<button type="button" class="chip ${dockActivePreview===it.id?'on':''}" data-child-view="${it.id}">${esc(it.label)}</button>`).join('')}
-      <button type="button" class="chip ${dockActivePreview==='more'?'on':''}" id="kidTopMore">${esc(t('navMore'))}</button>
+    tools.innerHTML = `<div class="kid-top-nav kid-site-chrome" role="navigation" aria-label="${esc(t('kidMenuTitle'))}">
+      ${kidMenuBtnHtml()}
     </div>`;
   }
   document.body.classList.add('mode-child');
@@ -14639,8 +15120,6 @@ function renderChild(){
 
   const dockActive = kidDockActiveView(state.childView);
   try{ mountKidDock(dockActive); }catch(err){ console.error('mountKidDock failed', err); }
-  const topMore = document.getElementById('kidTopMore');
-  if(topMore) topMore.onclick = ()=>{ try{ feedback('open'); }catch{} sheetKidMore(); };
   wireKidChrome(document.getElementById('topTools'));
 
   let viewBody;
@@ -17099,14 +17578,18 @@ function onTopAction(id){
   if(id==='bookFix'){ sheetCorrection(); return; }
 }
 
+let helpChatVoice = null;
+
 function closeChatPanel(){
+  try{ helpChatVoice?.stop?.(); }catch{}
+  helpChatVoice=null;
   stopTalkPanelPoll();
   state.chatOpen=false;
   document.body.classList.remove('chat-open');
   const body=document.getElementById('chatBody');
   if(body) body.replaceChildren();
-  scheduleMeasureChrome();
-  paintTopChrome();
+  try{ scheduleMeasureChrome(); }catch{}
+  try{ paintTopChrome(); }catch{}
 }
 
 function toggleChatPanel(){
@@ -17137,40 +17620,78 @@ function stopTalkPanelPoll(){
   if(talkPanelPoll){ clearInterval(talkPanelPoll); talkPanelPoll=null; }
 }
 
-function openChatPanel(mode='ai'){
-  // Employee team chat is a dedicated tab — never reopen it inside Zo-Ai.
-  if(mode==='talk'){ openStaffTalk(); return; }
-  if(mode==='help') mode='ai';
-  mode='ai';
-
-  stopTalkPanelPoll();
+function clearZoAiOverlays(){
   try{ zoaiTipHide(); }catch{}
-  state.chatMode=mode;
-  state.chatOpen=true;
-  document.body.classList.add('chat-open');
-  const bottom=document.getElementById('bottomPanel');
-  if(bottom) bottom.style.display='';
-
-  const seg=document.getElementById('chatModeSeg');
-  if(seg){ seg.hidden=true; seg.setAttribute('aria-hidden','true'); seg.replaceChildren(); }
-  const title=document.getElementById('chatPanelTitle');
-  if(title){
-    title.hidden=false;
-    // ui() returns SVG markup — must use innerHTML (textContent escapes tags).
-    title.innerHTML = `${ui('u-sparkle')} ${esc(t('helpChat'))}`;
+  try{ tipHide(); }catch{}
+  document.body.classList.remove('zoai-tip-open');
+  const tipRoot=document.getElementById('zoaiTipRoot');
+  if(tipRoot){
+    tipRoot.hidden=true;
+    tipRoot.classList.remove('zoai-tip-on');
   }
-  const closeBtn=document.getElementById('chatClose');
-  if(closeBtn) closeBtn.setAttribute('aria-label', t('close'));
-  paintTopChrome();
-  paintChatPanel();
-  scheduleMeasureChrome();
+}
+
+function openChatPanel(mode='ai'){
+  try{
+    // Employee team chat is a dedicated tab — never reopen it inside Zo-Ai.
+    if(mode==='talk'){ openStaffTalk(); return; }
+    if(mode==='help') mode='ai';
+    mode='ai';
+
+    stopTalkPanelPoll();
+    clearZoAiOverlays();
+    // Stuck sheet-open hides the FAB; clear dismissable sheets so chat can open.
+    if(document.body.classList.contains('sheet-open') && !sheetLocked){
+      try{ closeSheet(); }catch{}
+    }
+
+    const panel=document.getElementById('chatPanel');
+    const body=document.getElementById('chatBody');
+    if(!panel || !body){
+      state.chatOpen=false;
+      document.body.classList.remove('chat-open');
+      try{ toast(t('unexpectedError'),'error'); }catch{}
+      return;
+    }
+
+    state.chatMode=mode;
+    state.chatOpen=true;
+    document.body.classList.add('chat-open');
+    const bottom=document.getElementById('bottomPanel');
+    if(bottom) bottom.style.display='';
+
+    const seg=document.getElementById('chatModeSeg');
+    if(seg){ seg.hidden=true; seg.setAttribute('aria-hidden','true'); seg.replaceChildren(); }
+    const title=document.getElementById('chatPanelTitle');
+    if(title){
+      title.hidden=false;
+      // ui() returns SVG markup — must use innerHTML (textContent escapes tags).
+      title.innerHTML = `${ui('u-sparkle')} ${esc(t('helpChat'))}`;
+    }
+    const closeBtn=document.getElementById('chatClose');
+    if(closeBtn) closeBtn.setAttribute('aria-label', t('close'));
+    try{ paintTopChrome(); }catch{}
+    paintChatPanel();
+    try{ scheduleMeasureChrome(); }catch{}
+  }catch(err){
+    console.error('openChatPanel failed', err);
+    state.chatOpen=false;
+    document.body.classList.remove('chat-open');
+    try{ toast(t('unexpectedError'),'error'); }catch{}
+  }
 }
 
 function paintChatPanel(){
   const body=document.getElementById('chatBody');
   if(!body || !state.chatOpen) return;
   stopTalkPanelPoll();
-  mountHelpChat(body);
+  try{ mountHelpChat(body); }
+  catch(err){
+    console.error('mountHelpChat failed', err);
+    try{
+      body.innerHTML=`<div class="status error">${esc(t('unexpectedError'))}</div>`;
+    }catch{}
+  }
 }
 
 function talkPageActive(){
@@ -17567,21 +18088,23 @@ function measureChrome(){
       document.body.style.setProperty('--kid-dock-h', '0px');
       root.style.setProperty('--rail-w', '200px');
       document.body.style.setProperty('--rail-w', '200px');
-    }else if(kidDock){
-      const style=getComputedStyle(kidDock);
-      if(style.display!=='none' && style.visibility!=='hidden'){
-        navH=Math.ceil(kidDock.getBoundingClientRect().height)||64;
-      }
-      root.style.setProperty('--kid-dock-h', navH+'px');
-      document.body.style.setProperty('--kid-dock-h', navH+'px');
-      root.style.setProperty('--rail-w', '0px');
-      document.body.style.setProperty('--rail-w', '0px');
     }else{
-      navH=64;
-      root.style.setProperty('--kid-dock-h', '64px');
-      document.body.style.setProperty('--kid-dock-h', '64px');
+      /* Mobile: hamburger site menu — no bottom dock. */
+      navH=0;
+      root.style.setProperty('--kid-dock-h', '0px');
+      document.body.style.setProperty('--kid-dock-h', '0px');
       root.style.setProperty('--rail-w', '0px');
       document.body.style.setProperty('--rail-w', '0px');
+      if(kidDock){
+        const style=getComputedStyle(kidDock);
+        if(style.display!=='none' && style.visibility!=='hidden'){
+          navH=Math.ceil(kidDock.getBoundingClientRect().height)||0;
+          if(navH){
+            root.style.setProperty('--kid-dock-h', navH+'px');
+            document.body.style.setProperty('--kid-dock-h', navH+'px');
+          }
+        }
+      }
     }
   }else{
     root.style.setProperty('--kid-dock-h', '0px');
@@ -17875,7 +18398,7 @@ function wire(){
     btn.onclick=()=>{ state.tab='kids'; state.staffKidId=btn.dataset.kidOpen; render(); };
   });
 
-  v.querySelectorAll('#shiftStockCheckOpen, #stockShiftCheck, #stockShiftCheckEasy').forEach(btn=>{
+  v.querySelectorAll('#shiftStockCheckOpen, #stockShiftCheck, #stockShiftCheckEasy, #stockShiftCheckEasyBar').forEach(btn=>{
     btn.onclick=()=>{ feedback('select'); sheetShiftStockCheck(); };
   });
   v.querySelectorAll('#shiftPresenceOpen').forEach(btn=>{
@@ -20305,7 +20828,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||165;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||168;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

@@ -1,5 +1,27 @@
 # Changelog
 
+## v167 — 2026-08-30
+
+- **Übergabe / Schichtbuch:** full handoff flow — outgoing shift writes structured sections (Dringend / Kinder / Lager / Aufgaben / Sonstiges); incoming shift reads and taps **Gelesen**.
+- Calendar keeps all-days browse; today spotlight; orange unread dots for unacked team pages.
+- **Easy:** write / read / ack. **Pro:** history archive, house filter, log/people panes, corrections.
+- Mitteilungen: inbox + optional OS notify when a handoff awaits read (`handover` pref).
+- Data: `shiftNotes` entries gain `sections`, `acks`, optional `houseId` (backward-compatible `text`).
+- Cache `paidia-v167`.
+
+## v169 — 2026-08-30
+
+- **Kids website-style menu:** mobile **Menü** hamburger opens a large panel with all pages (Start · Spiele · Bewertung · Bonus · Notizen + Mehr). Desktop keeps the dark left side menu (`#1b2822` rail from v166).
+- Bottom dock removed on phone (no confusing dock-only IA). Back chrome kept. Tour opens the site menu for `kid-nav-*` targets.
+- Plain DE/EL guide copy. Staff Plan / Lager untouched. Cache `paidia-v169`.
+
+## v168 — 2026-08-30
+
+- **Lager add product:** faster sheet — big name, ± Menge stepper, sticky Ins Lager / Menge dazu; live dup chips; exact match locks unit/category and offers Auffüllen.
+- Plain language **Foto lesen** / **Διάβασε φωτό**; list order freezes on add (scroll stays) until Liste aktualisieren / Speichern.
+- **Buch Übergabe:** write → read → confirm flow with sections (Dringend / Kinder / Lager / Aufgaben / Sonstiges) and Ack.
+- **Login forever-load (prod):** tip scripts allowlisted; **gate.js first** + defer tips; paint login immediately; takeover watchdog. Cache `paidia-v168`.
+
 ## v166 — 2026-08-30
 
 - **Kids desktop left rail:** staff `ui-v110` white `--chrome` made the kid dock white-on-white — nav vanished, empty white left pane on Start.

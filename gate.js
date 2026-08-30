@@ -34,11 +34,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 166,
-    label: 'v166',
+    version: 168,
+    label: 'v168',
     changed: {
-      de: 'Kids Start: linke Desktop-Leiste wieder sichtbar (dunkles Dock)',
-      el: 'Αρχή παιδιών: αριστερή μπάρα desktop ξανά ορατή',
+      de: 'Lager: Produkt hinzufügen klarer · Login hängt nicht mehr',
+      el: 'Αποθήκη: καθαρότερη προσθήκη · είσοδος χωρίς κρέμασμα',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -625,6 +625,7 @@
         window.__paidiaBootSession = data;
         try {
           loadApp();
+          armAppTakeoverWatchdog(10000);
         } catch (error) {
           location.replace('/?in=' + Date.now());
         }
@@ -665,7 +666,12 @@
         if (remember) writeLastProfile(mode, who.id);
         else clearLastProfile();
         window.__paidiaBootSession = pkData;
-        try { loadApp(); } catch (error) { location.replace('/?in=' + Date.now()); }
+        try {
+          loadApp();
+          armAppTakeoverWatchdog(10000);
+        } catch (error) {
+          location.replace('/?in=' + Date.now());
+        }
         return;
       } catch (error) {
         if (error.code === 'locked' || error.status === 429) {
@@ -855,6 +861,64 @@
     };
   }
 
+  async function recoverBrokenClient() {
+    try {
+      if ('caches' in window) {
+        const keys = await withDeadline(caches.keys(), 1500);
+        if (Array.isArray(keys)) {
+          await withDeadline(Promise.all(keys.map((k) => caches.delete(k))), 2000);
+        }
+      }
+    } catch (e) { /* continue */ }
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await withDeadline(navigator.serviceWorker.getRegistrations(), 1500);
+        if (Array.isArray(regs)) {
+          await withDeadline(Promise.all(regs.map((r) => r.unregister())), 2000);
+        }
+      }
+    } catch (e) { /* continue */ }
+    try {
+      sessionStorage.removeItem(BUILD_RELOAD_KEY);
+      localStorage.removeItem(SW_BUILD_KEY);
+    } catch (e) {}
+    const url = new URL(location.href);
+    url.searchParams.set('fresh', String(Date.now()));
+    location.replace(url.href);
+  }
+
+  function armAppTakeoverWatchdog(ms) {
+    const deadline = Math.max(4000, Number(ms) || 10000);
+    setTimeout(() => {
+      if (!document.body.classList.contains('auth-pending')) return;
+      if (!gate.classList.contains('on')) return;
+      // App bundle never closed the gate — restore a usable login shell.
+      window.__paidiaAuthed = false;
+      try { delete window.__paidiaBootSession; } catch (e) {}
+      const last = readLastProfile();
+      if (last) renderPin(last.who, last.mode);
+      else renderEntrance();
+      const status = body.querySelector('.gate-status, #bootStatus, #gpErr');
+      if (status) {
+        status.textContent = lang === 'el'
+          ? 'Φόρτωση κόλλησε — δοκίμασε ξανά ή καθάρισε cache'
+          : 'Laden hing — bitte erneut oder Cache leeren';
+      }
+      let recover = body.querySelector('#gRecover');
+      if (!recover) {
+        recover = document.createElement('button');
+        recover.type = 'button';
+        recover.id = 'gRecover';
+        recover.className = 'btn sec';
+        recover.style.marginTop = '12px';
+        recover.textContent = lang === 'el' ? 'Καθαρισμός cache & επαναφόρτωση' : 'Cache leeren & neu laden';
+        recover.onclick = () => { recover.disabled = true; recoverBrokenClient(); };
+        const pin = body.querySelector('.gate-pin, .gate-main, .gate-entrance');
+        (pin || body).appendChild(recover);
+      }
+    }, deadline);
+  }
+
   async function start() {
     document.documentElement.lang = lang;
     gate.classList.add('on');
@@ -868,37 +932,19 @@
       return;
     }
 
-    let softTimer = 0;
-    let bootTimer = 0;
-    const clearBootTimers = () => {
-      clearTimeout(softTimer);
-      clearTimeout(bootTimer);
-    };
-    const settleLogin = () => {
-      if (bootSettled) return;
-      bootSettled = true;
-      clearBootTimers();
+    // Paint login UI IMMEDIATELY — never leave static "Laden…" waiting on
+    // build.json / session / SW. Network runs in the background afterward.
+    bootSettled = true;
+    try {
       const last = readLastProfile();
       if (last) renderPin(last.who, last.mode);
       else renderEntrance();
-    };
-
-    // Arm the deadline BEFORE any network wait. Previously refreshStaleShell()
-    // awaited build.json with no timeout, so a hung SW/network left "Laden…" forever
-    // and these timers never started.
-    softTimer = setTimeout(() => {
-      if (!bootSettled && body && body.dataset.gateView === 'loading') {
-        const status = document.getElementById('bootStatus');
-        if (status) status.textContent = t('loadingBoot') || '…';
-      }
-    }, 600);
-    bootTimer = setTimeout(settleLogin, 2800);
+    } catch (error) {
+      try { renderEntrance(); } catch (e) {}
+    }
 
     try {
-      if (await refreshStaleShell()) {
-        clearBootTimers();
-        return;
-      }
+      if (await refreshStaleShell()) return;
     } catch (error) { /* continue */ }
 
     try { await withDeadline(purgeStaleShell(), 1200); } catch (error) { /* continue */ }
@@ -908,23 +954,25 @@
       const response = await fetchTimeout('/api/auth/session', {
         credentials: 'same-origin',
         headers: { Accept: 'application/json' },
-      }, 2500);
+      }, 2000);
       const raw = await response.text();
       let data = {};
       try { data = JSON.parse(raw); } catch (error) { data = {}; }
       if (response.ok && data.authenticated) {
-        bootSettled = true;
-        clearBootTimers();
         window.__paidiaBootSession = data;
         if (data.remember && data.profileId && data.mode) writeLastProfile(data.mode, data.profileId);
         else if (!data.remember) clearLastProfile();
+        const status = body.querySelector('.gate-status, #bootStatus, #gpErr');
+        if (status) {
+          status.textContent = lang === 'el' ? 'Συνεδρία…' : 'Sitzung wird geladen…';
+        }
         loadApp();
+        armAppTakeoverWatchdog(10000);
         return;
       }
     } catch (error) {
-      /* fall through to login */
+      /* stay on login UI already painted */
     }
-    settleLogin();
   }
 
   window.PaidiaGate = { start, loadApp, renderResetForm, renderResetRequest };
