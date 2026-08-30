@@ -391,6 +391,7 @@ _STATIC_EXACT = frozenset({
     "notifications.js",
 })
 _ICON_SUFFIXES = frozenset({".png", ".svg", ".ico", ".webp", ".jpg", ".jpeg"})
+_KIDS_GAME_SUFFIXES = frozenset({".html", ".js", ".css", ".txt", ".md", ".svg", ".png", ".webp"})
 
 
 def _static_allowed(rel: str) -> bool:
@@ -405,6 +406,8 @@ def _static_allowed(rel: str) -> bool:
     if rel in _STATIC_EXACT:
         return True
     if rel.startswith("icons/") and Path(rel).suffix.lower() in _ICON_SUFFIXES:
+        return True
+    if rel.startswith("kids-games/") and Path(rel).suffix.lower() in _KIDS_GAME_SUFFIXES:
         return True
     return False
 

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<title>Himmel-Hüpfer</title>
+<style>
+  :root{--sky:#7ec8e3;--ink:#1a2822;--pine:#2a6b52}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:#5eb3d4;color:#fff;font-family:system-ui,-apple-system,sans-serif;overflow:hidden}
+  .wrap{height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:8px;padding:10px 12px 12px}
+  .top{display:flex;justify-content:space-between;align-items:center}
+  h1{margin:0;font-size:1.15rem}
+  .chip{background:rgba(0,0,0,.18);border-radius:10px;padding:6px 12px;font-weight:700}
+  canvas{display:block;width:min(100%,72vmin);margin:0 auto;border-radius:16px;background:linear-gradient(#7ec8e3,#c9e8f5);touch-action:none}
+  .hint{text-align:center;margin:0;font-size:.8rem;opacity:.9}
+  .bar{display:flex;justify-content:center}
+  button{appearance:none;border:0;border-radius:12px;min-height:44px;padding:0 18px;font:inherit;font-weight:700;background:var(--pine);color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1 id="title">Himmel-Hüpfer</h1><div class="chip"><span id="lScore">Punkte</span>: <b id="score">0</b></div></div>
+  <canvas id="c" width="360" height="520" aria-label="Hop"></canvas>
+  <p class="hint" id="hint">Tippe zum Flattern</p>
+  <div class="bar"><button type="button" id="restart">Neu</button></div>
+</div>
+<script>
+(function(){
+  const q=new URLSearchParams(location.search);
+  const el=q.get('lang')==='el';
+  const L=el?{title:'Ουράνιο Άλμα',score:'Πόντοι',hint:'Πάτα για φτερούγισμα',restart:'Νέο',over:'Τέλος'}
+    :{title:'Himmel-Hüpfer',score:'Punkte',hint:'Tippe zum Flattern',restart:'Neu',over:'Game Over'};
+  document.getElementById('title').textContent=L.title;
+  document.getElementById('lScore').textContent=L.score;
+  document.getElementById('hint').textContent=L.hint;
+  document.getElementById('restart').textContent=L.restart;
+
+  const canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  let bird,pipes,score,alive,started,raf,best=0;
+  try{best=Number(localStorage.getItem('paidia.osshop.best'))||0}catch(_){}
+
+  function post(){try{parent.postMessage({type:'paidia-score',gameId:'osshop',score:Math.max(score,best)},'*')}catch(_){}}
+  function reset(){
+    bird={x:72,y:H/2,vy:0,r:14};
+    pipes=[];score=0;alive=true;started=false;spawn();spawn(true);paint();post();
+  }
+  function spawn(second){
+    const gap=118, top=60+Math.random()*(H-220);
+    pipes.push({x:second?W+180:W+40,w:52,top,gap,passed:false});
+  }
+  function flap(){
+    if(!alive){reset();return}
+    started=true;bird.vy=-5.8;
+    if(!raf){raf=requestAnimationFrame(loop)}
+  }
+  function loop(){
+    raf=requestAnimationFrame(loop);
+    if(!started||!alive){paint();return}
+    bird.vy+=0.32;bird.y+=bird.vy;
+    pipes.forEach(p=>p.x-=2.4);
+    if(pipes.length&&pipes[0].x+pipes[0].w<-10){pipes.shift();spawn()}
+    pipes.forEach(p=>{
+      if(!p.passed&&p.x+p.w<bird.x){p.passed=true;score++;if(score>best){best=score;try{localStorage.setItem('paidia.osshop.best',String(best))}catch(_){}}post()}
+      const inX=bird.x+bird.r>p.x&&bird.x-bird.r<p.x+p.w;
+      const hitTop=bird.y-bird.r<p.top;
+      const hitBot=bird.y+bird.r>p.top+p.gap;
+      if(inX&&(hitTop||hitBot)) alive=false;
+    });
+    if(bird.y+bird.r>H-8||bird.y-bird.r<0) alive=false;
+    if(!alive){cancelAnimationFrame(raf);raf=0;post()}
+    paint();
+  }
+  function paint(){
+    document.getElementById('score').textContent=score;
+    const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#7ec8e3');g.addColorStop(1,'#d7eef7');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // soft hills
+    ctx.fillStyle='#9bc4b0';ctx.beginPath();ctx.ellipse(80,H+20,120,70,0,Math.PI,0);ctx.fill();
+    ctx.beginPath();ctx.ellipse(280,H+30,140,80,0,Math.PI,0);ctx.fill();
+    pipes.forEach(p=>{
+      ctx.fillStyle='#2a6b52';
+      ctx.fillRect(p.x,0,p.w,p.top);
+      ctx.fillRect(p.x,p.top+p.gap,p.w,H-(p.top+p.gap));
+      ctx.fillStyle='#3d8a6a';
+      ctx.fillRect(p.x-3,p.top-14,p.w+6,14);
+      ctx.fillRect(p.x-3,p.top+p.gap,p.w+6,14);
+    });
+    // bird (simple circle + eye — original art, not a commercial character)
+    ctx.fillStyle='#f0b429';ctx.beginPath();ctx.arc(bird.x,bird.y,bird.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(bird.x+5,bird.y-4,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1a2822';ctx.beginPath();ctx.arc(bird.x+6,bird.y-4,2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#e11d48';ctx.beginPath();ctx.moveTo(bird.x+12,bird.y);ctx.lineTo(bird.x+22,bird.y+3);ctx.lineTo(bird.x+12,bird.y+6);ctx.fill();
+    if(!started){
+      ctx.fillStyle='rgba(26,40,34,.55)';ctx.font='bold 18px system-ui';ctx.textAlign='center';
+      ctx.fillText('▶',W/2,H/2);ctx.textAlign='left';
+    }
+    if(!alive){
+      ctx.fillStyle='rgba(26,40,34,.5)';ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='#fff';ctx.font='bold 28px system-ui';ctx.textAlign='center';
+      ctx.fillText(L.over,W/2,H/2-8);
+      ctx.font='16px system-ui';ctx.fillText('Best '+best,W/2,H/2+22);ctx.textAlign='left';
+    }
+  }
+  canvas.addEventListener('pointerdown',e=>{e.preventDefault();flap()});
+  window.addEventListener('keydown',e=>{if(e.code==='Space'||e.key==='ArrowUp'){e.preventDefault();flap()}});
+  document.getElementById('restart').onclick=()=>{cancelAnimationFrame(raf);raf=0;reset()};
+  reset();
+})();
+</script>
+</body>
+</html>

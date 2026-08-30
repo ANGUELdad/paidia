@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<title>Breakout</title>
+<style>
+  :root{--bg:#10243a;--sea:#3a8fb7;--ink:#eef6fb}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;overflow:hidden}
+  .wrap{height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:8px;padding:10px 12px 12px}
+  .top{display:flex;justify-content:space-between;align-items:center}
+  h1{margin:0;font-size:1.2rem}
+  .chip{background:rgba(255,255,255,.1);border-radius:10px;padding:6px 12px;font-weight:700}
+  canvas{display:block;width:min(100%,78vmin);margin:0 auto;border-radius:14px;background:#0b1a2a;touch-action:none}
+  .bar{display:flex;gap:8px;justify-content:center}
+  button{appearance:none;border:0;border-radius:12px;min-height:42px;padding:0 16px;font:inherit;font-weight:700;background:var(--sea);color:#fff}
+  .hint{text-align:center;font-size:.78rem;opacity:.7;margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>Breakout</h1><div class="chip"><span id="lScore">Punkte</span>: <b id="score">0</b></div></div>
+  <canvas id="c" width="360" height="480" aria-label="Breakout"></canvas>
+  <p class="hint" id="hint">Ziehe zum Bewegen · Tippe zum Start</p>
+  <div class="bar"><button type="button" id="restart">Neu</button></div>
+</div>
+<script>
+(function(){
+  const q=new URLSearchParams(location.search);
+  const el=q.get('lang')==='el';
+  const L=el?{score:'Πόντοι',hint:'Σύρε για κίνηση · πάτα για έναρξη',restart:'Νέο',win:'Νίκη!',over:'Τέλος'}
+    :{score:'Punkte',hint:'Ziehe zum Bewegen · Tippe zum Start',restart:'Neu',win:'Geschafft!',over:'Game Over'};
+  document.getElementById('lScore').textContent=L.score;
+  document.getElementById('hint').textContent=L.hint;
+  document.getElementById('restart').textContent=L.restart;
+
+  const canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  let paddle,ball,bricks,score,lives,running,won,raf;
+
+  function post(){try{parent.postMessage({type:'paidia-score',gameId:'ossbreakout',score},'*')}catch(_){}}
+  function makeBricks(){
+    const rows=5,cols=8,bw=(W-20)/cols,bh=18,colors=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6'];
+    bricks=[];
+    for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+      bricks.push({x:10+c*bw,y:40+r*(bh+6),w:bw-4,h:bh,alive:true,color:colors[r]});
+    }
+  }
+  function reset(){
+    paddle={x:W/2-36,y:H-28,w:72,h:12};
+    ball={x:W/2,y:H-50,vx:2.6,vy:-3.2,r:7};
+    score=0;lives=3;running=false;won=false;makeBricks();paint();post();
+  }
+  function step(){
+    if(!running){paint();return}
+    ball.x+=ball.vx;ball.y+=ball.vy;
+    if(ball.x<ball.r||ball.x>W-ball.r) ball.vx*=-1;
+    if(ball.y<ball.r) ball.vy*=-1;
+    if(ball.y>H){lives--;running=false;ball.x=paddle.x+paddle.w/2;ball.y=H-50;ball.vy=-Math.abs(ball.vy);if(lives<=0){post();paint();return}}
+    if(ball.y+ball.r>=paddle.y&&ball.x>=paddle.x&&ball.x<=paddle.x+paddle.w&&ball.vy>0){
+      const hit=((ball.x-paddle.x)/paddle.w)-0.5;
+      ball.vx=hit*6;ball.vy=-Math.abs(ball.vy);
+    }
+    bricks.forEach(b=>{
+      if(!b.alive) return;
+      if(ball.x>b.x&&ball.x<b.x+b.w&&ball.y-ball.r<b.y+b.h&&ball.y+ball.r>b.y){
+        b.alive=false;ball.vy*=-1;score+=10;post();
+      }
+    });
+    if(bricks.every(b=>!b.alive)){won=true;running=false;post()}
+    paint();
+    raf=requestAnimationFrame(step);
+  }
+  function paint(){
+    document.getElementById('score').textContent=score;
+    ctx.fillStyle='#0b1a2a';ctx.fillRect(0,0,W,H);
+    bricks.forEach(b=>{if(!b.alive)return;ctx.fillStyle=b.color;ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,4);ctx.fill()});
+    ctx.fillStyle='#9bc4b0';ctx.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.8)';ctx.font='14px system-ui';ctx.fillText('❤'.repeat(Math.max(0,lives)),12,22);
+    if(won||lives<=0){
+      ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(0,0,W,H);
+      ctx.fillStyle='#fff';ctx.font='bold 28px system-ui';ctx.textAlign='center';
+      ctx.fillText(won?L.win:L.over,W/2,H/2);ctx.textAlign='left';
+    }else if(!running){
+      ctx.fillStyle='rgba(255,255,255,.75)';ctx.font='16px system-ui';ctx.textAlign='center';
+      ctx.fillText('▶',W/2,H/2);ctx.textAlign='left';
+    }
+  }
+  function movePaddle(clientX){
+    const rect=canvas.getBoundingClientRect();
+    const x=(clientX-rect.left)*(W/rect.width);
+    paddle.x=Math.max(0,Math.min(W-paddle.w,x-paddle.w/2));
+  }
+  canvas.addEventListener('pointerdown',e=>{
+    movePaddle(e.clientX);
+    if(!running&&lives>0&&!won){running=true;cancelAnimationFrame(raf);raf=requestAnimationFrame(step)}
+  });
+  canvas.addEventListener('pointermove',e=>{if(e.buttons||e.pressure) movePaddle(e.clientX)});
+  document.getElementById('restart').onclick=()=>{cancelAnimationFrame(raf);reset()};
+  if(!CanvasRenderingContext2D.prototype.roundRect){
+    CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h){this.rect(x,y,w,h)};
+  }
+  reset();
+})();
+</script>
+</body>
+</html>

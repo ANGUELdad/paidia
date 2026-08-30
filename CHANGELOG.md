@@ -7,7 +7,10 @@
 - **Category shelf islands** with stone rail, empty/low badges; search aliases; zone pier filters (Easy: attention/empty; Pro: shelves + recent moves ribbon from `DB.log`).
 - Easy density: larger steppers; Pro: bulk/more menu, tiles toggle, shift check, recent IN/OUT ribbon.
 - DE/EL strings: `stockTideLabel`, `stockShelves`, `stockRecentMoves`, `stockJarAria`, …
-- Cache `paidia-v138` (also ships sibling Kids Spiele + Liste Αιτήματα work).
+- **Kids Spiele:** five offline OSS HTML5 games in `kids-games/` (2048, Snake, Breakout, 15-Puzzle, Himmel-Hüpfer) — MIT + `kids-games/README.md` attribution; sandboxed iframe launcher; Easy featured rail + Pro full catalogue; scores via `postMessage` → `gameStats`.
+- Static allowlist `kids-games/` in `server.py` / `api/index.py`; SW caches `/kids-games/`.
+- **Liste:** Αιτήματα/Anfragen accept / reject / promote into Friday shopping list.
+- Cache `paidia-v138`.
 
 ## v137 — 2026-08-30
 

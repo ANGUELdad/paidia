@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<title>15-Puzzle</title>
+<style>
+  :root{--bg:#f7f4ef;--ink:#1f2933;--pine:#2a6b52;--line:#e2ddd4}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;overflow:hidden}
+  .wrap{height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:10px;padding:10px 12px 14px}
+  .top{display:flex;justify-content:space-between;align-items:center}
+  h1{margin:0;font-size:1.25rem}
+  .chip{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-weight:700}
+  .board{width:min(100%,72vmin);aspect-ratio:1;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+    background:#d9d2c5;border-radius:16px;padding:10px}
+  .tile{appearance:none;border:0;border-radius:12px;font:inherit;font-weight:800;font-size:clamp(1.2rem,7vmin,1.8rem);
+    background:#fff;color:var(--ink);box-shadow:0 2px 0 #c9c1b2;cursor:pointer}
+  .tile.empty{background:transparent;box-shadow:none;pointer-events:none}
+  .tile.ok{background:#dcefe6;color:var(--pine)}
+  .bar{display:flex;gap:8px;justify-content:center}
+  button.act{appearance:none;border:0;border-radius:12px;min-height:44px;padding:0 16px;font:inherit;font-weight:700;background:var(--pine);color:#fff}
+  .hint{text-align:center;margin:0;font-size:.8rem;opacity:.7}
+  .win{text-align:center;font-weight:800;color:var(--pine);min-height:1.2em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1 id="title">15-Puzzle</h1><div class="chip"><span id="lMoves">Züge</span>: <b id="moves">0</b></div></div>
+  <div class="board" id="board" aria-label="15 puzzle"></div>
+  <p class="win" id="win"></p>
+  <p class="hint" id="hint">Tippe eine Kachel neben der Lücke</p>
+  <div class="bar"><button type="button" class="act" id="shuffle">Mischen</button></div>
+</div>
+<script>
+(function(){
+  const q=new URLSearchParams(location.search);
+  const el=q.get('lang')==='el';
+  const L=el?{title:'Παζλ 15',moves:'Κινήσεις',hint:'Πάτα πλακίδιο δίπλα στο κενό',shuffle:'Ανακάτεμα',win:'Μπράβο!'}
+    :{title:'15-Puzzle',moves:'Züge',hint:'Tippe eine Kachel neben der Lücke',shuffle:'Mischen',win:'Geschafft!'};
+  document.getElementById('title').textContent=L.title;
+  document.getElementById('lMoves').textContent=L.moves;
+  document.getElementById('hint').textContent=L.hint;
+  document.getElementById('shuffle').textContent=L.shuffle;
+
+  const board=document.getElementById('board');
+  let tiles=[], moves=0, won=false;
+
+  function post(score){try{parent.postMessage({type:'paidia-score',gameId:'osspuzzle15',score},'*')}catch(_){}}
+  function idx(x,y){return y*4+x}
+  function blank(){return tiles.indexOf(0)}
+  function solved(){for(let i=0;i<15;i++) if(tiles[i]!==i+1) return false;return tiles[15]===0}
+  function paint(){
+    document.getElementById('moves').textContent=moves;
+    document.getElementById('win').textContent=won?L.win:'';
+    board.innerHTML='';
+    tiles.forEach((n,i)=>{
+      const b=document.createElement('button');
+      b.type='button';
+      b.className='tile'+(n===0?' empty':'')+(n&&n===i+1?' ok':'');
+      b.textContent=n||'';
+      b.onclick=()=>tap(i);
+      board.appendChild(b);
+    });
+  }
+  function tap(i){
+    if(won) return;
+    const b=blank(), bx=b%4, by=(b/4)|0, x=i%4, y=(i/4)|0;
+    if(Math.abs(bx-x)+Math.abs(by-y)!==1) return;
+    tiles[b]=tiles[i];tiles[i]=0;moves++;
+    if(solved()){won=true;post(Math.max(1,200-moves))}
+    paint();
+  }
+  function shuffle(){
+    tiles=Array.from({length:15},(_,i)=>i+1).concat(0);
+    // Generate solvable state via legal moves
+    for(let k=0;k<200;k++){
+      const b=blank(), bx=b%4, by=(b/4)|0;
+      const opts=[];
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{
+        const nx=bx+dx,ny=by+dy;
+        if(nx>=0&&ny>=0&&nx<4&&ny<4) opts.push(idx(nx,ny));
+      });
+      const j=opts[Math.floor(Math.random()*opts.length)];
+      tiles[b]=tiles[j];tiles[j]=0;
+    }
+    moves=0;won=false;paint();post(0);
+  }
+  document.getElementById('shuffle').onclick=shuffle;
+  shuffle();
+})();
+</script>
+</body>
+</html>

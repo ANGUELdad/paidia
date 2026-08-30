@@ -8301,7 +8301,7 @@ function viewShop(){
   const boughtCard = bought.length ? `<details class="card shop-history"><summary>✓ ${t('secBought')}<span class="pill in">${bought.length}</span></summary><div class="shop-history-body">
       ${bought.slice(-8).reverse().map(e=>entryRow(e,`<span class="pill in">${t('stBought')}</span>`)).join('')}</div></details>` : '';
 
-  return `<div class="shop-shell ${inStore?'shop-shell-store':'shop-shell-plan'}">${hero}${pendingCard}${takeListCard}${openCard}${missingCard}${boughtCard}</div>`;
+  return `<div class="shop-shell ${inStore?'shop-shell-store':'shop-shell-plan'}">${hero}${pendingCard}${takeListCard}${openCard}${requestsCard}${missingCard}${boughtCard}</div>`;
 }
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
@@ -10485,6 +10485,7 @@ function childStartView(c){
     </div>
     ${childGameChallengeHtml(c.id)}
     <div class="kid-secondary">
+      <button type="button" class="chip" id="childRequestBtn">${esc(t('shopRequestBig'))}</button>
       <button type="button" class="chip" data-child-view="rate">${esc(t('kidNavRate'))}</button>
       <button type="button" class="chip" data-child-view="bonus">${esc(t('kidBonusTitle'))}</button>
       <button type="button" class="chip" data-child-view="notes">${esc(t('kidNotesTitle'))}</button>
@@ -11717,6 +11718,8 @@ function renderChild(){
   if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
   const howTo=root.querySelector('#childHowToBtn');
   if(howTo) howTo.onclick=()=>sheetChildHowTo();
+  const childReq=root.querySelector('#childRequestBtn');
+  if(childReq) childReq.onclick=()=>sheetCreateListRequest({kidMode:true});
   root.querySelectorAll('[data-game-challenge]').forEach(button=>{
     button.onclick=()=>{
       state.childView='games';
@@ -15135,7 +15138,12 @@ function wire(){
   const shopAutoFill=v.querySelector('#shopAutoFill');
   if(shopAutoFill) shopAutoFill.onclick=()=>{ autoFillShoppingFromStock(shopHouse()); render(); };
   v.querySelectorAll('[data-shop-panel]').forEach(b=>{
-    b.onclick=()=>{ state.shopPanel=b.dataset.shopPanel; if(state.selectMode==='shop') clearSelection(); feedback('toggle'); render(); };
+    b.onclick=()=>{
+      state.shopPanel=b.dataset.shopPanel;
+      if(state.selectMode==='shop' || state.selectMode==='requests') clearSelection();
+      feedback('toggle');
+      render();
+    };
   });
   const shopSelectToggle=v.querySelector('#shopSelectToggle');
   if(shopSelectToggle) shopSelectToggle.onclick=()=>{
@@ -15143,6 +15151,48 @@ function wire(){
     else enterSelectMode('shop');
     feedback('toggle'); render();
   };
+  const reqSelectToggle=v.querySelector('#reqSelectToggle');
+  if(reqSelectToggle) reqSelectToggle.onclick=()=>{
+    if(state.selectMode==='requests') exitSelectMode();
+    else enterSelectMode('requests');
+    feedback('toggle'); render();
+  };
+  ['#shopRequestCreate','#shopRequestCreateTop','#shopRequestCreateEmpty'].forEach(sel=>{
+    const el=v.querySelector(sel);
+    if(el) el.onclick=()=>sheetCreateListRequest({kidMode:false});
+  });
+  v.querySelectorAll('[data-req-filter]').forEach(b=>{
+    b.onclick=()=>{ state.shopRequestFilter=b.dataset.reqFilter; feedback('toggle'); render(); };
+  });
+  const reqWho=v.querySelector('#reqWhoFilter');
+  if(reqWho) reqWho.onchange=()=>{ state.shopRequestWho=reqWho.value||'all'; render(); };
+  v.querySelectorAll('[data-req-accept]').forEach(b=>{
+    b.onclick=()=>{
+      if(acceptListRequest(b.dataset.reqAccept)){
+        if(!save()) return;
+        toast(t('shopRequestAccepted'),'success');
+        feedback('save'); render();
+      }
+    };
+  });
+  v.querySelectorAll('[data-req-reject]').forEach(b=>{
+    b.onclick=()=>{
+      if(rejectListRequest(b.dataset.reqReject)){
+        if(!save()) return;
+        toast(t('shopRequestRejected'),'info');
+        feedback('save'); render();
+      }
+    };
+  });
+  v.querySelectorAll('[data-req-bought]').forEach(b=>{
+    b.onclick=()=>{
+      if(markListRequestBought(b.dataset.reqBought)){
+        if(!save()) return;
+        toast(t('shopRequestMarkedBought'),'success');
+        feedback('save'); render();
+      }
+    };
+  });
   const stockSelectToggle=v.querySelector('#stockSelectToggle');
   if(stockSelectToggle) stockSelectToggle.onclick=()=>{
     if(state.house==='all'){ toast(t('selectHouse'),'info'); return; }
@@ -15229,6 +15279,17 @@ function wire(){
         });
         save();
         toast(T[state.lang].bulkDecided(ids.length),'success');
+        exitSelectMode(); render();
+      }
+      if(state.selectMode==='requests'){
+        let n=0;
+        if(act==='req-accept'){
+          ids.forEach(id=>{ if(acceptListRequest(id)) n++; });
+          if(n){ save(); toast(t('shopRequestAccepted'),'success'); }
+        }else if(act==='req-reject'){
+          ids.forEach(id=>{ if(rejectListRequest(id)) n++; });
+          if(n){ save(); toast(t('shopRequestRejected'),'info'); }
+        }
         exitSelectMode(); render();
       }
     };
@@ -16922,6 +16983,19 @@ async function runNotificationSweep({force=false}={}){
           tag:'paidia-friday-shop',
           body:fridayText(friday),
           data:{url:'./?tab=shop'},
+        });
+      }
+    }
+  }catch{}
+
+  try{
+    if(state.mode==='staff' && prefs.shopping!==false){
+      const openReqs = ensureListRequests().filter(r=>r && r.status==='open');
+      for(const req of openReqs.slice(0,12)){
+        await deliverOnce(`list-req-${req.id}`, force, T[state.lang].notifNewRequest(req.name), {
+          tag:'paidia-list-request',
+          body:T[state.lang].shopRequestAskedBy(listRequestRequesterName(req)),
+          data:{url:'./#shop/requests'},
         });
       }
     }

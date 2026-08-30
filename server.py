@@ -257,6 +257,7 @@ OPS_LOCK = threading.Lock()
 OPS_KEYS = (
     "listEntries",
     "shoppingTrips",
+    "listRequests",
     "stock",
     "customProducts",
     "customCategories",
@@ -305,6 +306,7 @@ OPS_LIST_CAPS = {
     "schoolTimetable": 800,
     "listEntries": 4000,
     "shoppingTrips": 4000,
+    "listRequests": 4000,
     "log": 2500,
     "stockChecks": 800,
     "shiftCheckins": 2000,
@@ -1638,17 +1640,72 @@ def get_ops_for_session(since: int, session: dict) -> dict:
 
 # Keys a child's own device may write. Everything else on the ops blob is
 # staff-owned and unreachable from a child session.
-KID_OWNED_KEYS = ("kidRatings", "kidNotes")
+KID_OWNED_KEYS = ("kidRatings", "kidNotes", "listRequests")
 KID_ROW_CAP = 500
 
 
+def _merge_kid_list_requests(kid_id: str, incoming: list) -> list:
+    """Kids may create/edit only their own *open* shopping requests.
+
+    Staff decisions (accepted / bought / rejected) are locked server-side so a
+    later child push cannot overwrite an accepted list item or reopen a reject.
+    """
+    existing = [r for r in (OPS_STATE.get("listRequests") or []) if isinstance(r, dict)]
+    others = [r for r in existing if str(r.get("kidId") or "") != kid_id]
+    locked = [
+        r for r in existing
+        if str(r.get("kidId") or "") == kid_id
+        and str(r.get("status") or "open") != "open"
+    ]
+    locked_ids = {str(r.get("id") or "") for r in locked if r.get("id")}
+    open_rows = []
+    for row in incoming[:KID_ROW_CAP]:
+        if not isinstance(row, dict):
+            continue
+        row = dict(row)
+        rid = str(row.get("id") or "").strip()
+        if rid and rid in locked_ids:
+            continue
+        name = str(row.get("name") or "").strip()
+        if not name:
+            continue
+        qty_raw = row.get("qty")
+        try:
+            qty = float(qty_raw) if qty_raw is not None and str(qty_raw).strip() != "" else None
+        except (TypeError, ValueError):
+            qty = None
+        if qty is not None and qty <= 0:
+            qty = None
+        open_rows.append({
+            "id": rid or f"lr-{kid_id}-{int(time.time() * 1000)}-{len(open_rows)}",
+            "name": name[:120],
+            "qty": qty,
+            "unit": str(row.get("unit") or "").strip()[:24],
+            "note": str(row.get("note") or "").strip()[:240],
+            "houseId": str(row.get("houseId") or "").strip()[:32],
+            "fridayDate": str(row.get("fridayDate") or "").strip()[:16] or None,
+            "status": "open",
+            "requesterType": "child",
+            "requesterId": kid_id,
+            "kidId": kid_id,
+            "by": kid_id,
+            "createdAt": int(row.get("createdAt") or time.time() * 1000),
+            "decidedAt": None,
+            "decidedBy": None,
+            "listEntryId": None,
+            "rejectReason": None,
+        })
+    return others + locked + open_rows
+
+
 def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
-    """Let a child device persist its own ratings and notes.
+    """Let a child device persist its own ratings, notes, and shopping requests.
 
     Deliberately narrow: a child session can touch only KID_OWNED_KEYS, and only
     rows belonging to itself. Ownership is taken from the session and stamped on
     every row, so a forged kidId in the payload is ignored rather than trusted —
     a child cannot write another child's data, and cannot reach staff ops at all.
+    listRequests are proposals only: non-open statuses stay staff-locked.
     """
     if session.get("mode") != "child":
         return 403, {"error": "Child session required", "code": "child_required"}
@@ -1667,6 +1724,10 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
                 continue
             if not isinstance(incoming, list):
                 return 400, {"error": f"{key} must be a list", "code": "input"}
+            if key == "listRequests":
+                OPS_STATE[key] = _merge_kid_list_requests(kid_id, incoming)
+                touched.append(key)
+                continue
             mine = []
             for row in incoming[:KID_ROW_CAP]:
                 if not isinstance(row, dict):
@@ -4248,7 +4309,14 @@ class Handler(SimpleHTTPRequestHandler):
             and not any(part.startswith(".") for part in static_rel.split("/"))
             and static_rel.rsplit(".", 1)[-1].lower() in {"png", "svg", "ico", "webp", "jpg", "jpeg"}
         )
-        if static_rel in allowed_exact or parsed.path == "/" or icon_ok:
+        # Offline Kids OSS games — HTML/JS/CSS/text only under kids-games/.
+        kids_games_ok = (
+            static_rel.startswith("kids-games/")
+            and ".." not in static_rel.split("/")
+            and not any(part.startswith(".") for part in static_rel.split("/"))
+            and static_rel.rsplit(".", 1)[-1].lower() in {"html", "js", "css", "txt", "md", "svg", "png", "webp"}
+        )
+        if static_rel in allowed_exact or parsed.path == "/" or icon_ok or kids_games_ok:
             if parsed.path == "/":
                 static_rel = "index.html"
             path = os.path.join(os.getcwd(), static_rel)

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<title>2048</title>
+<style>
+  :root{--bg:#f4f7f5;--ink:#1a2822;--pine:#2a6b52;--line:#d5e0da;--tile:#eef3f0}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden}
+  .wrap{height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:8px;padding:10px 12px 14px}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  h1{margin:0;font-size:1.35rem;letter-spacing:-.02em}
+  .score{display:flex;gap:6px}
+  .chip{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 10px;min-width:64px;text-align:center}
+  .chip b{display:block;font-size:1.05rem;font-variant-numeric:tabular-nums}
+  .chip span{font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;opacity:.65}
+  .board{touch-action:none;user-select:none;aspect-ratio:1;width:min(100%,72vmin);margin:0 auto;
+    background:#c5d5cc;border-radius:14px;padding:8px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .cell{background:rgba(255,255,255,.35);border-radius:10px;position:relative}
+  .tile{position:absolute;inset:0;border-radius:10px;display:grid;place-items:center;
+    font-weight:800;font-size:clamp(1.1rem,6vmin,1.85rem);color:#1a2822;transition:transform .12s ease}
+  .t2{background:#eee4da}.t4{background:#ede0c8}.t8{background:#f2b179;color:#fff}
+  .t16{background:#f59563;color:#fff}.t32{background:#f67c5f;color:#fff}.t64{background:#f65e3b;color:#fff}
+  .t128{background:#edcf72;color:#fff;font-size:clamp(.95rem,5vmin,1.45rem)}
+  .t256{background:#edcc61;color:#fff;font-size:clamp(.95rem,5vmin,1.45rem)}
+  .t512{background:#edc850;color:#fff;font-size:clamp(.95rem,5vmin,1.45rem)}
+  .t1024,.t2048,.t4096{background:#edc22e;color:#fff;font-size:clamp(.8rem,4.2vmin,1.2rem)}
+  .bar{display:flex;gap:8px;justify-content:center}
+  button{appearance:none;border:0;border-radius:12px;min-height:44px;padding:0 16px;font:inherit;font-weight:700;
+    background:var(--pine);color:#fff;cursor:pointer}
+  button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .hint{text-align:center;font-size:.78rem;opacity:.7;margin:0}
+  .overlay{position:absolute;inset:0;background:rgba(26,40,34,.55);display:grid;place-items:center;
+    color:#fff;border-radius:14px;font-weight:800;font-size:1.4rem;backdrop-filter:blur(2px)}
+  .board-wrap{position:relative;width:min(100%,72vmin);margin:0 auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>2048</h1>
+    <div class="score">
+      <div class="chip"><span id="lScore">Punkte</span><b id="score">0</b></div>
+      <div class="chip"><span id="lBest">Best</span><b id="best">0</b></div>
+    </div>
+  </div>
+  <div class="board-wrap">
+    <div class="board" id="board" aria-label="2048"></div>
+    <div class="overlay" id="overlay" hidden></div>
+  </div>
+  <p class="hint" id="hint">Wische oder Pfeiltasten</p>
+  <div class="bar">
+    <button type="button" class="ghost" id="btnNew">Neu</button>
+  </div>
+</div>
+<script>
+(function(){
+  const q=new URLSearchParams(location.search);
+  const el=q.get('lang')==='el';
+  const L=el?{
+    score:'Πόντοι',best:'Ρεκόρ',hint:'Σύρε ή βέλη',new:'Νέο',win:'Νίκη!',over:'Τέλος'
+  }:{
+    score:'Punkte',best:'Best',hint:'Wische oder Pfeiltasten',new:'Neu',win:'Geschafft!',over:'Game Over'
+  };
+  document.getElementById('lScore').textContent=L.score;
+  document.getElementById('lBest').textContent=L.best;
+  document.getElementById('hint').textContent=L.hint;
+  document.getElementById('btnNew').textContent=L.new;
+
+  const SIZE=4;
+  let grid=Array(SIZE*SIZE).fill(0);
+  let score=0, best=0, ended=false, won=false;
+  try{best=Number(localStorage.getItem('paidia.oss2048.best'))||0}catch(_){}
+  const board=document.getElementById('board');
+  const overlay=document.getElementById('overlay');
+  for(let i=0;i<16;i++){const c=document.createElement('div');c.className='cell';c.dataset.i=i;board.appendChild(c)}
+
+  function post(){
+    try{parent.postMessage({type:'paidia-score',gameId:'oss2048',score:Math.max(score,best)},'*')}catch(_){}
+  }
+  function paint(){
+    document.getElementById('score').textContent=score;
+    document.getElementById('best').textContent=best;
+    board.querySelectorAll('.tile').forEach(n=>n.remove());
+    grid.forEach((v,i)=>{
+      if(!v) return;
+      const t=document.createElement('div');
+      t.className='tile t'+Math.min(v,4096);
+      t.textContent=v;
+      board.children[i].appendChild(t);
+    });
+    if(ended){overlay.hidden=false;overlay.textContent=won&&!canMove()?L.win:L.over}
+    else overlay.hidden=true;
+  }
+  function empty(){const a=[];for(let i=0;i<16;i++) if(!grid[i]) a.push(i);return a}
+  function spawn(){const e=empty();if(!e.length)return;grid[e[Math.floor(Math.random()*e.length)]]=Math.random()<0.9?2:4}
+  function slide(line){
+    const nums=line.filter(Boolean);
+    const out=[];let sc=0;
+    for(let i=0;i<nums.length;i++){
+      if(nums[i]===nums[i+1]){out.push(nums[i]*2);sc+=nums[i]*2;i++;}
+      else out.push(nums[i]);
+    }
+    while(out.length<SIZE) out.push(0);
+    return {line:out,sc};
+  }
+  function rows(){const r=[];for(let y=0;y<SIZE;y++){const row=[];for(let x=0;x<SIZE;x++)row.push(grid[y*SIZE+x]);r.push(row)}return r}
+  function setRows(r){r.forEach((row,y)=>row.forEach((v,x)=>grid[y*SIZE+x]=v))}
+  function cols(){const c=[];for(let x=0;x<SIZE;x++){const col=[];for(let y=0;y<SIZE;y++)col.push(grid[y*SIZE+x]);c.push(col)}return c}
+  function setCols(c){c.forEach((col,x)=>col.forEach((v,y)=>grid[y*SIZE+x]=v))}
+  function move(dir){
+    if(ended) return;
+    const before=grid.slice();
+    let gained=0;
+    if(dir==='left'||dir==='right'){
+      const r=rows().map(row=>{
+        const src=dir==='left'?row:row.slice().reverse();
+        const {line,sc}=slide(src);gained+=sc;
+        return dir==='left'?line:line.reverse();
+      });
+      setRows(r);
+    }else{
+      const c=cols().map(col=>{
+        const src=dir==='up'?col:col.slice().reverse();
+        const {line,sc}=slide(src);gained+=sc;
+        return dir==='up'?line:line.reverse();
+      });
+      setCols(c);
+    }
+    if(grid.every((v,i)=>v===before[i])) return;
+    score+=gained;
+    if(score>best){best=score;try{localStorage.setItem('paidia.oss2048.best',String(best))}catch(_){}}
+    if(grid.some(v=>v>=2048)) won=true;
+    spawn();
+    if(!canMove()) ended=true;
+    paint();post();
+  }
+  function canMove(){
+    if(empty().length) return true;
+    for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++){
+      const v=grid[y*SIZE+x];
+      if(x+1<SIZE&&grid[y*SIZE+x+1]===v) return true;
+      if(y+1<SIZE&&grid[(y+1)*SIZE+x]===v) return true;
+    }
+    return false;
+  }
+  function reset(){grid=Array(16).fill(0);score=0;ended=false;won=false;spawn();spawn();paint();post()}
+  document.getElementById('btnNew').onclick=reset;
+  window.addEventListener('keydown',e=>{
+    const m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'up',ArrowDown:'down'};
+    if(m[e.key]){e.preventDefault();move(m[e.key])}
+  });
+  let sx=0,sy=0;
+  board.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;board.setPointerCapture(e.pointerId)});
+  board.addEventListener('pointerup',e=>{
+    const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(Math.hypot(dx,dy)<24) return;
+    if(Math.abs(dx)>Math.abs(dy)) move(dx>0?'right':'left');
+    else move(dy>0?'down':'up');
+  });
+  reset();
+})();
+</script>
+</body>
+</html>

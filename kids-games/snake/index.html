@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<title>Snake</title>
+<style>
+  :root{--bg:#0f1f1a;--pine:#3d9b72;--ink:#e8f2ec;--food:#f0b429}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,sans-serif;overflow:hidden}
+  .wrap{height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:8px;padding:10px 12px 12px}
+  .top{display:flex;justify-content:space-between;align-items:center}
+  h1{margin:0;font-size:1.2rem}
+  .chip{background:rgba(255,255,255,.08);border-radius:10px;padding:6px 12px;font-weight:700}
+  canvas{display:block;width:min(100%,72vmin);height:auto;margin:0 auto;border-radius:14px;background:#163028;touch-action:none}
+  .pad{display:grid;grid-template-columns:repeat(3,56px);grid-template-rows:repeat(3,46px);gap:6px;justify-content:center;margin-top:4px}
+  .pad button{appearance:none;border:0;border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-size:1.2rem;font-weight:800}
+  .pad .empty{visibility:hidden}
+  .bar{display:flex;gap:8px;justify-content:center}
+  .bar button{appearance:none;border:0;border-radius:12px;min-height:42px;padding:0 16px;font:inherit;font-weight:700;background:var(--pine);color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1 id="title">Schlange</h1><div class="chip"><span id="lScore">Punkte</span>: <b id="score">0</b></div></div>
+  <canvas id="c" width="360" height="360" aria-label="Snake"></canvas>
+  <div class="pad">
+    <span class="empty"></span><button type="button" data-d="0,-1">▲</button><span class="empty"></span>
+    <button type="button" data-d="-1,0">◀</button><button type="button" id="pause">❚❚</button><button type="button" data-d="1,0">▶</button>
+    <span class="empty"></span><button type="button" data-d="0,1">▼</button><span class="empty"></span>
+  </div>
+  <div class="bar"><button type="button" id="restart">Neu</button></div>
+</div>
+<script>
+(function(){
+  const q=new URLSearchParams(location.search);
+  const el=q.get('lang')==='el';
+  const L=el?{title:'Φίδι',score:'Πόντοι',restart:'Νέο'}:{title:'Schlange',score:'Punkte',restart:'Neu'};
+  document.getElementById('title').textContent=L.title;
+  document.getElementById('lScore').textContent=L.score;
+  document.getElementById('restart').textContent=L.restart;
+
+  const canvas=document.getElementById('c');
+  const ctx=canvas.getContext('2d');
+  const N=18, CELL=canvas.width/N;
+  let snake, dir, nextDir, food, score, alive, paused, tick;
+
+  function post(){try{parent.postMessage({type:'paidia-score',gameId:'osssnake',score},'*')}catch(_){}}
+  function placeFood(){
+    do{food={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)}}
+    while(snake.some(s=>s.x===food.x&&s.y===food.y));
+  }
+  function reset(){
+    snake=[{x:8,y:9},{x:7,y:9},{x:6,y:9}];
+    dir={x:1,y:0};nextDir={x:1,y:0};score=0;alive=true;paused=false;
+    placeFood();paint();post();
+    clearInterval(tick);tick=setInterval(step,140);
+  }
+  function setDir(x,y){
+    if(!alive||paused) return;
+    if(dir.x+x===0&&dir.y+y===0) return;
+    nextDir={x,y};
+  }
+  function step(){
+    if(!alive||paused) return;
+    dir=nextDir;
+    const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+    if(head.x<0||head.y<0||head.x>=N||head.y>=N||snake.some(s=>s.x===head.x&&s.y===head.y)){
+      alive=false;paint();post();return;
+    }
+    snake.unshift(head);
+    if(head.x===food.x&&head.y===food.y){score+=1;placeFood();post()}
+    else snake.pop();
+    paint();
+  }
+  function paint(){
+    document.getElementById('score').textContent=score;
+    ctx.fillStyle='#163028';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#f0b429';
+    ctx.beginPath();ctx.roundRect(food.x*CELL+3,food.y*CELL+3,CELL-6,CELL-6,6);ctx.fill();
+    snake.forEach((s,i)=>{
+      ctx.fillStyle=i===0?'#5ecf98':'#3d9b72';
+      ctx.beginPath();ctx.roundRect(s.x*CELL+2,s.y*CELL+2,CELL-4,CELL-4,5);ctx.fill();
+    });
+    if(!alive){
+      ctx.fillStyle='rgba(0,0,0,.45)';ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle='#fff';ctx.font='bold 28px system-ui';ctx.textAlign='center';
+      ctx.fillText('Game Over',canvas.width/2,canvas.height/2);
+    }
+  }
+  document.querySelectorAll('[data-d]').forEach(b=>{
+    b.onclick=()=>{const[x,y]=b.dataset.d.split(',').map(Number);setDir(x,y)};
+  });
+  document.getElementById('pause').onclick=()=>{paused=!paused};
+  document.getElementById('restart').onclick=reset;
+  window.addEventListener('keydown',e=>{
+    const m={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+    if(m[e.key]){e.preventDefault();setDir(...m[e.key])}
+  });
+  let sx=0,sy=0;
+  canvas.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY});
+  canvas.addEventListener('pointerup',e=>{
+    const dx=e.clientX-sx,dy=e.clientY-sy;
+    if(Math.hypot(dx,dy)<20) return;
+    if(Math.abs(dx)>Math.abs(dy)) setDir(dx>0?1:-1,0); else setDir(0,dy>0?1:-1);
+  });
+  if(!CanvasRenderingContext2D.prototype.roundRect){
+    CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h){this.rect(x,y,w,h)};
+  }
+  reset();
+})();
+</script>
+</body>
+</html>
