@@ -7,6 +7,7 @@
 | Topic | Primary files | Entry points / search |
 |-------|---------------|------------------------|
 | Gate / login | `gate.js`, `app.js` | `renderEntrance`, `renderPin` / `renderGatePin`, PIN + WebAuthn |
+| Spotlight tour | `app.js`, `index.html`, [TOUR_SYSTEM.md](TOUR_SYSTEM.md) | `data-tour`, `openTutorial` / `buildTourSteps`, `tourSeen` v3 |
 | Build / version | `build.json`, `CHANGELOG.md`, `gate.js`, `app.js` | Login `gate-build` chip; bump with every client ship |
 | Biometrics | `gate.js`, `app.js`, `server.py`, [BIOMETRICS.md](BIOMETRICS.md) | Face ID / Fingerabdruck / Hello; `PAIDIA_WEBAUTHN_*` |
 | Home / staff | `app.js` | `viewHome`, shift-start, journal duty, bento |

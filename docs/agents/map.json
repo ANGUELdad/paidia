@@ -2,6 +2,12 @@
   "version": 2,
   "topics": [
     {
+      "id": "tour",
+      "keys": ["tour", "tutorial", "onboarding", "spotlight", "coach", "data-tour", "tourSeen"],
+      "files": ["app.js", "index.html", "docs/agents/TOUR_SYSTEM.md", "server.py"],
+      "snippet": "Spotlight coach-marks: buildTourSteps, openTutorial, data-tour targets, tourSeen v3, Easy/Pro paths. ONBOARDING_VERSION=3."
+    },
+    {
       "id": "auth",
       "keys": ["login", "pin", "passkey", "webauthn", "gate", "biometr", "face id", "finger", "session", "hello"],
       "files": ["gate.js", "app.js", "server.py", "docs/agents/BIOMETRICS.md", ".env.example"],
@@ -59,7 +65,7 @@
       "id": "notif",
       "keys": ["notification", "mitteilung", "push", "presence", "sweep"],
       "files": ["app.js", "sw.js", "docs/agents/WEB_PUSH_LATER.md"],
-      "snippet": "Local Notification API. Staff ops sweeps; child events-only. No VAPID yet."
+      "snippet": "Local Notification API + platform matrix. Optional VAPID subscribe when keys set. See NOTIFICATIONS_MATRIX.md."
     },
     {
       "id": "zoai",

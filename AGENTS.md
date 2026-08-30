@@ -8,6 +8,7 @@
 4. [docs/agents/MEMORY_MAP.md](docs/agents/MEMORY_MAP.md)
 5. [docs/agents/map.json](docs/agents/map.json) — keyword → files/snippet
 6. [docs/agents/BIOMETRICS.md](docs/agents/BIOMETRICS.md) — Face ID / Android fingerprint
+7. [docs/agents/TOUR_SYSTEM.md](docs/agents/TOUR_SYSTEM.md) — spotlight tour / `data-tour` QA
 
 **Never** paste full `app.js` or `server.py` into context.
 
@@ -29,7 +30,9 @@ authority; the Figma build of it is [Armonia Thassos — Design System v2](https
 
 **Claude Code extras:** [CLAUDE.md](CLAUDE.md), [docs/claude-code-setup.md](docs/claude-code-setup.md)
 
-**Deferred Web Push:** [docs/agents/WEB_PUSH_LATER.md](docs/agents/WEB_PUSH_LATER.md)
+**Notifications matrix (OS × browser):** [docs/agents/NOTIFICATIONS_MATRIX.md](docs/agents/NOTIFICATIONS_MATRIX.md)
+
+**Web Push (VAPID partial):** [docs/agents/WEB_PUSH_LATER.md](docs/agents/WEB_PUSH_LATER.md)
 
 **Git push to origin:** [docs/agents/PUSH_ORIGIN.md](docs/agents/PUSH_ORIGIN.md) — use `ANGUELdad` (not `anguel0z`) or push fails with 403.
 
