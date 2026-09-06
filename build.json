@@ -1,8 +1,8 @@
 {
-  "version": 188,
-  "label": "v188",
+  "version": 189,
+  "label": "v189",
   "changed": {
-    "de": "Layout-Scroll · Taschengeld-Panel · Woche Foto→Zo-Ai",
-    "el": "Layout-scroll · Πάνελ χαρτζιλικιού · Εβδομάδα φωτό→Zo-Ai"
+    "de": "Taschengeld-Tab · voller Verlauf · Kinder-Ansicht",
+    "el": "Καρτέλα χαρτζιλικιού · πλήρες ιστορικό · θέα παιδιού"
   }
 }

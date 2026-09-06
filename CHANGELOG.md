@@ -1,5 +1,11 @@
 # Changelog
 
+## v189 — 2026-09-06
+
+- **Taschengeld tab (staff):** dedicated `#pocket` page — kid picker, ± / Korrektur, full searchable history, delete, weekly allowance, categories + rules (DE/EL).
+- **Kids:** primary **Χαρτζιλίκι / Taschengeld** page (view-only full ledger + rules); Bonus stays XP-only; Bonus moved under Mehr.
+- Ops: `pocketMoneySettings` dict; cache `paidia-v189`.
+
 ## v188 — 2026-09-06
 
 - **Layout:** one `--chrome-bottom` on `#app` (no fighting `#view` paddings); `measureChrome` owns clearance; sheets lock body scroll.

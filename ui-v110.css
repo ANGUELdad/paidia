@@ -6240,6 +6240,46 @@ body.mode-pro .stock-recent {
 .kid-profile-pocket{ margin:0 0 14px; }
 body.layout-mobile .pocket-panel{ margin-inline:0; }
 body.mode-child .pocket-panel{ margin-top:8px; }
+.pocket-shell{ display:grid; gap:14px; }
+.pocket-pane-tabs, .pocket-filters{ display:flex; flex-wrap:wrap; gap:6px; }
+.pocket-kid-grid{
+  display:grid; gap:8px;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+}
+.pocket-kid-card{
+  display:flex; align-items:center; gap:10px; text-align:left;
+  padding:10px 12px; border-radius:14px; border:1px solid var(--line,#dce2dd);
+  background:rgba(255,255,255,.9); cursor:pointer; min-height:56px;
+}
+.pocket-kid-card.on{
+  border-color:color-mix(in srgb, var(--brand) 45%, var(--line));
+  background:#eef5f0; box-shadow:0 0 0 1px color-mix(in srgb, var(--brand) 25%, transparent);
+}
+.pocket-kid-av{
+  width:36px; height:36px; border-radius:50%; display:grid; place-items:center;
+  font-weight:800; color:#1d3a2f; flex:0 0 auto;
+}
+.pocket-kid-card small{ display:block; color:var(--muted); font-weight:650; margin-top:2px; }
+.pocket-ledger{ display:grid; gap:12px; }
+.pocket-stats{ display:flex; flex-wrap:wrap; gap:12px; font-size:12px; }
+.pocket-txn{ position:relative; padding-right:36px; }
+.pocket-txn-del{ position:absolute; top:6px; right:6px; min-width:32px; min-height:32px; }
+.pocket-txn-full{ max-height:none; }
+.pocket-settings{ display:grid; gap:12px; padding:14px; }
+.pocket-cat-list{ list-style:none; margin:0; padding:0; display:grid; gap:6px; }
+.pocket-cat-row{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:12px; background:#f6f8f6; }
+.pocket-cat-add, .pocket-allow-grid{ display:grid; gap:8px; }
+.pocket-allow-row{ display:grid; grid-template-columns:1fr 100px; align-items:center; gap:8px; }
+.pocket-rules-box{
+  padding:12px; border-radius:14px; background:rgba(42,107,82,.08); border:1px solid rgba(42,107,82,.15);
+}
+.pocket-rules-box p{ margin:6px 0 0; white-space:pre-wrap; }
+.pocket-allow-hint{ margin:0; font-size:14px; }
+.pocket-search{ margin:0; }
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+  clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
 .gal-org-bar{ display:flex; flex-direction:column; gap:8px; margin:0 0 12px; }
 .gal-org-seg{ flex-wrap:wrap; }
 .gal-filter-row{ display:flex; flex-wrap:wrap; gap:6px; }

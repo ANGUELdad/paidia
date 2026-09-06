@@ -349,6 +349,21 @@
       "snippet": "Push upstream ANGUELdad/paidia → Vercel → armonia-thassos.vercel.app. Read DEPLOY_WIRING.md first."
     },
     {
+      "id": "pocket",
+      "keys": [
+        "pocket",
+        "taschengeld",
+        "χαρτζιλίκι",
+        "allowance"
+      ],
+      "files": [
+        "app.js",
+        "server.py",
+        "docs/agents/MEMORY_MAP.md"
+      ],
+      "snippet": "Staff #pocket tab + kid pocket view; pocketMoneyTxns + pocketMoneySettings ops."
+    },
+    {
       "id": "child",
       "keys": [
         "kind",

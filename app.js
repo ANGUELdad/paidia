@@ -4,17 +4,17 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 188,
-  label: 'v188',
+  version: 189,
+  label: 'v189',
   changed: {
-    de: 'Layout-Scroll · Taschengeld-Panel · Woche Foto→Zo-Ai',
-    el: 'Layout-scroll · Πάνελ χαρτζιλικιού · Εβδομάδα φωτό→Zo-Ai',
+    de: 'Taschengeld-Tab · voller Verlauf · Kinder-Ansicht',
+    el: 'Καρτέλα χαρτζιλικιού · πλήρες ιστορικό · θέα παιδιού',
   },
 };
 const T = {
   de: {
-    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navMore:'Mehr',
-    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navPocket:'Taschengeld', navMore:'Mehr',
+    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', titlePocket:'Taschengeld', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
     kidsOverview:'Übersicht', kidsTracked:n=>`${n} Kinder`, kidsOpenHomework:n=>`${n} Hausaufgaben offen`,
     schoolOverview:'Schulübersicht', gradeAverage:'Notenschnitt', gradeNoData:'Noch keine Noten', attendanceWeek:'Anwesenheit diese Woche',
     homeworkOpen:'Offene Hausaufgaben',
@@ -44,7 +44,7 @@ const T = {
     headerHome:'Armonia · Home',     headerScheduleDay:'Plan · Tag', headerScheduleWeek:'Plan · Woche',
     headerScheduleCalendar:'Plan · Kalender',
     headerScheduleEvents:'Plan · Events', headerStock:'Lager', headerStockAll:'Lager · beide Häuser',
-    headerShop:'Einkauf', headerBook:'Buch & Schicht', headerGallery:'Große Momente', headerTalk:'Team-Gespräch', headerKids:'Kinder & Schule',
+    headerShop:'Einkauf', headerBook:'Buch & Schicht', headerGallery:'Große Momente', headerTalk:'Team-Gespräch', headerKids:'Kinder & Schule', headerPocket:'Taschengeld',
     galleryTitle:'Große Momente', galleryHint:'Fotos von schönen Momenten — für Kinder und Team',
     galleryEmpty:'Noch keine Momente. Sei der Erste!', galleryShare:'Moment teilen',
     galleryDriveOn:'Fotos speichern in Google Drive', galleryDriveOff:'Fotos speichern auf dem Server',
@@ -359,6 +359,7 @@ const T = {
     kidHomeCtaGames:'Spiele öffnen',
     kidHomeCtaRate:'Woche bewerten',
     kidHomeCtaBonus:'Bonus checken',
+    kidHomeCtaPocket:'Taschengeld ansehen',
     kidHomeCtaNotes:'Notiz schreiben',
     kidHomeCtaPlan:'Stundenplan',
     kidHomeCtaStars:'Sterne ansehen',
@@ -646,6 +647,24 @@ const T = {
     pocketMoneyNotePh:'z.B. Wochenende, Geburtstag…', pocketMoneyAdd:'Hinzufügen', pocketMoneyRemove:'Abziehen',
     pocketMoneySaved:'Taschengeld gespeichert', pocketMoneyEmpty:'Noch keine Buchungen',
     pocketMoneyHistory:'Verlauf', pocketMoneyNeedAmount:'Bitte einen Betrag eingeben.',
+    pocketMoneyHeroHint:'Guthaben, Buchungen und Regeln — Betreuer ändern, Kinder sehen.',
+    pocketMoneyPickKid:'Kind wählen', pocketMoneyAllKids:'Alle Kinder',
+    pocketMoneyFilterAll:'Alle', pocketMoneyFilterIn:'Ein', pocketMoneyFilterOut:'Aus',
+    pocketMoneyCategory:'Kategorie', pocketMoneyCategoryNone:'Ohne Kategorie',
+    pocketMoneySettings:'Einstellungen', pocketMoneyRules:'Regeln für Kinder',
+    pocketMoneyRulesPh:'z.B. Taschengeld freitags, Sparziel…',
+    pocketMoneyCats:'Kategorien', pocketMoneyCatAdd:'Kategorie hinzufügen',
+    pocketMoneyCatDe:'Name DE', pocketMoneyCatEl:'Name EL',
+    pocketMoneyAllowance:'Wochen-Taschengeld', pocketMoneyPayAllowance:'Wochenbetrag buchen',
+    pocketMoneyAllowancePaid:'Wochen-Taschengeld gebucht',
+    pocketMoneyDelete:'Buchung löschen', pocketMoneyDeleted:'Buchung gelöscht',
+    pocketMoneyDeleteAsk:'Diese Buchung wirklich löschen?',
+    pocketMoneySearchPh:'Suche Notiz / Betrag…',
+    pocketMoneyOpenTab:'Zur Taschengeld-Seite',
+    pocketMoneyTotalIn:'Einzahlungen', pocketMoneyTotalOut:'Auszahlungen',
+    pocketMoneyNoKid:'Wähle ein Kind für den vollständigen Verlauf.',
+    pocketMoneyKidViewHint:'Dein Guthaben und alle Buchungen — nur ansehen.',
+    kidGuideHintPocket:'Schau dein Taschengeld und den Verlauf an.',
     galGroupFeed:'Feed', galGroupDay:'Tag', galGroupWeek:'Woche', galGroupMonth:'Monat',
     galGroupCategory:'Kategorie', galGroupBetreuer:'Betreuer', galFilterAll:'Alle',
     galCatAllgemein:'Allgemein', galCatAusflug:'Ausflug', galCatSport:'Sport', galCatEssen:'Essen',
@@ -1098,8 +1117,8 @@ const T = {
     pasteScreenshot:'Bild einfügen', pickScreenshot:'Bild / Foto wählen',
   },
   el: {
-    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navMore:'Άλλα',
-    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navPocket:'Χαρτζιλίκι', navMore:'Άλλα',
+    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', titlePocket:'Χαρτζιλίκι', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
     kidsOverview:'Επισκόπηση', kidsTracked:n=>`${n} παιδιά`, kidsOpenHomework:n=>`${n} ανοιχτές εργασίες`,
     schoolOverview:'Σχολική εικόνα', gradeAverage:'Μέσος βαθμός', gradeNoData:'Δεν υπάρχουν βαθμοί ακόμα', attendanceWeek:'Παρουσία αυτή την εβδομάδα',
     homeworkOpen:'Ανοιχτές εργασίες',
@@ -1129,7 +1148,7 @@ const T = {
     headerHome:'Armonia · Αρχική',     headerScheduleDay:'Πρόγραμμα · Ημέρα', headerScheduleWeek:'Πρόγραμμα · Εβδομάδα',
     headerScheduleCalendar:'Πρόγραμμα · Ημερολόγιο',
     headerScheduleEvents:'Πρόγραμμα · Events', headerStock:'Αποθήκη', headerStockAll:'Αποθήκη · όλα',
-    headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια', headerGallery:'Μεγάλες στιγμές', headerTalk:'Συνομιλία ομάδας', headerKids:'Παιδιά & Σχολείο',
+    headerShop:'Ψώνια', headerBook:'Βιβλίο & βάρδια', headerGallery:'Μεγάλες στιγμές', headerTalk:'Συνομιλία ομάδας', headerKids:'Παιδιά & Σχολείο', headerPocket:'Χαρτζιλίκι',
     galleryTitle:'Μεγάλες στιγμές', galleryHint:'Φωτογραφίες ωραίων στιγμών — για παιδιά και ομάδα',
     galleryEmpty:'Καμία στιγμή ακόμα. Γίνε ο πρώτος!', galleryShare:'Μοιράσου στιγμή',
     galleryDriveOn:'Οι φωτογραφίες αποθηκεύονται στο Google Drive', galleryDriveOff:'Οι φωτογραφίες αποθηκεύονται στον διακομιστή',
@@ -1444,6 +1463,7 @@ const T = {
     kidHomeCtaGames:'Άνοιξε παιχνίδια',
     kidHomeCtaRate:'Βαθμολόγησε την εβδομάδα',
     kidHomeCtaBonus:'Δες μπόνους',
+    kidHomeCtaPocket:'Δες το χαρτζιλίκι',
     kidHomeCtaNotes:'Γράψε σημείωση',
     kidHomeCtaPlan:'Ωρολόγιο',
     kidHomeCtaStars:'Δες αστέρια',
@@ -1731,6 +1751,24 @@ const T = {
     pocketMoneyNotePh:'π.χ. Σαββατοκύριακο, γενέθλια…', pocketMoneyAdd:'Πρόσθεσε', pocketMoneyRemove:'Αφαίρεσε',
     pocketMoneySaved:'Το χαρτζιλίκι αποθηκεύτηκε', pocketMoneyEmpty:'Δεν υπάρχουν κινήσεις ακόμα',
     pocketMoneyHistory:'Ιστορικό', pocketMoneyNeedAmount:'Γράψε ένα ποσό.',
+    pocketMoneyHeroHint:'Υπόλοιπο, κινήσεις και κανόνες — οι φροντιστές αλλάζουν, τα παιδιά βλέπουν.',
+    pocketMoneyPickKid:'Επίλεξε παιδί', pocketMoneyAllKids:'Όλα τα παιδιά',
+    pocketMoneyFilterAll:'Όλα', pocketMoneyFilterIn:'Είσοδος', pocketMoneyFilterOut:'Έξοδος',
+    pocketMoneyCategory:'Κατηγορία', pocketMoneyCategoryNone:'Χωρίς κατηγορία',
+    pocketMoneySettings:'Ρυθμίσεις', pocketMoneyRules:'Κανόνες για παιδιά',
+    pocketMoneyRulesPh:'π.χ. χαρτζιλίκι Παρασκευή, στόχος αποταμίευσης…',
+    pocketMoneyCats:'Κατηγορίες', pocketMoneyCatAdd:'Προσθήκη κατηγορίας',
+    pocketMoneyCatDe:'Όνομα DE', pocketMoneyCatEl:'Όνομα EL',
+    pocketMoneyAllowance:'Εβδομαδιαίο χαρτζιλίκι', pocketMoneyPayAllowance:'Καταχώριση εβδομάδας',
+    pocketMoneyAllowancePaid:'Το εβδομαδιαίο χαρτζιλίκι καταχωρήθηκε',
+    pocketMoneyDelete:'Διαγραφή κίνησης', pocketMoneyDeleted:'Η κίνηση διαγράφηκε',
+    pocketMoneyDeleteAsk:'Να διαγραφεί αυτή η κίνηση;',
+    pocketMoneySearchPh:'Αναζήτηση σημείωσης / ποσού…',
+    pocketMoneyOpenTab:'Στη σελίδα χαρτζιλικιού',
+    pocketMoneyTotalIn:'Καταθέσεις', pocketMoneyTotalOut:'Αναλήψεις',
+    pocketMoneyNoKid:'Διάλεξε παιδί για το πλήρες ιστορικό.',
+    pocketMoneyKidViewHint:'Το υπόλοιπό σου και όλες οι κινήσεις — μόνο θέα.',
+    kidGuideHintPocket:'Δες το χαρτζιλίκι σου και το ιστορικό.',
     galGroupFeed:'Feed', galGroupDay:'Ημέρα', galGroupWeek:'Εβδομάδα', galGroupMonth:'Μήνας',
     galGroupCategory:'Κατηγορία', galGroupBetreuer:'Φροντιστής', galFilterAll:'Όλα',
     galCatAllgemein:'Γενικά', galCatAusflug:'Εκδρομή', galCatSport:'Άθλημα', galCatEssen:'Φαγητό',
@@ -2520,6 +2558,7 @@ const SEED = {
   shoppingTrips: [],
   listRequests: [],
   pocketMoneyTxns: [],
+  pocketMoneySettings: {},
   feedbackReports: [],
   stock: {},
   log: [],
@@ -2545,7 +2584,7 @@ const SEED = {
 /* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
 const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
-const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'listRequests', 'pocketMoneyTxns', 'feedbackReports', 'stock', 'log',
+const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'listRequests', 'pocketMoneyTxns', 'pocketMoneySettings', 'feedbackReports', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
                  'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable', 'schoolMaterials', 'schoolMaterialMedia', 'schoolActivity'];
@@ -2577,6 +2616,7 @@ function normalizeDbShape(db = DB){
   if(!db.stock || typeof db.stock !== 'object' || Array.isArray(db.stock)) db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object' || Array.isArray(db.productOverrides)) db.productOverrides = {};
   if(!db.profilePrefs || typeof db.profilePrefs !== 'object' || Array.isArray(db.profilePrefs)) db.profilePrefs = {};
+  if(!db.pocketMoneySettings || typeof db.pocketMoneySettings !== 'object' || Array.isArray(db.pocketMoneySettings)) db.pocketMoneySettings = {};
   if(!db.weeks || typeof db.weeks !== 'object' || Array.isArray(db.weeks)) db.weeks = {};
   if(!db.shiftNotes || typeof db.shiftNotes !== 'object' || Array.isArray(db.shiftNotes)) db.shiftNotes = {};
   if(!db.gameStats || typeof db.gameStats !== 'object' || Array.isArray(db.gameStats)) db.gameStats = {};
@@ -2605,13 +2645,13 @@ function normalizeDbShape(db = DB){
 
 /** Shared across all staff devices — full operational state (survives when Postgres is configured). */
 const SHARED_KEYS = [
-  'listEntries','shoppingTrips','listRequests','pocketMoneyTxns','feedbackReports','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
+  'listEntries','shoppingTrips','listRequests','pocketMoneyTxns','pocketMoneySettings','feedbackReports','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
   'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
   'xpLog','gameStats',
   'kidRatings','staffKidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity',
 ];
-const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes']);
+const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes','pocketMoneySettings']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
 let sharedPushTimer = null;
 let sharedPollTimer = null;
@@ -3287,6 +3327,10 @@ const state = {
   lang: localStorage.getItem('paidia.lang') || 'de',
   tab: 'home',
   staffKidId: null,
+  pocketKidId: null,
+  pocketFilter: 'all',
+  pocketQuery: '',
+  pocketPane: 'ledger',
   kidsPane: 'directory',
   scheduleView: 'week',
   childView: 'today',
@@ -6718,7 +6762,7 @@ function consumePresenceDeepLink(){
   }catch{ return false; }
 }
 
-const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids'];
+const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids','pocket'];
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
 const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
 const SCHEDULE_VIEW_LAST_KEY = 'paidia.scheduleViewLast';
@@ -6838,6 +6882,7 @@ function routeFromHash(){
     const kidsPanes = ['directory','attendance','homework','materials','activity','timetable','subjects'];
     if(kidsPanes.includes(pane)) route.kidsPane = pane;
   }
+  if(tab === 'pocket' && parts[1]) route.pocketKidId = parts[1];
   return route;
 }
 
@@ -6850,6 +6895,7 @@ function applyRouteFromHash(){
     state.shopPanel = route.shopPanel === 'store' ? 'plan' : route.shopPanel;
   }
   if(route.kidsPane) state.kidsPane = route.kidsPane;
+  if(route.pocketKidId) state.pocketKidId = route.pocketKidId;
   return true;
 }
 
@@ -6874,6 +6920,9 @@ function hashForState(){
   if(state.tab === 'kids'){
     const pane = state.kidsPane || 'directory';
     return pane && pane !== 'directory' ? `#kids/${pane}` : '#kids';
+  }
+  if(state.tab === 'pocket'){
+    return state.pocketKidId ? `#pocket/${state.pocketKidId}` : '#pocket';
   }
   return '';
 }
@@ -10803,6 +10852,14 @@ function openListRequestCount(hid){
 }
 
 /* ── Taschengeld / Χαρτζιλίκι ───────────────────────────────────────── */
+const POCKET_DEFAULT_CATS = [
+  {id:'pcat-week', de:'Wochen-Taschengeld', el:'Εβδομαδιαίο'},
+  {id:'pcat-weekend', de:'Wochenende', el:'Σαββατοκύριακο'},
+  {id:'pcat-bday', de:'Geburtstag', el:'Γενέθλια'},
+  {id:'pcat-shop', de:'Einkauf', el:'Αγορές'},
+  {id:'pcat-other', de:'Sonstiges', el:'Άλλο'},
+];
+
 function formatEuro(n){
   const v = Math.round((Number(n)||0)*100)/100;
   try{
@@ -10810,6 +10867,41 @@ function formatEuro(n){
   }catch(_){
     return v.toFixed(2)+' €';
   }
+}
+function ensurePocketSettings(){
+  if(!DB.pocketMoneySettings || typeof DB.pocketMoneySettings !== 'object' || Array.isArray(DB.pocketMoneySettings)){
+    DB.pocketMoneySettings = {};
+  }
+  const s = DB.pocketMoneySettings;
+  if(!Array.isArray(s.categories) || !s.categories.length){
+    s.categories = POCKET_DEFAULT_CATS.map(c=>({...c, active:true}));
+  }
+  if(!s.allowances || typeof s.allowances !== 'object' || Array.isArray(s.allowances)) s.allowances = {};
+  if(typeof s.rulesDe !== 'string') s.rulesDe = '';
+  if(typeof s.rulesEl !== 'string') s.rulesEl = '';
+  return s;
+}
+function pocketCategories({activeOnly=true}={}){
+  const cats = ensurePocketSettings().categories || [];
+  return activeOnly ? cats.filter(c=>c && c.active!==false) : cats.filter(Boolean);
+}
+function pocketCatById(id){
+  if(!id) return null;
+  return (ensurePocketSettings().categories||[]).find(c=>c && c.id===id) || null;
+}
+function pocketCatLabel(catOrId){
+  const c = typeof catOrId==='string' ? pocketCatById(catOrId) : catOrId;
+  if(!c) return '';
+  return (state.lang==='el' ? (c.el||c.de) : (c.de||c.el)) || '';
+}
+function pocketRulesText(){
+  const s = ensurePocketSettings();
+  const txt = state.lang==='el' ? (s.rulesEl||s.rulesDe) : (s.rulesDe||s.rulesEl);
+  return String(txt||'').trim();
+}
+function pocketAllowance(kidId){
+  const n = Number(ensurePocketSettings().allowances?.[kidId]);
+  return Number.isFinite(n) && n>0 ? Math.round(n*100)/100 : 0;
 }
 function pocketTxnsFor(kidId){
   return (DB.pocketMoneyTxns||[]).filter(x=>x && x.kidId===kidId)
@@ -10821,16 +10913,31 @@ function pocketBalance(kidId){
   if(rows[0].balanceAfter!=null) return Number(rows[0].balanceAfter)||0;
   return rows.slice().reverse().reduce((s,r)=>s+(Number(r.amount)||0), 0);
 }
-function addPocketTxn({kidId, amount, kind='in', note=''}={}){
+function recomputePocketBalances(kidId){
+  const rows = (DB.pocketMoneyTxns||[]).filter(x=>x && x.kidId===kidId)
+    .sort((a,b)=>(Number(a.ts)||0)-(Number(b.ts)||0));
+  let bal = 0;
+  rows.forEach(r=>{
+    bal = Math.round((bal + (Number(r.amount)||0))*100)/100;
+    r.balanceAfter = bal;
+  });
+}
+function addPocketTxn({kidId, amount, kind='in', note='', categoryId=''}={}){
   if(!kidId) return null;
   let amt = Math.round(Math.abs(Number(amount)||0)*100)/100;
-  if(!(amt>0)) return null;
-  if(kind==='out') amt = -amt;
-  else if(kind==='adjust') amt = Math.round(Number(amount)*100)/100;
+  if(kind==='adjust'){
+    amt = Math.round(Number(amount)*100)/100;
+    if(!Number.isFinite(amt) || amt===0) return null;
+  }else{
+    if(!(amt>0)) return null;
+    if(kind==='out') amt = -amt;
+  }
   const bal = Math.round((pocketBalance(kidId)+amt)*100)/100;
   const row = {
-    id: uid(), kidId, amount: amt, kind: kind==='out'?'out':(kind==='adjust'?'adjust':'in'),
+    id: uid(), kidId, amount: amt,
+    kind: kind==='out'?'out':(kind==='adjust'?'adjust':'in'),
     note: String(note||'').trim().slice(0,160),
+    categoryId: categoryId || '',
     by: state.user?.id || null, ts: Date.now(), balanceAfter: bal,
   };
   DB.pocketMoneyTxns = DB.pocketMoneyTxns || [];
@@ -10838,17 +10945,52 @@ function addPocketTxn({kidId, amount, kind='in', note=''}={}){
   if(DB.pocketMoneyTxns.length>4000) DB.pocketMoneyTxns = DB.pocketMoneyTxns.slice(-4000);
   return row;
 }
-function pocketTxnRowsHtml(kidId, {limit=10, readonly=false}={}){
-  const rows = pocketTxnsFor(kidId).slice(0, limit);
+function deletePocketTxn(id){
+  const row = (DB.pocketMoneyTxns||[]).find(x=>x && x.id===id);
+  if(!row) return false;
+  const kidId = row.kidId;
+  DB.pocketMoneyTxns = (DB.pocketMoneyTxns||[]).filter(x=>x && x.id!==id);
+  recomputePocketBalances(kidId);
+  return true;
+}
+function pocketTxnKindLabel(r){
+  if(r?.kind==='adjust') return t('pocketMoneyAdjust');
+  if(r?.kind==='out' || (Number(r?.amount)||0)<0) return t('pocketMoneyOut');
+  return t('pocketMoneyIn');
+}
+function pocketFilterRows(kidId, {filter='all', query=''}={}){
+  let rows = pocketTxnsFor(kidId);
+  if(filter==='in') rows = rows.filter(r=>(Number(r.amount)||0)>0 && r.kind!=='adjust');
+  else if(filter==='out') rows = rows.filter(r=>(Number(r.amount)||0)<0);
+  else if(filter==='adjust') rows = rows.filter(r=>r.kind==='adjust');
+  const q = String(query||'').trim().toLowerCase();
+  if(q){
+    rows = rows.filter(r=>{
+      const cat = pocketCatLabel(r.categoryId).toLowerCase();
+      const note = String(r.note||'').toLowerCase();
+      const amt = String(Math.abs(Number(r.amount)||0));
+      return note.includes(q) || cat.includes(q) || amt.includes(q);
+    });
+  }
+  return rows;
+}
+function pocketTxnRowsHtml(kidId, {limit, readonly=false, filter, query}={}){
+  let rows = (filter!=null || query!=null)
+    ? pocketFilterRows(kidId, {filter: filter||'all', query: query||''})
+    : pocketTxnsFor(kidId);
+  if(limit!=null) rows = rows.slice(0, limit);
   if(!rows.length) return `<li class="pocket-txn pocket-txn-empty muted">${esc(t('pocketMoneyEmpty'))}</li>`;
   return rows.map(r=>{
     const sign = r.amount>=0?'+':'';
     const who = emp(r.by)?.name || '';
     const when = r.ts ? (typeof relativeTime==='function'?relativeTime(r.ts):new Date(r.ts).toLocaleDateString()) : '';
+    const cat = pocketCatLabel(r.categoryId);
+    const del = readonly ? '' : `<button type="button" class="btn ghost sm pocket-txn-del" data-pocket-del="${esc(r.id)}" aria-label="${esc(t('pocketMoneyDelete'))}">×</button>`;
     return `<li class="pocket-txn ${r.amount>=0?'in':'out'}">
       <b>${sign}${esc(formatEuro(Math.abs(r.amount)))}</b>
-      <span>${esc(r.note||t(r.kind==='out'?'pocketMoneyOut':'pocketMoneyIn'))}${who?` · ${esc(who)}`:''}</span>
+      <span>${esc(r.note||pocketTxnKindLabel(r))}${cat?` · ${esc(cat)}`:''}${who?` · ${esc(who)}`:''}</span>
       <small>${esc(when)}${r.balanceAfter!=null?` · ${esc(formatEuro(r.balanceAfter))}`:''}</small>
+      ${del}
     </li>`;
   }).join('');
 }
@@ -10861,6 +11003,7 @@ function pocketMoneyPanelHtml(kidId, {mode='staff', limit}={}){
   const actions = isChild ? '' : `<div class="pocket-staff-actions" role="group" aria-label="${esc(t('pocketMoneyTitle'))}">
       <button type="button" class="btn pocket-act-in" data-pocket-add="${esc(kidId)}">＋ ${esc(t('pocketMoneyIn'))}</button>
       <button type="button" class="btn sec pocket-act-out" data-pocket-remove="${esc(kidId)}">− ${esc(t('pocketMoneyOut'))}</button>
+      <button type="button" class="btn ghost" data-pocket-goto="${esc(kidId)}">${esc(t('pocketMoneyOpenTab'))}</button>
     </div>`;
   return `<section class="pocket-panel ${isChild?'pocket-child':'pocket-staff'}" aria-labelledby="pocketTitle-${esc(kidId)}">
     <header class="pocket-panel-head">
@@ -10878,22 +11021,273 @@ function pocketMoneyPanelHtml(kidId, {mode='staff', limit}={}){
 function sheetPocketTxn(kidId, kind='in'){
   if(!kidId) return;
   const k = kid(kidId);
+  const cats = pocketCategories();
+  const isAdj = kind==='adjust';
+  const title = isAdj ? t('pocketMoneyAdjust') : (kind==='out'?t('pocketMoneyOut'):t('pocketMoneyIn'));
+  const catOpts = `<option value="">${esc(t('pocketMoneyCategoryNone'))}</option>`
+    + cats.map(c=>`<option value="${esc(c.id)}">${esc(pocketCatLabel(c))}</option>`).join('');
   openSheet(`<div class="pocket-sheet">
     <div class="import-kicker">${esc(t('pocketMoneyTitle'))}</div>
-    <h2>${esc(kind==='out'?t('pocketMoneyOut'):t('pocketMoneyIn'))} · ${esc(k?.name||'')}</h2>
+    <h2>${esc(title)} · ${esc(k?.name||'')}</h2>
     <p class="muted">${esc(t('pocketMoneyBalance'))}: <b>${esc(formatEuro(pocketBalance(kidId)))}</b></p>
-    <label class="f"><span>${esc(t('pocketMoneyIn'))} €</span><input id="pocketAmt" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="5.00"></label>
+    <label class="f"><span>${esc(isAdj?t('pocketMoneyAdjust'):t('pocketMoneyIn'))} €</span>
+      <input id="pocketAmt" type="number" inputmode="decimal" ${isAdj?'step="0.01"':'min="0.01" step="0.01"'} placeholder="${isAdj?'±5.00':'5.00'}">
+    </label>
+    <label class="f"><span>${esc(t('pocketMoneyCategory'))}</span><select id="pocketCat">${catOpts}</select></label>
     <label class="f"><span>${esc(t('pocketMoneyNote'))}</span><input id="pocketNote" placeholder="${esc(t('pocketMoneyNotePh'))}"></label>
-    <button class="btn" type="button" id="pocketSave">${esc(t('pocketMoneyAdd'))}</button>
+    <button class="btn" type="button" id="pocketSave">${esc(isAdj?t('pocketMoneyAdjust'):(kind==='out'?t('pocketMoneyRemove'):t('pocketMoneyAdd')))}</button>
   </div>`);
   sheetEl.querySelector('#pocketSave').onclick=()=>{
     const amt = Number(String(sheetEl.querySelector('#pocketAmt')?.value||'').replace(',','.'));
     const note = sheetEl.querySelector('#pocketNote')?.value||'';
-    if(!(amt>0)){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
-    if(!addPocketTxn({kidId, amount:amt, kind, note})){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
+    const categoryId = sheetEl.querySelector('#pocketCat')?.value||'';
+    if(isAdj){
+      if(!Number.isFinite(amt) || amt===0){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
+    }else if(!(amt>0)){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
+    if(!addPocketTxn({kidId, amount:amt, kind, note, categoryId})){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
     if(!save()) return;
     closeSheet(); toast(t('pocketMoneySaved'),'success'); feedback('save'); render();
   };
+}
+function wirePocketActions(root){
+  if(!root) return;
+  root.querySelectorAll('[data-pocket-add]').forEach(btn=>{
+    btn.onclick=()=>sheetPocketTxn(btn.dataset.pocketAdd, 'in');
+  });
+  root.querySelectorAll('[data-pocket-remove]').forEach(btn=>{
+    btn.onclick=()=>sheetPocketTxn(btn.dataset.pocketRemove, 'out');
+  });
+  root.querySelectorAll('[data-pocket-adjust]').forEach(btn=>{
+    btn.onclick=()=>sheetPocketTxn(btn.dataset.pocketAdjust, 'adjust');
+  });
+  root.querySelectorAll('[data-pocket-goto]').forEach(btn=>{
+    btn.onclick=()=>{
+      state.tab='pocket';
+      state.pocketKidId=btn.dataset.pocketGoto||null;
+      state.pocketPane='ledger';
+      syncLocationHash();
+      render();
+    };
+  });
+  root.querySelectorAll('[data-pocket-del]').forEach(btn=>{
+    btn.onclick=()=>{
+      if(!confirm(t('pocketMoneyDeleteAsk'))) return;
+      if(!deletePocketTxn(btn.dataset.pocketDel)) return;
+      if(!save()) return;
+      toast(t('pocketMoneyDeleted'),'success'); feedback('save'); render();
+    };
+  });
+  root.querySelectorAll('[data-pocket-pay-allow]').forEach(btn=>{
+    btn.onclick=()=>{
+      const id = btn.dataset.pocketPayAllow;
+      const amt = pocketAllowance(id);
+      if(!(amt>0)){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
+      const weekCat = pocketCategories().find(c=>c.id==='pcat-week')?.id || '';
+      if(!addPocketTxn({kidId:id, amount:amt, kind:'in', note:t('pocketMoneyAllowance'), categoryId:weekCat})) return;
+      if(!save()) return;
+      toast(t('pocketMoneyAllowancePaid'),'success'); feedback('save'); render();
+    };
+  });
+}
+
+function viewPocket(){
+  ensurePocketSettings();
+  const kids = (DB.children||[]).filter(Boolean);
+  const kidId = state.pocketKidId && kids.some(k=>k.id===state.pocketKidId)
+    ? state.pocketKidId
+    : (kids[0]?.id || null);
+  if(kidId && kidId!==state.pocketKidId) state.pocketKidId = kidId;
+  const pane = state.pocketPane==='settings' ? 'settings' : 'ledger';
+  const filter = state.pocketFilter || 'all';
+  const query = state.pocketQuery || '';
+  const summary = kids.map(k=>{
+    const bal = pocketBalance(k.id);
+    const on = k.id===kidId ? ' on' : '';
+    return `<button type="button" class="pocket-kid-card${on}" data-pocket-kid="${esc(k.id)}">
+      <span class="pocket-kid-av" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0]||'?')}</span>
+      <span class="grow"><b>${esc(k.name)}</b><small>${esc(formatEuro(bal))}</small></span>
+    </button>`;
+  }).join('') || `<p class="muted">${esc(t('kidsEmpty'))}</p>`;
+
+  let body = '';
+  if(pane==='settings'){
+    const s = ensurePocketSettings();
+    const cats = (s.categories||[]).map(c=>`<li class="pocket-cat-row">
+      <span class="grow"><b>${esc(c.de||'')}</b> · ${esc(c.el||'')}</span>
+      <button type="button" class="btn ghost sm" data-pocket-cat-toggle="${esc(c.id)}">${esc(c.active===false?t('subActivate'):t('subArchive'))}</button>
+    </li>`).join('') || `<li class="muted">${esc(t('pocketMoneyEmpty'))}</li>`;
+    const allowRows = kids.map(k=>`<label class="f pocket-allow-row"><span>${esc(k.name)}</span>
+      <input type="number" min="0" step="0.5" inputmode="decimal" data-pocket-allow="${esc(k.id)}" value="${pocketAllowance(k.id)||''}" placeholder="0">
+    </label>`).join('');
+    body = `<section class="pocket-settings kid-card">
+      <h3>${esc(t('pocketMoneyRules'))}</h3>
+      <label class="f"><span>DE</span><textarea id="pocketRulesDe" rows="3" placeholder="${esc(t('pocketMoneyRulesPh'))}">${esc(s.rulesDe||'')}</textarea></label>
+      <label class="f"><span>EL</span><textarea id="pocketRulesEl" rows="3" placeholder="${esc(t('pocketMoneyRulesPh'))}">${esc(s.rulesEl||'')}</textarea></label>
+      <button type="button" class="btn" id="pocketRulesSave">${esc(t('save'))}</button>
+      <h3>${esc(t('pocketMoneyCats'))}</h3>
+      <ul class="pocket-cat-list">${cats}</ul>
+      <form id="pocketCatAdd" class="pocket-cat-add">
+        <label class="f"><span>${esc(t('pocketMoneyCatDe'))}</span><input name="de" required maxlength="40"></label>
+        <label class="f"><span>${esc(t('pocketMoneyCatEl'))}</span><input name="el" maxlength="40"></label>
+        <button class="btn sec" type="submit">${esc(t('pocketMoneyCatAdd'))}</button>
+      </form>
+      <h3>${esc(t('pocketMoneyAllowance'))}</h3>
+      <div class="pocket-allow-grid">${allowRows}</div>
+      <button type="button" class="btn" id="pocketAllowSave">${esc(t('save'))}</button>
+    </section>`;
+  }else if(!kidId){
+    body = `<p class="muted">${esc(t('pocketMoneyNoKid'))}</p>`;
+  }else{
+    const k = kid(kidId);
+    const rows = pocketFilterRows(kidId, {filter, query});
+    const totalIn = rows.filter(r=>(Number(r.amount)||0)>0).reduce((s,r)=>s+Number(r.amount),0);
+    const totalOut = rows.filter(r=>(Number(r.amount)||0)<0).reduce((s,r)=>s+Math.abs(Number(r.amount)),0);
+    const allow = pocketAllowance(kidId);
+    body = `<section class="pocket-ledger" data-tour="pocket-ledger">
+      <header class="pocket-panel-head">
+        <div class="pocket-panel-titles">
+          <span class="pocket-kicker">${esc(k?.name||'')}</span>
+          <h2 class="pocket-panel-title">${esc(t('pocketMoneyBalance'))}</h2>
+        </div>
+        <div class="pocket-balance-big">${esc(formatEuro(pocketBalance(kidId)))}</div>
+      </header>
+      <div class="pocket-staff-actions" role="group">
+        <button type="button" class="btn" data-pocket-add="${esc(kidId)}">＋ ${esc(t('pocketMoneyIn'))}</button>
+        <button type="button" class="btn sec" data-pocket-remove="${esc(kidId)}">− ${esc(t('pocketMoneyOut'))}</button>
+        <button type="button" class="btn ghost" data-pocket-adjust="${esc(kidId)}">${esc(t('pocketMoneyAdjust'))}</button>
+        ${allow>0?`<button type="button" class="btn ghost" data-pocket-pay-allow="${esc(kidId)}">${esc(t('pocketMoneyPayAllowance'))} (${esc(formatEuro(allow))})</button>`:''}
+      </div>
+      <div class="pocket-stats muted">
+        <span>${esc(t('pocketMoneyTotalIn'))}: <b>${esc(formatEuro(totalIn))}</b></span>
+        <span>${esc(t('pocketMoneyTotalOut'))}: <b>${esc(formatEuro(totalOut))}</b></span>
+        <span>${rows.length}</span>
+      </div>
+      <div class="pocket-filters" role="tablist">
+        ${[['all','pocketMoneyFilterAll'],['in','pocketMoneyFilterIn'],['out','pocketMoneyFilterOut'],['adjust','pocketMoneyAdjust']].map(([id,key])=>
+          `<button type="button" class="chip ${filter===id?'on':''}" data-pocket-filter="${id}">${esc(t(key))}</button>`
+        ).join('')}
+      </div>
+      <label class="f pocket-search"><span class="sr-only">${esc(t('pocketMoneySearchPh'))}</span>
+        <input id="pocketSearch" type="search" value="${esc(query)}" placeholder="${esc(t('pocketMoneySearchPh'))}">
+      </label>
+      <h3 class="pocket-history-h">${esc(t('pocketMoneyHistory'))}</h3>
+      <ul class="pocket-txn-list pocket-txn-full">${pocketTxnRowsHtml(kidId, {readonly:false, filter, query})}</ul>
+    </section>`;
+  }
+
+  return `<div class="pocket-shell" data-tour="pocket-main">
+    <header class="ops-hero pocket-hero hero-texture">
+      <p class="brand-kicker">Armonia</p>
+      <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+      <h2>${esc(t('titlePocket'))}</h2>
+      <p>${esc(t('pocketMoneyHeroHint'))}</p>
+    </header>
+    <div class="pocket-pane-tabs" role="tablist">
+      <button type="button" class="chip ${pane==='ledger'?'on':''}" data-pocket-pane="ledger">${esc(t('pocketMoneyHistory'))}</button>
+      <button type="button" class="chip ${pane==='settings'?'on':''}" data-pocket-pane="settings">${esc(t('pocketMoneySettings'))}</button>
+    </div>
+    <div class="pocket-kid-grid" aria-label="${esc(t('pocketMoneyPickKid'))}">${summary}</div>
+    ${body}
+  </div>`;
+}
+
+function wirePocketView(v){
+  wirePocketActions(v);
+  v.querySelectorAll('[data-pocket-kid]').forEach(btn=>{
+    btn.onclick=()=>{
+      state.pocketKidId = btn.dataset.pocketKid;
+      state.pocketPane = 'ledger';
+      feedback('tap'); render();
+    };
+  });
+  v.querySelectorAll('[data-pocket-pane]').forEach(btn=>{
+    btn.onclick=()=>{ state.pocketPane = btn.dataset.pocketPane; feedback('tap'); render(); };
+  });
+  v.querySelectorAll('[data-pocket-filter]').forEach(btn=>{
+    btn.onclick=()=>{ state.pocketFilter = btn.dataset.pocketFilter; feedback('tap'); render(); };
+  });
+  const search = v.querySelector('#pocketSearch');
+  if(search){
+    search.oninput=()=>{
+      state.pocketQuery = search.value || '';
+      const pos = search.selectionStart;
+      clearTimeout(wirePocketView._q);
+      wirePocketView._q = setTimeout(()=>{
+        render();
+        queueMicrotask(()=>{
+          const el = document.querySelector('#pocketSearch');
+          if(!el) return;
+          el.focus();
+          try{ el.setSelectionRange(pos, pos); }catch{}
+        });
+      }, 220);
+    };
+  }
+  const rulesSave = v.querySelector('#pocketRulesSave');
+  if(rulesSave) rulesSave.onclick=()=>{
+    const s = ensurePocketSettings();
+    s.rulesDe = String(v.querySelector('#pocketRulesDe')?.value||'').trim().slice(0,800);
+    s.rulesEl = String(v.querySelector('#pocketRulesEl')?.value||'').trim().slice(0,800);
+    if(!save()) return;
+    toast(t('pocketMoneySaved'),'success'); feedback('save');
+  };
+  const allowSave = v.querySelector('#pocketAllowSave');
+  if(allowSave) allowSave.onclick=()=>{
+    const s = ensurePocketSettings();
+    s.allowances = s.allowances || {};
+    v.querySelectorAll('[data-pocket-allow]').forEach(inp=>{
+      const n = Number(String(inp.value||'').replace(',','.'));
+      if(Number.isFinite(n) && n>0) s.allowances[inp.dataset.pocketAllow] = Math.round(n*100)/100;
+      else delete s.allowances[inp.dataset.pocketAllow];
+    });
+    if(!save()) return;
+    toast(t('pocketMoneySaved'),'success'); feedback('save'); render();
+  };
+  v.querySelectorAll('[data-pocket-cat-toggle]').forEach(btn=>{
+    btn.onclick=()=>{
+      const s = ensurePocketSettings();
+      const c = (s.categories||[]).find(x=>x.id===btn.dataset.pocketCatToggle);
+      if(!c) return;
+      c.active = c.active===false;
+      if(!save()) return;
+      render();
+    };
+  });
+  const catAdd = v.querySelector('#pocketCatAdd');
+  if(catAdd) catAdd.onsubmit=ev=>{
+    ev.preventDefault();
+    const fd = new FormData(catAdd);
+    const de = String(fd.get('de')||'').trim().slice(0,40);
+    const el = String(fd.get('el')||'').trim().slice(0,40);
+    if(!de && !el) return;
+    const s = ensurePocketSettings();
+    s.categories = s.categories || [];
+    if(s.categories.length>=40){ toast(t('unexpectedError'),'error'); return; }
+    s.categories.push({id:'pcat-'+uid(), de: de||el, el: el||de, active:true});
+    if(!save()) return;
+    toast(t('pocketMoneySaved'),'success'); feedback('save'); render();
+  };
+}
+
+function childPocketView(kidId){
+  const rules = pocketRulesText();
+  const allow = pocketAllowance(kidId);
+  return `<div data-tour="kid-pocket"><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    <section class="pocket-panel pocket-child">
+      <header class="pocket-panel-head">
+        <div class="pocket-panel-titles">
+          <span class="pocket-kicker">${esc(t('pocketMoneyBalance'))}</span>
+          <h2 class="pocket-panel-title">${esc(t('pocketMoneyTitle'))}</h2>
+        </div>
+        <div class="pocket-balance-big">${esc(formatEuro(pocketBalance(kidId)))}</div>
+      </header>
+      <p class="muted">${esc(t('pocketMoneyKidViewHint'))}</p>
+      ${allow>0?`<p class="pocket-allow-hint">${esc(t('pocketMoneyAllowance'))}: <b>${esc(formatEuro(allow))}</b></p>`:''}
+      ${rules?`<div class="pocket-rules-box"><b>${esc(t('pocketMoneyRules'))}</b><p>${esc(rules)}</p></div>`:''}
+      <h3 class="pocket-history-h">${esc(t('pocketMoneyHistory'))}</h3>
+      <ul class="pocket-txn-list pocket-txn-full">${pocketTxnRowsHtml(kidId, {readonly:true})}</ul>
+    </section>
+  </div>`;
 }
 function kidOpenRequestCount(kidId){
   return (DB.listRequests||[]).filter(r=>r && r.kidId===kidId && r.status==='open').length;
@@ -14297,7 +14691,7 @@ function childLessonPast(entry, dateStr){
 function kidDockActiveView(view){
   const v = view || state.childView || 'today';
   if(v==='aufgaben') return 'today';
-  if(['today','games','rate','bonus','notes'].includes(v)) return v;
+  if(['today','games','rate','pocket','notes'].includes(v)) return v;
   return 'more';
 }
 
@@ -14309,6 +14703,7 @@ function kidViewTitle(view){
   if(v==='rewards') return t('kidSterneTitle');
   if(v==='games') return t('kidNavGames');
   if(v==='rate') return t('kidRateTitle');
+  if(v==='pocket') return t('pocketMoneyTitle');
   if(v==='bonus') return t('kidBonusTitle');
   if(v==='notes') return t('kidNotesTitle');
   if(v==='events') return t('childEvents');
@@ -14321,6 +14716,7 @@ function kidViewHint(view){
   if(v==='today' || v==='aufgaben') return t('kidGuideHintStart');
   if(v==='games') return t('kidGuideHintGames');
   if(v==='rate') return t('kidGuideHintRate');
+  if(v==='pocket') return t('kidGuideHintPocket');
   if(v==='bonus') return t('kidGuideHintBonus');
   if(v==='notes') return t('kidGuideHintNotes');
   if(v==='plan') return t('kidGuideHintPlan');
@@ -14362,7 +14758,7 @@ function kidPrimaryNavItems(){
     {id:'today', label:t('kidNavStart'), ico:'u-home', hint:t('kidGuideHintStart')},
     {id:'games', label:t('kidNavGames'), ico:'u-party', hint:t('kidGuideHintGames')},
     {id:'rate', label:t('kidNavRate'), ico:'u-target', hint:t('kidGuideHintRate')},
-    {id:'bonus', label:t('kidBonusTitle'), ico:'u-sparkle', hint:t('kidGuideHintBonus')},
+    {id:'pocket', label:t('pocketMoneyTitle'), ico:'u-receipt', hint:t('kidGuideHintPocket')},
     {id:'notes', label:t('kidNotesTitle'), ico:'u-note', hint:t('kidGuideHintNotes')},
   ];
 }
@@ -14370,6 +14766,7 @@ function kidPrimaryNavItems(){
 function kidMoreNavItems(){
   const easy = isEasy();
   return [
+    {id:'bonus', label:t('kidBonusTitle'), ico:'u-sparkle', hint:t('kidGuideHintBonus')},
     {id:'plan', label:t('kidNavPlan'), ico:'u-calendar', hint:t('kidGuideHintPlan')},
     {id:'learn', label:t('kidNavLearn'), ico:'u-book', hint:t('kidGuideHintLearn')},
     {id:'rewards', label:t('kidNavStars'), ico:'u-sparkle', hint:t('kidGuideHintStars')},
@@ -14443,7 +14840,7 @@ function openKidSiteMenu(){
     <div class="nav-menu-list" role="menu">
       ${more.map(r=>navMenuRowHtml({
         attrs:`data-child-view="${r.id}" role="menuitem"`,
-        ico:r.ico, label:r.label, hint:easy?'':r.hint, on:active==='more' && ['plan','learn','rewards'].includes(r.id),
+        ico:r.ico, label:r.label, hint:easy?'':r.hint, on:active==='more' && ['bonus','plan','learn','rewards'].includes(r.id),
       })).join('')}
       ${extras.map(r=>navMenuRowHtml({
         attrs:`data-kid-more-act="${r.id}" role="menuitem"${r.id==='howto'?' data-tour="kid-nav-more"':''}`,
@@ -14619,6 +15016,7 @@ function kidHomeCtaHtml(){
   const items = [
     {id:'games', label:t('kidHomeCtaGames'), ico:'u-party', tone:'out'},
     {id:'rate', label:t('kidHomeCtaRate'), ico:'u-target', tone:'sea'},
+    {id:'pocket', label:t('kidHomeCtaPocket'), ico:'u-receipt', tone:'sea'},
     {id:'bonus', label:t('kidHomeCtaBonus'), ico:'u-sparkle', tone:'sun'},
     {id:'notes', label:t('kidHomeCtaNotes'), ico:'u-note', tone:''},
     {id:'plan', label:t('kidHomeCtaPlan'), ico:'u-calendar', tone:'sea', pro:true},
@@ -15546,6 +15944,7 @@ function wireKidsView(v){
   v.querySelectorAll('[data-pocket-remove]').forEach(btn=>{
     btn.onclick=()=>sheetPocketTxn(btn.dataset.pocketRemove, 'out');
   });
+  wirePocketActions(v);
   v.querySelectorAll('[data-sub-toggle]').forEach(b=>{
     b.onclick=()=>{
       const s=subjectById(b.dataset.subToggle);
@@ -16035,7 +16434,6 @@ function childBonusView(kidId){
       <span class="kid-bonus-pts">+${it.pts}</span>
     </div>`).join('');
   return `<div data-tour="kid-bonus"><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
-    ${pocketMoneyPanelHtml(kidId, {mode:'child', limit:12})}
     <section class="kid-card kid-bonus-hero">
       <span class="kid-bonus-stars" aria-hidden="true">${ui('u-sparkle')}</span>
       <div class="kid-bonus-copy">
@@ -16043,6 +16441,7 @@ function childBonusView(kidId){
         <span>${esc(t('kidBonusStreak')(b.streak))}</span>
       </div>
     </section>
+    <p class="muted"><button type="button" class="btn ghost" data-child-view="pocket">${esc(t('pocketMoneyOpenTab'))}</button></p>
     <section class="kid-card pro-only mode-pro-block">
       <h2>${esc(t('kidBonusHow'))}</h2>
       ${items}
@@ -18719,7 +19118,7 @@ function maybePromptPasskeySetup(){
 function mobileChromeTitle(){
   const map = {
     home:'navHome', schedule:'navSchedule', stock:'navStock', shop:'navShop',
-    book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids',
+    book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids', pocket:'navPocket',
   };
   return t(map[state.tab] || 'navHome');
 }
@@ -18752,6 +19151,7 @@ function dynamicHeaderTitle(){
   if(state.tab==='gallery') return t('headerGallery');
   if(state.tab==='talk') return t('headerTalk');
   if(state.tab==='kids') return t('headerKids');
+  if(state.tab==='pocket') return t('headerPocket');
   return t('headerBook');
 }
 
@@ -19491,6 +19891,7 @@ function staffViewHtml(){
   if(state.tab==='stock') return viewStock();
   if(state.tab==='shop') return viewShop();
   if(state.tab==='kids') return viewKids();
+  if(state.tab==='pocket') return viewPocket();
   if(state.tab==='talk') return viewTalk();
   return viewBook();
 }
@@ -19505,6 +19906,7 @@ function childViewHtml(c){
   if(state.childView==='learn') return state.gameId ? childGamesView() : childLearnHubView();
   if(state.childView==='games') return childGamesView();
   if(state.childView==='rate') return childBewertungenView(c.id);
+  if(state.childView==='pocket') return childPocketView(c.id);
   if(state.childView==='bonus') return childBonusView(c.id);
   if(state.childView==='notes') return childNotizenView(c.id);
   if(state.childView==='events') return childEventsView(c.id);
@@ -19544,7 +19946,7 @@ function render(){
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   const dockMore=document.getElementById('dockMore');
   if(dockMore){
-    dockMore.classList.toggle('on', ['gallery','talk','book','kids'].includes(state.tab));
+    dockMore.classList.toggle('on', ['gallery','talk','book','kids','pocket'].includes(state.tab));
     dockMore.setAttribute('aria-label', t('navMore'));
   }
   const dockMoreLabel=document.getElementById('dockMoreLabel');
@@ -19586,6 +19988,7 @@ function render(){
     wire();
     wireUiModeControls(viewEl);
     if(state.tab==='kids') wireKidsView(viewEl);
+    if(state.tab==='pocket') wirePocketView(viewEl);
     if(state.tab==='gallery') bindGallery(viewEl);
     if(state.tab==='talk'){
       const mount=document.getElementById('talkPageMount');
@@ -20686,6 +21089,7 @@ function sheetMobileMore(){
     {tab:'gallery', ico:'u-camera', label:t('navGallery')},
     {tab:'talk', ico:'u-chat', label:t('navTalk')},
     {tab:'book', ico:'u-book', label:t('navBook')},
+    {tab:'pocket', ico:'u-receipt', label:t('navPocket')},
     {act:'chat', ico:'u-sparkle', label:t('navChat')},
   ];
   const extras = [

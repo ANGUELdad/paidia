@@ -323,8 +323,9 @@ OPS_KEYS = (
     "feedbackReports",
     # Staff-managed pocket money ledger (kids read via ops pull; client filters by kidId).
     "pocketMoneyTxns",
+    "pocketMoneySettings",
 )
-OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks", "gameStats"}
+OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks", "gameStats", "pocketMoneySettings"}
 OPS_LIST_CAPS = {
     "chores": 400,
     "choreSubmissions": 2000,

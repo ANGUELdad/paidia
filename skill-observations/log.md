@@ -597,3 +597,9 @@
 - **Trigger:** User asked for calendar, ratings, requests, Taschengeld, Momente org, list responsibility, Lager board; then leave-and-act with Playwright + Apple HIG.
 - **Insight:** Incomplete helper stubs (pocketBalance etc.) break silently until syntax/runtime; always `node --check` after parallel agents. Rating month cells need explicit 44px chrome — day-number width fails tap audit even when height is OK.
 - **Reusable pattern:** Ship feature pack → bump vN → full qa_multi_os_stress → fix P1 taps → re-run; accept Pixel soft-48 as P2.
+
+## 2026-09-06 — Taschengeld as dedicated staff/kid tab
+
+- **Trigger:** User wanted pocket money as its own tab with full customize + track records; Betreuer edit, kids view-only.
+- **Insight:** Keep Bonus as XP surface; put money on `#pocket` / `childView=pocket`. Settings dict (`pocketMoneySettings`) alongside txn list avoids overloading txn rows for categories/allowances/rules.
+- **Reusable pattern:** Staff secondary dock + Mehr row for ops tabs; kid primary nav for view-only money; cache-bust vN with APP_BUILD + build.json + sw + ?v=.
