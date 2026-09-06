@@ -1,5 +1,32 @@
 # Changelog
 
+## v224 · 2026-09-07
+- Durable ops workspace: `POST /api/operations` with atomic `state.commit` / stock / pocket commands, idempotency, revision conflicts.
+- Client `PaidiaWorkspace` status bar + reconcile; Admin section hub (supplies, school, review, finance, audit, communications, automations, system).
+- `db.update_json_atomic` for cross-process safe ops writes; `durable: true` on successful commits.
+- Cache `paidia-v224`.
+
+## v223 · 2026-09-06
+- Desktop `/desk/`: compact single-band chrome, denser rail + stage, Admin hero contrast, Kids rows with inline actions, Plan week matrix, stock/shop house chips, Pocket 3-col rhythm.
+- Cache `paidia-v223`.
+
+## v222 · 2026-09-06
+- iPhone: Plan focus tabs (Tag/Woche/Kal) single-line; house chips height fixed; schedule bottom padding restored.
+- Cache `paidia-v222`.
+
+## v221 · 2026-09-06
+- iPhone sitewide layout: tighter stage padding, readable dock labels, contained horizontal strips (Kids/Pocket/Plan), stock legend row, Admin teal hero contrast + full Ops/Team tabs, compact PWA install bar above dock.
+- Cache `paidia-v221`.
+
+## v220 · 2026-09-06
+- iPhone topbar: single row (title | bell · lang · avatar); stop wrap that put the profile icon on a second line.
+- Mobile shell assets use absolute `/mobile/*` paths so `/m/` no longer 404s CSS/JS.
+- Cache `paidia-v220`.
+
+## v219 · 2026-09-06
+- Auto-route by device type: phones/tablets → `/m/`, desktop/laptop → `/desk/` (UA + pointer); wrong shell auto-corrects. Manual PC/Phone override still sticky.
+- Cache `paidia-v219`.
+
 ## v218 · 2026-09-06
 - Dual websites: `/m/` mobile-only shell + `/desk/` desktop/PC shell; shared core under `shared/`.
 - Root `/` is login + router (after auth → correct shell). Override via localStorage `paidia.shell` or PC/Phone button.

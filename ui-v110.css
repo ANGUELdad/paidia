@@ -2798,39 +2798,58 @@ body.layout-desktop[data-tab="schedule"] .shift-roster .matrix-cell {
 
 /* Mobile — direct Day/Week navigation and one open week day at a time. */
 body.layout-mobile[data-tab="schedule"] #view {
-  padding: 0 14px 0 !important;
+  padding: 0 14px calc(var(--nav-h, 64px) + env(safe-area-inset-bottom, 0px) + 24px) !important;
 }
 body.layout-mobile[data-tab="schedule"] .planner-focus-switch {
   position: sticky;
   z-index: 18;
-  top: 0;
+  top: calc(52px + env(safe-area-inset-top, 0px));
   display: grid;
-  grid-template-columns: 1fr 1fr 58px;
+  grid-template-columns: 1fr 1fr 1fr 48px;
   gap: 0;
   margin: 0 -14px;
   padding: 0 14px;
   border-bottom: 1px solid var(--line);
-  background: rgba(243,245,242,.96);
+  background: rgba(247,248,245,.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 body.layout-mobile[data-tab="schedule"] .planner-focus-switch button {
   display: flex;
   min-width: 0;
-  min-height: 50px;
+  min-height: 48px;
+  max-height: 48px;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 4px;
   border: 0;
   border-radius: 0;
   background: transparent;
   color: var(--muted);
-  font: 650 12px/1 var(--font-ui);
+  font: 650 12px/1.1 var(--font-ui);
+  white-space: nowrap;
+  padding: 0 4px;
+  overflow: hidden;
+}
+body.layout-mobile[data-tab="schedule"] .planner-focus-switch .planner-seg-ico,
+body.layout-mobile[data-tab="schedule"] .planner-focus-switch .ui-ico,
+body.layout-mobile[data-tab="schedule"] .planner-focus-switch svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  flex: 0 0 16px !important;
+  display: block !important;
 }
 body.layout-mobile[data-tab="schedule"] .planner-focus-switch button.on {
   color: var(--brand);
   box-shadow: inset 0 -2px 0 var(--brand);
 }
-body.layout-mobile[data-tab="schedule"] .planner-focus-switch .lbl-short { display: none !important; }
-body.layout-mobile[data-tab="schedule"] .planner-more-toggle b { font-size: 17px; letter-spacing: 2px; }
+body.layout-mobile[data-tab="schedule"] .planner-focus-switch .lbl-full { display: none !important; }
+body.layout-mobile[data-tab="schedule"] .planner-focus-switch .lbl-short { display: inline !important; }
+body.layout-mobile[data-tab="schedule"] .planner-more-toggle b { font-size: 17px; letter-spacing: 2px; line-height: 1; }
 body.layout-mobile[data-tab="schedule"] .planner-more-toggle span { display: none; }
 body.layout-mobile[data-tab="schedule"] .planner-mobile-house {
   display: flex;
@@ -6148,11 +6167,16 @@ body.layout-desktop #chatScrim{ background:rgba(26,40,34,.28); }
   }
 
   body.layout-mobile:not(.mode-child) header h1 {
-    white-space: normal;
-    overflow: visible;
-    text-overflow: unset;
-    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.15;
     font-size: 17px;
+  }
+
+  /* Header Easy/Pro lives on pages — keep topbar one row on phones */
+  body.layout-mobile:not(.mode-child) #uiModeToggle {
+    display: none !important;
   }
 
   header .ui-mode-btn {
@@ -6432,13 +6456,13 @@ body.mode-pro .stock-recent {
 
 .admin-ops{ display:grid; gap:14px; }
 .admin-ops-hero{
-  padding:16px 16px 18px; border-radius:18px; color:#f4fbf8;
-  background:linear-gradient(145deg,#1f6f7a 0%,#2a8f9a 48%,#2a6b52 100%);
-  box-shadow:0 12px 28px rgba(31,111,122,.18);
+  padding:16px 16px 18px; border-radius:18px; color:#193d31 ;
+  background:#fafbf8 ;
+  box-shadow:none;
 }
-.admin-ops-hero h2{ margin:4px 0 0; color:#fff; font:700 1.45rem/1.15 var(--font-display,Georgia,serif); }
-.admin-ops-hero .eyebrow{ margin:0; letter-spacing:.14em; text-transform:uppercase; font-size:11px; font-weight:800; color:rgba(255,255,255,.78); }
-.admin-ops-hero .muted{ color:rgba(255,255,255,.78); }
+.admin-ops-hero h2{ margin:4px 0 0; color:#193d31 ; font:700 1.45rem/1.15 var(--font-display,Georgia,serif); }
+.admin-ops-hero .eyebrow{ margin:0; letter-spacing:.14em; text-transform:uppercase; font-size:12px; font-weight:800; color:#193d31 ; }
+.admin-ops-hero .muted{ color:#193d31 ; }
 .admin-ops-section h2{ margin:0 0 10px; font:600 1.1rem/1.2 var(--font-display,Georgia,serif); }
 .admin-ops-charts{ display:grid; gap:14px; }
 @media(min-width:700px){ .admin-ops-charts{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
@@ -7061,15 +7085,51 @@ body.mode-child .pocket-panel{ margin-top:8px; }
   min-height:44px; height:auto; padding-block:8px;
 }
 .stock-view-tabs > button, .kids-pane-tabs .chip, .seg button, .house-selector button{
-  white-space:normal; line-height:1.2; height:auto; min-height:44px;
+  white-space:nowrap; line-height:1.2; height:auto; min-height:44px;
   padding-block:8px;
+}
+body.layout-mobile .house-selector button,
+body.shell-m .house-selector button{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex-direction:row !important;
+  gap:6px !important;
+  white-space:nowrap !important;
+  max-height:52px !important;
+  writing-mode:horizontal-tb !important;
 }
 
 /* —— v199 containment / calm / rules / ratings —— */
+/* v220: keep phone chrome a single row (brand | bell · lang · avatar) */
 @media (max-width:899px){
-  body.layout-mobile header.app-chrome .topbar-row{ flex-wrap:wrap; gap:6px; }
-  body.layout-mobile header.app-chrome .chrome-brand{ flex:1 1 100%; min-width:0; }
-  body.layout-mobile header.app-chrome .topbar-core{ flex:1 1 auto; max-width:100%; min-width:0; }
+  body.layout-mobile header.app-chrome .topbar-row{
+    flex-wrap:nowrap !important; gap:6px; align-items:center;
+  }
+  body.layout-mobile header.app-chrome .chrome-brand{
+    flex:1 1 auto; min-width:0; max-width:none;
+  }
+  body.layout-mobile header.app-chrome .topbar-core{
+    flex:0 0 auto; max-width:none; min-width:0; gap:4px;
+  }
+  body.layout-mobile:not(.mode-child) header.app-chrome{
+    min-height:calc(52px + var(--safe-t, 0px));
+    padding:calc(6px + var(--safe-t, 0px)) 12px 6px !important;
+    gap:0 !important;
+  }
+  body.layout-mobile:not(.mode-child) .topbar-row{ height:44px; }
+  body.layout-mobile:not(.mode-child) .brand-mark{
+    width:32px; height:32px; border-radius:10px; font-size:14px;
+  }
+  body.layout-mobile:not(.mode-child) .topbtn{
+    width:40px !important; min-width:40px !important;
+    height:40px !important; min-height:40px !important;
+  }
+  body.layout-mobile:not(.mode-child) #btnUser.topbtn-avatar{
+    width:40px !important; min-width:40px !important;
+    height:40px !important; min-height:40px !important;
+    border-radius:999px !important;
+  }
   body.layout-mobile:not(.mode-child) .zoai-fab{
     bottom: calc(var(--nav-h, 66px) + 12px + env(safe-area-inset-bottom, 0px)) !important;
   }
@@ -7284,6 +7344,51 @@ body.mode-child #view :where(.kid-panel-h,.kid-secondary) { flex-wrap:wrap; gap:
 /* Admin is a staff surface: do not inherit the children's inverted hero ink. */
 body:not(.mode-child) #view .admin-ops-hero :where(h2,p,.eyebrow,.muted) { color:var(--ink)!important; opacity:1!important; }
 body:not(.mode-child) #view .admin-ops-hero .muted { color:var(--muted)!important; }
+/* Phone: teal hero must keep white type (overrides ink-on-none desktop rule) */
+body.shell-m:not(.mode-child) #view .admin-ops-hero,
+body.layout-mobile:not(.mode-child) #view .admin-ops-hero {
+  background:#fafbf8 !important;
+  color:#193d31 !important;
+}
+body.shell-m:not(.mode-child) #view .admin-ops-hero :where(h2,p,.eyebrow,.muted),
+body.layout-mobile:not(.mode-child) #view .admin-ops-hero :where(h2,p,.eyebrow,.muted) {
+  color:#193d31 !important;
+}
+body.shell-m:not(.mode-child) #view .admin-ops-hero .muted,
+body.layout-mobile:not(.mode-child) #view .admin-ops-hero .muted {
+  color:#193d31 !important;
+}
+/* Desktop shell: same teal hero + white type */
+body.shell-desk:not(.mode-child) #view .admin-ops-hero {
+  background:#fafbf8 !important;
+  color:#193d31 !important;
+}
+body.shell-desk:not(.mode-child) #view .admin-ops-hero :where(h2,p,.eyebrow,.muted) {
+  color:#193d31 !important;
+}
+body.shell-desk:not(.mode-child) #view .admin-ops-hero .muted {
+  color:#193d31 !important;
+}
+body.shell-desk:not(.mode-child) #view .admin-pane-seg {
+  display: inline-grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  background: rgba(255,255,255,.2) !important;
+  border-radius: 12px !important;
+  padding: 3px !important;
+  border: 0 !important;
+  margin-top: 12px !important;
+}
+body.shell-desk:not(.mode-child) #view .admin-pane-seg button {
+  color: rgba(255,255,255,.95) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  white-space: nowrap !important;
+}
+body.shell-desk:not(.mode-child) #view .admin-pane-seg button.on {
+  background: #fff !important;
+  color: #1a4034 !important;
+}
 @media(min-width:900px){
   .stock-layout-v2 .stock-overview { grid-row:1; }
   .stock-layout-v2 .stock-command { grid-row:1; }

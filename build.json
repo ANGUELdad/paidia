@@ -1,8 +1,8 @@
 {
-  "version": 218,
-  "label": "v218",
+  "version": 224,
+  "label": "v224",
   "changed": {
-    "de": "Zwei Websites: /m Mobile + /desk Desktop — gemeinsamer Kern.",
-    "el": "Δύο sites: /m κινητό + /desk υπολογιστής — κοινός πυρήνας."
+    "de": "Ops-Workspace: atomare Speicherung, Admin-Bereiche, Sync-Status.",
+    "el": "Ops-workspace: ατομική αποθήκευση, περιοχές admin, sync status."
   }
 }

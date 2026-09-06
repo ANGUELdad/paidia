@@ -635,3 +635,43 @@ KEY_TALK = "talk"
 KEY_GALLERY = "gallery"
 KEY_ONBOARDING = "onboarding"
 KEY_SECURITY = "security_state"
+
+
+def update_json_atomic(key: str, update):
+    """Read/reduce/write one document under a cross-process transaction.
+
+    `update` returns (new_value, result); exceptions roll back. Redis uses
+    compare-and-set Lua, SQLite an immediate transaction, Postgres a row lock.
+    """
+    if using_kv():
+        script = """
+        local old = redis.call('GET', KEYS[1])
+        if (old or '') ~= ARGV[1] then return 0 end
+        redis.call('SET', KEYS[1], ARGV[2])
+        return 1
+        """
+        for _ in range(5):
+            raw = _kv_command('GET', KV_PREFIX + key)
+            current = json.loads(raw) if raw else None
+            value, result = update(current)
+            encoded = json.dumps(value, ensure_ascii=False, allow_nan=False)
+            if _kv_command('EVAL', script, 1, KV_PREFIX + key, raw or '', encoded):
+                return value, result
+        raise OSError('Concurrent updates; retry the operation.')
+    init_schema()
+    with _LOCK, connect() as conn:
+        if using_postgres():
+            conn.execute("INSERT INTO kv_store (key,value) VALUES (%s,'null'::jsonb) ON CONFLICT (key) DO NOTHING", (key,))
+            row = conn.execute('SELECT value FROM kv_store WHERE key=%s FOR UPDATE', (key,)).fetchone()
+            current = row['value']
+        else:
+            conn.execute('BEGIN IMMEDIATE')
+            row = conn.execute('SELECT value FROM kv_store WHERE key=?', (key,)).fetchone()
+            current = json.loads(row['value']) if row else None
+        value, result = update(current)
+        encoded = json.dumps(value, ensure_ascii=False, allow_nan=False)
+        if using_postgres():
+            conn.execute('UPDATE kv_store SET value=%s::jsonb,updated_at=NOW() WHERE key=%s', (encoded,key))
+        else:
+            conn.execute('INSERT INTO kv_store (key,value,updated_at) VALUES (?,?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at', (key,encoded,time.time()))
+        return value, result

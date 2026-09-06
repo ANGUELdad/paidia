@@ -6,7 +6,7 @@
   'use strict';
 
   const Core = {
-    version: 218,
+    version: 219,
     shell() {
       if (global.__PAIDIA_SHELL__) return global.__PAIDIA_SHELL__;
       if (global.PaidiaShell) return global.PaidiaShell.detect();

@@ -1,7 +1,15 @@
 /* Desktop-only shell — PC / wide aspect; no phone bottom dock as primary nav */
 html[data-shell="desk"],
 body.shell-desk {
-  --rail-w: 220px;
+  --rail-w: 232px;
+  --desk-pad-x: 28px;
+  --desk-pad-y: 18px;
+  --desk-gap: 14px;
+  --header-h: 56px;
+}
+
+body.shell-desk {
+  overflow-x: clip;
 }
 
 body.shell-desk #app.app-shell {
@@ -13,28 +21,131 @@ body.shell-desk #app.app-shell {
   margin: 0 !important;
 }
 
+/* ── Sticky top chrome: one compact row ─────────────────────────────────── */
 body.shell-desk .app-chrome {
   grid-column: 2;
   grid-row: 1;
   position: sticky;
   top: 0;
   z-index: 40;
-  background: rgba(250, 248, 244, 0.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line, #d5ddd8);
+  min-height: var(--header-h) !important;
+  padding: 8px var(--desk-pad-x) !important;
+  gap: 0 !important;
+  background: rgba(247, 248, 245, 0.94) !important;
+  backdrop-filter: blur(14px) saturate(1.15);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  border-bottom: 1px solid rgba(26, 40, 34, 0.1) !important;
+  box-shadow: 0 4px 16px rgba(26, 40, 34, 0.04) !important;
 }
 
-body.shell-desk #view {
-  grid-column: 2;
-  grid-row: 2;
-  max-width: 1400px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 20px 28px 48px;
+body.shell-desk .topbar-row {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+}
+
+body.shell-desk .chrome-brand {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 10px !important;
+}
+
+body.shell-desk .brand-mark {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 10px !important;
+  font-size: 15px !important;
+}
+
+/* Title + who on one visual band; hide redundant kicker */
+body.shell-desk .brand-kicker-live {
+  display: none !important;
+}
+
+body.shell-desk .brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
   min-width: 0;
 }
 
-/* Turn bottom dock into persistent left sidebar */
+body.shell-desk header h1 {
+  font-size: 18px !important;
+  line-height: 1.15 !important;
+  font-weight: 750 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink, #1a2822) !important;
+}
+
+body.shell-desk header .who {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  color: #4a5c54 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.shell-desk .topbar-core {
+  flex: 0 0 auto !important;
+  max-width: none !important;
+  gap: 6px !important;
+  align-items: center;
+}
+
+body.shell-desk .topbar-tools {
+  display: none !important; /* page owns tools on desk */
+}
+
+body.shell-desk .topbtn {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  border-radius: 11px !important;
+}
+
+body.shell-desk #btnUser {
+  border-radius: 999px !important;
+  overflow: hidden !important;
+}
+
+body.shell-desk #uiModeToggle {
+  display: inline-flex !important;
+  align-items: center;
+}
+
+body.shell-desk #btnProfiles {
+  display: none !important; /* rare on desk chrome */
+}
+
+/* ── Main stage ─────────────────────────────────────────────────────────── */
+body.shell-desk #view,
+body.shell-desk main.app-stage {
+  grid-column: 2;
+  grid-row: 2;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--desk-pad-y) var(--desk-pad-x) 56px !important;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+body.shell-desk #view {
+  display: grid;
+  gap: var(--desk-gap);
+  align-content: start;
+}
+
+/* ── Left rail ──────────────────────────────────────────────────────────── */
 body.shell-desk #bottomPanel {
   grid-column: 1;
   grid-row: 1 / -1;
@@ -47,11 +158,11 @@ body.shell-desk #bottomPanel {
   max-width: var(--rail-w) !important;
   height: 100dvh !important;
   margin: 0 !important;
-  padding: 16px 10px 20px !important;
+  padding: 14px 12px 18px !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 10px;
-  background: #15241f !important;
+  gap: 8px;
+  background: linear-gradient(180deg, #12201b 0%, #15241f 55%, #183028 100%) !important;
   color: #e8f2ec;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   border-top: 0 !important;
@@ -64,31 +175,46 @@ body.shell-desk #bottomPanel .dock-brand {
   display: flex !important;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px 14px;
+  padding: 6px 8px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
+}
+
+body.shell-desk #bottomPanel .dock-brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, #9bc4b0, #2a6b52);
+  color: #12201b;
+  font-weight: 800;
 }
 
 body.shell-desk #bottomPanel .dock-brand-copy span {
   display: block;
   font-size: 11px;
-  opacity: 0.7;
+  opacity: 0.65;
+  letter-spacing: 0.04em;
 }
 
 body.shell-desk #bottomPanel .dock-brand-copy strong {
   font-size: 15px;
   color: #fff;
+  font-weight: 750;
 }
 
 body.shell-desk nav.dock[data-staff-dock] {
   display: flex !important;
   flex-direction: column !important;
   flex: 1 1 auto;
-  gap: 4px;
+  gap: 2px;
   overflow: auto;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
-  padding: 8px 0 !important;
+  padding: 4px 0 !important;
+  scrollbar-width: thin;
 }
 
 body.shell-desk nav.dock button {
@@ -98,24 +224,36 @@ body.shell-desk nav.dock button {
   justify-content: flex-start !important;
   gap: 10px;
   width: 100%;
-  min-height: 42px;
-  padding: 8px 12px !important;
-  border-radius: 12px;
+  min-height: 40px !important;
+  padding: 7px 10px !important;
+  border-radius: 11px;
   color: rgba(255, 255, 255, 0.78) !important;
-  font-size: 13px;
+  font-size: 13px !important;
   font-weight: 600;
+  line-height: 1.15;
+}
+
+body.shell-desk nav.dock button span {
+  font-size: 13px !important;
+  white-space: nowrap;
 }
 
 body.shell-desk nav.dock button .nav-ico,
 body.shell-desk nav.dock button .i {
-  width: 20px;
-  height: 20px;
+  width: 18px !important;
+  height: 18px !important;
   flex: 0 0 auto;
+  opacity: 0.85;
 }
 
 body.shell-desk nav.dock button.on {
-  background: rgba(61, 138, 106, 0.35) !important;
+  background: rgba(61, 138, 106, 0.38) !important;
   color: #fff !important;
+  box-shadow: inset 0 0 0 1px rgba(155, 196, 176, 0.25);
+}
+
+body.shell-desk nav.dock button.on .nav-ico {
+  opacity: 1;
 }
 
 body.shell-desk nav.dock button.dock-secondary {
@@ -127,15 +265,365 @@ body.shell-desk .dock-zoai {
   width: 100%;
   margin-top: auto;
   border-radius: 12px;
+  min-height: 44px;
+  font-weight: 750;
 }
 
 body.shell-desk #dockWho {
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.62);
   font-size: 12px;
-  padding: 4px 8px;
+  padding: 2px 8px 0;
 }
 
-/* Dense desk surfaces */
+/* ── Shared desk density ────────────────────────────────────────────────── */
+body.shell-desk #view .card,
+body.shell-desk #view .block,
+body.shell-desk #view .panel,
+body.shell-desk #view .admin-ops-section,
+body.shell-desk #view .stock-overview,
+body.shell-desk #view .shop-overview,
+body.shell-desk #view .talk-overview,
+body.shell-desk #view .book-hero,
+body.shell-desk #view .pocket-balance-card {
+  border-radius: 16px;
+}
+
+body.shell-desk #view .muted,
+body.shell-desk #view .brand-kicker {
+  color: #4a5c54 !important;
+  opacity: 1 !important;
+}
+
+body.shell-desk #view .page-actions,
+body.shell-desk #view .block-h {
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+body.shell-desk #view .btn,
+body.shell-desk #view .page-act,
+body.shell-desk #view .chip {
+  min-height: 40px;
+}
+
+/* Home */
+body.shell-desk #view .home-shell-v2,
+body.shell-desk #view .home-start-desktop {
+  gap: 14px !important;
+}
+
+body.shell-desk #view .home-command-hero,
+body.shell-desk #view .home-start-hero {
+  padding: 20px 22px !important;
+}
+
+/* Plan / week matrix */
+body.shell-desk[data-tab="schedule"] #view .planner-chrome-wrap,
+body.shell-desk[data-tab="schedule"] #view .adaptive-chrome {
+  margin-bottom: 10px !important;
+}
+
+body.shell-desk[data-tab="schedule"] #view .planner-seg,
+body.shell-desk[data-tab="schedule"] #view .seg {
+  gap: 4px;
+}
+
+body.shell-desk[data-tab="schedule"] #view .week-matrix-desktop {
+  display: block !important;
+}
+
+body.shell-desk[data-tab="schedule"] #view .week-day-stack {
+  display: none !important;
+}
+
+body.shell-desk[data-tab="schedule"] #view .matrix-shell {
+  overflow: auto;
+  max-width: 100%;
+  border-radius: 14px;
+  border: 1px solid rgba(26, 40, 34, 0.1);
+  background: #fff;
+}
+
+body.shell-desk[data-tab="schedule"] #view .plan-hero-week {
+  padding: 14px 16px !important;
+  gap: 10px !important;
+}
+
+body.shell-desk[data-tab="schedule"] #view .plan-week-summary {
+  margin-top: 8px !important;
+}
+
+/* Stock / Liste */
+body.shell-desk #view .stock-command,
+body.shell-desk #view .shop-command {
+  gap: 10px !important;
+  margin-bottom: 12px !important;
+}
+
+body.shell-desk #view .stock-command > .house-selector button,
+body.shell-desk #view .shop-command > .house-selector button,
+body.shell-desk #view .planner-seg-house button,
+body.shell-desk #view .house-selector button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-direction: row !important;
+  min-height: 40px !important;
+  max-height: 44px !important;
+  height: auto !important;
+  white-space: nowrap !important;
+  padding: 8px 12px !important;
+  writing-mode: horizontal-tb !important;
+}
+
+body.shell-desk #view .stock-primary-action,
+body.shell-desk #view .stock-command .btn.primary,
+body.shell-desk #view [data-stock-add],
+body.shell-desk #view .stock-easy-btn,
+body.shell-desk #view .stock-command > button.btn {
+  min-height: 44px !important;
+  height: 44px !important;
+  max-height: 44px !important;
+  align-self: center !important;
+  padding: 0 16px !important;
+  white-space: nowrap !important;
+}
+
+body.shell-desk #view .stock-overview,
+body.shell-desk #view .stock-pantry-hero {
+  padding: 16px 18px !important;
+  gap: 12px !important;
+}
+
+body.shell-desk #view .stock-tide-legend {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px 14px !important;
+}
+
+body.shell-desk #view .stock-context {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+body.shell-desk #view .shop-overview {
+  padding: 16px 18px !important;
+}
+
+/* Kids directory — one dense row + actions inline */
+body.shell-desk #view .kids-overview {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin: 0 0 12px !important;
+}
+
+body.shell-desk #view .kids-overview > div {
+  min-height: 72px !important;
+  padding: 14px 16px !important;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid rgba(26, 40, 34, 0.09);
+}
+
+body.shell-desk #view .kids-overview b {
+  font-size: 24px !important;
+  color: var(--ink, #1a2822) !important;
+}
+
+body.shell-desk #view .kids-overview span {
+  font-size: 12px !important;
+  color: #3d4f46 !important;
+}
+
+body.shell-desk #view .kid-dir-list {
+  display: grid;
+  gap: 8px;
+}
+
+body.shell-desk #view .kid-dir-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+
+body.shell-desk #view .kid-dir-card {
+  display: grid !important;
+  grid-template-columns: 44px minmax(0, 1fr) 18px !important;
+  gap: 12px !important;
+  align-items: center !important;
+  padding: 12px 14px !important;
+  min-height: 0 !important;
+  width: 100%;
+}
+
+body.shell-desk #view .kid-dir-main {
+  display: grid !important;
+  grid-template-columns: minmax(110px, 180px) minmax(0, 1fr) !important;
+  gap: 12px 16px !important;
+  align-items: center !important;
+}
+
+body.shell-desk #view .kid-dir-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  min-width: 0;
+}
+
+body.shell-desk #view .kid-dir-metrics > span {
+  display: block !important;
+  font-size: 11px !important;
+  color: #4a5c54 !important;
+  line-height: 1.2 !important;
+  min-width: 0;
+  overflow: hidden;
+}
+
+body.shell-desk #view .kid-dir-metrics b {
+  display: block !important;
+  font-size: 14px !important;
+  color: #1a2822 !important;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.shell-desk #view .kid-dir-admin {
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  justify-content: center;
+}
+
+body.shell-desk #view .kid-dir-admin .btn {
+  min-height: 36px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+/* Pocket — keep 3-col rhythm */
+body.shell-desk #view .pocket-layout {
+  grid-template-columns: 220px minmax(0, 1fr) !important;
+  gap: 14px !important;
+  align-items: start;
+}
+
+body.shell-desk #view .pocket-kids-rail {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  overflow: visible !important;
+  position: sticky;
+  top: calc(var(--header-h) + 12px);
+}
+
+body.shell-desk #view .pocket-kid-card {
+  min-width: 0 !important;
+  max-width: none !important;
+  width: 100%;
+}
+
+body.shell-desk #view .pocket-ledger-top {
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr) !important;
+  gap: 12px !important;
+}
+
+body.shell-desk #view .pocket-balance-card b,
+body.shell-desk #view .pocket-balance-card .amount {
+  color: #1f5c45 !important;
+  font-size: clamp(28px, 2.4vw, 36px) !important;
+}
+
+/* Admin — readable hero + denser ops */
+body.shell-desk #view .admin-ops-hero {
+  background:#fafbf8 !important;
+  color:#193d31 !important;
+  padding: 18px 20px !important;
+  border-radius: 18px !important;
+  margin-bottom: 4px;
+}
+
+body.shell-desk #view .admin-ops-hero :where(h2, p, .eyebrow, .muted, b, span) {
+  color:#193d31 !important;
+  opacity: 1 !important;
+}
+
+body.shell-desk #view .admin-ops-hero .muted {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+body.shell-desk #view .admin-ops-hero h2 {
+  font-size: clamp(24px, 2.2vw, 32px) !important;
+  margin: 4px 0 8px !important;
+}
+
+body.shell-desk #view .admin-pane-seg {
+  display: inline-grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  min-width: 220px;
+  margin-top: 12px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 3px !important;
+  border: 0 !important;
+}
+
+body.shell-desk #view .admin-pane-seg button {
+  color: rgba(255, 255, 255, 0.95) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  min-height: 40px !important;
+  font-size: 14px !important;
+  white-space: nowrap !important;
+}
+
+body.shell-desk #view .admin-pane-seg button.on {
+  background: #fff !important;
+  color: #1a4034 !important;
+  font-weight: 750 !important;
+}
+
+body.shell-desk #view .admin-ops-desktop {
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr) !important;
+  gap: 14px !important;
+}
+
+body.shell-desk #view .admin-ops-card,
+body.shell-desk #view .admin-ops-card p,
+body.shell-desk #view .admin-ops-card b,
+body.shell-desk #view .admin-ops-card span {
+  color: #1a2822 !important;
+}
+
+body.shell-desk #view .admin-ops-card span,
+body.shell-desk #view .admin-ops-card p {
+  color: #3d4f46 !important;
+}
+
+body.shell-desk #view .admin-ops-section {
+  padding: 14px 16px !important;
+}
+
+/* Book / Talk / Gallery */
+body.shell-desk #view .talk-overview,
+body.shell-desk #view .book-hero {
+  padding: 16px 18px !important;
+}
+
+body.shell-desk #view .book-panes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Matrix / dense tables */
 body.shell-desk .matrix,
 body.shell-desk .week-matrix-desktop {
   font-size: 13px;
@@ -144,6 +632,13 @@ body.shell-desk .week-matrix-desktop {
 body.shell-desk .shell-switch {
   font-size: 12px;
   font-weight: 700;
+}
+
+/* Zo FAB clear of edge */
+body.shell-desk .zoai-fab,
+body.shell-desk #zoaiFab {
+  right: 20px !important;
+  bottom: 20px !important;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -164,6 +659,17 @@ body.shell-desk:not(.auth-pending) #gate {
 }
 
 /* Narrow window on desk site: keep sidebar usable */
+@media (max-width: 1100px) {
+  body.shell-desk {
+    --rail-w: 200px;
+    --desk-pad-x: 18px;
+  }
+  body.shell-desk #view .admin-ops-desktop,
+  body.shell-desk #view .pocket-ledger-top {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @media (max-width: 900px) {
   body.shell-desk {
     --rail-w: 72px;

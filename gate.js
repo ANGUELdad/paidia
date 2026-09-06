@@ -123,11 +123,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 218,
-    label: 'v218',
+    version: 224,
+    label: 'v224',
     changed: {
-      de: 'Zwei Websites: /m Mobile + /desk Desktop.',
-      el: 'Δύο sites: /m κινητό + /desk υπολογιστής.',
+      de: 'Ops-Workspace: atomare Speicherung + Admin-Bereiche.',
+      el: 'Ops-workspace: ατομική αποθήκευση + admin περιοχές.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

@@ -51,10 +51,82 @@ body.shell-m .app-chrome {
   padding-right: max(12px, env(safe-area-inset-right));
 }
 
+/* Single-line phone chrome: mark + title | bell · lang · avatar */
+body.shell-m:not(.mode-child) header.app-chrome {
+  min-height: calc(52px + var(--safe-t, 0px)) !important;
+  padding: calc(6px + var(--safe-t, 0px)) 12px 6px !important;
+  gap: 0 !important;
+  flex-direction: column;
+}
+body.shell-m:not(.mode-child) .topbar-row {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  min-width: 0;
+}
+body.shell-m:not(.mode-child) .chrome-brand {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+body.shell-m:not(.mode-child) .brand-kicker-live,
+body.shell-m:not(.mode-child) header .who {
+  display: none !important;
+}
+body.shell-m:not(.mode-child) header h1 {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.15 !important;
+  font-size: 17px !important;
+}
+body.shell-m:not(.mode-child) .topbar-core {
+  flex: 0 0 auto !important;
+  max-width: none !important;
+  gap: 4px !important;
+  overflow: visible !important;
+}
+body.shell-m:not(.mode-child) #uiModeToggle,
+body.shell-m:not(.mode-child) #btnProfiles {
+  display: none !important;
+}
+body.shell-m:not(.mode-child) .topbar-tools {
+  display: none !important;
+}
+body.shell-m:not(.mode-child) .brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+body.shell-m:not(.mode-child) .topbtn {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+}
+body.shell-m:not(.mode-child) #btnUser {
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  order: 99; /* always far right */
+}
+body.shell-m:not(.mode-child) #btnLang {
+  order: 2;
+}
+body.shell-m:not(.mode-child) #btnNotifs {
+  order: 1;
+}
+
 body.shell-m .topbtn,
 body.shell-m nav.dock button {
   min-height: 44px;
   min-width: 44px;
+}
+body.shell-m:not(.mode-child) .topbtn {
+  min-height: 40px;
+  min-width: 40px;
 }
 
 body.shell-m .shell-switch {
@@ -80,4 +152,437 @@ body.shell-m .shell-switch {
 /* Hide gate after shell boot */
 body.shell-m:not(.auth-pending) #gate {
   display: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   v221 — iPhone sitewide spacing / sizing / overflow polish
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body.shell-m {
+  --nav-h: 64px;
+  --header-h: 52px;
+  overflow-x: clip;
+}
+
+body.shell-m #app.app-shell,
+body.shell-m #view,
+body.shell-m main.app-stage {
+  max-width: 100vw !important;
+  overflow-x: clip;
+  box-sizing: border-box;
+}
+
+body.shell-m:not(.mode-child) main.app-stage,
+body.shell-m:not(.mode-child) #view {
+  padding: 12px 14px calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 72px) !important;
+  gap: 12px;
+}
+
+/* Readable dock — never shrink labels below 11px */
+body.shell-m #bottomPanel {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+body.shell-m nav.dock {
+  gap: 0 !important;
+  padding: 4px 4px 2px !important;
+}
+body.shell-m nav.dock button {
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+  padding: 4px 2px !important;
+  gap: 2px !important;
+  font-size: 11px !important;
+  line-height: 1.1 !important;
+}
+body.shell-m nav.dock button span {
+  font-size: 11px !important;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+body.shell-m nav.dock button .nav-ico,
+body.shell-m nav.dock button .i {
+  width: 20px;
+  height: 20px;
+  font-size: 18px !important;
+}
+
+/* Never let ui-fit shrink below readable */
+body.shell-m .ui-fit-text,
+body.shell-m button.ui-fit-text,
+body.shell-m .chip.ui-fit-text,
+body.shell-m .page-act.ui-fit-text {
+  font-size: max(12px, 1em) !important;
+}
+body.shell-m .bell-count {
+  font-size: 10px !important;
+}
+
+/* Compact install bar — one row, clear of dock, no mid-page blob */
+body.shell-m .pwa-install-bar {
+  left: 10px !important;
+  right: 10px !important;
+  bottom: calc(var(--nav-h, 64px) + env(safe-area-inset-bottom, 0px) + 8px) !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  z-index: 35;
+}
+body.shell-m .pwa-install-bar .grow {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+body.shell-m .pwa-install-bar .grow b {
+  font-size: 13px !important;
+  line-height: 1.2;
+}
+body.shell-m .pwa-install-bar .grow span {
+  display: block;
+  font-size: 11px !important;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.shell-m .pwa-install-bar button {
+  flex: 0 0 auto;
+  min-height: 36px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+}
+
+/* Horizontal strips: scroll inside, never blow page width */
+body.shell-m #view .kids-pane-tabs,
+body.shell-m #view .pocket-kids-rail,
+body.shell-m #view .pocket-pane-tabs,
+body.shell-m #view .plan-day-strip,
+body.shell-m #view .planner-seg,
+body.shell-m #view .house-selector,
+body.shell-m #view .seg:not(.admin-pane-seg),
+body.shell-m #view .chips,
+body.shell-m #view .book-panes,
+body.shell-m #view .stock-view-tabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100% !important;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+body.shell-m #view .kids-pane-tabs::-webkit-scrollbar,
+body.shell-m #view .pocket-kids-rail::-webkit-scrollbar,
+body.shell-m #view .plan-day-strip::-webkit-scrollbar {
+  display: none;
+}
+body.shell-m #view .kids-pane-tabs .chip,
+body.shell-m #view .pocket-kid-card,
+body.shell-m #view .plan-day-chip,
+body.shell-m #view .house-selector button,
+body.shell-m #view .seg:not(.admin-pane-seg) button {
+  flex: 0 0 auto !important;
+}
+
+/* Kids overview KPIs — readable labels */
+body.shell-m #view .kids-pane-tabs .chip {
+  color: var(--ink, #1a2822) !important;
+  background: #fff !important;
+  border: 1px solid rgba(26, 40, 34, 0.14) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+}
+body.shell-m #view .kids-pane-tabs .chip.on {
+  background: var(--brand, #2a6b52) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+body.shell-m #view .kids-overview {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  margin: 0 0 12px !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+}
+body.shell-m #view .kids-overview > div {
+  min-height: 76px !important;
+  padding: 12px 8px !important;
+}
+body.shell-m #view .kids-overview b {
+  font-size: 22px !important;
+  color: var(--ink, #1a2822) !important;
+}
+body.shell-m #view .kids-overview span {
+  font-size: 11px !important;
+  line-height: 1.25 !important;
+  overflow-wrap: anywhere;
+  color: #3d4f46 !important;
+}
+
+/* Plan chrome: tighter stack, no overlapping strips */
+body.shell-m #view .planner-chrome-wrap,
+body.shell-m #view .schedule-shell > header {
+  padding: 10px !important;
+  margin-bottom: 10px !important;
+  gap: 8px !important;
+}
+body.shell-m #view .planner-seg {
+  margin: 0 !important;
+}
+body.shell-m #view .planner-seg button {
+  min-height: 42px !important;
+  padding: 8px 10px !important;
+  font-size: 12px !important;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body.shell-m #view .plan-day-strip {
+  margin: 8px 0 4px !important;
+  gap: 6px !important;
+}
+body.shell-m #view .plan-day-chip.day {
+  min-width: 48px;
+  padding: 6px 8px !important;
+}
+body.shell-m #view .plan-entry,
+body.shell-m #view .plan-block {
+  text-align: left !important;
+  padding: 12px !important;
+}
+body.shell-m #view .plan-entry b,
+body.shell-m #view .plan-entry span {
+  overflow-wrap: anywhere;
+}
+
+/* Stock / Liste cards */
+body.shell-m #view .stock-overview,
+body.shell-m #view .stock-pantry-hero,
+body.shell-m #view .shop-overview,
+body.shell-m #view .card {
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+body.shell-m #view .stock-overview,
+body.shell-m #view .stock-pantry-hero {
+  padding-top: 16px !important;
+  overflow: visible !important;
+}
+body.shell-m #view .stock-overview h2,
+body.shell-m #view .stock-overview-copy h2 {
+  overflow: visible !important;
+  white-space: normal !important;
+  line-height: 1.2 !important;
+  color: var(--ink, #1a2822) !important;
+}
+body.shell-m #view .stock-tide-meta b,
+body.shell-m #view .stock-context b {
+  color: var(--brand, #2a6b52) !important;
+}
+body.shell-m #view .stock-tide-legend > span,
+body.shell-m #view .stock-context span,
+body.shell-m #view .stock-context p {
+  color: #3d4f46 !important;
+  opacity: 1 !important;
+}
+body.shell-m #view .stock-tide-legend {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px 12px !important;
+  align-items: center !important;
+}
+body.shell-m #view .stock-tide-legend > span {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 12px !important;
+}
+body.shell-m #view .stock-context {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+body.shell-m #view .stock-context b {
+  font-size: 1.2rem !important;
+}
+body.shell-m #view .page-actions,
+body.shell-m #view .block-h,
+body.shell-m #view .stock-toolbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  max-width: 100% !important;
+}
+body.shell-m #view .page-act,
+body.shell-m #view .stock-toolbar .btn {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Shop house carousel */
+body.shell-m #view .shop-house-rail,
+body.shell-m #view .shop-command {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Pocket */
+body.shell-m #view .pocket-kids-rail {
+  margin: 0 0 10px !important;
+  padding-inline: 1px;
+}
+body.shell-m #view .pocket-kid-card {
+  min-width: 140px !important;
+  max-width: 168px !important;
+}
+body.shell-m #view .pocket-balance-card {
+  padding: 16px 14px !important;
+}
+body.shell-m #view .pocket-balance-card b,
+body.shell-m #view .pocket-balance-card .amount {
+  font-size: clamp(28px, 8vw, 34px) !important;
+  color: #1f5c45 !important;
+}
+body.shell-m #view .pocket-balance-card,
+body.shell-m #view .pocket-balance-card span,
+body.shell-m #view .pocket-balance-card small,
+body.shell-m #view .pocket-stats span {
+  color: #3d4f46 !important;
+}
+body.shell-m #view .paidia-cal-kicker {
+  font-size: 11px !important;
+  color: #4a5c54 !important;
+}
+
+/* Admin hero: keep gradient + white type (fix ink-on-teal) */
+body.shell-m #view .admin-ops-hero {
+  background:#fafbf8 !important;
+  color:#193d31 !important;
+  padding: 16px !important;
+  border-radius: 18px !important;
+  margin-bottom: 12px !important;
+}
+body.shell-m #view .admin-ops-hero :where(h2, p, .eyebrow, .muted, b, span) {
+  color:#193d31 !important;
+  opacity: 1 !important;
+}
+body.shell-m #view .admin-ops-hero .muted {
+  color: rgba(255, 255, 255, 0.86) !important;
+}
+body.shell-m #view .admin-ops-hero h2 {
+  font-size: clamp(26px, 6vw, 32px) !important;
+  line-height: 1.3 !important;
+  margin: 4px 0 8px !important;
+}
+body.shell-m #view .admin-pane-seg {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  width: 100% !important;
+  margin-top: 12px !important;
+  gap: 0 !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 3px !important;
+  border: 0 !important;
+}
+body.shell-m #view .admin-pane-seg button {
+  min-width: 0 !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  font-size: 14px !important;
+  padding: 10px 8px !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+}
+body.shell-m #view .admin-pane-seg button.on {
+  background: #fff !important;
+  color: #1a4034 !important;
+  font-weight: 750 !important;
+}
+body.shell-m #view .admin-ops-desktop {
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
+}
+body.shell-m #view .admin-ops-section,
+body.shell-m #view .admin-ops-card {
+  padding: 12px !important;
+}
+
+/* Home rhythm */
+body.shell-m #view .home-shell-v2,
+body.shell-m #view .home-start-mobile {
+  gap: 12px !important;
+}
+body.shell-m #view .home-mast .home-brand,
+body.shell-m #view .home-start-mobile h1 {
+  font-size: clamp(26px, 7.5vw, 34px) !important;
+  line-height: 1.05 !important;
+}
+body.shell-m #view .home-signals {
+  gap: 8px !important;
+}
+body.shell-m #view .home-signal .w-stat-lbl {
+  font-size: 11px !important;
+}
+
+/* Talk / Book / Gallery */
+body.shell-m #view .talk-overview,
+body.shell-m #view .book-hero,
+body.shell-m #view .gallery-hero {
+  padding: 14px !important;
+  margin-bottom: 10px !important;
+}
+body.shell-m #view .book-panes button,
+body.shell-m #view .book-pane-btn {
+  flex: 0 0 auto;
+  min-height: 42px;
+}
+
+/* Generic card density + contrast floor */
+body.shell-m #view .card,
+body.shell-m #view .block,
+body.shell-m #view .panel {
+  margin-bottom: 0;
+}
+body.shell-m #view .muted,
+body.shell-m #view .brand-kicker {
+  color: #4a5c54 !important;
+  opacity: 1 !important;
+}
+body.shell-m #view .admin-ops-card,
+body.shell-m #view .admin-ops-card p,
+body.shell-m #view .admin-ops-card span,
+body.shell-m #view .admin-ops-card b {
+  color: #1a2822 !important;
+}
+body.shell-m #view .admin-ops-card span,
+body.shell-m #view .admin-ops-card p {
+  color: #3d4f46 !important;
+}
+body.shell-m #view > * + * {
+  margin-top: 0;
+}
+
+/* Home shift rows: keep CTAs from colliding with labels */
+body.shell-m #view .home-shift-start,
+body.shell-m #view .home-today-card {
+  display: grid !important;
+  gap: 10px !important;
+}
+body.shell-m #view .home-shift-start .btn,
+body.shell-m #view .home-today-card .btn {
+  justify-self: stretch;
+  min-height: 44px;
 }

@@ -62,6 +62,10 @@
 
   async function bootShellApp() {
     applyLayoutLock();
+    /* Auto-pick the site for this device — no confirm dialog */
+    try {
+      if (global.PaidiaShell && global.PaidiaShell.autoCorrectToDevice()) return;
+    } catch (e) {}
     const boot = global.PaidiaShell && global.PaidiaShell.takeBootSession();
     if (boot) global.__paidiaBootSession = boot;
     global.__paidiaAuthed = true;
@@ -75,6 +79,7 @@
       }
     }
     if (!(session && session.authenticated) && !boot) {
+      try{sessionStorage.setItem('paidia.intendedDestination',location.pathname+location.search+location.hash);}catch{}
       location.replace('/?needLogin=1');
       return;
     }
@@ -86,37 +91,13 @@
     document.body.classList.remove('auth-pending');
     if (app) app.hidden = false;
 
-    const ver = (global.PaidiaCore && global.PaidiaCore.version) || 218;
+    const ver = (global.PaidiaCore && global.PaidiaCore.version) || 219;
     const appSrc = (global.PaidiaCore && global.PaidiaCore.rootAsset('app.js?v=' + ver)) || ('../app.js?v=' + ver);
 
     await loadScript(appSrc);
     patchSyncLayoutMode();
     applyLayoutLock();
     if (typeof global.syncLayoutMode === 'function') global.syncLayoutMode();
-
-    /* Soft prompt when viewport crosses shells (once per session) */
-    try {
-      if (!sessionStorage.getItem('paidia.shellPrompted')) {
-        const mq = window.matchMedia('(min-width:1024px)');
-        const onChange = () => {
-          const want = global.PaidiaShell.detect();
-          const here = global.PaidiaShell.currentShellFromPath();
-          if (want !== here && !global.PaidiaShell.override()) {
-            sessionStorage.setItem('paidia.shellPrompted', '1');
-            const msg =
-              (document.documentElement.lang || '').indexOf('el') === 0
-                ? 'Άλλη διάταξη ταιριάζει καλύτερα. Αλλαγή;'
-                : 'Eine andere Ansicht passt besser. Wechseln?';
-            if (window.confirm(msg)) {
-              global.PaidiaShell.setOverride(want);
-              global.PaidiaShell.go(want);
-            }
-          }
-        };
-        if (mq.addEventListener) mq.addEventListener('change', onChange);
-        else if (mq.addListener) mq.addListener(onChange);
-      }
-    } catch (e) {}
   }
 
   function start() {

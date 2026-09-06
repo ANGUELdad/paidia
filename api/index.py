@@ -397,7 +397,7 @@ _STATIC_EXACT = frozenset({
     "zoai-tips.js",
     # Dual shells
     "shared/shell.js",
-    "shared/core.js",
+    "shared/core.js", "shared/workspace.js", "shared/workspace.css",
     "shared/bridge.js",
     "shared/i18n.js",
     "shared/ops.js",
@@ -439,11 +439,19 @@ def _serve_static(rel: str):
     rel = (rel or "index.html").lstrip("/")
     if not rel or rel.endswith("/"):
         rel = (rel or "") + "index.html"
-    # Dual-site entry aliases
+    # Dual-site entry aliases (+ asset aliases when HTML is served under /m/)
     if rel in ("m", "m/", "m/index.html"):
         rel = "mobile/index.html"
+    elif rel in ("m/mobile.css",):
+        rel = "mobile/mobile.css"
+    elif rel in ("m/mobile-app.js",):
+        rel = "mobile/mobile-app.js"
     elif rel in ("desk", "desk/", "desk/index.html"):
         rel = "desk/index.html"
+    elif rel in ("desk/desk.css",):
+        rel = "desk/desk.css"
+    elif rel in ("desk/desk-app.js",):
+        rel = "desk/desk-app.js"
     if not _static_allowed(rel):
         return _json(404, {"error": "Not found"})
     target = (ROOT / rel).resolve()
@@ -667,6 +675,10 @@ def entry(flask_path: str = ""):
         except (TypeError, ValueError):
             since = 0
         return _json(200, paidia.get_ops_for_session(since, session))
+
+    if request.method == "POST" and api in {"/operations", "/api/operations"}:
+        status, payload = paidia.execute_operation(_body(), _session_from_request())
+        return _json(status, payload)
 
     if request.method == "POST" and api in {"/ops", "/api/ops"}:
         session = _session_from_request()

@@ -1,6 +1,7 @@
 /**
- * Paidia shell router — mobile (/m/) vs desktop (/desk/).
- * Override: localStorage paidia.shell = 'm' | 'desk'
+ * Paidia shell router — auto-picks /m/ or /desk/ from device type.
+ * Optional sticky override: localStorage paidia.shell = 'm' | 'desk'
+ * (set only by the PC / Phone buttons).
  */
 (function (global) {
   'use strict';
@@ -24,16 +25,59 @@
     } catch (e) {}
   }
 
+  function clearOverride() {
+    try { localStorage.removeItem(KEY); } catch (e) {}
+  }
+
+  /** Classify hardware/input — not just current window width. */
+  function deviceKind() {
+    const ua = String(navigator.userAgent || navigator.vendor || '');
+    let coarse = false;
+    let fine = false;
+    let noHover = false;
+    let wide = false;
+    let narrow = false;
+    try {
+      coarse = window.matchMedia('(pointer:coarse)').matches;
+      fine = window.matchMedia('(pointer:fine)').matches;
+      noHover = window.matchMedia('(hover:none)').matches;
+      wide = window.matchMedia('(min-width:1024px)').matches;
+      narrow = window.matchMedia('(max-width:1023px)').matches;
+    } catch (e) {}
+
+    // Explicit phone UAs → mobile shell
+    if (/iPhone|iPod|Windows Phone|IEMobile|BlackBerry|webOS/i.test(ua)) return 'phone';
+    if (/Android/i.test(ua) && /Mobile/i.test(ua)) return 'phone';
+
+    // Tablets → mobile shell (touch-first UI)
+    if (/iPad/i.test(ua)) return 'tablet';
+    if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return 'tablet';
+    if (/Tablet|Silk|Kindle/i.test(ua)) return 'tablet';
+    // iPadOS 13+ may report as Mac — coarse/no-hover distinguishes
+    if (/Macintosh/i.test(ua) && coarse && noHover && navigator.maxTouchPoints > 1) return 'tablet';
+
+    // Touch-primary devices without desktop UA
+    if (coarse && noHover && !fine) return wide ? 'tablet' : 'phone';
+
+    // Desktop / laptop
+    if (/Windows NT|CrOS|Linux x86_64|Linux amd64/i.test(ua) && !coarse) return 'desktop';
+    if (/Macintosh/i.test(ua) && fine && !coarse) return 'desktop';
+    if (fine && wide) return 'desktop';
+    if (fine && !narrow && !coarse) return 'desktop';
+
+    return wide ? 'desktop' : 'phone';
+  }
+
+  /** Device-based shell only (ignores sticky override). */
+  function detectFromDevice() {
+    return deviceKind() === 'desktop' ? 'desk' : 'm';
+  }
+
+  /** Shell for navigation: sticky override if set, else device type. */
   function detect() {
     const forced = override();
     if (forced) return forced;
-    try {
-      const wide = window.matchMedia('(min-width:1024px)').matches;
-      const fine = window.matchMedia('(pointer:fine)').matches;
-      const aspectOk = window.matchMedia('(min-aspect-ratio: 4/3)').matches;
-      if (wide && (fine || aspectOk)) return 'desk';
-    } catch (e) {}
-    return 'm';
+    return detectFromDevice();
   }
 
   function pathFor(shell) {
@@ -83,6 +127,7 @@
       lock(s);
       return false;
     }
+    global.dispatchEvent(new Event('paidia:shell-switch'));
     if (replace) location.replace(target);
     else location.assign(target);
     return true;
@@ -90,9 +135,23 @@
 
   function routeAfterAuth(bootData) {
     if (bootData) stashBootSession(bootData);
+    let intended=null;
+    try{intended=sessionStorage.getItem('paidia.intendedDestination');sessionStorage.removeItem('paidia.intendedDestination');}catch{}
+    if(intended&&/^\/(desk|m)\/(?:[?#]|$)/.test(intended)){location.replace(intended);return true;}
     const s = detect();
     lock(s);
     return go(s, { replace: true });
+  }
+
+  /**
+   * If this page's shell does not match the device (and no manual override),
+   * jump to the correct site immediately.
+   */
+  function autoCorrectToDevice() {
+    // An addressable shell URL is an explicit choice, including deep links.
+    const here=currentShellFromPath();
+    if(here)lock(here);
+    return false;
   }
 
   function ensureOnShellPage() {
@@ -107,13 +166,17 @@
   global.PaidiaShell = {
     KEY,
     detect,
+    detectFromDevice,
+    deviceKind,
     override,
     setOverride,
+    clearOverride,
     pathFor,
     currentShellFromPath,
     lock,
     go,
     routeAfterAuth,
+    autoCorrectToDevice,
     stashBootSession,
     takeBootSession,
     ensureOnShellPage,

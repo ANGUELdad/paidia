@@ -246,14 +246,13 @@ body.layout-desktop[data-tab="home"] .home-command-pulse .w-stat-val{
 #view .admin-ops-hero{
   border-radius:22px;
   padding:clamp(20px, 3vw, 32px);
-  background:
-    linear-gradient(125deg, #16352c 0%, var(--brand) 48%, var(--sea) 100%);
-  color:#fff;
-  box-shadow:var(--shadow-2);
+  background:#fafbf8 ;
+  color:#193d31 ;
+  box-shadow:none;
 }
 #view .admin-ops-hero :is(h2, .eyebrow, .muted, p){ color:inherit; }
 #view .admin-ops-hero .muted,
-#view .admin-ops-hero p{ color:rgba(255,255,255,.8); }
+#view .admin-ops-hero p{ color:#193d31 ; }
 #view .admin-pane-seg{
   background:rgba(255,255,255,.14);
   border-radius:14px;
@@ -420,7 +419,7 @@ header.app-chrome{
 .pwa-install-bar{
   position:fixed;
   left:12px; right:12px;
-  bottom:calc(var(--chrome-bottom, 72px) + 10px);
+  bottom:calc(var(--nav-h, 66px) + env(safe-area-inset-bottom, 0px) + 10px);
   z-index:40;
   display:flex; gap:10px; align-items:center; flex-wrap:wrap;
   padding:12px 14px;

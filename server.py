@@ -334,7 +334,7 @@ OPS_KEYS = (
     "staffKidDayRatings",
     "kidZoAiLogs",
 )
-OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks", "gameStats", "pocketMoneySettings", "kidBadgePrefs"}
+OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "gameStats", "pocketMoneySettings", "kidBadgePrefs"}
 OPS_LIST_CAPS = {
     "chores": 400,
     "choreSubmissions": 2000,
@@ -1846,8 +1846,11 @@ def _normalize_ops_state(value: object) -> dict:
         out["updatedAt"] = int(value.get("updatedAt") or 0)
     except (TypeError, ValueError):
         pass
+    out['_operationReceipts'] = value.get('_operationReceipts', {}) if isinstance(value.get('_operationReceipts'), dict) else {}
     for key in OPS_KEYS:
         raw = value.get(key)
+        if key == 'stockChecks' and isinstance(raw, dict):
+            raw = [dict(v, id=v.get('id', k)) for k,v in raw.items() if isinstance(v,dict)]
         if key in OPS_DICT_KEYS:
             out[key] = raw if isinstance(raw, dict) else {}
         else:
@@ -1882,29 +1885,29 @@ OPS_STATE = load_ops_state()
 
 
 def persist_ops_state() -> bool:
-    """Write the ops blob. Returns whether it reached DURABLE storage.
-
-    The /tmp copy on Vercel always succeeds and is wiped when the instance
-    recycles, which is why a failed database write looked like a successful save
-    all the way back to the caregiver. Callers surface this flag now.
-    """
-    key = paidia_db.KEY_OPS if paidia_db else "ops"
-    db_ok = _db_set(key, OPS_STATE)
-    raw = json.dumps(OPS_STATE, ensure_ascii=False, separators=(",", ":"))
-    os.environ["PAIDIA_OPS_JSON"] = raw
+    """Legacy writers must participate in the same revision transaction."""
+    if paidia_db is None:
+        raise OSError('Durable storage unavailable')
+    desired = json.loads(json.dumps(OPS_STATE))
+    def commit(current):
+        current = _normalize_ops_state(current)
+        if int(current.get('revision') or 0) != int(desired.get('revision') or 0)-1:
+            raise OSError('Revision conflict; reload before retrying')
+        desired['_operationReceipts'] = current.get('_operationReceipts', {})
+        return desired, True
     try:
-        OPS_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        temp_path = OPS_STATE_PATH.with_name(OPS_STATE_PATH.name + ".tmp")
-        temp_path.write_text(raw, encoding="utf-8")
-        try:
-            os.chmod(temp_path, 0o600)
-        except OSError:
-            pass
-        os.replace(temp_path, OPS_STATE_PATH)
-    except OSError:
-        if os.environ.get("VERCEL") != "1" and not db_ok:
-            raise
-    return bool(db_ok)
+        updated, _ = paidia_db.update_json_atomic('ops', commit)
+        OPS_STATE.clear()
+        OPS_STATE.update(updated)
+        _durable_invalidate('ops')
+        return True
+    except Exception as error:
+        # Do not leave an uncommitted higher revision in this warm instance.
+        stored = paidia_db.get_json('ops')
+        if isinstance(stored, dict):
+            OPS_STATE.clear()
+            OPS_STATE.update(_normalize_ops_state(stored))
+        raise OSError('Operational changes were not saved') from error
 
 
 def refresh_ops_state_from_disk() -> None:
@@ -2246,58 +2249,49 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
         }
 
 
-def put_ops(body: dict, session: dict) -> tuple[int, dict]:
-    """Replace shared operational app state. Staff only. Optimistic concurrency via revision."""
-    if session.get("mode") != "staff":
-        return 403, {"error": "Staff only", "code": "staff_required"}
-    if not isinstance(body, dict):
-        return 400, {"error": "JSON object required", "code": "input"}
-
+def execute_operation(body: dict, session: dict | None) -> tuple[int, dict]:
+    from operations import apply_operation, OperationError
+    if not session:
+        return 401, {"error":"Authentication required", "code":"auth_required"}
+    if session.get('mode') != 'staff':
+        return 403, {"error":"Staff required", "code":"staff_required"}
+    if paidia_db is None:
+        return 503, {"error":"Durable storage unavailable", "code":"storage", "durable":False}
     try:
-        client_rev = int(body.get("revision") or 0)
-    except (TypeError, ValueError):
-        return 400, {"error": "revision required", "code": "input"}
+        with OPS_LOCK:
+            # Do not use the warm-instance cache as the revision authority.
+            updated, result = paidia_db.update_json_atomic('ops', lambda value: apply_operation(
+                _normalize_ops_state(value), body, session, OPS_KEYS, OPS_DICT_KEYS))
+            OPS_STATE.clear()
+            OPS_STATE.update(updated)
+            _durable_invalidate('ops')
+        return 200, {
+            **result,
+            'ok': True,
+            'durable': True,
+            'operationRevision': result['revision'],
+            'revision': updated['revision'],
+            **{key: updated.get(key) for key in OPS_KEYS},
+            'changed': True,
+        }
+    except OperationError as error:
+        if error.payload.get('code') == 'conflict':
+            return error.status, {**get_ops(), **error.payload}
+        return error.status, error.payload
+    except Exception:
+        return 503, {"error":"Could not commit the operation. Retry with the same operation ID.", "code":"storage", "durable":False}
 
-    refresh_ops_state_from_disk()
-    with OPS_LOCK:
-        server_rev = int(OPS_STATE.get("revision") or 0)
-        if client_rev != server_rev:
-            payload = {
-                "error": "Revision conflict",
-                "code": "conflict",
-                "revision": server_rev,
-                "updatedAt": int(OPS_STATE.get("updatedAt") or 0),
-                "changed": True,
-            }
-            for key in OPS_KEYS:
-                payload[key] = OPS_STATE.get(key)
-            return 409, payload
 
-        next_state = empty_ops_state()
-        next_state["revision"] = server_rev + 1
-        next_state["updatedAt"] = int(time.time() * 1000)
-        for key in OPS_KEYS:
-            raw = body.get(key, OPS_STATE.get(key))
-            if key in OPS_DICT_KEYS:
-                next_state[key] = raw if isinstance(raw, dict) else {}
-            else:
-                rows = raw if isinstance(raw, list) else []
-                cap = OPS_LIST_CAPS.get(key)
-                if cap:
-                    rows = rows[-cap:]
-                next_state[key] = rows
-
-        OPS_STATE.clear()
-        OPS_STATE.update(next_state)
-        try:
-            durable = persist_ops_state()
-        except OSError:
-            return 507, {"error": "Ops state could not be saved", "code": "storage"}
-
-    snapshot = ops_snapshot(True)
-    # Tell the client the truth: a /tmp-only write is not a save.
-    snapshot["durable"] = bool(durable)
-    return 200, snapshot
+def put_ops(body: dict, session: dict) -> tuple[int, dict]:
+    """Compatibility endpoint; uses the same atomic command transaction."""
+    import uuid
+    if not isinstance(body, dict):
+        return 400, {"error":"JSON object required", "code":"input"}
+    return execute_operation({
+        'operationId':str(body.get('operationId') or uuid.uuid4()),
+        'action':'state.commit', 'expectedRevision':body.get('revision'),
+        'payload':{key:body[key] for key in OPS_KEYS if key in body},
+    }, session)
 
 
 LEARN_PROMPT = (
@@ -5518,7 +5512,7 @@ class Handler(SimpleHTTPRequestHandler):
             "zoai-tips.js",
             # Dual shells (mobile / desktop) + shared core
             "shared/shell.js",
-            "shared/core.js",
+            "shared/core.js", "shared/workspace.js", "shared/workspace.css",
             "shared/bridge.js",
             "shared/i18n.js",
             "shared/ops.js",
@@ -5547,13 +5541,25 @@ class Handler(SimpleHTTPRequestHandler):
             and not any(part.startswith(".") for part in static_rel.split("/"))
             and static_rel.rsplit(".", 1)[-1].lower() in {"html", "js", "css", "txt", "md", "svg", "png", "webp"}
         )
-        if static_rel in allowed_exact or parsed.path == "/" or parsed.path in ("/m", "/m/", "/desk", "/desk/") or icon_ok or kids_games_ok:
+        shell_alias = parsed.path in (
+            "/m", "/m/", "/m/mobile.css", "/m/mobile-app.js",
+            "/desk", "/desk/", "/desk/desk.css", "/desk/desk-app.js",
+        )
+        if static_rel in allowed_exact or parsed.path == "/" or shell_alias or icon_ok or kids_games_ok:
             if parsed.path == "/":
                 static_rel = "index.html"
             elif parsed.path in ("/m", "/m/"):
                 static_rel = "mobile/index.html"
+            elif parsed.path in ("/m/mobile.css", "/mobile/mobile.css"):
+                static_rel = "mobile/mobile.css"
+            elif parsed.path in ("/m/mobile-app.js", "/mobile/mobile-app.js"):
+                static_rel = "mobile/mobile-app.js"
             elif parsed.path in ("/desk", "/desk/"):
                 static_rel = "desk/index.html"
+            elif parsed.path in ("/desk/desk.css",):
+                static_rel = "desk/desk.css"
+            elif parsed.path in ("/desk/desk-app.js",):
+                static_rel = "desk/desk-app.js"
             path = os.path.join(os.getcwd(), static_rel)
             if os.path.isdir(path):
                 self.send_error(404, "File not found")
@@ -5597,7 +5603,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path not in {
             "/api/ai-shopping", "/api/ai-schedule", "/api/chat", "/api/learn", "/api/quiz", "/api/gallery/caption",
-            "/api/chore-verify", "/api/translate", "/api/ops-snapshot", "/api/notify/ops-alert",
+            "/api/operations", "/api/chore-verify", "/api/translate", "/api/ops-snapshot", "/api/notify/ops-alert",
             "/api/talk", "/api/gallery", "/api/ops", "/api/kid-ops", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/notify/event-email",
             "/api/notify/broadcast",
@@ -5685,6 +5691,10 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
             status, payload = mutate_gallery(str(body.get("action") or "").strip(), body, session)
+            self.json_response(status, payload)
+            return
+        if path == "/api/operations":
+            status, payload = execute_operation(body, self.current_auth_session())
             self.json_response(status, payload)
             return
         if path == "/api/ops":

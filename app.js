@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 218,
-  label: 'v218',
+  version: 224,
+  label: 'v224',
   changed: {
-    de: 'Zwei Websites: /m Mobile + /desk Desktop.',
-    el: 'Δύο sites: /m κινητό + /desk υπολογιστής.',
+    de: 'Ops-Workspace: atomare Speicherung, Admin-Bereiche, Sync-Status.',
+    el: 'Ops-workspace: ατομική αποθήκευση, περιοχές admin, sync status.',
   },
 };
 const T = {
@@ -741,8 +741,8 @@ const T = {
     pocketMoneyMonthView:'Monatsübersicht', pocketMoneyComposeTitle:'Buchung',
     pocketMoneyComposeCancel:'Schließen', pocketMoneyDayTotal:'Tag',
     pocketMoneyThisMonth:'Dieser Monat',
-    pocketMoneyDelete:'Buchung löschen', pocketMoneyDeleted:'Buchung gelöscht',
-    pocketMoneyDeleteAsk:'Diese Buchung wirklich löschen?',
+    pocketMoneyDelete:'Buchung stornieren', pocketMoneyDeleted:'Gegenbuchung erfasst',
+    pocketMoneyDeleteAsk:'Diese Buchung durch eine Gegenbuchung stornieren? Der ursprüngliche Eintrag bleibt erhalten.',
     pocketMoneySearchPh:'Suche Notiz / Betrag…',
     pocketMoneyOpenTab:'Zur Taschengeld-Seite',
     pocketMoneyTotalIn:'Einzahlungen', pocketMoneyTotalOut:'Auszahlungen',
@@ -1943,8 +1943,8 @@ const T = {
     pocketMoneyMonthView:'Μηνιαία επισκόπηση', pocketMoneyComposeTitle:'Κίνηση',
     pocketMoneyComposeCancel:'Κλείσιμο', pocketMoneyDayTotal:'Ημέρα',
     pocketMoneyThisMonth:'Αυτός ο μήνας',
-    pocketMoneyDelete:'Διαγραφή κίνησης', pocketMoneyDeleted:'Η κίνηση διαγράφηκε',
-    pocketMoneyDeleteAsk:'Να διαγραφεί αυτή η κίνηση;',
+    pocketMoneyDelete:'Αντιλογισμός κίνησης', pocketMoneyDeleted:'Καταγράφηκε αντίθετη κίνηση',
+    pocketMoneyDeleteAsk:'Να καταγραφεί αντίθετη κίνηση; Η αρχική εγγραφή θα διατηρηθεί.',
     pocketMoneySearchPh:'Αναζήτηση σημείωσης / ποσού…',
     pocketMoneyOpenTab:'Στη σελίδα χαρτζιλικιού',
     pocketMoneyTotalIn:'Καταθέσεις', pocketMoneyTotalOut:'Αναλήψεις',
@@ -2991,11 +2991,13 @@ const SHARED_KEYS = [
   'kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity',
   'houseRules','kidBadgePrefs','staffKidDayRatings','kidZoAiLogs',
 ];
-const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes','pocketMoneySettings','kidBadgePrefs']);
+const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes','pocketMoneySettings','kidBadgePrefs','gameStats']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
 let sharedPushTimer = null;
 let sharedPollTimer = null;
 let sharedBusy = false;
+let sharedDirty=false;
+let sharedBaseline={};
 
 function sharedBucketHasData(bucket, key){
   const v = bucket?.[key];
@@ -3095,6 +3097,7 @@ function applySharedPayload(data){
     sharedRevision = data.revision;
     localStorage.setItem('paidia.sharedRev', String(sharedRevision));
   }
+  if(state.mode==='staff'){SHARED_KEYS.forEach(k=>{if(data[k]!==undefined)sharedBaseline[k]=structuredClone(data[k]);});}
   if(changed) saveLocal();
   return changed;
 }
@@ -3102,7 +3105,7 @@ function applySharedPayload(data){
 
 async function pullShared({force=false}={}){
   if(!(state.user||state.child)) return false;
-  if(sharedBusy && !force) return false;
+  if((sharedBusy || sharedDirty || pendingSharedOperation) && !force) return false;
   sharedBusy = true;
   try{
     const controller = new AbortController();
@@ -3167,52 +3170,95 @@ function mergeShared(key, theirs, mine){
   return [...byId.values()];
 }
 
+let sharedSaveEpoch=0;
+let pendingSharedOperation=null;
+let pendingSharedOwner=null;
 async function pushShared(retry=false){
   if(state.mode !== 'staff' || !state.user) return false;
   if(sharedBusy) return false;
-  sharedBusy = true;
+  sharedBusy=true;
+  const epoch=sharedSaveEpoch;
+  const owner=state.user.id;
+  const pendingKey='paidia.pendingOperation:'+owner;
+  if(pendingSharedOwner!==owner){pendingSharedOperation=null;pendingSharedOwner=owner;}
+  const workspace=window.PaidiaWorkspace;
   try{
-    const payload = {revision: sharedRevision};
-    SHARED_KEYS.forEach(k => { payload[k] = DB[k]; });
-    const response = await fetch('/api/ops', {
-      method:'POST', credentials:'same-origin',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload),
-    });
-    const data = await response.json().catch(()=>null);
-    if(response.status === 409 && data){
-      // Another device wrote first. Adopt its state, then merge our own work
-      // back in PER RECORD. The previous version restored our entire payload
-      // over the server's, so the retry silently destroyed everything the
-      // other device had written — stock, list, handover notes, clock-ins.
-      // See tests/sync-conflict.test.mjs.
-      const mine = {};
-      SHARED_KEYS.forEach(k => { mine[k] = DB[k]; });
-      applySharedPayload(data);            // DB + sharedRevision now match server
-      SHARED_KEYS.forEach(k => { DB[k] = mergeShared(k, DB[k], mine[k]); });
-      saveLocal();
-      sharedBusy = false;
-      if(!retry) return pushShared(true);
+    if(!navigator.onLine){workspace?.status('offline',()=>pushShared());return false;}
+    if(!pendingSharedOperation){
+      try{pendingSharedOperation=JSON.parse(sessionStorage.getItem(pendingKey)||'null');}catch{}
+    }
+    if(!pendingSharedOperation){
+      const payload={};SHARED_KEYS.forEach(k=>{payload[k]=DB[k];});
+      pendingSharedOperation=JSON.parse(JSON.stringify({operationId:crypto.randomUUID(),action:'state.commit',expectedRevision:sharedRevision,payload,baseline:sharedBaseline}));
+      sessionStorage.setItem(pendingKey,JSON.stringify(pendingSharedOperation));
+    }
+    const op=pendingSharedOperation;
+    workspace?.status('saving');
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),20000);
+    let response;
+    try{response=await fetch('/api/operations',{
+      method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(op),signal:controller.signal,
+    });}finally{clearTimeout(timeout);}
+    const data=await response.json().catch(()=>null);
+    if(response.status===409 && data?.code==='conflict'){
+      // Never merge stale financial/stock snapshots over a concurrent write.
+      workspace?.status('conflict',()=>reviewSharedConflict(data));
+      reviewSharedConflict(data);
       return false;
     }
-    if(!response.ok){
-      console.warn('shared push failed', data);
+    if(!response.ok||!data?.durable){
+      workspace?.status('failed',()=>pushShared());
       return false;
     }
-    if(data){
-      if(typeof data.revision === 'number'){
-        sharedRevision = data.revision;
-        localStorage.setItem('paidia.sharedRev', String(sharedRevision));
-      }
+    const mineNow={};const theirsNow={};SHARED_KEYS.forEach(k=>{mineNow[k]=DB[k];theirsNow[k]=data[k];});
+    const reconciled=workspace?.reconcile
+      ? workspace.reconcile(op.payload,mineNow,theirsNow)
+      : {value:theirsNow,conflicts:[]};
+    if(reconciled.conflicts.length){
+      pendingSharedOperation={operationId:crypto.randomUUID(),action:'state.commit',expectedRevision:data.revision,payload:mineNow,baseline:op.payload};
+      sessionStorage.setItem(pendingKey,JSON.stringify(pendingSharedOperation));
+      sharedRevision=data.revision;reviewSharedConflict(data);return false;
     }
+    SHARED_KEYS.forEach(k=>{if(reconciled.value[k]!==undefined)DB[k]=reconciled.value[k];});saveLocal();
+    pendingSharedOperation=null;sessionStorage.removeItem(pendingKey);
+    sharedRevision=data.revision;localStorage.setItem('paidia.sharedRev',String(sharedRevision));
+    noteDurability(data);
+    SHARED_KEYS.forEach(k=>{if(data[k]!==undefined)sharedBaseline[k]=structuredClone(data[k]);});
+    const hasNewerEdits=sharedSaveEpoch!==epoch||JSON.stringify(reconciled.value)!==JSON.stringify(theirsNow);
+    sharedDirty=hasNewerEdits;
+    workspace?.status(hasNewerEdits?'saving':'saved');
+    if(hasNewerEdits) setTimeout(()=>pushShared(),0);
     return true;
   }catch(error){
-    console.warn('shared push failed', error);
+    window.PaidiaWorkspace?.status('failed',()=>pushShared());
     return false;
-  }finally{ sharedBusy = false; }
+  }finally{sharedBusy=false;}
+}
+
+function reviewSharedConflict(server){
+  const op=pendingSharedOperation;if(!op)return;
+  const theirs={};const mine={};SHARED_KEYS.forEach(k=>{theirs[k]=server[k];mine[k]=DB[k];});
+  const result=window.PaidiaWorkspace?.reconcile
+    ? window.PaidiaWorkspace.reconcile(op.baseline||{},mine,theirs)
+    : {value:theirs,conflicts:[]};
+  const el=state.lang==='el';
+  const label=path=>path.map(part=>typeof part==='object'?part.id:part).join(' · ');
+  const display=value=>value===undefined?(el?'Αφαίρεση':'Entfernen'):typeof value==='object'?JSON.stringify(value):String(value);
+  openSheet(`<h2>${el?'Έλεγχος αλλαγών':'Änderungen prüfen'}</h2><p>${el?'Έγιναν αλλαγές από άλλη συσκευή. Διάλεξε ποια τιμή θα κρατηθεί όπου υπάρχει σύγκρουση.':'Ein anderes Gerät hat Änderungen gespeichert. Wähle bei jedem Konflikt den passenden Wert.'}</p>
+    <div class="conflict-list">${result.conflicts.map((c,i)=>`<fieldset><legend>${esc(label(c.path))}</legend><label><input type="radio" name="conflict-${i}" value="server" checked> ${el?'Τρέχουσα τιμή':'Aktueller Wert'}<span>${esc(display(c.theirs))}</span></label><label><input type="radio" name="conflict-${i}" value="mine"> ${el?'Δική μου αλλαγή':'Meine Änderung'}<span>${esc(display(c.mine))}</span></label></fieldset>`).join('')||`<p>${el?'Οι αλλαγές αφορούν διαφορετικές εγγραφές και μπορούν να συνδυαστούν.':'Die Änderungen betreffen unterschiedliche Einträge und können zusammengeführt werden.'}</p>`}</div>
+    <div class="workspace-form-actions"><button class="btn" id="resolveShared">${el?'Αποθήκευση επιλογών':'Auswahl speichern'}</button><button class="btn sec" id="useShared">${el?'Κράτησε τις τρέχουσες τιμές':'Aktuelle Werte übernehmen'}</button></div>`);
+  const reset=()=>{pendingSharedOperation=null;sessionStorage.removeItem('paidia.pendingOperation:'+state.user.id);sharedRevision=server.revision;};
+  sheetEl.querySelector('#useShared').onclick=()=>{reset();sharedDirty=false;applySharedPayload(server);closeSheet();render();};
+  sheetEl.querySelector('#resolveShared').onclick=()=>{
+    result.conflicts.forEach((conflict,i)=>{if(sheetEl.querySelector(`input[name="conflict-${i}"]:checked`)?.value==='mine')result.value=window.PaidiaWorkspace?.chooseConflict?.(result.value,conflict.path,conflict.mine)??result.value;});
+    reset();SHARED_KEYS.forEach(k=>{if(result.value[k]!==undefined)DB[k]=result.value[k];});sharedBaseline=theirs;
+    saveLocal();sharedSaveEpoch++;closeSheet();render();pushShared();
+  };
 }
 
 function schedulePushShared(){
+  sharedSaveEpoch++;sharedDirty=true;
   clearTimeout(sharedPushTimer);
   sharedPushTimer = setTimeout(()=>{ pushShared(); }, 280);
 }
@@ -4454,14 +4500,16 @@ function setLang(l){
 const sheetEl = document.getElementById('sheet');
 const sheetBg = document.getElementById('sheetBg');
 let sheetLocked = false;
+let sheetReturnFocus = null;
 let stockBoardUiAbort = null;
 
 function openSheet(html, {dismissable = true, kind = ''} = {}){
   exitMatrixFullscreen();
   if(state.chatOpen) closeChatPanel();
   document.querySelectorAll('.stock-hold-menu,.drag-ghost').forEach(el=>el.remove());
+  if(!document.body.classList.contains('sheet-open')) sheetReturnFocus=document.activeElement;
   sheetLocked = !dismissable;
-  document.getElementById('app').inert = sheetLocked;
+  document.getElementById('app').inert = true;
   const isNavMenu = kind === 'nav-menu' || kind === 'kid-site-menu';
   const isKidSite = kind === 'kid-site-menu';
   const isShiftCheck = kind === 'shift-check';
@@ -4485,14 +4533,28 @@ function openSheet(html, {dismissable = true, kind = ''} = {}){
   sheetEl.innerHTML = (dismissable
     ? `<button class="sheet-close" type="button" aria-label="${esc(t('close'))}" title="${esc(t('close'))}">×</button><div class="grabber${isNavMenu?' nav-menu-grabber':''}" aria-hidden="true"></div>`
     : '') + html;
+  const heading=sheetEl.querySelector('h1,h2,h3');
+  sheetEl.removeAttribute('aria-labelledby');
+  if(heading){heading.id=heading.id||'sheetHeading';sheetEl.setAttribute('aria-labelledby',heading.id);}
+  else if(!sheetEl.hasAttribute('aria-label'))sheetEl.setAttribute('aria-label',t('navMore'));
+  sheetEl.tabIndex=-1;
   void sheetEl.offsetWidth;
   requestAnimationFrame(()=>{
     if(!document.body.classList.contains('sheet-open')) return;
     sheetEl.classList.add('on');
+    sheetEl.focus({preventScroll:true});
   });
   const x = sheetEl.querySelector('.sheet-close');
   if(x) x.onclick = closeSheet;
 }
+sheetEl.addEventListener('keydown',event=>{
+  if(event.key!=='Tab')return;
+  const controls=[...sheetEl.querySelectorAll('button,input,textarea,select,a[href],[tabindex]')].filter(el=>!el.disabled&&el.tabIndex>=0&&el.getClientRects().length);
+  const first=controls[0],last=controls.at(-1);
+  if(!first){event.preventDefault();sheetEl.focus();return;}
+  if(event.shiftKey&&(document.activeElement===first||document.activeElement===sheetEl)){event.preventDefault();last.focus();}
+  else if(!event.shiftKey&&(document.activeElement===last||document.activeElement===sheetEl)){event.preventDefault();first.focus();}
+});
 function closeSheet(){
   sheetLocked = false;
   stockBoardUiAbort?.abort();
@@ -4500,12 +4562,14 @@ function closeSheet(){
   document.getElementById('app').inert = false;
   document.body.classList.remove('sheet-open', 'sheet-nav-menu-open', 'sheet-kid-site-open', 'sheet-shift-check-open');
   sheetEl.removeAttribute('role');sheetEl.removeAttribute('aria-modal');
-  sheetEl.removeAttribute('aria-label');
+  sheetEl.removeAttribute('aria-label');sheetEl.removeAttribute('aria-labelledby');
   sheetEl.classList.remove('on', 'sheet-nav-menu', 'sheet-kid-site-menu', 'sheet-shift-check'); sheetBg.classList.remove('on');
   sheetEl.onpaste=null; sheetEl.ondragover=null; sheetEl.ondrop=null;
   stopCamera();
   document.querySelectorAll('.stock-hold-menu,.drag-ghost').forEach(el=>el.remove());
   sheetEl.replaceChildren();
+  const returnFocus=sheetReturnFocus;sheetReturnFocus=null;
+  if(returnFocus?.isConnected)returnFocus.focus({preventScroll:true});
   scheduleMeasureChrome();
 }
 
@@ -6680,7 +6744,7 @@ function sheetStaffTalk(){
 
 sheetBg.onclick = () => { if(!sheetLocked) closeSheet(); };
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape' && sheetEl.classList.contains('on') && !sheetLocked) closeSheet();
+  if(e.key === 'Escape' && document.body.classList.contains('sheet-open') && !sheetLocked) closeSheet();
 });
 
 /** Επαναχρησιμοποιεί το authenticated staff session. PIN ζητείται μόνο χωρίς ενεργή σύνδεση,
@@ -7433,6 +7497,7 @@ function routeFromHash(){
     const kidsPanes = ['directory','attendance','homework','materials','activity','timetable','subjects'];
     if(kidsPanes.includes(pane)) route.kidsPane = pane;
   }
+  if(tab === 'admin')route.adminPane=ADMIN_SECTIONS.some(([id])=>id===parts[1])?parts[1]:'ops';
   if(tab === 'pocket' && parts[1]) route.pocketKidId = parts[1];
   return route;
 }
@@ -7457,12 +7522,14 @@ function applyRouteFromHash(){
   if(route.shopPanel){
     state.shopPanel = route.shopPanel === 'store' ? 'plan' : route.shopPanel;
   }
+  if(route.adminPane)state.adminPane=route.adminPane;
   if(route.kidsPane) state.kidsPane = route.kidsPane;
   if(route.pocketKidId) state.pocketKidId = route.pocketKidId;
   return true;
 }
 
 function hashForState(){
+  if(state.tab==='admin')return '#admin/'+(state.adminPane||'ops');
   if(state.tab === 'home') return '#home';
   if(state.tab === 'gallery') return '#gallery';
   if(state.tab === 'book') return '#book';
@@ -11821,8 +11888,7 @@ function pocketTxnsFor(kidId){
 function pocketBalance(kidId){
   const rows = pocketTxnsFor(kidId);
   if(!rows.length) return 0;
-  if(rows[0].balanceAfter!=null) return Number(rows[0].balanceAfter)||0;
-  return rows.slice().reverse().reduce((s,r)=>s+(Number(r.amount)||0), 0);
+  return rows.reduce((sum,row)=>sum+(Number.isInteger(row.amountMinor)?row.amountMinor:Math.round((Number(row.amount)||0)*100)),0)/100;
 }
 function recomputePocketBalances(kidId){
   const rows = (DB.pocketMoneyTxns||[]).filter(x=>x && x.kidId===kidId)
@@ -11845,15 +11911,15 @@ function addPocketTxn({kidId, amount, kind='in', note='', categoryId=''}={}){
   }
   const bal = Math.round((pocketBalance(kidId)+amt)*100)/100;
   const row = {
-    id: uid(), kidId, amount: amt,
+    id: uid(), kidId, amount: amt, amountMinor:Math.round(amt*100),
     kind: kind==='out'?'out':(kind==='adjust'?'adjust':'in'),
-    note: String(note||'').trim().slice(0,160),
+    note: String(note||pocketCatLabel(categoryId)||(state.lang==='el'?'Χειροκίνητη καταχώριση':'Manuelle Buchung')).trim().slice(0,160),
     categoryId: categoryId || '',
     by: state.user?.id || null, ts: Date.now(), balanceAfter: bal,
   };
   DB.pocketMoneyTxns = DB.pocketMoneyTxns || [];
   DB.pocketMoneyTxns.push(row);
-  if(DB.pocketMoneyTxns.length>4000) DB.pocketMoneyTxns = DB.pocketMoneyTxns.slice(-4000);
+
   return row;
 }
 
@@ -11948,13 +12014,14 @@ function applyPocketPreset(kidId, raw, {fillOnly=false}={}){
   return true;
 }
 function deletePocketTxn(id){
-  const row = (DB.pocketMoneyTxns||[]).find(x=>x && x.id===id);
-  if(!row) return false;
-  const kidId = row.kidId;
-  DB.pocketMoneyTxns = (DB.pocketMoneyTxns||[]).filter(x=>x && x.id!==id);
-  recomputePocketBalances(kidId);
+  const row=(DB.pocketMoneyTxns||[]).find(x=>x?.id===id);
+  if(!row || DB.pocketMoneyTxns.some(x=>x.reverses===id))return false;
+  const reversal=addPocketTxn({kidId:row.kidId,amount:-Number(row.amount),kind:'adjust',note:state.lang==='el'?'Αντιλογισμός προηγούμενης κίνησης':'Stornierung einer früheren Buchung',categoryId:row.categoryId});
+  if(!reversal)return false;
+  reversal.reverses=id;
   return true;
 }
+
 function pocketTxnKindLabel(r){
   if(r?.kind==='adjust') return t('pocketMoneyAdjust');
   if(r?.kind==='out' || (Number(r?.amount)||0)<0) return t('pocketMoneyOut');
@@ -18364,6 +18431,7 @@ function childRewardsView(kidId){
 }
 
 function renderChild(){
+  window.PaidiaWorkspace?.restore(state);
   const nextRoute = toastRouteContext();
   if(toastRouteKey && toastRouteKey !== nextRoute) dismissToast();
   if((DB.staffKidRatings||[]).length){
@@ -20156,21 +20224,56 @@ function adminWorkerDetailHtml(employeeId){
   </div>`;
 }
 
+const ADMIN_SECTIONS=[['ops','Übersicht','Επισκόπηση'],['team','Team','Ομάδα'],['supplies','Häuser & Vorräte','Σπίτια & προμήθειες'],['school','Kinder & Schule','Παιδιά & σχολείο'],['review','Prüfung','Έλεγχος'],['finance','Finanzen','Οικονομικά'],['audit','Aktivität','Δραστηριότητα'],['communications','Mitteilungen','Επικοινωνία'],['automations','Automationen','Αυτοματισμοί'],['system','Systemstatus','Κατάσταση συστήματος']];
+function adminSectionHtml(pane){
+  const text=(de,el)=>state.lang==='el'?el:de;
+  const empty=text('Keine Einträge vorhanden.','Δεν υπάρχουν καταγραφές.');
+  const link=(href,label)=>`<a class="btn sec" href="${href}">${esc(label)} →</a>`;
+  const rows=items=>`<div class="admin-record-list">${items.join('')||`<p class="muted">${empty}</p>`}</div>`;
+  const record=(title,detail,action='')=>`<article class="admin-record"><div><h3>${esc(title)}</h3><p>${esc(detail)}</p></div>${action}</article>`;
+  if(pane==='supplies')return rows((DB.houses||[]).map(h=>{
+    const products=PRODUCTS(),recorded=products.filter(p=>Number.isFinite(DB.stock?.[stockKey(h.id,p.id)]));
+    const shortages=recorded.filter(p=>['empty','low'].includes(stockProductStateFor([h],p))).length;
+    return record(h.short||h.name,`${text('Erfasst','Καταγεγραμμένα')}: ${recorded.length}/${products.length} · ${text('Fehlmengen','Ελλείψεις')}: ${shortages} · ${text('Ohne Erfassung','Χωρίς καταγραφή')}: ${products.length-recorded.length}`,`<button class="btn sec" data-ops-house="${esc(h.id)}">${esc(t('navStock'))} →</button>`);
+  }));
+  if(pane==='finance')return rows((DB.children||[]).map(k=>record(k.name,`${text('Saldo','Υπόλοιπο')}: ${new Intl.NumberFormat(state.lang==='el'?'el-GR':'de-DE',{style:'currency',currency:'EUR'}).format(pocketBalance(k.id))} · ${text('Buchungen','Συναλλαγές')}: ${(DB.pocketMoneyTxns||[]).filter(tx=>tx.kidId===k.id).length}`,link('#pocket/'+encodeURIComponent(k.id),text('Kontoverlauf','Ιστορικό λογαριασμού')))));
+  if(pane==='school')return rows([['attendance','Anwesenheit','Παρουσίες'],['homework','Hausaufgaben','Εργασίες'],['materials','Schulmaterial','Σχολικά είδη'],['activity','Schulverlauf','Σχολική δραστηριότητα'],['timetable','Stundenplan','Ωρολόγιο πρόγραμμα']].map(([key,de,el])=>record(text(de,el),text('Nach Kind und Datum prüfen.','Έλεγχος ανά παιδί και ημερομηνία.'),link('#kids/'+key,text('Öffnen','Άνοιγμα')))));
+  if(pane==='review')return rows([
+    record(text('Rückmeldungen','Αναφορές'),`${openFeedbackCount()} ${text('offen','ανοιχτές')}`,`<button class="btn sec" data-admin-tool="feedback">${text('Prüfen','Έλεγχος')}</button>`),
+    record(text('Einkaufsanfragen','Αιτήματα αγορών'),`${(DB.listRequests||[]).filter(r=>r.status==='open').length} ${text('offen','ανοιχτά')}`,link('#shop/requests',text('Anfragen öffnen','Άνοιγμα αιτημάτων'))),
+    record(text('Aufgaben und Nachweise','Εργασίες και αποδεικτικά'),text('Eingereichte Aufgaben im Kinderbereich prüfen.','Έλεγχος υποβλημένων εργασιών στην ενότητα παιδιών.'),link('#kids/homework',text('Aufgaben öffnen','Άνοιγμα εργασιών')))
+  ]);
+  if(pane==='audit'){
+    const query=String(state.adminAuditQuery||'').toLocaleLowerCase();
+    const filtered=(DB.log||[]).slice().sort((a,b)=>Number(b.ts||0)-Number(a.ts||0)).filter(r=>[r.text,r.reason,r.type,emp(r.employeeId)?.name,r.houseId,r.kidId].join(' ').toLocaleLowerCase().includes(query));
+    const limit=state.adminAuditLimit||50;
+    return `<label class="f"><span>${text('Aktivität durchsuchen','Αναζήτηση δραστηριότητας')}</span><input type="search" id="adminAuditSearch" value="${esc(state.adminAuditQuery||'')}" placeholder="${text('Person, Vorgang oder Grund','Πρόσωπο, ενέργεια ή αιτία')}"></label><p class="muted">${Math.min(filtered.length,limit)} / ${filtered.length}</p>${rows(filtered.slice(0,limit).map(r=>record(typeLabel(r.type)||r.type||'—',[r.ts?fmtDT(r.ts):'',emp(r.employeeId)?.name,r.text||r.reason||r.msg].filter(Boolean).join(' · '))))}${filtered.length>limit?`<button class="btn sec" data-admin-tool="more-audit">${text('Weitere 50 laden','Φόρτωση άλλων 50')}</button>`:''}`;
+  }
+  if(pane==='communications')return rows([record(text('Nachricht an das Team','Μήνυμα στην ομάδα'),text('Empfänger und Nachricht vor dem Versand prüfen.','Έλεγχος παραληπτών και μηνύματος πριν την αποστολή.'),`<button class="btn" data-admin-tool="broadcast">${text('Nachricht erstellen','Δημιουργία μηνύματος')}</button>`),record(text('Teamgespräch','Συνομιλία ομάδας'),text('Gespräche und Besprechungsnotizen.','Συνομιλίες και σημειώσεις συναντήσεων.'),link('#talk',text('Gespräche öffnen','Άνοιγμα συνομιλιών')))]);
+  if(pane==='automations')return `<p>${text('Diese Benachrichtigungsregeln gelten für dieses Gerät. Ein zentraler Ausführungsverlauf ist noch nicht verfügbar.','Αυτοί οι κανόνες ειδοποιήσεων ισχύουν για αυτή τη συσκευή. Δεν υπάρχει ακόμη κεντρικό ιστορικό εκτέλεσης.')}</p>${rows(Object.entries(notifAutomations()).filter(([key])=>key!=='updatedAt').map(([key,value])=>record(t({shiftStart:'autoShiftStart',lowStock:'autoLowStock',presenceLate:'autoPresenceLate',broadcastBanner:'autoBroadcastBanner',fridayShop:'autoFridayShop',activities:'autoActivities',handover:'autoHandover',ratings:'autoRatings'}[key]),value?text('Aktiv','Ενεργό'):text('Inaktiv','Ανενεργό'))))}<button class="btn" data-admin-tool="automations">${text('Regeln bearbeiten','Επεξεργασία κανόνων')}</button>`;
+  if(pane==='system')return rows([
+    record(text('Verbindung','Σύνδεση'),navigator.onLine?text('Netzwerk verfügbar; Dienststatus wird bei Anfragen geprüft.','Διαθέσιμο δίκτυο· η υπηρεσία ελέγχεται κατά τα αιτήματα.'):text('Offline','Χωρίς σύνδεση')),
+    record(text('Synchronisierung','Συγχρονισμός'),sharedBusy?text('Speichern läuft','Αποθήκευση σε εξέλιξη'):sharedDirty?text('Änderungen warten auf Bestätigung','Αλλαγές αναμένουν επιβεβαίωση'):text('Keine ausstehenden lokalen Änderungen','Δεν εκκρεμούν τοπικές αλλαγές'),sharedDirty?`<button class="btn" data-admin-tool="retry">${text('Erneut versuchen','Δοκίμασε ξανά')}</button>`:''),
+    record(text('Geladener Datenstand','Φορτωμένη έκδοση δεδομένων'),String(sharedRevision)),
+    record(text('Speicherbestätigung','Επιβεβαίωση αποθήκευσης'),durableStorageOk?text('Kein Speicherfehler gemeldet.','Δεν έχει αναφερθεί σφάλμα αποθήκευσης.'):text('Letzter Speicherversuch fehlgeschlagen.','Η τελευταία προσπάθεια αποθήκευσης απέτυχε.'))
+  ]);
+  return '';
+}
+
 function viewAdminOps(){
   if(!isAdminUser()) return `<section class="card"><p class="muted">${esc(t('adminRequired'))}</p></section>`;
-  const pane=state.adminPane==='team'?'team':'ops';
-  const seg=`<div class="seg admin-pane-seg" role="tablist" aria-label="Admin">
-    <button type="button" class="${pane==='ops'?'on':''}" data-admin-pane="ops">${esc(t('adminOpsTab'))}</button>
-    <button type="button" class="${pane==='team'?'on':''}" data-admin-pane="team">${esc(t('adminTeamTab'))}</button>
-  </div>`;
+  const pane=ADMIN_SECTIONS.some(([id])=>id===state.adminPane)?state.adminPane:'ops';
+  const section=ADMIN_SECTIONS.find(([id])=>id===pane);
+  const seg=`<nav class="admin-section-nav" aria-label="${state.lang==='el'?'Ενότητες διαχείρισης':'Verwaltungsbereiche'}">${ADMIN_SECTIONS.map(([id,de,el])=>`<a href="#admin/${id}" ${id===pane?'aria-current="page"':''}>${esc(state.lang==='el'?el:de)}</a>`).join('')}</nav><label class="admin-section-picker"><span>${state.lang==='el'?'Ενότητα':'Bereich'}</span><select id="adminSectionSelect">${ADMIN_SECTIONS.map(([id,de,el])=>`<option value="${id}" ${id===pane?'selected':''}>${esc(state.lang==='el'?el:de)}</option>`).join('')}</select></label>`;
+  if(!['ops','team'].includes(pane))return `<div class="admin-ops admin-center">${seg}<header class="admin-ops-hero"><p class="eyebrow">Armonia</p><h2>${esc(state.lang==='el'?section[2]:section[1])}</h2></header><section class="admin-section-content">${adminSectionHtml(pane)}</section></div>`;
   if(pane==='team'){
     const detail=state.adminWorkerId?adminWorkerDetailHtml(state.adminWorkerId):'';
     return `<div class="admin-ops admin-ops-team" data-tour="admin-ops">
+      ${seg}
       <header class="admin-ops-hero">
         <p class="eyebrow">Armonia · Admin</p>
         <h2>${esc(t('adminTeamTitle'))}</h2>
         <p class="muted">${esc(t('adminTeamLead'))}</p>
-        ${seg}
       </header>
       ${detail||`<section class="card admin-ops-section">${adminTeamRosterHtml()}</section>`}
     </div>`;
@@ -20209,11 +20312,11 @@ function viewAdminOps(){
   const filterCards=filtered.length?filtered.map(r=>`<article class="admin-ops-card"><header><b>${esc(r.title)}</b><span>${esc(r.meta||'')}</span></header><p>${esc(r.body)}</p></article>`).join('')
     :`<p class="muted">${esc(t('adminOpsEmpty'))}</p>`;
   return `<div class="admin-ops admin-ops-cockpit" data-tour="admin-ops">
+    ${seg}
     <header class="admin-ops-hero">
       <p class="eyebrow">Armonia · Admin</p>
       <h2>${esc(t('adminOpsTitle'))}</h2>
       <p class="muted">${esc(t('adminOpsLead'))}</p>
-      ${seg}
     </header>
     ${operationsOverviewHtml()}
     <div class="admin-ops-desktop">
@@ -20254,6 +20357,19 @@ function viewAdminOps(){
 
 function wireAdminOpsView(root){
   if(!root) return;
+  root.querySelector('#adminSectionSelect')?.addEventListener('change',event=>{location.hash='admin/'+event.target.value;});
+  root.querySelector('#adminAuditSearch')?.addEventListener('input',event=>{
+    state.adminAuditQuery=event.target.value;state.adminAuditLimit=50;
+    const focus=window.PaidiaWorkspace?.captureFocus?.();render();window.PaidiaWorkspace?.restoreFocus?.(focus);
+  });
+  root.querySelectorAll('[data-admin-tool]').forEach(button=>button.onclick=()=>{
+    const action=button.dataset.adminTool;
+    if(action==='feedback')sheetFeedbackInbox();
+    if(action==='broadcast')sheetBroadcastEmail();
+    if(action==='automations')sheetAdminAutomations();
+    if(action==='retry')pushShared();
+    if(action==='more-audit'){state.adminAuditLimit=(state.adminAuditLimit||50)+50;render();}
+  });
   root.querySelectorAll('[data-admin-pane]').forEach(btn=>btn.onclick=()=>{
     state.adminPane=btn.dataset.adminPane==='team'?'team':'ops';
     if(state.adminPane==='ops') state.adminWorkerId=null;
@@ -22071,6 +22187,7 @@ function childViewHtml(c){
 }
 
 function render(){
+  window.PaidiaWorkspace?.restore(state);
   const nextRoute = toastRouteContext();
   if(toastRouteKey && toastRouteKey !== nextRoute) dismissToast();
   if(state.mode === 'child' && state.child) return renderChild();
@@ -25088,7 +25205,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||218;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||224;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
@@ -25464,3 +25581,5 @@ function paintPwaInstallBar(){
     sheetInstallNotif();
   });
 }
+
+window.addEventListener('paidia:shell-switch',()=>window.PaidiaWorkspace?.stash(state));

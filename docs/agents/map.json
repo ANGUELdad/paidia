@@ -435,6 +435,30 @@
         "ui-v110.css"
       ],
       "snippet": "Shared houseRules ops array; viewRules/childRulesView; staff edit kids read-only; ROUTE_TABS rules; kids cannot kid-ops write."
+    },
+    {
+      "id": "operations-workspace",
+      "keys": [
+        "operations",
+        "PaidiaWorkspace",
+        "state.commit",
+        "pushShared",
+        "update_json_atomic",
+        "adminPane",
+        "workspace.js",
+        "/api/operations"
+      ],
+      "files": [
+        "operations.py",
+        "shared/workspace.js",
+        "shared/workspace.css",
+        "db.py",
+        "server.py",
+        "api/index.py",
+        "app.js",
+        "tests/test_operations.py"
+      ],
+      "snippet": "Atomic POST /api/operations (apply_operation + update_json_atomic); client PaidiaWorkspace reconcile/status; Admin ADMIN_SECTIONS panes; pushShared uses durable commits."
     }
   ]
 }

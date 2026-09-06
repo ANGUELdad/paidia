@@ -38,14 +38,25 @@ def rewrite_asset_paths(html: str) -> str:
 
 
 def inject_shell(html: str, shell: str, ver: str) -> str:
-    extra_css = "mobile.css" if shell == "m" else "desk.css"
-    extra_js = "mobile-app.js" if shell == "m" else "desk-app.js"
+    # Absolute paths so /m/ and /desk/ aliases still resolve assets
+    # (relative mobile.css under /m/ would request /m/mobile.css → 404).
+    if shell == "m":
+        extra_css = "/mobile/mobile.css"
+        extra_js = "/mobile/mobile-app.js"
+    else:
+        extra_css = "/desk/desk.css"
+        extra_js = "/desk/desk-app.js"
     head_bits = f"""
 <meta name="paidia-shell" content="{shell}">
 <script>document.documentElement.dataset.shell="{shell}";window.__PAIDIA_SHELL__="{shell}";</script>
-<link rel="stylesheet" href="{extra_css}?v={ver}">
 """
     html = html.replace("<head>", "<head>\n" + head_bits, 1)
+    # Load shell CSS last so it wins over ui-v110/ui-v213
+    shell_css = f'<link rel="stylesheet" href="{extra_css}?v={ver}">\n'
+    if "</head>" in html:
+        html = html.replace("</head>", shell_css + "</head>", 1)
+    else:
+        html = html.replace("<head>\n" + head_bits, "<head>\n" + head_bits + shell_css, 1)
     # Body class lock — merge into existing class attribute when present
     def body_repl(match: re.Match[str]) -> str:
         attrs = match.group(1) or ""
