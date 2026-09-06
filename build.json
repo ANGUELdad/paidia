@@ -1,8 +1,8 @@
 {
-  "version": 199,
-  "label": "v199",
+  "version": 204,
+  "label": "v204",
   "changed": {
-    "de": "Overflow · Buch ruhig · Regeln · Profile · Valeria+Lea · Noten · Push",
-    "el": "Overflow · ήρεμο Βιβλίο · Κανόνες · Προφίλ · Valeria+Lea · βαθμοί · Push"
+    "de": "Admin/Ops · Schicht-Notifs · Profil iOS",
+    "el": "Admin/Ops · ειδοπ. βάρδιας · προφίλ iOS"
   }
 }

@@ -25,7 +25,9 @@ Do not open `index.html` via `file://` — AI routes need the server.
 
 ## Agent maps (read first)
 
-See **[AGENTS.md](AGENTS.md)** → `docs/agents/SUMMARY.md`, `TOKEN_REDUCE.md`, `KNOWLEDGE_MAP.md`, `MEMORY_MAP.md`, `map.json`, `BIOMETRICS.md`.
+See **[AGENTS.md](AGENTS.md)** → Obsidian vault `knowledge/` (AGENT_START, SITE, MEMORY, topics/*) → `docs/agents/SUMMARY.md`, `TOKEN_REDUCE.md`, `KNOWLEDGE_MAP.md`, `MEMORY_MAP.md`, `map.json`, `BIOMETRICS.md`.
+
+Refresh vault: `python3 scripts/build-knowledge-vault.py` · Graph: `graphify update . --no-cluster` · MCP: `knowledge/MCP_SETUP.md`.
 
 ## Zo-Ai (in-app assistant)
 

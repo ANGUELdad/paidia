@@ -1,0 +1,2829 @@
+{
+  "version": 1,
+  "source": "docs/agents/map.json",
+  "nodes": [
+    {
+      "id": "topic:tour",
+      "type": "topic",
+      "label": "tour",
+      "keys": [
+        "tour",
+        "tutorial",
+        "onboarding",
+        "spotlight",
+        "coach",
+        "data-tour",
+        "tourSeen"
+      ],
+      "snippet": "Spotlight coach-marks: buildTourSteps, openTutorial, data-tour targets, tourSeen v3, Easy/Pro paths. ONBOARDING_VERSION=3."
+    },
+    {
+      "id": "file:app.js",
+      "type": "file",
+      "label": "app.js"
+    },
+    {
+      "id": "file:index.html",
+      "type": "file",
+      "label": "index.html"
+    },
+    {
+      "id": "file:docs/agents/TOUR_SYSTEM.md",
+      "type": "file",
+      "label": "docs/agents/TOUR_SYSTEM.md"
+    },
+    {
+      "id": "file:server.py",
+      "type": "file",
+      "label": "server.py"
+    },
+    {
+      "id": "topic:page-tips",
+      "type": "topic",
+      "label": "page-tips",
+      "keys": [
+        "tips",
+        "page tip",
+        "contextual tip",
+        "coach tip",
+        "tipsDismissed",
+        "tipNotifyPageChange",
+        "page-tips"
+      ],
+      "snippet": "Contextual page tips with spotlight hole/arrow on data-tour; human DE/EL; PaidiaPageTips.refreshLang; paidia.tipsDismissed."
+    },
+    {
+      "id": "file:page-tips.js",
+      "type": "file",
+      "label": "page-tips.js"
+    },
+    {
+      "id": "file:docs/agents/TIPS_SYSTEM.md",
+      "type": "file",
+      "label": "docs/agents/TIPS_SYSTEM.md"
+    },
+    {
+      "id": "topic:zoai-tips",
+      "type": "topic",
+      "label": "zoai-tips",
+      "keys": [
+        "zoai tip",
+        "zo-ai tip",
+        "fab tip",
+        "capability tip",
+        "PaidiaZoAiTips",
+        "zoai-tips",
+        "zoaiTipNotifySession"
+      ],
+      "snippet": "Zo-Ai FAB tips spotlight nav-zoai; PaidiaZoAiTips.refreshLang; stagger paidiaMarkCoachShown / paidiaPageTipVisible."
+    },
+    {
+      "id": "file:zoai-tips.js",
+      "type": "file",
+      "label": "zoai-tips.js"
+    },
+    {
+      "id": "file:gate.js",
+      "type": "file",
+      "label": "gate.js"
+    },
+    {
+      "id": "topic:nav-menu",
+      "type": "topic",
+      "label": "nav-menu",
+      "keys": [
+        "mehr",
+        "menu",
+        "nav menu",
+        "overflow",
+        "sheetMobileMore",
+        "sheetKidMore",
+        "openNavMenu",
+        "dockMore",
+        "kidDockMore"
+      ],
+      "snippet": "Kids website menu v169: mobile hamburger openKidSiteMenu (kid-site-menu sheet); desktop dark left rail kid-dock. Staff Mehr still openNavMenu. Back chrome separate."
+    },
+    {
+      "id": "file:ui-v110.css",
+      "type": "file",
+      "label": "ui-v110.css"
+    },
+    {
+      "id": "topic:feedback",
+      "type": "topic",
+      "label": "feedback",
+      "keys": [
+        "feedback",
+        "bug report",
+        "change request",
+        "addition",
+        "melden",
+        "αναφορά",
+        "triage",
+        "feedbackReports"
+      ],
+      "snippet": "sheetFeedbackHub/Compose/Inbox; OPS key feedbackReports; kid-ops merge locks triage; Pro inbox."
+    },
+    {
+      "id": "file:docs/agents/FEEDBACK_SYSTEM.md",
+      "type": "file",
+      "label": "docs/agents/FEEDBACK_SYSTEM.md"
+    },
+    {
+      "id": "topic:auth",
+      "type": "topic",
+      "label": "auth",
+      "keys": [
+        "login",
+        "pin",
+        "passkey",
+        "webauthn",
+        "gate",
+        "biometr",
+        "face id",
+        "finger",
+        "session",
+        "hello"
+      ],
+      "snippet": "Cold gate.js + app.js PIN/WebAuthn. Server /api/auth/passkey/* + PAIDIA_WEBAUTHN_ORIGIN/RP_ID. Platform authenticator."
+    },
+    {
+      "id": "file:docs/agents/BIOMETRICS.md",
+      "type": "file",
+      "label": "docs/agents/BIOMETRICS.md"
+    },
+    {
+      "id": "file:.env.example",
+      "type": "file",
+      "label": ".env.example"
+    },
+    {
+      "id": "topic:gate",
+      "type": "topic",
+      "label": "gate",
+      "keys": [
+        "entrance",
+        "version",
+        "changelog",
+        "install",
+        "pwa",
+        "build"
+      ],
+      "snippet": "Login shows build.json version + changed.de/el. Mobile keyboard: body[data-gate-kb] + visualViewport (--gate-vvh); hide landmark/pinpad while typing."
+    },
+    {
+      "id": "file:build.json",
+      "type": "file",
+      "label": "build.json"
+    },
+    {
+      "id": "file:CHANGELOG.md",
+      "type": "file",
+      "label": "CHANGELOG.md"
+    },
+    {
+      "id": "topic:book",
+      "type": "topic",
+      "label": "book",
+      "keys": [
+        "buch",
+        "book",
+        "journal",
+        "schichtbuch",
+        "shift note",
+        "audit",
+        "log"
+      ],
+      "snippet": "viewBook Übergabe: structured sections + ack. writeShiftJournalPage/ackShiftHandoff. Calendar unread dots. Easy write/read/ack; Pro archive/house/log."
+    },
+    {
+      "id": "topic:shop",
+      "type": "topic",
+      "label": "shop",
+      "keys": [
+        "liste",
+        "shop",
+        "friday",
+        "einkauf",
+        "cart",
+        "ocr"
+      ],
+      "snippet": "viewShop Friday list + requests; store checkbox mode (done sink+strikethrough); DE→EL translate; confirmBatch; OCR. Verantwortung ack is on Lagercheck, not Liste."
+    },
+    {
+      "id": "topic:admin-ops",
+      "type": "topic",
+      "label": "admin-ops",
+      "keys": [
+        "admin ops",
+        "ops cockpit",
+        "lego",
+        "zoimert",
+        "ops alert"
+      ],
+      "snippet": "#admin Ops cockpit + Lego; kids admin add/remove (/api/auth/admin/child); profile photo header; /api/translate; ops-alert."
+    },
+    {
+      "id": "file:docs/zoai/admin.md",
+      "type": "file",
+      "label": "docs/zoai/admin.md"
+    },
+    {
+      "id": "topic:stock",
+      "type": "topic",
+      "label": "stock",
+      "keys": [
+        "lager",
+        "stock",
+        "shift stock",
+        "kalyvia"
+      ],
+      "snippet": "viewStock pantry walk; immediate ± + undo toast; sheetStockQuickAdd; OUT reason dock; shiftStockCheck Kalyvia."
+    },
+    {
+      "id": "topic:schedule",
+      "type": "topic",
+      "label": "schedule",
+      "keys": [
+        "plan",
+        "schedule",
+        "week",
+        "template",
+        "override",
+        "event"
+      ],
+      "snippet": "Week: portrait day-focus (sticky Mo–So chips); landscape/desktop matrix; Import Woche; Zo-Ai Plan"
+    },
+    {
+      "id": "topic:calendar",
+      "type": "topic",
+      "label": "calendar",
+      "keys": [
+        "calendar",
+        "ics",
+        "google",
+        "outlook",
+        "kalender"
+      ],
+      "snippet": "sheetCalendar buildIcs VALARM; googleCalUrl outlookCalUrl per person."
+    },
+    {
+      "id": "topic:presence",
+      "type": "topic",
+      "label": "presence",
+      "keys": [
+        "presence",
+        "ich bin da",
+        "late",
+        "shift start",
+        "checkin"
+      ],
+      "snippet": "sheetShiftPresence; shiftCheckins ops; SW notif actions → ?presence=1."
+    },
+    {
+      "id": "file:sw.js",
+      "type": "file",
+      "label": "sw.js"
+    },
+    {
+      "id": "topic:email",
+      "type": "topic",
+      "label": "email",
+      "keys": [
+        "email",
+        "broadcast",
+        "smtp",
+        "resend",
+        "mail"
+      ],
+      "snippet": "email_shell + bilingual broadcast. sheetBroadcastEmail + optional in-app banner via profilePrefs._teamNotice."
+    },
+    {
+      "id": "file:api/index.py",
+      "type": "file",
+      "label": "api/index.py"
+    },
+    {
+      "id": "file:email-preview.html",
+      "type": "file",
+      "label": "email-preview.html"
+    },
+    {
+      "id": "topic:notif",
+      "type": "topic",
+      "label": "notif",
+      "keys": [
+        "notification",
+        "mitteilung",
+        "push",
+        "presence",
+        "sweep"
+      ],
+      "snippet": "Local Notification API + platform matrix. Optional VAPID subscribe when keys set. See NOTIFICATIONS_MATRIX.md."
+    },
+    {
+      "id": "file:docs/agents/WEB_PUSH_LATER.md",
+      "type": "file",
+      "label": "docs/agents/WEB_PUSH_LATER.md"
+    },
+    {
+      "id": "topic:zoai",
+      "type": "topic",
+      "label": "zoai",
+      "keys": [
+        "zo-ai",
+        "zoai",
+        "chat",
+        "paidia-action",
+        "omni",
+        "groq"
+      ],
+      "snippet": "llm_completion for chat/learn/quiz/caption. Keyword zoai knowledge. Confirmable actions."
+    },
+    {
+      "id": "file:docs/zoai/",
+      "type": "file",
+      "label": "docs/zoai/"
+    },
+    {
+      "id": "topic:talk",
+      "type": "topic",
+      "label": "talk",
+      "keys": [
+        "talk",
+        "team",
+        "chat staff",
+        "gespräch"
+      ],
+      "snippet": "viewTalk + /api/talk staff-only messaging."
+    },
+    {
+      "id": "topic:gallery",
+      "type": "topic",
+      "label": "gallery",
+      "keys": [
+        "gallery",
+        "momente",
+        "moments",
+        "foto",
+        "drive"
+      ],
+      "snippet": "/api/gallery posts; optional Google Drive; caption helper."
+    },
+    {
+      "id": "file:drive_gallery.py",
+      "type": "file",
+      "label": "drive_gallery.py"
+    },
+    {
+      "id": "topic:db",
+      "type": "topic",
+      "label": "db",
+      "keys": [
+        "postgres",
+        "sqlite",
+        "durable",
+        "ops",
+        "DATABASE_URL"
+      ],
+      "snippet": "db.py keys; OPS_STATE; durableStorage on health."
+    },
+    {
+      "id": "file:db.py",
+      "type": "file",
+      "label": "db.py"
+    },
+    {
+      "id": "file:docs/agents/MEMORY_MAP.md",
+      "type": "file",
+      "label": "docs/agents/MEMORY_MAP.md"
+    },
+    {
+      "id": "topic:deploy",
+      "type": "topic",
+      "label": "deploy",
+      "keys": [
+        "vercel",
+        "deploy",
+        "api",
+        "flask",
+        "github",
+        "upstream",
+        "armonia-thassos"
+      ],
+      "snippet": "Push upstream ANGUELdad/paidia → Vercel → armonia-thassos.vercel.app. Read DEPLOY_WIRING.md first."
+    },
+    {
+      "id": "file:docs/agents/DEPLOY_WIRING.md",
+      "type": "file",
+      "label": "docs/agents/DEPLOY_WIRING.md"
+    },
+    {
+      "id": "file:docs/agents/PUSH_ORIGIN.md",
+      "type": "file",
+      "label": "docs/agents/PUSH_ORIGIN.md"
+    },
+    {
+      "id": "file:vercel.json",
+      "type": "file",
+      "label": "vercel.json"
+    },
+    {
+      "id": "file:pyproject.toml",
+      "type": "file",
+      "label": "pyproject.toml"
+    },
+    {
+      "id": "topic:pocket",
+      "type": "topic",
+      "label": "pocket",
+      "keys": [
+        "pocket",
+        "taschengeld",
+        "χαρτζιλίκι",
+        "allowance"
+      ],
+      "snippet": "Staff #pocket tab + kid pocket view; pocketMoneyTxns + pocketMoneySettings ops."
+    },
+    {
+      "id": "topic:child",
+      "type": "topic",
+      "label": "child",
+      "keys": [
+        "kind",
+        "child",
+        "games",
+        "portal",
+        "kids",
+        "install"
+      ],
+      "snippet": "renderChild tabs; install/how-to; event notifs; Zo-Ai read-only."
+    },
+    {
+      "id": "file:docs/zoai/child.md",
+      "type": "file",
+      "label": "docs/zoai/child.md"
+    },
+    {
+      "id": "topic:tokens",
+      "type": "topic",
+      "label": "tokens",
+      "keys": [
+        "token",
+        "agent",
+        "map",
+        "knowledge",
+        "memory",
+        "reduce",
+        "obsidian",
+        "graphify",
+        "vault"
+      ],
+      "snippet": "Vault-first: knowledge/AGENT_START + topics/* + map.json; Graphify MCP; never full app.js/server.py."
+    },
+    {
+      "id": "file:AGENTS.md",
+      "type": "file",
+      "label": "AGENTS.md"
+    },
+    {
+      "id": "file:knowledge/",
+      "type": "file",
+      "label": "knowledge/"
+    },
+    {
+      "id": "file:knowledge/AGENT_START.md",
+      "type": "file",
+      "label": "knowledge/AGENT_START.md"
+    },
+    {
+      "id": "file:knowledge/MCP_SETUP.md",
+      "type": "file",
+      "label": "knowledge/MCP_SETUP.md"
+    },
+    {
+      "id": "file:docs/agents/",
+      "type": "file",
+      "label": "docs/agents/"
+    },
+    {
+      "id": "file:scripts/build-knowledge-vault.py",
+      "type": "file",
+      "label": "scripts/build-knowledge-vault.py"
+    }
+  ],
+  "edges": [
+    {
+      "from": "topic:tour",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tour",
+      "to": "file:index.html",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tour",
+      "to": "file:docs/agents/TOUR_SYSTEM.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tour",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "file:page-tips.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "file:index.html",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "file:docs/agents/TIPS_SYSTEM.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "file:zoai-tips.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "file:index.html",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "file:gate.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "file:docs/agents/TIPS_SYSTEM.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "file:ui-v110.css",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "file:index.html",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:feedback",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:feedback",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:feedback",
+      "to": "file:index.html",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:feedback",
+      "to": "file:docs/agents/FEEDBACK_SYSTEM.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:auth",
+      "to": "file:gate.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:auth",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:auth",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:auth",
+      "to": "file:docs/agents/BIOMETRICS.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:auth",
+      "to": "file:.env.example",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:gate",
+      "to": "file:gate.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:gate",
+      "to": "file:build.json",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:gate",
+      "to": "file:CHANGELOG.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:gate",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:book",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:book",
+      "to": "file:index.html",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:shop",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:shop",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "file:docs/zoai/admin.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:stock",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:schedule",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:calendar",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:presence",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:presence",
+      "to": "file:sw.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:email",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:email",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:email",
+      "to": "file:api/index.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:email",
+      "to": "file:email-preview.html",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:notif",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:notif",
+      "to": "file:sw.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:notif",
+      "to": "file:docs/agents/WEB_PUSH_LATER.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:zoai",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:zoai",
+      "to": "file:docs/zoai/",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:zoai",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:zoai",
+      "to": "file:api/index.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:talk",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:talk",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:gallery",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:gallery",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:gallery",
+      "to": "file:drive_gallery.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:db",
+      "to": "file:db.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:db",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:db",
+      "to": "file:docs/agents/MEMORY_MAP.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:deploy",
+      "to": "file:docs/agents/DEPLOY_WIRING.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:deploy",
+      "to": "file:docs/agents/PUSH_ORIGIN.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:deploy",
+      "to": "file:vercel.json",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:deploy",
+      "to": "file:api/index.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:deploy",
+      "to": "file:pyproject.toml",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:deploy",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:pocket",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:pocket",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:pocket",
+      "to": "file:docs/agents/MEMORY_MAP.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:child",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:child",
+      "to": "file:docs/zoai/child.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:child",
+      "to": "file:gate.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tokens",
+      "to": "file:AGENTS.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tokens",
+      "to": "file:knowledge/",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tokens",
+      "to": "file:knowledge/AGENT_START.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tokens",
+      "to": "file:knowledge/MCP_SETUP.md",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tokens",
+      "to": "file:docs/agents/",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tokens",
+      "to": "file:scripts/build-knowledge-vault.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:page-tips",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:zoai-tips",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:nav-menu",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:feedback",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:auth",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:gate",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:book",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:shop",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:admin-ops",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:db",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:zoai-tips",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "docs/agents/TIPS_SYSTEM.md",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:nav-menu",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:feedback",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:auth",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:gate",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:book",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:shop",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:admin-ops",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:nav-menu",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:feedback",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:auth",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "gate.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:gate",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "gate.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:book",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:shop",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:admin-ops",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "gate.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:feedback",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:auth",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:gate",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:book",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:shop",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:admin-ops",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:auth",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:gate",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:book",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "index.html"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:shop",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:admin-ops",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:db",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:gate",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "gate.js"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:book",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:shop",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:admin-ops",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:db",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "gate.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:book",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:shop",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:admin-ops",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "gate.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:shop",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:admin-ops",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:admin-ops",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:db",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:stock",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:db",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:schedule",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:calendar",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:calendar",
+      "to": "topic:presence",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:calendar",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:calendar",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:calendar",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:calendar",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:calendar",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:calendar",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:calendar",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:presence",
+      "to": "topic:email",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:presence",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "sw.js"
+      ]
+    },
+    {
+      "from": "topic:presence",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:presence",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:presence",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:presence",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:presence",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:email",
+      "to": "topic:notif",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:email",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "api/index.py",
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:email",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:email",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:email",
+      "to": "topic:db",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:email",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "api/index.py",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:email",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:email",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:notif",
+      "to": "topic:zoai",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:notif",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:notif",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:notif",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:notif",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai",
+      "to": "topic:talk",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:zoai",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:zoai",
+      "to": "topic:db",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:zoai",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "api/index.py",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:zoai",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:zoai",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:talk",
+      "to": "topic:gallery",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:talk",
+      "to": "topic:db",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:talk",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:talk",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:talk",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gallery",
+      "to": "topic:db",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:gallery",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:gallery",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:gallery",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:db",
+      "to": "topic:deploy",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:db",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "docs/agents/MEMORY_MAP.md",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:deploy",
+      "to": "topic:pocket",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:pocket",
+      "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    }
+  ],
+  "usage": "Prefer topics over opening files. Match user keywords to topic.keys."
+}

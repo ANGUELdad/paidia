@@ -1,19 +1,21 @@
 # Agent entry (Cursor / Claude Code / other LLM)
 
+**Token-saver path (preferred):** Obsidian vault [`knowledge/`](knowledge/) — start at [`knowledge/AGENT_START.md`](knowledge/AGENT_START.md), then topic notes under `knowledge/topics/`. MCP / Graphify setup: [`knowledge/MCP_SETUP.md`](knowledge/MCP_SETUP.md). Refresh vault: `python3 scripts/build-knowledge-vault.py`.
+
 **Before** opening large source files, read:
 
-1. [docs/agents/SUMMARY.md](docs/agents/SUMMARY.md)
+1. [knowledge/AGENT_START.md](knowledge/AGENT_START.md) **or** [docs/agents/SUMMARY.md](docs/agents/SUMMARY.md)
 2. [docs/agents/TOKEN_REDUCE.md](docs/agents/TOKEN_REDUCE.md)
-3. [docs/agents/KNOWLEDGE_MAP.md](docs/agents/KNOWLEDGE_MAP.md)
+3. [docs/agents/KNOWLEDGE_MAP.md](docs/agents/KNOWLEDGE_MAP.md) · vault mirror [knowledge/SITE.md](knowledge/SITE.md) / [knowledge/MEMORY.md](knowledge/MEMORY.md)
 4. [docs/agents/MEMORY_MAP.md](docs/agents/MEMORY_MAP.md)
-5. [docs/agents/map.json](docs/agents/map.json) — keyword → files/snippet
+5. [docs/agents/map.json](docs/agents/map.json) — keyword → files/snippet (mirrored as `knowledge/topics/*.md`)
 6. [docs/agents/BIOMETRICS.md](docs/agents/BIOMETRICS.md) — Face ID / Android fingerprint
 7. [docs/agents/TOUR_SYSTEM.md](docs/agents/TOUR_SYSTEM.md) — spotlight tour / `data-tour` QA
 8. [docs/agents/TIPS_SYSTEM.md](docs/agents/TIPS_SYSTEM.md) — contextual page tip popups
 9. [docs/agents/FEEDBACK_SYSTEM.md](docs/agents/FEEDBACK_SYSTEM.md) — bug / change / addition reports
-9. [docs/agents/OCR_GROK.md](docs/agents/OCR_GROK.md) — Liste/Lager OCR via xAI Grok
+10. [docs/agents/OCR_GROK.md](docs/agents/OCR_GROK.md) — Liste/Lager OCR via xAI Grok
 
-**Never** paste full `app.js` or `server.py` into context.
+**Never** paste full `app.js` or `server.py` into context. Prefer Graphify MCP / `graphify explain|path` when `graphify-out/graph.json` exists.
 
 **Zo-Ai (in-app assistant) runtime knowledge:** [docs/zoai/KNOWLEDGE_MAP.md](docs/zoai/KNOWLEDGE_MAP.md)
 

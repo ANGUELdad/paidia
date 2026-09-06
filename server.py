@@ -806,15 +806,43 @@ def _normalize_auth_users(raw: object) -> dict[str, dict]:
     return users
 
 
+# Public display names for the login directory (auth JSON often omits name/color).
+PROFILE_DISPLAY = {
+    "e1": {"name": "Dora", "color": "#9bc4b0"},
+    "e2": {"name": "Karin", "color": "#7a9eaa"},
+    "e3": {"name": "Dimitris", "color": "#c5ddd0"},
+    "e4": {"name": "Angelos", "color": "#a8c5b8"},
+    "e5": {"name": "Claudio", "color": "#8fb0a0"},
+    "e6": {"name": "Löhri", "color": "#d4c4a0"},
+    "e7": {"name": "Amalia", "color": "#b8c9a8"},
+    "e8": {"name": "Zoi", "color": "#2f5a63"},
+    "k1": {"name": "Simon", "color": "#9bc4b0"},
+    "k2": {"name": "Kai", "color": "#7a9eaa"},
+    "k3": {"name": "Vincent", "color": "#c5ddd0"},
+    "k4": {"name": "Julian klein", "color": "#a8c5b8"},
+    "k5": {"name": "Julian groß", "color": "#8fb0a0"},
+    "k6": {"name": "Lea", "color": "#d4c4a0"},
+    "k7": {"name": "Valeria", "color": "#b8c9a8"},
+    "k8": {"name": "Jule", "color": "#6b9a88"},
+    "k9": {"name": "Samantha", "color": "#5a8a7a"},
+    "k10": {"name": "Lilly", "color": "#7a9eaa"},
+    "k11": {"name": "Zoitsa", "color": "#c48a1a"},
+    "k12": {"name": "Leonie", "color": "#2f5a63"},
+}
+
+
 def auth_login_directory() -> dict:
     """Public display list for the login gate (ids + names only — no secrets)."""
     staff: list[dict] = []
     children: list[dict] = []
     for profile_id, user in AUTH_USERS.items():
+        disp = PROFILE_DISPLAY.get(str(profile_id), {})
+        name = str(user.get("name") or disp.get("name") or "").strip()
+        color = str(user.get("color") or disp.get("color") or "").strip()
         row = {
             "id": str(profile_id),
-            "name": str(user.get("name") or "").strip(),
-            "color": str(user.get("color") or "").strip(),
+            "name": name,
+            "color": color,
         }
         if user.get("mode") == "child":
             children.append(row)
@@ -5329,6 +5357,7 @@ class Handler(SimpleHTTPRequestHandler):
                     session_id = payload.get("session_id", session_id)
                 except RuntimeError:
                     pass
+                auth_user = AUTH_USERS.get(session["profile_id"]) or {}
                 self.json_response(200, {
                     "authenticated": True,
                     "profileId": session["profile_id"],
@@ -5337,6 +5366,8 @@ class Handler(SimpleHTTPRequestHandler):
                     "sessionId": session_id,
                     "expiresAt": expires_ms,
                     "remember": remember,
+                    "name": str(auth_user.get("name") or PROFILE_DISPLAY.get(session["profile_id"], {}).get("name") or "").strip()[:60],
+                    "color": str(auth_user.get("color") or PROFILE_DISPLAY.get(session["profile_id"], {}).get("color") or "").strip()[:16],
                     "passkeys": len(profile_passkeys(session["profile_id"], session["mode"])),
                     "onboardingComplete": onboarding_complete(session["profile_id"], session["mode"]),
                     "onboardingVersion": ONBOARDING_VERSION,
@@ -5800,12 +5831,15 @@ class Handler(SimpleHTTPRequestHandler):
             "os": device.get("os"),
             "ip": mask_ip(client_ip, partial=(mode == "child")),
         }
+        auth_user = AUTH_USERS.get(profile_id) or {}
         self.json_response(200, {
             "authenticated": True, "profileId": profile_id, "mode": mode,
             "admin": bool(payload["admin"]),
             "sessionId": payload["session_id"], "expiresAt": int(payload["expires_at"] * 1000),
             "authenticationMethod": method,
             "remember": remember_flag,
+            "name": str(auth_user.get("name") or PROFILE_DISPLAY.get(profile_id, {}).get("name") or "").strip()[:60],
+            "color": str(auth_user.get("color") or PROFILE_DISPLAY.get(profile_id, {}).get("color") or "").strip()[:16],
             "onboardingComplete": onboarding_complete(profile_id, mode),
             "onboardingVersion": ONBOARDING_VERSION,
             "email": contact["email"],

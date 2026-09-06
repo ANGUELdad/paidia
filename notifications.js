@@ -171,11 +171,17 @@
     let reason = 'ok';
     let canRequest = false;
     let canNotify = false;
+    // Real iOS Safari/WebKit only exposes usable notifications in an installed PWA.
+    // Chromium device-mode / Playwright "iPhone" UA still has a working Notification API.
+    const realIosWebkit = ios && (
+      browser === 'safari'
+      || (/AppleWebKit/i.test(ua()) && !/CriOS|FxiOS|EdgiOS|Chrome|Chromium|Edg\//i.test(ua()))
+    );
     if(!secure){
       reason = 'insecure';
     }else if(!api){
-      reason = ios && !standalone ? 'ios-install' : 'unsupported';
-    }else if(ios && !standalone){
+      reason = (ios && !standalone) ? 'ios-install' : 'unsupported';
+    }else if(realIosWebkit && !standalone){
       reason = 'ios-install';
     }else if(permission === 'denied'){
       reason = 'denied';

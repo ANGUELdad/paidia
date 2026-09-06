@@ -1,5 +1,38 @@
 # Changelog
 
+## v204 — 2026-09-06
+
+- **Admin/Ops:** sticky session admin (PIN flows no longer drop Ops); Ops in Mehr + profile sheet.
+- **Shift notifications:** real iOS still needs Home Screen PWA; Chromium/iOS-sim no longer false-blocked; sweep on focus/visibility.
+- **Profile (iOS):** avatar button CSS fix; photo picker without `hidden`/`capture` traps; directory names filled when auth JSON omits them.
+- Cache `paidia-v204`.
+
+
+## v203 — 2026-09-06
+
+- **Lager:** pencil **Bearbeiten / Επεξεργασία** on each product row (opens product edit).
+- Cache `paidia-v203`.
+
+
+## v202 — 2026-09-06
+
+- **Lager:** − / bulk exit always asks for one shared reason; cancel resets (no qty change) and reminds to pick a reason; pending rows highlighted.
+- Cache `paidia-v202`.
+
+
+## v201 — 2026-09-06
+
+- **iPhone / landscape PIN:** stop pinpad collapsing to hairlines; keep ≥44px keys; on very short height hide pad and use field + sticky Anmelden; pin links stay in viewport.
+- Cache `paidia-v201`.
+
+
+## v200 — 2026-09-06
+
+- **PIN login:** auto-submit after 4–6 digits (debounce); short entry no longer shows “Falsche PIN”.
+- **Hydrate:** login/session return name/color; client creates missing staff/kid directory rows so first login doesn’t bounce.
+- **Mobile:** sticky Anmelden on short screens; longer app-load watchdog + soft reload instead of wiping a good session.
+- Cache `paidia-v200`.
+
 ## v199 — 2026-09-06
 
 - **Overflow:** clip `100vw` bleed; `min-width:0` on shell/#view; mobile dock/FAB clearance; stock/shop/schedule/kids/admin grids stack or inner-scroll.

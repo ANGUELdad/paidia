@@ -1,3 +1,8 @@
 {
-  "name": "Armonia Thassos Knowledge"
+  "name": "Armonia Thassos Knowledge",
+  "promptDelete": false,
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "topics",
+  "attachmentFolderPath": "attachments"
 }

@@ -1,0 +1,31 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showTags": true,
+  "showAttachments": false,
+  "hideUnresolved": true,
+  "showOrphans": false,
+  "colorGroups": [
+    {
+      "query": "tag:#topic",
+      "color": {
+        "a": 1,
+        "rgb": 4283211
+      }
+    },
+    {
+      "query": "tag:#agent",
+      "color": {
+        "a": 1,
+        "rgb": 11478722
+      }
+    },
+    {
+      "query": "tag:#memory",
+      "color": {
+        "a": 1,
+        "rgb": 14725458
+      }
+    }
+  ]
+}

@@ -112,6 +112,8 @@
   }
 
   function prefersOnscreenPinpad() {
+    // Landscape / very short: CSS hides the pad — use the OS keyboard.
+    if (window.matchMedia('(max-height: 500px)').matches) return false;
     return window.matchMedia('(max-width:899px)').matches;
   }
 
@@ -120,11 +122,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 199,
-    label: 'v199',
+    version: 204,
+    label: 'v204',
     changed: {
-      de: 'Overflow · Buch ruhig · Regeln · Profile · Valeria+Lea · Noten · Push',
-      el: 'Overflow · ήρεμο Βιβλίο · Κανόνες · Προφίλ · Valeria+Lea · βαθμοί · Push',
+      de: 'Admin/Ops · Schicht-Notifs · Profil iOS',
+      el: 'Admin/Ops · ειδοπ. βάρδιας · προφίλ iOS',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -238,6 +240,8 @@
       bioUnavailable: 'Biometrie hier nicht verfügbar (HTTPS + Face ID / Fingerabdruck nötig)',
       bioSetupNeeded: 'Zuerst mit PIN anmelden, dann unter Profil Face ID einrichten',
       wrong: 'Falsche PIN',
+      pinNeed: 'PIN: 4–6 Ziffern, dann Anmelden',
+      loadingApp: 'Angemeldet — App wird geladen…',
       locked: (m) => `Gesperrt · noch ${m} Min.`,
       attempts: (n) => `Noch ${n} Versuche`,
       unavailable: 'Anmeldung nicht möglich',
@@ -286,6 +290,8 @@
       bioUnavailable: 'Τα βιομετρικά δεν είναι διαθέσιμα (HTTPS + Face ID / δακτυλικό)',
       bioSetupNeeded: 'Πρώτα είσοδος με PIN, μετά Face ID από το Προφίλ',
       wrong: 'Λάθος PIN',
+      pinNeed: 'PIN: 4–6 ψηφία, μετά Σύνδεση',
+      loadingApp: 'Συνδέθηκες — φόρτωση εφαρμογής…',
       locked: (m) => `Κλείδωμα · ακόμη ${m} λεπτά`,
       attempts: (n) => `Ακόμη ${n} προσπάθειες`,
       unavailable: 'Η είσοδος δεν είναι διαθέσιμη',
@@ -588,6 +594,7 @@
     let buf = '';
     let busy = false;
     let succeeded = false;
+    let autoTimer = 0;
     try {
     paintGate('pin', `
       <div class="gate-pin">
@@ -670,8 +677,9 @@
 
     const finish = async () => {
       if (busy || succeeded) return;
+      if (autoTimer) { clearTimeout(autoTimer); autoTimer = 0; }
       if (buf.length < 4) {
-        setErr(t('wrong'));
+        setErr(t('pinNeed'));
         return;
       }
       busy = true;
@@ -687,7 +695,7 @@
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
           body: JSON.stringify({ mode, profileId: who.id, pin: buf, remember, deviceId: gateDeviceId() }),
-        }, 8000);
+        }, 15000);
         const raw = await response.text();
         let data = {};
         try { data = JSON.parse(raw); } catch (error) {
@@ -712,9 +720,10 @@
         if (remember) writeLastProfile(mode, who.id);
         else clearLastProfile();
         window.__paidiaBootSession = data;
+        setErr(t('loadingApp'));
         try {
           loadApp();
-          armAppTakeoverWatchdog(10000);
+          armAppTakeoverWatchdog(28000);
         } catch (error) {
           location.replace('/?in=' + Date.now());
         }
@@ -758,9 +767,10 @@
         if (remember) writeLastProfile(mode, who.id);
         else clearLastProfile();
         window.__paidiaBootSession = pkData;
+        setErr(t('loadingApp'));
         try {
           loadApp();
-          armAppTakeoverWatchdog(10000);
+          armAppTakeoverWatchdog(28000);
         } catch (error) {
           location.replace('/?in=' + Date.now());
         }
@@ -781,13 +791,30 @@
       }
     };
 
+    const scheduleAutoFinish = () => {
+      if (autoTimer) { clearTimeout(autoTimer); autoTimer = 0; }
+      if (busy || succeeded) return;
+      if (buf.length === 6) {
+        finish();
+        return;
+      }
+      // 4–5 digit PINs: wait briefly so a longer PIN can still be typed.
+      if (buf.length >= 4) {
+        autoTimer = setTimeout(() => {
+          autoTimer = 0;
+          if (!busy && !succeeded && buf.length >= 4) finish();
+        }, 520);
+      }
+    };
+
     const push = (key) => {
       if (busy || succeeded) return;
       if (key === 'del') buf = buf.slice(0, -1);
       else if (key === 'clr') buf = '';
       else if (/^\d$/.test(key) && buf.length < 6) buf += key;
       draw();
-      if (buf.length === 6) finish();
+      setErr('');
+      scheduleAutoFinish();
     };
 
     preloadApp();
@@ -815,7 +842,8 @@
       if (busy || succeeded) return;
       buf = String(input.value || '').replace(/\D/g, '').slice(0, 6);
       draw();
-      if (buf.length === 6) finish();
+      setErr('');
+      scheduleAutoFinish();
     });
     input.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' && buf.length >= 4) {
@@ -989,15 +1017,16 @@
   }
 
   function armAppTakeoverWatchdog(ms) {
-    const deadline = Math.max(4000, Number(ms) || 10000);
+    const deadline = Math.max(12000, Number(ms) || 28000);
     setTimeout(() => {
       if (!document.body.classList.contains('auth-pending')) return;
       if (!gate.classList.contains('on')) return;
-      // App bundle never closed the gate — restore a usable login shell.
+      // Keep the auth cookie/session — only recover the UI if the app bundle stalled.
+      const boot = window.__paidiaBootSession;
       window.__paidiaAuthed = false;
-      try { delete window.__paidiaBootSession; } catch (e) {}
       const last = readLastProfile();
-      if (last) renderPin(last.who, last.mode);
+      if (boot && boot.authenticated && last) renderPin(last.who, last.mode);
+      else if (last) renderPin(last.who, last.mode);
       else renderEntrance();
       const status = body.querySelector('.gate-status, #bootStatus, #gpErr');
       if (status) {
@@ -1016,6 +1045,11 @@
         recover.onclick = () => { recover.disabled = true; recoverBrokenClient(); };
         const pin = body.querySelector('.gate-pin, .gate-main, .gate-entrance');
         (pin || body).appendChild(recover);
+      }
+      // Soft retry: if session cookie is valid, reload once without wiping storage.
+      if (boot && boot.authenticated && !sessionStorage.getItem('paidia.bootRetry')) {
+        try { sessionStorage.setItem('paidia.bootRetry', '1'); } catch (e) {}
+        location.replace('/?in=' + Date.now());
       }
     }, deadline);
   }

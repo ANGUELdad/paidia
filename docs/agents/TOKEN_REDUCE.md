@@ -5,15 +5,23 @@ Hard rules so coding models do not burn context on this repo.
 ## Always
 
 1. **Never** paste or fully load `app.js` (~12k+ lines) or `server.py` (~4k+ lines).
-2. Start: [SUMMARY.md](SUMMARY.md) → this file → [KNOWLEDGE_MAP.md](KNOWLEDGE_MAP.md) → [map.json](map.json) keyword.
+2. Start: Obsidian vault [`knowledge/AGENT_START.md`](../../knowledge/AGENT_START.md) → this file → [KNOWLEDGE_MAP.md](KNOWLEDGE_MAP.md) / [`knowledge/SITE.md`](../../knowledge/SITE.md) → [map.json](map.json) or `knowledge/topics/<id>.md`.
 3. Open **only** the listed files; prefer `rg` for a function name, then read a **line range**.
 4. Cap parallel reads (≈3–5). Summarize before expanding.
 5. Prefer function names from the map (`viewBook`, `sheetBroadcastEmail`, `email_shell`, `llm_completion`).
-6. Zo-Ai **runtime** knowledge = `docs/zoai/` only — do not inject coding-agent maps into `/api/chat`.
-7. Specs (`docs/complete_system_specification.md`, SRS, STATUS) are background; maps win for edits.
-8. Small diffs; match vanilla JS + Flask style.
-9. Secrets stay in `.env` / Vercel — never commit PINs, tokens, live phones.
-10. Phase E Web Push is deferred — see [WEB_PUSH_LATER.md](WEB_PUSH_LATER.md).
+6. Prefer **Graphify** (`graphify explain|path` or MCP) and **claude-mem `smart_search`** over dumping files. Setup: [`knowledge/MCP_SETUP.md`](../../knowledge/MCP_SETUP.md).
+7. Zo-Ai **runtime** knowledge = `docs/zoai/` only — do not inject coding-agent maps into `/api/chat`.
+8. Specs (`docs/complete_system_specification.md`, SRS, STATUS) are background; maps win for edits.
+9. Small diffs; match vanilla JS + Flask style.
+10. Secrets stay in `.env` / Vercel — never commit PINs, tokens, live phones.
+11. Phase E Web Push is deferred — see [WEB_PUSH_LATER.md](WEB_PUSH_LATER.md).
+
+## Refresh maps / graph
+
+```bash
+python3 scripts/build-knowledge-vault.py   # Obsidian notes from map.json
+graphify update . --no-cluster             # AST graph → graphify-out/ (no LLM)
+```
 
 ## Ship checklist (client)
 

@@ -923,15 +923,15 @@ body.auth-pending .gate-wrap {
   .gate-main .gate-pin #gpErr { min-height: 14px !important; font-size: 11px !important; flex: 0 0 auto; }
   .gate-main .gate-pin .pinpad {
     flex: 1 1 auto;
-    min-height: 0;
+    min-height: 176px;
     margin-top: 6px;
     gap: clamp(4px, 1dvh, 8px);
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(4, minmax(0, 1fr));
+    grid-template-rows: repeat(4, minmax(44px, 1fr));
   }
   .gate-main .gate-pin .pinpad button {
-    min-height: 0 !important;
+    min-height: 44px !important;
     height: 100% !important;
     padding: 0;
     font-size: clamp(16px, 3.8dvh, 22px);
@@ -939,10 +939,70 @@ body.auth-pending .gate-wrap {
     border-radius: 10px !important;
   }
   .gate-main .gate-login-submit { min-height: 44px; margin-top: 6px; font-size: 15px; flex: 0 0 auto; }
-  .gate-pin-links { gap: 4px; margin-top: 4px; grid-template-columns: 1fr 1fr; flex: 0 0 auto; }
+  .gate-pin-links {
+    gap: 4px; margin-top: 4px;
+    grid-template-columns: minmax(0,1.2fr) minmax(0,.9fr) minmax(0,.9fr);
+    flex: 0 0 auto;
+  }
   .gate-pin-links :is(.gate-forgot,.gate-back) { min-height: 36px; padding: 4px; font-size: 12px; }
   .gate-wrap[data-gate-view="pin"] .gate-build { margin-top: 6px; width: 100%; max-width: none; }
   .gate-wrap[data-gate-view="reset"] .gate-main { padding: 10px 14px; overflow: auto !important; }
+
+  /* Short / landscape phones: never crush the pad into hairlines or clip CTAs */
+  @media (max-height: 620px) {
+    .gate-wrap[data-gate-view="pin"] .gate-build,
+    .gate-wrap[data-gate-view="pin"] .gate-remember,
+    .gate-wrap[data-gate-view="pin"] .passkey-btn .pk-sub {
+      display: none !important;
+    }
+    .gate-wrap[data-gate-view="pin"] .gate-main {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    }
+    .gate-main .gate-pin .pinpad {
+      flex: 0 0 auto;
+      min-height: 184px;
+      max-height: none;
+      grid-template-rows: repeat(4, 44px);
+    }
+    .gate-main .gate-pin .pinpad button {
+      height: 44px !important;
+      min-height: 44px !important;
+    }
+  }
+  @media (max-height: 500px) {
+    /* Landscape / very short: drop on-screen pad — field + sticky Anmelden */
+    .gate-wrap[data-gate-view="pin"] .passkey-btn,
+    .gate-wrap[data-gate-view="pin"] .pin-divider,
+    .gate-wrap[data-gate-view="pin"] .pinpad,
+    .gate-wrap[data-gate-view="pin"] .pindots {
+      display: none !important;
+    }
+    .gate-wrap[data-gate-view="pin"] .gate-pin {
+      flex: 0 1 auto;
+      gap: 8px;
+      justify-content: center;
+    }
+    .gate-wrap[data-gate-view="pin"] .gate-pin .pin-field {
+      min-height: 48px !important;
+      height: 48px !important;
+      font-size: 20px !important;
+    }
+    .gate-wrap[data-gate-view="pin"] .gate-login-submit {
+      position: sticky;
+      bottom: max(6px, env(safe-area-inset-bottom, 0px));
+      z-index: 3;
+    }
+    .gate-pin-links {
+      grid-template-columns: 1fr 1fr 1fr !important;
+    }
+    .gate-pin-links :is(.gate-forgot,.gate-back) {
+      min-height: 34px;
+      font-size: 11px;
+    }
+  }
 
   /* Typing mode: hide chrome that fights the keyboard; keep identity + field + submit */
   body.auth-pending[data-gate-kb="1"] .gate-wrap {
@@ -1004,6 +1064,18 @@ body.auth-pending .gate-wrap {
   body.auth-pending[data-gate-kb="1"] .gate-reset .btn {
     min-height: 48px;
     margin-top: 4px;
+  }
+  /* Keep Anmelden reachable on short phones / landscape. */
+  @media (max-width:899px) and (max-height:760px) {
+    body.auth-pending .gate-main .gate-pin {
+      padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+    }
+    body.auth-pending .gate-main .gate-login-submit {
+      position: sticky;
+      bottom: max(8px, env(safe-area-inset-bottom, 0px));
+      z-index: 3;
+      box-shadow: 0 -8px 20px rgba(15, 35, 28, .12) !important;
+    }
   }
   body.auth-pending[data-gate-kb="1"] .gate-mail-hero {
     margin: 0 0 4px;
@@ -1762,14 +1834,13 @@ body:not(.mode-child) .mobile-more-grid .ui-ico {
   }
 
   body.layout-mobile:not(.mode-child) #btnUser {
-    font-size: 0;
+    font-size: inherit;
+    padding: 0;
+    overflow: hidden;
   }
 
   body.layout-mobile:not(.mode-child) #btnUser::after {
-    content: "A";
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--brand);
+    content: none;
   }
 
   body.layout-mobile:not(.mode-child) .bottom-panel {
@@ -3939,11 +4010,19 @@ body:not(.mode-child) .stock-product.has-stepper {
 body:not(.mode-child) .stock-product.has-stepper:has(.bulk-check) {
   grid-template-columns: auto auto minmax(0,1fr) auto !important;
 }
-body:not(.mode-child) .stock-product.has-stepper:has(.stock-to-list) {
+body:not(.mode-child) .stock-product.has-stepper:has(.stock-to-list),
+body:not(.mode-child) .stock-product.has-stepper:has(.stock-edit-btn) {
   grid-template-columns: auto minmax(0,1fr) auto auto !important;
 }
-body:not(.mode-child) .stock-product.has-stepper:has(.bulk-check):has(.stock-to-list) {
+body:not(.mode-child) .stock-product.has-stepper:has(.stock-to-list):has(.stock-edit-btn) {
+  grid-template-columns: auto minmax(0,1fr) auto auto auto !important;
+}
+body:not(.mode-child) .stock-product.has-stepper:has(.bulk-check):has(.stock-to-list),
+body:not(.mode-child) .stock-product.has-stepper:has(.bulk-check):has(.stock-edit-btn) {
   grid-template-columns: auto auto minmax(0,1fr) auto auto !important;
+}
+body:not(.mode-child) .stock-product.has-stepper:has(.bulk-check):has(.stock-to-list):has(.stock-edit-btn) {
+  grid-template-columns: auto auto minmax(0,1fr) auto auto auto !important;
 }
 body:not(.mode-child) .stock-priority-grid .stock-product.low,
 body:not(.mode-child) .stock-product.low {
@@ -6277,6 +6356,14 @@ body.mode-pro .stock-recent {
 .stock-board-row .stock-product-last{ font-size:11px; margin-top:2px; }
 .stock-product.has-stepper{ min-height:64px; align-items:center; }
 .stock-to-list{ min-height:40px; flex:0 0 auto; white-space:nowrap; }
+.stock-edit-btn{
+  min-height:40px; flex:0 0 auto; white-space:nowrap;
+  gap:4px; padding-inline:10px; font-weight:650;
+}
+.stock-edit-btn span{ font-size:14px; line-height:1; }
+@media (max-width:420px){
+  .stock-edit-btn{ padding-inline:8px; font-size:12px; }
+}
 @media (max-width:900px){
   .stock-board-layout{ flex-direction:column; }
   .stock-shelf-rail{
@@ -6740,8 +6827,12 @@ body.mode-child .pocket-panel{ margin-top:8px; }
     gap:10px;
     padding:12px;
   }
-  body:not(.mode-child) .stock-product.has-stepper:has(.stock-to-list){
+  body:not(.mode-child) .stock-product.has-stepper:has(.stock-to-list),
+  body:not(.mode-child) .stock-product.has-stepper:has(.stock-edit-btn){
     grid-template-columns:auto minmax(0,1fr) auto auto !important;
+  }
+  body:not(.mode-child) .stock-product.has-stepper:has(.stock-to-list):has(.stock-edit-btn){
+    grid-template-columns:auto minmax(0,1fr) auto auto auto !important;
   }
 }
 @media (max-width:899px){
@@ -6775,7 +6866,18 @@ body.mode-child .pocket-panel{ margin-top:8px; }
   width:100%; height:100%; object-fit:cover; display:block;
 }
 .profile-look-av{ width:48px; height:48px; flex:0 0 auto; }
-.profile-photo-row{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 8px; }
+.profile-photo-row{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 8px; position:relative; }
+.profile-photo-btn{ position:relative; z-index:1; touch-action:manipulation; }
+.profile-photo-input{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); border:0; opacity:0;
+}
+.security-passkey-card .btn,
+.security-passkey-card input,
+.security-passkey-card textarea,
+.security-passkey-card label{
+  touch-action:manipulation;
+}
 .kids-admin-bar{ display:flex; gap:8px; margin:0 0 10px; }
 .kid-dir-row{ display:grid; gap:6px; margin-bottom:8px; }
 .kid-dir-admin{ display:flex; flex-wrap:wrap; gap:6px; }

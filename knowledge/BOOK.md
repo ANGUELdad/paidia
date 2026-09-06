@@ -1,5 +1,3 @@
-# Book (shift journal)
+# → [[topics/book]]
 
-- Mandatory daily ink: `GET/POST /api/book/journal`
-- Modes: append (timestamped) | rewrite
-- Audit: `/api/book/audit?type=&q=&range=`
+Redirect from legacy note. Prefer the topic note.

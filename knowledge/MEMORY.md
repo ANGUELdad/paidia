@@ -1,0 +1,58 @@
+---
+tags: [memory, persistence]
+aliases: [MEMORY_MAP]
+---
+
+# MEMORY
+
+Canonical detail: `docs/agents/MEMORY_MAP.md`.
+
+Use this instead of grepping the whole repo for “where is X stored?”.
+
+Obsidian mirror (wikilinks): [`knowledge/MEMORY.md`](../../knowledge/MEMORY.md).
+
+## Durable (survives deploy when Postgres is set)
+
+| Store | What | Access |
+|-------|------|--------|
+| Postgres / SQLite (`db.py`) | Auth users, PIN overrides, passkeys, ops blob, talk, onboarding, security events | `DATABASE_URL` on Vercel; local SQLite/file fallback |
+| Ops state (`OPS_STATE` / `/api/ops`) | stock, listEntries, shoppingTrips, listRequests, **pocketMoneyTxns**, **pocketMoneySettings**, **feedbackReports**, weeks, overrides, template, events, log, shiftNotes, shiftCheckins, stockChecks, profilePrefs, custom*, taskCompletions, aiImports, kid* | Staff push; all pull; kids write own open feedback via `/api/kid-ops` |
+| Passkeys | WebAuthn public credentials per profile | DB or `.paidia-passkeys.json`; HTTPS + matching origin |
+| Profile contacts | Email / phone for reset + broadcast | `/api/auth/profile/email` |
+| Gallery posts | Moments metadata (+ optional **category**) (+ Drive if configured) | `/api/gallery` |
+
+## Session / device
+
+| Store | What | Notes |
+|-------|------|--------|
+| Session cookie | Logged-in profile id/mode | `PAIDIA_SESSION_SECRET`; Secure on prod |
+| `localStorage` | `paidia.lang`, `paidia.notif` (prefs + seen keys), shared revision hints, some UI | Device-local |
+| `sessionStorage` | One-shot hints (e.g. bio setup prompt) | Cleared per tab |
+| Service worker cache | Shell assets `paidia-vN` | Must bump on client ship |
+| Platform authenticator | Face ID / fingerprint private key | **Never** leaves the phone |
+
+## Ephemeral (OK to lose)
+
+| Store | What |
+|-------|------|
+| In-memory JS | Zo-Ai transcript, open sheets, drafts, pin buffer; login `body[data-gate-kb]` + `--gate-vvh` while soft keyboard open |
+| Rate maps in process | Login failures, broadcast cooldown (also soft-persist where coded) |
+| `build.json` fetch | Login line refreshed; constants also inlined in `gate.js` / `app.js` |
+
+## Role boundaries
+
+- **Child:** no stock/shifts/presence writes; event notifs only; Zo-Ai read-only.
+- **Staff:** ops push, inventory, schedule with Confirm/PIN where required.
+- **Admin:** broadcast, template, Admin Center; still no auto-apply Zo-Ai without Confirm.
+
+## Version / changelog memory
+
+| Artifact | Purpose |
+|----------|---------|
+| `build.json` | `{version,label,changed:{de,el}}` shown on **every** login screen |
+| `CHANGELOG.md` | Reverse-chronological human notes; keep in sync with `build.json` |
+| Cache `?v=` / `paidia-vN` | Forces clients to drop stale JS/CSS |
+
+
+## Related
+- [[SITE]] · [[AGENT_START]] · [[topics/db]] · [[topics/auth]] · [[topics/admin-ops]]

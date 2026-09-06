@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 199,
-  label: 'v199',
+  version: 204,
+  label: 'v204',
   changed: {
-    de: 'Overflow · Buch ruhig · Regeln · Profile · Valeria+Lea · Noten · Push',
-    el: 'Overflow · ήρεμο Βιβλίο · Κανόνες · Προφίλ · Valeria+Lea · βαθμοί · Push',
+    de: 'Admin/Ops · Schicht-Notifs · Profil iOS',
+    el: 'Admin/Ops · ειδοπ. βάρδιας · προφίλ iOS',
   },
 };
 const T = {
@@ -285,6 +285,8 @@ const T = {
     stockHoldOut:'− Ausgang',
     stockHoldShop:'Das soll gekauft werden',
     stockHoldDetail:'Bearbeiten',
+    stockEdit:'Bearbeiten',
+    stockEditAria:'Produkt bearbeiten',
     stockHoldClear:'Aus Auswahl entfernen',
     stockAddFood:'＋ Lebensmittel',
     stockAddCat:'＋ Kategorie',
@@ -559,6 +561,9 @@ const T = {
     stockUndo:'Rückgängig',
     stockOutReasonBar:'Grund für −',
     stockOutReasonHint:'Einmal wählen — gilt für die nächsten Entnahmen.',
+    stockOutNeedReasonRemind:'Ohne Grund wird nichts abgezogen. Bitte zuerst einen Grund wählen.',
+    stockBulkOutNeedReason:'Einen Grund für alle ausgewählten − wählen.',
+    stockOutCancelled:'− zurückgesetzt — ohne Grund keine Entnahme.',
     stockDeleteArmed:'Nochmal tippen zum Löschen',
     stockDeleteCancel:'Abbrechen',
     stockOrderFrozen:'Reihenfolge eingefroren — Speichern oder aktualisieren zum Sortieren',
@@ -1436,6 +1441,8 @@ const T = {
     stockHoldOut:'− Έξοδος',
     stockHoldShop:'Θέλω να αγοραστεί',
     stockHoldDetail:'Επεξεργασία',
+    stockEdit:'Επεξεργασία',
+    stockEditAria:'Επεξεργασία προϊόντος',
     stockHoldClear:'Αφαίρεση από επιλογή',
     stockAddFood:'＋ Τρόφιμο',
     stockAddCat:'＋ Κατηγορία',
@@ -1710,6 +1717,9 @@ const T = {
     stockUndo:'Αναίρεση',
     stockOutReasonBar:'Λόγος για −',
     stockOutReasonHint:'Διάλεξε μία φορά — ισχύει για τις επόμενες εξόδους.',
+    stockOutNeedReasonRemind:'Χωρίς λόγο δεν αφαιρείται τίποτα. Διάλεξε πρώτα λόγο.',
+    stockBulkOutNeedReason:'Διάλεξε έναν λόγο για όλα τα επιλεγμένα −.',
+    stockOutCancelled:'Το − ακυρώθηκε — χωρίς λόγο δεν γίνεται έξοδος.',
     stockDeleteArmed:'Πάτα ξανά για διαγραφή',
     stockDeleteCancel:'Ακύρωση',
     stockOrderFrozen:'Η σειρά πάγωσε — αποθήκευση ή ανανέωση για ταξινόμηση',
@@ -3690,6 +3700,8 @@ const state = {
   galFilterBy: '',
   mode: 'staff',
   user: null,
+  /** Sticky admin flag from /api/auth/session|login — survives PIN flows that replace state.user. */
+  sessionAdmin: false,
   child: null,
   house: 'h1',
   shopFriday: fridayFor(),
@@ -3771,7 +3783,26 @@ function saveGalOrg(){
     }));
   }catch{}
 }
-const isAdminUser = () => !!(state.mode==='staff' && state.user?.admin);
+const KNOWN_ADMIN_IDS = new Set(['e3','e4','e8']);
+const isAdminUser = () => !!(
+  state.mode==='staff'
+  && state.user
+  && (state.sessionAdmin===true || state.user.admin===true || KNOWN_ADMIN_IDS.has(state.user.id))
+);
+/** Keep admin bit when PIN/askPin replaces state.user with a directory row. */
+function setStaffUser(who){
+  if(!who){ state.user=null; return null; }
+  const admin = !!(state.sessionAdmin || who.admin || KNOWN_ADMIN_IDS.has(who.id));
+  state.user = {...who, admin};
+  if(admin){
+    state.sessionAdmin = true;
+    try{
+      const row = emp(who.id);
+      if(row) row.admin = true;
+    }catch{}
+  }
+  return state.user;
+}
 const helpChatRole = () => state.mode==='child' ? 'child' : (isAdminUser() ? 'admin' : (state.user ? 'staff' : 'anonymous'));
 const helpChatStorageKey = () => {
   const id = currentProfileId();
@@ -4061,14 +4092,51 @@ async function syncOnboardingComplete(version=state.onboardingVersion){
   return data;
 }
 
+function ensureDirectoryPerson(data, mode){
+  const id=String(data?.profileId||'').trim();
+  if(!id) return null;
+  const color=safeColor(data.color||'#94a3b8');
+  const name=String(data.name||id).trim().slice(0,60)||id;
+  if(mode==='child'){
+    DB.children=Array.isArray(DB.children)?DB.children:[];
+    let who=DB.children.find(c=>c&&c.id===id);
+    if(!who){
+      who={id, name, color};
+      DB.children.push(who);
+      try{ syncAlleKinderGroup(); }catch{}
+    }else{
+      if(name && name!==id) who.name=name;
+      if(data.color) who.color=color;
+    }
+    return who;
+  }
+  DB.employees=Array.isArray(DB.employees)?DB.employees:[];
+  let who=DB.employees.find(e=>e&&e.id===id);
+  if(!who){
+    who={id, name, color, role:{de:'Betreuer', el:'Φροντιστής'}};
+    DB.employees.push(who);
+  }else{
+    if(name && name!==id) who.name=name;
+    if(data.color) who.color=color;
+  }
+  return who;
+}
+
 function applyAuthenticatedProfile(data,{logLogin=false}={}){
   const mode=data.mode==='child'?'child':'staff';
-  const who=mode==='child'?kid(data.profileId):emp(data.profileId);
+  let who=mode==='child'?kid(data.profileId):emp(data.profileId);
+  if(!who) who=ensureDirectoryPerson(data, mode);
   if(!who) return false;
-  const authenticatedWho=mode==='staff'?{...who,admin:data.admin===true}:who;
   state.mode=mode;
-  state.child=mode==='child'?authenticatedWho:null;
-  state.user=mode==='staff'?authenticatedWho:null;
+  if(mode==='staff'){
+    state.sessionAdmin = data.admin===true || !!who.admin || KNOWN_ADMIN_IDS.has(who.id);
+    state.child=null;
+    setStaffUser({...who, admin:state.sessionAdmin});
+  }else{
+    state.sessionAdmin=false;
+    state.user=null;
+    state.child=who;
+  }
   if(mode==='child'){
     state.childView = 'today';
     try{ clearKidHist(); }catch{}
@@ -4194,6 +4262,7 @@ function revealApp(){
   document.body.classList.remove('auth-pending');
   document.getElementById('app').hidden=false;
   document.body.style.overflow='';
+  try{ sessionStorage.removeItem('paidia.bootRetry'); }catch{}
 }
 
 async function restoreServerSession(){
@@ -4227,7 +4296,7 @@ async function logoutServerSession(){
   try{await fetch('/api/auth/logout',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:'{}'});}catch(error){}
   stopSharedSync();
   persistHelpTranscript();
-  state.user=null;state.child=null;state.mode='staff';session.sessionId=null;
+  state.user=null;state.child=null;state.sessionAdmin=false;state.mode='staff';session.sessionId=null;
   state.helpMessages=[]; state.helpChatUserKey=null; state.pendingHelpActions=[];
   document.body.classList.add('auth-pending');
   document.getElementById('app').hidden=true;
@@ -5566,7 +5635,7 @@ function sheetHelpProposals(actions, {inline=false, onDone=null}={}){
   const needPin=helpActionsNeedPin(actions);
   const confirm=()=>{
     const run=who=>{
-      state.user=who;
+      setStaffUser(who);
       const n=applyHelpActions(state.pendingHelpActions);
       state.pendingHelpActions=[];
       if(n){
@@ -7442,7 +7511,7 @@ function applyCancelScheduleEntry(e, dateStr){
 function cancelScheduleEntry(e, dateStr, {onDone}={}){
   if(!e || e.cancelled) return;
   askPin(t('cancelToday'), who => {
-    state.user = who;
+    setStaffUser(who);
     applyCancelScheduleEntry(e, dateStr);
     if(!save()) return;
     onDone?.();
@@ -8179,7 +8248,7 @@ function sheetImportWeek(){
     plan = planWeekImport(sourceMon, targetMon, mode);
     if(!plan.planned.length && mode!=='replace'){ toast(t('importWeekEmpty')); return; }
     askPin(t('importWeekTitle'), who => {
-      state.user = who;
+      setStaffUser(who);
       const n = applyWeekImportPlan(plan, {mode, copyNotes});
       logEntry('SCHEDULE', `${t('importWeek')} ${sourceMon} → ${targetMon} · ${n}`);
       if(!save()) return;
@@ -8375,7 +8444,7 @@ function clearAiScheduleWeek(){
   const msg = T[state.lang].aiClearConfirm(n);
   if(!window.confirm(msg)) return;
   askPin(t('aiClearWeek'), who=>{
-    state.user = who;
+    setStaffUser(who);
     const ids = new Set(aiImportIdsForWeek(weekMon));
     const week = new Set(weekDates(weekMon));
     const before = (DB.overrides||[]).length;
@@ -8444,7 +8513,7 @@ function sheetAiSchedule(opts={}){
       const chosen=rows.filter(r=>r.include && r.activityId && r.date);
       if(!chosen.length){ toast(t('aiScheduleEmpty')); return; }
       askPin(t('aiScheduleTitle'), who=>{
-        state.user=who;
+        setStaffUser(who);
         const importId=uid();
         chosen.forEach(r=>{
           DB.overrides.push({
@@ -9179,7 +9248,7 @@ function sheetEntry(e, dateStr, presets = {}){
       feedback('error'); toast(t('eventRequired'),'error'); return;
     }
     askPin(t('saveWithPin'), who => {
-      state.user = who;
+      setStaffUser(who);
       let savedEntryId=e.id;
       // Μόνιμη αλλαγή προτύπου: μόνο Zoi, Angelos, Dimitris
       if(e.source === 'template' && scope === 'template' && !who.admin){
@@ -9309,6 +9378,7 @@ function viewStock(){
       return `<div class="stock-product ${st} multi-house">
         <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}"><div class="stock-product-name">${esc(L(p))}</div>
         <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div></button>
+        <button class="btn ghost sm stock-edit-btn" type="button" data-stock-edit="${p.id}" title="${esc(t('stockEdit'))}" aria-label="${esc(t('stockEditAria'))}: ${esc(L(p))}"><span aria-hidden="true">✎</span> ${esc(t('stockEdit'))}</button>
         <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div></div>`;
     }
     const qty=DB.stock[stockKey(hid,p.id)]??0;
@@ -9317,7 +9387,8 @@ function viewStock(){
     const selecting=state.selectMode==='stock' && hid!=='all';
     const sel=selecting && isSelected(p.id);
     const flash=state.stockFlashPid===p.id?(state.stockFlashDir==='IN'?'flash-in':'flash-out'):'';
-    const pendingOut=state.stockPendingStep?.pid===p.id;
+    const pendingOut=state.stockPendingStep?.pid===p.id
+      || !!(state.stockPendingStep?.bulkOut||[]).includes(p.id);
     const onList=fridayEntries(hid).some(e=>['open','pending'].includes(e.status)&&(e.productId===p.id||norm(e.name)===norm(L(p))));
     const lastMove=(typeof recentStockMoves==='function'?recentStockMoves(hid,40):[]).find(m=>m.productId===p.id);
     const lastWho=lastMove?(emp(lastMove.employeeId)?.name||'') : '';
@@ -9332,6 +9403,7 @@ function viewStock(){
         ${lastBit?`<div class="stock-product-last muted">${esc(lastBit)}</div>`:''}
       </button>
       ${!selecting && !onList?`<button class="btn ghost sm stock-to-list" type="button" data-stock-want="${p.id}" title="${esc(t('bulkToList'))}" aria-label="${esc(t('bulkToList'))}">→ ${esc(t('navShop'))}</button>`:''}
+      ${!selecting?`<button class="btn ghost sm stock-edit-btn" type="button" data-stock-edit="${p.id}" title="${esc(t('stockEdit'))}" aria-label="${esc(t('stockEditAria'))}: ${esc(L(p))}"><span aria-hidden="true">✎</span> ${esc(t('stockEdit'))}</button>`:''}
       <div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
         <button class="stock-step out pine-settle" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${qty<=0?'disabled':''}><span class="stock-step-glyph" aria-hidden="true">−</span></button>
         <div class="stock-qty">${qty}<small>${esc(p.unit)}</small></div>
@@ -9907,9 +9979,10 @@ function stockOutReasonModalHtml(){
   const pending=state.stockPendingStep;
   if(!pending) return '';
   const p=pending.pid?prod(pending.pid):null;
-  let hint=t('stockOutReasonHint');
-  if(p) hint=`${L(p)}${pending.qty!=null?` · −${pending.qty} ${p.unit||''}`:''}`;
-  else if(pending.bulkOut?.length) hint=T[state.lang].selectedCount(pending.bulkOut.length);
+  const bulkN=(pending.bulkOut||[]).length;
+  let hint=bulkN?t('stockBulkOutNeedReason'):t('stockOutNeedReasonRemind');
+  if(p) hint=`${L(p)}${pending.qty!=null?` · −${pending.qty} ${p.unit||''}`:''} — ${t('stockOutNeedReasonRemind')}`;
+  else if(bulkN) hint=`${T[state.lang].selectedCount(bulkN)} — ${t('stockBulkOutNeedReason')}`;
   return `<div class="stock-reason-modal" id="stockReasonModal" role="dialog" aria-modal="true" aria-labelledby="stockReasonModalTitle">
     <button type="button" class="stock-reason-modal-bg" id="stockReasonModalDismiss" aria-label="${esc(t('close'))}"></button>
     <div class="stock-reason-modal-card" role="document">
@@ -9918,7 +9991,7 @@ function stockOutReasonModalHtml(){
       <div class="stock-reason-modal-chips" id="stockQuickReasons">
         ${REASONS().map(r=>`<button type="button" class="chip stock-reason-chip ${r.id===state.stockDraftReason?'on':''}" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}
       </div>
-      <button type="button" class="btn sec stock-reason-modal-cancel" id="stockReasonModalCancel">${esc(t('stockDeleteCancel'))}</button>
+      <button type="button" class="btn sec stock-reason-modal-cancel" id="stockReasonModalCancel">${esc(t('stockOutCancelled'))}</button>
     </div>
   </div>`;
 }
@@ -9998,6 +10071,7 @@ function applyStockDelta(pid, delta, {reasonId=null, silent=false, undoable=true
     const reason = rid ? L(REASONS().find(r=>r.id===rid)) : '';
     if(!reason){
       state.stockPendingStep = {pid, dir:'OUT', qty:Math.abs(d)};
+      toast(t('stockOutNeedReasonRemind'),'info');
       render();
       return false;
     }
@@ -10075,8 +10149,10 @@ function adjustStockDraft(pid, dir){
   ensureStockOrderFreeze();
   const step = stepFor(p);
   if(dir==='OUT' && !state.stockDraftReason){
+    // Do not change qty until a reason is chosen — remind and wait.
     state.stockPendingStep = {pid, dir:'OUT', qty:step};
     feedback('tap');
+    toast(t('stockOutNeedReasonRemind'),'info');
     render();
     return;
   }
@@ -10093,7 +10169,7 @@ function commitStockDraft(){
   const reason = reasonId ? L(REASONS().find(r=>r.id===reasonId)) : '';
   if(outs.length && !reason){ toast(t('stockDraftNeedReason'),'error'); return; }
   askPin(T[state.lang].bookN(entries.length), who=>{
-    state.user = who;
+    setStaffUser(who);
     const label = ([pid, delta]) => `${Math.abs(delta)} ${prod(pid).unit} ${L(prod(pid))}`;
     const ins = entries.filter(([,d])=>d>0);
     const outList = entries.filter(([,d])=>d<0);
@@ -10277,7 +10353,7 @@ function wireShiftStockCheckSheet(draft){
       return;
     }
     askPin(t('shiftStockCheck'), who=>{
-      state.user=who;
+      setStaffUser(who);
       const today=iso(new Date());
       const now=Date.now();
       const items=[];
@@ -10341,19 +10417,29 @@ function sheetBulkStockSetQty(ids){
     const next=Number(String(raw||'').replace(',','.'));
     if(!Number.isFinite(next) || next<0){ toast(t('needQty'),'error'); return; }
     ensureStockOrderFreeze();
+    const needReason=!state.stockDraftReason && ids.some(pid=>{
+      const q=DB.stock[stockKey(state.house,pid)]??0;
+      return q>next;
+    });
+    if(needReason){
+      state.stockPendingStep={
+        bulkOut:ids.filter(id=>{
+          const q=DB.stock[stockKey(state.house,id)]??0;
+          return q>next;
+        }),
+        bulkSetTo:next,
+      };
+      closeSheet();
+      toast(t('stockBulkOutNeedReason'),'info');
+      render();
+      return;
+    }
     let n=0;
     ids.forEach(pid=>{
       const p=prod(pid); if(!p) return;
       const cur=DB.stock[stockKey(state.house,pid)]??0;
       const delta=roundStock(next-cur);
       if(Math.abs(delta)<0.0001) return;
-      if(delta<0 && !state.stockDraftReason){
-        state.stockPendingStep={bulkOut:ids.filter(id=>{
-          const q=DB.stock[stockKey(state.house,id)]??0;
-          return q>next;
-        }), bulkSetTo:next};
-        closeSheet(); render(); return;
-      }
       if(applyStockDelta(pid, delta, {silent:true, undoable:false})) n++;
     });
     closeSheet();
@@ -11143,7 +11229,7 @@ function sheetStockBoard(dir,initialPid=null){
     }
 
     askPin(T[state.lang].bookN(picked.length), who => {
-      state.user = who;
+      setStaffUser(who);
       const label = ([pid, b]) => `${b.qty} ${prod(pid).unit} ${L(prod(pid))}`;
 
       /* Είσοδοι και έξοδοι είναι ξεχωριστές εγγραφές στο Βιβλίο, ακόμα κι όταν
@@ -12787,7 +12873,7 @@ function confirmFridayBatch(){
   if(!pending.length){ toast(t('nothingPending')); return; }
   if(pending.some(e=>!e.decision)){toast(t('decideAll'),'error',3600);return;}
   askPin(t('confirmBatch'), who => {
-    state.user = who;
+    setStaffUser(who);
     const got = [], gotLines = [], miss = [], completedAt=Date.now(), friday=state.shopFriday||fridayFor();
     pending.forEach(e=>{
       e.decidedBy = who.id; e.decidedAt = completedAt;
@@ -13230,7 +13316,7 @@ function sheetImportList(opts={}){
     if(!rows || !rows.length){ toast(t('nothingToImport')); return; }
     const behavior=sheetEl.querySelector('input[name="mergeMode"]:checked')?.value||'merge';
     askPin(t('importTitle'), who => {
-      state.user = who;
+      setStaffUser(who);
       const importId=uid();
       if(behavior==='replace'){
         DB.listEntries=DB.listEntries.filter(e=>!(e.houseId===hid&&listEntryFriday(e)===friday&&['open','pending'].includes(e.status)));
@@ -14244,7 +14330,7 @@ function sheetCorrection(){
     const txt = sheetEl.querySelector('#cTxt').value.trim();
     if(!txt){ toast(t('correctionWhat')); return; }
     askPin(t('correctionTitle'), who => {
-      state.user = who;
+      setStaffUser(who);
       logEntry('CORRECTION', txt);
       closeSheet(); render(); toast(t('saved'));
     });
@@ -21652,7 +21738,7 @@ function wire(){
   const wnSave = v.querySelector('#wnSave');
   if(wnSave) wnSave.onclick = () => {
     askPin(t('saveNotes'), who => {
-      state.user = who;
+      setStaffUser(who);
       const k = weekKey(state.date);
       DB.weeks[k] = {
         ...(DB.weeks[k]||{}),
@@ -21672,7 +21758,7 @@ function wire(){
     const lines = raw.split(/[\n,;]+/).map(s=>s.trim()).filter(Boolean);
     if(!lines.length){ toast(t('materials')); return; }
     askPin(t('toShoppingList'), who => {
-      state.user = who;
+      setStaffUser(who);
       const inserted=[];
       lines.forEach(line=>{
         const m = line.match(/^(.*?)\s+(\d+(?:[.,]\d+)?)\s*(\S+)?$/);
@@ -21695,6 +21781,14 @@ function wire(){
     });
   };
 
+  v.querySelectorAll('[data-stock-edit]').forEach(b=>{
+    b.onclick=ev=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      const pid=b.dataset.stockEdit;
+      if(pid) sheetStockDetail(pid, state.house);
+    };
+  });
   v.querySelectorAll('[data-stock-product]').forEach(b=>{
     // Long-press options on fridge rows (IN / OUT / shop / board).
     // `held` skips the click that would otherwise open detail right after the menu.
@@ -21779,9 +21873,11 @@ function wire(){
     refreshOrder();
   };
   const dismissReasonModal=()=>{
+    const had=!!state.stockPendingStep;
     state.stockPendingStep=null;
     feedback('toggle');
     render();
+    if(had) toast(t('stockOutCancelled'),'info');
   };
   v.querySelector('#stockReasonModalDismiss')?.addEventListener('click', dismissReasonModal);
   v.querySelector('#stockReasonModalCancel')?.addEventListener('click', dismissReasonModal);
@@ -22062,7 +22158,8 @@ function wire(){
         if(act==='move-cat'){ sheetBulkStockMoveCat(ids); return; }
         if(act==='out'){
           if(!state.stockDraftReason){
-            state.stockPendingStep={bulkOut:ids};
+            state.stockPendingStep={bulkOut:ids.slice()};
+            toast(t('stockBulkOutNeedReason'),'info');
             render();
             return;
           }
@@ -22076,7 +22173,8 @@ function wire(){
         }
         if(act==='clear-empty'){
           if(!state.stockDraftReason){
-            state.stockPendingStep={bulkOut:ids, bulkClear:true};
+            state.stockPendingStep={bulkOut:ids.slice(), bulkClear:true};
+            toast(t('stockBulkOutNeedReason'),'info');
             render();
             return;
           }
@@ -22352,7 +22450,7 @@ function wire(){
     const day=bookJournalDay();
     const houseId=isPro()?(state.bookHouse||null):null;
     askPin(t('shiftDiary'), who=>{
-      state.user=who;
+      setStaffUser(who);
       writeShiftJournalPage(who.id, '', {mode, dateStr:day, sections, houseId});
       if(!save()) return;
       state.bookJournalMode='ink';
@@ -22429,11 +22527,11 @@ function sheetMobileMore(){
     {tab:'book', ico:'u-book', label:t('navBook')},
     {tab:'rules', ico:'u-book', label:t('rulesTab')},
     {tab:'pocket', ico:'u-receipt', label:t('navPocket')},
+    ...(isAdminUser()?[{tab:'admin', ico:'u-sparkle', label:t('adminOpsTab')}]:[]),
     {act:'chat', ico:'u-sparkle', label:t('navChat')},
   ];
   const extras = [
     {act:'feedback', ico:'u-note', label:t('feedbackNav'), pro:true},
-    ...(isAdminUser()?[{tab:'admin', ico:'u-sparkle', label:t('adminOpsTab')}]:[]),
   ].filter(r=>!r.pro || !easy);
   openNavMenu(`<div class="nav-menu-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2></div>
     <div class="nav-menu-list" role="menu">
@@ -22674,6 +22772,7 @@ async function sheetSecurityAccess(){
     <button class="btn sec" id="securityTutorial">📘 ${t('tutorialOpen')}</button>
     <button class="btn sec" id="securityFeedback">💬 ${t('feedbackTitle')}</button>
     ${state.mode==='staff'?`<button class="btn sec pro-only mode-pro-block" id="securityFeedbackInbox">${t('feedbackInbox')}${openFeedbackCount()?` · ${t('feedbackOpenCount')(openFeedbackCount())}`:''}</button>`:''}
+    ${isAdminUser()?`<button class="btn sec" id="securityOps">📊 ${esc(t('adminOpsOpen'))}</button>`:''}
     ${isAdminUser()?`<button class="btn sec" id="securityAuditTrail">📖 ${esc(t('auditTrailTitle'))}</button>`:''}
     <button class="btn sec" id="securitySwitch">↔ ${t('switchProfile')}</button>
     <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
@@ -22758,7 +22857,8 @@ async function sheetSecurityAccess(){
         ${profileAvatarHtml(who,{className:'pa avatar profile-look-av'})}
       </div>
       <div class="profile-photo-row">
-        <label class="btn sec sm profile-photo-btn">${esc(t('profilePhotoChange'))}<input id="profilePhotoFile" type="file" accept="image/*" capture="user" hidden></label>
+        <label class="btn sec sm profile-photo-btn" for="profilePhotoFile">${esc(t('profilePhotoChange'))}</label>
+        <input id="profilePhotoFile" class="profile-photo-input" type="file" accept="image/*">
         ${profilePhoto(who)?`<button class="btn sm ghost" type="button" id="profilePhotoClear">${esc(t('profilePhotoRemove'))}</button>`:''}
       </div>
       <p class="muted" style="font-size:11px;margin:0 0 10px">${esc(t('profilePhotoHint'))}</p>
@@ -22970,6 +23070,12 @@ async function sheetSecurityAccess(){
   if(feedbackInboxBtn) feedbackInboxBtn.onclick=()=>{ closeSheet(); sheetFeedbackInbox(); };
   const auditBtn=sheetEl.querySelector('#securityAuditTrail');
   if(auditBtn) auditBtn.onclick=()=>{ closeSheet(); setTimeout(()=>sheetSecurityAudit(),180); };
+  const opsBtn=sheetEl.querySelector('#securityOps');
+  if(opsBtn) opsBtn.onclick=()=>{
+    closeSheet();
+    if(!isAdminUser()){ toast(t('adminRequired'),'error'); return; }
+    state.tab='admin'; syncLocationHash(); render();
+  };
   const switchButton=sheetEl.querySelector('#securitySwitch');
   if(switchButton) switchButton.onclick=()=>{closeSheet();logoutServerSession();};
   const logoutButton=sheetEl.querySelector('#securityLogout');
@@ -23181,6 +23287,7 @@ function renderGatePin(who, mode = 'staff'){
   let buf = '';
   let busy = false;
   let succeeded = false;
+  let autoTimer = 0;
   const pinColor = /^#[0-9a-fA-F]{3,8}$/.test(String(who.color||''))?who.color:'#94a3b8';
   paintAppGate('pin', `
     <div class="gate-pin">
@@ -23231,8 +23338,12 @@ function renderGatePin(who, mode = 'staff'){
 
   const finishLogin=async()=>{
     if(busy || succeeded) return;
+    if(autoTimer){ clearTimeout(autoTimer); autoTimer=0; }
     const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gLogin');
-    if(buf.length<4){errorEl.textContent=t('wrongPin');return;}
+    if(buf.length<4){
+      errorEl.textContent=state.lang==='el'?'PIN: 4–6 ψηφία, μετά Σύνδεση':'PIN: 4–6 Ziffern, dann Anmelden';
+      return;
+    }
     busy=true;button.classList.add('logging');button.disabled=true;if(pinInput)pinInput.disabled=true;errorEl.textContent='';draw();
     try{
       await authenticateProfile(mode,who,buf);
@@ -23263,16 +23374,33 @@ function renderGatePin(who, mode = 'staff'){
     }
   };
 
+  const scheduleAutoFinish=()=>{
+    if(autoTimer){ clearTimeout(autoTimer); autoTimer=0; }
+    if(busy || succeeded) return;
+    if(buf.length===6){ finishLogin(); return; }
+    if(buf.length>=4){
+      autoTimer=setTimeout(()=>{
+        autoTimer=0;
+        if(!busy && !succeeded && buf.length>=4) finishLogin();
+      }, 520);
+    }
+  };
+
   const pushKey=k=>{
     if(busy || succeeded) return;
     if(k==='del') buf = buf.slice(0,-1);
     else if(k==='clr') buf = '';
     else if(/^\d$/.test(k) && buf.length<6) buf += k;
     draw();
-    if(buf.length===6) finishLogin();
+    const errorEl=gateBody.querySelector('#gpErr');
+    if(errorEl) errorEl.textContent='';
+    scheduleAutoFinish();
   };
 
-  const prefersOnscreenPinpad = ()=> window.matchMedia('(max-width:899px)').matches;
+  const prefersOnscreenPinpad = ()=> {
+    if(window.matchMedia('(max-height:500px)').matches) return false;
+    return window.matchMedia('(max-width:899px)').matches;
+  };
 
   // Event delegation — survives re-draws and is more reliable on touch devices.
   gateBody.querySelector('#gPinpad').addEventListener('click', event=>{
@@ -23291,7 +23419,9 @@ function renderGatePin(who, mode = 'staff'){
     if(busy || succeeded) return;
     buf = String(pinInput.value||'').replace(/\D/g,'').slice(0,6);
     draw();
-    if(buf.length===6) finishLogin();
+    const errorEl=gateBody.querySelector('#gpErr');
+    if(errorEl) errorEl.textContent='';
+    scheduleAutoFinish();
   });
   pinInput.addEventListener('keydown', event=>{
     if(event.key==='Enter' && buf.length>=4){event.preventDefault();finishLogin();}
@@ -23420,7 +23550,7 @@ function renderResetForm(token){
       const data=await response.json();
       if(!response.ok) throw new Error(data.code||String(response.status));
       history.replaceState({},'',location.pathname);
-      state.user=null;state.child=null;state.mode='staff';session.sessionId=null;
+      state.user=null;state.child=null;state.sessionAdmin=false;state.mode='staff';session.sessionId=null;
       document.body.classList.add('auth-pending');
       document.getElementById('app').hidden=true;
       renderEntrance();toast(t('pinChanged'),'success',5200);
@@ -24431,6 +24561,14 @@ function scheduleNotificationSweep(){
   setInterval(()=>{
     if((state.mode==='staff' && state.user) || (state.mode==='child' && state.child)) runNotificationSweep();
   }, 60*1000);
+  const onWake=()=>{
+    if(document.visibilityState!=='visible') return;
+    if((state.mode==='staff' && state.user) || (state.mode==='child' && state.child)){
+      try{ runNotificationSweep(); }catch{}
+    }
+  };
+  document.addEventListener('visibilitychange', onWake);
+  window.addEventListener('focus', onWake);
 }
 if('serviceWorker' in navigator){
   navigator.serviceWorker.addEventListener('message', event=>{
