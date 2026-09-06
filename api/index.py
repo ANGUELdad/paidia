@@ -483,6 +483,7 @@ def entry(flask_path: str = ""):
             "notifications": {
                 "local": True,
                 "webPush": bool(vapid.get("configured")),
+                "webPushSend": bool(vapid.get("configured") and paidia.webpush_available()),
             },
         })
     if request.method == "GET" and api in {"/push/vapid", "/api/push/vapid"}:
@@ -491,7 +492,18 @@ def entry(flask_path: str = ""):
             "ok": True,
             "configured": bool(vapid.get("configured")),
             "publicKey": vapid.get("publicKey") if vapid.get("configured") else "",
+            "sendReady": bool(vapid.get("configured") and paidia.webpush_available()),
         })
+    if request.method in {"GET", "POST"} and api in {"/notify/tick", "/api/notify/tick"}:
+        headers = {k: v for k, v in request.headers.items()}
+        query = {key: request.args.getlist(key) for key in request.args}
+        if not paidia.cron_auth_ok(headers, query):
+            session = _session_from_request()
+            if not session or not session.get("admin"):
+                return _json(401, {"error": "Cron auth required", "code": "cron_auth"})
+        result = paidia.run_notify_tick()
+        status = 200 if result.get("ok") else (503 if result.get("code") in {"no_vapid", "no_pywebpush"} else 500)
+        return _json(status, result)
     if request.method == "POST" and api in {"/push/subscribe", "/api/push/subscribe"}:
         session = _session_from_request()
         if not session:
@@ -510,6 +522,8 @@ def entry(flask_path: str = ""):
         return _auth_session()
     if request.method == "GET" and api in {"/auth/profiles", "/api/auth/profiles"}:
         return _auth_profiles()
+    if request.method == "GET" and api in {"/auth/directory", "/api/auth/directory"}:
+        return _json(200, paidia.auth_login_directory())
     if request.method == "GET" and api in {"/auth/devices", "/api/auth/devices"}:
         return _call_handler("handle_auth_devices", None)
     if request.method == "GET" and api in {"/auth/security-events", "/api/auth/security-events"}:
@@ -538,6 +552,8 @@ def entry(flask_path: str = ""):
         "/api/auth/profile/email/test": ("handle_profile_email_test", True),
         "/auth/profile/pin": ("handle_profile_pin", True),
         "/api/auth/profile/pin": ("handle_profile_pin", True),
+        "/auth/admin/child": ("handle_admin_child", True),
+        "/api/auth/admin/child": ("handle_admin_child", True),
         "/auth/passkey/register/options": ("handle_passkey_register_options", True),
         "/api/auth/passkey/register/options": ("handle_passkey_register_options", True),
         "/auth/passkey/register/verify": ("handle_passkey_register_verify", True),
@@ -558,6 +574,8 @@ def entry(flask_path: str = ""):
         "/api/notify/broadcast": ("handle_broadcast_email", True),
         "/notify/broadcast-preview": ("handle_broadcast_preview", True),
         "/api/notify/broadcast-preview": ("handle_broadcast_preview", True),
+        "/notify/push": ("handle_notify_push", True),
+        "/api/notify/push": ("handle_notify_push", True),
         "/whatsapp/event": ("handle_whatsapp_event", True),
         "/api/whatsapp/event": ("handle_whatsapp_event", True),
         "/whatsapp/test": ("handle_whatsapp_test", True),
@@ -691,6 +709,31 @@ def entry(flask_path: str = ""):
                 })
         status, payload = paidia.run_schedule_parse(body, api_key, session=session)
         return _json(status, payload)
+
+    if request.method == "POST" and api in {"/translate", "/api/translate"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        status, payload = paidia.run_translate(_body(), session=session)
+        return _json(status, payload)
+
+    if request.method == "POST" and api in {"/ops-snapshot", "/api/ops-snapshot"}:
+        session = _session_from_request()
+        status, payload = paidia.build_ops_snapshot(_body(), session=session)
+        return _json(status, payload)
+
+    if request.method == "POST" and api in {"/notify/ops-alert", "/api/notify/ops-alert"}:
+        session = _session_from_request()
+        if not session:
+            return _json(401, {"error": "Authentication required", "code": "auth_required"})
+        if session.get("mode") != "staff":
+            return _json(403, {"error": "Staff required", "code": "staff_required"})
+        body = _body()
+        kind = str(body.get("kind") or "ops")[:40]
+        summary = str(body.get("summary") or "")[:240]
+        details = body.get("details") if isinstance(body.get("details"), dict) else {}
+        result = paidia.send_ops_alert_email(kind, summary, details)
+        return _json(200 if result.get("ok") or result.get("skipped") else 502, result)
 
     if request.method == "POST" and api in {"/chat", "/api/chat"}:
         session = _session_from_request()

@@ -12,6 +12,7 @@ dependencies = [
   # reports backend=postgres with "No module named 'psycopg'".
   # Unpinned minor: the ==3.2.9 pin has no wheel for Python 3.14+.
   "psycopg[binary]>=3.2,<4",
+  "pywebpush>=2.0,<3",
 ]
 
 [tool.vercel]

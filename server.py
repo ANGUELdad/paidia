@@ -302,6 +302,9 @@ OPS_KEYS = (
     "shiftNotes",
     "stockChecks",
     "shiftCheckins",
+    # Admin-managed directory (synced across staff devices).
+    "children",
+    "groups",
     # Kid-owned data. Written by staff via /api/ops like everything else,
     # and by a child device via /api/kid-ops for its own rows only.
     "chores",
@@ -324,8 +327,12 @@ OPS_KEYS = (
     # Staff-managed pocket money ledger (kids read via ops pull; client filters by kidId).
     "pocketMoneyTxns",
     "pocketMoneySettings",
+    "houseRules",
+    "kidBadgePrefs",
+    "staffKidDayRatings",
+    "kidZoAiLogs",
 )
-OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks", "gameStats", "pocketMoneySettings"}
+OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks", "gameStats", "pocketMoneySettings", "kidBadgePrefs"}
 OPS_LIST_CAPS = {
     "chores": 400,
     "choreSubmissions": 2000,
@@ -358,6 +365,11 @@ OPS_LIST_CAPS = {
     "customActivities": 300,
     "template": 2000,
     "pocketMoneyTxns": 4000,
+    "children": 200,
+    "groups": 80,
+    "houseRules": 200,
+    "staffKidDayRatings": 8000,
+    "kidZoAiLogs": 2000,
 }
 def resolve_webauthn_origin() -> str:
     explicit = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", "").strip()
@@ -782,11 +794,35 @@ def _normalize_auth_users(raw: object) -> dict[str, dict]:
         email = str(record.get("email", "")).strip().lower()
         phone = str(record.get("phone", "")).strip()
         pin_hash = str(record.get("pin_hash", "")).strip()
+        name = str(record.get("name", "")).strip()[:60]
+        color = str(record.get("color", "")).strip()
+        if color and not re.fullmatch(r"#[0-9a-fA-F]{3,8}", color):
+            color = ""
         if pin_hash:
             users[str(profile_id)] = {
                 "mode": mode, "email": email, "phone": phone, "pin_hash": pin_hash,
+                "name": name, "color": color,
             }
     return users
+
+
+def auth_login_directory() -> dict:
+    """Public display list for the login gate (ids + names only — no secrets)."""
+    staff: list[dict] = []
+    children: list[dict] = []
+    for profile_id, user in AUTH_USERS.items():
+        row = {
+            "id": str(profile_id),
+            "name": str(user.get("name") or "").strip(),
+            "color": str(user.get("color") or "").strip(),
+        }
+        if user.get("mode") == "child":
+            children.append(row)
+        else:
+            staff.append(row)
+    children.sort(key=lambda r: (r.get("name") or r["id"]).lower())
+    staff.sort(key=lambda r: (r.get("name") or r["id"]).lower())
+    return {"staff": staff, "children": children}
 
 
 def load_auth_users() -> dict[str, dict]:
@@ -1926,7 +1962,7 @@ def get_ops_for_session(since: int, session: dict) -> dict:
 
 # Keys a child's own device may write. Everything else on the ops blob is
 # staff-owned and unreachable from a child session.
-KID_OWNED_KEYS = ("kidRatings", "kidNotes", "listRequests", "xpLog", "feedbackReports")
+KID_OWNED_KEYS = ("kidNotes", "listRequests", "xpLog", "feedbackReports")
 KID_ROW_CAP = 500
 FEEDBACK_TYPES = frozenset({"bug", "change", "addition"})
 FEEDBACK_SEVERITIES = frozenset({"low", "medium", "high"})
@@ -2080,7 +2116,8 @@ def put_kid_ops(body: dict, session: dict) -> tuple[int, dict]:
     """Let a child device persist its own ratings, notes, and shopping requests.
 
     Deliberately narrow: a child session can touch only KID_OWNED_KEYS, and only
-    rows belonging to itself. Ownership is taken from the session and stamped on
+    rows belonging to itself. Ratings are staff-only (not in KID_OWNED_KEYS).
+    Ownership is taken from the session and stamped on
     every row, so a forged kidId in the payload is ignored rather than trusted —
     a child cannot write another child's data, and cannot reach staff ops at all.
     listRequests / feedbackReports are proposals only: non-open statuses stay staff-locked.
@@ -3228,6 +3265,178 @@ def send_email(recipient: str, subject: str, text_body: str, html_body: str | No
     raise EmailDeliveryError("Email delivery is not configured", "email_not_configured")
 
 
+def ops_alert_recipients() -> list[str]:
+    raw = os.environ.get("PAIDIA_OPS_ALERT_EMAIL", "zoimert@gmail.com")
+    return list(dict.fromkeys(
+        value.strip().lower() for value in str(raw).split(",") if value.strip() and "@" in value
+    ))
+
+
+_OPS_ALERT_COALESCE: dict[str, float] = {}
+
+
+def send_ops_alert_email(kind: str, summary: str, details: dict | None = None) -> dict:
+    """Informative ops mail (list / storage). Soft-fail; never raises to callers."""
+    kind = str(kind or "ops")[:40]
+    summary = str(summary or "").strip()[:240] or kind
+    details = details if isinstance(details, dict) else {}
+    coalesce_key = f"{kind}:{summary}"
+    now = time.time()
+    last = _OPS_ALERT_COALESCE.get(coalesce_key, 0)
+    if now - last < 30:
+        return {"ok": True, "skipped": "coalesced"}
+    _OPS_ALERT_COALESCE[coalesce_key] = now
+    # prune
+    if len(_OPS_ALERT_COALESCE) > 200:
+        cutoff = now - 120
+        for key in list(_OPS_ALERT_COALESCE):
+            if _OPS_ALERT_COALESCE[key] < cutoff:
+                _OPS_ALERT_COALESCE.pop(key, None)
+    recipients = ops_alert_recipients()
+    if not recipients:
+        return {"ok": False, "error": "no_recipients"}
+    rows = [(str(k), str(v)[:400]) for k, v in list(details.items())[:24]]
+    body_html = (
+        f"<p style='margin:0 0 14px'>{email_escape(summary)}</p>"
+        + (email_info_table(rows) if rows else "")
+    )
+    text_lines = [summary] + [f"{k}: {v}" for k, v in rows]
+    subject = f"[Armonia] {kind} · {summary}"[:180]
+    html = email_shell(summary, kind.upper(), body_html, preheader=summary)
+    sent = []
+    errors = []
+    for recipient in recipients:
+        try:
+            send_email(recipient, subject, "\n".join(text_lines), html)
+            sent.append(recipient)
+        except EmailDeliveryError as exc:
+            errors.append({"to": recipient, "code": getattr(exc, "code", "delivery_failed")})
+        except Exception as exc:  # noqa: BLE001
+            errors.append({"to": recipient, "code": type(exc).__name__})
+    return {"ok": bool(sent), "sent": sent, "errors": errors}
+
+
+def run_translate(body: dict, session: dict | None = None) -> tuple[int, dict]:
+    """DE→EL (or reverse) short product/list label translation via LLM."""
+    if not session:
+        return 401, {"error": "Authentication required", "code": "auth_required"}
+    text = str(body.get("text") or "").strip()[:120]
+    if not text:
+        return 400, {"error": "text required", "code": "input"}
+    src = str(body.get("from") or "de").lower()[:5]
+    dst = str(body.get("to") or "el").lower()[:5]
+    if src == dst:
+        return 200, {"text": text, "from": src, "to": dst, "skipped": True}
+    # Heuristic: skip if already mostly Greek letters when targeting el
+    greek = sum(1 for ch in text if "\u0370" <= ch <= "\u03ff" or "\u1f00" <= ch <= "\u1fff")
+    latin = sum(1 for ch in text if ("A" <= ch <= "Z") or ("a" <= ch <= "z") or ch in "äöüÄÖÜß")
+    if dst == "el" and greek >= max(2, latin):
+        return 200, {"text": text, "from": src, "to": dst, "skipped": True}
+    system = (
+        "You translate short grocery / care-home product names. "
+        f"Translate from {src} to {dst}. Reply with ONLY the translated label, no quotes or explanation."
+    )
+    try:
+        response, provider = llm_completion({
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": text},
+            ],
+            "temperature": 0.1,
+            "max_completion_tokens": 60,
+        }, timeout=25)
+        out = completion_text(response).strip().strip('"').strip("'")[:120]
+        if not out:
+            return 502, {"error": "empty translation", "code": "provider"}
+        return 200, {"text": out, "from": src, "to": dst, "provider": provider}
+    except Exception as exc:  # noqa: BLE001
+        print(f"[translate] failed: {type(exc).__name__}: {exc}", flush=True)
+        return 502, {"error": "translate failed", "code": "provider"}
+
+
+def build_ops_snapshot(body: dict, session: dict | None = None) -> tuple[int, dict]:
+    """Capped factual snapshot for admin Zo-Ai / Lego queries (server-side OPS_STATE)."""
+    if not session:
+        return 401, {"error": "Authentication required", "code": "auth_required"}
+    if session.get("mode") != "staff" or not session.get("admin"):
+        return 403, {"error": "Admin required", "code": "admin_required"}
+    day = str(body.get("date") or "").strip()[:10]
+    kid_id = str(body.get("kidId") or "").strip()[:64]
+    house_id = str(body.get("houseId") or "").strip()[:32]
+    refresh_ops_state_from_disk()
+    log_rows = []
+    for row in reversed(OPS_STATE.get("log") or []):
+        if not isinstance(row, dict):
+            continue
+        ts = row.get("ts") or row.get("at") or 0
+        try:
+            ds = time.strftime("%Y-%m-%d", time.localtime(int(ts) / 1000 if int(ts) > 1e12 else int(ts)))
+        except (TypeError, ValueError, OSError):
+            ds = ""
+        if day and ds != day:
+            continue
+        msg = str(row.get("msg") or row.get("text") or "")[:220]
+        if kid_id and kid_id.lower() not in msg.lower() and str(row.get("kidId") or "") != kid_id:
+            # keep if no kid filter match on id field only when kid specified
+            if str(row.get("kidId") or "") and str(row.get("kidId") or "") != kid_id:
+                continue
+            if kid_id and kid_id.lower() not in msg.lower():
+                continue
+        if house_id and str(row.get("houseId") or "") not in {"", house_id}:
+            continue
+        log_rows.append({
+            "ts": ts, "type": row.get("type"), "msg": msg,
+            "houseId": row.get("houseId"), "by": row.get("by"),
+        })
+        if len(log_rows) >= 40:
+            break
+    notes = []
+    for row in OPS_STATE.get("shiftNotes") or []:
+        if not isinstance(row, dict):
+            continue
+        if day and str(row.get("date") or "")[:10] != day:
+            continue
+        notes.append({
+            "date": row.get("date"), "houseId": row.get("houseId"),
+            "text": str(row.get("text") or row.get("body") or "")[:300],
+            "by": row.get("by"),
+        })
+        if len(notes) >= 20:
+            break
+    pocket = []
+    for row in OPS_STATE.get("pocketMoneyTxns") or []:
+        if not isinstance(row, dict):
+            continue
+        if kid_id and str(row.get("kidId") or "") != kid_id:
+            continue
+        pocket.append({
+            "kidId": row.get("kidId"), "amount": row.get("amount") or row.get("delta"),
+            "note": str(row.get("note") or "")[:120], "ts": row.get("ts") or row.get("at"),
+        })
+        if len(pocket) >= 30:
+            break
+    school = []
+    for key in ("schoolActivity", "kidNotes", "staffKidRatings"):
+        for row in OPS_STATE.get(key) or []:
+            if not isinstance(row, dict):
+                continue
+            if kid_id and str(row.get("kidId") or "") != kid_id:
+                continue
+            school.append({"kind": key, "kidId": row.get("kidId"), "text": str(row.get("text") or row.get("note") or row.get("area") or "")[:160], "ts": row.get("ts")})
+            if len(school) >= 30:
+                break
+    return 200, {
+        "ok": True,
+        "date": day or None,
+        "kidId": kid_id or None,
+        "houseId": house_id or None,
+        "log": log_rows,
+        "shiftNotes": notes,
+        "pocket": pocket,
+        "school": school,
+    }
+
+
 def email_escape(value: object) -> str:
     return html_lib.escape(str(value if value is not None else ""), quote=True)
 
@@ -3716,6 +3925,215 @@ def save_push_subscription(profile_id: str, subscription: dict) -> dict:
         store = dict(ordered[-200:])
     paidia_db.set_json(PUSH_SUBSCRIPTIONS_KEY, store)
     return {"ok": True, "stored": True, "count": len(store)}
+
+
+def delete_push_subscription(endpoint: str) -> None:
+    ep = str(endpoint or "").strip()
+    if not ep or not paidia_db:
+        return
+    store = load_push_subscriptions()
+    if ep not in store:
+        return
+    del store[ep]
+    paidia_db.set_json(PUSH_SUBSCRIPTIONS_KEY, store)
+
+
+def webpush_available() -> bool:
+    try:
+        import pywebpush  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+def send_web_push_one(subscription: dict, payload: dict) -> dict:
+    """Send one Web Push. Returns {ok, status, gone?}."""
+    cfg = vapid_config()
+    if not cfg["configured"]:
+        return {"ok": False, "error": "Web Push not configured", "code": "no_vapid"}
+    if not webpush_available():
+        return {"ok": False, "error": "pywebpush not installed", "code": "no_pywebpush"}
+    try:
+        from pywebpush import WebPushException, webpush
+    except ImportError:
+        return {"ok": False, "error": "pywebpush not installed", "code": "no_pywebpush"}
+    body = json.dumps(payload if isinstance(payload, dict) else {"title": "Armonia Thassos"}, ensure_ascii=False)
+    try:
+        webpush(
+            subscription_info=subscription,
+            data=body,
+            vapid_private_key=cfg["privateKey"],
+            vapid_claims={"sub": cfg["contact"]},
+            ttl=86_400,
+        )
+        return {"ok": True, "status": 201}
+    except WebPushException as exc:
+        status = getattr(getattr(exc, "response", None), "status_code", None) or 0
+        if status in {404, 410}:
+            delete_push_subscription(str((subscription or {}).get("endpoint") or ""))
+            return {"ok": False, "status": status, "gone": True, "error": "subscription gone"}
+        return {"ok": False, "status": status or 502, "error": str(exc)[:200]}
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "status": 500, "error": str(exc)[:200]}
+
+
+def fanout_web_push(
+    *,
+    title: str,
+    body: str,
+    url: str = "./",
+    profile_ids: list[str] | None = None,
+    tag: str = "",
+) -> dict:
+    """Send to stored subscriptions. Optional profile_ids filter (empty = all)."""
+    store = load_push_subscriptions()
+    if not store:
+        return {"ok": True, "sent": 0, "failed": 0, "gone": 0, "targets": 0}
+    want = {str(x) for x in (profile_ids or []) if str(x).strip()} if profile_ids is not None else None
+    payload = {
+        "title": str(title or "Armonia Thassos")[:120],
+        "body": str(body or "")[:400],
+        "url": str(url or "./")[:200],
+    }
+    if tag:
+        payload["tag"] = str(tag)[:80]
+    sent = failed = gone = 0
+    for endpoint, row in list(store.items()):
+        if not isinstance(row, dict):
+            continue
+        pid = str(row.get("profileId") or "")
+        if want is not None and pid not in want:
+            continue
+        sub = row.get("subscription") if isinstance(row.get("subscription"), dict) else None
+        if not sub:
+            continue
+        result = send_web_push_one(sub, payload)
+        if result.get("ok"):
+            sent += 1
+        elif result.get("gone"):
+            gone += 1
+        else:
+            failed += 1
+    return {
+        "ok": True,
+        "sent": sent,
+        "failed": failed,
+        "gone": gone,
+        "targets": sent + failed + gone,
+        "configured": vapid_config()["configured"],
+        "library": webpush_available(),
+    }
+
+
+PUSH_TICK_KEY = "push_tick_state"
+
+
+def load_push_tick_state() -> dict:
+    if not paidia_db:
+        return {}
+    try:
+        raw = paidia_db.get_json(PUSH_TICK_KEY, {}) or {}
+    except Exception:
+        return {}
+    return raw if isinstance(raw, dict) else {}
+
+
+def save_push_tick_state(state: dict) -> None:
+    if not paidia_db:
+        return
+    paidia_db.set_json(PUSH_TICK_KEY, state if isinstance(state, dict) else {})
+
+
+def cron_auth_ok(headers: dict | None, query: dict | None = None) -> bool:
+    """Allow Vercel Cron (x-vercel-cron) or PAIDIA_CRON_SECRET bearer / query."""
+    headers = {str(k).lower(): str(v) for k, v in (headers or {}).items()}
+    if headers.get("x-vercel-cron") == "1":
+        return True
+    secret = (
+        os.environ.get("PAIDIA_CRON_SECRET")
+        or os.environ.get("CRON_SECRET")
+        or ""
+    ).strip()
+    if not secret:
+        # Local/dev: allow when no secret and no VAPID either is fine to reject
+        return False
+    auth = headers.get("authorization") or ""
+    if auth.lower().startswith("bearer ") and auth[7:].strip() == secret:
+        return True
+    if headers.get("x-cron-secret", "").strip() == secret:
+        return True
+    q = query or {}
+    token = ""
+    if isinstance(q.get("secret"), list):
+        token = str((q.get("secret") or [""])[0] or "")
+    else:
+        token = str(q.get("secret") or "")
+    return token.strip() == secret
+
+
+def run_notify_tick() -> dict:
+    """Hourly-ish reminder: events starting in the next 90 minutes (once per event)."""
+    if not vapid_config()["configured"]:
+        return {"ok": False, "error": "Web Push not configured", "code": "no_vapid", "sent": 0}
+    if not webpush_available():
+        return {"ok": False, "error": "pywebpush not installed", "code": "no_pywebpush", "sent": 0}
+
+    refresh_ops_state_from_disk()
+    events = OPS_STATE.get("events") if isinstance(OPS_STATE.get("events"), list) else []
+    now = time.time()
+    horizon = now + 90 * 60
+    tick = load_push_tick_state()
+    sent_ids = tick.get("eventReminders") if isinstance(tick.get("eventReminders"), dict) else {}
+    # prune old markers (>7d)
+    cutoff = int((now - 7 * 86400) * 1000)
+    sent_ids = {k: v for k, v in sent_ids.items() if int(v or 0) >= cutoff}
+
+    fanouts = []
+    for ev in events:
+        if not isinstance(ev, dict):
+            continue
+        eid = str(ev.get("id") or "").strip()
+        if not eid or eid in sent_ids:
+            continue
+        # Prefer ISO start; fall back to date + fromTime
+        start_ts = None
+        raw_start = ev.get("start") or ev.get("startsAt") or ev.get("ts")
+        if isinstance(raw_start, (int, float)) and raw_start > 1_000_000_000_000:
+            start_ts = float(raw_start) / 1000.0
+        elif isinstance(raw_start, (int, float)) and raw_start > 1_000_000_000:
+            start_ts = float(raw_start)
+        else:
+            date_s = str(ev.get("date") or "").strip()
+            time_s = str(ev.get("from") or ev.get("fromTime") or ev.get("time") or "09:00").strip()
+            if date_s:
+                try:
+                    start_ts = time.mktime(time.strptime(f"{date_s} {time_s[:5]}", "%Y-%m-%d %H:%M"))
+                except (ValueError, OverflowError, OSError):
+                    start_ts = None
+        if start_ts is None or start_ts < now or start_ts > horizon:
+            continue
+        title = str(ev.get("title") or ev.get("de") or ev.get("name") or "Termin")[:120]
+        body = str(ev.get("note") or ev.get("location") or "Bald startet ein Termin")[:200]
+        result = fanout_web_push(
+            title=title,
+            body=body,
+            url="./#home",
+            profile_ids=None,
+            tag=f"event-{eid}",
+        )
+        sent_ids[eid] = int(now * 1000)
+        fanouts.append({"eventId": eid, **result})
+
+    tick["eventReminders"] = sent_ids
+    tick["lastTickAt"] = int(now * 1000)
+    save_push_tick_state(tick)
+    return {
+        "ok": True,
+        "checked": len(events),
+        "reminders": len(fanouts),
+        "results": fanouts[:20],
+        "subscriptions": len(load_push_subscriptions()),
+    }
 
 
 def whatsapp_recipients() -> dict[str, list[str]]:
@@ -4530,8 +4948,15 @@ def run_chat(
                 last_user = content.strip()
                 break
     prompt = help_prompt_for_role(role, last_user)
-    messages = [{"role": "system", "content": prompt + "\nCurrent UI context: " +
-                 json.dumps(context, ensure_ascii=False)[:8000]}]
+    snap = context.get("opsSnapshot")
+    snap_note = ""
+    if role == "admin" and isinstance(snap, dict) and snap:
+        snap_note = (
+            "\n\nAdmin OPS SNAPSHOT (facts only — answer from this; never invent rows):\n"
+            + json.dumps(snap, ensure_ascii=False)[:6000]
+        )
+    messages = [{"role": "system", "content": prompt + snap_note + "\nCurrent UI context: " +
+                 json.dumps({k: v for k, v in context.items() if k != "opsSnapshot"}, ensure_ascii=False)[:8000]}]
     for message in raw_messages[-10:]:
         if not isinstance(message, dict) or message.get("role") not in {"user", "assistant"}:
             continue
@@ -4815,6 +5240,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "notifications": {
                     "local": True,
                     "webPush": bool(vapid_config()["configured"]),
+                    "webPushSend": bool(vapid_config()["configured"] and webpush_available()),
                 },
             })
             return
@@ -4824,7 +5250,11 @@ class Handler(SimpleHTTPRequestHandler):
                 "ok": True,
                 "configured": cfg["configured"],
                 "publicKey": cfg["publicKey"] if cfg["configured"] else "",
+                "sendReady": bool(cfg["configured"] and webpush_available()),
             })
+            return
+        if parsed.path == "/api/notify/tick":
+            self.handle_notify_tick({})
             return
         if parsed.path == "/api/auth/health":
             delivery = email_delivery_status()
@@ -4854,6 +5284,9 @@ class Handler(SimpleHTTPRequestHandler):
                 "database": db_info,
                 "durableStorage": bool(db_info.get("ok")),
             })
+            return
+        if parsed.path == "/api/auth/directory":
+            self.json_response(200, auth_login_directory())
             return
         if parsed.path == "/api/auth/profiles":
             session = self.current_auth_session()
@@ -5062,7 +5495,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path not in {
             "/api/ai-shopping", "/api/ai-schedule", "/api/chat", "/api/learn", "/api/quiz", "/api/gallery/caption",
-            "/api/chore-verify",
+            "/api/chore-verify", "/api/translate", "/api/ops-snapshot", "/api/notify/ops-alert",
             "/api/talk", "/api/gallery", "/api/ops", "/api/kid-ops", "/api/whatsapp/test", "/api/whatsapp/event",
             "/api/notify/event-email",
             "/api/notify/broadcast",
@@ -5073,6 +5506,7 @@ class Handler(SimpleHTTPRequestHandler):
             "/api/auth/passkey/login/options", "/api/auth/passkey/login/verify", "/api/auth/passkey/remove",
             "/api/auth/onboarding/complete",
             "/api/auth/profile/email", "/api/auth/profile/email/test", "/api/auth/profile/pin",
+            "/api/auth/admin/child",
         }:
             self.json_response(404, {"error": "Not found"})
             return
@@ -5128,6 +5562,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/auth/profile/pin":
             self.handle_profile_pin(body)
+            return
+        if path == "/api/auth/admin/child":
+            self.handle_admin_child(body)
             return
         if path == "/api/auth/profile/email/test":
             self.handle_profile_email_test(body)
@@ -5194,6 +5631,12 @@ class Handler(SimpleHTTPRequestHandler):
         if path == "/api/notify/broadcast-preview":
             self.handle_broadcast_preview(body)
             return
+        if path == "/api/notify/push":
+            self.handle_notify_push(body)
+            return
+        if path == "/api/notify/tick":
+            self.handle_notify_tick(body)
+            return
 
         api_key = os.environ.get("GROQ_API_KEY")
         if path == "/api/ai-shopping":
@@ -5230,6 +5673,36 @@ class Handler(SimpleHTTPRequestHandler):
                     return
             status, payload = run_schedule_parse(body, api_key, session=session)
             self.json_response(status, payload)
+            return
+        if path == "/api/translate":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            if not api_key and not omniroute_reachable() and PAIDIA_LLM_PROVIDER != "omniroute":
+                self.json_response(503, {"error": "AI is not configured", "code": "configuration"})
+                return
+            status, payload = run_translate(body, session=session)
+            self.json_response(status, payload)
+            return
+        if path == "/api/ops-snapshot":
+            session = self.current_auth_session()
+            status, payload = build_ops_snapshot(body, session=session)
+            self.json_response(status, payload)
+            return
+        if path == "/api/notify/ops-alert":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            if session.get("mode") != "staff":
+                self.json_response(403, {"error": "Staff required", "code": "staff_required"})
+                return
+            kind = str(body.get("kind") or "ops")[:40]
+            summary = str(body.get("summary") or "")[:240]
+            details = body.get("details") if isinstance(body.get("details"), dict) else {}
+            result = send_ops_alert_email(kind, summary, details)
+            self.json_response(200 if result.get("ok") or result.get("skipped") else 502, result)
             return
         if path == "/api/chat":
             if not self.current_auth_session():
@@ -5858,6 +6331,113 @@ class Handler(SimpleHTTPRequestHandler):
             "Set-Cookie": cookies if len(cookies) > 1 else cookies[0],
         })
 
+    def handle_admin_child(self, body: dict) -> None:
+        """Admin-only: create / update PIN / remove a child login profile."""
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        if not session.get("admin"):
+            self.json_response(403, {"error": "Admin only", "code": "admin_required"})
+            return
+        action = str(body.get("action") or "").strip().lower()
+        profile_id = str(body.get("profileId") or "").strip()
+        if not re.fullmatch(r"k[A-Za-z0-9_-]{1,24}", profile_id):
+            self.json_response(400, {"error": "Invalid child profile id", "code": "invalid_id"})
+            return
+        name = str(body.get("name") or "").strip()[:60]
+        color = str(body.get("color") or "").strip()
+        if color and not re.fullmatch(r"#[0-9a-fA-F]{3,8}", color):
+            color = "#94a3b8"
+        pin = str(body.get("pin") or "")
+        if action == "delete":
+            if profile_id not in AUTH_USERS:
+                self.json_response(200, {"deleted": True, "profileId": profile_id, "existed": False})
+                return
+            if AUTH_USERS[profile_id].get("mode") != "child":
+                self.json_response(400, {"error": "Not a child profile", "code": "not_child"})
+                return
+            AUTH_USERS.pop(profile_id, None)
+            try:
+                persist_auth_users(require_durable=False)
+            except RuntimeError:
+                self.json_response(507, {"error": "Could not save", "code": "storage"})
+                return
+            with AUTH_LOCK:
+                for session_token, other in list(AUTH_SESSIONS.items()):
+                    if other.get("profile_id") == profile_id:
+                        AUTH_SESSIONS.pop(session_token, None)
+            append_security_event("child_profile_deleted", session["profile_id"], self.client_ip(), {
+                "childId": profile_id,
+            })
+            self.json_response(200, {"deleted": True, "profileId": profile_id, "existed": True})
+            return
+        if action not in {"create", "set_pin", "update"}:
+            self.json_response(400, {"error": "Unknown action", "code": "invalid_action"})
+            return
+        if not name and action == "create":
+            self.json_response(400, {"error": "Name required", "code": "name_required"})
+            return
+        if action in {"create", "set_pin"} and not re.fullmatch(r"\d{4,6}", pin):
+            self.json_response(400, {"error": "PIN must be 4–6 digits", "code": "invalid_pin"})
+            return
+        existing = AUTH_USERS.get(profile_id)
+        if action == "create" and existing:
+            self.json_response(409, {"error": "Child login already exists", "code": "exists"})
+            return
+        if action in {"set_pin", "update"} and not existing:
+            self.json_response(404, {"error": "Profile not found", "code": "profile_not_found"})
+            return
+        if existing and existing.get("mode") != "child":
+            self.json_response(400, {"error": "Not a child profile", "code": "not_child"})
+            return
+        record = dict(existing or {})
+        record["mode"] = "child"
+        if name:
+            record["name"] = name
+        if color:
+            record["color"] = color
+        if pin:
+            record["pin_hash"] = hash_pin(pin)
+        record.setdefault("email", "")
+        record.setdefault("phone", "")
+        if not record.get("pin_hash"):
+            self.json_response(400, {"error": "PIN required", "code": "invalid_pin"})
+            return
+        AUTH_USERS[profile_id] = {
+            "mode": "child",
+            "email": str(record.get("email") or ""),
+            "phone": str(record.get("phone") or ""),
+            "pin_hash": record["pin_hash"],
+            "name": str(record.get("name") or name or profile_id),
+            "color": str(record.get("color") or color or "#94a3b8"),
+        }
+        try:
+            persist_auth_users(require_durable=False)
+            set_auth_override(
+                profile_id,
+                pin_hash=AUTH_USERS[profile_id]["pin_hash"],
+                email=AUTH_USERS[profile_id].get("email") or "",
+                phone=AUTH_USERS[profile_id].get("phone") or "",
+            )
+            persist_auth_overrides()
+        except RuntimeError:
+            self.json_response(507, {"error": "Could not save", "code": "storage"})
+            return
+        append_security_event(
+            "child_profile_" + ("created" if action == "create" else "updated"),
+            session["profile_id"],
+            self.client_ip(),
+            {"childId": profile_id, "action": action},
+        )
+        self.json_response(200, {
+            "ok": True,
+            "profileId": profile_id,
+            "name": AUTH_USERS[profile_id]["name"],
+            "color": AUTH_USERS[profile_id]["color"],
+            "action": action,
+        })
+
     def handle_profile_email_test(self, body: dict) -> None:
         user, profile_id = self.editable_profile(body)
         if not user:
@@ -6173,6 +6753,65 @@ class Handler(SimpleHTTPRequestHandler):
             "recipientCount": len(recipients),
             "eventId": event_id,
         })
+
+    def handle_notify_push(self, body: dict) -> None:
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        if not session.get("admin"):
+            self.json_response(403, {"error": "Admin only", "code": "admin_required"})
+            return
+        if not vapid_config()["configured"]:
+            self.json_response(503, {"error": "Web Push not configured", "code": "no_vapid"})
+            return
+        if not webpush_available():
+            self.json_response(503, {"error": "pywebpush not installed", "code": "no_pywebpush"})
+            return
+        title = str((body or {}).get("title") or "Armonia Thassos").strip()[:120]
+        message = str((body or {}).get("body") or (body or {}).get("message") or "").strip()[:400]
+        url = str((body or {}).get("url") or "./").strip()[:200] or "./"
+        tag = str((body or {}).get("tag") or "").strip()[:80]
+        raw_ids = (body or {}).get("profileIds")
+        profile_ids = None
+        if isinstance(raw_ids, list):
+            profile_ids = [str(x).strip() for x in raw_ids if str(x).strip()]
+        audience = str((body or {}).get("audience") or "").strip().lower()
+        if profile_ids is None and audience in {"staff", "children", "kids", "child"}:
+            want_child = audience in {"children", "kids", "child"}
+            profile_ids = [
+                pid for pid, user in AUTH_USERS.items()
+                if (user.get("mode") == "child") == want_child
+            ]
+        if not message:
+            self.json_response(400, {"error": "body/message required", "code": "missing_fields"})
+            return
+        result = fanout_web_push(
+            title=title,
+            body=message,
+            url=url,
+            profile_ids=profile_ids,
+            tag=tag,
+        )
+        self.json_response(200 if result.get("sent") or result.get("targets") == 0 else 502, result)
+
+    def handle_notify_tick(self, body: dict) -> None:
+        headers = {k: v for k, v in self.headers.items()} if getattr(self, "headers", None) else {}
+        query = {}
+        try:
+            parsed = urllib.parse.urlsplit(self.path)
+            query = urllib.parse.parse_qs(parsed.query or "")
+        except Exception:  # noqa: BLE001
+            query = {}
+        # Cron secret OR authenticated admin
+        if not cron_auth_ok(headers, query):
+            session = self.current_auth_session()
+            if not session or not session.get("admin"):
+                self.json_response(401, {"error": "Cron auth required", "code": "cron_auth"})
+                return
+        result = run_notify_tick()
+        status = 200 if result.get("ok") else (503 if result.get("code") in {"no_vapid", "no_pywebpush"} else 500)
+        self.json_response(status, result)
 
     def handle_broadcast_preview(self, body: dict) -> None:
         session = self.current_auth_session()

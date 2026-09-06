@@ -4,17 +4,17 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 190,
-  label: 'v190',
+  version: 199,
+  label: 'v199',
   changed: {
-    de: 'Taschengeld inline · Monatskalender · Lager-Layout',
-    el: 'Χαρτζιλίκι inline · Μηνιαίο ημερολόγιο · Layout αποθήκης',
+    de: 'Overflow · Buch ruhig · Regeln · Profile · Valeria+Lea · Noten · Push',
+    el: 'Overflow · ήρεμο Βιβλίο · Κανόνες · Προφίλ · Valeria+Lea · βαθμοί · Push',
   },
 };
 const T = {
   de: {
     appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navPocket:'Taschengeld', navMore:'Mehr',
-    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', titlePocket:'Taschengeld', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
+    titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', titlePocket:'Taschengeld', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', kidAdd:'Kind hinzufügen', kidRemove:'Kind entfernen', kidEdit:'Kind bearbeiten', kidNamePh:'Vorname', kidPinPh:'PIN (4–6 Ziffern)', kidPinConfirm:'PIN bestätigen', kidAdded:'Kind gespeichert', kidRemoved:'Kind entfernt', kidRemoveConfirm:'Dieses Kind wirklich entfernen? Login wird gelöscht.', kidPinMismatch:'PIN stimmt nicht', kidNameRequired:'Name fehlt', kidAdminOnly:'Nur Admins können Kinder hinzufügen/entfernen', profilePhoto:'Profilfoto', profilePhotoChange:'Foto ändern', profilePhotoRemove:'Foto entfernen', profilePhotoHint:'Wird oben rechts angezeigt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
     kidsOverview:'Übersicht', kidsTracked:n=>`${n} Kinder`, kidsOpenHomework:n=>`${n} Hausaufgaben offen`,
     schoolOverview:'Schulübersicht', gradeAverage:'Notenschnitt', gradeNoData:'Noch keine Noten', attendanceWeek:'Anwesenheit diese Woche',
     homeworkOpen:'Offene Hausaufgaben',
@@ -117,6 +117,40 @@ const T = {
     handoffHouseLabel:'Haus (optional)',
     handoffHouseAll:'Alle Häuser',
     handoffNeedContent:'Mindestens ein Feld ausfüllen',
+    handoffFlowDismiss:'Verstanden',
+    bookShowCal:'Kalender / Archiv',
+    bookHideCal:'Kalender ausblenden',
+    bookMoreSecs:'Mehr Abschnitte',
+    bookLessSecs:'Weniger Abschnitte',
+    rulesTab:'Hausregeln',
+    rulesTitle:'Hausregeln',
+    rulesLead:'Gemeinsame Regeln für Schicht und Kinder — kurz und klar.',
+    rulesEmpty:'Noch keine Regeln.',
+    rulesAdd:'Regel hinzufügen',
+    rulesEdit:'Bearbeiten',
+    rulesArchive:'Archivieren',
+    rulesPinned:'Angepinnt',
+    rulesUpdated:'Aktualisiert',
+    rulesCatDaily:'Täglich',
+    rulesCatSafety:'Sicherheit',
+    rulesCatSchool:'Schule',
+    rulesCatPocket:'Taschengeld',
+    rulesCatDigital:'Digital',
+    rulesCatHouse:'Haus',
+    rulesCatOther:'Sonstiges',
+    profileBirthDate:'Geburtsdatum',
+    profileAge:'Alter',
+    profileBio:'Über mich',
+    kidBadgeEnable:'Badge freischalten',
+    kidBadgeGrant:'Badge vergeben',
+    choreReviewTitle:'Aufgaben-Prüfung',
+    choreReviewEmpty:'Keine offenen Nachweise.',
+    zoaiLogTitle:'Zo-Ai Gespräche',
+    zoaiLogEmpty:'Noch keine Zo-Ai Chats.',
+    rateDayTitle:'Tagesnote',
+    rateAverageFooter:'Mittelwert dieser Woche',
+    notifInstallSteps:'iPhone: Teilen → „Zum Home-Bildschirm“ → Hinzufügen. Dann App öffnen und Mitteilungen aktivieren (iOS 16.4+).',
+    installAppAndroid:'App installieren',
     typeSTOCKCHECK:'Lagercheck',
     shiftStockCheck:'Lagercheck',
     shiftStockCheckHint:'Für jedes Produkt tippen: OK, wenig oder leer. Dann speichern.',
@@ -125,6 +159,8 @@ const T = {
     shiftStockCheckAllYes:'Rest OK',
     shiftStockCheckSave:'Speichern',
     shiftStockCheckNeedAll:'Noch nicht alles geprüft.',
+    shiftStockCheckRespAck:'Ich übernehme die Verantwortung für diesen Lagercheck.',
+    shiftStockCheckRespNeed:'Bitte Verantwortung für den Lagercheck bestätigen.',
     shiftStockCheckSaved:(n,name)=>`Lagercheck · ${n} Produkte · ${name}`,
     shiftStockCheckToday:(name,when)=>`Heute geprüft von ${name} · ${when}`,
     shiftStockCheckPending:'Heute noch nicht geprüft',
@@ -232,7 +268,7 @@ const T = {
     uiModePage:'Nur diese Seite',
     uiModeResetPages:'Seiten-Ausnahmen zurücksetzen',
     uiModeHint:'Einfach = weniger Optionen. Pro = alles. Umschalter oben gilt für die aktuelle Seite.',
-    kidRateStaffOnly:'Deine Betreuerinnen bewerten die Woche. Hier siehst du den Team-Schnitt — Selbstbewertung ist in Pro.',
+    kidRateStaffOnly:'Deine Betreuerinnen bewerten die Woche. Hier siehst du den Team-Schnitt.',
     notifEasyHint:'Mitteilungen an — fertig. Kategorien und Ruhezeiten findest du in Pro.',
     notifProCategories:'Für Kategorien, Ruhezeit und Ton → Pro umschalten.',
     stockHealthy:'Gut versorgt', stockLow:'Wenig', stockOutState:'Leer', productTypes:'Produkte',
@@ -593,7 +629,7 @@ const T = {
     removeListReasonPh:'z. B. Kind bringt mit, Spende…',
     listItemRemoved:'Position aus der Liste entfernt.',
     bookedToHouse:n=>`Gekauft und in ${n} eingebucht`, backToCart:'Zurück zum Warenkorb', externalHome:'Anderes Zuhause', customProducts:'Weitere Produkte',
-    chooseShoppingHouse:'1. Haus auswählen', shoppingHouseHint:'Auch Julian groß, Valeria und Lea — nur für Einkauf/Bestand, nicht im Wochenplan.',
+    chooseShoppingHouse:'1. Haus auswählen', shoppingHouseHint:'Auch Julian groß und Valeria+Lea — nur für Einkauf/Bestand, nicht im Wochenplan.',
     fullBlock:'Ganzer Block', fromTime:'ab', timeFrom:'Von', timeTo:'Bis',
     importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto', fromScreenshot:'Bildschirmfoto',
     listJourneyTitle:'Freitagseinkauf', listJourneyHint:'Eine vollständige Liste pro Haus und echtem Freitagsdatum.',
@@ -737,7 +773,7 @@ const T = {
     kidStarsCollected:n=>`${n} gesammelt`, kidGamesPlay:'Spielen',
     storageOffline:'Nicht dauerhaft gespeichert — Datenbank offline. Bitte Admin informieren.',
     kidNavRate:'Bewertung', kidRateTitle:'Bewertungen', kidRateKicker:'Wie lief die Woche?',
-    kidRateLead:'Noten von 1 bis 6 — wie in der Schule. Das sehen nur du und deine Betreuerin.',
+    kidRateLead:'Noten von 1 bis 6 — wie in der Schule. Das Team bewertet; du schaust nur zu.',
     kidRateSchool:'Schule', kidRateHome:'Zuhause', kidRateFriends:'Freunde', kidRateMood:'Wie ich mich fühle',
     kidRateVerhalten:'Verhalten', kidRateMitarbeit:'Mitarbeit', kidRateActivities:'Mitmachen bei Aktivitäten',
     kidRateGroupLife:'Alltag & Wohlbefinden', kidRateGroupSchool:'Schule & Haltung',
@@ -1072,6 +1108,12 @@ const T = {
     openEvents:'Events öffnen', kidsNotified:n=>`${n} Kinder erhalten die Mitteilung in der App.`,
     eventCollection:n=>`${n} ${n===1?'Event':'Events'} geplant`,
     adminCenter:'Admin-Zentrale', adminOverview:'Team, Aufgaben und Änderungen auf einen Blick',
+    adminOpsTab:'Ops', adminOpsTitle:'Ops-Cockpit', adminOpsLead:'Bewegungen, Taschengeld, Lager, Plan — und Lego-Fragen.',
+    adminOpsTimeline:'Timeline', adminOpsPocket:'Taschengeld', adminOpsStorages:'Lager', adminOpsSchedule:'Programm',
+    adminOpsCharts:'Übersicht', adminOpsLego:'Lego-Fragen', adminOpsAskZoai:'Zo-Ai fragen',
+    adminOpsRun:'Filtern', adminOpsClear:'Zurücksetzen', adminOpsBlockDay:'Tag', adminOpsBlockKid:'Kind',
+    adminOpsBlockHouse:'Haus', adminOpsBlockType:'Art', adminOpsEmpty:'Keine Treffer für diese Bausteine.',
+    adminOpsOpen:'Ops-Cockpit öffnen',
     adminWarnings:'Nur Admins sehen betriebliche Warnungen', adminAllClear:'Keine aktuellen Planwarnungen',
     adminEditPlan:'Wochenplan bearbeiten', adminEditShifts:'Dienste bearbeiten', adminManageEvents:'Events verwalten',
     adminOpenAudit:'Bewegungen', adminEmailEveryone:'E-Mail an alle',
@@ -1123,7 +1165,7 @@ const T = {
   },
   el: {
     appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navPocket:'Χαρτζιλίκι', navMore:'Άλλα',
-    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', titlePocket:'Χαρτζιλίκι', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
+    titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', titlePocket:'Χαρτζιλίκι', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', kidAdd:'Προσθήκη παιδιού', kidRemove:'Αφαίρεση παιδιού', kidEdit:'Επεξεργασία παιδιού', kidNamePh:'Όνομα', kidPinPh:'PIN (4–6 ψηφία)', kidPinConfirm:'Επιβεβαίωση PIN', kidAdded:'Το παιδί αποθηκεύτηκε', kidRemoved:'Το παιδί αφαιρέθηκε', kidRemoveConfirm:'Να αφαιρεθεί αυτό το παιδί; Το login θα διαγραφεί.', kidPinMismatch:'Το PIN δεν ταιριάζει', kidNameRequired:'Λείπει το όνομα', kidAdminOnly:'Μόνο admins μπορούν να προσθέτουν/αφαιρούν παιδιά', profilePhoto:'Φωτογραφία προφίλ', profilePhotoChange:'Αλλαγή φωτογραφίας', profilePhotoRemove:'Αφαίρεση φωτογραφίας', profilePhotoHint:'Εμφανίζεται πάνω δεξιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
     kidsOverview:'Επισκόπηση', kidsTracked:n=>`${n} παιδιά`, kidsOpenHomework:n=>`${n} ανοιχτές εργασίες`,
     schoolOverview:'Σχολική εικόνα', gradeAverage:'Μέσος βαθμός', gradeNoData:'Δεν υπάρχουν βαθμοί ακόμα', attendanceWeek:'Παρουσία αυτή την εβδομάδα',
     homeworkOpen:'Ανοιχτές εργασίες',
@@ -1226,6 +1268,40 @@ const T = {
     handoffHouseLabel:'Σπίτι (προαιρετικά)',
     handoffHouseAll:'Όλα τα σπίτια',
     handoffNeedContent:'Συμπλήρωσε τουλάχιστον ένα πεδίο',
+    handoffFlowDismiss:'Κατάλαβα',
+    bookShowCal:'Ημερολόγιο / Αρχείο',
+    bookHideCal:'Απόκρυψη ημερολογίου',
+    bookMoreSecs:'Περισσότερες ενότητες',
+    bookLessSecs:'Λιγότερες ενότητες',
+    rulesTab:'Κανόνες σπιτιού',
+    rulesTitle:'Κανόνες σπιτιού',
+    rulesLead:'Κοινοί κανόνες για βάρδια και παιδιά — σύντομα και καθαρά.',
+    rulesEmpty:'Δεν υπάρχουν ακόμα κανόνες.',
+    rulesAdd:'Προσθήκη κανόνα',
+    rulesEdit:'Επεξεργασία',
+    rulesArchive:'Αρχειοθέτηση',
+    rulesPinned:'Καρφιτσωμένο',
+    rulesUpdated:'Ενημερώθηκε',
+    rulesCatDaily:'Καθημερινά',
+    rulesCatSafety:'Ασφάλεια',
+    rulesCatSchool:'Σχολείο',
+    rulesCatPocket:'Χαρτζιλίκι',
+    rulesCatDigital:'Ψηφιακά',
+    rulesCatHouse:'Σπίτι',
+    rulesCatOther:'Άλλα',
+    profileBirthDate:'Ημερογεννεσία',
+    profileAge:'Ηλικία',
+    profileBio:'Για μένα',
+    kidBadgeEnable:'Άνοιγμα badge',
+    kidBadgeGrant:'Απονομή badge',
+    choreReviewTitle:'Έλεγχος αποστολών',
+    choreReviewEmpty:'Δεν υπάρχουν ανοιχτά αποδεικτικά.',
+    zoaiLogTitle:'Συζητήσεις Zo-Ai',
+    zoaiLogEmpty:'Δεν υπάρχουν ακόμα chats Zo-Ai.',
+    rateDayTitle:'Ημερήσια βαθμολογία',
+    rateAverageFooter:'Μέσος όρος αυτής της εβδομάδας',
+    notifInstallSteps:'iPhone: Κοινή χρήση → «Στην οθόνη Αφετηρίας» → Προσθήκη. Μετά άνοιξε την εφαρμογή και ενεργοποίησε ειδοποιήσεις (iOS 16.4+).',
+    installAppAndroid:'Εγκατάσταση εφαρμογής',
     typeSTOCKCHECK:'Έλεγχος αποθέματος',
     shiftStockCheck:'Έλεγχος αποθήκης',
     shiftStockCheckHint:'Για κάθε προϊόν πάτα: OK, λίγο ή άδειο. Μετά αποθήκευση.',
@@ -1234,6 +1310,8 @@ const T = {
     shiftStockCheckAllYes:'Τα υπόλοιπα OK',
     shiftStockCheckSave:'Αποθήκευση',
     shiftStockCheckNeedAll:'Δεν ελέγχθηκαν όλα ακόμα.',
+    shiftStockCheckRespAck:'Αναλαμβάνω την ευθύνη για αυτόν τον έλεγχο αποθήκης.',
+    shiftStockCheckRespNeed:'Επιβεβαίωσε την ευθύνη για τον έλεγχο αποθήκης.',
     shiftStockCheckSaved:(n,name)=>`Έλεγχος · ${n} είδη · ${name}`,
     shiftStockCheckToday:(name,when)=>`Σήμερα έλεγξε ο/η ${name} · ${when}`,
     shiftStockCheckPending:'Σήμερα δεν ελέγχθηκε ακόμα',
@@ -1341,7 +1419,7 @@ const T = {
     uiModePage:'Μόνο αυτή η σελίδα',
     uiModeResetPages:'Επαναφορά εξαιρέσεων σελίδων',
     uiModeHint:'Απλό = λιγότερες επιλογές. Pro = όλα. Ο διακόπτης πάνω ισχύει για την τρέχουσα σελίδα.',
-    kidRateStaffOnly:'Οι φροντιστές βαθμολογούν την εβδομάδα. Εδώ βλέπεις τον μέσο όρο της ομάδας — αυτοαξιολόγηση στο Pro.',
+    kidRateStaffOnly:'Οι φροντιστές βαθμολογούν την εβδομάδα. Εδώ βλέπεις τον μέσο όρο της ομάδας.',
     notifEasyHint:'Ειδοποιήσεις ενεργές — έτοιμο. Κατηγορίες και ώρες ησυχίας στο Pro.',
     notifProCategories:'Για κατηγορίες, ώρες ησυχίας και ήχο → άνοιξε Pro.',
     stockHealthy:'Επαρκές', stockLow:'Λίγο', stockOutState:'Άδειο', productTypes:'Προϊόντα',
@@ -1702,7 +1780,7 @@ const T = {
     removeListReasonPh:'π.χ. το φέρνει παιδί, δωρεά…',
     listItemRemoved:'Το είδος αφαιρέθηκε από τη λίστα.',
     bookedToHouse:n=>`Αγοράστηκαν και καταχωρήθηκαν στο ${n}`, backToCart:'Πίσω στο καλάθι', externalHome:'Άλλο σπίτι', customProducts:'Άλλα προϊόντα',
-    chooseShoppingHouse:'1. Επίλεξε σπίτι', shoppingHouseHint:'Και Julian groß, Valeria, Lea — μόνο για ψώνια/απόθεμα, όχι στο πρόγραμμα.',
+    chooseShoppingHouse:'1. Επίλεξε σπίτι', shoppingHouseHint:'Και Julian groß, Valeria+Lea — μόνο για ψώνια/απόθεμα, όχι στο πρόγραμμα.',
     fullBlock:'Όλο το μπλοκ', fromTime:'από', timeFrom:'Από', timeTo:'Έως',
     importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία', fromScreenshot:'Στιγμιότυπο',
     listJourneyTitle:'Ψώνια Παρασκευής', listJourneyHint:'Μία πλήρης λίστα ανά σπίτι και πραγματική ημερομηνία Παρασκευής.',
@@ -1838,7 +1916,7 @@ const T = {
     kidBack:'Πίσω',
     storageOffline:'Δεν αποθηκεύτηκε μόνιμα — η βάση είναι εκτός. Ενημέρωσε τον διαχειριστή.',
     kidNavRate:'Αξιολόγηση', kidRateTitle:'Αξιολογήσεις', kidRateKicker:'Πώς πήγε η εβδομάδα;',
-    kidRateLead:'Βαθμοί από 1 έως 6 — όπως στο σχολείο. Το βλέπεις μόνο εσύ και η φροντίστριά σου.',
+    kidRateLead:'Βαθμοί από 1 έως 6 — όπως στο σχολείο. Η ομάδα βαθμολογεί· εσύ μόνο κοιτάς.',
     kidRateSchool:'Σχολείο', kidRateHome:'Σπίτι', kidRateFriends:'Φίλοι', kidRateMood:'Πώς νιώθω',
     kidRateVerhalten:'Συμπεριφορά', kidRateMitarbeit:'Συμμετοχή στο μάθημα', kidRateActivities:'Συμμετοχή σε δραστηριότητες',
     kidRateGroupLife:'Καθημερινότητα & ευεξία', kidRateGroupSchool:'Σχολείο & στάση',
@@ -2182,6 +2260,12 @@ const T = {
     openEvents:'Άνοιγμα events', kidsNotified:n=>`${n} παιδιά λαμβάνουν την ανακοίνωση στην εφαρμογή.`,
     eventCollection:n=>`${n} ${n===1?'event':'events'} προγραμματισμένα`,
     adminCenter:'Κέντρο διαχείρισης', adminOverview:'Ομάδα, εργασίες και αλλαγές με μία ματιά',
+    adminOpsTab:'Ops', adminOpsTitle:'Ops-Cockpit', adminOpsLead:'Κινήσεις, χαρτζιλίκι, αποθήκες, πρόγραμμα — και ερωτήσεις Lego.',
+    adminOpsTimeline:'Χρονολόγιο', adminOpsPocket:'Χαρτζιλίκι', adminOpsStorages:'Αποθήκες', adminOpsSchedule:'Πρόγραμμα',
+    adminOpsCharts:'Επισκόπηση', adminOpsLego:'Ερωτήσεις Lego', adminOpsAskZoai:'Ρώτα τη Zo-Ai',
+    adminOpsRun:'Φίλτρο', adminOpsClear:'Καθαρισμός', adminOpsBlockDay:'Ημέρα', adminOpsBlockKid:'Παιδί',
+    adminOpsBlockHouse:'Σπίτι', adminOpsBlockType:'Είδος', adminOpsEmpty:'Κανένα αποτέλεσμα για αυτά τα blocks.',
+    adminOpsOpen:'Άνοιγμα Ops-Cockpit',
     adminWarnings:'Μόνο οι admins βλέπουν λειτουργικές προειδοποιήσεις', adminAllClear:'Δεν υπάρχουν προειδοποιήσεις προγράμματος',
     adminEditPlan:'Επεξεργασία εβδομάδας', adminEditShifts:'Επεξεργασία βαρδιών', adminManageEvents:'Διαχείριση events',
     adminOpenAudit:'Κινήσεις', adminEmailEveryone:'Email σε όλους',
@@ -2265,8 +2349,7 @@ const SEED = {
     {id:'h2', name:'Limenaria',       short:'Limenaria'},
     /* Μόνο για ψώνια/απόθεμα — δεν εμφανίζονται στο πρόγραμμα. */
     {id:'h3', name:'Julian groß',     short:'Julian groß', planning:false},
-    {id:'h4', name:'Valeria',         short:'Valeria', planning:false},
-    {id:'h5', name:'Lea',             short:'Lea', planning:false},
+    {id:'h4', name:'Valeria + Lea',   short:'Valeria+Lea', planning:false},
   ],
   /* admin: πλήρης έλεγχος — μόνο αυτοί αλλάζουν το μόνιμο εβδομαδιαίο πρότυπο.
      Zoi (υπεύθυνη) και οι γιοι της Angelos & Dimitris. */
@@ -2289,7 +2372,7 @@ const SEED = {
     {id:'k3',  name:'Vincent',      color:'#fde68a'},
     {id:'k4',  name:'Julian klein', color:'#fbcfe8'},
     {id:'k5',  name:'Julian groß',  color:'#c7d2fe', homeHouseId:'h3'},
-    {id:'k6',  name:'Lea',          color:'#fed7aa', homeHouseId:'h5'},
+    {id:'k6',  name:'Lea',          color:'#fed7aa', homeHouseId:'h4'},
     {id:'k7',  name:'Valeria',      color:'#d9f99d', homeHouseId:'h4'},
     {id:'k8',  name:'Jule',         color:'#f5d0fe'},
     {id:'k9',  name:'Samantha',     color:'#99f6e4'},
@@ -2461,6 +2544,10 @@ const SEED = {
   customProducts: [],
   customCategories: [],
   profilePrefs: {},
+  houseRules: [],
+  kidBadgePrefs: {},
+  staffKidDayRatings: [],
+  kidZoAiLogs: [],
 
   /* Το εβδομαδιαίο πρότυπο, μεταγραμμένο από τη φωτογραφία (20.7.–26.7.2026).
      day: 0=Δευ … 6=Κυρ · employeeId null = «wer?» */
@@ -2597,7 +2684,9 @@ const KEY = 'paidia.v5';
 const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'listRequests', 'pocketMoneyTxns', 'pocketMoneySettings', 'feedbackReports', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
-                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable', 'schoolMaterials', 'schoolMaterialMedia', 'schoolActivity'];
+                 'children', 'groups',
+                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable', 'schoolMaterials', 'schoolMaterialMedia', 'schoolActivity',
+                 'houseRules', 'kidBadgePrefs', 'staffKidDayRatings', 'kidZoAiLogs'];
 
 let DB = load();
 function load(){
@@ -2621,20 +2710,23 @@ function normalizeDbShape(db = DB){
     'feedbackReports','customProducts','customCategories','customActivities','customReasons',
     'customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings',
     'staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework',
-    'schoolTimetable','chores','choreSubmissions','xpLog',
+    'schoolTimetable','chores','choreSubmissions','xpLog','children','groups',
+    'houseRules','staffKidDayRatings','kidZoAiLogs',
   ].forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object' || Array.isArray(db.stock)) db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object' || Array.isArray(db.productOverrides)) db.productOverrides = {};
   if(!db.profilePrefs || typeof db.profilePrefs !== 'object' || Array.isArray(db.profilePrefs)) db.profilePrefs = {};
+  if(!db.kidBadgePrefs || typeof db.kidBadgePrefs !== 'object' || Array.isArray(db.kidBadgePrefs)) db.kidBadgePrefs = {};
   if(!db.pocketMoneySettings || typeof db.pocketMoneySettings !== 'object' || Array.isArray(db.pocketMoneySettings)) db.pocketMoneySettings = {};
   if(!db.weeks || typeof db.weeks !== 'object' || Array.isArray(db.weeks)) db.weeks = {};
   if(!db.shiftNotes || typeof db.shiftNotes !== 'object' || Array.isArray(db.shiftNotes)) db.shiftNotes = {};
   if(!db.gameStats || typeof db.gameStats !== 'object' || Array.isArray(db.gameStats)) db.gameStats = {};
-  // Reference tables always come from SEED (not cloud-mutable).
+  // Reference tables always come from SEED (not cloud-mutable) — except children/groups once managed.
   if(typeof SEED === 'object' && SEED){
     db.houses = Array.isArray(SEED.houses) ? SEED.houses.map(h => ({...h})) : [];
     if(!Array.isArray(db.employees) || !db.employees.length) db.employees = structuredClone(SEED.employees||[]);
-    if(!Array.isArray(db.children) || !db.children.length) db.children = structuredClone(SEED.children||[]);
+    if(!Array.isArray(db.children)) db.children = structuredClone(SEED.children||[]);
+    if(!Array.isArray(db.groups)) db.groups = structuredClone(SEED.groups||[]);
     if(!Array.isArray(db.activities) || !db.activities.length) db.activities = structuredClone(SEED.activities||[]);
     if(!Array.isArray(db.products) || !db.products.length) db.products = structuredClone(SEED.products||[]);
     if(!Array.isArray(db.categories) || !db.categories.length) db.categories = structuredClone(SEED.categories||[]);
@@ -2650,7 +2742,141 @@ function normalizeDbShape(db = DB){
       {id:'sub-sport', de:'Sport', el:'Αθλητισμός', active:true},
     ];
   }
+  migrateValeriaLeaHouse(db);
+  ensureHouseRulesSeed(db);
   return db;
+}
+
+/** Merge legacy Lea house h5 into Valeria+Lea (h4) for stock/list/logs. */
+function migrateValeriaLeaHouse(db){
+  if(!db || typeof db !== 'object') return;
+  const stock = db.stock && typeof db.stock === 'object' ? db.stock : null;
+  if(stock){
+    Object.keys(stock).forEach(key=>{
+      if(!key.startsWith('h5:')) return;
+      const rest = key.slice(3);
+      const dest = 'h4:'+rest;
+      const a = Number(stock[dest])||0;
+      const b = Number(stock[key])||0;
+      stock[dest] = a + b;
+      delete stock[key];
+    });
+  }
+  const remapHouse = (obj)=>{
+    if(!obj || typeof obj !== 'object') return;
+    if(obj.houseId==='h5') obj.houseId = 'h4';
+    if(Array.isArray(obj.houseIds)){
+      obj.houseIds = [...new Set(obj.houseIds.map(id=>id==='h5'?'h4':id))];
+    }
+  };
+  ['listEntries','shoppingTrips','listRequests','stockChecks','log'].forEach(k=>{
+    (db[k]||[]).forEach(remapHouse);
+  });
+  (db.children||[]).forEach(c=>{
+    if(c && (c.homeHouseId==='h5' || c.id==='k6' || c.id==='k7')) c.homeHouseId = 'h4';
+  });
+}
+
+const HOUSE_RULE_CATS = ['daily','safety','school','pocket','digital','house','other'];
+function rulesCatLabel(cat){
+  const key = 'rulesCat' + String(cat||'').charAt(0).toUpperCase() + String(cat||'').slice(1);
+  return t(key) || cat;
+}
+function houseRuleLabel(rule){
+  if(!rule) return '—';
+  const loc = state.lang==='el' ? rule.el : rule.de;
+  return (loc && loc.title) ? loc.title : (rule.id || '—');
+}
+function houseRuleBody(rule){
+  if(!rule) return '';
+  const loc = state.lang==='el' ? rule.el : rule.de;
+  return (loc && loc.body) ? loc.body : '';
+}
+function activeHouseRules(){
+  return (DB.houseRules||[]).filter(r=>r && r.active !== false)
+    .sort((a,b)=>(Number(b.pinned)-Number(a.pinned)) || (b.updatedAt||0)-(a.updatedAt||0));
+}
+function saveHouseRule(rule, {archive=false}={}){
+  if(!rule || !rule.id) return false;
+  DB.houseRules = DB.houseRules || [];
+  const hit = DB.houseRules.find(r=>r.id===rule.id);
+  const row = {
+    ...rule,
+    active: archive ? false : rule.active !== false,
+    updatedAt: Date.now(),
+    updatedBy: state.user?.id || rule.updatedBy || null,
+  };
+  if(hit) Object.assign(hit, row);
+  else DB.houseRules.push(row);
+  logEntry('RULES', `${archive?t('rulesArchive'):t('rulesEdit')}: ${houseRuleLabel(row)}`);
+  save();
+  return true;
+}
+function profileAgeYears(person){
+  const pref = profilePref(person?.id);
+  const bd = pref.birthDate || person?.birthDate;
+  if(!bd || !/^\d{4}-\d{2}-\d{2}$/.test(bd)) return null;
+  const b = new Date(bd + 'T12:00:00');
+  const now = new Date();
+  let age = now.getFullYear() - b.getFullYear();
+  const m = now.getMonth() - b.getMonth();
+  if(m < 0 || (m === 0 && now.getDate() < b.getDate())) age--;
+  return age >= 0 ? age : null;
+}
+function appendKidZoAiLog(kidId, userText, assistantText){
+  if(!kidId) return;
+  DB.kidZoAiLogs = DB.kidZoAiLogs || [];
+  DB.kidZoAiLogs.push({
+    id: uid(), kidId, ts: Date.now(),
+    userText: String(userText||'').slice(0, 800),
+    assistantText: String(assistantText||'').slice(0, 1200),
+    lang: state.lang,
+  });
+  const mine = DB.kidZoAiLogs.filter(r=>r.kidId===kidId).sort((a,b)=>b.ts-a.ts).slice(0,40);
+  const rest = DB.kidZoAiLogs.filter(r=>r.kidId!==kidId);
+  DB.kidZoAiLogs = [...rest, ...mine];
+  save();
+}
+function staffKidDayRating(kidId, raterId, dateStr){
+  const hit = (DB.staffKidDayRatings||[]).find(r=>r.kidId===kidId && r.raterId===raterId && r.date===dateStr);
+  return hit ? ensureGradeScale(hit) : 0;
+}
+function setStaffKidDayRating(kidId, dateStr, value){
+  const raterId = state.user?.id;
+  if(!kidId || !raterId || !dateStr) return false;
+  const score = clampGrade(value);
+  if(!score) return false;
+  DB.staffKidDayRatings = DB.staffKidDayRatings || [];
+  const hit = DB.staffKidDayRatings.find(r=>r.kidId===kidId && r.raterId===raterId && r.date===dateStr);
+  if(hit){ hit.value = score; hit.scale = 'de6'; hit.ts = Date.now(); }
+  else DB.staffKidDayRatings.push({id:uid(), kidId, raterId, date:dateStr, value:score, scale:'de6', ts:Date.now()});
+  save();
+  return true;
+}
+function kidBadgePrefsFor(kidId){
+  const p = DB.kidBadgePrefs && DB.kidBadgePrefs[kidId];
+  return (p && typeof p === 'object') ? p : {};
+}
+function handoffFlowSeen(){
+  try{ return localStorage.getItem('paidia.handoffFlowSeen')==='1'; }catch{ return false; }
+}
+function dismissHandoffFlow(){
+  try{ localStorage.setItem('paidia.handoffFlowSeen','1'); }catch{}
+}
+function ensureHouseRulesSeed(db){
+  if(!db) return;
+  if(!Array.isArray(db.houseRules)) db.houseRules = [];
+  if(db.houseRules.length) return;
+  db.houseRules.push({
+    id:'r-tenmin',
+    category:'daily',
+    pinned:true,
+    active:true,
+    de:{title:'10-Minuten-Regel', body:'Mindestens 10 Minuten vor Dienstbeginn vor Ort. Bleibt die Übergabe unvollständig, bleibt die vorherige Schicht im Dienst.'},
+    el:{title:'Κανόνας 10 λεπτών', body:'Τουλάχιστον 10 λεπτά πριν την έναρξη βάρδιας επιτόπου. Αν η παράδοση είναι ελλιπής, η προηγούμενη βάρδια παραμένει σε υπηρεσία.'},
+    updatedAt:Date.now(),
+    updatedBy:null,
+  });
 }
 
 /** Shared across all staff devices — full operational state (survives when Postgres is configured). */
@@ -2658,10 +2884,13 @@ const SHARED_KEYS = [
   'listEntries','shoppingTrips','listRequests','pocketMoneyTxns','pocketMoneySettings','feedbackReports','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
   'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
+  'children','groups',
+  'chores','choreSubmissions',
   'xpLog','gameStats',
-  'kidRatings','staffKidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity',
+  'kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity',
+  'houseRules','kidBadgePrefs','staffKidDayRatings','kidZoAiLogs',
 ];
-const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes','pocketMoneySettings']);
+const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes','pocketMoneySettings','kidBadgePrefs']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
 let sharedPushTimer = null;
 let sharedPollTimer = null;
@@ -2688,7 +2917,7 @@ function saveLocal(){
 
 /* Kid-owned ops keys. While a child push is pending, pullShared must not wipe
    local rows for this kid — that race made notes "save" then vanish. */
-const KID_OWNED_SYNC_KEYS = ['kidRatings', 'kidNotes', 'listRequests'];
+const KID_OWNED_SYNC_KEYS = ['kidNotes', 'listRequests'];
 let kidPushPending = false;
 let kidPushEpoch = 0;
 
@@ -2725,6 +2954,10 @@ function restoreKidOwnedLocal(kidId, snap){
   });
 }
 
+function sharedValueFingerprint(value){
+  try{ return JSON.stringify(value); }catch{ return String(value); }
+}
+
 function applySharedPayload(data){
   if(!data || typeof data !== 'object') return false;
   if(typeof data.revision === 'number' && data.revision < sharedRevision) return false;
@@ -2735,15 +2968,25 @@ function applySharedPayload(data){
   let changed = false;
   SHARED_KEYS.forEach(k=>{
     if(data[k] === undefined) return;
-    DB[k] = SHARED_DICT_KEYS.has(k)
+    // Don't wipe seeded children/groups with an empty cloud bucket after upgrade.
+    if((k==='children' || k==='groups') && Array.isArray(data[k]) && !data[k].length && Array.isArray(DB[k]) && DB[k].length){
+      return;
+    }
+    const next = SHARED_DICT_KEYS.has(k)
       ? (data[k] && typeof data[k] === 'object' ? data[k] : {})
       : (Array.isArray(data[k]) ? data[k] : []);
+    if(sharedValueFingerprint(DB[k]) === sharedValueFingerprint(next)) return;
+    DB[k] = next;
     changed = true;
   });
   if(state.mode==='child'){
-    DB.staffKidRatings=[];
-    DB.staffKidRatingSummaries=Array.isArray(data.staffKidRatingSummaries)?data.staffKidRatingSummaries:[];
-    changed=true;
+    const nextSummaries=Array.isArray(data.staffKidRatingSummaries)?data.staffKidRatingSummaries:[];
+    if(sharedValueFingerprint(DB.staffKidRatingSummaries) !== sharedValueFingerprint(nextSummaries)
+      || (Array.isArray(DB.staffKidRatings) && DB.staffKidRatings.length)){
+      DB.staffKidRatings=[];
+      DB.staffKidRatingSummaries=nextSummaries;
+      changed=true;
+    }
   }
   if(hold && kidId) restoreKidOwnedLocal(kidId, hold);
   if(changed) normalizeDbShape(DB);
@@ -2948,6 +3191,72 @@ function save(){
   return ok;
 }
 
+/** Soft ops alert email (list/storage). Never blocks the UI save path. */
+function queueOpsAlert(kind, details={}){
+  if(state.mode!=='staff' || !state.user) return;
+  const summary = details.summary
+    || (kind==='shop' ? `Einkauf · ${houseShort(details.houseId)||''}` : '')
+    || (kind==='stockcheck' ? `Lagercheck · ${houseShort(details.houseId)||'Kalyvia'}` : '')
+    || (kind==='stock' ? `Lager ± · ${details.name||''}` : '')
+    || (kind==='list' ? `Liste · ${details.name||''}` : '')
+    || String(kind);
+  const payload={
+    kind:String(kind||'ops').slice(0,40),
+    summary:String(summary).slice(0,240),
+    details:{
+      ...details,
+      by: details.by || state.user?.name || state.user?.id || '',
+      at: new Date().toISOString(),
+      lang: state.lang,
+    },
+  };
+  fetch('/api/notify/ops-alert',{
+    method:'POST', credentials:'same-origin',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload),
+  }).catch(()=>{});
+}
+
+function looksMostlyGreek(text){
+  const s=String(text||'');
+  let g=0,l=0;
+  for(const ch of s){
+    const c=ch.codePointAt(0);
+    if((c>=0x0370&&c<=0x03ff)||(c>=0x1f00&&c<=0x1fff)) g++;
+    else if((c>=65&&c<=90)||(c>=97&&c<=122)||'äöüÄÖÜß'.includes(ch)) l++;
+  }
+  return g>=Math.max(2,l);
+}
+
+async function translateListNameDeToEl(text){
+  const raw=String(text||'').trim();
+  if(!raw || looksMostlyGreek(raw)) return raw;
+  try{
+    const res=await fetch('/api/translate',{
+      method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text:raw, from:'de', to:'el', context:'shopping'}),
+    });
+    if(!res.ok) return raw;
+    const data=await res.json();
+    return String(data.text||raw).trim() || raw;
+  }catch{
+    return raw;
+  }
+}
+
+async function enrichListEntryTranslation(entryId){
+  const e=(DB.listEntries||[]).find(x=>x.id===entryId);
+  if(!e || e.nameEl) return;
+  const el=await translateListNameDeToEl(e.nameDe||e.name);
+  if(!el || el===e.name) return;
+  e.nameEl=el;
+  if(state.lang==='el') e.name=el;
+  e.nameDe=e.nameDe||e.name;
+  save();
+  if(state.tab==='shop') render();
+}
+
 function startSharedSync(){
   stopSharedSync();
   if(!(state.user||state.child)) return;
@@ -2974,7 +3283,7 @@ function startSharedSync(){
       await refreshGallery({silent:true});
       if(state.galleryUpdatedAt !== before && !sheetEl.classList.contains('on')) render();
     }
-  }, 2500);
+  }, 8000);
 }
 
 function stopSharedSync(){
@@ -3011,6 +3320,22 @@ const profileLabel = person => {
   const emoji = profileEmoji(person);
   const name = profileName(person);
   return emoji ? `${emoji} ${name}` : name;
+};
+const profilePhoto = person => {
+  const raw = profilePref(person?.id).photo || '';
+  if(!raw || typeof raw !== 'string') return '';
+  if(!raw.startsWith('data:image/')) return '';
+  return raw.slice(0, 80_000);
+};
+const profileAvatarHtml = (person, {size=36, className='top-avatar'}={})=>{
+  if(!person) return `<span class="${esc(className)} is-empty" aria-hidden="true">?</span>`;
+  const photo = profilePhoto(person);
+  const style = `background:${esc(profileColor(person))}`;
+  if(photo){
+    return `<span class="${esc(className)} has-photo" style="${style}"><img src="${esc(photo)}" alt=""></span>`;
+  }
+  const mark = profileEmoji(person) || initials(profileName(person) || person.name || '?');
+  return `<span class="${esc(className)}" style="${style}" aria-hidden="true">${esc(mark)}</span>`;
 };
 /** Προκαθορισμένες + όσες πρόσθεσε το προσωπικό μέσα από την εφαρμογή. */
 const ACTS = () => [...(DB.activities||[]), ...(DB.customActivities||[])];
@@ -3371,7 +3696,7 @@ const state = {
   shopPanel: 'plan',
   shopRequestFilter: 'open',
   shopRequestWho: 'all',
-  shopRespAck: false,
+  stockCheckRespAck: false,
   calendarMonth: null,
   stockFilter: 'attention',
   stockQuery: '',
@@ -3405,6 +3730,9 @@ const state = {
   bookDate: iso(new Date()),
   bookCalMonth: iso(new Date()).slice(0, 7) + '-01',
   bookHouse: '',
+  bookShowSecondary: false,
+  bookShowMoreSecs: false,
+  rulesEditId: null,
   chatOpen: false,
   chatMode: 'ai', // ai | talk | help
   helpMessages: [],          // active user's transcript (session-only)
@@ -3915,6 +4243,8 @@ function setLang(l){
     // Keep the user on the login shell; refresh copy via entrance.
     if(state.user||state.child) render(); else renderEntrance();
   }
+  try{ window.PaidiaPageTips && window.PaidiaPageTips.refreshLang && window.PaidiaPageTips.refreshLang(); }catch{}
+  try{ window.PaidiaZoAiTips && window.PaidiaZoAiTips.refreshLang && window.PaidiaZoAiTips.refreshLang(); }catch{}
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -4057,34 +4387,34 @@ function buildTourSteps(){
     const steps = [
       mk('kid-start','kid-start',{childView:'today'},
         'Start — dein Tag','Start — η μέρα σου',
-        'Hier siehst du XP, nächste Aktivität und Schnellwege.','Εδώ βλέπεις XP, επόμενη δραστηριότητα και συντομεύσεις.'),
+        'Hier siehst du Punkte, was als Nächstes kommt und schnelle Wege.','Εδώ βλέπεις πόντους, τι ακολουθεί και γρήγορες διαδρομές.'),
       mk('kid-nav-games','kid-nav-games',{childView:'games'},
         'Spiele','Παιχνίδια',
-        'Tippe Spiele im Menü — oder Verstanden.','Πάτα Παιχνίδια στο μενού — ή Το κατάλαβα.'),
+        'Tippe Spiele im Menü unten — oder tippe Verstanden.','Πάτα Παιχνίδια στο κάτω μενού — ή πάτα Το κατάλαβα.'),
       mk('kid-games','kid-games',{childView:'games'},
         'Spiel wählen','Διάλεξε παιχνίδι',
-        'Wähle ein Spiel. „Alle Spiele“ bringt dich zurück.','Διάλεξε παιχνίδι. Το «Όλα τα παιχνίδια» σε επιστρέφει.'),
+        'Wähle ein Spiel zum Starten. „Alle Spiele“ bringt dich zurück.','Διάλεξε παιχνίδι για να ξεκινήσεις. Το «Όλα τα παιχνίδια» σε γυρίζει πίσω.'),
       mk('kid-nav-rate','kid-nav-rate',{childView:'rate'},
         'Bewertungen','Αξιολογήσεις',
-        'Wie lief die Woche? Tippe Bewertung.','Πώς πήγε η εβδομάδα; Πάτα Αξιολόγηση.'),
+        'Wie lief die Woche? Tippe Bewertung im Menü.','Πώς πήγε η εβδομάδα; Πάτα Αξιολόγηση στο μενού.'),
       mk('kid-rate','kid-rate',{childView:'rate'},
         'Sterne setzen','Βάλε αστέρια',
-        'Tippe die Noten für Leben & Schule.','Πάτα τους βαθμούς για ζωή & σχολείο.'),
+        'Tippe die Sterne für Leben und Schule.','Πάτα τα αστέρια για ζωή και σχολείο.'),
       mk('kid-bonus','kid-bonus',{childView:'bonus'},
         'Bonus','Μπόνους',
-        'Bonus aus Streak und Aufgaben — hier nur ansehen.','Μπόνους από streak και εργασίες — εδώ μόνο βλέπεις.'),
+        'Hier siehst du den Bonus aus Serie und Aufgaben — nur anschauen.','Εδώ βλέπεις το μπόνους από σερί και εργασίες — μόνο για θέα.'),
       mk('kid-notes','kid-notes',{childView:'notes'},
         'Notizen','Σημειώσεις',
-        'Private Notizen auf diesem Gerät.','Ιδιωτικές σημειώσεις σε αυτή τη συσκευή.'),
+        'Private Notizen bleiben auf diesem Gerät.','Οι ιδιωτικές σημειώσεις μένουν σε αυτή τη συσκευή.'),
       mk('kid-zoai','nav-zoai',{childView:'today'},
         'Zo-Ai','Zo-Ai',
-        'Frag Zo-Ai zu Tag oder Spielen. Speichern machen Betreuer.','Ρώτα τη Zo-Ai για μέρα ή παιχνίδια. Αποθήκευση κάνουν φροντιστές.',
+        'Frag Zo-Ai zu deinem Tag oder zu Spielen. Speichern machen die Betreuerinnen und Betreuer.','Ρώτα τη Zo-Ai για τη μέρα σου ή για παιχνίδια. Την αποθήκευση κάνουν οι φροντιστές.',
         {activate:false}),
     ];
     if(!easy){
       steps.splice(7, 0, mk('kid-nav-more','kid-nav-more',{childView:'today'},
         'Mehr','Άλλα',
-        'Über Mehr: Plan, Lernen, Sterne (Pro).','Από Άλλα: Πρόγραμμα, Μάθηση, Αστέρια (Pro).',
+        'Unter Mehr findest du Plan, Lernen und Sterne (Pro).','Στο Άλλα βρίσκεις πρόγραμμα, μάθηση και αστέρια (Pro).',
         {proOnly:true, activate:false}));
     }
     return steps.filter(s=>easy ? !s.proOnly : true);
@@ -4093,37 +4423,37 @@ function buildTourSteps(){
   const steps = [
     mk('staff-home','home-main',{tab:'home'},
       'Home','Αρχική',
-      'Deine Aufgaben und Signale für heute.','Οι εργασίες και τα σήματα για σήμερα.'),
+      'Hier siehst du deine Aufgaben und wichtigen Hinweise für heute.','Εδώ βλέπεις τις εργασίες και τις σημαντικές ειδοποιήσεις για σήμερα.'),
     mk('staff-plan','plan-views',{tab:'schedule'},
       'Plan','Πρόγραμμα',
-      'Tag/Woche und Hausfilter.','Ημέρα/εβδομάδα και φίλτρο σπιτιού.'),
+      'Wechsle zwischen Tag und Woche. Mit dem Hausfilter siehst du nur ein Haus.','Άλλαξε μεταξύ ημέρας και εβδομάδας. Με το φίλτρο σπιτιού βλέπεις μόνο ένα σπίτι.'),
     mk('staff-stock','stock-command',{tab:'stock'},
       'Lager','Αποθήκη',
-      'Haus, Suche, ±, Hinzufügen und Foto lesen sind sichtbar. Mehrfachauswahl und Regale in Pro.','Σπίτι, αναζήτηση, ±, Προσθήκη και διάβασμα φωτό είναι ορατά. Μαζική επιλογή & ράφια στο Pro.'),
+      'Haus wählen, suchen, Mengen mit − und ＋ ändern. Mehrfachauswahl und Regale gibt es in Pro.','Διάλεξε σπίτι, ψάξε, άλλαξε ποσότητες με − και ＋. Μαζική επιλογή και ράφια υπάρχουν στο Pro.'),
     mk('staff-shop','shop-command',{tab:'shop'},
       'Liste','Λίστα',
-      'Freitag und Haus prüfen, dann Warenkorb.','Έλεγξε Παρασκευή και σπίτι, μετά καλάθι.'),
+      'Prüfe Freitag und Haus, dann lege Artikel in den Warenkorb.','Έλεγξε Παρασκευή και σπίτι, μετά βάλε προϊόντα στο καλάθι.'),
     mk('staff-talk','talk-chat',{tab:'talk'},
       'Talk','Talk',
-      'Team-Chat und Themen für die Besprechung.','Chat ομάδας και θέματα για τη σύσκεψη.'),
+      'Team-Chat für kurze Absprachen und Themen für die Besprechung.','Συνομιλία ομάδας για σύντομες συνεννοήσεις και θέματα σύσκεψης.'),
     mk('staff-zoai','nav-zoai',{tab:'home'},
       'Zo-Ai','Zo-Ai',
-      'Fragen oder Änderungen — immer mit Bestätigen (+ PIN für Plan).','Ερωτήσεις ή αλλαγές — πάντα με Επιβεβαίωση (+ PIN για πρόγραμμα).',
+      'Fragen oder Änderungen — immer mit Bestätigen. Für den Plan brauchst du zusätzlich die PIN.','Ερωτήσεις ή αλλαγές — πάντα με Επιβεβαίωση. Για το πρόγραμμα χρειάζεσαι και το PIN.',
       {activate:false}),
   ];
   if(!easy){
     steps.splice(5, 0,
       mk('staff-kids','kids-main',{tab:'kids'},
         'Kinder','Παιδιά',
-        'Schulübersicht, Noten und Profile.','Επισκόπηση σχολείου, βαθμοί και προφίλ.',
+        'Schulübersicht, Noten und Profile der Kinder.','Επισκόπηση σχολείου, βαθμοί και προφίλ παιδιών.',
         {proOnly:true}),
       mk('staff-gallery','gallery-main',{tab:'gallery'},
         'Momente','Στιγμές',
-        'Fotos teilen — sicher und freundlich.','Μοίρασε φωτό — με ασφάλεια.',
+        'Fotos vom Haus teilen — sicher und freundlich.','Μοίρασε φωτογραφίες του σπιτιού — με ασφάλεια και φιλικά.',
         {proOnly:true}),
       mk('staff-book','book-main',{tab:'book'},
         'Buch','Βιβλίο',
-        'Schichtbuch schreiben und Protokoll lesen.','Γράψε το βιβλίο βάρδιας και διάβασε πρωτόκολλο.',
+        'Schichtbuch schreiben und das Protokoll lesen.','Γράψε το βιβλίο βάρδιας και διάβασε το πρωτόκολλο.',
         {proOnly:true}),
     );
   }
@@ -4571,6 +4901,7 @@ function helpUiContext(){
       ? ['πρόσθεσε 2 γάλα στο Kalyvia','βάλε ρύζι στη λίστα','βάλε αύριο απόγευμα ποδόσφαιρο για τη Μαρία']
       : ['2 Milch nach Kalyvia','Reis auf die Liste','trag morgen Nachmittag Fußball für Maria ein'];
   }
+  if(role==='admin' && state._adminOpsSnapshot) base.opsSnapshot = state._adminOpsSnapshot;
   return base;
 }
 
@@ -5381,6 +5712,9 @@ function sheetHelp(){
       }
       state.helpMessages.push({role:'assistant', content:data.message || t('helpUnavailable')});
       state.helpMessages = state.helpMessages.slice(-12);
+      if(state.mode==='child' && state.child?.id){
+        appendKidZoAiLog(state.child.id, content, data.message || t('helpUnavailable'));
+      }
       persistHelpTranscript();
       paint();
       if(canMutate && Array.isArray(data.actions) && data.actions.length){
@@ -6778,7 +7112,7 @@ function consumePresenceDeepLink(){
   }catch{ return false; }
 }
 
-const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids','pocket'];
+const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids','pocket','rules','admin'];
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
 const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
 const SCHEDULE_VIEW_LAST_KEY = 'paidia.scheduleViewLast';
@@ -6940,6 +7274,7 @@ function hashForState(){
   if(state.tab === 'pocket'){
     return state.pocketKidId ? `#pocket/${state.pocketKidId}` : '#pocket';
   }
+  if(state.tab === 'rules') return '#rules';
   return '';
 }
 
@@ -9702,6 +10037,12 @@ function applyStockDelta(pid, delta, {reasonId=null, silent=false, undoable=true
       if(row) row.classList.remove('flash-in','flash-out');
     }, 700);
   }
+  try{
+    queueOpsAlert('stock', {
+      summary:`${dir} ${Math.abs(d)} ${p.unit} ${L(p)}`,
+      houseId:hid, name:L(p), delta:d, unit:p.unit, reason,
+    });
+  }catch{}
   return true;
 }
 
@@ -9721,6 +10062,7 @@ function undoLastStockStep(){
      items:[{pid:u.pid, qty:Math.abs(u.d)}]});
   if(!save()){ DB.stock[key]=cur; return; }
   feedback('toggle');
+  try{ queueOpsAlert('stock', {summary:`Undo ${u.name}`, houseId:u.hid, name:u.name, undo:true}); }catch{}
   render();
   toast(t('stockUndone'),'success');
 }
@@ -9840,8 +10182,9 @@ function paintShiftStockCheckSheet(draft){
     </header>
     <div class="shift-check-list" id="shiftCheckList">${rows}</div>
     <div class="shift-check-actions">
+      <button class="btn sec sm shop-resp-ack ${state.stockCheckRespAck?'on':''}" type="button" id="shiftCheckRespAck" aria-pressed="${state.stockCheckRespAck?'true':'false'}">${esc(t('shiftStockCheckRespAck'))}</button>
       <button class="btn sec" type="button" id="shiftCheckAllYes">${esc(t('shiftStockCheckAllYes'))}</button>
-      <button class="btn pine-settle" type="button" id="shiftCheckSave" ${done<total?'disabled':''}>${esc(t('shiftStockCheckSave'))}</button>
+      <button class="btn pine-settle" type="button" id="shiftCheckSave" ${done<total || !state.stockCheckRespAck?'disabled':''}>${esc(t('shiftStockCheckSave'))}</button>
     </div>
   </div>`;
 }
@@ -9873,7 +10216,12 @@ function wireShiftStockCheckSheet(draft){
       if(fill) fill.style.width=`${pct}%`;
     }
     const save=sheetEl.querySelector('#shiftCheckSave');
-    if(save) save.disabled=done<total;
+    if(save) save.disabled=done<total || !state.stockCheckRespAck;
+    const ack=sheetEl.querySelector('#shiftCheckRespAck');
+    if(ack){
+      ack.classList.toggle('on', !!state.stockCheckRespAck);
+      ack.setAttribute('aria-pressed', state.stockCheckRespAck?'true':'false');
+    }
   };
   const paintCard=(pid)=>{
     const card=sheetEl.querySelector(`.shift-check-card[data-check-pid="${pid}"]`);
@@ -9913,10 +10261,19 @@ function wireShiftStockCheckSheet(draft){
     syncChrome();
     feedback('save');
   });
+  sheetEl.querySelector('#shiftCheckRespAck')?.addEventListener('click',()=>{
+    state.stockCheckRespAck = !state.stockCheckRespAck;
+    syncChrome();
+    feedback('toggle');
+  });
   sheetEl.querySelector('#shiftCheckSave')?.addEventListener('click',()=>{
     const list=products();
     if(list.some(p=>!draft.marks[p.id])){
       toast(t('shiftStockCheckNeedAll'),'error');
+      return;
+    }
+    if(!state.stockCheckRespAck){
+      toast(t('shiftStockCheckRespNeed'),'error');
       return;
     }
     askPin(t('shiftStockCheck'), who=>{
@@ -9949,6 +10306,9 @@ function wireShiftStockCheckSheet(draft){
         byName:who.name,
         at:now,
         allYes:fixes.length===0 && items.every(i=>i.mark==='ok'),
+        responsibilityAck:true,
+        responsibilityAckBy:who.id,
+        responsibilityAckAt:now,
         items,
       });
       if(DB.stockChecks.length>400) DB.stockChecks=DB.stockChecks.slice(-400);
@@ -9956,11 +10316,13 @@ function wireShiftStockCheckSheet(draft){
         T[state.lang].shiftStockCheckSaved(items.length, who.name)
           +(fixes.length?` · ${fixes.map(f=>`${f.name} ${f.delta>0?'+':''}${f.delta}`).join(', ')}`:''),
         {houseId:SHIFT_STOCK_HOUSE, date:today, count:items.length, fixes:fixes.length});
+      state.stockCheckRespAck=false;
       if(!save()) return;
       closeSheet();
       render();
       feedback('save');
       toast(t('shiftStockCheckDone'),'success');
+      try{ queueOpsAlert('stockcheck', {houseId:SHIFT_STOCK_HOUSE, by:who.name, count:items.length, fixes:fixes.length}); }catch{}
     });
   });
 }
@@ -11537,17 +11899,20 @@ function childPocketView(kidId){
         </li>`;
       }).join('')
     : `<li class="pocket-txn pocket-txn-empty muted">${esc(t('pocketMoneyEmpty'))}</li>`;
-  return `<div class="pocket-stage kid-pocket-stage" data-tour="kid-pocket">
+  return `<div class="pocket-stage kid-pocket-stage kid-page" data-tour="kid-pocket">
+    <header class="kid-hero kid-hero-compact">
+      <p class="eyebrow">Armonia</p>
+      <h2>${esc(t('pocketMoneyTitle'))}</h2>
+      <p class="kid-hello">${esc(t('pocketMoneyKidViewHint'))}</p>
+    </header>
     <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
-    <section class="pocket-panel pocket-child pocket-balance-card">
+    <section class="pocket-panel pocket-child pocket-balance-card kid-surface">
       <header class="pocket-panel-head">
         <div class="pocket-panel-titles">
           <span class="pocket-kicker">${esc(t('pocketMoneyBalance'))}</span>
-          <h2 class="pocket-panel-title">${esc(t('pocketMoneyTitle'))}</h2>
         </div>
         <div class="pocket-balance-big">${esc(formatEuro(pocketBalance(kidId)))}</div>
       </header>
-      <p class="muted">${esc(t('pocketMoneyKidViewHint'))}</p>
       <div class="pocket-allow-row-inline">
         ${allow>0?`<span>${esc(t('pocketMoneyAllowance'))}: <b>${esc(formatEuro(allow))}</b></span>`:''}
         ${monthly>0?`<span>${esc(t('pocketMoneyMonthly'))}: <b>${esc(formatEuro(monthly))}</b></span>`:''}
@@ -12152,7 +12517,6 @@ function viewShop(){
         </div></details>
       </div>
       ${state.shopPanel==='plan'?`<div class="shop-easy-strip" role="group" aria-label="${esc(t('shopPlan'))}">
-          <button class="btn sec sm shop-resp-ack ${state.shopRespAck?'on':''}" type="button" id="shopRespAckStart" aria-pressed="${state.shopRespAck?'true':'false'}">${esc(t('shopRespAck'))}</button>
           <button class="btn sec sm" type="button" id="shopAutoFill">${ui('u-sparkle','sm')} ${esc(isEasy()?t('shopEasyFill'):t('shopAutoFill'))}</button>
           ${open.length?`<button class="btn sm" type="button" id="startFridayTop">${esc(T[state.lang].cartReady(open.length))}</button>`:
             `<button class="btn sm sec" type="button" id="shopEasyFoto" data-page-act="shopScan">${ui('u-camera','sm')} ${esc(t('shopEasyFoto'))}</button>`}
@@ -12262,37 +12626,48 @@ function viewShop(){
   const done = pending.filter(e => e.decision).length;
   const remaining=pending.length-done,progress=pending.length?Math.round(done/pending.length*100):0;
   const shopQuery=norm(state.shopQuery||'');
-  const showDone=!!state.storeShowDone;
-  const pendingVisible=pending.filter(e=>{
-    if(!showDone && e.decision) return false;
+  const showDone=true; /* decided rows always stay visible at bottom */
+  const pendingActive=pending.filter(e=>!e.decision);
+  const pendingDone=pending.filter(e=>!!e.decision);
+  const pendingSorted=[...pendingActive, ...pendingDone];
+  const pendingVisible=pendingSorted.filter(e=>{
     if(!shopQuery) return true;
     return norm(`${e.name} ${e.note||''}`).includes(shopQuery);
   });
   const byCat = {};
+  const byCatDone = {};
   pendingVisible.forEach(e => {
     const c = e.productId ? (prod(e.productId)?.cat || 'other') : 'other';
-    (byCat[c] ||= []).push(e);
+    if(e.decision) (byCatDone[c] ||= []).push(e);
+    else (byCat[c] ||= []).push(e);
   });
 
   const storeRow = e => {
     const st = e.decision;
     const sel = storeSelecting && isSelected(e.id);
     const product=e.productId?prod(e.productId):matchProduct(e.name);
+    const checked = st==='bought';
     return `<article class="store-choice ${st||''} ${sel?'selected':''}" data-entry-row="${e.id}">
       ${storeSelecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${e.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
-      <button class="store-choice-main" type="button" data-decision="${st==='bought'?'undo':'bought'}" data-entry="${e.id}" aria-label="${st==='bought'?t('undoDecision'):t('markBought')}">
+      <button class="store-choice-main store-check-row" type="button" data-decision="${checked?'undo':'bought'}" data-entry="${e.id}" aria-pressed="${checked?'true':'false'}" aria-label="${checked?t('undoDecision'):t('markBought')}">
+        <span class="store-check-box ${checked?'on':''}" aria-hidden="true">${checked?'✓':''}</span>
         <span class="store-product-icon">${svgIcon(prodIconId(product),'prod-ico')}</span>
         <span class="store-choice-copy"><span class="store-choice-name">${esc(e.name)}</span>
         <span class="store-choice-qty"><b>${e.qty} ${esc(e.unit)}</b>${e.note?' · '+esc(e.note):''}</span>
         ${listEntryStockChipHtml(hid, e)}</span>
       </button>
-      <div class="store-choice-actions" role="group" aria-label="${esc(e.name)}">
-        <button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}" type="button" aria-pressed="${st==='bought'?'true':'false'}"><span>✓</span>${esc(t('markBought'))}</button>
+      <div class="store-choice-actions pro-only mode-pro-block" role="group" aria-label="${esc(e.name)}">
         <button class="store-decision mid ${st==='unavailable'?'on':''}" data-decision="unavailable" data-entry="${e.id}" type="button" aria-pressed="${st==='unavailable'?'true':'false'}"><span>∅</span>${esc(t('markUnavailable'))}</button>
         <button class="store-decision expensive ${st==='expensive'?'on':''}" data-decision="expensive" data-entry="${e.id}" type="button" aria-pressed="${st==='expensive'?'true':'false'}"><span>€</span>${esc(t('markExpensive'))}</button>
       </div>
     </article>`;
   };
+
+  const storeCatBlocks = (map, doneSection=false) => catOrder.filter(c=>map[c]).map(c=>{
+    const cat = CATS().find(x=>x.id===c);
+    const rows=map[c];
+    return `<div class="store-category ${doneSection?'store-category-done':''}"><div class="store-cat-h">${cat?esc(L(cat)):t('other')}<span>${rows.length}</span></div>${rows.map(storeRow).join('')}</div>`;
+  }).join('');
 
   const pendingCard = pending.length ? `
     <section class="store-page" aria-label="${esc(t('storeMode'))}">
@@ -12307,7 +12682,6 @@ function viewShop(){
           <div class="store-progress-copy"><b>${done}/${pending.length}</b><span>${progress}%</span></div>
           <details class="store-options"><summary aria-label="${esc(t('shopMoreActions'))}">•••</summary><div class="store-options-popover">
             <button class="store-done-toggle ${storeSelecting?'on':''}" id="storeSelectToggle" type="button">${storeSelecting?t('selectDone'):t('selectMode')}</button>
-            <button class="store-done-toggle ${showDone?'on':''}" id="storeShowDone" type="button">${showDone?t('storeHideDone'):t('storeShowDone')}</button>
           </div></details>
         </div>
         <div class="store-progress"><i style="width:${progress}%"></i></div>
@@ -12315,18 +12689,14 @@ function viewShop(){
         <div class="store-guidance"><span>${T[state.lang].storeLeft(remaining)}</span><span>${esc(t('storeTapHint'))}</span></div>
       </header>
       <div class="store-scroll">
-        ${catOrder.filter(c=>byCat[c]).map(c=>{
-          const cat = CATS().find(x=>x.id===c);
-          const rows=byCat[c];
-          return `<div class="store-category"><div class="store-cat-h">${cat?esc(L(cat)):t('other')}<span>${rows.length}</span></div>${rows.map(storeRow).join('')}</div>`;
-        }).join('')}
+        ${storeCatBlocks(byCat, false)}
+        ${pendingDone.length?`<div class="store-done-sep"><b>${esc(t('secBought'))}</b><span>${pendingDone.length}</span></div>${storeCatBlocks(byCatDone, true)}`:''}
         ${!pendingVisible.length?`<div class="shop-empty compact">
           <div class="big">${ui('u-search')}</div>
           <h3>${t('storeNoMatch')}</h3>
           <p>${t('storeNoMatchHint')}</p>
           <div class="shop-start-actions">
             <button class="btn sm" type="button" id="storeClearSearch">${t('storeClearSearch')}</button>
-            ${!showDone?`<button class="btn sm sec" type="button" id="storeShowDoneEmpty">${t('storeShowDone')}</button>`:''}
           </div>
         </div>`:''}
       </div>
@@ -12337,10 +12707,9 @@ function viewShop(){
       ]):''}
       <div class="store-finish bottom-dock">
         <div class="store-finish-copy"><b>${done}/${pending.length} · ${esc(t('shoppingProgress'))}</b><span>${remaining?T[state.lang].storeProgressHint(done,pending.length):esc(t('storeComplete'))}</span></div>
-        <button class="btn sec sm shop-resp-ack ${state.shopRespAck?'on':''}" type="button" id="shopRespAck" aria-pressed="${state.shopRespAck?'true':'false'}">${esc(t('shopRespAck'))}</button>
         <div class="row">
           <button class="btn sec sm" id="btnReceipt" type="button">${ui('u-receipt','sm')} ${t('scanReceipt')}</button>
-          <button class="btn" id="confirmBatch" type="button" ${remaining || !state.shopRespAck?'disabled':''}>${remaining?`${done}/${pending.length} · ${t('storeRemaining')}`:t('confirmBatch')}</button>
+          <button class="btn" id="confirmBatch" type="button" ${remaining?'disabled':''}>${remaining?`${done}/${pending.length} · ${t('storeRemaining')}`:t('confirmBatch')}</button>
         </div>
       </div>
     </section>` : '';
@@ -12385,7 +12754,6 @@ function viewShop(){
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
 function startFridayBatch(){
-  if(!state.shopRespAck){ toast(t('shopRespNeed'),'error'); return; }
   const hid = shopHouse();
   const open = fridayEntries(hid).filter(e=>e.status==='open');
   if(!open.length){ toast(t('nothingToStart')); return; }
@@ -12398,7 +12766,6 @@ function cancelFridayBatch(){
   const pending=fridayEntries(shopHouse()).filter(e=>e.status==='pending');
   pending.forEach(e=>{e.status='open';delete e.decision;});
   state.shopQuery='';
-  state.shopRespAck=false;
   save();render();
 }
 
@@ -12418,7 +12785,6 @@ function confirmFridayBatch(){
   const hid = shopHouse();
   const pending = fridayEntries(hid).filter(e=>e.status==='pending');
   if(!pending.length){ toast(t('nothingPending')); return; }
-  if(!state.shopRespAck){ toast(t('shopRespNeed'),'error'); return; }
   if(pending.some(e=>!e.decision)){toast(t('decideAll'),'error',3600);return;}
   askPin(t('confirmBatch'), who => {
     state.user = who;
@@ -12433,7 +12799,6 @@ function confirmFridayBatch(){
         got.push(`${e.name} ${e.qty}${e.unit}`);
         gotLines.push(t('shopBookedItem')(e.name, e.qty, e.unit));
       }else if(e.decision === 'unavailable' || e.decision === 'expensive' || e.decision === 'missing'){
-        // legacy `missing` treated as unavailable
         e.missReason = e.decision === 'expensive' ? 'expensive' : 'unavailable';
         e.status = 'missing';
         miss.push(`${e.name} ${e.qty}${e.unit} (${missReasonLabel(e.missReason)})`);
@@ -12444,15 +12809,14 @@ function confirmFridayBatch(){
     DB.shoppingTrips ||= [];
     const tripId='trip-'+uid();
     DB.shoppingTrips.push({id:tripId,houseId:hid,fridayDate:friday,completedAt,completedBy:who.id,
-      responsibilityAck:true,responsibilityAckBy:who.id,responsibilityAckAt:completedAt,
       items:pending.map(e=>({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status,reason:e.missReason||null}))});
     logEntry('SHOP',
       `${t('typeSHOP')} @ ${houseShort(hid)} — ${t('stBought')}: ${got.join(', ') || '—'}` +
       ` | ${t('shortage')}: ${miss.join(', ') || '—'}`,
       {houseId:hid,tripId,items:pending.map(e=>({productId:e.productId,name:e.name,qty:e.qty,unit:e.unit,result:e.status,reason:e.missReason||null}))});
-    state.shopRespAck=false;
     save(); render();
     toast(`${T[state.lang].batchBooked(pending.length)} · ${T[state.lang].bookedToHouse(houseShort(hid))}`,'success',4800);
+    try{ queueOpsAlert('shop', {houseId:hid, by:who.name, bought:got.length, missing:miss.length}); }catch{}
     try{ sheetShopBookedSummary(gotLines, hid); }catch{}
   });
 }
@@ -13105,32 +13469,15 @@ function sheetReceipt(){
             ${l.matchId?'':`<span class="pill ovr">${t('notOnList')}</span>`}</div>
           <div class="muted">${l.qty} ${esc(l.unit)}</div></div>`).join('')}
         </div>
-        <button class="btn sec sm shop-resp-ack ${state.shopRespAck?'on':''}" type="button" id="rRespAck" aria-pressed="${state.shopRespAck?'true':'false'}">${esc(t('shopRespAck'))}</button>
-        <button class="btn" id="rSave" ${state.shopRespAck?'':'disabled'}>${t('bookBatch')}</button>`;
+        <button class="btn" id="rSave">${t('bookBatch')}</button>`;
       /* Το OCR τσεκάρει μόνο· η τελική αποδοχή γίνεται με το PIN στην παρτίδα. */
-      const syncRSave = ()=>{
-        const btn = sheetEl.querySelector('#rSave');
-        if(btn) btn.disabled = !state.shopRespAck;
-      };
-      sheetEl.querySelector('#rRespAck').onclick = ()=>{
-        state.shopRespAck = !state.shopRespAck;
-        const el = sheetEl.querySelector('#rRespAck');
-        if(el){
-          el.classList.toggle('on', state.shopRespAck);
-          el.setAttribute('aria-pressed', state.shopRespAck?'true':'false');
-        }
-        syncRSave();
-        feedback('toggle');
-      };
       sheetEl.querySelector('#rSave').onclick = () => {
-        if(!state.shopRespAck){ toast(t('shopRespNeed'),'error'); return; }
         const hid = shopHouse();
         lines.forEach(l=>{
           if(l.matchId){
             const e = DB.listEntries.find(x=>x.id===l.matchId);
             if(e) e.decision = 'bought';
           }else{
-            // Βρέθηκε στην απόδειξη χωρίς να είναι στη λίστα
             const p = PRODUCTS().find(x=>x.de===l.name || x.el===l.name);
             DB.listEntries.push({
               id: uid(), productId: p ? p.id : null, name: l.name, qty: l.qty, unit: l.unit,
@@ -13389,17 +13736,24 @@ function ackShiftHandoff(noteKey, employeeId){
   logEntry('SHIFT', `${t('handoffAcked')}: ${who?.name||employeeId}`);
   return entry;
 }
-function handoffSectionsHtml(sections, {editable=false, mode='ink', seed=null}={}){
+function handoffSectionsHtml(sections, {editable=false, mode='ink', seed=null, compact=false}={}){
   const s = editable
     ? (mode==='rewrite' ? normalizeHandoffSections(seed||sections) : emptyHandoffSections())
     : normalizeHandoffSections(sections);
   if(editable){
-    return `<div class="handoff-sections write">
-      ${HANDOFF_SECTION_KEYS.map(k=>`<label class="f handoff-sec">
+    const renderKeys = keys => keys.map(k=>`<label class="f handoff-sec">
         <span>${esc(t('handoffSec'+k.charAt(0).toUpperCase()+k.slice(1)))}</span>
         <textarea data-handoff-sec="${k}" rows="${k==='note'?3:2}" placeholder="${esc(t('handoffSec'+k.charAt(0).toUpperCase()+k.slice(1)+'Ph'))}">${esc(s[k]||'')}</textarea>
-      </label>`).join('')}
-    </div>`;
+      </label>`).join('');
+    if(compact){
+      const moreKeys = HANDOFF_SECTION_KEYS.filter(k=>k!=='note');
+      return `<div class="handoff-sections write">
+        ${renderKeys(['note'])}
+        <button type="button" class="book-secondary-toggle handoff-more-toggle" id="handoffMoreSecsToggle">${esc(state.bookShowMoreSecs?t('bookLessSecs'):t('bookMoreSecs'))}</button>
+        <div class="handoff-more-sections" ${state.bookShowMoreSecs?'':'hidden'}>${renderKeys(moreKeys)}</div>
+      </div>`;
+    }
+    return `<div class="handoff-sections write">${renderKeys(HANDOFF_SECTION_KEYS)}</div>`;
   }
   const filled = HANDOFF_SECTION_KEYS.filter(k=>s[k]);
   if(!filled.length){
@@ -13583,7 +13937,30 @@ function bookCalendarHtml(){
   </section>`;
 }
 
+function bookDayStripHtml(){
+  const selected = bookJournalDay();
+  const week = weekDates(selected);
+  const today = iso(new Date());
+  const y = new Date(selected+'T12:00:00').getFullYear();
+  const m = new Date(selected+'T12:00:00').getMonth();
+  const markers = bookJournalMarkersForMonth(y, m);
+  return `<div class="book-day-strip" role="group" aria-label="${esc(t('bookCalPickDay'))}">
+    ${week.map((ds, i)=>{
+      const d = new Date(ds+'T12:00:00');
+      const on = ds===selected;
+      const isToday = ds===today;
+      const mark = markers.get(ds);
+      const has = !!(mark && mark.pages);
+      return `<button type="button" class="book-day-chip ${on?'on':''} ${isToday?'today':''} ${has?'has':''}" data-book-cal-date="${esc(ds)}" aria-pressed="${on?'true':'false'}">
+        <span class="book-day-dow">${esc(DAY_NAMES[state.lang][i].slice(0,2))}</span>
+        <span class="book-day-num">${d.getDate()}</span>
+      </button>`;
+    }).join('')}
+  </div>`;
+}
+
 function handoffFlowHtml(){
+  if(handoffFlowSeen()) return '';
   return `<section class="handoff-flow" aria-label="${esc(t('handoffFlowTitle'))}">
     <div class="handoff-flow-kicker">${esc(t('handoffFlowTitle'))}</div>
     <div class="handoff-flow-steps">
@@ -13596,6 +13973,7 @@ function handoffFlowHtml(){
         <div><b>${esc(t('handoffFlowRead'))}</b><span>${esc(t('handoffFlowReadHint'))}</span></div>
       </div>
     </div>
+    <button type="button" class="btn sm sec" id="handoffFlowDismiss">${esc(t('handoffFlowDismiss'))}</button>
   </section>`;
 }
 
@@ -13636,15 +14014,13 @@ function shiftDiaryCard(){
     </div>
   </div>` : '';
 
-  const showIncoming = incoming.length > 0 || isToday;
-  const incomingBlock = showIncoming ? `<section class="handoff-incoming ${incoming.length?'has':''}">
+  const showIncoming = incoming.length > 0;
+  const incomingBlock = showIncoming ? `<section class="handoff-incoming has">
     <div class="row between book-panel-head">
       <h2 style="font-size:15px">${esc(t('handoffIncoming'))}</h2>
-      <span class="pill ${incoming.length?'out':'gray'}">${incoming.length||'·'}</span>
+      <span class="pill out">${incoming.length}</span>
     </div>
-    ${incoming.length
-      ? incoming.map(n=>handoffPageCardHtml(n)).join('')
-      : `<div class="empty muted">${esc(t('handoffIncomingEmpty'))}</div>`}
+    ${incoming.map(n=>handoffPageCardHtml(n)).join('')}
   </section>` : '';
 
   const proArchive = isPro() ? (()=>{
@@ -13682,8 +14058,13 @@ function shiftDiaryCard(){
 
   return `<div class="journal-book">
     ${handoffFlowHtml()}
-    ${bookCalendarHtml()}
-    ${housePicker}
+    ${bookDayStripHtml()}
+    <button type="button" class="book-secondary-toggle" id="bookSecondaryToggle">${esc(state.bookShowSecondary?t('bookHideCal'):t('bookShowCal'))}</button>
+    <div class="book-secondary" ${state.bookShowSecondary?'':'hidden'}>
+      ${bookCalendarHtml()}
+      ${housePicker}
+      ${proArchive}
+    </div>
     <div class="journal-duty ${dutyCls} ${isToday?'is-today':''}">
       <span>${isToday?`<b class="handoff-today-mark">${esc(t('handoffMineSpotlight'))}</b> · `:''}${dutyLabel}</span>
       <span class="pill ${written?'in':(isToday?'out':'gray')}">${written?'✓':(isToday?'!':'·')}</span>
@@ -13718,7 +14099,7 @@ function shiftDiaryCard(){
     </article>
     <div class="journal-write">
       <p class="journal-write-hint">${mode==='rewrite'?t('journalRewrite'):t('journalInkHint')}</p>
-      ${handoffSectionsHtml(mineSections, {editable:true, mode, seed:mineSections})}
+      ${handoffSectionsHtml(mineSections, {editable:true, mode, seed:mineSections, compact:true})}
       <div class="journal-write-actions">
         <button class="btn" id="shiftNoteSave" type="button">${mode==='rewrite'?t('journalRewriteSave'):t('shiftDiarySave')}</button>
         ${written?`<button class="btn sec" id="shiftNoteMode" type="button" data-journal-mode="${mode==='rewrite'?'ink':'rewrite'}">${mode==='rewrite'?t('journalContinue'):t('journalRewrite')}</button>`:''}
@@ -13737,7 +14118,6 @@ function shiftDiaryCard(){
         return `<div class="empty">${t('shiftDiaryEmpty')}</div>`;
       })()}
     </section>
-    ${proArchive}
   </div>`;
 }
 
@@ -14939,15 +15319,73 @@ const KID_BADGES = [
   {id:'b7', xp:100, de:'Fleißig', el:'Εργατικός', ico:'i-badge-bolt'},
   {id:'b8', xp:200, de:'Team', el:'Ομάδα', ico:'i-badge-team'},
 ];
-function kidBadgesHtml(xp){
-  return `<div class="badge-grid">${KID_BADGES.map(b=>{
-    const earned = xp >= b.xp;
+function kidBadgesHtml(xp, kidId=null){
+  const prefs = kidId ? kidBadgePrefsFor(kidId) : {};
+  const enabled = Array.isArray(prefs.enabled) && prefs.enabled.length ? prefs.enabled : null;
+  const granted = Array.isArray(prefs.granted) ? prefs.granted : [];
+  const list = enabled ? KID_BADGES.filter(b=>enabled.includes(b.id)) : KID_BADGES;
+  return `<div class="badge-grid">${list.map(b=>{
+    const earned = xp >= b.xp || granted.includes(b.id);
     const name = state.lang==='el'?b.el:b.de;
     return `<div class="badge-tile ${earned?'':'locked'}" title="${esc(name)}">
       <span class="bt-ico" aria-hidden="true">${earned?svgUse(b.ico,22):svgUse('i-lock',20)}</span>
       <span class="bt-name">${esc(earned?name:t('kidBadgeLocked'))}</span>
     </div>`;
   }).join('')}</div>`;
+}
+function kidBadgeAdminHtml(kidId, xp){
+  if(!isAdminUser()) return '';
+  const prefs = kidBadgePrefsFor(kidId);
+  const enabled = new Set(Array.isArray(prefs.enabled) ? prefs.enabled : KID_BADGES.map(b=>b.id));
+  const granted = new Set(Array.isArray(prefs.granted) ? prefs.granted : []);
+  const rows = KID_BADGES.map(b=>{
+    const on = enabled.has(b.id);
+    const isGranted = granted.has(b.id);
+    const name = state.lang==='el'?b.el:b.de;
+    return `<div class="kid-badge-admin-row">
+      <span class="grow">${esc(name)}</span>
+      <button type="button" class="chip ${on?'on':''}" data-badge-enable="${b.id}" data-badge-kid="${kidId}">${esc(t('kidBadgeEnable'))}</button>
+      <button type="button" class="chip ${isGranted?'on':''}" data-badge-grant="${b.id}" data-badge-kid="${kidId}">${esc(t('kidBadgeGrant'))}</button>
+    </div>`;
+  }).join('');
+  return `<section class="card pine-settle kid-badge-admin"><div class="block-h"><span class="t">${esc(t('kidBadges'))}</span><span class="hrs">Admin</span></div>${rows}</section>`;
+}
+function zoaiLogThreadHtml(kidId){
+  const rows = (DB.kidZoAiLogs||[]).filter(r=>r.kidId===kidId).sort((a,b)=>b.ts-a.ts).slice(0,12);
+  if(!rows.length) return `<p class="muted">${esc(t('zoaiLogEmpty'))}</p>`;
+  return `<div class="zoai-log-thread">${rows.map(r=>`<article class="zoai-log-row">
+    <small class="muted">${esc(fmtDT(r.ts))}</small>
+    <p><b>You</b> ${esc(r.userText||'')}</p>
+    <p class="muted"><b>Zo-Ai</b> ${esc(r.assistantText||'')}</p>
+  </article>`).join('')}</div>`;
+}
+function choreReviewRowHtml(s, {compact=false}={}){
+  const ch = (DB.chores||[]).find(c=>c.id===s.choreId);
+  const k = kid(s.kidId);
+  if(!ch||!k) return '';
+  const img = s.photo || s.photoThumb;
+  return `<article class="chore-review-row ${compact?'compact':''}" data-sub="${esc(s.id)}">
+    <div class="chore-review-main">
+      <b>${ch.emoji||''} ${esc(k.name)} — ${esc(choreLabel(ch))}</b>
+      <small class="muted">${esc(s.date||'')} · ⭐${ch.xp} XP</small>
+      ${s.proofText?`<p class="chore-review-proof">"${esc(s.proofText)}"</p>`:''}
+      ${s.aiVerdict?`<p class="chore-review-ai muted">${esc(s.aiVerdict)}</p>`:''}
+      ${img?`<img class="chore-review-img" src="${esc(img)}" alt=""/>`:''}
+    </div>
+    <div class="admin-chore-verdict">
+      <button class="verdict-approve" data-verdict="approve" data-sub="${esc(s.id)}" type="button" title="${esc(t('adminApprove'))}">✓</button>
+      <button class="verdict-reject" data-verdict="reject" data-sub="${esc(s.id)}" type="button" title="${esc(t('adminReject'))}">✗</button>
+    </div>
+  </article>`;
+}
+function viewChoreReview(kidId){
+  const pending = (DB.choreSubmissions||[]).filter(s=>s.status==='pending' && (!kidId || s.kidId===kidId))
+    .sort((a,b)=>b.ts-a.ts);
+  const rows = pending.map(s=>choreReviewRowHtml(s, {compact:true})).join('');
+  return `<section class="card pine-settle chore-review-card">
+    <div class="block-h"><span class="t">${esc(t('choreReviewTitle'))}</span><span class="pill ${pending.length?'out':'gray'}">${pending.length}</span></div>
+    ${rows || `<p class="muted">${esc(t('choreReviewEmpty'))}</p>`}
+  </section>`;
 }
 function childLessonPast(entry, dateStr){
   const b = blockDef(entry.block); if(!b) return false;
@@ -14978,6 +15416,7 @@ function kidViewTitle(view){
   if(v==='notes') return t('kidNotesTitle');
   if(v==='events') return t('childEvents');
   if(v==='gallery') return t('galleryChildTab') || t('navGallery');
+  if(v==='rules') return t('rulesTitle');
   return t('kidNavStart');
 }
 
@@ -15042,6 +15481,7 @@ function kidMoreNavItems(){
     {id:'rewards', label:t('kidNavStars'), ico:'u-sparkle', hint:t('kidGuideHintStars')},
     {id:'aufgaben', label:t('kidCourseTasks'), ico:'u-tasks', hint:t('kidGuideHintStart'), pro:true},
     {id:'events', label:t('childEvents'), ico:'u-party', hint:t('childHowToEvents'), pro:true},
+    {id:'rules', label:t('rulesTab'), ico:'u-book', hint:t('rulesLead')},
     {id:'gallery', label:t('galleryChildTab')||t('navGallery'), ico:'u-camera', hint:t('childHowToGallery'), pro:true},
   ].filter(r=>!r.pro || !easy);
 }
@@ -15355,8 +15795,8 @@ function childStartView(c){
   }).join('');
 
   return `
-    <div class="kid-home kid-home-play" data-tour="kid-start">
-      <header class="kid-header tide-reveal">
+    <div class="kid-home kid-home-play kid-page" data-tour="kid-start">
+      <header class="kid-header kid-hero tide-reveal">
         <p class="eyebrow">Armonia · ${esc(t('kidHomeDash'))}</p>
         <h2>${esc(t('kidHello')(c.name))}</h2>
         <p class="kid-hello">${esc(lvName)} · ${esc(t('xpLevel')(lv))} · ${esc(t('kidStarsCollected')(xp))}</p>
@@ -15747,6 +16187,203 @@ function schoolMaterialStatusLabel(st){
   return t('schoolMaterialNeeded');
 }
 
+
+async function adminChildAuth(action, payload={}){
+  const res = await fetch('/api/auth/admin/child', {
+    method:'POST', credentials:'same-origin',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action, ...payload}),
+  });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok){
+    const err = new Error(data.error||'auth');
+    err.code = data.code||'auth';
+    throw err;
+  }
+  return data;
+}
+
+function nextKidId(){
+  const used = new Set((DB.children||[]).map(k=>k.id));
+  for(let i=1;i<500;i++){
+    const id = 'k'+i;
+    if(!used.has(id)) return id;
+  }
+  return 'k'+uid();
+}
+
+function childRulesView(){
+  const rules = activeHouseRules();
+  const byCat = HOUSE_RULE_CATS.map(cat=>{
+    const rows = rules.filter(r=>r.category===cat);
+    if(!rows.length) return '';
+    return `<section class="card pine-settle rules-cat">
+      <div class="block-h"><span class="t">${esc(rulesCatLabel(cat))}</span></div>
+      ${rows.map(r=>`<article class="rules-row ${r.pinned?'pinned':''}">
+        <h3>${esc(houseRuleLabel(r))}${r.pinned?` <span class="pill in">${esc(t('rulesPinned'))}</span>`:''}</h3>
+        <p>${esc(houseRuleBody(r))}</p>
+      </article>`).join('')}
+    </section>`;
+  }).join('');
+  return `<div class="rules-page kid-page" data-tour="kid-rules">
+    <header class="kid-hero kid-hero-compact">
+      <p class="eyebrow">Armonia</p>
+      <h2>${esc(t('rulesTitle'))}</h2>
+      <p class="kid-hello">${esc(t('rulesLead'))}</p>
+    </header>
+    ${byCat || `<div class="empty">${esc(t('rulesEmpty'))}</div>`}
+  </div>`;
+}
+
+function viewRules(){
+  const rules = activeHouseRules();
+  const editing = state.rulesEditId ? (DB.houseRules||[]).find(r=>r.id===state.rulesEditId) : null;
+  const canEdit = !!state.user;
+  const form = canEdit ? `<form class="card pine-settle rules-form" id="rulesForm">
+    <div class="block-h"><span class="t">${esc(editing?t('rulesEdit'):t('rulesAdd'))}</span></div>
+    <label class="f"><span>${esc(t('rulesTitle'))} (DE)</span><input name="deTitle" class="inp" value="${esc(editing?.de?.title||'')}" maxlength="120"></label>
+    <label class="f"><span>${esc(t('rulesTitle'))} (EL)</span><input name="elTitle" class="inp" value="${esc(editing?.el?.title||'')}" maxlength="120"></label>
+    <label class="f"><span>DE</span><textarea name="deBody" class="inp" rows="3">${esc(editing?.de?.body||'')}</textarea></label>
+    <label class="f"><span>EL</span><textarea name="elBody" class="inp" rows="3">${esc(editing?.el?.body||'')}</textarea></label>
+    <label class="f"><span>${esc(t('bookTypeLabel'))}</span>
+      <select name="category" class="inp">${HOUSE_RULE_CATS.map(c=>`<option value="${c}" ${editing?.category===c?'selected':''}>${esc(rulesCatLabel(c))}</option>`).join('')}</select>
+    </label>
+    <label class="row" style="gap:8px;align-items:center"><input type="checkbox" name="pinned" ${editing?.pinned?'checked':''}/> ${esc(t('rulesPinned'))}</label>
+    <div class="row" style="gap:8px;margin-top:10px">
+      <button class="btn" type="submit">${esc(t('saveContact'))}</button>
+      ${editing?`<button class="btn sec" type="button" id="rulesCancelEdit">${esc(t('close'))}</button>`:''}
+    </div>
+  </form>` : '';
+  const list = HOUSE_RULE_CATS.map(cat=>{
+    const rows = rules.filter(r=>r.category===cat);
+    if(!rows.length) return '';
+    return `<section class="card pine-settle rules-cat">
+      <div class="block-h"><span class="t">${esc(rulesCatLabel(cat))}</span></div>
+      ${rows.map(r=>{
+        const upd = r.updatedAt ? fmtDT(r.updatedAt) : '';
+        return `<article class="rules-row ${r.pinned?'pinned':''}">
+          <div class="row between" style="align-items:flex-start;gap:8px">
+            <div class="grow">
+              <h3>${esc(houseRuleLabel(r))}${r.pinned?` <span class="pill in">${esc(t('rulesPinned'))}</span>`:''}</h3>
+              <p>${esc(houseRuleBody(r))}</p>
+              ${upd?`<small class="muted">${esc(t('rulesUpdated'))}: ${esc(upd)}</small>`:''}
+            </div>
+            ${canEdit?`<div class="rules-actions">
+              <button type="button" class="btn sm sec" data-rules-edit="${esc(r.id)}">${esc(t('rulesEdit'))}</button>
+              ${isAdminUser()?`<button type="button" class="btn sm ghost" data-rules-archive="${esc(r.id)}">${esc(t('rulesArchive'))}</button>`:''}
+            </div>`:''}
+          </div>
+        </article>`;
+      }).join('')}
+    </section>`;
+  }).join('');
+  return `<div class="rules-page" data-tour="rules-main">
+    <header class="book-hero journal">
+      <div class="brand-kicker">Armonia Thassos</div>
+      <h2 class="tide-line">${esc(t('rulesTitle'))}</h2>
+      <p>${esc(t('rulesLead'))}</p>
+    </header>
+    ${form}
+    ${list || `<div class="empty">${esc(t('rulesEmpty'))}</div>`}
+  </div>`;
+}
+
+function syncAlleKinderGroup(){
+  DB.groups = Array.isArray(DB.groups) ? DB.groups : [];
+  let alle = DB.groups.find(g=>g.id==='g4');
+  const ids = (DB.children||[]).filter(k=>k && !k.archived).map(k=>k.id);
+  if(!alle){
+    alle = {id:'g4', de:'Alle Kinder', el:'Όλα τα παιδιά', childIds:ids};
+    DB.groups.push(alle);
+  }else{
+    alle.childIds = ids;
+  }
+  DB.groups.forEach(g=>{
+    if(!g || g.id==='g4') return;
+    g.childIds = (g.childIds||[]).filter(id=>ids.includes(id));
+  });
+}
+
+function sheetAdminKid(editKid=null){
+  if(!isAdminUser()){ toast(t('kidAdminOnly'),'error'); return; }
+  const isEdit = !!(editKid && editKid.id);
+  const colors = ['#bfdbfe','#a7f3d0','#fde68a','#fbcfe8','#c7d2fe','#fed7aa','#d9f99d','#f5d0fe','#99f6e4','#fecaca','#e9d5ff','#94a3b8'];
+  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:${esc(editKid?.color||colors[0])}">👶</div>
+    <div><div class="import-kicker">Admin</div><h2>${esc(isEdit?t('kidEdit'):t('kidAdd'))}</h2></div></div>
+    <label class="f"><span>${esc(t('kidNamePh'))}</span><input id="kidName" maxlength="40" value="${esc(editKid?.name||'')}" autocomplete="off"></label>
+    <label class="f"><span>${esc(t('profileColor'))}</span><input id="kidColor" type="color" value="${esc(editKid?.color||colors[Math.floor(Math.random()*colors.length)])}"></label>
+    <label class="f"><span>${esc(t('profileBirthDate'))}</span><input id="kidBirthDate" type="date" class="inp" value="${esc(editKid?.birthDate||profilePref(editKid?.id).birthDate||'')}"></label>
+    <label class="f"><span>${esc(t('kidPinPh'))}</span><input id="kidPin" type="password" inputmode="numeric" maxlength="6" autocomplete="new-password" placeholder="${isEdit?'····':''}"></label>
+    <label class="f"><span>${esc(t('kidPinConfirm'))}</span><input id="kidPin2" type="password" inputmode="numeric" maxlength="6" autocomplete="new-password"></label>
+    <button class="btn" type="button" id="kidSave">${esc(t('saveWithPin'))}</button>
+    ${isEdit?`<button class="btn danger" type="button" id="kidDelete">${esc(t('kidRemove'))}</button>`:''}
+    <div id="kidAdminStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`);
+  const st = sheetEl.querySelector('#kidAdminStatus');
+  const show = (msg, ok)=>{ st.style.display='block'; setStatus(st, msg, ok?'success':'error'); };
+  sheetEl.querySelector('#kidSave').onclick = async ()=>{
+    const name = sheetEl.querySelector('#kidName').value.trim().slice(0,40);
+    const color = sheetEl.querySelector('#kidColor').value || '#94a3b8';
+    const birthDate = sheetEl.querySelector('#kidBirthDate')?.value || '';
+    const pin = sheetEl.querySelector('#kidPin').value.trim();
+    const pin2 = sheetEl.querySelector('#kidPin2').value.trim();
+    if(!name){ show(t('kidNameRequired'), false); return; }
+    if(!isEdit || pin){
+      if(!/^\d{4,6}$/.test(pin) || pin!==pin2){ show(t('kidPinMismatch'), false); return; }
+    }
+    try{
+      const id = isEdit ? editKid.id : nextKidId();
+      if(isEdit){
+        editKid.name = name; editKid.color = color;
+        if(/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) editKid.birthDate = birthDate;
+        else if(!birthDate) delete editKid.birthDate;
+        DB.profilePrefs = DB.profilePrefs || {};
+        DB.profilePrefs[id] = {...(DB.profilePrefs[id]||{}), birthDate: /^\d{4}-\d{2}-\d{2}$/.test(birthDate)?birthDate:'', updatedAt:Date.now()};
+        if(pin){
+          try{ await adminChildAuth('set_pin', {profileId:id, name, color, pin}); }
+          catch(err){
+            if(err.code==='profile_not_found') await adminChildAuth('create', {profileId:id, name, color, pin});
+            else throw err;
+          }
+        }else{
+          try{ await adminChildAuth('update', {profileId:id, name, color}); }
+          catch(err){ if(err.code!=='profile_not_found') throw err; }
+        }
+      }else{
+        DB.children = DB.children || [];
+        DB.children.push({id, name, color, ...( /^\d{4}-\d{2}-\d{2}$/.test(birthDate) ? {birthDate} : {} )});
+        if(/^\d{4}-\d{2}-\d{2}$/.test(birthDate)){
+          DB.profilePrefs = DB.profilePrefs || {};
+          DB.profilePrefs[id] = {...(DB.profilePrefs[id]||{}), birthDate, updatedAt:Date.now()};
+        }
+        syncAlleKinderGroup();
+        await adminChildAuth('create', {profileId:id, name, color, pin});
+      }
+      if(!save()){ show(t('errStorage'), false); return; }
+      closeSheet(); toast(t('kidAdded'),'success'); render();
+    }catch(err){
+      show(err.message||t('unexpectedError'), false);
+    }
+  };
+  const del = sheetEl.querySelector('#kidDelete');
+  if(del) del.onclick = async ()=>{
+    if(!confirm(t('kidRemoveConfirm'))) return;
+    try{
+      await removeKidRecord(editKid.id);
+      closeSheet(); toast(t('kidRemoved'),'success'); state.staffKidId=null; render();
+    }catch(err){
+      show(err.message||t('unexpectedError'), false);
+    }
+  };
+}
+
+async function removeKidRecord(kidId){
+  if(!isAdminUser()) throw new Error(t('kidAdminOnly'));
+  await adminChildAuth('delete', {profileId:kidId});
+  DB.children = (DB.children||[]).filter(k=>k.id!==kidId);
+  syncAlleKinderGroup();
+  if(!save()) throw new Error(t('errStorage'));
+}
+
 function viewKids(){
   ensureSchoolDb();
   if(state.staffKidId) return viewKidProfile(state.staffKidId);
@@ -15756,7 +16393,8 @@ function viewKids(){
     const summary=childProgressSummary(k.id);
     const att=attendanceFor(k.id, state.date||iso(new Date()));
     const attLbl=att?t('att_'+att.status):'·';
-    return `<button type="button" class="kid-dir-card pine-settle" data-open-kid="${k.id}">
+    return `<div class="kid-dir-row">
+      <button type="button" class="kid-dir-card pine-settle" data-open-kid="${k.id}">
       <span class="kid-dir-av" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0]||'?')}</span>
       <span class="kid-dir-main grow">
         <span class="kid-dir-name"><b>${esc(k.name)}</b><small>${esc(attLbl)}</small></span>
@@ -15770,7 +16408,9 @@ function viewKids(){
         </span>
       </span>
       <span class="kid-dir-arrow" aria-hidden="true">→</span>
-    </button>`;
+    </button>
+    ${isAdminUser()?`<div class="kid-dir-admin"><button type="button" class="btn sm sec" data-kid-edit="${k.id}">${esc(t('kidEdit'))}</button><button type="button" class="btn sm danger" data-kid-remove="${k.id}">${esc(t('kidRemove'))}</button></div>`:''}
+    </div>`;
   }).join('');
   const openHomework=(DB.homework||[]).filter(row=>!row.done).length;
   const graded=(DB.children||[]).filter(child=>childProgressSummary(child.id).gradedCount>0).length;
@@ -15789,7 +16429,8 @@ function viewKids(){
     ${isAdminUser()?`<button type="button" class="chip pro-only mode-pro-block ${pane==='subjects'?'on':''}" data-kids-pane="subjects">${esc(t('schoolSubjects'))}</button>`:''}
   </div>`;
   let body='';
-  if(pane==='directory') body=`${overview}<div class="kid-dir-list">${dir||emptyState(ui('u-person'), t('kidsEmpty'))}</div>`;
+  const adminBar=isAdminUser()?`<div class="kids-admin-bar"><button type="button" class="btn" id="kidAddBtn">${ui('u-plus','sm')} ${esc(t('kidAdd'))}</button></div>`:'';
+  if(pane==='directory') body=`${overview}${adminBar}<div class="kid-dir-list">${dir||emptyState(ui('u-person'), t('kidsEmpty'))}</div>`;
   else if(pane==='attendance') body=viewAttendanceGrid();
   else if(pane==='homework') body=viewHomeworkStaff();
   else if(pane==='materials') body=viewSchoolMaterials();
@@ -15825,14 +16466,6 @@ function viewKidProfile(kidId){
       ${starsHtml(sc,{interactive:true,kidId:k.id,subjectId:s.id})}
     </div>`;
   }).join('');
-  const rates=KID_RATE_AREAS.map(a=>{
-    const v=kidRating(k.id,a.id,wk);
-    return `<div class="school-sub-row grade-rate-row"><span class="grow">${esc(t(a.key))}</span>${starsHtml(v)}</div>`;
-  }).join('');
-  const thingRates=importantThingsForKid(k.id).slice(0,6).map(ch=>{
-    const v=kidRating(k.id,kidThingArea(ch.id),wk);
-    return `<div class="school-sub-row grade-rate-row mode-pro-block"><span class="grow">${esc(choreLabel(ch))}</span>${starsHtml(v)}</div>`;
-  }).join('');
   const notes=(DB.kidNotes||[]).filter(n=>n.kidId===k.id).sort((a,b)=>b.ts-a.ts).slice(0,5)
     .map(n=>`<li><small>${esc(new Date(n.ts).toLocaleDateString())}</small> ${esc(n.text||'')}</li>`).join('')
     || `<li class="muted">${esc(t('kidNotesEmpty'))}</li>`;
@@ -15855,11 +16488,16 @@ function viewKidProfile(kidId){
     .map(a=>`<li><b>${esc(a.title||a.kind)}</b><small>${esc(a.kind)}</small></li>`).join('')
     || `<li class="muted">${esc(t('schoolActivityEmpty'))}</li>`;
   const pocketBal = formatEuro(pocketBalance(k.id));
+  const age = profileAgeYears(k);
+  const bio = profilePref(k.id).bio || '';
   return `<div class="kids-shell kid-profile">
     <button type="button" class="btn ghost sm" id="kidProfileBack">← ${esc(t('navKids'))}</button>
     <header class="kid-profile-mast">
       <span class="kid-dir-av lg" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0])}</span>
-      <div class="grow"><p class="brand-kicker">Armonia</p><h2>${esc(k.name)}</h2><p>${esc(t('xpTotal')(xp))} · ${esc(t('xpLevel')(lv))} · ${esc(t('pocketMoneyTitle'))} ${esc(pocketBal)}</p></div>
+      <div class="grow"><p class="brand-kicker">Armonia</p><h2>${esc(k.name)}</h2>
+        <p class="profile-age-line">${age!=null?`${esc(t('profileAge'))}: ${age}`:''}${age!=null?' · ':''}${esc(t('xpTotal')(xp))} · ${esc(t('xpLevel')(lv))} · ${esc(t('pocketMoneyTitle'))} ${esc(pocketBal)}</p>
+        ${bio?`<p class="muted profile-bio-line">${esc(bio)}</p>`:''}
+      </div>
       ${progressRingHtml(pct,'Lv '+lv)}
     </header>
     <section class="kid-profile-kpis">
@@ -15879,11 +16517,11 @@ function viewKidProfile(kidId){
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolHomework'))}</span><span class="hrs">${summary.homeworkOpen} ${esc(t('homeworkOpen'))}</span></div>${hw}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolMaterialTitle'))}</span></div>${matMini}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolActivityTitle'))}</span></div><ul class="act-list">${actMini}</ul></section>
-      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span><span class="hrs">${esc(t('kidRateKicker'))}</span></div>
-        <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
-        ${rates}${thingRates}</section>
-      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidBadges'))}</span><span class="hrs">${summary.streak} ${esc(t('kidStreak'))}</span></div>${kidBadgesHtml(xp)}</section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidBadges'))}</span><span class="hrs">${summary.streak} ${esc(t('kidStreak'))}</span></div>${kidBadgesHtml(xp, k.id)}</section>
     </div>
+    ${viewChoreReview(k.id)}
+    <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('zoaiLogTitle'))}</span></div>${zoaiLogThreadHtml(k.id)}</section>
+    ${kidBadgeAdminHtml(k.id, xp)}
     <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNotesTitle'))}</span></div>
       <div class="row kid-note-compose" style="gap:8px;margin-bottom:8px">
         <input id="staffKidNote" class="inp grow" placeholder="${esc(t('kidNotesPlaceholder'))}"/>
@@ -16060,6 +16698,43 @@ function childSubjectsReadonlyHtml(kidId){
   return `<section class="card kid-subjects-ro"><div class="block-h"><span class="t">${esc(t('schoolSubjects'))}</span></div>${rows||`<p class="muted">${esc(t('subEmpty'))}</p>`}</section>`;
 }
 
+function wireRulesView(v){
+  v.querySelector('#rulesForm')?.addEventListener('submit', ev=>{
+    ev.preventDefault();
+    const f = ev.target;
+    const deTitle = f.deTitle.value.trim();
+    const elTitle = f.elTitle.value.trim();
+    if(!deTitle && !elTitle){ toast(t('handoffNeedContent'),'error'); return; }
+    const id = state.rulesEditId || ('r-'+uid());
+    saveHouseRule({
+      id,
+      category: f.category.value || 'other',
+      pinned: !!f.pinned.checked,
+      active: true,
+      de: {title: deTitle, body: f.deBody.value.trim()},
+      el: {title: elTitle || deTitle, body: f.elBody.value.trim()},
+    });
+    state.rulesEditId = null;
+    toast(t('autoSaved'),'success');
+    render();
+  });
+  const cancelEdit = v.querySelector('#rulesCancelEdit');
+  if(cancelEdit) cancelEdit.onclick = ()=>{ state.rulesEditId=null; render(); };
+  v.querySelectorAll('[data-rules-edit]').forEach(b=>{
+    b.onclick = ()=>{ state.rulesEditId=b.dataset.rulesEdit; render(); };
+  });
+  v.querySelectorAll('[data-rules-archive]').forEach(b=>{
+    b.onclick = ()=>{
+      const rule = (DB.houseRules||[]).find(r=>r.id===b.dataset.rulesArchive);
+      if(!rule) return;
+      if(!confirm(t('rulesArchive')+'?')) return;
+      saveHouseRule({...rule, active:false}, {archive:true});
+      if(state.rulesEditId===rule.id) state.rulesEditId=null;
+      render();
+    };
+  });
+}
+
 function wireKidsView(v){
   const resetKidsScroll=()=>requestAnimationFrame(()=>{
     window.scrollTo({top:0,left:0,behavior:'auto'});
@@ -16071,6 +16746,22 @@ function wireKidsView(v){
   });
   v.querySelectorAll('[data-open-kid]').forEach(b=>{
     b.onclick=()=>{ state.staffKidId=b.dataset.openKid; render(); resetKidsScroll(); };
+  });
+  v.querySelector('#kidAddBtn')?.addEventListener('click', ()=>sheetAdminKid(null));
+  v.querySelectorAll('[data-kid-edit]').forEach(b=>{
+    b.onclick=(ev)=>{ ev.stopPropagation(); const k=kid(b.dataset.kidEdit); if(k) sheetAdminKid(k); };
+  });
+  v.querySelectorAll('[data-kid-remove]').forEach(b=>{
+    b.onclick=async (ev)=>{
+      ev.stopPropagation();
+      if(!confirm(t('kidRemoveConfirm'))) return;
+      try{
+        await removeKidRecord(b.dataset.kidRemove);
+        toast(t('kidRemoved'),'success');
+        if(state.staffKidId===b.dataset.kidRemove) state.staffKidId=null;
+        render();
+      }catch(err){ toast(err.message||t('unexpectedError'),'error'); }
+    };
   });
   const back=v.querySelector('#kidProfileBack');
   if(back) back.onclick=()=>{ state.staffKidId=null; render(); resetKidsScroll(); };
@@ -16090,6 +16781,42 @@ function wireKidsView(v){
   });
   v.querySelectorAll('[data-rate-week]').forEach(b=>{
     b.onclick=()=>{ state.rateWeek=b.dataset.rateWeek; feedback('toggle'); render(); };
+  });
+  v.querySelectorAll('[data-staff-day-rate]').forEach(b=>{
+    b.onclick=()=>{
+      const kidId=b.dataset.staffDayRate;
+      const ds=b.dataset.staffDayDate;
+      const cur=Number(b.dataset.staffDayVal)||0;
+      const next=cur>=KID_GRADE_MAX?1:(cur+1);
+      if(setStaffKidDayRating(kidId, ds, next)){ toast(t('staffRatingSaved'),'success'); render(); }
+    };
+  });
+  bindAdminRewardCenter(v);
+  v.querySelectorAll('[data-badge-enable]').forEach(b=>{
+    b.onclick=()=>{
+      if(!isAdminUser()) return;
+      const kidId=b.dataset.badgeKid;
+      const bid=b.dataset.badgeEnable;
+      DB.kidBadgePrefs = DB.kidBadgePrefs || {};
+      const prefs = kidBadgePrefsFor(kidId);
+      const enabled = new Set(Array.isArray(prefs.enabled)&&prefs.enabled.length?prefs.enabled:KID_BADGES.map(x=>x.id));
+      if(enabled.has(bid)) enabled.delete(bid); else enabled.add(bid);
+      DB.kidBadgePrefs[kidId] = {...prefs, enabled:[...enabled], updatedAt:Date.now()};
+      save(); render();
+    };
+  });
+  v.querySelectorAll('[data-badge-grant]').forEach(b=>{
+    b.onclick=()=>{
+      if(!isAdminUser()) return;
+      const kidId=b.dataset.badgeKid;
+      const bid=b.dataset.badgeGrant;
+      DB.kidBadgePrefs = DB.kidBadgePrefs || {};
+      const prefs = kidBadgePrefsFor(kidId);
+      const granted = new Set(Array.isArray(prefs.granted)?prefs.granted:[]);
+      if(granted.has(bid)) granted.delete(bid); else granted.add(bid);
+      DB.kidBadgePrefs[kidId] = {...prefs, granted:[...granted], updatedAt:Date.now()};
+      save(); render();
+    };
   });
   v.querySelectorAll('[data-rate-cal-shift]').forEach(b=>{
     b.onclick=()=>{
@@ -16320,6 +17047,8 @@ function kidRating(kidId, area, week){
 }
 
 function setKidRating(kidId, area, value, week){
+  /* Children never self-rate — staff writes via setStaffKidRating only. */
+  if(state.mode==='child') return false;
   if(!kidId || !isValidKidRateArea(area)) return false;
   const score = clampGrade(value);
   if(!score) return false;
@@ -16530,6 +17259,24 @@ function kidRatingMonthHtml(kidId, {mode='staff'}={}){
   });
 }
 
+function staffKidDayStripHtml(kidId){
+  const focusWeek = state.rateWeek || kidWeekKey();
+  const week = weekDates(focusWeek);
+  const raterId = state.user?.id;
+  if(!raterId) return '';
+  return `<div class="rate-day-strip">
+    <div class="block-h"><span class="t">${esc(t('rateDayTitle'))}</span></div>
+    <div class="book-day-strip">${week.map((ds,i)=>{
+      const val = staffKidDayRating(kidId, raterId, ds);
+      const d = new Date(ds+'T12:00:00');
+      return `<button type="button" class="book-day-chip ${val?'has':''}" data-staff-day-rate="${esc(kidId)}" data-staff-day-date="${esc(ds)}" data-staff-day-val="${val||0}" title="${esc(gradeLabel(val)||'—')}">
+        <span class="book-day-dow">${esc(DAY_NAMES[state.lang][i].slice(0,2))}</span>
+        <span class="book-day-num">${val||'·'}</span>
+      </button>`;
+    }).join('')}</div>
+  </div>`;
+}
+
 function staffRatingPanelHtml(kidId){
   const focusWeek = state.rateWeek || kidWeekKey();
   const summary=staffKidWeeklySummary(kidId, focusWeek);
@@ -16542,14 +17289,16 @@ function staffRatingPanelHtml(kidId){
     const value=staffKidRating(kidId,state.user?.id,area, focusWeek);
     return `<div class="school-sub-row grade-rate-row mode-pro-block"><span class="grow">${esc(choreLabel(ch))}</span>${staffRatingStarsHtml(kidId,area,value)}</div>`;
   }).join('');
-  const weekLabel = focusWeek.slice(5).replace('-','.');
+  const weekLabel = formatWeekRangeLabel(focusWeek);
   return `<div class="block-h"><span class="t">${esc(t('staffWeekAverage'))}</span><span class="hrs">${esc(weekLabel)}</span></div>
     ${kidRatingMonthHtml(kidId, {mode:'staff'})}
     <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
     <div class="staff-rating-summary"><b>${summary.average?summary.average.toFixed(1):'—'}<small>/6</small></b><span>${summary.raterCount?esc(t('staffRatingsCount')(summary.raterCount)):esc(t('staffRatingEmpty'))}</span></div>
     ${staffRatingAreaRows(summary)}
     <div class="staff-own-rating"><strong>${esc(t('staffYourRating'))}</strong>${own}</div>
-    ${things?`<div class="staff-own-rating mode-pro-block"><strong>${esc(t('kidRateThingsTitle'))}</strong>${things}</div>`:''}`;
+    ${things?`<div class="staff-own-rating mode-pro-block"><strong>${esc(t('kidRateThingsTitle'))}</strong>${things}</div>`:''}
+    <div class="rate-avg-footer"><span>${esc(t('rateAverageFooter'))}</span><b>${summary.average?summary.average.toFixed(1):'—'}</b></div>
+    ${staffKidDayStripHtml(kidId)}`;
 }
 
 function childStaffRatingHtml(kidId){
@@ -16663,83 +17412,21 @@ try{
 }catch{}
 
 function childRateDueBannerHtml(kidId){
-  const rem = kidRatingReminderState(kidId);
-  if(!rem.due) return '';
-  return `<section class="kid-card kid-rate-due mode-easy-block" role="status">
-    <div class="kid-rate-due-row">
-      <span class="kid-rate-due-ico" aria-hidden="true">${ui('u-alert')}</span>
-      <div class="grow">
-        <b>${esc(t('kidRateDueBanner'))}</b>
-        <span class="muted">${esc(t('kidRateDueHint')(rem.missingCount))}</span>
-      </div>
-      <button type="button" class="chip" data-child-view="rate">${esc(t('kidNavRate'))}</button>
-    </div>
-  </section>`;
+  /* Kids do not self-rate — no “missing grades” nudge on the child home. */
+  return '';
 }
 
 function childBewertungenView(kidId){
-  const life = KID_RATE_AREAS.filter(a=>a.group==='life');
-  const school = KID_RATE_AREAS.filter(a=>a.group==='school');
-  const rowHtml = (areas) => areas.map(a=>{
-    const v = kidRating(kidId, a.id);
-    return `<div class="kid-rate-row grade-rate-row">
-      <span class="kid-rate-label">${esc(t(a.key))}</span>
-      <span class="kid-grades ${a.tint}">${kidGradePickHtml(a.id, v)}</span>
-    </div>`;
-  }).join('');
-
-  const things = importantThingsForKid(kidId);
-  const thingRows = things.length ? things.map(ch=>{
-    const area = kidThingArea(ch.id);
-    const v = kidRating(kidId, area);
-    return `<div class="kid-rate-row grade-rate-row">
-      <span class="kid-rate-label">${esc(choreLabel(ch))}</span>
-      <span class="kid-grades pine">${kidGradePickHtml(area, v)}</span>
-    </div>`;
-  }).join('') : `<p class="muted">${esc(t('kidRateThingsEmpty'))}</p>`;
-
-  const weeks = [];
-  for(let i=3;i>=0;i--){
-    const d = new Date(); d.setDate(d.getDate() - i*7);
-    const wk = kidWeekKey(d);
-    weeks.push({wk, avg: kidWeekAverage(kidId, wk)});
-  }
-  const trend = weeks.map(w=>{
-    return `<div class="kid-trend-row">
-      <span class="kid-trend-wk">${esc(w.wk.slice(5).replace('-','.'))}</span>
-      <span class="kid-trend-track"><span class="kid-trend-fill" style="width:${gradeQualityPct(w.avg)}%"></span></span>
-      <span class="kid-trend-val">${w.avg ? w.avg.toFixed(1) : '–'}</span>
-    </div>`;
-  }).join('');
-
-  /* Product intent: staff grades kids (staffKidRatings). Easy = view only; Pro may self-rate. */
-  const selfRate = isPro() ? `<section class="kid-card pro-only mode-pro-block">
+  return `<div class="kid-rate-pc kid-page" data-tour="kid-rate">
+    <header class="kid-hero kid-hero-compact">
+      <p class="eyebrow">Armonia · ${esc(t('kidRateKicker'))}</p>
       <h2>${esc(t('kidRateTitle'))}</h2>
-      <p class="muted">${esc(t('kidRateLead'))}</p>
-      <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
-      <div class="kid-rate-group"><span class="eyebrow">${esc(t('kidRateGroupLife'))}</span>${rowHtml(life)}</div>
-      <div class="kid-rate-group"><span class="eyebrow">${esc(t('kidRateGroupSchool'))}</span>${rowHtml(school)}</div>
-    </section>
-    <section class="kid-card pro-only mode-pro-block">
-      <h2>${esc(t('kidRateThingsTitle'))}</h2>
-      <p class="muted">${esc(t('kidRateThingsLead'))}</p>
-      ${thingRows}
-    </section>` : `<section class="kid-card mode-easy-block">
-      <h2>${esc(t('childStaffRatingTitle'))}</h2>
-      <p class="muted">${esc(t('kidRateStaffOnly'))}</p>
-    </section>`;
-
-  return `<div class="kid-rate-pc" data-tour="kid-rate">
-    <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+      <p class="kid-hello">${esc(t('kidRateLead'))}</p>
+    </header>
     ${kidRatingMonthHtml(kidId, {mode:'staff'})}
     ${childStaffRatingHtml(kidId)}
-    ${selfRate}
     <div class="kid-rate-layout">
-      ${isPro()?childSubjectsReadonlyHtml(kidId):''}
-      <section class="kid-card mode-easy-block">
-        <h2>${esc(t('kidRateWeeks'))}</h2>
-        ${trend}
-      </section>
+      ${childSubjectsReadonlyHtml(kidId)}
     </div>
   </div>`;
 }
@@ -16776,8 +17463,14 @@ function childBonusView(kidId){
       <span class="kid-bonus-label">${esc(it.label)}</span>
       <span class="kid-bonus-pts">+${it.pts}</span>
     </div>`).join('');
-  return `<div data-tour="kid-bonus"><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
-    <section class="kid-card kid-bonus-hero">
+  return `<div class="kid-page" data-tour="kid-bonus">
+    <header class="kid-hero kid-hero-compact">
+      <p class="eyebrow">Armonia · ${esc(t('kidBonusKicker'))}</p>
+      <h2>${esc(t('kidBonusTitle'))}</h2>
+      <p class="kid-hello">${esc(t('kidBonusStreak')(b.streak))}</p>
+    </header>
+    <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    <section class="kid-card kid-bonus-hero kid-surface">
       <span class="kid-bonus-stars" aria-hidden="true">${ui('u-sparkle')}</span>
       <div class="kid-bonus-copy">
         <b>${esc(t('kidBonusEarned')(b.earned))}</b>
@@ -16785,7 +17478,7 @@ function childBonusView(kidId){
       </div>
     </section>
     <p class="muted"><button type="button" class="btn ghost" data-child-view="pocket">${esc(t('pocketMoneyOpenTab'))}</button></p>
-    <section class="kid-card pro-only mode-pro-block">
+    <section class="kid-card kid-surface pro-only mode-pro-block">
       <h2>${esc(t('kidBonusHow'))}</h2>
       ${items}
     </section></div>`;
@@ -16833,11 +17526,15 @@ function childNotizenView(kidId){
     ? `<button type="button" class="btn sec" id="kidNoteCancelEdit">${esc(t('kidNotesCancelEdit'))}</button>`
     : '';
 
-  return `<div data-tour="kid-notes"><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+  return `<div class="kid-page" data-tour="kid-notes">
+    <header class="kid-hero kid-hero-compact">
+      <p class="eyebrow">Armonia · ${esc(t('kidNotesKicker'))}</p>
+      <h2>${esc(t('kidNotesTitle'))}</h2>
+      <p class="kid-hello">${esc(t('kidNotesAsk'))}</p>
+    </header>
+    <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
     <div class="kid-tab-cal-wrap">${kidNotesCalHtml(kidId)}</div>
-    <section class="kid-card kid-note-compose-card" id="kidNoteCompose">
-      <p class="eyebrow">${esc(t('kidNotesKicker'))}</p>
-      <h2>${esc(t('kidNotesAsk'))}</h2>
+    <section class="kid-card kid-note-compose-card kid-surface" id="kidNoteCompose">
       <div class="kid-moods" role="group">${moods}</div>
       <textarea id="kidNoteText" class="kid-note-input" rows="3" placeholder="${esc(t('kidNotesPlaceholder'))}">${editing?esc(editing.text):''}</textarea>
       <div class="kid-note-compose-actions">
@@ -16877,15 +17574,8 @@ function bindKidExtras(root){
     });
   });
   root.querySelectorAll('[data-kid-rate]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const area = btn.getAttribute('data-kid-rate');
-      if(!area || area === '__none__') return;
-      const val = Number(btn.getAttribute('data-grade-val'))||0;
-      if(setKidRating(state.child.id, area, val)){
-        toast(t('kidRateSaved'));
-        render();
-      }
-    });
+    /* Kids never self-rate — ignore taps if any stale markup remains. */
+    btn.addEventListener('click', (e)=>{ e.preventDefault(); e.stopPropagation(); });
   });
   root.querySelectorAll('[data-kid-mood]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
@@ -17031,7 +17721,7 @@ function childRewardsView(kidId){
       ${kidStreakHtml(kidId)}
     </section>
     <div class="kid-panel-h" style="margin-top:var(--space-2)"><b>${esc(t('kidBadges'))}</b></div>
-    ${kidBadgesHtml(xp)}
+    ${kidBadgesHtml(xp, kidId)}
     <div class="kid-panel-h" style="margin-top:var(--space-3)"><b>${esc(t('leaderboard'))}</b>
       <button type="button" class="chip" data-child-view="aufgaben">${esc(t('kidCourseTasks'))}</button></div>
     ${(() => {
@@ -17071,11 +17761,17 @@ function renderChild(){
   const titleEl=document.getElementById('title');
   const whoEl=document.getElementById('who');
   if(titleEl) titleEl.textContent = esc(c.name);
-  if(whoEl) whoEl.textContent = kidViewTitle(state.childView);
+  const childAge = profileAgeYears(c);
+  if(whoEl) whoEl.textContent = kidViewTitle(state.childView) + (childAge!=null ? ` · ${t('profileAge')} ${childAge}` : '');
   const langBtn=document.getElementById('btnLang');
   if(langBtn) langBtn.textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
   const userBtn=document.getElementById('btnUser');
-  if(userBtn) userBtn.textContent = t('childBye');
+  if(userBtn){
+    userBtn.classList.add('topbtn-avatar');
+    userBtn.innerHTML = profileAvatarHtml(c, {className:'top-avatar'});
+    userBtn.title = profileName(c) + ' · ' + t('securityAccess');
+    userBtn.setAttribute('aria-label', t('securityAccess'));
+  }
   const profiles=document.getElementById('btnProfiles');
   if(profiles){
     profiles.textContent = '↔';
@@ -17115,6 +17811,14 @@ function renderChild(){
     console.error('missing #view');
     try{ toast(t('unexpectedError'),'error'); }catch{}
     return;
+  }
+  const routeKey = `child:${state.childView||''}:${c.id}`;
+  const routeChanged = routeKey !== (state._lastRouteKey||'');
+  state._lastRouteKey = routeKey;
+  document.body.classList.toggle('route-enter', routeChanged);
+  if(routeChanged){
+    clearTimeout(window.__routeEnterTimer);
+    window.__routeEnterTimer = setTimeout(()=>document.body.classList.remove('route-enter'), 520);
   }
   viewEl.innerHTML = `
     <div class="kid-shell">
@@ -17225,22 +17929,23 @@ async function openChoreSubmitSheet(choreId, kidId){
     document.getElementById('choreSubmitBtn').onclick = async()=>{
       const proofText = (document.getElementById('choreProofText')||{}).value || '';
       if(aiState==='ok'){
-        finalizeChoreApproval(choreId, kidId, ch.xp, proofText, photoDataUrl);
+        const photo = await chorePhotoPersist(photoDataUrl);
+        finalizeChoreApproval(choreId, kidId, ch.xp, proofText, photo, null);
         return;
       }
       if(!proofText.trim() && !photoDataUrl){ toast(t('choreProofLabel')); return; }
       renderSheet('checking');
-      const approved = await aiCheckChore(ch, proofText, photoDataUrl);
-      if(approved===true){
+      const verdict = await aiCheckChore(ch, proofText, photoDataUrl);
+      const photo = await chorePhotoPersist(photoDataUrl);
+      if(verdict.approved===true){
         renderSheet('ok');
-        // Auto-finalize once; button path is guarded by choreDoneToday
-        setTimeout(()=>{ finalizeChoreApproval(choreId, kidId, ch.xp, proofText, photoDataUrl); },900);
-      } else if(approved===false){
+        setTimeout(()=>{ finalizeChoreApproval(choreId, kidId, ch.xp, proofText, photo, verdict.reason||null); },900);
+      } else if(verdict.approved===false){
         renderSheet('fail', '');
-        submitPendingReview(choreId, kidId, proofText, photoDataUrl);
+        submitPendingReview(choreId, kidId, proofText, photo, verdict.reason||null);
       } else {
         renderSheet('error');
-        submitPendingReview(choreId, kidId, proofText, photoDataUrl);
+        submitPendingReview(choreId, kidId, proofText, photo, null);
       }
     };
   };
@@ -17259,24 +17964,36 @@ async function aiCheckChore(chore, proofText, photoDataUrl){
         lang: state.lang
       })
     });
-    if(!resp.ok) return null;
+    if(!resp.ok) return {approved:null, reason:''};
     const data = await resp.json();
-    return data.approved === true;
-  } catch(e){ return null; }
+    return {approved: data.approved === true, reason: String(data.reason||'').slice(0,400)};
+  } catch(e){ return {approved:null, reason:''}; }
 }
 
-function submitPendingReview(choreId, kidId, proofText, photoDataUrl){
+async function chorePhotoPersist(photoDataUrl){
+  if(!photoDataUrl) return null;
+  try{
+    const photo = String(photoDataUrl).startsWith('data:image/jpeg')
+      ? photoDataUrl
+      : await compressGalleryPhoto(String(photoDataUrl), 480, 0.55);
+    return photo;
+  }catch{ return photoDataUrl; }
+}
+
+function submitPendingReview(choreId, kidId, proofText, photoDataUrl, aiVerdict){
   const subs = DB.choreSubmissions || (DB.choreSubmissions=[]);
   subs.push({
     id:'sub'+Date.now(), choreId, kidId,
     date: iso(new Date()), proofText,
-    photoThumb: photoDataUrl ? photoDataUrl.slice(0,200)+'…' : null,
+    photo: photoDataUrl || null,
+    photoThumb: photoDataUrl || null,
+    aiVerdict: aiVerdict || null,
     status:'pending', ts: Date.now()
   });
   save();
 }
 
-function finalizeChoreApproval(choreId, kidId, xp, proofText, photoDataUrl){
+function finalizeChoreApproval(choreId, kidId, xp, proofText, photoDataUrl, aiVerdict){
   if(choreDoneToday(choreId, kidId)){
     closeSheet();
     render();
@@ -17285,7 +18002,9 @@ function finalizeChoreApproval(choreId, kidId, xp, proofText, photoDataUrl){
   const subs = DB.choreSubmissions || (DB.choreSubmissions=[]);
   const subId = 'sub'+Date.now();
   subs.push({id:subId, choreId, kidId, date:iso(new Date()), proofText,
-    photoThumb: photoDataUrl ? photoDataUrl.slice(0,200)+'…' : null,
+    photo: photoDataUrl || null,
+    photoThumb: photoDataUrl || null,
+    aiVerdict: aiVerdict || null,
     status:'approved', ts:Date.now()});
   grantXp(kidId, choreId, xp, subId);
   save();
@@ -17299,27 +18018,12 @@ function viewAdminRewardCenter(){
   const pending = (DB.choreSubmissions||[]).filter(s=>s.status==='pending')
     .sort((a,b)=>b.ts-a.ts);
 
-  const rows = pending.map(s=>{
-    const ch = (DB.chores||[]).find(c=>c.id===s.choreId);
-    const k = kid(s.kidId);
-    if(!ch||!k) return '';
-    return `<div class="admin-chore-row" data-sub="${s.id}">
-      <div>
-        <div style="font-size:14px;font-weight:700">${ch.emoji} ${esc(k.name)} — ${esc(choreLabel(ch))}</div>
-        <div class="muted" style="font-size:12px">${s.date} · ⭐${ch.xp} XP</div>
-        ${s.proofText ? `<div style="font-size:12px;color:var(--muted);margin-top:3px;font-style:italic">"${esc(s.proofText)}"</div>` : ''}
-      </div>
-      <div class="admin-chore-verdict">
-        <button class="verdict-approve" data-verdict="approve" data-sub="${s.id}" type="button" title="${t('adminApprove')}">✓</button>
-        <button class="verdict-reject" data-verdict="reject" data-sub="${s.id}" type="button" title="${t('adminReject')}">✗</button>
-      </div>
-    </div>`;
-  }).join('');
+  const rows = pending.map(s=>choreReviewRowHtml(s)).join('');
 
   return `<div class="card admin-reward-card">
     <h2>⭐ ${t('adminRewards')}</h2>
     <div style="font-size:13px;color:var(--muted);margin-bottom:10px">${t('adminPendingReview')}: ${pending.length}</div>
-    ${pending.length ? `<div class="admin-chore-list">${rows}</div>`
+    ${pending.length ? `<div class="admin-chore-list chore-review-list">${rows}</div>`
       : `<div class="reward-empty"><div class="re-icon">🎉</div>${t('adminNoReviews')}</div>`}
   </div>`;
 }
@@ -17392,10 +18096,10 @@ function childGamesLobby(){
   const streakChip = stats.streak>1
     ? `<span class="arcade-streak">${ui('u-party','sm')} ${esc(t('gameStreak')(stats.streak))}</span>`
     : '';
-  return `<div class="arcade-lobby" data-tour="kid-games">
-      <div class="arcade-hero">
+  return `<div class="arcade-lobby kid-page" data-tour="kid-games">
+      <div class="arcade-hero kid-hero">
         <div class="arcade-hero-text">
-          <div class="brand-kicker">Armonia Play</div>
+          <div class="brand-kicker">Armonia</div>
           <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
           <h2>${t('gamesTitle')}</h2>
           <p>${t('gamesHint')}</p>
@@ -18599,6 +19303,223 @@ function employeeShiftSummary(employeeId,dateStr){
   return shifts.map(s=>s.type==='OFF'?t('off'):s.type==='H24'?`${s.from} · ${t('h24')}`:`${s.from}–${s.to}`).join(', ');
 }
 
+function adminOpsPie(parts){
+  const total=parts.reduce((s,p)=>s+Math.max(0,Number(p.n)||0),0)||1;
+  let acc=0;
+  const slices=parts.map(p=>{
+    const n=Math.max(0,Number(p.n)||0);
+    const start=acc/total*360; acc+=n; const end=acc/total*360;
+    return `${p.color} ${start}deg ${end}deg`;
+  }).join(', ');
+  const legend=parts.map(p=>`<span><i style="background:${p.color}"></i>${esc(p.label)} · ${p.n}</span>`).join('');
+  return `<div class="admin-ops-pie-wrap"><div class="admin-ops-pie" style="background:conic-gradient(${slices})"></div><div class="admin-ops-pie-legend">${legend}</div></div>`;
+}
+
+function adminOpsLegoState(){
+  state.adminLego = state.adminLego || {day:'', kidId:'', houseId:'', type:''};
+  return state.adminLego;
+}
+
+function adminOpsFilterRows(){
+  const q=adminOpsLegoState();
+  const rows=[];
+  (DB.log||[]).slice().reverse().forEach(row=>{
+    if(!row) return;
+    let ds='';
+    try{ ds=iso(new Date(row.ts||row.at||0)); }catch{ ds=''; }
+    if(q.day && ds!==q.day) return;
+    if(q.houseId && row.houseId && row.houseId!==q.houseId) return;
+    const msg=String(row.msg||row.text||'');
+    if(q.kidId){
+      const kid=(DB.children||[]).find(k=>k.id===q.kidId);
+      const name=(kid?.name||'').toLowerCase();
+      if(row.kidId && row.kidId!==q.kidId) return;
+      if(!row.kidId && name && !msg.toLowerCase().includes(name.toLowerCase()) && !msg.includes(q.kidId)) return;
+    }
+    if(q.type){
+      const ty=String(row.type||'').toUpperCase();
+      const map={stock:['IN','OUT','STOCKCHECK','CORRECTION'], list:['SHOP'], pocket:['POCKET'], schedule:['SCHEDULE','SHIFT'], book:['NOTES','SHIFT'], school:['SCHOOL'], gallery:['GALLERY']};
+      const ok=(map[q.type]||[]).includes(ty) || (q.type==='stock' && /lager|stock|αποθ/i.test(msg));
+      if(!ok) return;
+    }
+    rows.push({kind:'log', ts:row.ts||row.at, title:typeLabel(row.type)||row.type, body:msg, meta:ds});
+  });
+  (DB.pocketMoneyTxns||[]).slice().reverse().forEach(tx=>{
+    if(q.type && q.type!=='pocket') return;
+    if(q.kidId && tx.kidId!==q.kidId) return;
+    let ds=''; try{ ds=iso(new Date(tx.ts||0)); }catch{}
+    if(q.day && ds!==q.day) return;
+    const kid=(DB.children||[]).find(k=>k.id===tx.kidId);
+    rows.push({kind:'pocket', ts:tx.ts, title:t('adminOpsPocket'), body:`${kid?.name||tx.kidId}: ${tx.amount??tx.delta??0} · ${tx.note||''}`, meta:ds});
+  });
+  return rows.slice(0,80);
+}
+
+function viewAdminOps(){
+  if(!isAdminUser()) return `<section class="card"><p class="muted">${esc(t('adminRequired'))}</p></section>`;
+  const q=adminOpsLegoState();
+  const today=iso(new Date());
+  const log=(DB.log||[]).slice().reverse().slice(0,36);
+  const pocket=(DB.pocketMoneyTxns||[]).slice().reverse().slice(0,24);
+  const checks=(DB.stockChecks||[]).slice().reverse().slice(0,8);
+  const trips=(DB.shoppingTrips||[]).slice().reverse().slice(0,8);
+  let ok=0,low=0,empty=0;
+  (DB.houses||[]).forEach(h=>{
+    PRODUCTS().forEach(p=>{
+      const st=stockProductStateFor([h],p);
+      if(st==='empty') empty++; else if(st==='low') low++; else ok++;
+    });
+  });
+  let bought=0, missing=0;
+  trips.forEach(tr=>(tr.items||[]).forEach(it=>{
+    if(it.result==='bought') bought++; else missing++;
+  }));
+  let pin=0, pout=0;
+  (DB.pocketMoneyTxns||[]).forEach(tx=>{
+    const a=Number(tx.amount??tx.delta??0);
+    if(a>=0) pin+=a; else pout+=Math.abs(a);
+  });
+  const weekDays=[0,1,2,3,4,5,6].map(i=>{
+    const d=new Date(); d.setDate(d.getDate()-((d.getDay()+6)%7)+i);
+    return iso(d);
+  });
+  const scheduleBits=weekDays.map(ds=>{
+    const items=(DB.template||[]).filter(e=>Number(e.day)===dowIdx(new Date(ds+'T12:00:00'))).slice(0,4);
+    return `<div class="admin-ops-day"><b>${esc(eventDayLabel(ds))}</b>${items.length?items.map(e=>`<span>${esc(actLabel(e.activityId)||e.activityId)}</span>`).join(''):`<span class="muted">—</span>`}</div>`;
+  }).join('');
+  const legoKids=(DB.children||[]).map(k=>`<button type="button" class="chip ${q.kidId===k.id?'on':''}" data-lego-kid="${k.id}">${esc(k.name)}</button>`).join('');
+  const legoHouses=(DB.houses||[]).map(h=>`<button type="button" class="chip ${q.houseId===h.id?'on':''}" data-lego-house="${h.id}">${esc(h.short||h.name||h.id)}</button>`).join('');
+  const types=[['stock',t('navStock')],['list',t('navShop')],['pocket',t('navPocket')],['schedule',t('navSchedule')],['book',t('navBook')]];
+  const legoTypes=types.map(([id,label])=>`<button type="button" class="chip ${q.type===id?'on':''}" data-lego-type="${id}">${esc(label)}</button>`).join('');
+  const filtered=adminOpsFilterRows();
+  const filterCards=filtered.length?filtered.map(r=>`<article class="admin-ops-card"><header><b>${esc(r.title)}</b><span>${esc(r.meta||'')}</span></header><p>${esc(r.body)}</p></article>`).join('')
+    :`<p class="muted">${esc(t('adminOpsEmpty'))}</p>`;
+  return `<div class="admin-ops kid-page" data-tour="admin-ops">
+    <header class="admin-ops-hero">
+      <p class="eyebrow">Armonia · Admin</p>
+      <h2>${esc(t('adminOpsTitle'))}</h2>
+      <p class="muted">${esc(t('adminOpsLead'))}</p>
+    </header>
+    <section class="card admin-ops-section">
+      <h2>${esc(t('adminOpsCharts'))}</h2>
+      <div class="admin-ops-charts">
+        <div><h3>${esc(t('adminOpsStorages'))}</h3>${adminOpsPie([{n:ok,label:'OK',color:'#2a6b52'},{n:low,label:t('stockLow')||'Low',color:'#c48a1a'},{n:empty,label:t('stockOutState')||'Empty',color:'#c2410c'}])}</div>
+        <div><h3>${esc(t('navShop'))}</h3>${adminOpsPie([{n:bought,label:t('stBought')||'OK',color:'#2a8f9a'},{n:missing,label:t('shortage')||'Missing',color:'#a16207'}])}</div>
+        <div><h3>${esc(t('adminOpsPocket'))}</h3>${adminOpsPie([{n:Math.round(pin),label:'+',color:'#2a6b52'},{n:Math.round(pout),label:'−',color:'#c2410c'}])}</div>
+      </div>
+    </section>
+    <section class="card admin-ops-section">
+      <h2>${esc(t('adminOpsLego'))}</h2>
+      <div class="admin-ops-lego">
+        <label class="f"><span>${esc(t('adminOpsBlockDay'))}</span><input type="date" id="adminLegoDay" value="${esc(q.day||today)}"></label>
+        <div class="admin-ops-chips" role="group" aria-label="${esc(t('adminOpsBlockKid'))}">${legoKids}</div>
+        <div class="admin-ops-chips" role="group" aria-label="${esc(t('adminOpsBlockHouse'))}">${legoHouses}</div>
+        <div class="admin-ops-chips" role="group" aria-label="${esc(t('adminOpsBlockType'))}">${legoTypes}</div>
+        <div class="row" style="gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn sm" id="adminLegoRun">${esc(t('adminOpsRun'))}</button>
+          <button type="button" class="btn sm sec" id="adminLegoClear">${esc(t('adminOpsClear'))}</button>
+          <button type="button" class="btn sm sec" id="adminLegoZoai">${esc(t('adminOpsAskZoai'))}</button>
+        </div>
+      </div>
+      <div class="admin-ops-results" id="adminLegoResults">${filterCards}</div>
+    </section>
+    <section class="card admin-ops-section">
+      <h2>${esc(t('adminOpsTimeline'))}</h2>
+      <div class="admin-ops-timeline">${log.map(row=>{
+        let when=''; try{ when=new Date(row.ts||row.at).toLocaleString(state.lang==='el'?'el-GR':'de-DE'); }catch{}
+        return `<article class="admin-ops-card"><header><b>${esc(typeLabel(row.type)||row.type||'')}</b><span>${esc(when)}</span></header><p>${esc(row.msg||row.text||'')}</p></article>`;
+      }).join('')||`<p class="muted">—</p>`}</div>
+    </section>
+    <section class="card admin-ops-section">
+      <h2>${esc(t('adminOpsPocket'))}</h2>
+      <div class="admin-ops-timeline">${pocket.map(tx=>{
+        const kid=(DB.children||[]).find(k=>k.id===tx.kidId);
+        let when=''; try{ when=new Date(tx.ts||0).toLocaleString(state.lang==='el'?'el-GR':'de-DE'); }catch{}
+        return `<article class="admin-ops-card"><header><b>${esc(kid?.name||tx.kidId||'')}</b><span>${esc(when)}</span></header><p>${esc(String(tx.amount??tx.delta??0))} · ${esc(tx.note||'')}</p></article>`;
+      }).join('')||`<p class="muted">—</p>`}</div>
+    </section>
+    <section class="card admin-ops-section">
+      <h2>${esc(t('adminOpsStorages'))}</h2>
+      <div class="admin-ops-timeline">${checks.map(c=>`<article class="admin-ops-card"><header><b>${esc(houseShort(c.houseId))}</b><span>${esc(c.date||'')} · ${esc(c.byName||'')}</span></header><p>${(c.items||[]).length} · ${c.allYes?'OK':'Δ'}</p></article>`).join('')||`<p class="muted">—</p>`}</div>
+    </section>
+    <section class="card admin-ops-section">
+      <h2>${esc(t('adminOpsSchedule'))}</h2>
+      <div class="admin-ops-schedule">${scheduleBits}</div>
+    </section>
+  </div>`;
+}
+
+function wireAdminOpsView(root){
+  if(!root) return;
+  const syncQ=()=>{
+    const q=adminOpsLegoState();
+    const dayEl=root.querySelector('#adminLegoDay');
+    if(dayEl) q.day=dayEl.value||'';
+  };
+  const paintResults=()=>{
+    const box=root.querySelector('#adminLegoResults');
+    if(!box) return;
+    const filtered=adminOpsFilterRows();
+    box.innerHTML=filtered.length?filtered.map(r=>`<article class="admin-ops-card"><header><b>${esc(r.title)}</b><span>${esc(r.meta||'')}</span></header><p>${esc(r.body)}</p></article>`).join('')
+      :`<p class="muted">${esc(t('adminOpsEmpty'))}</p>`;
+  };
+  root.querySelectorAll('[data-lego-kid]').forEach(btn=>btn.onclick=()=>{
+    const q=adminOpsLegoState();
+    q.kidId=q.kidId===btn.dataset.legoKid?'':btn.dataset.legoKid;
+    render();
+  });
+  root.querySelectorAll('[data-lego-house]').forEach(btn=>btn.onclick=()=>{
+    const q=adminOpsLegoState();
+    q.houseId=q.houseId===btn.dataset.legoHouse?'':btn.dataset.legoHouse;
+    render();
+  });
+  root.querySelectorAll('[data-lego-type]').forEach(btn=>btn.onclick=()=>{
+    const q=adminOpsLegoState();
+    q.type=q.type===btn.dataset.legoType?'':btn.dataset.legoType;
+    render();
+  });
+  root.querySelector('#adminLegoRun')?.addEventListener('click',()=>{ syncQ(); paintResults(); feedback('tap'); });
+  root.querySelector('#adminLegoClear')?.addEventListener('click',()=>{
+    state.adminLego={day:'',kidId:'',houseId:'',type:''}; render();
+  });
+  root.querySelector('#adminLegoZoai')?.addEventListener('click', async ()=>{
+    syncQ();
+    const q=adminOpsLegoState();
+    const kid=(DB.children||[]).find(k=>k.id===q.kidId);
+    const promptParts=[];
+    if(state.lang==='el'){
+      promptParts.push('Τι έγινε');
+      if(q.day) promptParts.push(`στις ${q.day}`);
+      if(kid) promptParts.push(`με τον/την ${kid.name}`);
+      if(q.houseId) promptParts.push(`στο ${houseShort(q.houseId)}`);
+      if(q.type) promptParts.push(`(${q.type})`);
+      promptParts.push('; Πες συγκεκριμένα γεγονότα (π.χ. πάνες, κινήσεις αποθήκης, σημειώσεις).');
+    }else{
+      promptParts.push('Was passierte');
+      if(q.day) promptParts.push(`am ${q.day}`);
+      if(kid) promptParts.push(`mit ${kid.name}`);
+      if(q.houseId) promptParts.push(`in ${houseShort(q.houseId)}`);
+      if(q.type) promptParts.push(`(${q.type})`);
+      promptParts.push('? Nenne konkrete Fakten (Windeln, Lager, Notizen).');
+    }
+    try{
+      const res=await fetch('/api/ops-snapshot',{
+        method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({date:q.day||iso(new Date()), kidId:q.kidId||'', houseId:q.houseId||''}),
+      });
+      if(res.ok) state._adminOpsSnapshot=await res.json();
+    }catch{}
+    state._adminOpsPrompt=promptParts.join(' ');
+    openZoAi();
+    setTimeout(()=>{
+      const input=document.getElementById('helpInput')||document.querySelector('#chatInput, .chat-compose textarea, #chatCompose input');
+      if(input){ input.value=state._adminOpsPrompt; input.dispatchEvent(new Event('input',{bubbles:true})); input.focus(); }
+    }, 200);
+    feedback('tap');
+  });
+}
+
 function adminTeamPanel(today){
   if(!isAdminUser()) return '';
   const dates=dashboardDates(0,6);
@@ -18622,6 +19543,7 @@ function adminTeamPanel(today){
     <div class="admin-center-head"><div><div class="brand-kicker">ARMONIA THASSOS</div><h2>👑 ${t('adminCenter')}</h2>
       <div class="muted">${t('adminOverview')}</div></div><div class="admin-crown">🛡️</div></div>
     <div class="admin-actions">
+      <button class="btn sm sec" data-admin-go="ops">📊 ${t('adminOpsOpen')}</button>
       <button class="btn sm" data-admin-go="week">📅 ${t('adminEditPlan')}</button>
       <button class="btn sm sec" data-admin-go="shift">🕒 ${t('adminEditShifts')}</button>
       <button class="btn sm sec" data-admin-go="events">🎉 ${t('adminManageEvents')}</button>
@@ -19095,8 +20017,11 @@ function sheetNotifCenter(){
         <span class="nr-tone tone-${esc(n.tone)}">${esc(n.toneLabel)} · ${esc(n.meta||'')}</span>
       </button>`).join(''):`<p class="muted">${esc(t('notifCenterEmpty'))}</p>`}
     </div>
-    ${!on?`<button class="btn" type="button" id="notifCenterEnable" style="margin-top:10px" ${canEnable?'':'disabled'}>${esc(cap.reason==='ios-install'?t('childInstallTitle'):t('notifEnable'))}</button>
-      ${platformHint?`<p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}`:''}
+    ${!on?`${cap.reason==='ios-install'
+      ? `<button class="btn" type="button" id="notifCenterInstall" style="margin-top:10px">${esc(t('childInstallTitle'))}</button>
+         <p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(t('notifInstallSteps'))}</p>`
+      : `<button class="btn" type="button" id="notifCenterEnable" style="margin-top:10px" ${canEnable?'':'disabled'}>${esc(t('notifEnable'))}</button>
+      ${platformHint?`<p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}`}`:''}
     <button class="btn ${on?'':'sec'}" type="button" id="notifCenterSettings" style="margin-top:10px">${esc(t('notifOpenSettings'))}</button>
     <button class="btn sec" type="button" id="notifCenterClose" style="margin-top:8px">${esc(t('close'))}</button>`);
   sheetEl.querySelector('#notifCenterClose').onclick=()=>closeSheet();
@@ -19107,6 +20032,7 @@ function sheetNotifCenter(){
     toast(ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
     if(ok){ paintNotifBadge(); sheetNotifCenter(); }
   };
+  sheetEl.querySelector('#notifCenterInstall')?.addEventListener('click', ()=>{ closeSheet(); sheetInstallNotif(); });
   sheetEl.querySelectorAll('[data-inbox-jump]').forEach(btn=>{
     btn.onclick=()=>{ closeSheet(); runInboxJump(btn.dataset.inboxJump); };
   });
@@ -19481,7 +20407,7 @@ function maybePromptPasskeySetup(){
 function mobileChromeTitle(){
   const map = {
     home:'navHome', schedule:'navSchedule', stock:'navStock', shop:'navShop',
-    book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids', pocket:'navPocket',
+    book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids', pocket:'navPocket', rules:'rulesTab',
   };
   return t(map[state.tab] || 'navHome');
 }
@@ -19515,6 +20441,9 @@ function dynamicHeaderTitle(){
   if(state.tab==='talk') return t('headerTalk');
   if(state.tab==='kids') return t('headerKids');
   if(state.tab==='pocket') return t('headerPocket');
+  if(state.tab==='rules') return t('rulesTitle');
+  if(state.tab==='admin') return t('adminOpsTitle');
+  if(state.tab==='book') return t('headerBook');
   return t('headerBook');
 }
 
@@ -19525,6 +20454,8 @@ function paintTopChrome(){
   if(whoEl){
     let whoLine = state.user
       ? profileLabel(state.user) + ' · ' + L(state.user.role) : t('noUser');
+    const myAge = state.user ? profileAgeYears(state.user) : null;
+    if(myAge!=null) whoLine += ` · ${t('profileAge')} ${myAge}`;
     if(state.mode==='staff' && window.matchMedia('(max-width:899px)').matches){
       const ctx = dynamicHeaderTitle();
       if(ctx && ctx !== chromeHeaderTitle()) whoLine = ctx;
@@ -19543,7 +20474,13 @@ function paintTopChrome(){
   const user=document.getElementById('btnUser');
   const profiles=document.getElementById('btnProfiles');
   if(lang) lang.textContent = state.lang === 'de' ? 'DE' : 'ΕΛ';
-  if(user) user.textContent = t('logout');
+  if(user){
+    const who = state.user || state.child;
+    user.classList.add('topbtn-avatar');
+    user.innerHTML = who ? profileAvatarHtml(who, {size:36, className:'top-avatar'}) : `<span class="top-avatar is-empty">?</span>`;
+    user.title = who ? (profileName(who) + ' · ' + t('securityAccess')) : t('logout');
+    user.setAttribute('aria-label', who ? t('securityAccess') : t('logout'));
+  }
   if(profiles){
     profiles.textContent = '↔';
     profiles.title = t('profilesBack');
@@ -20027,6 +20964,9 @@ function mountHelpChat(root){
       }
       state.helpMessages.push({role:'assistant', content:data.message || t('helpUnavailable')});
       state.helpMessages = state.helpMessages.slice(-12);
+      if(state.mode==='child' && state.child?.id){
+        appendKidZoAiLog(state.child.id, content, data.message || t('helpUnavailable'));
+      }
       persistHelpTranscript();
       if(panelAlive()){
         paint();
@@ -20256,6 +21196,8 @@ function staffViewHtml(){
   if(state.tab==='kids') return viewKids();
   if(state.tab==='pocket') return viewPocket();
   if(state.tab==='talk') return viewTalk();
+  if(state.tab==='rules') return viewRules();
+  if(state.tab==='admin') return isAdminUser()?viewAdminOps():viewHome();
   return viewBook();
 }
 
@@ -20274,6 +21216,7 @@ function childViewHtml(c){
   if(state.childView==='notes') return childNotizenView(c.id);
   if(state.childView==='events') return childEventsView(c.id);
   if(state.childView==='gallery') return childGalleryView();
+  if(state.childView==='rules') return childRulesView();
   return childStartView(c);
 }
 
@@ -20286,6 +21229,7 @@ function render(){
     applyRouteFromHash();
   }
   normalizeUiModeSurfaces();
+  if(state.tab==='admin' && !isAdminUser()) state.tab='home';
   if(state.tab==='talk' && state.mode!=='staff') state.tab='home';
   const restoreMatrixFs = document.body.classList.contains('matrix-fullscreen')
     ? (document.querySelector('.matrix-shell.is-fullscreen .matrix-toolbar-title')?.textContent || '')
@@ -20309,7 +21253,7 @@ function render(){
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   const dockMore=document.getElementById('dockMore');
   if(dockMore){
-    dockMore.classList.toggle('on', ['gallery','talk','book','kids','pocket'].includes(state.tab));
+    dockMore.classList.toggle('on', ['gallery','talk','book','kids','pocket','rules'].includes(state.tab));
     dockMore.setAttribute('aria-label', t('navMore'));
   }
   const dockMoreLabel=document.getElementById('dockMoreLabel');
@@ -20342,6 +21286,14 @@ function render(){
     try{ toast(t('unexpectedError'),'error'); }catch{}
     return;
   }
+  const routeKey = `${state.mode}:${state.tab}:${state.kidsPane||''}:${state.staffKidId||''}:${state.childView||''}`;
+  const routeChanged = routeKey !== (state._lastRouteKey||'');
+  state._lastRouteKey = routeKey;
+  document.body.classList.toggle('route-enter', routeChanged);
+  if(routeChanged){
+    clearTimeout(window.__routeEnterTimer);
+    window.__routeEnterTimer = setTimeout(()=>document.body.classList.remove('route-enter'), 520);
+  }
   let html;
   try{ html = staffViewHtml(); }
   catch(err){ html = pageRenderFallbackHtml(err); }
@@ -20351,7 +21303,9 @@ function render(){
     wire();
     wireUiModeControls(viewEl);
     if(state.tab==='kids') wireKidsView(viewEl);
+    if(state.tab==='rules') wireRulesView(viewEl);
     if(state.tab==='pocket') wirePocketView(viewEl);
+    if(state.tab==='admin') wireAdminOpsView(viewEl);
     if(state.tab==='gallery') bindGallery(viewEl);
     if(state.tab==='talk'){
       const mount=document.getElementById('talkPageMount');
@@ -20391,6 +21345,10 @@ function wire(){
   v.querySelectorAll('[data-admin-go]').forEach(button=>button.onclick=()=>{
     const destination=button.dataset.adminGo;
     if(destination==='audit'){ feedback('open'); sheetSecurityAudit(); return; }
+    if(destination==='ops'){
+      if(!isAdminUser()){ toast(t('adminRequired'),'error'); return; }
+      state.tab='admin'; syncLocationHash(); render(); return;
+    }
     state.tab='schedule';setScheduleView(destination==='week'?'week':destination);
     render();
   });
@@ -20967,15 +21925,9 @@ function wire(){
   const sfTop = v.querySelector('#startFridayTop');
   if(sfTop) sfTop.onclick = startFridayBatch;
   const shopRespAckStart = v.querySelector('#shopRespAckStart');
-  if(shopRespAckStart) shopRespAckStart.onclick = ()=>{
-    state.shopRespAck = !state.shopRespAck;
-    feedback('toggle'); render();
-  };
+  if(shopRespAckStart) shopRespAckStart.remove();
   const shopRespAckBtn = v.querySelector('#shopRespAck');
-  if(shopRespAckBtn) shopRespAckBtn.onclick = ()=>{
-    state.shopRespAck = !state.shopRespAck;
-    feedback('toggle'); render();
-  };
+  if(shopRespAckBtn) shopRespAckBtn.remove();
   const shopAutoFill=v.querySelector('#shopAutoFill');
   if(shopAutoFill) shopAutoFill.onclick=()=>{ autoFillShoppingFromStock(shopHouse()); render(); };
   v.querySelectorAll('[data-shop-panel]').forEach(b=>{
@@ -21261,13 +22213,21 @@ function wire(){
       existing.qty=Math.round((Number(existing.qty)+stepFor(product||{unit:existing.unit||'Stk'}))*100)/100;
       save();render();
       toast(t('shopItemsAdded')(1),'success');
+      try{ queueOpsAlert('list', {summary:`+qty ${existing.name}`, houseId:hid, name:existing.name, qty:existing.qty}); }catch{}
     }else{
       const id=uid();
-      DB.listEntries.push({id,productId:product?.id||null,name:product?L(product):name,qty:product?stepFor(product):1,unit:product?.unit||'Stk',houseId:hid,fridayDate:friday,by:state.user?.id||null,status:'open'});
+      const display=product?L(product):name;
+      DB.listEntries.push({
+        id, productId:product?.id||null, name:display, nameDe:product?.de||name, nameEl:product?.el||'',
+        qty:product?stepFor(product):1, unit:product?.unit||'Stk', houseId:hid, fridayDate:friday,
+        by:state.user?.id||null, status:'open',
+      });
       save();
       noteListUndo([id]);
       offerListUndoToast(t('shopItemsAdded')(1));
       render();
+      try{ queueOpsAlert('list', {summary:`+ ${display}`, houseId:hid, name:display}); }catch{}
+      if(!product) enrichListEntryTranslation(id);
     }
     const next=document.querySelector('#cartQuickName');if(next)next.focus();
   };
@@ -21368,6 +22328,21 @@ function wire(){
   if(bookCalToday) bookCalToday.onclick = jumpToday;
   const bookCalTodayBar = v.querySelector('#bookCalTodayBar');
   if(bookCalTodayBar) bookCalTodayBar.onclick = jumpToday;
+  v.querySelector('#handoffFlowDismiss')?.addEventListener('click', ()=>{
+    dismissHandoffFlow();
+    feedback('tap');
+    render();
+  });
+  v.querySelector('#bookSecondaryToggle')?.addEventListener('click', ()=>{
+    state.bookShowSecondary = !state.bookShowSecondary;
+    feedback('toggle');
+    render();
+  });
+  v.querySelector('#handoffMoreSecsToggle')?.addEventListener('click', ()=>{
+    state.bookShowMoreSecs = !state.bookShowMoreSecs;
+    feedback('toggle');
+    render();
+  });
   const shiftSave=v.querySelector('#shiftNoteSave');
   if(shiftSave) shiftSave.onclick=()=>{
     if(!state.user){ toast(t('noUser'),'error'); return; }
@@ -21452,11 +22427,13 @@ function sheetMobileMore(){
     {tab:'gallery', ico:'u-camera', label:t('navGallery')},
     {tab:'talk', ico:'u-chat', label:t('navTalk')},
     {tab:'book', ico:'u-book', label:t('navBook')},
+    {tab:'rules', ico:'u-book', label:t('rulesTab')},
     {tab:'pocket', ico:'u-receipt', label:t('navPocket')},
     {act:'chat', ico:'u-sparkle', label:t('navChat')},
   ];
   const extras = [
     {act:'feedback', ico:'u-note', label:t('feedbackNav'), pro:true},
+    ...(isAdminUser()?[{tab:'admin', ico:'u-sparkle', label:t('adminOpsTab')}]:[]),
   ].filter(r=>!r.pro || !easy);
   openNavMenu(`<div class="nav-menu-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2></div>
     <div class="nav-menu-list" role="menu">
@@ -21465,7 +22442,7 @@ function sheetMobileMore(){
         ico:r.ico, label:r.label,
       })).join('')}
       ${extras.map(r=>navMenuRowHtml({
-        attrs:`data-more-act="${r.act}" role="menuitem"`,
+        attrs:(r.tab?`data-more-tab="${r.tab}"`:`data-more-act="${r.act}"`) + ' role="menuitem"',
         ico:r.ico, label:r.label,
       })).join('')}
     </div>`);
@@ -21778,27 +22755,54 @@ async function sheetSecurityAccess(){
   if(customizeCard){
     customizeCard.innerHTML=`<div class="row between" style="align-items:center;gap:10px;margin-bottom:8px">
         <div><b>${t('profileSectionLook')}</b><div class="muted" style="font-size:11px;margin-top:3px">${esc(who.name)}</div></div>
-        <div class="pa avatar" style="width:44px;height:44px;border-radius:50%;background:${esc(profileColor(who))};display:grid;place-items:center;font-weight:800">${esc(profileEmoji(who)||initials(profileName(who)))}</div>
+        ${profileAvatarHtml(who,{className:'pa avatar profile-look-av'})}
       </div>
+      <div class="profile-photo-row">
+        <label class="btn sec sm profile-photo-btn">${esc(t('profilePhotoChange'))}<input id="profilePhotoFile" type="file" accept="image/*" capture="user" hidden></label>
+        ${profilePhoto(who)?`<button class="btn sm ghost" type="button" id="profilePhotoClear">${esc(t('profilePhotoRemove'))}</button>`:''}
+      </div>
+      <p class="muted" style="font-size:11px;margin:0 0 10px">${esc(t('profilePhotoHint'))}</p>
       <label class="f"><span>${t('profileNickname')}</span><input id="profileNick" value="${esc(pref.nickname||'')}" placeholder="${esc(who.name)}" maxlength="40"></label>
       <label class="f"><span>${t('profileEmoji')}</span><input id="profileEmoji" value="${esc(pref.emoji||'')}" placeholder="🙂" maxlength="4"></label>
       <label class="f"><span>${t('profileColor')}</span><input id="profileColor" type="color" value="${esc(profileColor(who))}"></label>
+      <label class="f"><span>${t('profileBirthDate')}</span><input id="profileBirthDate" type="date" class="inp" value="${esc(pref.birthDate||who.birthDate||'')}"></label>
+      <label class="f"><span>${t('profileBio')}</span><textarea id="profileBio" class="inp" rows="2" maxlength="240">${esc(pref.bio||'')}</textarea></label>
       <button class="btn" id="saveProfileLook" type="button">${t('saveContact')}</button>
       <div id="profileLookStatus" class="status-box" style="display:none;margin-top:8px" role="status"></div>`;
-    customizeCard.querySelector('#saveProfileLook').onclick=()=>{
+    const persistLook = (extra={})=>{
       const nickname=customizeCard.querySelector('#profileNick').value.trim().slice(0,40);
       const emoji=customizeCard.querySelector('#profileEmoji').value.trim().slice(0,4);
       const color=customizeCard.querySelector('#profileColor').value || who.color;
+      const birthDate=customizeCard.querySelector('#profileBirthDate')?.value || '';
+      const bio=customizeCard.querySelector('#profileBio')?.value.trim().slice(0,240) || '';
       DB.profilePrefs = DB.profilePrefs || {};
       const prevLook = DB.profilePrefs[who.id] || {};
-      DB.profilePrefs[who.id] = {...prevLook, nickname, emoji, color, updatedAt:Date.now()};
+      DB.profilePrefs[who.id] = {...prevLook, nickname, emoji, color, birthDate:/^\d{4}-\d{2}-\d{2}$/.test(birthDate)?birthDate:'', bio, updatedAt:Date.now(), ...extra};
+      if(Object.prototype.hasOwnProperty.call(extra,'photo') && !extra.photo){
+        delete DB.profilePrefs[who.id].photo;
+      }
       if(save()){
         feedback('save');
         const st=customizeCard.querySelector('#profileLookStatus');
         st.style.display='block'; setStatus(st,t('profileSaved'),'success');
         render();
+        sheetSecurityAccess();
       }
     };
+    customizeCard.querySelector('#saveProfileLook').onclick=()=>persistLook();
+    customizeCard.querySelector('#profilePhotoFile')?.addEventListener('change', async (ev)=>{
+      const file = ev.target.files && ev.target.files[0];
+      if(!file) return;
+      try{
+        const raw = await new Promise((resolve,reject)=>{
+          const r=new FileReader(); r.onerror=reject; r.onload=()=>resolve(r.result); r.readAsDataURL(file);
+        });
+        const photo = await compressGalleryPhoto(String(raw), 160, 0.62);
+        if(photo.length > 60_000){ toast(t('galleryTooBig'),'error'); return; }
+        persistLook({photo});
+      }catch(err){ toast(t('unexpectedError'),'error'); }
+    });
+    customizeCard.querySelector('#profilePhotoClear')?.addEventListener('click', ()=>persistLook({photo:''}));
   }
   if(pinCard){
     pinCard.innerHTML=`<b>${t('profileSectionPin')}</b>
@@ -22028,15 +23032,77 @@ function paintAppGate(view, content){
 }
 
 let pinKeyHandler=null;
+let gateKbWatchCleanup=null;
+
+function syncGateKeyboardLayout(){
+  if(!document.body.classList.contains('auth-pending')){
+    document.body.dataset.gateKb = '0';
+    return;
+  }
+  const gate = document.getElementById('gate');
+  const vv = window.visualViewport;
+  const layoutH = window.innerHeight || document.documentElement.clientHeight || 0;
+  const visH = vv && vv.height ? vv.height : layoutH;
+  const offsetTop = vv ? (vv.offsetTop || 0) : 0;
+  const shrink = Math.max(0, layoutH - visH - offsetTop);
+  const active = document.activeElement;
+  const typing = !!(active && active.closest && active.closest('#gate') &&
+    (active.matches('input,textarea,select') || active.isContentEditable));
+  const kbOpen = typing || shrink > 100;
+  document.body.dataset.gateKb = kbOpen ? '1' : '0';
+  if(gate){
+    gate.style.setProperty('--gate-vvh', Math.round(visH) + 'px');
+    gate.style.setProperty('--gate-vvo', Math.round(offsetTop) + 'px');
+    gate.style.setProperty('--gate-kb', Math.round(shrink) + 'px');
+  }
+}
+
+function startGateKeyboardWatch(){
+  stopGateKeyboardWatch();
+  const sync = ()=>syncGateKeyboardLayout();
+  const vv = window.visualViewport;
+  vv?.addEventListener('resize', sync);
+  vv?.addEventListener('scroll', sync);
+  window.addEventListener('resize', sync);
+  const onFocusOut = ()=>{ setTimeout(sync, 50); };
+  document.addEventListener('focusin', sync);
+  document.addEventListener('focusout', onFocusOut);
+  gateKbWatchCleanup = ()=>{
+    vv?.removeEventListener('resize', sync);
+    vv?.removeEventListener('scroll', sync);
+    window.removeEventListener('resize', sync);
+    document.removeEventListener('focusin', sync);
+    document.removeEventListener('focusout', onFocusOut);
+    document.body.dataset.gateKb = '0';
+    const gate = document.getElementById('gate');
+    if(gate){
+      gate.style.removeProperty('--gate-vvh');
+      gate.style.removeProperty('--gate-vvo');
+      gate.style.removeProperty('--gate-kb');
+    }
+    gateKbWatchCleanup = null;
+  };
+  sync();
+}
+
+function stopGateKeyboardWatch(){
+  if(typeof gateKbWatchCleanup==='function') gateKbWatchCleanup();
+}
+
 function stopPinKeyboard(){
   if(pinKeyHandler){
     window.removeEventListener('keydown', pinKeyHandler);
     pinKeyHandler=null;
   }
+  try{
+    const active = document.activeElement;
+    if(active && active.closest && active.closest('#gate') && typeof active.blur==='function') active.blur();
+  }catch{}
+  syncGateKeyboardLayout();
 }
 
-function openGate(){ try{ tipCancelSchedule(); tipHide(); zoaiTipStopAll(); }catch{} closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); renderEntrance(); }
-function closeGate(){ stopPinKeyboard(); gateEl.classList.remove('on'); }
+function openGate(){ try{ tipCancelSchedule(); tipHide(); zoaiTipStopAll(); }catch{} closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); document.body.classList.add('auth-pending'); startGateKeyboardWatch(); renderEntrance(); }
+function closeGate(){ stopPinKeyboard(); stopGateKeyboardWatch(); gateEl.classList.remove('on'); document.body.classList.remove('auth-pending'); document.body.dataset.gateKb='0'; }
 
 /** Βήμα 1 — δύο ξεχωριστές είσοδοι: Προσωπικό / Παιδιά (§31.3). */
 function renderEntrance(){
@@ -22184,8 +23250,15 @@ function renderGatePin(who, mode = 'staff'){
     }finally{
       if(!succeeded){
         busy=false;button.classList.remove('logging');button.disabled=false;
-        if(pinInput){pinInput.disabled=false;pinInput.focus({preventScroll:true});}
+        if(pinInput){
+          pinInput.disabled=false;
+          // Don't reopen the soft keyboard on phones after a failed attempt.
+          if(!window.matchMedia('(max-width:899px)').matches){
+            try{pinInput.focus({preventScroll:true});}catch{pinInput.focus();}
+          }
+        }
         draw();
+        syncGateKeyboardLayout();
       }
     }
   };
@@ -22199,15 +23272,21 @@ function renderGatePin(who, mode = 'staff'){
     if(buf.length===6) finishLogin();
   };
 
+  const prefersOnscreenPinpad = ()=> window.matchMedia('(max-width:899px)').matches;
+
   // Event delegation — survives re-draws and is more reliable on touch devices.
   gateBody.querySelector('#gPinpad').addEventListener('click', event=>{
     const button=event.target.closest('button[data-k]');
     if(!button || button.disabled) return;
     event.preventDefault();
+    // Prefer on-screen pad: dismiss OS keyboard so layout returns to full PIN UI.
+    try{ pinInput.blur(); }catch{}
     pushKey(button.dataset.k);
   });
   gateBody.querySelector('#gLogin').onclick=finishLogin;
 
+  pinInput.addEventListener('focus', ()=>syncGateKeyboardLayout());
+  pinInput.addEventListener('blur', ()=>setTimeout(syncGateKeyboardLayout, 50));
   pinInput.addEventListener('input', ()=>{
     if(busy || succeeded) return;
     buf = String(pinInput.value||'').replace(/\D/g,'').slice(0,6);
@@ -22228,10 +23307,14 @@ function renderGatePin(who, mode = 'staff'){
   };
   window.addEventListener('keydown', pinKeyHandler);
 
-  // Open the soft keyboard immediately on phones/tablets.
-  requestAnimationFrame(()=>{
-    try{pinInput.focus({preventScroll:false});}catch(error){pinInput.focus();}
-  });
+  // Mobile: keep on-screen pinpad (no auto keyboard). Desktop: focus field quietly.
+  if(!prefersOnscreenPinpad()){
+    requestAnimationFrame(()=>{
+      try{pinInput.focus({preventScroll:true});}catch(error){pinInput.focus();}
+    });
+  }else{
+    syncGateKeyboardLayout();
+  }
 
   gateBody.querySelector('#gPasskey').onclick=async()=>{
     const errorEl=gateBody.querySelector('#gpErr'),button=gateBody.querySelector('#gPasskey');
@@ -22840,6 +23923,31 @@ function notifPrefsFormHtml({child=false}={}){
     <button class="btn sec sm" type="button" id="notifPrefsSave">${esc(t('saveContact'))}</button>
   </div>`;
 }
+function sheetInstallNotif(){
+  const cap = notifCapabilities();
+  const androidBtn = (cap.android && window.__paidiaDeferredInstall)
+    ? `<button class="btn" type="button" id="pwaInstallAndroid">${esc(t('installAppAndroid'))}</button>`
+    : '';
+  openSheet(`<div class="ios-install-sheet">
+    <div class="import-kicker">Armonia</div>
+    <h2>${esc(t('childInstallTitle'))}</h2>
+    <p class="muted">${esc(t('notifInstallSteps'))}</p>
+    <p class="muted" style="font-size:12px;line-height:1.45">${esc(t('childInstallIos'))}</p>
+    ${androidBtn}
+    <button class="btn sec" type="button" id="pwaInstallClose">${esc(t('close'))}</button>
+  </div>`);
+  const closeBtn = sheetEl.querySelector('#pwaInstallClose');
+  if(closeBtn) closeBtn.onclick = ()=>closeSheet();
+  sheetEl.querySelector('#pwaInstallAndroid')?.addEventListener('click', async ()=>{
+    const prompt = window.__paidiaDeferredInstall;
+    if(!prompt) return;
+    prompt.prompt();
+    try{ await prompt.userChoice; }catch{}
+    window.__paidiaDeferredInstall = null;
+    closeSheet();
+    if(notifCapabilities().reason!=='ios-install') sheetNotifPrefs();
+  });
+}
 function sheetNotifPrefs(){
   const child=state.mode==='child';
   const cap=notifCapabilities();
@@ -22847,16 +23955,30 @@ function sheetNotifPrefs(){
   const on=!!notifPrefs().enabled && perm==='granted';
   const canEnable=on || cap.canRequest || (perm==='granted' && !notifPrefs().enabled);
   const platformHint=notifCapabilityMessage(cap);
+  const iosInstall = cap.reason==='ios-install';
   openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia</div>
     <h2>${esc(t('notifPrefsTitle'))}</h2>
     <p>${esc(isEasy()?t('notifEasyHint'):t('notifPrefsHint'))}</p></div>
-    <button class="btn ${on?'sec':''}" type="button" id="notifToggle" ${canEnable?'':'disabled'}>${esc(on?t('notifEnabled'):(cap.reason==='ios-install'?t('childInstallTitle'):(child?t('notifEnableChild'):t('notifEnable'))))}</button>
-    ${platformHint?`<p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}
+    ${iosInstall
+      ? `<button class="btn" type="button" id="notifInstallSheet">${esc(t('childInstallTitle'))}</button>
+         <p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(t('notifInstallSteps'))}</p>`
+      : `<button class="btn ${on?'sec':''}" type="button" id="notifToggle" ${canEnable?'':'disabled'}>${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</button>`}
+    ${!iosInstall && platformHint?`<p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}
+    ${cap.android && window.__paidiaDeferredInstall?`<button class="btn sec sm" type="button" id="pwaInstallAndroidInline" style="margin-top:8px">${esc(t('installAppAndroid'))}</button>`:''}
     <p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
     <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
     ${on?notifPrefsFormHtml({child}):''}
     <button class="btn sec" type="button" id="notifPrefsClose" style="margin-top:10px">${esc(t('close'))}</button>`);
   sheetEl.querySelector('#notifPrefsClose').onclick=()=>closeSheet();
+  sheetEl.querySelector('#notifInstallSheet')?.addEventListener('click', ()=>{ closeSheet(); sheetInstallNotif(); });
+  sheetEl.querySelector('#pwaInstallAndroidInline')?.addEventListener('click', async ()=>{
+    const prompt = window.__paidiaDeferredInstall;
+    if(!prompt) return;
+    prompt.prompt();
+    try{ await prompt.userChoice; }catch{}
+    window.__paidiaDeferredInstall = null;
+    sheetNotifPrefs();
+  });
   sheetEl.querySelector('#notifToggle')?.addEventListener('click', async ()=>{
     const ok=await enableAppNotifications();
     toast(ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
@@ -23324,3 +24446,8 @@ function shiftStockCheckPending(){
     return false;
   }
 }
+
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  window.__paidiaDeferredInstall = e;
+});

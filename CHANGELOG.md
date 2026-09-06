@@ -1,5 +1,66 @@
 # Changelog
 
+## v199 — 2026-09-06
+
+- **Overflow:** clip `100vw` bleed; `min-width:0` on shell/#view; mobile dock/FAB clearance; stock/shop/schedule/kids/admin grids stack or inner-scroll.
+- **Buch:** calm shift diary — one primary job; calendar/archive/howto behind secondary toggle.
+- **Regeln / Κανόνες:** shared `houseRules` tab — staff/admin edit, kids read-only; categorized DE/EL.
+- **Profile:** birth date → age, bio, nickname/color/emoji/photo on staff + kids.
+- **Haus:** Valeria + Lea merged to shopping house `h4` (migrate legacy `h5`).
+- **Kids ratings:** Mon–Sun week chrome; editable 1–6 + μέσος όρος; optional daily strip; admin badge prefs; chore proof + Zo-Ai transcript review.
+- **PWA / Push:** install sheet (iOS A2HS + Android); `POST /api/notify/push` + hourly `/api/notify/tick` (pywebpush).
+- Cache `paidia-v199`.
+
+## v198 — 2026-09-06
+
+- **Admin kids:** add / edit / remove children (synced ops + login PIN via `/api/auth/admin/child`); gate directory picks up new kids.
+- **Profile photo** in header avatar (Profil → Aussehen); opens security sheet.
+- **UI calm:** ops poll no longer re-triggers list/hero animations; skip identical shared payloads; poll every 8s.
+- **Buttons:** text wraps / shrinks so DE+EL labels fit.
+- Cache `paidia-v198`.
+
+## v197 — 2026-09-06
+
+- **Lager desktop:** attention/empty views no longer collapse into a 200px column (rail grid track only when the shelf nav is present). Priority items use a responsive multi-column grid; shell width up to 1280px.
+- Cache `paidia-v197`.
+
+## v196 — 2026-09-06
+
+- **Liste:** responsibility ack removed; store mode uses checkboxes — done items sink to bottom, stay visible with strikethrough.
+- **Lagercheck:** Verantwortung / ευθύνη required before Speichern (persisted on stock-check).
+- **DE→EL:** `/api/translate` auto-fills Greek labels for free-text list adds.
+- **Ops emails:** meaningful list/stock/shop/Lagercheck saves notify `zoimert@gmail.com` (`PAIDIA_OPS_ALERT_EMAIL` override).
+- **Admin Ops cockpit** (`#admin`): timeline, pocket, storages, schedule, charts + Lego filters; Zo-Ai gets ops snapshot for day/kid questions.
+- Cache `paidia-v196`.
+
+## v195 — 2026-09-06
+
+- **Kids ratings:** children only *see* staff team averages — no self-grade UI, client write blocked, `kidRatings` removed from kid-ops sync.
+- **Kids mobile sim layout:** restore dock bottom clearance (was zeroed), clip horizontal bleed, align hero to stage pad, keep Zo-Ai FAB above dock.
+- Cache `paidia-v195`.
+
+## v194 — 2026-09-06
+
+- **Kids tissue:** one Armonia sea/pine system across Start / Rate / Bonus / Notes / Games / Pocket — shared hero, surfaces, CTAs; coral/candy + neon arcade eras retired.
+- Mobile dock: frosted light pill + sea active; desktop rail stays dark pine.
+- Cache `paidia-v194`.
+
+## v193 — 2026-09-06
+
+- **Page tips + Zo-Ai tips:** spotlight hole + arrow on `data-tour` targets; tip card placed near the control (fallback bottom card if missing).
+- **Bilingual copy:** every tip/tour string rewritten in plain spoken DE and EL; language follows app switch with `refreshLang` + `localStorage`/`html.lang` fallback. AI humanization QA gate passed (no jargon leftovers).
+- Cache `paidia-v193`.
+
+## v192 — 2026-09-06
+
+- **Mobile login keyboard:** when typing, fit `#gate` to `visualViewport`; hide landmark / pinpad / passkey / links / build; keep identity + dots + field + login. On-screen pad stays default (no auto-focus); pad tap closes OS keyboard.
+- Cache `paidia-v192`.
+
+## v191 — 2026-09-06
+
+- **Mobile login:** lock to full viewport — no page scroll; PIN pad fills leftover height; profile grid scrolls only if needed.
+- Cache `paidia-v191`.
+
 ## v190 — 2026-09-06
 
 - **Taschengeld:** centered in-page booking (no sheet popup); month calendar filter; weekly + **monthly** allowance; desktop split layout.

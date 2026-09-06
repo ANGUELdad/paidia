@@ -1,7 +1,6 @@
 /**
  * Contextual page tips — dismissible help for the current page.
- * Daily-first “Hilfe!!” with screenshots + random mid-session nudges.
- * Not the spotlight tour; not Zo-Ai FAB capability nags.
+ * Spotlight hole + arrow over data-tour targets; human DE/EL copy.
  * Docs: docs/agents/TIPS_SYSTEM.md
  *
  * App binds deps via PaidiaPageTips.bind({ getState, isEasy, feedback, getGateEl }).
@@ -24,7 +23,10 @@
   let tipHideTimer = null;
   let tipPageWatchKey = '';
   let tipVisibleId = null;
+  let tipVisibleTip = null;
   let tipPendingDaily = false;
+  let tipLiveEl = null;
+  let tipPaintBound = false;
   let api = null;
 
   function state() { return api && api.getState ? api.getState() : null; }
@@ -32,9 +34,19 @@
   function feedback(kind) { try { if (api && api.feedback) api.feedback(kind); } catch (_) {} }
   function gateEl() { return api && api.getGateEl ? api.getGateEl() : null; }
 
-  function tipCopy(de, el) {
+  function tipLang() {
     const s = state();
-    return s && s.lang === 'el' ? el : de;
+    if (s && (s.lang === 'el' || s.lang === 'de')) return s.lang;
+    try {
+      const html = document.documentElement && document.documentElement.lang;
+      if (html && html.toLowerCase().indexOf('el') === 0) return 'el';
+      const stored = localStorage.getItem('paidia.lang');
+      if (stored === 'el' || stored === 'de') return stored;
+    } catch (_) {}
+    return 'de';
+  }
+  function tipCopy(de, el) {
+    return tipLang() === 'el' ? el : de;
   }
   function tipPageKey() {
     const s = state();
@@ -95,203 +107,229 @@
   function buildTipCatalog() {
     const mk = (id, page, deTitle, elTitle, deBody, elBody, opts) => ({
       id, page,
+      deTitle: deTitle, elTitle: elTitle, deBody: deBody, elBody: elBody,
       title: () => tipCopy(deTitle, elTitle),
       body: () => tipCopy(deBody, elBody),
       proOnly: !!(opts && opts.proOnly),
       shot: (opts && opts.shot) || null,
       daily: !!(opts && opts.daily),
       helpAd: !(opts && opts.helpAd === false),
+      target: (opts && opts.target) || null,
     });
     return [
       mk('staff-home-daily', 'staff:home',
         'Dein Start heute', 'Η αρχή σου σήμερα',
-        'Signale und Aufgaben oben — tippe eine Karte. Hilfe!! erscheint auch zufällig auf jeder Seite.',
-        'Σήματα και εργασίες επάνω — πάτα μια κάρτα. Η Βοήθεια!! εμφανίζεται και τυχαία σε κάθε σελίδα.',
-        { daily: true, shot: 'help/home.png' }),
+        'Hier siehst du, was heute wichtig ist. Tippe eine Karte, um dorthin zu springen.',
+        'Εδώ βλέπεις τι μετράει σήμερα. Πάτα μια κάρτα για να πας κατευθείαν εκεί.',
+        { daily: true, target: 'home-main' }),
       mk('staff-home-tasks', 'staff:home',
         'Heutige Aufgaben', 'Σημερινές εργασίες',
-        'Oben siehst du, was heute ansteht — tippe eine Karte, um direkt dorthin zu springen.',
-        'Επάνω βλέπεις τι πρέπει σήμερα — πάτα μια κάρτα για να μεταβείς κατευθείαν.'),
+        'Die hervorgehobenen Karten zeigen deine nächsten Schritte. Tippe eine an.',
+        'Οι τονισμένες κάρτες δείχνουν τα επόμενα βήματα. Πάτα μία.',
+        { target: 'home-main' }),
       mk('staff-home-signals', 'staff:home',
-        'Signale', 'Σήματα',
-        'Rote/gelbe Hinweise bedeuten Aufmerksamkeit (Lager, Liste, Plan).',
-        'Κόκκινα/κίτρινα σήματα ζητούν προσοχή (αποθήκη, λίστα, πρόγραμμα).'),
+        'Wichtige Hinweise', 'Σημαντικές ειδοποιήσεις',
+        'Rote oder gelbe Hinweise bedeuten: etwas braucht Aufmerksamkeit in der App.',
+        'Κόκκινες ή κίτρινες ειδοποιήσεις σημαίνουν ότι κάτι χρειάζεται προσοχή.',
+        { target: 'home-main' }),
       mk('staff-home-mode', 'staff:home',
-        'Easy oder Pro', 'Easy ή Pro',
-        'Oben kannst du Easy (weniger) und Pro (mehr Werkzeuge) umschalten.',
-        'Επάνω αλλάζεις Easy (λιγότερα) και Pro (περισσότερα εργαλεία).',
-        { proOnly: true }),
+        'Einfach oder Pro', 'Απλό ή Pro',
+        'Oben kannst du „Einfach“ (weniger Buttons) und „Pro“ (mehr Werkzeuge) wechseln.',
+        'Επάνω αλλάζεις «Απλό» (λιγότερα κουμπιά) και «Pro» (περισσότερα εργαλεία).',
+        { proOnly: true, target: 'home-main' }),
 
       mk('staff-plan-daily', 'staff:schedule',
-        'Plan der Woche', 'Πρόγραμμα εβδομάδας',
-        'Tag / Woche wechseln. In Easy: Agenda; in Pro auch Tabelle.',
-        'Άλλαξε Ημέρα / Εβδομάδα. Στο Easy: Agenda· στο Pro και πίνακας.',
-        { daily: true, shot: 'help/plan.png' }),
+        'Wochenplan', 'Εβδομαδιαίο πρόγραμμα',
+        'Wechsle oben zwischen Tag und Woche. So siehst du den Plan klarer.',
+        'Άλλαξε επάνω μεταξύ ημέρας και εβδομάδας. Έτσι βλέπεις το πρόγραμμα καθαρά.',
+        { daily: true, target: 'plan-views' }),
       mk('staff-plan-views', 'staff:schedule',
-        'Tag & Woche', 'Ημέρα & εβδομάδα',
-        'Wechsle zwischen Tag und Woche. Hausfilter grenzt die Ansicht ein.',
-        'Άλλαξε μεταξύ ημέρας και εβδομάδας. Το φίλτρο σπιτιού στενεύει την όψη.'),
+        'Tag und Woche', 'Ημέρα και εβδομάδα',
+        'Diese Schalter wechseln die Ansicht. Mit dem Hausfilter siehst du nur ein Haus.',
+        'Αυτοί οι διακόπτες αλλάζουν την όψη. Με το φίλτρο σπιτιού βλέπεις μόνο ένα σπίτι.',
+        { target: 'plan-views' }),
       mk('staff-plan-add', 'staff:schedule',
-        'Eintrag hinzufügen', 'Προσθήκη καταχώρησης',
-        'Mit ＋ legst du Aktivitäten an. In Easy bleibt das Formular schlank.',
-        'Με το ＋ προσθέτεις δραστηριότητες. Στο Easy η φόρμα μένει απλή.'),
+        'Aktivität hinzufügen', 'Προσθήκη δραστηριότητας',
+        'Tippe auf ＋, um eine neue Aktivität einzutragen. In Einfach bleibt das Formular kurz.',
+        'Πάτα το ＋ για νέα δραστηριότητα. Στο Απλό η φόρμα μένει σύντομη.',
+        { target: 'plan-views' }),
       mk('staff-plan-pro', 'staff:schedule',
-        'Pro-Extras', 'Επιπλέον Pro',
-        'Import, Kalender und Wochennotizen findest du in Pro unter Mehr.',
-        'Εισαγωγή, ημερολόγιο και σημειώσεις εβδομάδας στο Pro υπό Άλλα.',
-        { proOnly: true }),
+        'Mehr Plan-Werkzeuge', 'Περισσότερα εργαλεία προγράμματος',
+        'In Pro findest du unter Mehr Import, Kalender und Wochennotizen.',
+        'Στο Pro, στο μενού Άλλα, βρίσκεις εισαγωγή, ημερολόγιο και σημειώσεις εβδομάδας.',
+        { proOnly: true, target: 'plan-views' }),
 
       mk('staff-stock-daily', 'staff:stock',
-        'Lager im Blick', 'Αποθήκη με μια ματιά',
-        'Haus wählen, ± tippen. Foto lesen füllt Mengen — Rückgängig im Toast.',
-        'Διάλεξε σπίτι, πάτα ±. Η φωτό γεμίζει ποσότητες — Αναίρεση στο toast.',
-        { daily: true, shot: 'help/lager.png' }),
+        'Vorräte prüfen', 'Έλεγχος αποθέματος',
+        'Zuerst ein Haus wählen, dann mit − und ＋ die Mengen ändern. Eine kurze Meldung lässt dich rückgängig machen.',
+        'Πρώτα διάλεξε σπίτι, μετά άλλαξε ποσότητες με − και ＋. Ένα σύντομο μήνυμα σου επιτρέπει αναίρεση.',
+        { daily: true, target: 'stock-command' }),
       mk('staff-stock-house', 'staff:stock',
         'Haus wählen', 'Διάλεξε σπίτι',
-        'Zuerst Haus wählen, dann suchen und mit ± Mengen anpassen.',
-        'Πρώτα διάλεξε σπίτι, μετά αναζήτηση και ± για ποσότητες.'),
+        'Tippe oben auf ein Haus. Danach kannst du suchen und Mengen anpassen.',
+        'Πάτα επάνω ένα σπίτι. Μετά μπορείς να ψάξεις και να αλλάξεις ποσότητες.',
+        { target: 'stock-command' }),
       mk('staff-stock-add', 'staff:stock',
-        'Ware hinzufügen', 'Προσθήκη προϊόντος',
-        'Hinzufügen legt neue Produkte an — danach sofort ± nutzbar.',
-        'Η Προσθήκη δημιουργεί προϊόντα — μετά αμέσως ±.'),
+        'Neues Produkt', 'Νέο προϊόν',
+        'Mit „Hinzufügen“ legst du ein Produkt an. Danach kannst du sofort − und ＋ nutzen.',
+        'Με «Προσθήκη» δημιουργείς προϊόν. Μετά μπορείς αμέσως να χρησιμοποιήσεις − και ＋.',
+        { target: 'stock-command' }),
       mk('staff-stock-pro', 'staff:stock',
-        'Regale & Foto lesen', 'Ράφια & ανάγνωση φωτό',
-        'In Pro: Regale, Mehrfachauswahl und Foto lesen über die Leiste.',
-        'Στο Pro: ράφια, μαζική επιλογή και ανάγνωση φωτό από τη γραμμή.',
-        { proOnly: true }),
+        'Regale und Foto', 'Ράφια και φωτογραφία',
+        'In Pro siehst du Regale, Mehrfachauswahl und das Einlesen von Mengen aus einem Foto.',
+        'Στο Pro βλέπεις ράφια, μαζική επιλογή και ανάγνωση ποσοτήτων από φωτογραφία.',
+        { proOnly: true, target: 'stock-command' }),
 
       mk('staff-shop-daily', 'staff:shop',
-        'Liste: Foto rein!', 'Λίστα: βάλε φωτό!',
-        'Sende ein Foto oder Bildschirmfoto — Produkte landen in der Freitagsliste. Nach Einfügen: Rückgängig im Toast.',
-        'Στείλε φωτογραφία ή στιγμιότυπο — τα προϊόντα μπαίνουν στη λίστα Παρασκευής. Μετά: Αναίρεση στο toast.',
-        { daily: true, shot: 'help/shop-plan.png' }),
+        'Einkaufsliste mit Foto', 'Λίστα αγορών με φωτογραφία',
+        'Schick ein Foto der Liste. Die App liest Produkte für Freitag. Du kannst danach rückgängig machen.',
+        'Στείλε φωτογραφία της λίστας. Η εφαρμογή διαβάζει προϊόντα για την Παρασκευή. Μετά μπορείς να αναιρέσεις.',
+        { daily: true, target: 'shop-command' }),
       mk('staff-shop-friday', 'staff:shop',
-        'Freitag prüfen', 'Έλεγξε Παρασκευή',
-        'Prüfe Freitag und Haus, dann Artikel in den Warenkorb legen — oder Foto → Liste.',
-        'Έλεγξε Παρασκευή και σπίτι, μετά βάλε στο καλάθι — ή Φωτο → λίστα.'),
+        'Freitag und Haus', 'Παρασκευή και σπίτι',
+        'Prüfe zuerst Freitag und Haus. Dann lege Artikel in den Warenkorb.',
+        'Έλεγξε πρώτα Παρασκευή και σπίτι. Μετά βάλε προϊόντα στο καλάθι.',
+        { target: 'shop-command' }),
       mk('staff-shop-photo', 'staff:shop',
-        'Foto → Liste', 'Φωτο → λίστα',
-        'Hilfe!! Tippe „Foto → Liste“ oder importiere ein Bild — Text und Mengen werden gelesen.',
-        'Βοήθεια!! Πάτα «Φωτο → λίστα» ή εισήγαγε εικόνα — διαβάζονται κείμενο και ποσότητες.'),
+        'Foto zur Liste', 'Φωτογραφία στη λίστα',
+        'Tippe „Foto → Liste“. Die App liest Text und Mengen — du prüfst das Ergebnis.',
+        'Πάτα «Φωτο → λίστα». Η εφαρμογή διαβάζει κείμενο και ποσότητες — εσύ ελέγχεις το αποτέλεσμα.',
+        { target: 'shop-command' }),
       mk('staff-shop-requests', 'staff:shop',
-        'Anfragen', 'Αιτήματα',
-        'Offene Anfragen von Kindern oder Team erscheinen als eigene Liste.',
-        'Ανοιχτά αιτήματα παιδιών ή ομάδας φαίνονται ως ξεχωριστή λίστα.'),
+        'Offene Anfragen', 'Ανοιχτά αιτήματα',
+        'Hier erscheinen Wünsche von Kindern oder vom Team als eigene Liste.',
+        'Εδώ φαίνονται επιθυμίες παιδιών ή της ομάδας ως ξεχωριστή λίστα.',
+        { target: 'shop-command' }),
       mk('staff-shop-easy-lager', 'staff:shop',
-        'Aus Lager füllen', 'Γέμισμα από αποθήκη',
-        'Easy: Aus Lager füllen → Einkauf starten → im Laden bestätigen → Bestand steigt.',
-        'Easy: γέμισμα από αποθήκη → έναρξη → επιβεβαίωση στο μαγαζί → ανεβαίνει το απόθεμα.'),
+        'Aus dem Lager füllen', 'Γέμισμα από την αποθήκη',
+        'In Einfach: aus dem Lager füllen, Einkauf starten, im Laden bestätigen — dann steigt der Bestand.',
+        'Στο Απλό: γέμισμα από την αποθήκη, έναρξη αγοράς, επιβεβαίωση στο μαγαζί — μετά ανεβαίνει το απόθεμα.',
+        { target: 'shop-command' }),
       mk('staff-shop-pro', 'staff:shop',
-        'Foto & Historie', 'Φωτό & ιστορικό',
-        'Pro: Foto lesen, Mehrfachauswahl und Einkaufshistorie über •••.',
-        'Pro: ανάγνωση φωτό, μαζική επιλογή και ιστορικό αγορών από •••.',
-        { proOnly: true }),
+        'Foto und Verlauf', 'Φωτογραφία και ιστορικό',
+        'In Pro findest du Foto lesen, Mehrfachauswahl und die Einkaufshistorie unter •••.',
+        'Στο Pro βρίσκεις ανάγνωση φωτογραφίας, μαζική επιλογή και ιστορικό αγορών στο •••.',
+        { proOnly: true, target: 'shop-command' }),
 
       mk('staff-talk-chat', 'staff:talk',
-        'Team-Chat', 'Chat ομάδας',
-        'Kurze Absprachen hier — längere Themen für die Besprechung merken.',
-        'Σύντομες συνεννοήσεις εδώ — μεγαλύτερα θέματα για τη σύσκεψη.'),
+        'Team-Chat', 'Συνομιλία ομάδας',
+        'Schreibe hier kurze Absprachen. Längere Themen speicherst du für die Besprechung.',
+        'Γράψε εδώ σύντομες συνεννοήσεις. Μεγαλύτερα θέματα κράτα για τη σύσκεψη.',
+        { target: 'talk-chat' }),
       mk('staff-talk-topics', 'staff:talk',
-        'Themen', 'Θέματα',
-        'Themen halten die Besprechung strukturiert — tippe zum Öffnen.',
-        'Τα θέματα κρατούν τη σύσκεψη σε τάξη — πάτα για άνοιγμα.',
-        { proOnly: true }),
+        'Besprechungsthemen', 'Θέματα σύσκεψης',
+        'Themen halten die Besprechung geordnet. Tippe eines an, um es zu öffnen.',
+        'Τα θέματα κρατούν τη σύσκεψη σε τάξη. Πάτα ένα για να το ανοίξεις.',
+        { proOnly: true, target: 'talk-chat' }),
 
       mk('staff-kids-daily', 'staff:kids',
-        'Kinder & Schule', 'Παιδιά & σχολείο',
-        'Material, Anwesenheit, Hausaufgaben, Verlauf — in Easy ohne Stundenplan-Admin.',
-        'Υλικό, παρουσία, εργασίες, ιστορικό — στο Easy χωρίς ωρολόγιο-admin.',
-        { daily: true, shot: 'help/kids.png' }),
+        'Kinder und Schule', 'Παιδιά και σχολείο',
+        'Hier findest du Material, Anwesenheit, Hausaufgaben und den Verlauf.',
+        'Εδώ βρίσκεις υλικό, παρουσία, εργασίες και το ιστορικό.',
+        { daily: true, target: 'kids-main' }),
       mk('staff-kids-dir', 'staff:kids',
-        'Kinderverzeichnis', 'Κατάλογος παιδιών',
-        'Wähle ein Kind für Schule, Noten und Profil.',
-        'Διάλεξε παιδί για σχολείο, βαθμούς και προφίλ.'),
+        'Kind wählen', 'Διάλεξε παιδί',
+        'Tippe ein Kind an, um Schule, Noten und Profil zu öffnen.',
+        'Πάτα ένα παιδί για σχολείο, βαθμούς και προφίλ.',
+        { target: 'kids-main' }),
       mk('staff-kids-materials', 'staff:kids',
-        'Material & Verlauf', 'Υλικό & ιστορικό',
-        'Checkliste + Foto (braucht/dabei/fehlt). Verlauf speichert Noten und Material.',
-        'Λίστα + φωτο (χρειάζεται/το έχει/λείπει). Το ιστορικό κρατά βαθμούς και υλικό.'),
+        'Material und Verlauf', 'Υλικό και ιστορικό',
+        'Checkliste mit Foto: braucht, dabei oder fehlt. Der Verlauf speichert Noten und Material.',
+        'Λίστα με φωτογραφία: χρειάζεται, το έχει ή λείπει. Το ιστορικό κρατά βαθμούς και υλικό.',
+        { target: 'kids-main' }),
       mk('staff-kids-school', 'staff:kids',
-        'Schule', 'Σχολείο',
-        'Anwesenheit, Hausaufgaben, Material und Verlauf liegen in den Panes — auch in Easy.',
-        'Παρουσίες, εργασίες, υλικό και ιστορικό είναι στα πάνελ — και στο Easy.'),
+        'Schul-Übersicht', 'Επισκόπηση σχολείου',
+        'Anwesenheit, Hausaufgaben, Material und Verlauf findest du in den Bereichen oben.',
+        'Παρουσία, εργασίες, υλικό και ιστορικό βρίσκονται στις ενότητες επάνω.',
+        { target: 'kids-main' }),
 
       mk('staff-gallery-share', 'staff:gallery',
         'Momente teilen', 'Μοίρασε στιγμές',
-        'Fotos freundlich teilen — nur was zum Haus gehört.',
-        'Μοίρασε φωτό φιλικά — μόνο ό,τι ανήκει στο σπίτι.'),
+        'Teile Fotos vom Haus — freundlich und nur, was dazu gehört.',
+        'Μοίρασε φωτογραφίες του σπιτιού — φιλικά και μόνο ό,τι ανήκει εδώ.',
+        { target: 'gallery-main' }),
       mk('staff-gallery-refresh', 'staff:gallery',
-        'Aktualisieren', 'Ανανέωση',
-        'Zum Nachladen nach oben ziehen oder Aktualisieren tippen.',
-        'Τράβηξε προς τα πάνω ή πάτα Ανανέωση μετά από νέες φωτό.',
-        { proOnly: true }),
+        'Neu laden', 'Ανανέωση',
+        'Zieh nach unten oder tippe Aktualisieren, wenn neue Fotos da sind.',
+        'Τράβηξε προς τα κάτω ή πάτα Ανανέωση όταν υπάρχουν νέες φωτογραφίες.',
+        { proOnly: true, target: 'gallery-main' }),
 
       mk('staff-book-shift', 'staff:book',
-        'Übergabe', 'Παράδοση',
-        'Schreibe in Abschnitten, was die nächste Schicht wissen muss — sie tippt „Gelesen“.',
-        'Γράψε σε ενότητες τι πρέπει να ξέρει η επόμενη βάρδια — πατά «Διαβάστηκε».'),
+        'Schicht-Übergabe', 'Παράδοση βάρδιας',
+        'Schreibe in Abschnitten, was die nächste Schicht wissen muss. Sie tippt danach „Gelesen“.',
+        'Γράψε σε ενότητες τι πρέπει να ξέρει η επόμενη βάρδια. Μετά πατά «Διαβάστηκε».',
+        { target: 'book-main' }),
       mk('staff-book-log', 'staff:book',
-        'Protokoll', 'Πρωτόκολλο',
+        'Änderungsprotokoll', 'Πρωτόκολλο αλλαγών',
         'Im Protokoll siehst du Korrekturen und wichtige Änderungen.',
         'Στο πρωτόκολλο βλέπεις διορθώσεις και σημαντικές αλλαγές.',
-        { proOnly: true }),
+        { proOnly: true, target: 'book-main' }),
 
       mk('kid-today-daily', 'child:today',
         'Dein Tag', 'Η μέρα σου',
-        'XP, nächste Aktivität und Schnellwege — tippe die Karten.',
-        'XP, επόμενη δραστηριότητα και συντομεύσεις — πάτα τις κάρτες.',
-        { daily: true, shot: 'help/child-today.png' }),
+        'Hier siehst du Punkte, was als Nächstes kommt und schnelle Wege. Tippe eine Karte.',
+        'Εδώ βλέπεις πόντους, τι ακολουθεί και γρήγορες διαδρομές. Πάτα μια κάρτα.',
+        { daily: true, target: 'kid-start' }),
       mk('kid-today-xp', 'child:today',
-        'Dein Tag', 'Η μέρα σου',
-        'Hier siehst du XP, nächste Aktivität und Schnellwege.',
-        'Εδώ βλέπεις XP, επόμενη δραστηριότητα και συντομεύσεις.'),
+        'Punkte und nächste Schritte', 'Πόντοι και επόμενα βήματα',
+        'Oben siehst du deine Punkte und die nächste Aktivität.',
+        'Επάνω βλέπεις τους πόντους σου και την επόμενη δραστηριότητα.',
+        { target: 'kid-start' }),
       mk('kid-today-dock', 'child:today',
         'Menü unten', 'Μενού κάτω',
-        'Spiele, Bewertungen, Bonus und Notizen erreichst du über das Dock.',
-        'Παιχνίδια, αξιολογήσεις, μπόνους και σημειώσεις από το κάτω μενού.'),
+        'Unten erreichst du Spiele, Bewertungen, Bonus und Notizen.',
+        'Κάτω βρίσκεις παιχνίδια, αξιολογήσεις, μπόνους και σημειώσεις.',
+        { target: 'kid-nav-games' }),
       mk('kid-today-chores', 'child:today',
-        'Aufgaben', 'Εργασίες',
-        'Erledigte Aufgaben bringen XP — tippe eine Karte zum Einreichen.',
-        'Οι ολοκληρωμένες εργασίες δίνουν XP — πάτα κάρτα για υποβολή.',
-        { proOnly: true }),
+        'Aufgaben erledigen', 'Ολοκλήρωση εργασιών',
+        'Wenn du eine Aufgabe erledigst, bekommst du Punkte. Tippe die Karte zum Einreichen.',
+        'Όταν τελειώνεις μια εργασία, παίρνεις πόντους. Πάτα την κάρτα για υποβολή.',
+        { proOnly: true, target: 'kid-start' }),
       mk('kid-games-pick', 'child:games',
         'Spiel wählen', 'Διάλεξε παιχνίδι',
-        'Tippe ein Spiel. „Alle Spiele“ bringt dich zurück zur Übersicht.',
-        'Πάτα ένα παιχνίδι. Το «Όλα τα παιχνίδια» σε γυρίζει στην επισκόπηση.'),
+        'Tippe ein Spiel zum Starten. „Alle Spiele“ bringt dich zurück zur Übersicht.',
+        'Πάτα ένα παιχνίδι για να ξεκινήσεις. Το «Όλα τα παιχνίδια» σε γυρίζει πίσω.',
+        { target: 'kid-games' }),
       mk('kid-games-best', 'child:games',
-        'Highscore', 'Υψηλό σκορ',
-        'Dein Bestwert bleibt auf diesem Gerät gespeichert.',
-        'Το καλύτερό σου σκορ μένει σε αυτή τη συσκευή.',
-        { proOnly: true }),
+        'Dein Bestwert', 'Το καλύτερό σου σκορ',
+        'Dein bester Stand bleibt auf diesem Gerät gespeichert.',
+        'Το καλύτερό σου αποτέλεσμα μένει αποθηκευμένο σε αυτή τη συσκευή.',
+        { proOnly: true, target: 'kid-games' }),
       mk('kid-rate-stars', 'child:rate',
-        'Sterne setzen', 'Βάλε αστέρια',
-        'Tippe die Noten für Leben & Schule — ehrlich und kurz.',
-        'Πάτα τους βαθμούς για ζωή & σχολείο — ειλικρινά και σύντομα.'),
+        'Sterne geben', 'Βάλε αστέρια',
+        'Tippe die Sterne für Leben und Schule — ehrlich und kurz.',
+        'Πάτα τα αστέρια για ζωή και σχολείο — ειλικρινά και σύντομα.',
+        { target: 'kid-rate' }),
       mk('kid-rate-staff', 'child:rate',
-        'Team-Bewertung', 'Αξιολόγηση ομάδας',
-        'Unten siehst du, wie das Team die Woche einschätzt.',
-        'Κάτω βλέπεις πώς αξιολογεί η ομάδα την εβδομάδα.',
-        { proOnly: true }),
+        'Wie das Team bewertet', 'Πώς αξιολογεί η ομάδα',
+        'Unten siehst du, wie die Betreuerinnen und Betreuer die Woche einschätzen.',
+        'Κάτω βλέπεις πώς αξιολογούν οι φροντιστές την εβδομάδα.',
+        { proOnly: true, target: 'kid-rate' }),
       mk('kid-bonus-view', 'child:bonus',
-        'Bonus ansehen', 'Δες το μπόνους',
-        'Bonus aus Streak und Aufgaben — hier nur ansehen.',
-        'Μπόνους από streak και εργασίες — εδώ μόνο βλέπεις.'),
+        'Dein Bonus', 'Το μπόνους σου',
+        'Hier siehst du den Bonus aus Serie und Aufgaben — nur anschauen.',
+        'Εδώ βλέπεις το μπόνους από σερί και εργασίες — μόνο για θέα.',
+        { target: 'kid-bonus' }),
       mk('kid-pocket-view', 'child:pocket',
         'Taschengeld', 'Χαρτζιλίκι',
-        'Dein Guthaben und der ganze Verlauf — nur ansehen.',
-        'Το υπόλοιπό σου και όλο το ιστορικό — μόνο θέα.'),
+        'Hier siehst du dein Guthaben und den ganzen Verlauf — nur anschauen.',
+        'Εδώ βλέπεις το υπόλοιπό σου και όλο το ιστορικό — μόνο για θέα.',
+        { target: 'kid-pocket' }),
       mk('staff-pocket-tab', 'staff:pocket',
         'Taschengeld führen', 'Διαχείριση χαρτζιλικιού',
-        'Kind wählen, ± buchen, Verlauf filtern, Regeln und Kategorien unter Einstellungen.',
-        'Διάλεξε παιδί, ± καταχώριση, φίλτρο ιστορικού, κανόνες και κατηγορίες στις Ρυθμίσεις.'),
+        'Wähle ein Kind, buche mit − und ＋, filtere den Verlauf. Regeln findest du unter Einstellungen.',
+        'Διάλεξε παιδί, καταχώρισε με − και ＋, φίλτραρε το ιστορικό. Οι κανόνες είναι στις Ρυθμίσεις.',
+        { target: 'pocket-main' }),
       mk('kid-notes-private', 'child:notes',
-        'Private Notizen', 'Ιδιωτικές σημειώσεις',
-        'Notizen bleiben auf diesem Gerät — nicht für das ganze Team.',
-        'Οι σημειώσεις μένουν σε αυτή τη συσκευή — όχι για όλη την ομάδα.'),
+        'Deine Notizen', 'Οι σημειώσεις σου',
+        'Notizen bleiben auf diesem Gerät. Das ganze Team sieht sie nicht.',
+        'Οι σημειώσεις μένουν σε αυτή τη συσκευή. Δεν τις βλέπει όλη η ομάδα.',
+        { target: 'kid-notes' }),
       mk('kid-notes-save', 'child:notes',
-        'Speichern', 'Αποθήκευση',
-        'Schreibe kurz und tippe Speichern, sonst geht der Text verloren.',
-        'Γράψε σύντομα και πάτα Αποθήκευση, αλλιώς χάνεται το κείμενο.',
-        { proOnly: true }),
+        'Speichern nicht vergessen', 'Μην ξεχάσεις Αποθήκευση',
+        'Schreibe kurz und tippe Speichern. Sonst geht der Text verloren.',
+        'Γράψε σύντομα και πάτα Αποθήκευση. Αλλιώς χάνεται το κείμενο.',
+        { proOnly: true, target: 'kid-notes' }),
     ];
   }
 
@@ -330,6 +368,109 @@
     if (tipZoAiSiblingBlocking()) return true;
     return tipGateBlocking();
   }
+
+  function tipClearSpotlight() {
+    if (tipLiveEl) {
+      try { tipLiveEl.classList.remove('tip-target-live'); } catch (_) {}
+      tipLiveEl = null;
+    }
+    const root = document.getElementById('tipRoot');
+    if (!root) return;
+    root.classList.remove('tip-anchored');
+    const hole = root.querySelector('#tipHole');
+    const arrow = root.querySelector('#tipArrow');
+    if (hole) hole.hidden = true;
+    if (arrow) arrow.hidden = true;
+    const card = root.querySelector('#tipCard');
+    if (card) {
+      card.style.top = '';
+      card.style.left = '';
+      card.style.bottom = '';
+      card.style.right = '';
+      card.removeAttribute('data-placement');
+    }
+  }
+
+  function tipFindTarget(sel) {
+    if (!sel) return null;
+    return document.querySelector('[data-tour="' + sel + '"]');
+  }
+
+  function tipPaint() {
+    const root = document.getElementById('tipRoot');
+    const tip = tipVisibleTip;
+    if (!root || !tip || root.hidden) return;
+    const hole = root.querySelector('#tipHole');
+    const arrow = root.querySelector('#tipArrow');
+    const card = root.querySelector('#tipCard');
+    if (!hole || !arrow || !card) return;
+
+    const el = tipFindTarget(tip.target);
+    if (tipLiveEl && tipLiveEl !== el) {
+      try { tipLiveEl.classList.remove('tip-target-live'); } catch (_) {}
+      tipLiveEl = null;
+    }
+    if (!el) {
+      tipClearSpotlight();
+      root.classList.remove('tip-anchored');
+      return;
+    }
+
+    tipLiveEl = el;
+    el.classList.add('tip-target-live');
+    try { el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }); } catch (_) {}
+
+    const r = el.getBoundingClientRect();
+    const pad = 8;
+    const top = Math.max(6, r.top - pad);
+    const left = Math.max(6, r.left - pad);
+    const width = Math.min(window.innerWidth - left - 6, r.width + pad * 2);
+    const height = Math.min(window.innerHeight - top - 6, r.height + pad * 2);
+    hole.hidden = false;
+    hole.style.top = top + 'px';
+    hole.style.left = left + 'px';
+    hole.style.width = Math.max(40, width) + 'px';
+    hole.style.height = Math.max(40, height) + 'px';
+
+    root.classList.add('tip-anchored');
+    const cardW = Math.min(340, window.innerWidth - 24);
+    const cardH = card.offsetHeight || 150;
+    const spaceBelow = window.innerHeight - (top + height);
+    const preferBelow = spaceBelow > cardH + 28;
+    const cardTop = preferBelow
+      ? Math.min(window.innerHeight - cardH - 12, top + height + 16)
+      : Math.max(12, top - cardH - 16);
+    const cardLeft = Math.min(
+      Math.max(12, left + width / 2 - cardW / 2),
+      window.innerWidth - cardW - 12
+    );
+    card.style.top = cardTop + 'px';
+    card.style.left = cardLeft + 'px';
+    card.style.bottom = 'auto';
+    card.style.right = 'auto';
+    card.style.width = cardW + 'px';
+    card.dataset.placement = preferBelow ? 'below' : 'above';
+
+    arrow.hidden = false;
+    const ax = Math.min(Math.max(cardLeft + 28, left + width / 2 - 8), cardLeft + cardW - 36);
+    if (preferBelow) {
+      arrow.style.top = (cardTop - 8) + 'px';
+      arrow.dataset.dir = 'up';
+    } else {
+      arrow.style.top = (cardTop + cardH - 2) + 'px';
+      arrow.dataset.dir = 'down';
+    }
+    arrow.style.left = ax + 'px';
+  }
+
+  function tipEnsurePaintListeners() {
+    if (tipPaintBound) return;
+    tipPaintBound = true;
+    const paint = function () { if (tipVisibleId) tipPaint(); };
+    window.addEventListener('resize', paint, { passive: true });
+    window.addEventListener('scroll', paint, { passive: true, capture: true });
+  }
+
   function tipEnsureRoot() {
     let root = document.getElementById('tipRoot');
     if (root) return root;
@@ -337,7 +478,10 @@
     root.id = 'tipRoot';
     root.className = 'tip-root';
     root.hidden = true;
-    root.innerHTML = '<aside class="tip-card" id="tipCard" role="status" aria-live="polite">'
+    root.innerHTML =
+      '<div class="tip-hole" id="tipHole" hidden aria-hidden="true"></div>'
+      + '<div class="tip-arrow" id="tipArrow" hidden aria-hidden="true"></div>'
+      + '<aside class="tip-card" id="tipCard" role="status" aria-live="polite">'
       + '<div class="tip-card-top">'
       + '<span class="tip-kicker" id="tipKicker"></span>'
       + '<button type="button" class="tip-dismiss" id="tipDismiss" aria-label="OK">×</button>'
@@ -351,14 +495,36 @@
     const dismiss = function () { tipDismissCurrent(); };
     root.querySelector('#tipDismiss').onclick = dismiss;
     root.querySelector('#tipGotIt').onclick = dismiss;
+    tipEnsurePaintListeners();
     return root;
   }
+
+  function tipApplyCopy(tip) {
+    const root = document.getElementById('tipRoot');
+    if (!root || !tip) return;
+    const de = tipLang() !== 'el';
+    const kicker = root.querySelector('#tipKicker');
+    if (kicker) {
+      kicker.textContent = de ? 'Hilfe!!' : 'Βοήθεια!!';
+      kicker.classList.add('is-help');
+    }
+    const title = root.querySelector('#tipTitle');
+    const body = root.querySelector('#tipBody');
+    const got = root.querySelector('#tipGotIt');
+    const dismiss = root.querySelector('#tipDismiss');
+    if (title) title.textContent = tip.title();
+    if (body) body.textContent = tip.body();
+    if (got) got.textContent = de ? 'Verstanden' : 'Το κατάλαβα';
+    if (dismiss) dismiss.setAttribute('aria-label', de ? 'Schließen' : 'Κλείσιμο');
+  }
+
   function tipHide(opts) {
     tipClearAutoHide();
+    tipClearSpotlight();
     const root = document.getElementById('tipRoot');
     if (root) {
       root.hidden = true;
-      root.classList.remove('tip-on');
+      root.classList.remove('tip-on', 'tip-anchored');
       const card = root.querySelector('#tipCard');
       if (card) card.classList.remove('is-daily');
       const shot = root.querySelector('#tipShot');
@@ -369,7 +535,10 @@
       const kick = root.querySelector('#tipKicker');
       if (kick) kick.classList.remove('is-help');
     }
-    if (!(opts && opts.keepId)) tipVisibleId = null;
+    if (!(opts && opts.keepId)) {
+      tipVisibleId = null;
+      tipVisibleTip = null;
+    }
   }
   function tipDismissCurrent() {
     const id = tipVisibleId;
@@ -406,29 +575,23 @@
     if (!tip || tipBusyBlocking()) return false;
     if (!paidiaCoachGapOk()) return false;
     const root = tipEnsureRoot();
-    const s = state();
-    const de = !(s && s.lang === 'el');
     const isDaily = !!(opts && opts.daily) || !!tip.daily;
     tipVisibleId = tip.id;
+    tipVisibleTip = tip;
     tipBumpSession(tip.page);
     if (isDaily) markDailyHelp(tip.page);
     paidiaMarkCoachShown();
-    const kicker = root.querySelector('#tipKicker');
-    kicker.textContent = de ? 'Hilfe!!' : 'Βοήθεια!!';
-    kicker.classList.toggle('is-help', true);
-    root.querySelector('#tipTitle').textContent = tip.title();
-    root.querySelector('#tipBody').textContent = tip.body();
-    root.querySelector('#tipGotIt').textContent = de ? 'Verstanden' : 'Το κατάλαβα';
-    root.querySelector('#tipDismiss').setAttribute('aria-label', de ? 'Schließen' : 'Κλείσιμο');
+    tipApplyCopy(tip);
     const card = root.querySelector('#tipCard');
     if (card) card.classList.toggle('is-daily', isDaily);
     const shot = root.querySelector('#tipShot');
     if (shot) {
-      if (tip.shot) {
+      // Prefer spotlight over screenshots when a target exists.
+      if (tip.shot && !tip.target) {
         shot.hidden = false;
         shot.alt = tip.title();
         shot.onerror = function () { shot.hidden = true; };
-        shot.src = tip.shot + (tip.shot.indexOf('?') >= 0 ? '&' : '?') + 'v=184';
+        shot.src = tip.shot + (tip.shot.indexOf('?') >= 0 ? '&' : '?') + 'v=198';
       } else {
         shot.hidden = true;
         shot.removeAttribute('src');
@@ -438,9 +601,15 @@
     const reduce = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) root.classList.add('tip-on');
     else requestAnimationFrame(function () { root.classList.add('tip-on'); });
+    requestAnimationFrame(function () { tipPaint(); });
     tipClearAutoHide();
     tipHideTimer = setTimeout(tipDismissCurrent, isDaily ? TIP_AUTO_HIDE_MS + 4000 : TIP_AUTO_HIDE_MS);
     return true;
+  }
+  function tipRefreshLang() {
+    if (!tipVisibleId || !tipVisibleTip) return;
+    tipApplyCopy(tipVisibleTip);
+    tipPaint();
   }
   function tipTryShow() {
     tipTimer = null;
@@ -486,6 +655,7 @@
     const pageKey = tipPageKey();
     if (pageKey === tipPageWatchKey) {
       if (tipBusyBlocking()) tipHide({ keepId: true });
+      else if (tipVisibleId) tipPaint();
       return;
     }
     tipPageWatchKey = pageKey;
@@ -498,6 +668,7 @@
     notifyPageChange: tipNotifyPageChange,
     cancel: tipCancelSchedule,
     hide: tipHide,
+    refreshLang: tipRefreshLang,
     isVisible: function () { return !!tipVisibleId; },
   };
 })(typeof window !== 'undefined' ? window : globalThis);

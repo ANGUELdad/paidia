@@ -1,6 +1,7 @@
 /**
  * Zo-Ai FAB capability tips — random dismissible bubbles from the FAB.
- * Not page chrome tips (see page-tips.js). Docs: docs/agents/TIPS_SYSTEM.md
+ * Spotlight hole + arrow at Zo-Ai; human DE/EL copy.
+ * Docs: docs/agents/TIPS_SYSTEM.md
  *
  * App binds via PaidiaZoAiTips.bind({ getState, isAdminUser, feedback, getGateEl, openZoAi }).
  */
@@ -16,7 +17,10 @@
   let zoaiTipTimer = null;
   let zoaiTipHideTimer = null;
   let zoaiTipVisibleId = null;
+  let zoaiTipVisibleTip = null;
   let zoaiTipSessionStarted = false;
+  let zoaiLiveEl = null;
+  let zoaiPaintBound = false;
   let api = null;
 
   function state() { return api && api.getState ? api.getState() : null; }
@@ -29,6 +33,21 @@
     } catch (_) {}
   }
 
+  function zoaiLang() {
+    const s = state();
+    if (s && (s.lang === 'el' || s.lang === 'de')) return s.lang;
+    try {
+      const html = document.documentElement && document.documentElement.lang;
+      if (html && html.toLowerCase().indexOf('el') === 0) return 'el';
+      const stored = localStorage.getItem('paidia.lang');
+      if (stored === 'el' || stored === 'de') return stored;
+    } catch (_) {}
+    return 'de';
+  }
+  function zoaiTipCopy(de, el) {
+    return zoaiLang() === 'el' ? el : de;
+  }
+
   function paidiaLastCoachAt() { return Number(global.__paidiaLastCoachAt || 0) || 0; }
   function paidiaMarkCoachShown() { global.__paidiaLastCoachAt = Date.now(); }
   function paidiaCoachGapOk(gapMs) {
@@ -39,10 +58,6 @@
   }
   global.paidiaZoAiTipVisible = function () { return !!zoaiTipVisibleId; };
 
-  function zoaiTipCopy(de, el) {
-    const s = state();
-    return s && s.lang === 'el' ? el : de;
-  }
   function readDismissed() {
     try {
       const raw = JSON.parse(localStorage.getItem(ZOAI_TIP_DISMISS_KEY) || '[]');
@@ -62,36 +77,43 @@
 
   function buildCatalog() {
     const mk = function (id, roles, de, el) {
-      return { id: id, roles: roles || ['staff', 'child', 'admin'], text: function () { return zoaiTipCopy(de, el); } };
+      return {
+        id: id,
+        roles: roles || ['staff', 'child', 'admin'],
+        de: de,
+        el: el,
+        text: function () { return zoaiTipCopy(de, el); },
+        target: 'nav-zoai',
+      };
     };
     return [
       mk('zo-plan-fill', ['staff', 'admin'],
-        'Frag Zo-Ai: Plan aus Text füllen — Bestätigen + PIN speichert.',
-        'Ρώτα τη Zo-Ai: γέμισμα πλάνου από κείμενο — Επιβεβαίωση + PIN.'),
+        'Frag Zo-Ai, den Plan aus einem Text zu füllen. Du tippst Bestätigen und PIN — erst dann speichert die App.',
+        'Ρώτα τη Zo-Ai να γεμίσει το πρόγραμμα από κείμενο. Πατάς Επιβεβαίωση και PIN — μόνο τότε αποθηκεύει.'),
       mk('zo-questions', ['staff', 'admin', 'child'],
-        'Zo-Ai beantwortet Fragen zu Heute, Lager und Spielen.',
-        'Η Zo-Ai απαντά σε ερωτήσεις για σήμερα, αποθήκη και παιχνίδια.'),
+        'Zo-Ai beantwortet Fragen zu heute, zur Vorratskammer und zu Spielen. Tippe den Kreis unten rechts.',
+        'Η Zo-Ai απαντά σε ερωτήσεις για σήμερα, την αποθήκη και τα παιχνίδια. Πάτα τον κύκλο κάτω δεξιά.'),
       mk('zo-ocr', ['staff', 'admin'],
-        'Liste/Lager per Foto? Zo-Ai hilft beim Einlesen — du prüfst vorher.',
-        'Λίστα/αποθήκη με φωτό; Η Zo-Ai βοηθά στο διάβασμα — εσύ ελέγχεις.'),
+        'Liste oder Vorräte per Foto? Zo-Ai hilft beim Einlesen. Du prüfst alles, bevor etwas gespeichert wird.',
+        'Λίστα ή αποθήκη με φωτογραφία; Η Zo-Ai βοηθά στο διάβασμα. Εσύ ελέγχεις πριν αποθηκευτεί κάτι.'),
       mk('zo-schedule', ['staff', 'admin'],
-        '„Trag Fußball morgen ein“ — Zo-Ai schlägt vor, du bestätigst.',
-        '«Βάλε ποδόσφαιρο αύριο» — η Zo-Ai προτείνει, εσύ επιβεβαιώνεις.'),
+        'Sag zum Beispiel „Trag Fußball morgen ein“. Zo-Ai schlägt vor — du bestätigst.',
+        'Πες π.χ. «Βάλε ποδόσφαιρο αύριο». Η Zo-Ai προτείνει — εσύ επιβεβαιώνεις.'),
       mk('zo-stock', ['staff', 'admin'],
-        'Mengen? Sag „2 Milch nach Kalyvia“ — Confirm speichert.',
-        'Ποσότητες; Πες «2 γάλα στο Kalyvia» — Confirm αποθηκεύει.'),
+        'Mengen ändern? Sag „2 Milch nach Kalyvia“. Du tippst Bestätigen — erst dann speichert die App.',
+        'Θες ποσότητες; Πες «2 γάλα στο Kalyvia». Πατάς Επιβεβαίωση — μόνο τότε αποθηκεύει.'),
       mk('zo-shop', ['staff', 'admin'],
-        'Einkauf: „Reis auf die Liste“ — Zo-Ai schlägt vor.',
-        'Αγορές: «ρύζι στη λίστα» — η Zo-Ai προτείνει.'),
+        'Für den Einkauf: sag „Reis auf die Liste“. Zo-Ai schlägt vor, du entscheidest.',
+        'Για αγορές: πες «ρύζι στη λίστα». Η Zo-Ai προτείνει, εσύ αποφασίζεις.'),
       mk('zo-kids-ask', ['child'],
         'Tippe Zo-Ai und frag, was heute ansteht oder wie ein Spiel geht.',
         'Πάτα Zo-Ai και ρώτα τι έχεις σήμερα ή πώς παίζεται ένα παιχνίδι.'),
       mk('zo-kids-save', ['child'],
-        'Zo-Ai erklärt — Speichern von Lager/Plan machen die Betreuer.',
-        'Η Zo-Ai εξηγεί — αποθήκευση Lager/Plan κάνουν οι φροντιστές.'),
+        'Zo-Ai erklärt gerne. Speichern in der Vorratskammer oder im Plan machen die Betreuerinnen und Betreuer.',
+        'Η Zo-Ai εξηγεί με χαρά. Την αποθήκευση στην αποθήκη ή το πρόγραμμα κάνουν οι φροντιστές.'),
       mk('zo-always', ['staff', 'admin', 'child'],
-        'Zo-Ai bleibt unten rechts — tippe den Kreis oder diesen Tipp.',
-        'Η Zo-Ai μένει κάτω δεξιά — πάτα τον κύκλο ή αυτή τη συμβουλή.'),
+        'Zo-Ai bleibt unten rechts. Tippe den hervorgehobenen Kreis oder diesen Hinweis.',
+        'Η Zo-Ai μένει κάτω δεξιά. Πάτα τον τονισμένο κύκλο ή αυτή τη συμβουλή.'),
     ];
   }
 
@@ -141,6 +163,86 @@
     if (zoaiTipHideTimer) { clearTimeout(zoaiTipHideTimer); zoaiTipHideTimer = null; }
   }
 
+  function findFab() {
+    return document.querySelector('[data-tour="nav-zoai"]')
+      || document.getElementById('dockZoAi')
+      || document.getElementById('navChat');
+  }
+
+  function clearSpotlight() {
+    if (zoaiLiveEl) {
+      try { zoaiLiveEl.classList.remove('tip-target-live', 'zoai-tip-target-live'); } catch (_) {}
+      zoaiLiveEl = null;
+    }
+    const root = document.getElementById('zoaiTipRoot');
+    if (!root) return;
+    root.classList.remove('zoai-tip-anchored');
+    const hole = root.querySelector('#zoaiTipHole');
+    const arrow = root.querySelector('#zoaiTipArrow');
+    if (hole) hole.hidden = true;
+    if (arrow) arrow.hidden = true;
+  }
+
+  function paint() {
+    const root = document.getElementById('zoaiTipRoot');
+    if (!root || root.hidden || !zoaiTipVisibleId) return;
+    const hole = root.querySelector('#zoaiTipHole');
+    const arrow = root.querySelector('#zoaiTipArrow');
+    const bubble = root.querySelector('#zoaiTipBubble');
+    const el = findFab();
+    if (!hole || !arrow || !bubble) return;
+    if (zoaiLiveEl && zoaiLiveEl !== el) {
+      try { zoaiLiveEl.classList.remove('tip-target-live', 'zoai-tip-target-live'); } catch (_) {}
+      zoaiLiveEl = null;
+    }
+    if (!el) {
+      clearSpotlight();
+      return;
+    }
+    zoaiLiveEl = el;
+    el.classList.add('tip-target-live', 'zoai-tip-target-live');
+    const r = el.getBoundingClientRect();
+    const pad = 6;
+    const top = Math.max(4, r.top - pad);
+    const left = Math.max(4, r.left - pad);
+    const width = Math.min(window.innerWidth - left - 4, r.width + pad * 2);
+    const height = Math.min(window.innerHeight - top - 4, r.height + pad * 2);
+    hole.hidden = false;
+    hole.style.top = top + 'px';
+    hole.style.left = left + 'px';
+    hole.style.width = Math.max(40, width) + 'px';
+    hole.style.height = Math.max(40, height) + 'px';
+
+    root.classList.add('zoai-tip-anchored');
+    const bw = Math.min(280, window.innerWidth - 24);
+    const bh = bubble.offsetHeight || 120;
+    let bLeft = Math.min(Math.max(12, left + width / 2 - bw / 2), window.innerWidth - bw - 12);
+    let bTop = top - bh - 14;
+    let dir = 'down';
+    if (bTop < 12) {
+      bTop = top + height + 14;
+      dir = 'up';
+    }
+    root.style.left = bLeft + 'px';
+    root.style.top = bTop + 'px';
+    root.style.right = 'auto';
+    root.style.bottom = 'auto';
+    root.style.maxWidth = bw + 'px';
+
+    arrow.hidden = false;
+    arrow.dataset.dir = dir;
+    arrow.style.left = Math.min(Math.max(bLeft + 24, left + width / 2 - 8), bLeft + bw - 32) + 'px';
+    arrow.style.top = (dir === 'up' ? (bTop - 8) : (bTop + bh - 2)) + 'px';
+  }
+
+  function ensurePaintListeners() {
+    if (zoaiPaintBound) return;
+    zoaiPaintBound = true;
+    const run = function () { if (zoaiTipVisibleId) paint(); };
+    window.addEventListener('resize', run, { passive: true });
+    window.addEventListener('scroll', run, { passive: true, capture: true });
+  }
+
   function ensureRoot() {
     let root = document.getElementById('zoaiTipRoot');
     if (root) return root;
@@ -149,6 +251,8 @@
     root.className = 'zoai-tip-root';
     root.hidden = true;
     root.innerHTML =
+      '<div class="tip-hole zoai-tip-hole" id="zoaiTipHole" hidden aria-hidden="true"></div>' +
+      '<div class="tip-arrow zoai-tip-arrow" id="zoaiTipArrow" hidden aria-hidden="true"></div>' +
       '<aside class="zoai-tip-bubble" id="zoaiTipBubble" role="status" aria-live="polite">' +
       '<button type="button" class="zoai-tip-x" id="zoaiTipDismiss" aria-label="OK">×</button>' +
       '<p class="zoai-tip-text" id="zoaiTipText"></p>' +
@@ -170,18 +274,36 @@
       if (e.target.closest('#zoaiTipDismiss')) return;
       open();
     };
+    ensurePaintListeners();
     return root;
+  }
+
+  function applyCopy(tip) {
+    const root = document.getElementById('zoaiTipRoot');
+    if (!root || !tip) return;
+    const de = zoaiLang() !== 'el';
+    root.querySelector('#zoaiTipText').textContent = tip.text();
+    root.querySelector('#zoaiTipOpen').textContent = de ? 'Zo-Ai öffnen' : 'Άνοιγμα Zo-Ai';
+    root.querySelector('#zoaiTipDismiss').setAttribute('aria-label', de ? 'Schließen' : 'Κλείσιμο');
   }
 
   function hide(opts) {
     clearAutoHide();
+    clearSpotlight();
     const root = document.getElementById('zoaiTipRoot');
     if (root) {
       root.hidden = true;
-      root.classList.remove('zoai-tip-on');
+      root.classList.remove('zoai-tip-on', 'zoai-tip-anchored');
+      root.style.left = '';
+      root.style.top = '';
+      root.style.right = '';
+      root.style.bottom = '';
     }
     document.body.classList.remove('zoai-tip-open');
-    if (!(opts && opts.keepId)) zoaiTipVisibleId = null;
+    if (!(opts && opts.keepId)) {
+      zoaiTipVisibleId = null;
+      zoaiTipVisibleTip = null;
+    }
   }
 
   function dismissCurrent() {
@@ -209,21 +331,25 @@
     if (!tip || busy()) return false;
     if (!paidiaCoachGapOk()) return false;
     const root = ensureRoot();
-    const s = state();
-    const de = !(s && s.lang === 'el');
     zoaiTipVisibleId = tip.id;
+    zoaiTipVisibleTip = tip;
     (global.paidiaMarkCoachShown || paidiaMarkCoachShown)();
     document.body.classList.add('zoai-tip-open');
-    root.querySelector('#zoaiTipText').textContent = tip.text();
-    root.querySelector('#zoaiTipOpen').textContent = de ? 'Zo-Ai öffnen' : 'Άνοιγμα Zo-Ai';
-    root.querySelector('#zoaiTipDismiss').setAttribute('aria-label', de ? 'Schließen' : 'Κλείσιμο');
+    applyCopy(tip);
     root.hidden = false;
     const reduce = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce) root.classList.add('zoai-tip-on');
     else requestAnimationFrame(function () { root.classList.add('zoai-tip-on'); });
+    requestAnimationFrame(function () { paint(); });
     clearAutoHide();
     zoaiTipHideTimer = setTimeout(dismissCurrent, ZOAI_TIP_AUTO_MS);
     return true;
+  }
+
+  function refreshLang() {
+    if (!zoaiTipVisibleId || !zoaiTipVisibleTip) return;
+    applyCopy(zoaiTipVisibleTip);
+    paint();
   }
 
   function tryShow() {
@@ -281,5 +407,6 @@
     notifySession: notifySession,
     hide: hide,
     stop: stopAll,
+    refreshLang: refreshLang,
   };
 })(typeof window !== 'undefined' ? window : globalThis);

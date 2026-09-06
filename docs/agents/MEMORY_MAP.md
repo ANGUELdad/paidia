@@ -2,6 +2,8 @@
 
 Use this instead of grepping the whole repo for “where is X stored?”.
 
+Obsidian mirror (wikilinks): [`knowledge/MEMORY.md`](../../knowledge/MEMORY.md).
+
 ## Durable (survives deploy when Postgres is set)
 
 | Store | What | Access |
@@ -26,7 +28,7 @@ Use this instead of grepping the whole repo for “where is X stored?”.
 
 | Store | What |
 |-------|------|
-| In-memory JS | Zo-Ai transcript, open sheets, drafts, pin buffer |
+| In-memory JS | Zo-Ai transcript, open sheets, drafts, pin buffer; login `body[data-gate-kb]` + `--gate-vvh` while soft keyboard open |
 | Rate maps in process | Login failures, broadcast cooldown (also soft-persist where coded) |
 | `build.json` fetch | Login line refreshed; constants also inlined in `gate.js` / `app.js` |
 

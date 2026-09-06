@@ -25,20 +25,106 @@
     { id: 'k12', name: 'Leonie', color: '#2f5a63' },
   ];
 
+  let STAFF_LIVE = STAFF.slice();
+  let CHILDREN_LIVE = CHILDREN.slice();
+
+  function mergeDirectory(data) {
+    if (!data || typeof data !== 'object') return;
+    const mergeSide = (seed, remote) => {
+      const byId = new Map(seed.map((p) => [p.id, { ...p }]));
+      (remote || []).forEach((row) => {
+        if (!row || !row.id) return;
+        const prev = byId.get(row.id) || { id: row.id, name: row.id, color: '#94a3b8' };
+        byId.set(row.id, {
+          ...prev,
+          name: (row.name && String(row.name).trim()) || prev.name,
+          color: (row.color && String(row.color).trim()) || prev.color,
+          role: prev.role || '',
+        });
+      });
+      return [...byId.values()];
+    };
+    if (Array.isArray(data.staff) && data.staff.length) STAFF_LIVE = mergeSide(STAFF, data.staff);
+    if (Array.isArray(data.children)) CHILDREN_LIVE = mergeSide(CHILDREN, data.children);
+  }
+
+  function refreshDirectory() {
+    return fetch('/api/auth/directory', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { mergeDirectory(data); return data; })
+      .catch(() => null);
+  }
+  refreshDirectory();
+
   const gate = document.getElementById('gate');
   const body = document.getElementById('gateBody');
   if (!gate || !body) return;
+
+  let gateKbWatchCleanup = null;
+
+  function syncGateKeyboardLayout() {
+    if (!document.body.classList.contains('auth-pending')) {
+      document.body.dataset.gateKb = '0';
+      return;
+    }
+    const vv = window.visualViewport;
+    const layoutH = window.innerHeight || document.documentElement.clientHeight || 0;
+    const visH = vv && vv.height ? vv.height : layoutH;
+    const offsetTop = vv ? (vv.offsetTop || 0) : 0;
+    const shrink = Math.max(0, layoutH - visH - offsetTop);
+    const active = document.activeElement;
+    const typing = !!(active && active.closest && active.closest('#gate') &&
+      (active.matches('input,textarea,select') || active.isContentEditable));
+    const kbOpen = typing || shrink > 100;
+    document.body.dataset.gateKb = kbOpen ? '1' : '0';
+    gate.style.setProperty('--gate-vvh', Math.round(visH) + 'px');
+    gate.style.setProperty('--gate-vvo', Math.round(offsetTop) + 'px');
+    gate.style.setProperty('--gate-kb', Math.round(shrink) + 'px');
+  }
+
+  function startGateKeyboardWatch() {
+    stopGateKeyboardWatch();
+    const sync = () => syncGateKeyboardLayout();
+    const vv = window.visualViewport;
+    const onFocusOut = () => { setTimeout(sync, 50); };
+    vv?.addEventListener('resize', sync);
+    vv?.addEventListener('scroll', sync);
+    window.addEventListener('resize', sync);
+    document.addEventListener('focusin', sync);
+    document.addEventListener('focusout', onFocusOut);
+    gateKbWatchCleanup = () => {
+      vv?.removeEventListener('resize', sync);
+      vv?.removeEventListener('scroll', sync);
+      window.removeEventListener('resize', sync);
+      document.removeEventListener('focusin', sync);
+      document.removeEventListener('focusout', onFocusOut);
+      document.body.dataset.gateKb = '0';
+      gate.style.removeProperty('--gate-vvh');
+      gate.style.removeProperty('--gate-vvo');
+      gate.style.removeProperty('--gate-kb');
+      gateKbWatchCleanup = null;
+    };
+    sync();
+  }
+
+  function stopGateKeyboardWatch() {
+    if (typeof gateKbWatchCleanup === 'function') gateKbWatchCleanup();
+  }
+
+  function prefersOnscreenPinpad() {
+    return window.matchMedia('(max-width:899px)').matches;
+  }
 
   let lang = localStorage.getItem('paidia.lang') || 'de';
   let bootSettled = false;
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 190,
-    label: 'v190',
+    version: 199,
+    label: 'v199',
     changed: {
-      de: 'Taschengeld inline · Monatskalender · Lager-Layout',
-      el: 'Χαρτζιλίκι inline · Μηνιαίο ημερολόγιο · Layout αποθήκης',
+      de: 'Overflow · Buch ruhig · Regeln · Profile · Valeria+Lea · Noten · Push',
+      el: 'Overflow · ήρεμο Βιβλίο · Κανόνες · Προφίλ · Valeria+Lea · βαθμοί · Push',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -255,7 +341,7 @@
       const mode = localStorage.getItem(LAST_MODE_KEY);
       const id = localStorage.getItem(LAST_PROFILE_KEY);
       if (!mode || !id) return null;
-      const list = mode === 'child' ? CHILDREN : STAFF;
+      const list = mode === 'child' ? CHILDREN_LIVE : STAFF_LIVE;
       const who = list.find((p) => p.id === id);
       return who ? { who, mode } : null;
     } catch (e) { return null; }
@@ -395,7 +481,10 @@
   }
 
   function renderProfiles(mode) {
-    const people = mode === 'child' ? CHILDREN : STAFF;
+    refreshDirectory().finally(() => renderProfilesNow(mode));
+  }
+  function renderProfilesNow(mode) {
+    const people = mode === 'child' ? CHILDREN_LIVE : STAFF_LIVE;
     paintGate('profiles', `
       ${langSwitch()}
       <div class="gate-head">
@@ -639,7 +728,10 @@
           if (loginBtn) loginBtn.textContent = t('login');
           setControlsEnabled(true);
           draw();
-          try { input.focus(); } catch (error) {}
+          if (!prefersOnscreenPinpad()) {
+            try { input.focus({ preventScroll: true }); } catch (error) {}
+          }
+          syncGateKeyboardLayout();
         }
       }
     };
@@ -713,9 +805,12 @@
       const button = event.target.closest('button[data-k]');
       if (!button || button.disabled) return;
       event.preventDefault();
+      try { input.blur(); } catch (e) {}
       push(button.dataset.k);
     };
     loginBtn.onclick = finish;
+    input.addEventListener('focus', () => syncGateKeyboardLayout());
+    input.addEventListener('blur', () => setTimeout(syncGateKeyboardLayout, 50));
     input.addEventListener('input', () => {
       if (busy || succeeded) return;
       buf = String(input.value || '').replace(/\D/g, '').slice(0, 6);
@@ -728,7 +823,13 @@
         finish();
       }
     });
-    setTimeout(() => input.focus(), 30);
+    if (!prefersOnscreenPinpad()) {
+      setTimeout(() => {
+        try { input.focus({ preventScroll: true }); } catch (error) { input.focus(); }
+      }, 30);
+    } else {
+      syncGateKeyboardLayout();
+    }
   }
 
   function setGateStatus(el, message, kind) {
@@ -923,6 +1024,7 @@
     document.documentElement.lang = lang;
     gate.classList.add('on');
     document.body.classList.add('auth-pending');
+    startGateKeyboardWatch();
 
     const resetToken = new URLSearchParams(location.search).get('reset');
     if (resetToken) {

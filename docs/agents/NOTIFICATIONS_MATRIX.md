@@ -44,7 +44,7 @@ Without VAPID keys, `/api/health` reports `notifications.webPush: false`. Local 
 | **desktop** | Edge | Yes | Yes | Yes *if* VAPID | Chromium |
 | **any** | `file://` | No | No | No | Use `python3 server.py` / HTTPS |
 
-\* “Yes *if* VAPID” = keys set in env, subscribe succeeded, and a future server sender uses the stored subscription. **Subscribe is wired; broadcast send is still Phase E** (see [WEB_PUSH_LATER.md](WEB_PUSH_LATER.md)).
+\* “Yes *if* VAPID” = keys set in env, subscribe succeeded, and server send (`pywebpush`) is available. See [WEB_PUSH_LATER.md](WEB_PUSH_LATER.md).
 
 ## Category toggles → what fires
 
@@ -71,9 +71,11 @@ Automations panel (`paidia.notifAuto`) can further gate shift/stock/late/friday/
 
 | Endpoint | Auth | Purpose |
 |----------|------|---------|
-| `GET /api/push/vapid` | No | Public key if configured |
+| `GET /api/push/vapid` | No | Public key if configured (+ `sendReady`) |
 | `POST /api/push/subscribe` | Yes (session) | Store PushSubscription in durable KV |
-| `GET /api/health` → `notifications` | No | `{ local: true, webPush: bool }` |
+| `POST /api/notify/push` | Admin | Fan-out Web Push (`title`, `body`, optional audience) |
+| `GET\|POST /api/notify/tick` | Cron secret / admin | Hourly event reminders (~90 min window) |
+| `GET /api/health` → `notifications` | No | `{ local, webPush, webPushSend }` |
 
 ## Enable flow (v163)
 

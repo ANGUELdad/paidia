@@ -2,5 +2,11 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/api/_asset/$1" }
+  ],
+  "crons": [
+    {
+      "path": "/api/notify/tick",
+      "schedule": "0 * * * *"
+    }
   ]
 }

@@ -8,11 +8,14 @@ Mobile-first bilingual (DE/EL) care-ops PWA for Armonia Villas (Thassos): staff 
 
 ## Agent token savers (read in order)
 
+0. Obsidian vault [`knowledge/`](../../knowledge/) — [AGENT_START](../../knowledge/AGENT_START.md) · [SITE](../../knowledge/SITE.md) · [MEMORY](../../knowledge/MEMORY.md) · `topics/*` · [MCP_SETUP](../../knowledge/MCP_SETUP.md)  
 1. [TOKEN_REDUCE.md](TOKEN_REDUCE.md)  
 2. [KNOWLEDGE_MAP.md](KNOWLEDGE_MAP.md)  
 3. [MEMORY_MAP.md](MEMORY_MAP.md)  
-4. [map.json](map.json)  
+4. [map.json](map.json) (mirrored → `knowledge/topics/`)  
 5. [BIOMETRICS.md](BIOMETRICS.md) when touching login / WebAuthn  
+
+Refresh: `python3 scripts/build-knowledge-vault.py` · `graphify update . --no-cluster`
 
 Root entry: [AGENTS.md](../../AGENTS.md). Zo-Ai runtime: `docs/zoai/`.
 

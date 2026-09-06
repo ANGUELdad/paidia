@@ -37,7 +37,7 @@
         "index.html",
         "docs/agents/TIPS_SYSTEM.md"
       ],
-      "snippet": "Contextual page tip popups (not tour, not Zo-Ai FAB). page-tips.js PaidiaPageTips; tipNotifyPageChange; paidia.tipsDismissed; Easy fewer; stagger via paidiaMarkCoachShown."
+      "snippet": "Contextual page tips with spotlight hole/arrow on data-tour; human DE/EL; PaidiaPageTips.refreshLang; paidia.tipsDismissed."
     },
     {
       "id": "zoai-tips",
@@ -57,7 +57,7 @@
         "gate.js",
         "docs/agents/TIPS_SYSTEM.md"
       ],
-      "snippet": "Zo-Ai FAB capability tips. PaidiaZoAiTips; zoaiTipNotifySession; stagger paidiaMarkCoachShown / paidiaPageTipVisible; #zoaiTipRoot body.zoai-tip-open."
+      "snippet": "Zo-Ai FAB tips spotlight nav-zoai; PaidiaZoAiTips.refreshLang; stagger paidiaMarkCoachShown / paidiaPageTipVisible."
     },
     {
       "id": "nav-menu",
@@ -138,7 +138,7 @@
         "CHANGELOG.md",
         "app.js"
       ],
-      "snippet": "Login shows build.json version + changed.de/el on every screen. Child install hint on profiles."
+      "snippet": "Login shows build.json version + changed.de/el. Mobile keyboard: body[data-gate-kb] + visualViewport (--gate-vvh); hide landmark/pinpad while typing."
     },
     {
       "id": "book",
@@ -171,7 +171,23 @@
         "app.js",
         "server.py"
       ],
-      "snippet": "viewShop Friday list + Αιτήματα/Anfragen (listRequests); store confirmBatch; /api/ai-shopping OCR."
+      "snippet": "viewShop Friday list + requests; store checkbox mode (done sink+strikethrough); DE→EL translate; confirmBatch; OCR. Verantwortung ack is on Lagercheck, not Liste."
+    },
+    {
+      "id": "admin-ops",
+      "keys": [
+        "admin ops",
+        "ops cockpit",
+        "lego",
+        "zoimert",
+        "ops alert"
+      ],
+      "files": [
+        "app.js",
+        "server.py",
+        "docs/zoai/admin.md"
+      ],
+      "snippet": "#admin Ops cockpit + Lego; kids admin add/remove (/api/auth/admin/child); profile photo header; /api/translate; ops-alert."
     },
     {
       "id": "stock",
@@ -388,13 +404,37 @@
         "map",
         "knowledge",
         "memory",
-        "reduce"
+        "reduce",
+        "obsidian",
+        "graphify",
+        "vault"
       ],
       "files": [
         "AGENTS.md",
-        "docs/agents/"
+        "knowledge/",
+        "knowledge/AGENT_START.md",
+        "knowledge/MCP_SETUP.md",
+        "docs/agents/",
+        "scripts/build-knowledge-vault.py"
       ],
-      "snippet": "Coding agents load docs/agents maps first — never full app.js/server.py."
+      "snippet": "Vault-first: knowledge/AGENT_START + topics/* + map.json; Graphify MCP; never full app.js/server.py."
+    },
+    {
+      "id": "rules",
+      "keys": [
+        "rules",
+        "houseRules",
+        "Hausregeln",
+        "Κανόνες",
+        "viewRules",
+        "childRulesView"
+      ],
+      "files": [
+        "app.js",
+        "server.py",
+        "ui-v110.css"
+      ],
+      "snippet": "Shared houseRules ops array; viewRules/childRulesView; staff edit kids read-only; ROUTE_TABS rules; kids cannot kid-ops write."
     }
   ]
 }
