@@ -1,8 +1,8 @@
 {
-  "version": 214,
-  "label": "v214",
+  "version": 215,
+  "label": "v215",
   "changed": {
-    "de": "UI-Overflow: Kalender-€ in Zellen, Taschengeld + globale Containment.",
-    "el": "UI overflow: € ημερολογίου στα κελιά, Χαρτζιλίκι + containment."
+    "de": "Desktop-UI: Matrix bleibt im Frame, dichtere Home/Admin/Pocket-Buttons.",
+    "el": "Desktop UI: πίνακας Plan στο frame, πυκνότερα Home/Admin/Pocket."
   }
 }

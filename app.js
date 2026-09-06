@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 214,
-  label: 'v214',
+  version: 215,
+  label: 'v215',
   changed: {
-    de: 'UI-Overflow: Kalender-€ in Zellen, Taschengeld + Containment.',
-    el: 'UI overflow: € ημερολογίου στα κελιά + containment.',
+    de: 'Desktop-UI: Matrix im Frame, dichtere Home/Admin/Pocket.',
+    el: 'Desktop UI: πίνακας Plan στο frame, πυκνότερα κουμπιά.',
   },
 };
 const T = {
@@ -7812,8 +7812,8 @@ function dayStamp(ds, i=dowIdx(new Date(ds+'T12:00:00'))){
 
 /** Κοινό responsive table system για πρόγραμμα, βάρδιες και μελλοντικά datasets. */
 function matrixView(headers, rows, {label = '', interactive = false, title = '', density = 'roster', shellClass = '', hint = ''} = {}){
-  const desktopMin=140 + headers.length*158;
-  const mobileMin=96 + headers.length*118;
+  const desktopMin=Math.min(120 + headers.length*132, 1180);
+  const mobileMin=96 + headers.length*110;
   const headCell = h => {
     if(h && typeof h === 'object'){
       return `<div class="matrix-cell matrix-head" role="columnheader">${h.html || h.headHtml || `<span class="mh-day">${esc(h.text||h.label||'')}</span>`}</div>`;
@@ -20021,9 +20021,9 @@ function adminWorkerDetailHtml(employeeId){
         <div class="muted">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div>
     </header>
     <div class="admin-detail-stats">
-      <div class="admin-detail-stat"><b>${todayItems.length}</b>${esc(t('adminToday'))}</div>
-      <div class="admin-detail-stat"><b>${weekItems.length}</b>${esc(t('adminNext7'))}</div>
-      <div class="admin-detail-stat"><b>${done}</b>${esc(t('adminDone'))}</div>
+      <div class="admin-detail-stat"><b>${todayItems.length}</b><span>${esc(t('adminToday'))}</span></div>
+      <div class="admin-detail-stat"><b>${weekItems.length}</b><span>${esc(t('adminNext7'))}</span></div>
+      <div class="admin-detail-stat"><b>${done}</b><span>${esc(t('adminDone'))}</span></div>
     </div>
     <div class="admin-action-grid" style="margin:12px 0">
       <button class="btn sm sec" type="button" data-admin-worker-go="schedule">${esc(t('adminOpenWeek'))}</button>
@@ -20443,8 +20443,8 @@ function sheetAdminStaff(employeeId){
   openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:${safeColor(person.color)}">${initials(person.name)}</div>
       <div class="grow"><div class="muted">${t('adminDetails')}</div><h3 style="margin:1px 0">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</h3>
         <div class="muted">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div></div>
-    <div class="admin-detail-stats"><div class="admin-detail-stat"><b>${todayItems.length}</b>${t('adminToday')}</div>
-      <div class="admin-detail-stat"><b>${assignments.length}</b>${t('adminNext7')}</div><div class="admin-detail-stat"><b>${completed}</b>${t('adminDone')}</div></div>
+    <div class="admin-detail-stats"><div class="admin-detail-stat"><b>${todayItems.length}</b><span>${t('adminToday')}</span></div>
+      <div class="admin-detail-stat"><b>${assignments.length}</b><span>${t('adminNext7')}</span></div><div class="admin-detail-stat"><b>${completed}</b><span>${t('adminDone')}</span></div></div>
     <div class="block-h"><span class="t">${t('adminActions')}</span></div>
     <div class="admin-action-grid">
       <button class="btn sm" type="button" id="adminAddAssignment">＋ ${t('newEntry')}</button>
@@ -24977,7 +24977,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||214;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||215;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

@@ -1,5 +1,10 @@
 # Changelog
 
+## v215 · 2026-09-06
+
+- **Desktop UI polish (Playwright audit):** week matrix contained (no page-level X overflow); denser Home pulse; Admin/Pocket button spacing; detail stats labels wrapped.
+- Cache `paidia-v215`.
+
 ## v214 · 2026-09-06
 
 - **Overflow fix:** paidia calendar day cells clip euro labels (`minmax(0,1fr)`, compact `+50€`); pocket/staff/admin text containment.

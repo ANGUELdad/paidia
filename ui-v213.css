@@ -134,22 +134,22 @@ body::before{
 }
 
 /* ── Home ───────────────────────────────────────────────────────────────── */
-#view .home-command-hero{
-  border-radius:22px;
-  padding:clamp(20px, 3vw, 32px);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--brand) 10%, #fff) 0%, #fff 42%, color-mix(in srgb, var(--sea) 8%, #f4f7f5) 100%);
-  border:1px solid var(--line);
-  color:var(--ink);
-  box-shadow:var(--shadow-1);
+/* Keep dark command hero from ui-v110 — only tighten pulse density here */
+body.layout-desktop[data-tab="home"] .home-command-hero{
+  min-height:220px;
 }
-#view .home-command-hero :is(h1, p, .home-start-kicker){ color:inherit; }
-#view .home-command-hero .muted,
-#view .home-command-hero p{ color:var(--muted); max-width:58ch; }
-#view .home-command-hero .btn,
-#view .home-command-hero .home-primary{
-  min-height:48px;
-  border-radius:14px;
+body.layout-desktop[data-tab="home"] .home-command-copy{
+  padding:28px 32px;
+}
+body.layout-desktop[data-tab="home"] .home-command-pulse{
+  margin:16px;
+}
+body.layout-desktop[data-tab="home"] .home-command-pulse .home-pulse-item{
+  min-height:72px;
+  padding:12px 14px;
+}
+body.layout-desktop[data-tab="home"] .home-command-pulse .w-stat-val{
+  font-size:24px;
 }
 #view .home-signal,
 #view .ops-metric{
@@ -644,6 +644,121 @@ body.layout-desktop .bottom-panel .btn.zoai,
 body.layout-desktop [data-rail-zoai]{
   margin-bottom:max(8px, env(safe-area-inset-bottom, 0px));
 }
-body.layout-desktop .bottom-panel{
+body.layout-desktop:not(.mode-child) .bottom-panel{
   padding-bottom:max(12px, env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Desktop density + matrix containment (v215) ─────────────────────────── */
+body.layout-desktop #view .matrix-shell{
+  max-width:100%;
+  min-width:0;
+  overflow:hidden;
+}
+body.layout-desktop #view .matrix{
+  max-width:100%;
+  width:100%;
+  overflow-x:auto;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+}
+body.layout-desktop #view .matrix-row{
+  max-width:none;
+}
+body.layout-desktop #view .matrix-cell{
+  overflow:hidden;
+}
+body.layout-desktop #view .matrix-cell .cellitem{
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+body.layout-desktop #view .ops-priority-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  max-width:100%;
+}
+body.layout-desktop #view .ops-priority-actions .btn,
+body.layout-desktop #view .ops-priority-actions a.btn{
+  width:auto;
+  max-width:100%;
+  flex:1 1 180px;
+  justify-content:center;
+  text-align:center;
+  white-space:normal;
+  line-height:1.25;
+  min-height:44px;
+  padding:10px 12px;
+}
+body.layout-desktop #view .admin-ops-stat-tile{
+  display:grid;
+  gap:4px;
+  align-content:start;
+}
+body.layout-desktop #view .admin-ops-stat-tile b{
+  display:block;
+  margin:0;
+}
+body.layout-desktop #view .admin-ops-stat-tile span{
+  display:block;
+  line-height:1.3;
+}
+body.layout-desktop #view .admin-detail-stat{
+  display:grid;
+  gap:2px;
+  justify-items:center;
+}
+body.layout-desktop #view .admin-detail-stat b{
+  display:block;
+}
+body.layout-desktop #view .admin-ops-hero{
+  padding:22px 24px;
+}
+body.layout-desktop #view .admin-ops-hero h2{
+  margin:4px 0 8px;
+  font-size:clamp(1.4rem, 2.2vw, 1.85rem);
+}
+body.layout-desktop #view .pocket-staff-actions{
+  position:sticky;
+  bottom:calc(var(--chrome-bottom, 24px) + 8px);
+  z-index:5;
+  padding:10px;
+  border-radius:16px;
+  background:rgba(255,255,255,.94);
+  border:1px solid var(--line);
+  box-shadow:0 10px 28px rgba(26,40,34,.10);
+}
+body.layout-desktop #view .pocket-ledger-top{
+  gap:14px;
+}
+body.layout-desktop #view .pocket-balance-card{
+  padding:16px;
+}
+body.layout-desktop #view .pocket-balance-big{
+  font-size:clamp(1.6rem, 2.4vw, 2rem);
+  margin:6px 0 10px;
+}
+body.layout-desktop #view .stock-pantry-hero,
+body.layout-desktop #view .shop-overview{
+  padding:16px 18px;
+}
+body.layout-desktop #view .btn,
+body.layout-desktop #view .page-act,
+body.layout-desktop #view .chip{
+  max-width:100%;
+}
+body.layout-desktop #view .seg{
+  max-width:100%;
+  flex-wrap:wrap;
+}
+body.layout-desktop main.app-stage{
+  padding-inline:clamp(16px, 2vw, 28px);
+}
+/* Kids desktop CTA grid: fill holes, even tiles */
+body.layout-desktop.mode-child .kid-home-cta-grid{
+  grid-template-columns:repeat(3, minmax(0,1fr));
+}
+body.layout-desktop.mode-child .kid-home-cta-tile{
+  min-height:72px;
+  max-height:88px;
+  padding:12px;
 }

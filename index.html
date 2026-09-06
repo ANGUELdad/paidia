@@ -1146,7 +1146,7 @@
   }
 
   /* Νέο table system: ένα ενιαίο, responsive matrix αντί για τα παλιά πυκνά tables. */
-  .matrix-shell{margin-bottom:12px}
+  .matrix-shell{margin-bottom:12px;max-width:100%;min-width:0;overflow:hidden}
   .matrix-toolbar{display:flex;align-items:center;gap:8px;margin:0 0 7px;flex-wrap:wrap}
   .matrix-toolbar-title{flex:1;min-width:0;font-size:12px;font-weight:800;color:#2d4a52;
     text-transform:uppercase;letter-spacing:.04em}
@@ -1157,13 +1157,15 @@
   .matrix-fs-close{background:#1a2822;border-color:#1a2822;color:#fff}
   .matrix{--cols:8; overflow:auto; border:1px solid var(--line); border-radius:14px;
     background:#fff; box-shadow:0 8px 24px rgba(26,40,34,.05); margin-bottom:0;
-    scrollbar-width:thin; -webkit-overflow-scrolling:touch; max-height:min(70vh,640px)}
+    scrollbar-width:thin; -webkit-overflow-scrolling:touch; max-height:min(70vh,640px);
+    max-width:100%; width:100%; min-width:0}
+  .matrix-shell{margin-bottom:12px; max-width:100%; min-width:0; overflow:hidden}
   .matrix-row{display:grid; grid-template-columns:140px repeat(var(--cols),minmax(0,1fr));
-    width:100%; min-width:var(--matrix-min,100%); border-bottom:1px solid var(--line); align-items:stretch}
+    width:max(100%, var(--matrix-min,100%)); min-width:var(--matrix-min,100%); border-bottom:1px solid var(--line); align-items:stretch}
   .matrix-row:last-child{border-bottom:0}
   .matrix-cell{min-width:0; padding:8px; border-right:1px solid var(--line); position:relative;
-    overflow:visible; overflow-wrap:anywhere}
-  .matrix-cell .cellitem{overflow:visible}
+    overflow:hidden; overflow-wrap:anywhere}
+  .matrix-cell .cellitem{overflow:hidden; max-width:100%}
   .matrix-cell:last-child{border-right:0}
   .matrix-head{position:sticky; top:0; z-index:3; background:linear-gradient(180deg,#eef5f0,#f2f4f1); color:var(--muted);
     font-size:11px; font-weight:750; text-transform:none; letter-spacing:.02em}
@@ -6053,8 +6055,8 @@
   }
 
 </style>
-<link rel="stylesheet" href="ui-v110.css?v=214">
-<link rel="stylesheet" href="ui-v213.css?v=214">
+<link rel="stylesheet" href="ui-v110.css?v=215">
+<link rel="stylesheet" href="ui-v213.css?v=215">
 <style>
   /* v177 — staff mobile: no floating Zo (Mehr → Zo-Ai); hide when chat open */
   body.layout-mobile:not(.mode-child) .zoai-fab,
@@ -6174,9 +6176,9 @@
 <script>
 /* Gate FIRST — never block PIN behind tip/notif scripts (hung SW = forever Laden). */
 </script>
-<script src="gate.js?v=214"></script>
-<script src="page-tips.js?v=214" async></script>
-<script src="zoai-tips.js?v=214" async></script>
-<script src="notifications.js?v=214" async></script>
+<script src="gate.js?v=215"></script>
+<script src="page-tips.js?v=215" async></script>
+<script src="zoai-tips.js?v=215" async></script>
+<script src="notifications.js?v=215" async></script>
 </body>
 </html>
