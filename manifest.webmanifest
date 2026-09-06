@@ -1,16 +1,19 @@
 {
+  "id": "./",
   "name": "Armonia Thassos",
   "short_name": "Armonia",
-  "description": "Gemeinsam durch den Tag — Betreuung, Dienstplan und Vorrat.",
+  "description": "Gemeinsam durch den Tag — Betreuung, Dienstplan, Lager und Taschengeld auf Thassos.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#071a2b",
-  "theme_color": "#0f172a",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "background_color": "#e9ece8",
+  "theme_color": "#1a2822",
   "lang": "de",
   "dir": "ltr",
-  "categories": ["productivity", "utilities"],
+  "categories": ["productivity", "education", "utilities"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -39,19 +42,28 @@
   ],
   "shortcuts": [
     {
-      "name": "Einkauf",
-      "short_name": "Shop",
-      "url": "./index.html#shop"
+      "name": "Home",
+      "short_name": "Home",
+      "url": "./index.html#home",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Lager",
       "short_name": "Lager",
-      "url": "./index.html#stock"
+      "url": "./index.html#stock",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Kalender",
+      "name": "Liste",
+      "short_name": "Liste",
+      "url": "./index.html#shop",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Plan",
       "short_name": "Plan",
-      "url": "./index.html#schedule/calendar"
+      "url": "./index.html#schedule",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

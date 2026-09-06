@@ -152,6 +152,7 @@ def _auth_health():
             "passkeyCredentials": len(paidia.PASSKEYS.get("credentials", {})),
             "passkeyOrigin": paidia.WEBAUTHN_ORIGIN,
             "passkeyRpId": paidia.WEBAUTHN_RP_ID,
+            "passkeyRpName": getattr(paidia, "WEBAUTHN_RP_NAME", "Armonia Thassos"),
         })
     return _json(200, payload)
 
@@ -384,6 +385,7 @@ _STATIC_EXACT = frozenset({
     "app.js",
     "gate.js",
     "ui-v110.css",
+    "ui-v213.css",
     "sw.js",
     "manifest.webmanifest",
     # Login shows the running version + DE/EL "what changed" from this.

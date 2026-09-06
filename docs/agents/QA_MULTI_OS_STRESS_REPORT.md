@@ -1,11 +1,11 @@
 # QA — Multi-OS stress / UI / CSS / button-fail
 
-**At:** 2026-09-05T18:18:45.280Z
-**Build:** v185
+**At:** 2026-09-06T16:07:50.968Z
+**Build:** v212
 **Base:** http://127.0.0.1:5173
 **Devices:** iPhone 14 Pro · iOS Safari · Pixel 7 · Android Chrome · iPad Pro 11 · iPadOS Safari · Desktop Chrome 1440×900 · Galaxy S9+ landscape · Android
 
-**Totals:** 42 issues — P0=0 P1=0 P2=42
+**Totals:** 30 issues — P0=0 P1=0 P2=30
 
 ## Rules enforced
 
@@ -27,7 +27,7 @@ _No P0/P1 issues._
 ## Device matrix
 
 | iPhone 14 Pro · iOS Safari | iphone-14-pro | issues=0 |
-| Pixel 7 · Android Chrome | pixel-7 | issues=42 |
+| Pixel 7 · Android Chrome | pixel-7 | issues=30 |
 | iPad Pro 11 · iPadOS Safari | ipad-pro-11 | issues=0 |
 | Desktop Chrome 1440×900 | desktop-chrome | issues=0 |
 | Galaxy S9+ landscape · Android | galaxy-s9-landscape | issues=0 |

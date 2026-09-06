@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#1a2822" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a2822">
+<meta name="color-scheme" content="light">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Armonia">
+<meta name="format-detection" content="telephone=no">
+<meta name="msapplication-TileColor" content="#2a6b52">
+<meta name="msapplication-tap-highlight" content="no">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,9 +21,11 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Armonia">
+<link rel="apple-touch-startup-image" href="icons/icon-512.png">
 <title>Armonia Thassos</title>
 <style>
   /* ── Shell tokens — Pine & mineral (Thassos) ───────────────────────── */
@@ -2043,6 +2052,7 @@
   body.layout-desktop .talk-chat-shell{grid-area:chat}
   body.layout-desktop .talk-page .talk-root-fast .talk-chat-fast{min-height:420px;height:min(58vh,560px);max-height:560px}
   nav.dock button[data-staff-only][hidden]{display:none!important}
+  nav.dock button[data-admin-only][hidden]{display:none!important}
   .talk-more{margin-top:12px;border:1px solid var(--line);border-radius:14px;background:#f2f4f1;padding:8px 12px}
   .talk-more>summary{cursor:pointer;font-weight:750;font-size:13px;color:#1a2822;list-style:none}
   .talk-more>summary::-webkit-details-marker{display:none}
@@ -4451,7 +4461,14 @@
   @media (max-width:380px){
     .kid-dock button span{font-size:9px}
     .course-grid{gap:var(--space-1)}
-    .sp-day{padding:var(--space-1); min-height:48px}
+    .sp-day{padding:var(--space-1); min-height:48px; font-size:10px}
+    .sp-week{gap:2px}
+    .badge-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+    .next-up.next-up-idle{grid-template-columns:46px minmax(0,1fr)}
+    .next-up .next-up-cta{grid-column:1 / -1; width:100%}
+    .kid-home-cta-grid{grid-template-columns:1fr}
+    .aufgabe-card{grid-template-columns:auto minmax(0,1fr); gap:var(--space-2)}
+    .aufgabe-card > :last-child{grid-column:1 / -1; justify-self:stretch}
   }
   @media (min-width:600px){
     .course-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -5191,9 +5208,11 @@
     display:grid; grid-template-columns:1fr 1fr; gap:14px;
   }
   body.layout-desktop:not(.mode-child) .plan-hero,
-  body.layout-desktop:not(.mode-child) .stock-shell,
   body.layout-desktop:not(.mode-child) .shop-shell{
     display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:16px; align-items:start;
+  }
+  body.layout-desktop:not(.mode-child) .stock-shell{
+    display:block; width:100%; max-width:none; margin:0;
   }
   body.layout-desktop:not(.mode-child) .ops-side-rail{
     position:sticky; top:calc(var(--header-h, 96px) + 12px);
@@ -5542,16 +5561,14 @@
   body.layout-desktop:not(.mode-child) .shop-shell-plan > .shop-command{
     grid-column:2; grid-row:1 / span 20; position:sticky; top:calc(var(--header-h) + 12px);
     align-self:start; margin:0}
-  body.layout-desktop:not(.mode-child) .stock-shell{
-    display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,300px);
-    gap:20px; align-items:start}
-  body.layout-desktop:not(.mode-child) .stock-shell > .stock-command{
-    grid-column:2; grid-row:1 / span 12; position:sticky; top:calc(var(--header-h) + 12px);
-    align-self:start; margin:0}
-  body.layout-desktop:not(.mode-child) .stock-shell > .ops-hero,
-  body.layout-desktop:not(.mode-child) .stock-shell > .stock-category,
-  body.layout-desktop:not(.mode-child) .stock-shell > section,
-  body.layout-desktop:not(.mode-child) .stock-shell > .card{grid-column:1}
+  /* stock-layout-v2 keeps command in the top band — do not reserve an empty side column */
+  body.layout-desktop:not(.mode-child) .stock-shell,
+  body.layout-desktop:not(.mode-child) .stock-shell.stock-layout-v2{
+    display:block !important;
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+  }
   @media (prefers-reduced-motion:reduce){
     body.layout-desktop:not(.mode-child) nav.dock button.on .nav-ico{transform:none}
   }
@@ -6036,7 +6053,8 @@
   }
 
 </style>
-<link rel="stylesheet" href="ui-v110.css?v=205">
+<link rel="stylesheet" href="ui-v110.css?v=213">
+<link rel="stylesheet" href="ui-v213.css?v=213">
 <style>
   /* v177 — staff mobile: no floating Zo (Mehr → Zo-Ai); hide when chat open */
   body.layout-mobile:not(.mode-child) .zoai-fab,
@@ -6112,6 +6130,7 @@
       <button type="button" data-tab="shop" data-tour="nav-shop"><svg class="i nav-ico" aria-hidden="true"><use href="#i-shop"/></svg><span data-nav="shop"></span></button>
       <button type="button" class="dock-secondary" data-tab="talk" data-staff-only="1" data-tour="nav-talk"><svg class="i nav-ico" aria-hidden="true"><use href="#i-talk"/></svg><span data-nav="talk"></span></button>
       <button type="button" class="dock-secondary" data-tab="book" data-tour="nav-book"><svg class="i nav-ico" aria-hidden="true"><use href="#i-book"/></svg><span data-nav="book"></span></button>
+      <button type="button" class="dock-secondary" data-tab="admin" data-admin-only="1" data-tour="nav-admin"><svg class="i nav-ico" aria-hidden="true"><use href="#u-sparkle"/></svg><span data-nav="admin"></span></button>
       <button type="button" class="dock-more" id="dockMore" aria-haspopup="dialog"><svg class="i nav-ico" aria-hidden="true"><use href="#u-plus"/></svg><span id="dockMoreLabel">Mehr</span></button>
     </nav>
     <button type="button" class="dock-zoai" id="dockZoAi" data-chat="1" data-tour="nav-zoai">Zo-Ai</button>
@@ -6155,9 +6174,9 @@
 <script>
 /* Gate FIRST — never block PIN behind tip/notif scripts (hung SW = forever Laden). */
 </script>
-<script src="gate.js?v=205"></script>
-<script src="page-tips.js?v=205" async></script>
-<script src="zoai-tips.js?v=205" async></script>
-<script src="notifications.js?v=205" async></script>
+<script src="gate.js?v=213"></script>
+<script src="page-tips.js?v=213" async></script>
+<script src="zoai-tips.js?v=213" async></script>
+<script src="notifications.js?v=213" async></script>
 </body>
 </html>

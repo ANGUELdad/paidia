@@ -4,16 +4,16 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 205,
-  label: 'v205',
+  version: 213,
+  label: 'v213',
   changed: {
-    de: 'Deploy freigegeben · Admin/Ops · Schicht-Notifs',
-    el: 'Deploy OK · Admin/Ops · ειδοπ. βάρδιας',
+    de: 'Lager: − stapeln, Grund erst beim Speichern. UI-Overhaul + native PWA.',
+    el: 'Lager: − μαζικά, λόγος μόνο στο Save. UI overhaul + native PWA.',
   },
 };
 const T = {
   de: {
-    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navPocket:'Taschengeld', navMore:'Mehr',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navPocket:'Taschengeld', navAdmin:'Admin', navMore:'Mehr',
     titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', titlePocket:'Taschengeld', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', kidAdd:'Kind hinzufügen', kidRemove:'Kind entfernen', kidEdit:'Kind bearbeiten', kidNamePh:'Vorname', kidPinPh:'PIN (4–6 Ziffern)', kidPinConfirm:'PIN bestätigen', kidAdded:'Kind gespeichert', kidRemoved:'Kind entfernt', kidRemoveConfirm:'Dieses Kind wirklich entfernen? Login wird gelöscht.', kidPinMismatch:'PIN stimmt nicht', kidNameRequired:'Name fehlt', kidAdminOnly:'Nur Admins können Kinder hinzufügen/entfernen', profilePhoto:'Profilfoto', profilePhotoChange:'Foto ändern', profilePhotoRemove:'Foto entfernen', profilePhotoHint:'Wird oben rechts angezeigt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
     kidsOverview:'Übersicht', kidsTracked:n=>`${n} Kinder`, kidsOpenHomework:n=>`${n} Hausaufgaben offen`,
     schoolOverview:'Schulübersicht', gradeAverage:'Notenschnitt', gradeNoData:'Noch keine Noten', attendanceWeek:'Anwesenheit diese Woche',
@@ -151,6 +151,11 @@ const T = {
     rateAverageFooter:'Mittelwert dieser Woche',
     notifInstallSteps:'iPhone: Teilen → „Zum Home-Bildschirm“ → Hinzufügen. Dann App öffnen und Mitteilungen aktivieren (iOS 16.4+).',
     installAppAndroid:'App installieren',
+    pwaInstallTitle:'Als App nutzen',
+    pwaInstallBody:'Zum Homescreen hinzufügen — voller Bildschirm, schneller Start.',
+    pwaInstallGo:'Installieren',
+    pwaInstallLater:'Später',
+    pwaInstallIosHint:'Teilen → „Zum Home-Bildschirm“',
     typeSTOCKCHECK:'Lagercheck',
     shiftStockCheck:'Lagercheck',
     shiftStockCheckHint:'Für jedes Produkt tippen: OK, wenig oder leer. Dann speichern.',
@@ -333,12 +338,12 @@ const T = {
     authUnavailable:'Anmeldung ist gerade nicht erreichbar.', tooManyPins:'Zu viele Versuche.',
     lockedFor:n=>`Anmeldung gesperrt. Versuche es in ${n} Minute${n===1?'':'n'} erneut.`,
     attemptsRemaining:n=>`Falsche PIN. Noch ${n} Versuch${n===1?'':'e'}.`,
-    useBiometrics:'Mit Geräte-Sperre anmelden', passkey:'Face ID', passkeySetup:'Face ID / Touch ID einrichten',
-    passkeyHint:'iPhone: Face ID · Android: Fingerabdruck · Mac: Touch ID · Windows: Hello. Biometrie bleibt auf dem Gerät — nur ein öffentlicher Schlüssel wird gespeichert.',
+    useBiometrics:'Mit Geräte-Sperre anmelden', passkey:'Face ID / Touch ID', passkeySetup:'Face ID / Touch ID einrichten',
+    passkeyHint:'iPhone: Face ID · iPad: Face ID oder Touch ID · Android: Fingerabdruck · Mac: Touch ID · Windows: Hello. Biometrie bleibt auf dem Gerät — nur ein öffentlicher Schlüssel wird gespeichert.',
     passkeyAdded:'Face ID / Touch ID wurde eingerichtet.', passkeyRemoved:'Biometrie-Anmeldung entfernt.', removePasskeys:'Biometrie entfernen',
     passkeyNone:'Noch nicht eingerichtet. Mit PIN anmelden, dann unten „einrichten“ tippen.',
     passkeySetupNeeded:'Zuerst mit PIN anmelden, dann unter Profil Face ID / Touch ID einrichten.',
-    passkeyConfig:'Face-ID-Anmeldung ist nicht eingerichtet. Bitte die Leitung fragen.',
+    passkeyConfig:'Face-ID-/Touch-ID-Anmeldung ist nicht eingerichtet. Bitte die Leitung fragen.',
     emailNotFound:'E-Mail-Profil wurde nicht gefunden. Speichere zuerst Kontaktdaten oder prüfe, ob du angemeldet bist.',
     profileCustomize:'Profil anpassen', profileNickname:'Anzeigename', profileColor:'Farbe', profileEmoji:'Emoji',
     profileSaved:'Profil gespeichert', passkeyCount:n=>n===1?'1 Gerät eingerichtet':`${n} Geräte eingerichtet`,
@@ -396,7 +401,7 @@ const T = {
     kidHomeCtaTitle:'Wohin als Nächstes?',
     kidHomeCtaGames:'Spiele öffnen',
     kidHomeCtaRate:'Woche bewerten',
-    kidHomeCtaBonus:'Bonus checken',
+    kidHomeCtaBonus:'Mein Bonus',
     kidHomeCtaPocket:'Taschengeld ansehen',
     kidHomeCtaNotes:'Notiz schreiben',
     kidHomeCtaPlan:'Stundenplan',
@@ -576,7 +581,7 @@ const T = {
     kidsEasyHint:'Kinder öffnen — Schule und Noten-Extras in Pro.',
     homeMore:'Mehr heute',
     homeSignals:'Kurzüberblick',
-    stockHeroHint:'Vorratsgang — tippe ± oder füge Ware schnell hinzu',
+    stockHeroHint:'Vorrat im Blick — ± tippen, am Ende speichern; Mindestbestand steht am Artikel',
     stockTideLabel:'Vorratssicherheit',
     stockShelves:'Regale',
     stockShelfHint:n=>n===1?'1 Regalzone':`${n} Regalzonen`,
@@ -589,7 +594,7 @@ const T = {
     stockCatalogue:'Regale nach Kategorie',
     stockMoreActions:'Weitere Aktionen',
     stockAllHealthy:'Alles ist ausreichend vorhanden.',
-    shopHeroHint:'Freitagsliste planen, mitnehmen, im Laden abhaken',
+    shopHeroHint:'Liste planen, mitnehmen, im Laden abhaken — ein Schritt nach dem anderen',
     shopMoreActions:'Weitere Listenaktionen',
     shopOverviewHint:n=>n===1?'1 Produkt für diesen Einkauf geplant.':`${n} Produkte für diesen Einkauf geplant.`,
     adminAutomations:'Automationen',
@@ -629,11 +634,26 @@ const T = {
     cartQuickAdd:'Produkt schnell hinzufügen…', addToCart:'Hinzufügen', cartReady:n=>`${n} ${n===1?'Produkt':'Produkte'} – Einkauf starten`,
     removeListTitle:'Von der Liste nehmen',
     removeListHint:'Warum wird diese Position entfernt?',
+    removeListBulkHint:n=>`Warum werden diese ${n} Positionen entfernt? Ein Grund für alle.`,
     removeListConfirm:'Entfernen',
     removeListNeedReason:'Bitte einen Grund wählen.',
     removeListReasonPh:'z. B. Kind bringt mit, Spende…',
+    listRemoveAll:'Alle entfernen',
+    listPendingConfirm:'Entfernen bestätigen',
+    listPendingUndo:'Markierung aufheben',
+    listPendingBar:n=>`${n} zum Entfernen markiert`,
+    listPendingBeforeShop:'Zuerst Markierungen bestätigen oder aufheben.',
+    listPendingCleared:'Markierungen verworfen',
     listItemRemoved:'Position aus der Liste entfernt.',
-    bookedToHouse:n=>`Gekauft und in ${n} eingebucht`, backToCart:'Zurück zum Warenkorb', externalHome:'Anderes Zuhause', customProducts:'Weitere Produkte',
+    listItemsRemoved:n=>`${n} Positionen aus der Liste entfernt.`,
+    listBulkRemoved:n=>`${n} Positionen entfernt.`,
+    backToCart:'Zurück zum Warenkorb',
+    shopPauseStore:'Einkauf pausiert — Markierungen gespeichert.',
+    shopResumeStore:'Einkauf fortsetzen',
+    shopResumeHint:n=>`${n} Positionen warten im Supermarkt`,
+    shopAbortStore:'Einkauf abbrechen',
+    shopAbortConfirm:'Einkauf wirklich abbrechen? Alle Markierungen (gekauft / fehlt) gehen verloren.',
+    externalHome:'Anderes Zuhause', customProducts:'Weitere Produkte',
     chooseShoppingHouse:'1. Haus auswählen', shoppingHouseHint:'Auch Julian groß und Valeria+Lea — nur für Einkauf/Bestand, nicht im Wochenplan.',
     fullBlock:'Ganzer Block', fromTime:'ab', timeFrom:'Von', timeTo:'Bis',
     importTitle:'Liste einlesen', fromText:'Text', fromPhoto:'Foto', fromScreenshot:'Bildschirmfoto',
@@ -685,7 +705,20 @@ const T = {
     shopRequestKidHint:'Schreibe was du brauchst — das Team prüft es.',
     pocketMoneyTitle:'Taschengeld', pocketMoneyBalance:'Guthaben', pocketMoneyIn:'Einzahlung',
     pocketMoneyOut:'Auszahlung', pocketMoneyAdjust:'Korrektur', pocketMoneyNote:'Notiz',
-    pocketMoneyNotePh:'z.B. Wochenende, Geburtstag…', pocketMoneyAdd:'Hinzufügen', pocketMoneyRemove:'Abziehen',
+    pocketMoneyNotePh:'z.B. Wochenende, Geburtstag…',     pocketMoneyAdd:'Hinzufügen', pocketMoneyRemove:'Abziehen',
+    pocketMoneyPresets:'Schnellbeträge',
+    pocketMoneyQuickHint:'Quelle wählen, dann Betrag tippen — sofort gebucht.',
+    pocketMoneySources:'Einnahmequellen',
+    pocketMoneySourcesHint:'Eltern, Programm, Extra… — pro Kind mehrere Quellen möglich.',
+    pocketMoneySourcePick:'Quelle wählen',
+    pocketMoneySourceNone:'Ohne Quelle',
+    pocketMoneyBySource:'Diesen Monat nach Quelle',
+    pocketMoneyExpenses:'Ausgaben-Kategorien',
+    pocketMoneyGroupIncome:'Einnahmen',
+    pocketMoneyGroupExpense:'Ausgaben',
+    pocketMoneyCatGroup:'Art',
+    pocketMoneyQuickDone:(sign, amt)=>`${sign}${amt} € gebucht`,
+    pocketMoneyQuickDoneCat:(sign, amt, cat)=>`${sign}${amt} € · ${cat}`,
     pocketMoneySaved:'Taschengeld gespeichert', pocketMoneyEmpty:'Noch keine Buchungen',
     pocketMoneyHistory:'Verlauf', pocketMoneyNeedAmount:'Bitte einen Betrag eingeben.',
     pocketMoneyHeroHint:'Guthaben, Buchungen und Regeln — Betreuer ändern, Kinder sehen.',
@@ -775,7 +808,7 @@ const T = {
     kidCourseStars:'Sterne', kidCourseGames:'Spiele',
     kidLearnOpen:n=>n===1?'1 Quiz offen':`${n} Quiz offen`,
     kidTasksDue:n=>n===1?'1 heute fällig':`${n} heute fällig`,
-    kidStarsCollected:n=>`${n} gesammelt`, kidGamesPlay:'Spielen',
+    kidStarsCollected:n=>`${n} Sterne gesammelt`, kidGamesPlay:'Spielen',
     storageOffline:'Nicht dauerhaft gespeichert — Datenbank offline. Bitte Admin informieren.',
     kidNavRate:'Bewertung', kidRateTitle:'Bewertungen', kidRateKicker:'Wie lief die Woche?',
     kidRateLead:'Noten von 1 bis 6 — wie in der Schule. Das Team bewertet; du schaust nur zu.',
@@ -1083,7 +1116,7 @@ const T = {
     eventSaved:'Event gespeichert', eventDeleted:'Event gelöscht', deleteEvent:'Event löschen',
     eventRequired:'Titel, Datum, gültige Uhrzeit und mindestens ein Kind sind erforderlich.',
     invalidTime:'Die Endzeit muss nach der Startzeit liegen.', noStaffEvents:'Noch keine Events für diesen Zeitraum.',
-    homeHello:'Guten Tag', homeOverview:'Dein Überblick für heute', myTasks:'Meine Aufgaben',
+    homeHello:'Guten Tag', homeOverview:'Dein Tag auf Thassos — Aufgaben, Lager und Liste auf einen Blick', myTasks:'Meine Aufgaben',
     overdueTasks:'Vergessen / überfällig', unassignedTasks:'Noch ohne Person', allEvents:'Alle Events',
     dueToday:'Heute zu tun', overdue:'Überfällig', eventsSoon:'Events', noTasks:'Keine offenen Aufgaben.',
     noTasksHint:'Tippe auf Planen, um den Tag zu öffnen.',
@@ -1113,9 +1146,16 @@ const T = {
     openEvents:'Events öffnen', kidsNotified:n=>`${n} Kinder erhalten die Mitteilung in der App.`,
     eventCollection:n=>`${n} ${n===1?'Event':'Events'} geplant`,
     adminCenter:'Admin-Zentrale', adminOverview:'Team, Aufgaben und Änderungen auf einen Blick',
-    adminOpsTab:'Ops', adminOpsTitle:'Ops-Cockpit', adminOpsLead:'Bewegungen, Taschengeld, Lager, Plan — und Lego-Fragen.',
+    adminOpsTab:'Ops', adminTeamTab:'Team', adminOpsTitle:'Betriebszentrale', adminOpsLead:'Tageslage, Versorgung und Team — alles an einem Ort. Filter und Diagramme zeigen, was jetzt zählt.',
+    adminTeamTitle:'Team', adminTeamLead:'Mitarbeitende mit Einsätzen, Lagerchecks, Einkäufen und Übergaben.',
+    adminTeamEmpty:'Keine Mitarbeitenden hinterlegt.',
+    adminTeamBack:'← Team',
+    adminTeamMoves:'Bewegungen',
+    adminTeamMovesHint:'Zeigt die letzten Einträge im gemeinsamen Protokoll (begrenzt).',
+    adminTeamNoWorker:'Person nicht gefunden.',
+    adminOpsFilter:'Filter',
     adminOpsTimeline:'Timeline', adminOpsPocket:'Taschengeld', adminOpsStorages:'Lager', adminOpsSchedule:'Programm',
-    adminOpsCharts:'Übersicht', adminOpsLego:'Lego-Fragen', adminOpsAskZoai:'Zo-Ai fragen',
+    adminOpsCharts:'Übersicht', adminOpsLego:'Aktivitäten durchsuchen', adminOpsAskZoai:'Zo-Ai fragen',
     adminOpsRun:'Filtern', adminOpsClear:'Zurücksetzen', adminOpsBlockDay:'Tag', adminOpsBlockKid:'Kind',
     adminOpsBlockHouse:'Haus', adminOpsBlockType:'Art', adminOpsEmpty:'Keine Treffer für diese Bausteine.',
     adminOpsOpen:'Ops-Cockpit öffnen',
@@ -1169,7 +1209,7 @@ const T = {
     pasteScreenshot:'Bild einfügen', pickScreenshot:'Bild / Foto wählen',
   },
   el: {
-    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navPocket:'Χαρτζιλίκι', navMore:'Άλλα',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navPocket:'Χαρτζιλίκι', navAdmin:'Admin', navMore:'Άλλα',
     titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', titlePocket:'Χαρτζιλίκι', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', kidAdd:'Προσθήκη παιδιού', kidRemove:'Αφαίρεση παιδιού', kidEdit:'Επεξεργασία παιδιού', kidNamePh:'Όνομα', kidPinPh:'PIN (4–6 ψηφία)', kidPinConfirm:'Επιβεβαίωση PIN', kidAdded:'Το παιδί αποθηκεύτηκε', kidRemoved:'Το παιδί αφαιρέθηκε', kidRemoveConfirm:'Να αφαιρεθεί αυτό το παιδί; Το login θα διαγραφεί.', kidPinMismatch:'Το PIN δεν ταιριάζει', kidNameRequired:'Λείπει το όνομα', kidAdminOnly:'Μόνο admins μπορούν να προσθέτουν/αφαιρούν παιδιά', profilePhoto:'Φωτογραφία προφίλ', profilePhotoChange:'Αλλαγή φωτογραφίας', profilePhotoRemove:'Αφαίρεση φωτογραφίας', profilePhotoHint:'Εμφανίζεται πάνω δεξιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
     kidsOverview:'Επισκόπηση', kidsTracked:n=>`${n} παιδιά`, kidsOpenHomework:n=>`${n} ανοιχτές εργασίες`,
     schoolOverview:'Σχολική εικόνα', gradeAverage:'Μέσος βαθμός', gradeNoData:'Δεν υπάρχουν βαθμοί ακόμα', attendanceWeek:'Παρουσία αυτή την εβδομάδα',
@@ -1307,6 +1347,11 @@ const T = {
     rateAverageFooter:'Μέσος όρος αυτής της εβδομάδας',
     notifInstallSteps:'iPhone: Κοινή χρήση → «Στην οθόνη Αφετηρίας» → Προσθήκη. Μετά άνοιξε την εφαρμογή και ενεργοποίησε ειδοποιήσεις (iOS 16.4+).',
     installAppAndroid:'Εγκατάσταση εφαρμογής',
+    pwaInstallTitle:'Ως εφαρμογή',
+    pwaInstallBody:'Προσθήκη στην αρχική οθόνη — πλήρης οθόνη, γρήγορη εκκίνηση.',
+    pwaInstallGo:'Εγκατάσταση',
+    pwaInstallLater:'Αργότερα',
+    pwaInstallIosHint:'Κοινή χρήση → «Στην αρχική οθόνη»',
     typeSTOCKCHECK:'Έλεγχος αποθέματος',
     shiftStockCheck:'Έλεγχος αποθήκης',
     shiftStockCheckHint:'Για κάθε προϊόν πάτα: OK, λίγο ή άδειο. Μετά αποθήκευση.',
@@ -1489,12 +1534,12 @@ const T = {
     authUnavailable:'Η σύνδεση δεν είναι διαθέσιμη αυτή τη στιγμή.', tooManyPins:'Πολλές προσπάθειες.',
     lockedFor:n=>`Η σύνδεση κλειδώθηκε. Δοκίμασε ξανά σε ${n} λεπτά.`,
     attemptsRemaining:n=>`Λάθος PIN. Απομένουν ${n} προσπάθειες.`,
-    useBiometrics:'Σύνδεση με κλείδωμα συσκευής', passkey:'Face ID', passkeySetup:'Ρύθμιση Face ID / Touch ID',
-    passkeyHint:'iPhone: Face ID · Android: δακτυλικό · Mac: Touch ID · Windows: Hello. Τα βιομετρικά μένουν στη συσκευή — αποθηκεύεται μόνο δημόσιο κλειδί.',
+    useBiometrics:'Σύνδεση με κλείδωμα συσκευής', passkey:'Face ID / Touch ID', passkeySetup:'Ρύθμιση Face ID / Touch ID',
+    passkeyHint:'iPhone: Face ID · iPad: Face ID ή Touch ID · Android: δακτυλικό · Mac: Touch ID · Windows: Hello. Τα βιομετρικά μένουν στη συσκευή — αποθηκεύεται μόνο δημόσιο κλειδί.',
     passkeyAdded:'Το Face ID / Touch ID ρυθμίστηκε.', passkeyRemoved:'Η βιομετρική είσοδος αφαιρέθηκε.', removePasskeys:'Αφαίρεση βιομετρικών',
     passkeyNone:'Δεν έχει ρυθμιστεί ακόμη. Μπες με PIN και πάτα παρακάτω «ρύθμιση».',
     passkeySetupNeeded:'Πρώτα σύνδεση με PIN, μετά Face ID / Touch ID από το Προφίλ.',
-    passkeyConfig:'Η είσοδος με Face ID δεν είναι ρυθμισμένη. Ρώτα τη διεύθυνση.',
+    passkeyConfig:'Η είσοδος με Face ID / Touch ID δεν είναι ρυθμισμένη. Ρώτα τη διεύθυνση.',
     emailNotFound:'Το email προφίλ δεν βρέθηκε. Αποθήκευσε πρώτα στοιχεία επικοινωνίας ή έλεγξε αν είσαι συνδεδεμένος.',
     profileCustomize:'Προσαρμογή προφίλ', profileNickname:'Εμφανιζόμενο όνομα', profileColor:'Χρώμα', profileEmoji:'Emoji',
     profileSaved:'Το προφίλ αποθηκεύτηκε', passkeyCount:n=>n===1?'1 συσκευή ρυθμισμένη':`${n} συσκευές ρυθμισμένες`,
@@ -1552,7 +1597,7 @@ const T = {
     kidHomeCtaTitle:'Πού μετά;',
     kidHomeCtaGames:'Άνοιξε παιχνίδια',
     kidHomeCtaRate:'Βαθμολόγησε την εβδομάδα',
-    kidHomeCtaBonus:'Δες μπόνους',
+    kidHomeCtaBonus:'Το μπόνους μου',
     kidHomeCtaPocket:'Δες το χαρτζιλίκι',
     kidHomeCtaNotes:'Γράψε σημείωση',
     kidHomeCtaPlan:'Ωρολόγιο',
@@ -1732,7 +1777,7 @@ const T = {
     kidsEasyHint:'Άνοιξε παιδί — σχολείο και βαθμοί στο Pro.',
     homeMore:'Περισσότερα σήμερα',
     homeSignals:'Σύντομη εικόνα',
-    stockHeroHint:'Διάδρομος αποθήκης — πάτα ± ή πρόσθεσε γρήγορα',
+    stockHeroHint:'Απόθεμα με μια ματιά — πάτα ±, αποθήκευση στο τέλος· το ελάχιστο φαίνεται στο προϊόν',
     stockTideLabel:'Ασφάλεια αποθέματος',
     stockShelves:'Ράφια',
     stockShelfHint:n=>n===1?'1 ζώνη ραφιού':`${n} ζώνες ραφιών`,
@@ -1745,7 +1790,7 @@ const T = {
     stockCatalogue:'Ράφια ανά κατηγορία',
     stockMoreActions:'Περισσότερες ενέργειες',
     stockAllHealthy:'Όλα τα προϊόντα έχουν επαρκές απόθεμα.',
-    shopHeroHint:'Λίστα Παρασκευής · προετοιμασία · επιβεβαίωση στο μαγαζί',
+    shopHeroHint:'Προγραμμάτισε τη λίστα, πάρε τη μαζί, τσέκαρε στο μαγαζί — βήμα βήμα',
     shopMoreActions:'Περισσότερες ενέργειες λίστας',
     shopOverviewHint:n=>n===1?'1 προϊόν έχει προγραμματιστεί για αυτά τα ψώνια.':`${n} προϊόντα έχουν προγραμματιστεί για αυτά τα ψώνια.`,
     adminAutomations:'Αυτοματισμοί',
@@ -1785,11 +1830,27 @@ const T = {
     cartQuickAdd:'Γρήγορη προσθήκη προϊόντος…', addToCart:'Προσθήκη', cartReady:n=>`${n} ${n===1?'προϊόν':'προϊόντα'} – έναρξη αγορών`,
     removeListTitle:'Αφαίρεση από τη λίστα',
     removeListHint:'Γιατί αφαιρείται αυτό το είδος;',
+    removeListBulkHint:n=>`Γιατί αφαιρούνται αυτά τα ${n} είδη; Ένας λόγος για όλα.`,
     removeListConfirm:'Αφαίρεση',
     removeListNeedReason:'Διάλεξε λόγο.',
     removeListReasonPh:'π.χ. το φέρνει παιδί, δωρεά…',
+    listRemoveAll:'Αφαίρεση όλων',
+    listPendingConfirm:'Επιβεβαίωση αφαίρεσης',
+    listPendingUndo:'Καθαρισμός σήμανσης',
+    listPendingBar:n=>`${n} προς αφαίρεση`,
+    listPendingBeforeShop:'Πρώτα επιβεβαίωσε ή καθάρισε τις σημάνσεις.',
+    listPendingCleared:'Οι σημάνσεις ακυρώθηκαν',
     listItemRemoved:'Το είδος αφαιρέθηκε από τη λίστα.',
-    bookedToHouse:n=>`Αγοράστηκαν και καταχωρήθηκαν στο ${n}`, backToCart:'Πίσω στο καλάθι', externalHome:'Άλλο σπίτι', customProducts:'Άλλα προϊόντα',
+    listItemsRemoved:n=>`${n} είδη αφαιρέθηκαν από τη λίστα.`,
+    listBulkRemoved:n=>`${n} είδη αφαιρέθηκαν.`,
+    bookedToHouse:n=>`Αγοράστηκαν και καταχωρήθηκαν στο ${n}`,
+    backToCart:'Πίσω στο καλάθι',
+    shopPauseStore:'Τα ψώνια τέθηκαν σε παύση — οι επιλογές αποθηκεύτηκαν.',
+    shopResumeStore:'Συνέχεια αγορών',
+    shopResumeHint:n=>`${n} είδη περιμένουν στο σουπερμάρκετ`,
+    shopAbortStore:'Ακύρωση αγορών',
+    shopAbortConfirm:'Να ακυρωθούν τα ψώνια; Όλες οι επιλογές (αγοράστηκε / λείπει) χάνονται.',
+    externalHome:'Άλλο σπίτι', customProducts:'Άλλα προϊόντα',
     chooseShoppingHouse:'1. Επίλεξε σπίτι', shoppingHouseHint:'Και Julian groß, Valeria+Lea — μόνο για ψώνια/απόθεμα, όχι στο πρόγραμμα.',
     fullBlock:'Όλο το μπλοκ', fromTime:'από', timeFrom:'Από', timeTo:'Έως',
     importTitle:'Εισαγωγή λίστας', fromText:'Κείμενο', fromPhoto:'Φωτογραφία', fromScreenshot:'Στιγμιότυπο',
@@ -1841,7 +1902,20 @@ const T = {
     shopRequestKidHint:'Γράψε τι χρειάζεσαι — η ομάδα το ελέγχει.',
     pocketMoneyTitle:'Χαρτζιλίκι', pocketMoneyBalance:'Υπόλοιπο', pocketMoneyIn:'Κατάθεση',
     pocketMoneyOut:'Ανάληψη', pocketMoneyAdjust:'Διόρθωση', pocketMoneyNote:'Σημείωση',
-    pocketMoneyNotePh:'π.χ. Σαββατοκύριακο, γενέθλια…', pocketMoneyAdd:'Πρόσθεσε', pocketMoneyRemove:'Αφαίρεσε',
+    pocketMoneyNotePh:'π.χ. Σαββατοκύριακο, γενέθλια…',     pocketMoneyAdd:'Πρόσθεσε', pocketMoneyRemove:'Αφαίρεσε',
+    pocketMoneyPresets:'Γρήγορα ποσά',
+    pocketMoneyQuickHint:'Διάλεξε πηγή, μετά πάτα ποσό — άμεση καταχώριση.',
+    pocketMoneySources:'Πηγές εσόδων',
+    pocketMoneySourcesHint:'Γονείς, πρόγραμμα, extra… — πολλά έσοδα ανά παιδί.',
+    pocketMoneySourcePick:'Επίλεξε πηγή',
+    pocketMoneySourceNone:'Χωρίς πηγή',
+    pocketMoneyBySource:'Αυτόν τον μήνα ανά πηγή',
+    pocketMoneyExpenses:'Κατηγορίες εξόδων',
+    pocketMoneyGroupIncome:'Έσοδα',
+    pocketMoneyGroupExpense:'Έξοδα',
+    pocketMoneyCatGroup:'Είδος',
+    pocketMoneyQuickDone:(sign, amt)=>`${sign}${amt} € καταχωρήθηκε`,
+    pocketMoneyQuickDoneCat:(sign, amt, cat)=>`${sign}${amt} € · ${cat}`,
     pocketMoneySaved:'Το χαρτζιλίκι αποθηκεύτηκε', pocketMoneyEmpty:'Δεν υπάρχουν κινήσεις ακόμα',
     pocketMoneyHistory:'Ιστορικό', pocketMoneyNeedAmount:'Γράψε ένα ποσό.',
     pocketMoneyHeroHint:'Υπόλοιπο, κινήσεις και κανόνες — οι φροντιστές αλλάζουν, τα παιδιά βλέπουν.',
@@ -1959,7 +2033,7 @@ const T = {
     kidCourseStars:'Αστέρια', kidCourseGames:'Παιχνίδια',
     kidLearnOpen:n=>n===1?'1 κουίζ ανοιχτό':`${n} κουίζ ανοιχτά`,
     kidTasksDue:n=>n===1?'1 σήμερα':`${n} σήμερα`,
-    kidStarsCollected:n=>`${n} μαζεμένα`, kidGamesPlay:'Παίξε',
+    kidStarsCollected:n=>`${n} αστέρια συνολικά`, kidGamesPlay:'Παίξε',
     kidPlanTitle:'Ωρολόγιο', kidAufgabenTitle:'Αποστολές', kidSterneTitle:'Αστέρια',
     kidLearnHubTitle:'Μάθηση', kidLearnHubHint:'Κάρτες, κουίζ και μαθηματικά — μάζεψε αστέρια.',
     kidStreak:'Σερί 7 ημερών', kidWeekDeltaLabel:'αυτή την εβδομάδα', kidBadges:'Εμβλήματα',
@@ -2240,7 +2314,7 @@ const T = {
     eventSaved:'Το event αποθηκεύτηκε', eventDeleted:'Το event διαγράφηκε', deleteEvent:'Διαγραφή event',
     eventRequired:'Χρειάζονται τίτλος, ημερομηνία, σωστή ώρα και τουλάχιστον ένα παιδί.',
     invalidTime:'Η ώρα λήξης πρέπει να είναι μετά την ώρα έναρξης.', noStaffEvents:'Δεν υπάρχουν events για αυτή την περίοδο.',
-    homeHello:'Καλημέρα', homeOverview:'Η εικόνα της ημέρας σου', myTasks:'Οι εργασίες μου',
+    homeHello:'Καλημέρα', homeOverview:'Η μέρα σου στη Θάσο — εργασίες, αποθήκη και λίστα με μια ματιά', myTasks:'Οι εργασίες μου',
     overdueTasks:'Ξεχασμένα / εκπρόθεσμα', unassignedTasks:'Χωρίς υπεύθυνο', allEvents:'Όλα τα events',
     dueToday:'Για σήμερα', overdue:'Εκπρόθεσμα', eventsSoon:'Events', noTasks:'Δεν υπάρχουν ανοιχτές εργασίες.',
     noTasksHint:'Πάτα «Πρόγραμμα» για να ανοίξεις τη μέρα.',
@@ -2270,9 +2344,16 @@ const T = {
     openEvents:'Άνοιγμα events', kidsNotified:n=>`${n} παιδιά λαμβάνουν την ανακοίνωση στην εφαρμογή.`,
     eventCollection:n=>`${n} ${n===1?'event':'events'} προγραμματισμένα`,
     adminCenter:'Κέντρο διαχείρισης', adminOverview:'Ομάδα, εργασίες και αλλαγές με μία ματιά',
-    adminOpsTab:'Ops', adminOpsTitle:'Ops-Cockpit', adminOpsLead:'Κινήσεις, χαρτζιλίκι, αποθήκες, πρόγραμμα — και ερωτήσεις Lego.',
+    adminOpsTab:'Ops', adminTeamTab:'Ομάδα', adminOpsTitle:'Κέντρο λειτουργίας', adminOpsLead:'Ημερήσια εικόνα, προμήθειες και ομάδα — όλα μαζί. Φίλτρα και διαγράμματα δείχνουν τι μετράει τώρα.',
+    adminTeamTitle:'Ομάδα', adminTeamLead:'Συνεργάτες με βάρδιες, ελέγχους αποθήκης, αγορές και παραδόσεις.',
+    adminTeamEmpty:'Δεν υπάρχουν συνεργάτες.',
+    adminTeamBack:'← Ομάδα',
+    adminTeamMoves:'Κινήσεις',
+    adminTeamMovesHint:'Εμφανίζει τις τελευταίες καταχωρήσεις στο κοινό πρωτόκολλο (με όριο).',
+    adminTeamNoWorker:'Το άτομο δεν βρέθηκε.',
+    adminOpsFilter:'Φίλτρο',
     adminOpsTimeline:'Χρονολόγιο', adminOpsPocket:'Χαρτζιλίκι', adminOpsStorages:'Αποθήκες', adminOpsSchedule:'Πρόγραμμα',
-    adminOpsCharts:'Επισκόπηση', adminOpsLego:'Ερωτήσεις Lego', adminOpsAskZoai:'Ρώτα τη Zo-Ai',
+    adminOpsCharts:'Επισκόπηση', adminOpsLego:'Αναζήτηση δραστηριοτήτων', adminOpsAskZoai:'Ρώτα τη Zo-Ai',
     adminOpsRun:'Φίλτρο', adminOpsClear:'Καθαρισμός', adminOpsBlockDay:'Ημέρα', adminOpsBlockKid:'Παιδί',
     adminOpsBlockHouse:'Σπίτι', adminOpsBlockType:'Είδος', adminOpsEmpty:'Κανένα αποτέλεσμα για αυτά τα blocks.',
     adminOpsOpen:'Άνοιγμα Ops-Cockpit',
@@ -3678,6 +3759,8 @@ const state = {
   pocketPane: 'ledger',
   pocketMonth: null,
   pocketCompose: null,
+  /** Sticky income/expense category for one-tap pocket presets. */
+  pocketQuickCat: null,
   pocketDay: null,
   notesCalMonth: null,
   notesCalDay: null,
@@ -3716,12 +3799,18 @@ const state = {
   stockTiles: localStorage.getItem('paidia.stockTiles')==='1',
   stockDraft: {},
   stockDraftReason: null,
-  stockPendingStep: null, // {pid, dir} waiting for OUT reason
+  stockPendingStep: null, // {pid, dir} | {bulkOut} | {commitDraft:true}
   stockFlashPid: null,
   stockFlashDir: null,
   /** Freeze list order while editing qty; re-sort only on Save / refresh. */
   stockOrderFreeze: null, // {house, filter, query, order:[pid...]} | null
+  listPendingRemove: [], // shop list ids marked for remove (reason at confirm)
+  adminPane: 'ops', // ops | team
+  adminWorkerId: null,
+  adminWorkerRange: 'week', // today | week | month | all
   shopQuery: '',
+  /** True while the supermarket checklist UI is open (pending entries keep decisions when paused). */
+  shopInStore: false,
   storeShowDone: false,
   selectMode: null, // null | 'shop' | 'stock' | 'store' | 'requests'
   selectedIds: [],
@@ -4194,17 +4283,34 @@ async function authenticateProfile(mode,who,pin){
 }
 
 const passkeyCapable=()=>window.isSecureContext&&!!window.PublicKeyCredential&&!!navigator.credentials;
+/** True iPad including iPadOS “desktop” Safari (MacIntel + touch). */
+const paidiaIsIPad=()=>{
+  const ua=navigator.userAgent||'';
+  if(/iPad/i.test(ua)) return true;
+  try{ return navigator.platform==='MacIntel' && (navigator.maxTouchPoints||0)>1; }catch{ return false; }
+};
 const biometricName=()=>{
-  const ua=navigator.userAgent;
-  if(/iPhone|iPad|iPod/i.test(ua)) return 'Face ID';
+  const ua=navigator.userAgent||'';
+  if(paidiaIsIPad()) return 'Face ID / Touch ID';
+  if(/iPhone SE/i.test(ua)) return 'Touch ID';
+  if(/iPhone|iPod/i.test(ua)) return 'Face ID';
   if(/Macintosh|Mac OS/i.test(ua)) return 'Touch ID';
   if(/Android/i.test(ua)) return state.lang==='el'?'Δακτυλικό αποτύπωμα':'Fingerabdruck';
   if(/Windows/i.test(ua)) return 'Windows Hello';
-  return t('passkey');
+  return state.lang==='el'?'Βιομετρικά':'Biometrie';
 };
 const biometricHint=()=>state.lang==='el'
-  ? 'Γρήγορη είσοδος σε αυτό τη συσκευή'
+  ? 'Γρήγορη είσοδος σε αυτή τη συσκευή'
   : 'Schnelle Anmeldung auf diesem Gerät';
+async function platformAuthenticatorAvailable(){
+  if(!passkeyCapable()) return false;
+  try{
+    if(typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable==='function'){
+      return !!(await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable());
+    }
+  }catch{}
+  return true;
+}
 
 const b64ToBytes=value=>{
   const base64=String(value).replace(/-/g,'+').replace(/_/g,'/').padEnd(Math.ceil(String(value).length/4)*4,'=');
@@ -4218,7 +4324,15 @@ const bytesToB64=value=>{
 function decodePublicKeyOptions(options){
   const out=structuredClone(options);out.challenge=b64ToBytes(out.challenge);
   if(out.user?.id)out.user.id=b64ToBytes(out.user.id);
-  for(const key of ['allowCredentials','excludeCredentials']) if(out[key]) out[key]=out[key].map(c=>({...c,id:b64ToBytes(c.id)}));
+  for(const key of ['allowCredentials','excludeCredentials']){
+    if(!out[key]) continue;
+    out[key]=out[key].map(c=>{
+      const transports = Array.isArray(c.transports) && c.transports.length
+        ? c.transports
+        : ['internal']; // Apple: avoid security-key prompt when platform-only
+      return {...c, id:b64ToBytes(c.id), transports};
+    });
+  }
   return out;
 }
 function publicKeyCredentialJSON(credential){
@@ -4241,6 +4355,9 @@ async function passkeyApi(path,body){
 }
 async function loginWithPasskey(mode,who){
   if(!passkeyCapable()){const error=new Error(t('passkeyUnavailable'));error.code='unsupported';throw error;}
+  if(!(await platformAuthenticatorAvailable())){
+    const error=new Error(t('passkeyUnavailable'));error.code='unsupported';throw error;
+  }
   let remember=false;
   try{ remember = localStorage.getItem('paidia.rememberMe')==='1'; }catch{}
   const options=await passkeyApi('/api/auth/passkey/login/options',{mode,profileId:who.id});
@@ -4252,6 +4369,7 @@ async function loginWithPasskey(mode,who){
 }
 async function registerPasskey(){
   if(!passkeyCapable())throw new Error(t('passkeyUnavailable'));
+  if(!(await platformAuthenticatorAvailable()))throw new Error(t('passkeyUnavailable'));
   const who=state.user||state.child;if(!who)throw new Error(t('authUnavailable'));
   const options=await passkeyApi('/api/auth/passkey/register/options',{displayName:who.name,label:biometricName()});
   const credential=await navigator.credentials.create({publicKey:decodePublicKeyOptions(options.publicKey)});
@@ -9381,25 +9499,29 @@ function viewStock(){
         <button class="btn ghost sm stock-edit-btn" type="button" data-stock-edit="${p.id}" title="${esc(t('stockEdit'))}" aria-label="${esc(t('stockEditAria'))}: ${esc(L(p))}"><span aria-hidden="true">✎</span> ${esc(t('stockEdit'))}</button>
         <div class="stock-product-side"><div class="stock-house-quantities">${quantities}</div></div></div>`;
     }
-    const qty=DB.stock[stockKey(hid,p.id)]??0;
+    const liveQty=DB.stock[stockKey(hid,p.id)]??0;
+    const draftDelta=Number(state.stockDraft[p.id]||0);
+    const qty=roundStock(liveQty+draftDelta);
     const step=stepFor(p);
     const thr=lowThreshold(p);
     const selecting=state.selectMode==='stock' && hid!=='all';
     const sel=selecting && isSelected(p.id);
     const flash=state.stockFlashPid===p.id?(state.stockFlashDir==='IN'?'flash-in':'flash-out'):'';
     const pendingOut=state.stockPendingStep?.pid===p.id
-      || !!(state.stockPendingStep?.bulkOut||[]).includes(p.id);
+      || !!(state.stockPendingStep?.bulkOut||[]).includes(p.id)
+      || !!(state.stockPendingStep?.commitDraft && draftDelta<0);
     const onList=fridayEntries(hid).some(e=>['open','pending'].includes(e.status)&&(e.productId===p.id||norm(e.name)===norm(L(p))));
     const lastMove=(typeof recentStockMoves==='function'?recentStockMoves(hid,40):[]).find(m=>m.productId===p.id);
     const lastWho=lastMove?(emp(lastMove.employeeId)?.name||'') : '';
     const lastWhen=lastMove?.ts?(typeof relativeTime==='function'?relativeTime(lastMove.ts):'') : '';
     const lastBit=lastMove?`${lastMove.type==='IN'?'＋':'−'} ${lastWhen}${lastWho?` · ${lastWho}`:''}`:'';
-    return `<div class="stock-product stock-board-row ${st} has-stepper ${flash} ${pendingOut?'await-reason':''} ${sel?'selected':''}" data-stock-row="${p.id}">
+    const draftBit=draftDelta?` · ${draftDelta>0?'+':''}${draftDelta}`:'';
+    return `<div class="stock-product stock-board-row ${st} has-stepper ${flash} ${pendingOut?'await-reason':''} ${draftDelta?'has-draft':''} ${sel?'selected':''}" data-stock-row="${p.id}">
       ${selecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${p.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
       ${jarHtml(qty,p,st)}
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
         <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}</div>
-        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · min ${thr}${esc(p.unit)}${onList?` · ${esc(t('navShop'))}`:''}</div>
+        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ${state.lang==='el'?'Ελάχιστο':'Minimum'} ${thr} ${esc(p.unit)}${onList?` · ${esc(t('navShop'))}`:''}${draftBit?`<span class="muted">${esc(draftBit)}</span>`:''}</div>
         ${lastBit?`<div class="stock-product-last muted">${esc(lastBit)}</div>`:''}
       </button>
       ${!selecting && !onList?`<button class="btn ghost sm stock-to-list" type="button" data-stock-want="${p.id}" title="${esc(t('bulkToList'))}" aria-label="${esc(t('bulkToList'))}">→ ${esc(t('navShop'))}</button>`:''}
@@ -9490,6 +9612,12 @@ function viewStock(){
         </div>
       </div>
     </header>
+    <section class="stock-context" aria-label="${state.lang==='el'?'Πληροφορίες αποθέματος':'Bestandsinformationen'}">
+      <div><b>${allProducts.length}</b><span>${state.lang==='el'?'Είδη προϊόντων':'Artikelarten'}</span></div>
+      <div><b>${shelfCount}</b><span>${state.lang==='el'?'Κατηγορίες':'Kategorien'}</span></div>
+      <div><b>${(DB.listEntries||[]).filter(e=>['open','pending','missing'].includes(e.status)&&(hid==='all'||e.houseId===hid)).length}</b><span>${state.lang==='el'?'Στη λίστα αγορών':'Auf der Einkaufsliste'}</span></div>
+      <p>${state.lang==='el'?'Το ελάχιστο απόθεμα εμφανίζεται ανά προϊόν. Καταγράψτε κάθε παραλαβή και κατανάλωση ώστε η ομάδα να γνωρίζει τι υπάρχει.':'Der Mindestbestand steht bei jedem Artikel. Erfasse Zugänge und Verbrauch, damit das Team den aktuellen Vorrat kennt.'}</p>
+    </section>
     <div class="stock-command" data-tour="stock-command" aria-label="${esc(t('headerStock'))}">
       <div class="seg house-selector" id="sHouse" aria-label="${t('filterHouse')}">
         ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-home','sm')} ${esc(h.short)}</button>`).join('')}
@@ -9548,16 +9676,11 @@ function viewStock(){
       if(draft.length){
         const ins=draft.filter(([,d])=>d>0).length;
         const outs=draft.filter(([,d])=>d<0).length;
-        const reasons=outs?`<div class="stock-draft-reasons" id="stockDraftReasons">
-          <div class="muted" style="font-size:11px;margin-bottom:6px">${t('reason')}</div>
-          <div class="chips">${REASONS().map(r=>`<button class="chip ${r.id===state.stockDraftReason?'on':''}" type="button" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}</div>
-        </div>`:'';
         return `<div class="stock-footer-actions stock-draft-dock" aria-label="${t('stockDraftPending')}">
           <div class="stock-draft-head">
             <b>${T[state.lang].stockDraftSummary(draft.length,ins,outs)}</b>
-            <span class="muted">${t('stockDraftPending')}</span>
+            <span class="muted">${outs?t('stockDraftNeedReason'):t('stockDraftPending')}</span>
           </div>
-          ${reasons}
           <div class="stock-draft-actions">
             <button class="btn sec" type="button" id="stockDraftClear">${t('stockDraftClear')}</button>
             <button class="btn pine-settle" type="button" id="stockDraftSave">${ui('u-check','sm')} ${t('stockDraftSave')}</button>
@@ -9744,10 +9867,52 @@ const LIST_REMOVE_REASONS = () => [
   ...(Array.isArray(DB.customListRemoveReasons)?DB.customListRemoveReasons:[]),
 ];
 
-/** Αφαίρεση από λίστα αγορών με λόγο (preset ή custom). */
-function sheetRemoveListItem(entryId){
-  const entry=DB.listEntries.find(e=>e.id===entryId);
-  if(!entry || entry.status==='removed') return;
+function clearListPendingRemove(silent=false){
+  const had=(state.listPendingRemove||[]).length;
+  state.listPendingRemove=[];
+  if(had && !silent) toast(t('listPendingCleared'),'info');
+}
+function toggleListPendingRemove(id){
+  const set=new Set(state.listPendingRemove||[]);
+  const key=String(id);
+  if(set.has(key)) set.delete(key); else set.add(key);
+  state.listPendingRemove=[...set];
+}
+function markAllOpenListPending(){
+  const hid=shopHouse();
+  const open=fridayEntries(hid).filter(e=>e.status==='open');
+  state.listPendingRemove=open.map(e=>String(e.id));
+}
+function listPendingDockHtml(){
+  const ids=(state.listPendingRemove||[]).filter(id=>{
+    const e=(DB.listEntries||[]).find(x=>String(x.id)===String(id));
+    return e && e.status==='open';
+  });
+  state.listPendingRemove=ids;
+  if(!ids.length) return '';
+  return `<div class="list-pending-dock stock-draft-dock" aria-label="${esc(T[state.lang].listPendingBar(ids.length))}">
+    <div class="grow"><b>${esc(T[state.lang].listPendingBar(ids.length))}</b>
+      <span class="muted">${esc(t('removeListBulkHint')(ids.length))}</span></div>
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      <button class="btn sec" type="button" id="listPendingUndo">${esc(t('listPendingUndo'))}</button>
+      <button class="btn out" type="button" id="listPendingConfirm">${esc(t('listPendingConfirm'))}</button>
+    </div>
+  </div>`;
+}
+
+/** Αφαίρεση από λίστα αγορών με λόγο (preset ή custom). Supports one id or many (bulk). */
+function sheetRemoveListItem(entryIdOrIds){
+  const ids=Array.isArray(entryIdOrIds)
+    ? [...new Set(entryIdOrIds.filter(Boolean))]
+    : [entryIdOrIds].filter(Boolean);
+  const entries=ids
+    .map(id=>(DB.listEntries||[]).find(e=>e.id===id))
+    .filter(e=>e && e.status!=='removed');
+  if(!entries.length){
+    toast(t('removeListNeedReason'),'info');
+    return;
+  }
+  const bulk=entries.length>1;
   let reasonId=null, creating=false;
 
   const paint=()=>{
@@ -9767,7 +9932,7 @@ function sheetRemoveListItem(entryId){
         <button class="mini-x" type="button" id="removeReasonCancel" aria-label="${t('close')}">×</button>
       </div>`:''}
       <div class="status" id="removeListStatus" hidden></div>
-      <button class="btn out" type="button" id="removeListConfirm" style="margin-top:14px">${t('removeListConfirm')}</button>`;
+      <button class="btn out" type="button" id="removeListConfirm" style="margin-top:14px">${t('removeListConfirm')}${bulk?` · ${entries.length}`:''}</button>`;
 
     host.querySelectorAll('[data-rr]').forEach(b=>b.onclick=()=>{ reasonId=b.dataset.rr; creating=false; paint(); });
     host.querySelectorAll('[data-drop-rr]').forEach(b=>b.onclick=()=>{
@@ -9817,26 +9982,45 @@ function sheetRemoveListItem(entryId){
       if(!reasonId){ setStatus(status, t('removeListNeedReason'), 'error'); return; }
       const reason=LIST_REMOVE_REASONS().find(r=>r.id===reasonId);
       const label=reason?L(reason):reasonId;
-      entry.status='removed';
-      entry.removeReasonId=reasonId;
-      entry.removeReason=label;
-      entry.removedAt=Date.now();
-      entry.removedBy=state.user?.id||null;
-      logEntry('SHOP', `${entry.name} · ${t('removeListTitle')}: ${label}`, {
-        houseId:entry.houseId, entryId:entry.id, productId:entry.productId||null,
-        fridayDate:entry.fridayDate||listEntryFriday(entry), removeReasonId:reasonId, removeReason:label
+      let n=0;
+      const names=[];
+      entries.forEach(entry=>{
+        if(entry.status==='removed') return;
+        entry.status='removed';
+        entry.removeReasonId=reasonId;
+        entry.removeReason=label;
+        entry.removedAt=Date.now();
+        entry.removedBy=state.user?.id||null;
+        names.push(entry.name);
+        n++;
       });
+      if(!n){ closeSheet(); return; }
+      const sample=names.slice(0,4).join(', ')+(names.length>4?` +${names.length-4}`:'');
+      logEntry('SHOP', `${bulk?`${n} · `:''}${sample} · ${t('removeListTitle')}: ${label}`, {
+        houseId:entries[0].houseId, entryIds:entries.map(e=>e.id),
+        fridayDate:entries[0].fridayDate||listEntryFriday(entries[0]),
+        removeReasonId:reasonId, removeReason:label, bulk:!!bulk, count:n,
+      });
+      if(!save()){
+        setStatus(status, t('errStorage'), 'error');
+        return;
+      }
       feedback('save');
       closeSheet();
+      exitSelectMode();
+      clearListPendingRemove(true);
       render();
-      toast(t('listItemRemoved'),'success');
+      toast(bulk?T[state.lang].listItemsRemoved(n):t('listItemRemoved'),'success');
     });
   };
 
-  openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(house(entry.houseId)?.short||'')}</div>
+  const subtitle=bulk
+    ? `${T[state.lang].selectedCount(entries.length)} · ${entries.slice(0,3).map(e=>e.name).join(', ')}${entries.length>3?` +${entries.length-3}`:''}`
+    : `${esc(entries[0].name)} · ${entries[0].qty} ${esc(entries[0].unit)}`;
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(house(entries[0].houseId)?.short||'')}</div>
     <h2>${t('removeListTitle')}</h2>
-    <p>${esc(entry.name)} · ${entry.qty} ${esc(entry.unit)}</p>
-    <p class="muted" style="margin-top:4px">${t('removeListHint')}</p></div>
+    <p>${subtitle}</p>
+    <p class="muted" style="margin-top:4px">${bulk?esc(T[state.lang].removeListBulkHint(entries.length)):esc(t('removeListHint'))}</p></div>
     <div id="removeListBody"></div>`);
   paint();
 }
@@ -9977,12 +10161,15 @@ function withStockScrollPreserved(run){
 }
 function stockOutReasonModalHtml(){
   const pending=state.stockPendingStep;
-  if(!pending) return '';
-  const p=pending.pid?prod(pending.pid):null;
+  /* Reason only at end of a batch (Save draft / bulk OUT) — never per − tap. */
+  if(!pending || !(pending.commitDraft || (pending.bulkOut||[]).length)) return '';
   const bulkN=(pending.bulkOut||[]).length;
-  let hint=bulkN?t('stockBulkOutNeedReason'):t('stockOutNeedReasonRemind');
-  if(p) hint=`${L(p)}${pending.qty!=null?` · −${pending.qty} ${p.unit||''}`:''} — ${t('stockOutNeedReasonRemind')}`;
-  else if(bulkN) hint=`${T[state.lang].selectedCount(bulkN)} — ${t('stockBulkOutNeedReason')}`;
+  let hint=bulkN?t('stockBulkOutNeedReason'):t('stockDraftNeedReason');
+  if(pending.commitDraft){
+    const all=stockDraftEntries();
+    const outs=all.filter(([,d])=>d<0).length;
+    hint=`${T[state.lang].stockDraftSummary(all.length, all.filter(([,d])=>d>0).length, outs)} — ${t('stockDraftNeedReason')}`;
+  }else if(bulkN) hint=`${T[state.lang].selectedCount(bulkN)} — ${t('stockBulkOutNeedReason')}`;
   return `<div class="stock-reason-modal" id="stockReasonModal" role="dialog" aria-modal="true" aria-labelledby="stockReasonModalTitle">
     <button type="button" class="stock-reason-modal-bg" id="stockReasonModalDismiss" aria-label="${esc(t('close'))}"></button>
     <div class="stock-reason-modal-card" role="document">
@@ -9991,7 +10178,7 @@ function stockOutReasonModalHtml(){
       <div class="stock-reason-modal-chips" id="stockQuickReasons">
         ${REASONS().map(r=>`<button type="button" class="chip stock-reason-chip ${r.id===state.stockDraftReason?'on':''}" data-draft-reason="${r.id}">${esc(L(r))}</button>`).join('')}
       </div>
-      <button type="button" class="btn sec stock-reason-modal-cancel" id="stockReasonModalCancel">${esc(t('stockOutCancelled'))}</button>
+      <button type="button" class="btn sec stock-reason-modal-cancel" id="stockReasonModalCancel">${esc(t('close'))}</button>
     </div>
   </div>`;
 }
@@ -10070,9 +10257,20 @@ function applyStockDelta(pid, delta, {reasonId=null, silent=false, undoable=true
     const rid = reasonId || state.stockDraftReason;
     const reason = rid ? L(REASONS().find(r=>r.id===rid)) : '';
     if(!reason){
-      state.stockPendingStep = {pid, dir:'OUT', qty:Math.abs(d)};
-      toast(t('stockOutNeedReasonRemind'),'info');
-      render();
+      /* Never interrupt per-tap − with a reason modal. Stage into draft;
+         commitStockDraft asks once at Save for all OUTs together. */
+      const cur = Number(state.stockDraft[pid] || 0);
+      let next = roundStock(cur + d);
+      if(prev + next < -0.0001) next = roundStock(-prev);
+      if(Math.abs(next) < 0.0001) delete state.stockDraft[pid];
+      else state.stockDraft[pid] = next;
+      state.stockFlashPid = pid;
+      state.stockFlashDir = 'OUT';
+      state.stockPendingStep = null;
+      if(!silent){
+        feedback('tap');
+        render();
+      }
       return false;
     }
     state.stockDraftReason = rid;
@@ -10142,21 +10340,26 @@ function undoLastStockStep(){
 }
 
 function adjustStockDraft(pid, dir){
-  // Immediate ± (draft kept only for Pro bulk select).
+  /* Stage ± into draft; reason asked once on Save when any OUT exists. */
   const hid = state.house;
   if(hid==='all'){ toast(t('selectHouse'),'info'); return; }
   const p = prod(pid); if(!p) return;
   ensureStockOrderFreeze();
   const step = stepFor(p);
-  if(dir==='OUT' && !state.stockDraftReason){
-    // Do not change qty until a reason is chosen — remind and wait.
-    state.stockPendingStep = {pid, dir:'OUT', qty:step};
-    feedback('tap');
-    toast(t('stockOutNeedReasonRemind'),'info');
-    render();
-    return;
+  const live = DB.stock[stockKey(hid, pid)] ?? 0;
+  const cur = Number(state.stockDraft[pid] || 0);
+  let next = roundStock(cur + (dir==='IN' ? step : -step));
+  if(live + next < -0.0001) next = roundStock(-live);
+  if(Math.abs(next) < 0.0001){
+    delete state.stockDraft[pid];
+  }else{
+    state.stockDraft[pid] = next;
   }
-  applyStockDelta(pid, dir==='IN' ? step : -step);
+  state.stockFlashPid = pid;
+  state.stockFlashDir = dir==='IN' ? 'IN' : 'OUT';
+  state.stockPendingStep = null;
+  feedback('tap');
+  render();
 }
 
 function commitStockDraft(){
@@ -10167,7 +10370,12 @@ function commitStockDraft(){
   const outs = entries.filter(([,d])=>d<0);
   const reasonId = state.stockDraftReason;
   const reason = reasonId ? L(REASONS().find(r=>r.id===reasonId)) : '';
-  if(outs.length && !reason){ toast(t('stockDraftNeedReason'),'error'); return; }
+  if(outs.length && !reason){
+    state.stockPendingStep = {commitDraft:true};
+    toast(t('stockDraftNeedReason'),'info');
+    render();
+    return;
+  }
   askPin(T[state.lang].bookN(entries.length), who=>{
     setStaffUser(who);
     const label = ([pid, delta]) => `${Math.abs(delta)} ${prod(pid).unit} ${L(prod(pid))}`;
@@ -10417,35 +10625,19 @@ function sheetBulkStockSetQty(ids){
     const next=Number(String(raw||'').replace(',','.'));
     if(!Number.isFinite(next) || next<0){ toast(t('needQty'),'error'); return; }
     ensureStockOrderFreeze();
-    const needReason=!state.stockDraftReason && ids.some(pid=>{
-      const q=DB.stock[stockKey(state.house,pid)]??0;
-      return q>next;
-    });
-    if(needReason){
-      state.stockPendingStep={
-        bulkOut:ids.filter(id=>{
-          const q=DB.stock[stockKey(state.house,id)]??0;
-          return q>next;
-        }),
-        bulkSetTo:next,
-      };
-      closeSheet();
-      toast(t('stockBulkOutNeedReason'),'info');
-      render();
-      return;
-    }
     let n=0;
     ids.forEach(pid=>{
       const p=prod(pid); if(!p) return;
-      const cur=DB.stock[stockKey(state.house,pid)]??0;
-      const delta=roundStock(next-cur);
-      if(Math.abs(delta)<0.0001) return;
-      if(applyStockDelta(pid, delta, {silent:true, undoable:false})) n++;
+      const live=DB.stock[stockKey(state.house,pid)]??0;
+      const delta=roundStock(next-live);
+      if(Math.abs(delta)<0.0001){ delete state.stockDraft[pid]; return; }
+      state.stockDraft[pid]=delta;
+      n++;
     });
     closeSheet();
     exitSelectMode();
     render();
-    toast(T[state.lang].bulkQtySet(n),'success');
+    toast(n?t('stockDraftPending'):T[state.lang].bulkQtySet(0), n?'info':'success');
   };
 }
 function sheetBulkStockMoveCat(ids){
@@ -11389,12 +11581,17 @@ function openListRequestCount(hid){
 
 /* ── Taschengeld / Χαρτζιλίκι ───────────────────────────────────────── */
 const POCKET_DEFAULT_CATS = [
-  {id:'pcat-week', de:'Wochen-Taschengeld', el:'Εβδομαδιαίο'},
-  {id:'pcat-month', de:'Monats-Taschengeld', el:'Μηνιαίο'},
-  {id:'pcat-weekend', de:'Wochenende', el:'Σαββατοκύριακο'},
-  {id:'pcat-bday', de:'Geburtstag', el:'Γενέθλια'},
-  {id:'pcat-shop', de:'Einkauf', el:'Αγορές'},
-  {id:'pcat-other', de:'Sonstiges', el:'Άλλο'},
+  {id:'pcat-parents', de:'Eltern', el:'Γονείς', group:'income'},
+  {id:'pcat-program', de:'Programm / Träger', el:'Πρόγραμμα / φορέας', group:'income'},
+  {id:'pcat-week', de:'Wochen-Taschengeld', el:'Εβδομαδιαίο', group:'income'},
+  {id:'pcat-month', de:'Monats-Taschengeld', el:'Μηνιαίο', group:'income'},
+  {id:'pcat-gift', de:'Geschenk', el:'Δώρο', group:'income'},
+  {id:'pcat-extra', de:'Extra / Bonus', el:'Extra / Μπόνους', group:'income'},
+  {id:'pcat-weekend', de:'Wochenende', el:'Σαββατοκύριακο', group:'income'},
+  {id:'pcat-other-in', de:'Sonstige Einnahme', el:'Άλλο έσοδο', group:'income'},
+  {id:'pcat-shop', de:'Einkauf', el:'Αγορές', group:'expense'},
+  {id:'pcat-out', de:'Ausgabe', el:'Έξοδο', group:'expense'},
+  {id:'pcat-other', de:'Sonstiges', el:'Άλλο', group:'expense'},
 ];
 
 function formatEuro(n){
@@ -11410,19 +11607,40 @@ function ensurePocketSettings(){
     DB.pocketMoneySettings = {};
   }
   const s = DB.pocketMoneySettings;
-  if(!Array.isArray(s.categories) || !s.categories.length){
-    s.categories = POCKET_DEFAULT_CATS.map(c=>({...c, active:true}));
-  }
+  if(!Array.isArray(s.categories)) s.categories = [];
+  const byId = new Map(s.categories.filter(Boolean).map(c=>[c.id, c]));
+  POCKET_DEFAULT_CATS.forEach(def=>{
+    const hit = byId.get(def.id);
+    if(!hit){
+      const row = {...def, active:true};
+      s.categories.push(row);
+      byId.set(def.id, row);
+    }else if(!hit.group){
+      hit.group = def.group;
+    }
+  });
+  // Legacy "Geburtstag" / bare Sonstiges without group → income/expense defaults
+  s.categories.forEach(c=>{
+    if(!c || c.group) return;
+    if(['pcat-week','pcat-month','pcat-weekend','pcat-bday','pcat-parents','pcat-program','pcat-gift','pcat-extra','pcat-other-in'].includes(c.id)) c.group='income';
+    else if(['pcat-shop','pcat-out'].includes(c.id)) c.group='expense';
+    else c.group = 'income';
+  });
   if(!s.allowances || typeof s.allowances !== 'object' || Array.isArray(s.allowances)) s.allowances = {};
   if(!s.monthlyAllowances || typeof s.monthlyAllowances !== 'object' || Array.isArray(s.monthlyAllowances)) s.monthlyAllowances = {};
   if(typeof s.rulesDe !== 'string') s.rulesDe = '';
   if(typeof s.rulesEl !== 'string') s.rulesEl = '';
   return s;
 }
-function pocketCategories({activeOnly=true}={}){
-  const cats = ensurePocketSettings().categories || [];
-  return activeOnly ? cats.filter(c=>c && c.active!==false) : cats.filter(Boolean);
+function pocketCategories({activeOnly=true, group=null}={}){
+  let cats = ensurePocketSettings().categories || [];
+  cats = cats.filter(Boolean);
+  if(activeOnly) cats = cats.filter(c=>c.active!==false);
+  if(group==='income' || group==='expense') cats = cats.filter(c=>(c.group||'income')===group);
+  return cats;
 }
+function pocketIncomeCats(){ return pocketCategories({group:'income'}); }
+function pocketExpenseCats(){ return pocketCategories({group:'expense'}); }
 function pocketCatById(id){
   if(!id) return null;
   return (ensurePocketSettings().categories||[]).find(c=>c && c.id===id) || null;
@@ -11431,6 +11649,17 @@ function pocketCatLabel(catOrId){
   const c = typeof catOrId==='string' ? pocketCatById(catOrId) : catOrId;
   if(!c) return '';
   return (state.lang==='el' ? (c.el||c.de) : (c.de||c.el)) || '';
+}
+function pocketMonthBySource(kidId, monthKey){
+  const mk = (monthKey||paidiaCalMonthKey()).slice(0,7);
+  const map = new Map();
+  pocketTxnsFor(kidId).filter(r=>pocketTxnInMonth(r, mk) && (Number(r.amount)||0)>0).forEach(r=>{
+    const id = r.categoryId || '_none';
+    map.set(id, (map.get(id)||0) + (Number(r.amount)||0));
+  });
+  return [...map.entries()]
+    .map(([id, total])=>({id, label: id==='_none'?t('pocketMoneySourceNone'):(pocketCatLabel(id)||id), total: Math.round(total*100)/100}))
+    .sort((a,b)=>b.total-a.total);
 }
 function pocketRulesText(){
   const s = ensurePocketSettings();
@@ -11513,6 +11742,97 @@ function addPocketTxn({kidId, amount, kind='in', note='', categoryId=''}={}){
   if(DB.pocketMoneyTxns.length>4000) DB.pocketMoneyTxns = DB.pocketMoneyTxns.slice(-4000);
   return row;
 }
+
+/** Common € chips for one-tap book or compose fill. */
+const POCKET_PRESETS = [1, 2, 5, 10, 20, 50];
+function pocketQuickCatId(kind){
+  const want = kind==='out' ? 'expense' : 'income';
+  const cur = state.pocketQuickCat;
+  if(cur){
+    const c = pocketCatById(cur);
+    if(c && c.active!==false && (c.group||'income')===want) return cur;
+  }
+  const list = want==='expense' ? pocketExpenseCats() : pocketIncomeCats();
+  return list[0]?.id || '';
+}
+function pocketSourceChipsHtml(kind='income'){
+  const cats = kind==='expense' ? pocketExpenseCats() : pocketIncomeCats();
+  if(!cats.length) return '';
+  const active = pocketQuickCatId(kind);
+  const label = kind==='expense' ? t('pocketMoneyExpenses') : t('pocketMoneySources');
+  return `<div class="pocket-source-chips" role="group" aria-label="${esc(label)}">
+    ${cats.map(c=>{
+      const on = c.id===active;
+      return `<button type="button" class="pocket-source-chip${on?' on':''}" data-pocket-quick-cat="${esc(c.id)}" aria-pressed="${on?'true':'false'}">${esc(pocketCatLabel(c))}</button>`;
+    }).join('')}
+  </div>`;
+}
+function pocketBySourceHtml(kidId, monthKey){
+  const rows = pocketMonthBySource(kidId, monthKey);
+  if(!rows.length) return '';
+  return `<div class="pocket-by-source" aria-label="${esc(t('pocketMoneyBySource'))}">
+    <div class="pocket-by-source-h">${esc(t('pocketMoneyBySource'))}</div>
+    <ul class="pocket-by-source-list">${rows.map(r=>`<li><span>${esc(r.label)}</span><b>${esc(formatEuro(r.total))}</b></li>`).join('')}</ul>
+  </div>`;
+}
+function pocketPresetChipsHtml(kidId, {fillOnly=false, signed=true}={}){
+  if(!kidId) return '';
+  if(!signed){
+    return `<div class="pocket-presets" role="group" aria-label="${esc(t('pocketMoneyPresets'))}">
+      <div class="pocket-preset-row">${POCKET_PRESETS.map(n=>`<button type="button" class="pocket-preset" data-pocket-preset="${n}" data-pocket-kid="${esc(kidId)}" data-pocket-fill="1">${n}</button>`).join('')}</div>
+    </div>`;
+  }
+  const fill = fillOnly ? ' data-pocket-fill="1"' : '';
+  return `<div class="pocket-presets" role="group" aria-label="${esc(t('pocketMoneyPresets'))}">
+    <div class="pocket-presets-label"><b>${esc(t('pocketMoneyPresets'))}</b><span class="muted">${esc(t('pocketMoneyQuickHint'))}</span></div>
+    <div class="pocket-presets-block">
+      <div class="pocket-presets-sub">${esc(t('pocketMoneyGroupIncome'))}</div>
+      <p class="muted pocket-sources-hint">${esc(t('pocketMoneySourcesHint'))}</p>
+      ${pocketSourceChipsHtml('income')}
+      <div class="pocket-preset-row">${POCKET_PRESETS.map(n=>`<button type="button" class="pocket-preset in" data-pocket-preset="${n}" data-pocket-kid="${esc(kidId)}"${fill}>＋${n}</button>`).join('')}</div>
+    </div>
+    <div class="pocket-presets-block">
+      <div class="pocket-presets-sub">${esc(t('pocketMoneyGroupExpense'))}</div>
+      ${pocketSourceChipsHtml('expense')}
+      <div class="pocket-preset-row">${POCKET_PRESETS.map(n=>`<button type="button" class="pocket-preset out" data-pocket-preset="${-n}" data-pocket-kid="${esc(kidId)}"${fill}>−${n}</button>`).join('')}</div>
+    </div>
+  </div>`;
+}
+function applyPocketPreset(kidId, raw, {fillOnly=false}={}){
+  const n = Number(raw);
+  if(!kidId || !Number.isFinite(n) || n===0) return false;
+  if(fillOnly || state.pocketCompose){
+    const abs = Math.abs(n);
+    const amt = document.querySelector('#pocketAmt');
+    if(amt){
+      amt.value = String(abs);
+      amt.focus();
+      try{ amt.select(); }catch{}
+    }
+    const catSel = document.querySelector('#pocketCat');
+    if(catSel && state.pocketCompose){
+      const kind = state.pocketCompose.kind==='out' ? 'out' : 'in';
+      const catId = pocketQuickCatId(kind);
+      if(catId && [...catSel.options].some(o=>o.value===catId)) catSel.value = catId;
+    }
+    feedback('tap');
+    return true;
+  }
+  const kind = n<0 ? 'out' : 'in';
+  const amt = Math.abs(n);
+  const categoryId = pocketQuickCatId(kind);
+  if(!addPocketTxn({kidId, amount:amt, kind, note:'', categoryId})) return false;
+  if(!save()) return false;
+  const sign = n<0 ? '−' : '＋';
+  const catLabel = pocketCatLabel(categoryId);
+  const msg = catLabel
+    ? T[state.lang].pocketMoneyQuickDoneCat(sign, amt, catLabel)
+    : T[state.lang].pocketMoneyQuickDone(sign, amt);
+  toast(msg,'success');
+  feedback('save');
+  render();
+  return true;
+}
 function deletePocketTxn(id){
   const row = (DB.pocketMoneyTxns||[]).find(x=>x && x.id===id);
   if(!row) return false;
@@ -11568,7 +11888,8 @@ function pocketMoneyPanelHtml(kidId, {mode='staff', limit}={}){
   const bal = formatEuro(pocketBalance(kidId));
   const isChild = mode==='child';
   const histLimit = limit!=null ? limit : (isChild ? 12 : 8);
-  const actions = isChild ? '' : `<div class="pocket-staff-actions" role="group" aria-label="${esc(t('pocketMoneyTitle'))}">
+  const actions = isChild ? '' : `${pocketPresetChipsHtml(kidId)}
+    <div class="pocket-staff-actions" role="group" aria-label="${esc(t('pocketMoneyTitle'))}">
       <button type="button" class="btn pocket-act-in" data-pocket-add="${esc(kidId)}">＋ ${esc(t('pocketMoneyIn'))}</button>
       <button type="button" class="btn sec pocket-act-out" data-pocket-remove="${esc(kidId)}">− ${esc(t('pocketMoneyOut'))}</button>
       <button type="button" class="btn ghost" data-pocket-goto="${esc(kidId)}">${esc(t('pocketMoneyOpenTab'))}</button>
@@ -11591,11 +11912,12 @@ function pocketComposeHtml(kidId){
   if(!compose || !kidId) return '';
   const kind = compose.kind||'in';
   const k = kid(kidId);
-  const cats = pocketCategories();
   const isAdj = kind==='adjust';
   const title = isAdj ? t('pocketMoneyAdjust') : (kind==='out'?t('pocketMoneyOut'):t('pocketMoneyIn'));
+  const cats = isAdj ? pocketCategories() : pocketCategories({group: kind==='out'?'expense':'income'});
+  const selected = isAdj ? '' : pocketQuickCatId(kind);
   const catOpts = `<option value="">${esc(t('pocketMoneyCategoryNone'))}</option>`
-    + cats.map(c=>`<option value="${esc(c.id)}">${esc(pocketCatLabel(c))}</option>`).join('');
+    + cats.map(c=>`<option value="${esc(c.id)}"${c.id===selected?' selected':''}>${esc(pocketCatLabel(c))}</option>`).join('');
   return `<section class="pocket-compose-stage on" aria-label="${esc(t('pocketMoneyComposeTitle'))}">
     <form class="pocket-compose-card" id="pocketComposeForm">
       <header class="pocket-compose-head">
@@ -11606,8 +11928,12 @@ function pocketComposeHtml(kidId){
         <button type="button" class="btn ghost sm" id="pocketComposeCancel">${esc(t('pocketMoneyComposeCancel'))}</button>
       </header>
       <p class="muted pocket-compose-bal">${esc(t('pocketMoneyBalance'))}: <b>${esc(formatEuro(pocketBalance(kidId)))}</b></p>
+      ${isAdj?'':`<div class="pocket-presets pocket-presets-compose" role="group" aria-label="${esc(t('pocketMoneyPresets'))}">
+        ${pocketSourceChipsHtml(kind==='out'?'expense':'income')}
+        <div class="pocket-preset-row">${POCKET_PRESETS.map(n=>`<button type="button" class="pocket-preset ${kind==='out'?'out':'in'}" data-pocket-preset="${n}" data-pocket-kid="${esc(kidId)}" data-pocket-fill="1">${kind==='out'?'−':'＋'}${n}</button>`).join('')}</div>
+      </div>`}
       <div class="pocket-compose-grid">
-        <label class="f"><span>${esc(isAdj?t('pocketMoneyAdjust'):t('pocketMoneyIn'))} €</span>
+        <label class="f"><span>${esc(isAdj?t('pocketMoneyAdjust'):'€')}</span>
           <input id="pocketAmt" type="number" inputmode="decimal" ${isAdj?'step="0.01"':'min="0.01" step="0.01"'} placeholder="${isAdj?'±5.00':'5.00'}" required>
         </label>
         <label class="f"><span>${esc(t('pocketMoneyCategory'))}</span><select id="pocketCat">${catOpts}</select></label>
@@ -11661,6 +11987,32 @@ function sheetPocketTxn(kidId, kind='in'){
 }
 function wirePocketActions(root){
   if(!root) return;
+  root.querySelectorAll('[data-pocket-quick-cat]').forEach(btn=>{
+    btn.onclick=ev=>{
+      ev.preventDefault();
+      state.pocketQuickCat = btn.dataset.pocketQuickCat || null;
+      feedback('tap');
+      const catSel = root.querySelector('#pocketCat') || document.querySelector('#pocketCat');
+      if(catSel && state.pocketQuickCat && [...catSel.options].some(o=>o.value===state.pocketQuickCat)){
+        catSel.value = state.pocketQuickCat;
+        root.querySelectorAll('[data-pocket-quick-cat]').forEach(b=>{
+          const on = b.dataset.pocketQuickCat===state.pocketQuickCat;
+          b.classList.toggle('on', on);
+          b.setAttribute('aria-pressed', on?'true':'false');
+        });
+        return;
+      }
+      render();
+    };
+  });
+  root.querySelectorAll('[data-pocket-preset]').forEach(btn=>{
+    btn.onclick=ev=>{
+      ev.preventDefault();
+      const kidId = btn.dataset.pocketKid || state.pocketKidId;
+      const fillOnly = btn.dataset.pocketFill==='1' || !!state.pocketCompose;
+      applyPocketPreset(kidId, btn.dataset.pocketPreset, {fillOnly});
+    };
+  });
   root.querySelectorAll('[data-pocket-add]').forEach(btn=>{
     btn.onclick=()=>openPocketCompose(btn.dataset.pocketAdd, 'in');
   });
@@ -11758,10 +12110,14 @@ function viewPocket(){
   let body = '';
   if(pane==='settings'){
     const s = ensurePocketSettings();
-    const cats = (s.categories||[]).map(c=>`<li class="pocket-cat-row">
+    const catRow = (c)=>`<li class="pocket-cat-row">
       <span class="grow"><b>${esc(c.de||'')}</b> · ${esc(c.el||'')}</span>
       <button type="button" class="btn ghost sm" data-pocket-cat-toggle="${esc(c.id)}">${esc(c.active===false?t('subActivate'):t('subArchive'))}</button>
-    </li>`).join('') || `<li class="muted">${esc(t('pocketMoneyEmpty'))}</li>`;
+    </li>`;
+    const incomeCats = (s.categories||[]).filter(c=>c && (c.group||'income')==='income').map(catRow).join('')
+      || `<li class="muted">${esc(t('pocketMoneyEmpty'))}</li>`;
+    const expenseCats = (s.categories||[]).filter(c=>c && c.group==='expense').map(catRow).join('')
+      || `<li class="muted">${esc(t('pocketMoneyEmpty'))}</li>`;
     const allowRows = kids.map(k=>`<label class="f pocket-allow-row"><span>${esc(k.name)}</span>
       <input type="number" min="0" step="0.5" inputmode="decimal" data-pocket-allow="${esc(k.id)}" value="${pocketAllowance(k.id)||''}" placeholder="0">
     </label>`).join('');
@@ -11773,11 +12129,20 @@ function viewPocket(){
       <label class="f"><span>DE</span><textarea id="pocketRulesDe" rows="3" placeholder="${esc(t('pocketMoneyRulesPh'))}">${esc(s.rulesDe||'')}</textarea></label>
       <label class="f"><span>EL</span><textarea id="pocketRulesEl" rows="3" placeholder="${esc(t('pocketMoneyRulesPh'))}">${esc(s.rulesEl||'')}</textarea></label>
       <button type="button" class="btn" id="pocketRulesSave">${esc(t('shiftStockCheckSave'))}</button>
-      <h3>${esc(t('pocketMoneyCats'))}</h3>
-      <ul class="pocket-cat-list">${cats}</ul>
+      <h3>${esc(t('pocketMoneySources'))}</h3>
+      <p class="muted pocket-sources-hint">${esc(t('pocketMoneySourcesHint'))}</p>
+      <ul class="pocket-cat-list">${incomeCats}</ul>
+      <h3>${esc(t('pocketMoneyExpenses'))}</h3>
+      <ul class="pocket-cat-list">${expenseCats}</ul>
       <form id="pocketCatAdd" class="pocket-cat-add">
         <label class="f"><span>${esc(t('pocketMoneyCatDe'))}</span><input name="de" required maxlength="40"></label>
         <label class="f"><span>${esc(t('pocketMoneyCatEl'))}</span><input name="el" maxlength="40"></label>
+        <label class="f"><span>${esc(t('pocketMoneyCatGroup'))}</span>
+          <select name="group">
+            <option value="income">${esc(t('pocketMoneyGroupIncome'))}</option>
+            <option value="expense">${esc(t('pocketMoneyGroupExpense'))}</option>
+          </select>
+        </label>
         <button class="btn sec" type="submit">${esc(t('pocketMoneyCatAdd'))}</button>
       </form>
       <h3>${esc(t('pocketMoneyAllowance'))}</h3>
@@ -11823,10 +12188,12 @@ function viewPocket(){
             <span>${esc(t('pocketMoneyTotalIn'))}: <b>${esc(formatEuro(totalIn))}</b></span>
             <span>${esc(t('pocketMoneyTotalOut'))}: <b>${esc(formatEuro(totalOut))}</b></span>
           </div>
+          ${pocketBySourceHtml(kidId, monthKey)}
         </header>
         <div class="pocket-cal-wrap">${pocketMonthCalHtml(kidId)}</div>
       </div>
       ${pocketComposeHtml(kidId)}
+      ${pocketPresetChipsHtml(kidId)}
       <div class="pocket-staff-actions" role="group">
         <button type="button" class="btn" data-pocket-add="${esc(kidId)}">＋ ${esc(t('pocketMoneyIn'))}</button>
         <button type="button" class="btn sec" data-pocket-remove="${esc(kidId)}">− ${esc(t('pocketMoneyOut'))}</button>
@@ -11870,7 +12237,7 @@ function wirePocketView(v){
   wirePocketActions(v);
   wirePocketCompose(v);
   wirePaidiaCal(v);
-  v.querySelectorAll('[data-pocket-kid]').forEach(btn=>{
+  v.querySelectorAll('.pocket-kid-card[data-pocket-kid]').forEach(btn=>{
     btn.onclick=()=>{
       state.pocketKidId = btn.dataset.pocketKid;
       state.pocketPane = 'ledger';
@@ -11954,11 +12321,12 @@ function wirePocketView(v){
     const fd = new FormData(catAdd);
     const de = String(fd.get('de')||'').trim().slice(0,40);
     const el = String(fd.get('el')||'').trim().slice(0,40);
+    const group = String(fd.get('group')||'income')==='expense' ? 'expense' : 'income';
     if(!de && !el) return;
     const s = ensurePocketSettings();
     s.categories = s.categories || [];
     if(s.categories.length>=40){ toast(t('unexpectedError'),'error'); return; }
-    s.categories.push({id:'pcat-'+uid(), de: de||el, el: el||de, active:true});
+    s.categories.push({id:'pcat-'+uid(), de: de||el, el: el||de, group, active:true});
     if(!save()) return;
     toast(t('pocketMoneySaved'),'success'); feedback('save'); render();
   };
@@ -12564,7 +12932,8 @@ function viewShop(){
   const fridayList=fridayEntries(hid,friday);
   const of = st => fridayList.filter(e=>e.status===st);
   const open = of('open'), pending = of('pending'), bought = of('bought'), missing = of('missing');
-  const inStore = pending.length > 0;
+  const inStore = pending.length > 0 && !!state.shopInStore;
+  const pausedStore = pending.length > 0 && !state.shopInStore;
 
   const fridayState=pending.length?t('fridayActive'):(open.length?t('fridayPlanned'):(bought.length||missing.length?t('fridayCompleted'):t('fridayPlanned')));
   const openReqCount = openListRequestCount(hid);
@@ -12768,6 +13137,7 @@ function viewShop(){
           <div class="store-progress-copy"><b>${done}/${pending.length}</b><span>${progress}%</span></div>
           <details class="store-options"><summary aria-label="${esc(t('shopMoreActions'))}">•••</summary><div class="store-options-popover">
             <button class="store-done-toggle ${storeSelecting?'on':''}" id="storeSelectToggle" type="button">${storeSelecting?t('selectDone'):t('selectMode')}</button>
+            <button class="store-done-toggle danger" id="abortFriday" type="button">${esc(t('shopAbortStore'))}</button>
           </div></details>
         </div>
         <div class="store-progress"><i style="width:${progress}%"></i></div>
@@ -12800,17 +13170,30 @@ function viewShop(){
       </div>
     </section>` : '';
 
+  const resumeCard = (!inStore && pausedStore && state.shopPanel==='plan') ? `<section class="shop-list-card shop-resume-card">
+    <header class="shop-list-heading"><div><p>${esc(t('storeMode'))}</p>
+      <span>${esc(T[state.lang].shopResumeHint(pending.length))} · ${pending.filter(e=>e.decision).length}/${pending.length} ${esc(t('shoppingProgress'))}</span></div></header>
+    <div class="shop-start-actions" style="margin:0;padding:0 4px 12px">
+      <button class="btn" type="button" id="resumeFriday">${esc(t('shopResumeStore'))}</button>
+      <button class="btn sec" type="button" id="abortFridayPlan">${esc(t('shopAbortStore'))}</button>
+    </div>
+  </section>` : '';
+
   const openCard = (pending.length || state.shopPanel!=='plan')?'':`<section class="shop-list-card">
     <header class="shop-list-heading"><div><p>${esc(t('secOpen'))}</p><span>${esc(T[state.lang].shopOverviewHint(open.length))}</span></div>
-      ${open.length&&!shopSelecting?`<button class="btn sm" id="startFriday">${T[state.lang].cartReady(open.length)}</button>`:''}
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        ${open.length&&!shopSelecting?`<button class="btn sm sec" type="button" id="listRemoveAll" ${open.length?'':'disabled'}>${esc(t('listRemoveAll'))}</button>`:''}
+        ${open.length&&!shopSelecting?`<button class="btn sm" id="startFriday">${T[state.lang].cartReady(open.length)}</button>`:''}
+      </div>
     </header>
     ${open.length?`<div class="shop-items">${open.map(e=>{
       const sel = shopSelecting && isSelected(e.id);
-      return `<div class="shop-item ${sel?'selected':''}">
+      const marked = !shopSelecting && (state.listPendingRemove||[]).map(String).includes(String(e.id));
+      return `<div class="shop-item ${sel?'selected':''} ${marked?'list-pending-mark':''}">
       ${shopSelecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${e.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
       <div><div class="shop-item-name">${svgIcon(prodIconId(e.productId?prod(e.productId):matchProduct(e.name)),'prod-ico')}${esc(e.name)}</div>
       <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)} · ${listEntryStockChipHtml(hid, e)}</div></div>
-      ${shopSelecting?'':`<div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div>`}
+      ${shopSelecting?'':`<div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x ${marked?'on':''}" data-remove-list="${e.id}" aria-label="${t('close')}" aria-pressed="${marked?'true':'false'}">×</button></div>`}
       </div>`;
     }).join('')}</div>`:
       `<div class="shop-empty">
@@ -12827,6 +13210,7 @@ function viewShop(){
       {id:'qty-minus', label:t('bulkQtyMinus')},
       {id:'qty-plus', label:t('bulkQtyPlus')},
     ]):''}
+    ${!shopSelecting?listPendingDockHtml():''}
     </section>`;
 
   const missingCard = missing.length ? `<details class="card shop-history"><summary>⚠️ ${t('secMissing')}<span class="pill out">${missing.length}</span></summary><div class="shop-history-body">
@@ -12835,24 +13219,54 @@ function viewShop(){
   const boughtCard = bought.length ? `<details class="card shop-history"><summary>✓ ${t('secBought')}<span class="pill in">${bought.length}</span></summary><div class="shop-history-body">
       ${bought.slice(-8).reverse().map(e=>entryRow(e,`<span class="pill in">${t('stBought')}</span>`)).join('')}</div></details>` : '';
 
-  return `<div class="shop-shell ${inStore?'shop-shell-store':'shop-shell-plan'}">${hero}${pendingCard}${takeListCard}${openCard}${requestsCard}${missingCard}${boughtCard}</div>`;
+  return `<div class="shop-shell ${inStore?'shop-shell-store':'shop-shell-plan'}">${hero}${pendingCard}${resumeCard}${takeListCard}${openCard}${requestsCard}${missingCard}${boughtCard}</div>`;
 }
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
 function startFridayBatch(){
   const hid = shopHouse();
+  if((state.listPendingRemove||[]).length){
+    toast(t('listPendingBeforeShop'),'info');
+    return;
+  }
   const open = fridayEntries(hid).filter(e=>e.status==='open');
   if(!open.length){ toast(t('nothingToStart')); return; }
-  open.forEach(e => { e.status = 'pending'; delete e.decision; });
+  open.forEach(e => { e.status = 'pending'; /* keep any prior decision if re-opened */ });
   state.shopQuery='';
+  state.shopInStore=true;
   save(); render();
 }
 
+/** ← back: leave supermarket UI but keep pending + decisions (already saved on each tap). */
+function pauseFridayStore(){
+  const pending=fridayEntries(shopHouse()).filter(e=>e.status==='pending');
+  if(!pending.length){ state.shopInStore=false; render(); return; }
+  state.shopInStore=false;
+  state.shopQuery='';
+  state.shopPanel='plan';
+  try{ save(); }catch{}
+  toast(t('shopPauseStore'),'success',3600);
+  render();
+}
+
+/** Explicit abort — clears decisions and returns items to open. */
 function cancelFridayBatch(){
   const pending=fridayEntries(shopHouse()).filter(e=>e.status==='pending');
+  if(!pending.length){ state.shopInStore=false; render(); return; }
+  if(pending.some(e=>e.decision) && !window.confirm(t('shopAbortConfirm'))) return;
   pending.forEach(e=>{e.status='open';delete e.decision;});
   state.shopQuery='';
+  state.shopInStore=false;
   save();render();
+}
+
+function resumeFridayStore(){
+  const pending=fridayEntries(shopHouse()).filter(e=>e.status==='pending');
+  if(!pending.length){ toast(t('nothingPending')); return; }
+  state.shopInStore=true;
+  state.shopPanel='plan';
+  state.shopQuery='';
+  render();
 }
 
 function inventoryProductForEntry(entry){
@@ -12901,6 +13315,7 @@ function confirmFridayBatch(){
       ` | ${t('shortage')}: ${miss.join(', ') || '—'}`,
       {houseId:hid,tripId,items:pending.map(e=>({productId:e.productId,name:e.name,qty:e.qty,unit:e.unit,result:e.status,reason:e.missReason||null}))});
     save(); render();
+    state.shopInStore=false;
     toast(`${T[state.lang].batchBooked(pending.length)} · ${T[state.lang].bookedToHouse(houseShort(hid))}`,'success',4800);
     try{ queueOpsAlert('shop', {houseId:hid, by:who.name, bought:got.length, missing:miss.length}); }catch{}
     try{ sheetShopBookedSummary(gotLines, hid); }catch{}
@@ -15893,7 +16308,7 @@ function childStartView(c){
             ${progressRingHtml(pct, lv)}
             <div class="level-copy">
               <div class="level-xp">${esc(t('kidXpOf')(xp, nextXp))}</div>
-              <div class="level-next">${lv>=XP_LEVELS.length-1?'MAX':esc(t('kidXpRemain')(Math.max(0,nextXp-xp)))}</div>
+              <div class="level-next">${lv>=XP_LEVELS.length-1?(state.lang==='el'?'Έφτασες στο ανώτερο επίπεδο':'Höchste Stufe erreicht'):esc(t('kidXpRemain')(Math.max(0,nextXp-xp)))}</div>
               <div class="level-tag">${esc(t('kidLevelCard')(lv))}</div>
               ${levelMeterHtml(pct)}
             </div>
@@ -15907,14 +16322,14 @@ function childStartView(c){
             ${lessonRows}
           </section>
           <div class="course-grid">
-            <button type="button" class="course-tile sea" data-child-view="aufgaben"><span class="bar"></span><b>${esc(t('kidCourseTasks'))}</b><span>${esc(t('kidTasksDue')(dueChores))}</span><div class="meter">${levelMeterHtml(dueChores?40:100)}</div></button>
-            <button type="button" class="course-tile out" data-child-view="games"><span class="bar"></span><b>${esc(t('kidCourseGames'))}</b><span>${esc(t('kidGamesPlay'))}</span><div class="meter">${levelMeterHtml(25)}</div></button>
-            <button type="button" class="course-tile sun" data-child-view="rate"><span class="bar"></span><b>${esc(t('kidNavRate'))}</b><span>${esc(t('kidHomeGoRate'))}</span><div class="meter">${levelMeterHtml(summary.gradedCount?60:20)}</div></button>
+            <button type="button" class="course-tile sea" data-child-view="aufgaben"><span class="bar"></span><b>${esc(t('kidCourseTasks'))}</b><span>${esc(t('kidTasksDue')(dueChores))}</span><div class="meter"></div></button>
+            <button type="button" class="course-tile out" data-child-view="games"><span class="bar"></span><b>${esc(t('kidCourseGames'))}</b><span>${esc(t('kidGamesPlay'))}</span><div class="meter"></div></button>
+            <button type="button" class="course-tile sun" data-child-view="rate"><span class="bar"></span><b>${esc(t('kidNavRate'))}</b><span>${esc(t('kidHomeGoRate'))}</span><div class="meter"></div></button>
             <button type="button" class="course-tile" data-child-view="rewards"><span class="bar"></span><b>${esc(t('kidCourseStars'))}</b><span>${esc(t('kidStarsCollected')(xp))}</span><div class="meter">${levelMeterHtml(pct)}</div></button>
           </div>
           <div class="course-grid mode-pro-block">
-            <button type="button" class="course-tile" data-child-view="learn"><span class="bar"></span><b>${esc(t('kidCourseLearn'))}</b><span>${esc(t('kidLearnOpen')(1))}</span><div class="meter">${levelMeterHtml(55)}</div></button>
-            <button type="button" class="course-tile sea" data-child-view="plan"><span class="bar"></span><b>${esc(t('kidNavPlan'))}</b><span>${esc(t('kidHomeCtaPlan'))}</span><div class="meter">${levelMeterHtml(40)}</div></button>
+            <button type="button" class="course-tile" data-child-view="learn"><span class="bar"></span><b>${esc(t('kidCourseLearn'))}</b><span>${esc(t('kidLearnOpen')(1))}</span><div class="meter"></div></button>
+            <button type="button" class="course-tile sea" data-child-view="plan"><span class="bar"></span><b>${esc(t('kidNavPlan'))}</b><span>${esc(t('kidHomeCtaPlan'))}</span><div class="meter"></div></button>
           </div>
           ${childGameChallengeHtml(c.id)}
         </div>
@@ -17796,7 +18211,7 @@ function childRewardsView(kidId){
         ${progressRingHtml(pct, lv)}
         <div>
           <div class="level-xp">${esc(t('kidXpOf')(xp, nextXp))}</div>
-          <div class="level-next">${lv>=XP_LEVELS.length-1?'MAX':esc(t('kidXpRemain')(Math.max(0,nextXp-xp)))}</div>
+          <div class="level-next">${lv>=XP_LEVELS.length-1?(state.lang==='el'?'Έφτασες στο ανώτερο επίπεδο':'Höchste Stufe erreicht'):esc(t('kidXpRemain')(Math.max(0,nextXp-xp)))}</div>
           ${levelMeterHtml(pct)}
         </div>
       </div>
@@ -17846,7 +18261,7 @@ function renderChild(){
 
   const titleEl=document.getElementById('title');
   const whoEl=document.getElementById('who');
-  if(titleEl) titleEl.textContent = esc(c.name);
+  if(titleEl) titleEl.textContent = c.name;
   const childAge = profileAgeYears(c);
   if(whoEl) whoEl.textContent = kidViewTitle(state.childView) + (childAge!=null ? ` · ${t('profileAge')} ${childAge}` : '');
   const langBtn=document.getElementById('btnLang');
@@ -17961,6 +18376,7 @@ function renderChild(){
   if(state.tourActive) queueMicrotask(()=>tourPaintCurrent());
   try{ tipNotifyPageChange(); }catch{}
   try{ zoaiTipNotifySession(); }catch{}
+  try{ paintPwaInstallBar(); }catch{}
 }
 
 async function openChoreSubmitSheet(choreId, kidId){
@@ -19390,6 +19806,7 @@ function employeeShiftSummary(employeeId,dateStr){
 }
 
 function adminOpsPie(parts){
+  if(!parts.some(p=>Number(p.n)>0)) return `<p class="ops-chart-empty">${state.lang==='el'?'Δεν υπάρχουν καταγραφές για αυτή την επισκόπηση.':'Für diese Übersicht liegen noch keine Einträge vor.'}</p>`;
   const total=parts.reduce((s,p)=>s+Math.max(0,Number(p.n)||0),0)||1;
   let acc=0;
   const slices=parts.map(p=>{
@@ -19397,7 +19814,7 @@ function adminOpsPie(parts){
     const start=acc/total*360; acc+=n; const end=acc/total*360;
     return `${p.color} ${start}deg ${end}deg`;
   }).join(', ');
-  const legend=parts.map(p=>`<span><i style="background:${p.color}"></i>${esc(p.label)} · ${p.n}</span>`).join('');
+  const legend=parts.map(p=>`<span><i style="background:${p.color}"></i>${esc(p.label)} · ${p.currency?esc(formatEuro(p.n)):p.n}</span>`).join('');
   return `<div class="admin-ops-pie-wrap"><div class="admin-ops-pie" style="background:conic-gradient(${slices})"></div><div class="admin-ops-pie-legend">${legend}</div></div>`;
 }
 
@@ -19414,13 +19831,13 @@ function adminOpsFilterRows(){
     let ds='';
     try{ ds=iso(new Date(row.ts||row.at||0)); }catch{ ds=''; }
     if(q.day && ds!==q.day) return;
-    if(q.houseId && row.houseId && row.houseId!==q.houseId) return;
+    if(q.houseId && row.houseId!==q.houseId) return;
     const msg=String(row.msg||row.text||'');
     if(q.kidId){
       const kid=(DB.children||[]).find(k=>k.id===q.kidId);
       const name=(kid?.name||'').toLowerCase();
       if(row.kidId && row.kidId!==q.kidId) return;
-      if(!row.kidId && name && !msg.toLowerCase().includes(name.toLowerCase()) && !msg.includes(q.kidId)) return;
+      if(!row.kidId && (!name || (!msg.toLowerCase().includes(name) && !msg.includes(q.kidId)))) return;
     }
     if(q.type){
       const ty=String(row.type||'').toUpperCase();
@@ -19433,22 +19850,209 @@ function adminOpsFilterRows(){
   (DB.pocketMoneyTxns||[]).slice().reverse().forEach(tx=>{
     if(q.type && q.type!=='pocket') return;
     if(q.kidId && tx.kidId!==q.kidId) return;
+    if(q.houseId && tx.houseId!==q.houseId) return;
     let ds=''; try{ ds=iso(new Date(tx.ts||0)); }catch{}
     if(q.day && ds!==q.day) return;
     const kid=(DB.children||[]).find(k=>k.id===tx.kidId);
     rows.push({kind:'pocket', ts:tx.ts, title:t('adminOpsPocket'), body:`${kid?.name||tx.kidId}: ${tx.amount??tx.delta??0} · ${tx.note||''}`, meta:ds});
   });
-  return rows.slice(0,80);
+  return rows.sort((a,b)=>(Number(new Date(b.ts))||0)-(Number(new Date(a.ts))||0)).slice(0,80);
+}
+
+function operationsOverviewHtml(){
+  if(!isAdminUser()) return '';
+  const el=state.lang==='el';
+  const text=(de,gr)=>el?gr:de;
+  const today=iso(new Date());
+  const pending=(DB.listEntries||[]).filter(e=>['open','pending','missing'].includes(e.status));
+  const feedbackCount=openFeedbackCount();
+  const issues=weekDates(today).flatMap(ds=>validateDay(ds));
+  const dayStart=new Date(); dayStart.setHours(0,0,0,0);
+  const dayTs=dayStart.getTime();
+  const logToday=(DB.log||[]).filter(r=>Number(r.ts||r.at||0)>=dayTs).length;
+  const openTrips=(DB.shoppingTrips||[]).filter(tr=>!tr.completedAt && tr.status!=='done').length;
+  const notesToday=Object.keys(DB.shiftNotes||{}).filter(k=>{
+    const note=DB.shiftNotes[k];
+    return note && Number(note.ts||note.updatedAt||0)>=dayTs;
+  }).length;
+  const checksToday=(DB.stockChecks||[]).filter(c=>c.date===today || Number(c.at||0)>=dayTs).length;
+  const metrics=[
+    [pending.length,text('Offene Einkaufspositionen','Εκκρεμείς αγορές'),'#shop/plan'],
+    [issues.length,text('Planhinweise diese Woche','Επισημάνσεις εβδομάδας'),'#schedule/week'],
+    [(DB.children||[]).length,text('Kinder in Betreuung','Παιδιά στη φροντίδα μας'),'#kids'],
+    [(DB.employees||[]).length,text('Teammitglieder','Μέλη ομάδας'),'#admin'],
+  ];
+  const deskStats=[
+    [logToday, text('Bewegungen heute','Κινήσεις σήμερα')],
+    [checksToday, text('Lagerchecks heute','Έλεγχοι σήμερα')],
+    [openTrips, text('Offene Einkäufe','Ανοιχτές αγορές')],
+    [notesToday, text('Übergaben heute','Παραδόσεις σήμερα')],
+    [feedbackCount, text('Offene Rückmeldungen','Ανοιχτές αναφορές')],
+    [(DB.events||[]).filter(e=>e.date>=today).length, text('Kommende Termine','Επόμενα ραντεβού')],
+  ];
+  const liveFeed=(DB.log||[]).slice().sort((a,b)=>(Number(b.ts||b.at||0))-(Number(a.ts||a.at||0))).slice(0,8).map(row=>{
+    let when=''; try{ when=row.ts?fmtDT(row.ts):(row.at?fmtDT(row.at):''); }catch{}
+    const who=emp(row.employeeId)?.name||'';
+    return `<article class="admin-ops-card"><header><b>${esc(typeLabel(row.type)||row.type||'—')}</b><span>${esc(when)}</span></header><p>${esc(row.text||row.msg||'')}${who?` · ${esc(who)}`:''}</p></article>`;
+  }).join('') || `<p class="muted">${esc(text('Noch keine Bewegungen heute.','Καμία κίνηση ακόμη σήμερα.'))}</p>`;
+  const houses=(DB.houses||[]).map(h=>{
+    const products=PRODUCTS();
+    const recorded=products.filter(p=>Number.isFinite(DB.stock?.[stockKey(h.id,p.id)]));
+    const unknown=products.length-recorded.length;
+    const empty=recorded.filter(p=>stockProductStateFor([h],p)==='empty').length;
+    const low=recorded.filter(p=>stockProductStateFor([h],p)==='low').length;
+    const last=(DB.stockChecks||[]).filter(c=>c.houseId===h.id).slice().sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))[0];
+    return `<article class="ops-house"><header><h3>${esc(h.short||h.name||h.id)}</h3><span class="ops-status ${empty||low||unknown?'attention':''}">${esc(empty||low||unknown?text('Prüfung nötig','Χρειάζεται έλεγχος'):text('Bestand ausreichend','Επαρκές απόθεμα'))}</span></header><dl><div><dt>${text('Nicht vorrätig','Χωρίς απόθεμα')}</dt><dd>${empty}</dd></div><div><dt>${text('Unter Mindestbestand','Κάτω από το ελάχιστο')}</dt><dd>${low}</dd></div><div><dt>${text('Noch nicht erfasst','Χωρίς καταγραφή')}</dt><dd>${unknown}</dd></div><div><dt>${text('Artikelarten','Είδη προϊόντων')}</dt><dd>${products.length}</dd></div></dl><p>${text('Letzter Lagercheck','Τελευταίος έλεγχος')}: ${last?esc(last.date||''):text('Noch nicht dokumentiert','Δεν έχει καταγραφεί ακόμη')}</p><button class="btn sec" type="button" data-ops-house="${esc(h.id)}">${text('Lager öffnen','Άνοιγμα αποθήκης')} →</button></article>`;
+  }).join('');
+  return `<section class="ops-overview" aria-label="${text('Operative Übersicht','Επισκόπηση λειτουργίας')}">
+    <div class="admin-ops-desk-stats" aria-label="${text('Tageslage','Καθημερινή εικόνα')}">${deskStats.map(([n,label])=>`<div class="admin-ops-stat-tile"><b>${n}</b><span>${esc(label)}</span></div>`).join('')}</div>
+    <div class="ops-metrics">${metrics.map(([n,label,href])=>`<a class="ops-metric" href="${href}"><strong>${n}</strong><span>${label}</span><span aria-hidden="true">↗</span></a>`).join('')}</div>
+    <div class="ops-priority"><div><h3>${text('Was braucht Aufmerksamkeit?','Τι χρειάζεται προσοχή;')}</h3><p>${text('Die Zahlen beziehen sich auf die aktuell geladenen Daten. Fehlende Einträge sind keine Bestätigung einer erledigten Prüfung.','Οι αριθμοί βασίζονται στα δεδομένα που έχουν φορτωθεί. Η απουσία καταγραφής δεν επιβεβαιώνει ότι έγινε έλεγχος.')}</p></div><div class="ops-priority-actions"><a class="btn sec" href="#shop/plan">${text('Einkauf prüfen','Έλεγχος αγορών')} · ${pending.length}</a><a class="btn sec" href="#schedule/week">${text('Wochenplan prüfen','Έλεγχος εβδομάδας')} · ${issues.length}</a><button class="btn sec" type="button" id="opsFeedback">${text('Rückmeldungen prüfen','Έλεγχος αναφορών')} · ${feedbackCount}</button><button class="btn sec" type="button" data-admin-go="team">${text('Team öffnen','Άνοιγμα ομάδας')}</button></div></div>
+    <section class="card admin-ops-section" aria-label="${text('Live-Aktivitäten','Ζωντανή δραστηριότητα')}"><h3 style="margin:0 0 10px">${text('Live · letzte Bewegungen','Live · τελευταίες κινήσεις')}</h3><div class="admin-live-feed">${liveFeed}</div></section>
+    <div class="ops-house-grid">${houses}</div>
+  </section>`;
+}
+
+function adminRangeCutoff(range){
+  const now=Date.now();
+  const start=new Date(); start.setHours(0,0,0,0);
+  if(range==='today') return start.getTime();
+  if(range==='week') return now-7*864e5;
+  if(range==='month') return now-30*864e5;
+  return 0;
+}
+
+function adminWorkerMoves(employeeId, range){
+  const cutoff=adminRangeCutoff(range||state.adminWorkerRange||'week');
+  const person=emp(employeeId);
+  const moves=[];
+  (DB.log||[]).forEach(row=>{
+    if(!row || row.employeeId!==employeeId) return;
+    const ts=Number(row.ts||row.at||0);
+    if(cutoff && ts<cutoff) return;
+    moves.push({ts, type:row.type, text:row.text||row.msg||'', source:'log'});
+  });
+  (DB.shoppingTrips||[]).forEach(tr=>{
+    const by=tr.completedBy||tr.by||tr.byId;
+    if(by!==employeeId) return;
+    const ts=Number(tr.completedAt||tr.ts||0);
+    if(cutoff && ts<cutoff) return;
+    const bought=(tr.items||[]).filter(it=>it.result==='bought').length;
+    moves.push({ts, type:'SHOP', text:`${t('typeSHOP')} · ${houseShort(tr.houseId)} · ${bought}/${(tr.items||[]).length}`, source:'trip'});
+  });
+  (DB.stockChecks||[]).forEach(c=>{
+    let match=c.by===employeeId;
+    if(!match && c.byName && person){
+      const sameName=(DB.employees||[]).filter(e=>e.name===c.byName);
+      match=sameName.length===1 && sameName[0].id===employeeId;
+    }
+    if(!match) return;
+    const ts=Number(c.at||(c.date?Date.parse(c.date+'T12:00:00'):0)||0);
+    if(cutoff && ts && ts<cutoff) return;
+    moves.push({ts:ts||0, type:'STOCKCHECK', text:`${t('shiftStockCheck')||'Check'} · ${houseShort(c.houseId)} · ${(c.items||[]).length}`, source:'check'});
+  });
+  Object.keys(DB.shiftNotes||{}).forEach(key=>{
+    if(!key.startsWith(employeeId+':')) return;
+    const note=DB.shiftNotes[key];
+    if(!note) return;
+    const ts=Number(note.ts||note.updatedAt||0);
+    if(cutoff && ts && ts<cutoff) return;
+    const dateStr=key.slice(employeeId.length+1);
+    moves.push({ts:ts||0, type:'NOTES', text:`${t('weekNotes')||'Note'} · ${dateStr}: ${String(note.text||note.note||'').slice(0,120)}`, source:'note'});
+  });
+  return moves.sort((a,b)=>(b.ts||0)-(a.ts||0)).slice(0,100);
+}
+
+function adminTeamRosterHtml(){
+  const today=iso(new Date());
+  const range=state.adminWorkerRange||'week';
+  const people=DB.employees||[];
+  if(!people.length) return `<p class="muted">${esc(t('adminTeamEmpty'))}</p>`;
+  return `<div class="admin-team-roster">${people.map(person=>{
+    const moves=adminWorkerMoves(person.id, range);
+    const last=moves[0];
+    let lastWhen='';
+    try{ if(last?.ts) lastWhen=fmtDT(last.ts); }catch{}
+    return `<button type="button" class="admin-person admin-team-card" data-admin-worker="${person.id}">
+      <div class="admin-person-top"><div class="pa avatar" style="background:${safeColor(person.color)}">${initials(person.name)}</div>
+        <div class="grow"><div class="admin-person-name">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</div>
+          <div class="admin-person-role">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div></div>
+      <div class="admin-person-stats"><span><b>${moves.length}</b>${esc(t('adminTeamMoves'))}</span>
+        <span class="muted">${lastWhen||'—'}</span></div>
+    </button>`;
+  }).join('')}</div>`;
+}
+
+function adminWorkerDetailHtml(employeeId){
+  const person=emp(employeeId);
+  if(!person) return `<p class="muted">${esc(t('adminTeamNoWorker'))}</p>`;
+  const today=iso(new Date());
+  const range=state.adminWorkerRange||'week';
+  const dates=dashboardDates(0,6);
+  const todayItems=dashboardAssignments(today,employeeId);
+  const weekItems=dates.flatMap(dateStr=>dashboardAssignments(dateStr,employeeId));
+  const done=todayItems.filter(e=>completionFor(today,e.id,employeeId)).length;
+  const moves=adminWorkerMoves(employeeId, range);
+  const ranges=[
+    ['today', t('today')],
+    ['week', t('last7')],
+    ['month', t('last30')],
+    ['all', t('bookAll')],
+  ];
+  const feed=moves.length?moves.map(m=>{
+    let when=''; try{ when=m.ts?fmtDT(m.ts):''; }catch{}
+    return `<article class="admin-ops-card"><header><b>${esc(typeLabel(m.type)||m.type||'')}</b><span>${esc(when)}</span></header><p>${esc(m.text||'')}</p></article>`;
+  }).join(''):`<p class="muted">${esc(t('adminNoActivity'))}</p>`;
+  return `<div class="admin-worker-detail">
+    <button type="button" class="btn sm sec" id="adminWorkerBack">${esc(t('adminTeamBack'))}</button>
+    <header class="admin-detail-hero" style="margin-top:12px">
+      <div class="pa avatar" style="background:${safeColor(person.color)}">${initials(person.name)}</div>
+      <div class="grow"><div class="muted">${esc(t('adminDetails'))}</div>
+        <h3 style="margin:1px 0">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</h3>
+        <div class="muted">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div>
+    </header>
+    <div class="admin-detail-stats">
+      <div class="admin-detail-stat"><b>${todayItems.length}</b>${esc(t('adminToday'))}</div>
+      <div class="admin-detail-stat"><b>${weekItems.length}</b>${esc(t('adminNext7'))}</div>
+      <div class="admin-detail-stat"><b>${done}</b>${esc(t('adminDone'))}</div>
+    </div>
+    <div class="admin-action-grid" style="margin:12px 0">
+      <button class="btn sm sec" type="button" data-admin-worker-go="schedule">${esc(t('adminOpenWeek'))}</button>
+      <button class="btn sm sec" type="button" data-admin-worker-go="stock">${esc(t('adminOpenStock'))}</button>
+      <button class="btn sm sec" type="button" data-admin-worker-go="shop">${esc(t('adminOpenShop'))}</button>
+      <button class="btn sm sec" type="button" data-admin-worker-go="audit">${esc(t('adminOpenAudit'))}</button>
+      <button class="btn sm sec" type="button" data-admin-worker-go="contact">${esc(t('adminContact'))}</button>
+      <button class="btn sm sec" type="button" data-admin-worker-go="sheet">${esc(t('adminDetails'))}</button>
+    </div>
+    <div class="admin-ops-chips" role="group" aria-label="${esc(t('bookRangeLabel'))}">
+      ${ranges.map(([id,label])=>`<button type="button" class="chip ${range===id?'on':''}" data-admin-worker-range="${id}">${esc(label)}</button>`).join('')}
+    </div>
+    <p class="muted" style="font-size:12px;margin:8px 0">${esc(t('adminTeamMovesHint'))}</p>
+    <h3 style="margin:12px 0 8px">${esc(t('adminTeamMoves'))} · ${moves.length}</h3>
+    <div class="admin-ops-timeline">${feed}</div>
+  </div>`;
 }
 
 function viewAdminOps(){
   if(!isAdminUser()) return `<section class="card"><p class="muted">${esc(t('adminRequired'))}</p></section>`;
+  const pane=state.adminPane==='team'?'team':'ops';
+  const seg=`<div class="seg admin-pane-seg" role="tablist" aria-label="Admin">
+    <button type="button" class="${pane==='ops'?'on':''}" data-admin-pane="ops">${esc(t('adminOpsTab'))}</button>
+    <button type="button" class="${pane==='team'?'on':''}" data-admin-pane="team">${esc(t('adminTeamTab'))}</button>
+  </div>`;
+  if(pane==='team'){
+    const detail=state.adminWorkerId?adminWorkerDetailHtml(state.adminWorkerId):'';
+    return `<div class="admin-ops admin-ops-team" data-tour="admin-ops">
+      <header class="admin-ops-hero">
+        <p class="eyebrow">Armonia · Admin</p>
+        <h2>${esc(t('adminTeamTitle'))}</h2>
+        <p class="muted">${esc(t('adminTeamLead'))}</p>
+        ${seg}
+      </header>
+      ${detail||`<section class="card admin-ops-section">${adminTeamRosterHtml()}</section>`}
+    </div>`;
+  }
   const q=adminOpsLegoState();
-  const today=iso(new Date());
-  const log=(DB.log||[]).slice().reverse().slice(0,36);
-  const pocket=(DB.pocketMoneyTxns||[]).slice().reverse().slice(0,24);
-  const checks=(DB.stockChecks||[]).slice().reverse().slice(0,8);
-  const trips=(DB.shoppingTrips||[]).slice().reverse().slice(0,8);
   let ok=0,low=0,empty=0;
   (DB.houses||[]).forEach(h=>{
     PRODUCTS().forEach(p=>{
@@ -19456,6 +20060,7 @@ function viewAdminOps(){
       if(st==='empty') empty++; else if(st==='low') low++; else ok++;
     });
   });
+  const trips=(DB.shoppingTrips||[]).slice().reverse().slice(0,8);
   let bought=0, missing=0;
   trips.forEach(tr=>(tr.items||[]).forEach(it=>{
     if(it.result==='bought') bought++; else missing++;
@@ -19470,73 +20075,96 @@ function viewAdminOps(){
     return iso(d);
   });
   const scheduleBits=weekDays.map(ds=>{
-    const items=(DB.template||[]).filter(e=>Number(e.day)===dowIdx(new Date(ds+'T12:00:00'))).slice(0,4);
-    return `<div class="admin-ops-day"><b>${esc(eventDayLabel(ds))}</b>${items.length?items.map(e=>`<span>${esc(actLabel(e.activityId)||e.activityId)}</span>`).join(''):`<span class="muted">—</span>`}</div>`;
+    const items=entriesFor(ds).filter(e=>!e.cancelled).slice(0,6);
+    return `<div class="admin-ops-day"><b>${esc(eventDayLabel(ds))}</b>${items.length?items.map(e=>`<span>${esc(entryTime(e))} · ${esc(actLabel(e.activityId)||e.activityId)}</span>`).join(''):`<span class="muted">—</span>`}</div>`;
   }).join('');
-  const legoKids=(DB.children||[]).map(k=>`<button type="button" class="chip ${q.kidId===k.id?'on':''}" data-lego-kid="${k.id}">${esc(k.name)}</button>`).join('');
-  const legoHouses=(DB.houses||[]).map(h=>`<button type="button" class="chip ${q.houseId===h.id?'on':''}" data-lego-house="${h.id}">${esc(h.short||h.name||h.id)}</button>`).join('');
+  const legoKids=(DB.children||[]).map(k=>`<button type="button" class="chip ${q.kidId===k.id?'on':''}" aria-pressed="${q.kidId===k.id}" data-lego-kid="${k.id}">${esc(k.name)}</button>`).join('');
+  const legoHouses=(DB.houses||[]).map(h=>`<button type="button" class="chip ${q.houseId===h.id?'on':''}" aria-pressed="${q.houseId===h.id}" data-lego-house="${h.id}">${esc(h.short||h.name||h.id)}</button>`).join('');
   const types=[['stock',t('navStock')],['list',t('navShop')],['pocket',t('navPocket')],['schedule',t('navSchedule')],['book',t('navBook')]];
-  const legoTypes=types.map(([id,label])=>`<button type="button" class="chip ${q.type===id?'on':''}" data-lego-type="${id}">${esc(label)}</button>`).join('');
-  const filtered=adminOpsFilterRows();
+  const legoTypes=types.map(([id,label])=>`<button type="button" class="chip ${q.type===id?'on':''}" aria-pressed="${q.type===id}" data-lego-type="${id}">${esc(label)}</button>`).join('');
+  const filtered=adminOpsFilterRows().slice(0,40);
   const filterCards=filtered.length?filtered.map(r=>`<article class="admin-ops-card"><header><b>${esc(r.title)}</b><span>${esc(r.meta||'')}</span></header><p>${esc(r.body)}</p></article>`).join('')
     :`<p class="muted">${esc(t('adminOpsEmpty'))}</p>`;
-  return `<div class="admin-ops kid-page" data-tour="admin-ops">
+  return `<div class="admin-ops admin-ops-cockpit" data-tour="admin-ops">
     <header class="admin-ops-hero">
       <p class="eyebrow">Armonia · Admin</p>
       <h2>${esc(t('adminOpsTitle'))}</h2>
       <p class="muted">${esc(t('adminOpsLead'))}</p>
+      ${seg}
     </header>
-    <section class="card admin-ops-section">
-      <h2>${esc(t('adminOpsCharts'))}</h2>
-      <div class="admin-ops-charts">
-        <div><h3>${esc(t('adminOpsStorages'))}</h3>${adminOpsPie([{n:ok,label:'OK',color:'#2a6b52'},{n:low,label:t('stockLow')||'Low',color:'#c48a1a'},{n:empty,label:t('stockOutState')||'Empty',color:'#c2410c'}])}</div>
-        <div><h3>${esc(t('navShop'))}</h3>${adminOpsPie([{n:bought,label:t('stBought')||'OK',color:'#2a8f9a'},{n:missing,label:t('shortage')||'Missing',color:'#a16207'}])}</div>
-        <div><h3>${esc(t('adminOpsPocket'))}</h3>${adminOpsPie([{n:Math.round(pin),label:'+',color:'#2a6b52'},{n:Math.round(pout),label:'−',color:'#c2410c'}])}</div>
+    ${operationsOverviewHtml()}
+    <div class="admin-ops-desktop">
+      <div class="admin-ops-main">
+        <section class="card admin-ops-section">
+          <h2>${esc(t('adminOpsCharts'))}</h2>
+          <div class="admin-ops-charts">
+            <div><h3>${esc(t('adminOpsStorages'))}</h3>${adminOpsPie([{n:ok,label:'OK',color:'#2a6b52'},{n:low,label:t('stockLow')||'Low',color:'#c48a1a'},{n:empty,label:t('stockOutState')||'Empty',color:'#c2410c'}])}</div>
+            <div><h3>${esc(t('navShop'))}</h3>${adminOpsPie([{n:bought,label:t('stBought')||'OK',color:'#2a8f9a'},{n:missing,label:t('shortage')||'Missing',color:'#a16207'}])}</div>
+            <div><h3>${esc(t('adminOpsPocket'))}</h3>${adminOpsPie([{n:pin,label:state.lang==='el'?'Πιστώσεις':'Gutschriften',color:'#2a6b52',currency:true},{n:pout,label:state.lang==='el'?'Χρεώσεις':'Ausgaben',color:'#c2410c',currency:true}])}</div>
+          </div>
+        </section>
+        <section class="card admin-ops-section">
+          <h2>${esc(t('adminOpsFilter'))}</h2>
+          <div class="admin-ops-lego">
+            <label class="f"><span>${esc(t('adminOpsBlockDay'))}</span><input type="date" id="adminLegoDay" value="${esc(q.day||'')}"></label>
+            <div class="admin-ops-chips" role="group" aria-label="${esc(t('adminOpsBlockKid'))}">${legoKids}</div>
+            <div class="admin-ops-chips" role="group" aria-label="${esc(t('adminOpsBlockHouse'))}">${legoHouses}</div>
+            <div class="admin-ops-chips" role="group" aria-label="${esc(t('adminOpsBlockType'))}">${legoTypes}</div>
+            <div class="row" style="gap:8px;flex-wrap:wrap">
+              <button type="button" class="btn sm" id="adminLegoRun">${esc(t('adminOpsRun'))}</button>
+              <button type="button" class="btn sm sec" id="adminLegoClear">${esc(t('adminOpsClear'))}</button>
+              <button type="button" class="btn sm sec" id="adminLegoZoai">${esc(t('adminOpsAskZoai'))}</button>
+            </div>
+          </div>
+          <div class="admin-ops-results" id="adminLegoResults">${filterCards}</div>
+        </section>
       </div>
-    </section>
-    <section class="card admin-ops-section">
-      <h2>${esc(t('adminOpsLego'))}</h2>
-      <div class="admin-ops-lego">
-        <label class="f"><span>${esc(t('adminOpsBlockDay'))}</span><input type="date" id="adminLegoDay" value="${esc(q.day||today)}"></label>
-        <div class="admin-ops-chips" role="group" aria-label="${esc(t('adminOpsBlockKid'))}">${legoKids}</div>
-        <div class="admin-ops-chips" role="group" aria-label="${esc(t('adminOpsBlockHouse'))}">${legoHouses}</div>
-        <div class="admin-ops-chips" role="group" aria-label="${esc(t('adminOpsBlockType'))}">${legoTypes}</div>
-        <div class="row" style="gap:8px;flex-wrap:wrap">
-          <button type="button" class="btn sm" id="adminLegoRun">${esc(t('adminOpsRun'))}</button>
-          <button type="button" class="btn sm sec" id="adminLegoClear">${esc(t('adminOpsClear'))}</button>
-          <button type="button" class="btn sm sec" id="adminLegoZoai">${esc(t('adminOpsAskZoai'))}</button>
-        </div>
-      </div>
-      <div class="admin-ops-results" id="adminLegoResults">${filterCards}</div>
-    </section>
-    <section class="card admin-ops-section">
-      <h2>${esc(t('adminOpsTimeline'))}</h2>
-      <div class="admin-ops-timeline">${log.map(row=>{
-        let when=''; try{ when=new Date(row.ts||row.at).toLocaleString(state.lang==='el'?'el-GR':'de-DE'); }catch{}
-        return `<article class="admin-ops-card"><header><b>${esc(typeLabel(row.type)||row.type||'')}</b><span>${esc(when)}</span></header><p>${esc(row.msg||row.text||'')}</p></article>`;
-      }).join('')||`<p class="muted">—</p>`}</div>
-    </section>
-    <section class="card admin-ops-section">
-      <h2>${esc(t('adminOpsPocket'))}</h2>
-      <div class="admin-ops-timeline">${pocket.map(tx=>{
-        const kid=(DB.children||[]).find(k=>k.id===tx.kidId);
-        let when=''; try{ when=new Date(tx.ts||0).toLocaleString(state.lang==='el'?'el-GR':'de-DE'); }catch{}
-        return `<article class="admin-ops-card"><header><b>${esc(kid?.name||tx.kidId||'')}</b><span>${esc(when)}</span></header><p>${esc(String(tx.amount??tx.delta??0))} · ${esc(tx.note||'')}</p></article>`;
-      }).join('')||`<p class="muted">—</p>`}</div>
-    </section>
-    <section class="card admin-ops-section">
-      <h2>${esc(t('adminOpsStorages'))}</h2>
-      <div class="admin-ops-timeline">${checks.map(c=>`<article class="admin-ops-card"><header><b>${esc(houseShort(c.houseId))}</b><span>${esc(c.date||'')} · ${esc(c.byName||'')}</span></header><p>${(c.items||[]).length} · ${c.allYes?'OK':'Δ'}</p></article>`).join('')||`<p class="muted">—</p>`}</div>
-    </section>
-    <section class="card admin-ops-section">
-      <h2>${esc(t('adminOpsSchedule'))}</h2>
-      <div class="admin-ops-schedule">${scheduleBits}</div>
-    </section>
+      <aside class="admin-ops-rail">
+        <section class="card admin-ops-section">
+          <h2>${esc(t('adminOpsSchedule'))}</h2>
+          <div class="admin-ops-schedule">${scheduleBits}</div>
+        </section>
+      </aside>
+    </div>
   </div>`;
 }
 
 function wireAdminOpsView(root){
   if(!root) return;
+  root.querySelectorAll('[data-admin-pane]').forEach(btn=>btn.onclick=()=>{
+    state.adminPane=btn.dataset.adminPane==='team'?'team':'ops';
+    if(state.adminPane==='ops') state.adminWorkerId=null;
+    feedback('toggle');
+    render();
+  });
+  root.querySelectorAll('[data-admin-worker]').forEach(btn=>btn.onclick=()=>{
+    state.adminPane='team';
+    state.adminWorkerId=btn.dataset.adminWorker;
+    feedback('open');
+    render();
+  });
+  root.querySelector('#adminWorkerBack')?.addEventListener('click', ()=>{
+    state.adminWorkerId=null;
+    feedback('toggle');
+    render();
+  });
+  root.querySelectorAll('[data-admin-worker-range]').forEach(btn=>btn.onclick=()=>{
+    state.adminWorkerRange=btn.dataset.adminWorkerRange||'week';
+    feedback('toggle');
+    render();
+  });
+  root.querySelectorAll('[data-admin-worker-go]').forEach(btn=>btn.onclick=()=>{
+    const act=btn.dataset.adminWorkerGo;
+    const id=state.adminWorkerId;
+    if(act==='schedule'){ state.tab='schedule'; setScheduleView('week'); render(); return; }
+    if(act==='stock'){ state.tab='stock'; render(); return; }
+    if(act==='shop'){ state.tab='shop'; render(); return; }
+    if(act==='audit'){ sheetSecurityAudit({profileId:id}); return; }
+    if(act==='contact'){ sheetSecurityAccess(); return; }
+    if(act==='sheet' && id){ sheetAdminStaff(id); return; }
+  });
+  root.querySelectorAll('[data-ops-house]').forEach(btn=>btn.onclick=()=>{state.house=btn.dataset.opsHouse; location.hash='#stock';});
+  root.querySelector('#opsFeedback')?.addEventListener('click',()=>sheetFeedbackInbox());
   const syncQ=()=>{
     const q=adminOpsLegoState();
     const dayEl=root.querySelector('#adminLegoDay');
@@ -19545,10 +20173,11 @@ function wireAdminOpsView(root){
   const paintResults=()=>{
     const box=root.querySelector('#adminLegoResults');
     if(!box) return;
-    const filtered=adminOpsFilterRows();
+    const filtered=adminOpsFilterRows().slice(0,40);
     box.innerHTML=filtered.length?filtered.map(r=>`<article class="admin-ops-card"><header><b>${esc(r.title)}</b><span>${esc(r.meta||'')}</span></header><p>${esc(r.body)}</p></article>`).join('')
       :`<p class="muted">${esc(t('adminOpsEmpty'))}</p>`;
   };
+  root.querySelector('#adminLegoDay')?.addEventListener('change',()=>{syncQ();paintResults();});
   root.querySelectorAll('[data-lego-kid]').forEach(btn=>btn.onclick=()=>{
     const q=adminOpsLegoState();
     q.kidId=q.kidId===btn.dataset.legoKid?'':btn.dataset.legoKid;
@@ -19630,6 +20259,7 @@ function adminTeamPanel(today){
       <div class="muted">${t('adminOverview')}</div></div><div class="admin-crown">🛡️</div></div>
     <div class="admin-actions">
       <button class="btn sm sec" data-admin-go="ops">📊 ${t('adminOpsOpen')}</button>
+      <button class="btn sm sec" data-admin-go="team">👥 ${t('adminTeamTab')}</button>
       <button class="btn sm" data-admin-go="week">📅 ${t('adminEditPlan')}</button>
       <button class="btn sm sec" data-admin-go="shift">🕒 ${t('adminEditShifts')}</button>
       <button class="btn sm sec" data-admin-go="events">🎉 ${t('adminManageEvents')}</button>
@@ -19791,7 +20421,7 @@ function sheetAdminStaff(employeeId){
   const assignments=dates.flatMap(dateStr=>dashboardAssignments(dateStr,employeeId).map(e=>({e,dateStr})));
   const todayItems=assignments.filter(x=>x.dateStr===today);
   const completed=todayItems.filter(x=>completionFor(today,x.e.id,employeeId)).length;
-  const activity=[...DB.log].reverse().filter(x=>x.employeeId===employeeId).slice(0,8);
+  const activity=[...DB.log].reverse().filter(x=>x.employeeId===employeeId).slice(0,40);
   const todayDow=dowIdx(new Date(today+'T12:00:00'));
   const go=(tab,view)=>{
     closeSheet();
@@ -20493,7 +21123,7 @@ function maybePromptPasskeySetup(){
 function mobileChromeTitle(){
   const map = {
     home:'navHome', schedule:'navSchedule', stock:'navStock', shop:'navShop',
-    book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids', pocket:'navPocket', rules:'rulesTab',
+    book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids', pocket:'navPocket', rules:'rulesTab', admin:'adminOpsTitle',
   };
   return t(map[state.tab] || 'navHome');
 }
@@ -21339,7 +21969,7 @@ function render(){
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   const dockMore=document.getElementById('dockMore');
   if(dockMore){
-    dockMore.classList.toggle('on', ['gallery','talk','book','kids','pocket','rules'].includes(state.tab));
+    dockMore.classList.toggle('on', ['gallery','talk','book','kids','pocket','rules','admin'].includes(state.tab));
     dockMore.setAttribute('aria-label', t('navMore'));
   }
   const dockMoreLabel=document.getElementById('dockMoreLabel');
@@ -21350,12 +21980,16 @@ function render(){
   document.querySelectorAll('nav button[data-staff-only]').forEach(b=>{
     b.hidden = state.mode!=='staff';
   });
+  document.querySelectorAll('nav button[data-admin-only]').forEach(b=>{
+    b.hidden = state.mode!=='staff' || !isAdminUser();
+  });
   if(state.tab!=='talk') stopTalkPanelPoll();
 
   const stockDraftActive=state.tab==='stock' && state.house!=='all' && stockDraftEntries().length>0;
+  const listPendingActive=state.tab==='shop' && (state.listPendingRemove||[]).length>0;
   const storeDock=state.tab==='shop' && fridayEntries(shopHouse()).some(e=>e.status==='pending');
   // Only shift the Zo-Ai FAB when the draft footer is actually on screen.
-  document.body.classList.toggle('has-stock-dock', stockDraftActive);
+  document.body.classList.toggle('has-stock-dock', stockDraftActive||listPendingActive);
   document.body.classList.toggle('has-store-dock', storeDock);
   document.body.classList.toggle('store-fullscreen', storeDock);
   document.body.classList.toggle('has-stock-draft', stockDraftActive);
@@ -21415,6 +22049,7 @@ function render(){
   if(state.tourActive) queueMicrotask(()=>tourPaintCurrent());
   try{ tipNotifyPageChange(); }catch{}
   try{ zoaiTipNotifySession(); }catch{}
+  try{ paintPwaInstallBar(); }catch{}
 }
 
 function wire(){
@@ -21427,13 +22062,33 @@ function wire(){
     b.onclick=()=>{ feedback('tap'); onTopAction(b.dataset.pageAct); };
   });
 
-  v.querySelectorAll('[data-admin-staff]').forEach(button=>button.onclick=()=>sheetAdminStaff(button.dataset.adminStaff));
+  v.querySelectorAll('[data-admin-staff]').forEach(button=>button.onclick=()=>{
+    if(isAdminUser()){
+      state.tab='admin';
+      state.adminPane='team';
+      state.adminWorkerId=button.dataset.adminStaff;
+      syncLocationHash();
+      render();
+      return;
+    }
+    sheetAdminStaff(button.dataset.adminStaff);
+  });
   v.querySelectorAll('[data-admin-go]').forEach(button=>button.onclick=()=>{
     const destination=button.dataset.adminGo;
     if(destination==='audit'){ feedback('open'); sheetSecurityAudit(); return; }
     if(destination==='ops'){
       if(!isAdminUser()){ toast(t('adminRequired'),'error'); return; }
-      state.tab='admin'; syncLocationHash(); render(); return;
+      state.tab='admin';
+      state.adminPane='ops';
+      state.adminWorkerId=null;
+      syncLocationHash(); render(); return;
+    }
+    if(destination==='team'){
+      if(!isAdminUser()){ toast(t('adminRequired'),'error'); return; }
+      state.tab='admin';
+      state.adminPane='team';
+      state.adminWorkerId=null;
+      syncLocationHash(); render(); return;
     }
     state.tab='schedule';setScheduleView(destination==='week'?'week':destination);
     render();
@@ -21567,7 +22222,11 @@ function wire(){
   });
   v.querySelectorAll('#sHouse button, #shHouse button').forEach(b=>{
     b.onclick = () => {
-      if(b.dataset.h!==state.house){ clearStockDraft(); clearStockOrderFreeze(); }
+      if(b.dataset.h!==state.house){
+        clearStockDraft();
+        clearStockOrderFreeze();
+        clearListPendingRemove(true);
+      }
       state.house = b.dataset.h;
       render();
     };
@@ -21912,10 +22571,9 @@ function wire(){
       state.stockDraftReason=b.dataset.draftReason;
       feedback('select');
       const pending=state.stockPendingStep;
-      if(pending?.pid && pending.dir==='OUT'){
-        const p=prod(pending.pid);
-        const qty=pending.qty || (p?stepFor(p):1);
-        applyStockDelta(pending.pid, -qty);
+      if(pending?.commitDraft){
+        state.stockPendingStep=null;
+        commitStockDraft();
         return;
       }
       if(pending?.bulkOut?.length){
@@ -21924,19 +22582,23 @@ function wire(){
         ensureStockOrderFreeze();
         ids.forEach(pid=>{
           const p=prod(pid); if(!p) return;
-          const q=DB.stock[stockKey(state.house,pid)]??0;
+          const live=DB.stock[stockKey(state.house,pid)]??0;
+          const cur=Number(state.stockDraft[pid]||0);
+          let targetDelta=cur;
           if(pending.bulkSetTo!=null){
-            const delta=roundStock(pending.bulkSetTo-q);
-            if(Math.abs(delta)>0.0001) applyStockDelta(pid, delta, {silent:true, undoable:false});
+            targetDelta=roundStock(pending.bulkSetTo-live);
           }else if(pending.bulkClear){
-            if(q>0) applyStockDelta(pid, -q, {silent:true, undoable:false});
-          }else if(q>0){
-            applyStockDelta(pid, -stepFor(p), {silent:true, undoable:false});
+            targetDelta=roundStock(-live);
+          }else{
+            targetDelta=roundStock(cur-stepFor(p));
+            if(live+targetDelta<-0.0001) targetDelta=roundStock(-live);
           }
+          if(Math.abs(targetDelta)<0.0001) delete state.stockDraft[pid];
+          else state.stockDraft[pid]=targetDelta;
         });
         exitSelectMode();
         render();
-        toast(t('saved'),'success');
+        toast(t('stockDraftPending'),'info');
         return;
       }
       render();
@@ -22112,22 +22774,16 @@ function wire(){
       if(!ids.length) return;
       if(state.selectMode==='shop'){
         if(act==='remove'){
-          const reasonId=(LIST_REMOVE_REASONS()[0]||{}).id||'bulk';
-          const reason=LIST_REMOVE_REASONS().find(r=>r.id===reasonId);
-          const label=reason?L(reason):'bulk';
-          let n=0;
-          ids.forEach(id=>{
+          const openIds=ids.filter(id=>{
             const entry=DB.listEntries.find(e=>e.id===id);
-            if(!entry || entry.status!=='open') return;
-            entry.status='removed';
-            entry.removeReasonId=reasonId;
-            entry.removeReason=label;
-            entry.removedAt=Date.now();
-            entry.removedBy=state.user?.id||null;
-            n++;
+            return entry && entry.status==='open';
           });
-          if(n){ save(); toast(T[state.lang].bulkRemoved(n),'success'); }
-          exitSelectMode(); render(); return;
+          if(!openIds.length){ toast(t('removeListNeedReason'),'info'); return; }
+          state.listPendingRemove=[...new Set([...(state.listPendingRemove||[]), ...openIds.map(String)])];
+          exitSelectMode();
+          feedback('select');
+          render();
+          return;
         }
         if(act==='qty-minus' || act==='qty-plus'){
           const delta=act==='qty-plus'?1:-1;
@@ -22150,40 +22806,36 @@ function wire(){
           ensureStockOrderFreeze();
           ids.forEach(pid=>{
             const p=prod(pid); if(!p) return;
-            applyStockDelta(pid, stepFor(p), {silent:true, undoable:false});
+            const cur=Number(state.stockDraft[pid]||0);
+            state.stockDraft[pid]=roundStock(cur+stepFor(p));
           });
-          exitSelectMode(); render(); toast(t('saved'),'success'); return;
+          exitSelectMode(); render(); toast(t('stockDraftPending'),'info'); return;
         }
         if(act==='set-qty'){ sheetBulkStockSetQty(ids); return; }
         if(act==='move-cat'){ sheetBulkStockMoveCat(ids); return; }
         if(act==='out'){
-          if(!state.stockDraftReason){
-            state.stockPendingStep={bulkOut:ids.slice()};
-            toast(t('stockBulkOutNeedReason'),'info');
-            render();
-            return;
-          }
           ensureStockOrderFreeze();
           ids.forEach(pid=>{
             const p=prod(pid); if(!p) return;
-            const q=DB.stock[stockKey(state.house,pid)]??0;
-            if(q>0) applyStockDelta(pid, -stepFor(p), {silent:true, undoable:false});
+            const live=DB.stock[stockKey(state.house,pid)]??0;
+            const cur=Number(state.stockDraft[pid]||0);
+            let next=roundStock(cur-stepFor(p));
+            if(live+next<-0.0001) next=roundStock(-live);
+            if(Math.abs(next)<0.0001) delete state.stockDraft[pid];
+            else state.stockDraft[pid]=next;
           });
-          exitSelectMode(); render(); toast(t('saved'),'success'); return;
+          exitSelectMode(); render(); toast(t('stockDraftPending'),'info'); return;
         }
         if(act==='clear-empty'){
-          if(!state.stockDraftReason){
-            state.stockPendingStep={bulkOut:ids.slice(), bulkClear:true};
-            toast(t('stockBulkOutNeedReason'),'info');
-            render();
-            return;
-          }
           ensureStockOrderFreeze();
           ids.forEach(pid=>{
-            const q=DB.stock[stockKey(state.house,pid)]??0;
-            if(q>0) applyStockDelta(pid, -q, {silent:true, undoable:false});
+            const live=DB.stock[stockKey(state.house,pid)]??0;
+            if(live<=0 && !state.stockDraft[pid]) return;
+            const next=roundStock(-live);
+            if(Math.abs(next)<0.0001) delete state.stockDraft[pid];
+            else state.stockDraft[pid]=next;
           });
-          exitSelectMode(); render(); toast(t('saved'),'success'); return;
+          exitSelectMode(); render(); toast(t('stockDraftPending'),'info'); return;
         }
       }
       if(state.selectMode==='store'){
@@ -22244,7 +22896,13 @@ function wire(){
     render();
   };
   const cancelFriday=v.querySelector('#cancelFriday');
-  if(cancelFriday)cancelFriday.onclick=cancelFridayBatch;
+  if(cancelFriday)cancelFriday.onclick=()=>{ feedback('tap'); pauseFridayStore(); };
+  const resumeFriday=v.querySelector('#resumeFriday');
+  if(resumeFriday) resumeFriday.onclick=()=>{ feedback('open'); resumeFridayStore(); };
+  const abortFriday=v.querySelector('#abortFriday');
+  if(abortFriday) abortFriday.onclick=()=>{ feedback('tap'); cancelFridayBatch(); };
+  const abortFridayPlan=v.querySelector('#abortFridayPlan');
+  if(abortFridayPlan) abortFridayPlan.onclick=()=>{ feedback('tap'); cancelFridayBatch(); };
   v.querySelectorAll('[data-friday-shift]').forEach(b=>{
     b.onclick=()=>{ state.shopFriday=shiftDate(state.shopFriday||fridayFor(),Number(b.dataset.fridayShift)); render(); };
   });
@@ -22255,9 +22913,11 @@ function wire(){
   v.querySelectorAll('[data-decision]').forEach(b=>{
     b.onclick = () => {
       const e = DB.listEntries.find(x=>x.id===b.dataset.entry);if(!e)return;
-      e.decision=b.dataset.decision==='undo'?undefined:b.dataset.decision;
+      if(b.dataset.decision==='undo') delete e.decision;
+      else e.decision=b.dataset.decision;
       feedback('select');
-      save(); render();
+      if(!save()){ toast(t('errStorage'),'error'); return; }
+      render();
     };
   });
   const storeSearch=v.querySelector('#storeSearch');
@@ -22280,7 +22940,27 @@ function wire(){
       save(); render();
     };
   });
-  v.querySelectorAll('[data-remove-list]').forEach(b=>b.onclick=()=>sheetRemoveListItem(b.dataset.removeList));
+  v.querySelectorAll('[data-remove-list]').forEach(b=>b.onclick=()=>{
+    toggleListPendingRemove(b.dataset.removeList);
+    feedback('toggle');
+    render();
+  });
+  v.querySelector('#listRemoveAll')?.addEventListener('click', ()=>{
+    markAllOpenListPending();
+    feedback('select');
+    render();
+  });
+  v.querySelector('#listPendingUndo')?.addEventListener('click', ()=>{
+    clearListPendingRemove();
+    feedback('toggle');
+    render();
+  });
+  v.querySelector('#listPendingConfirm')?.addEventListener('click', ()=>{
+    const ids=[...(state.listPendingRemove||[])];
+    if(!ids.length) return;
+    feedback('open');
+    sheetRemoveListItem(ids);
+  });
   v.querySelectorAll('[data-list-qty]').forEach(button=>button.onclick=()=>{
     const entry=DB.listEntries.find(e=>e.id===button.dataset.entry);if(!entry)return;
     const product=entry.productId?prod(entry.productId):null;
@@ -22496,6 +23176,7 @@ function wire(){
 document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   b.onclick = () => {
     if(b.dataset.tab!=='stock' && state.tab==='stock'){ clearStockDraft(); clearStockOrderFreeze(); }
+    if(b.dataset.tab!=='shop' && state.tab==='shop'){ clearListPendingRemove(true); }
     if(b.dataset.tab!==state.tab) clearSelection();
     const leaving = state.tab;
     const next = b.dataset.tab;
@@ -22527,7 +23208,7 @@ function sheetMobileMore(){
     {tab:'book', ico:'u-book', label:t('navBook')},
     {tab:'rules', ico:'u-book', label:t('rulesTab')},
     {tab:'pocket', ico:'u-receipt', label:t('navPocket')},
-    ...(isAdminUser()?[{tab:'admin', ico:'u-sparkle', label:t('adminOpsTab')}]:[]),
+    ...(isAdminUser()?[{tab:'admin', ico:'u-sparkle', label:t('navAdmin')}]:[]),
     {act:'chat', ico:'u-sparkle', label:t('navChat')},
   ];
   const extras = [
@@ -22546,7 +23227,11 @@ function sheetMobileMore(){
     </div>`);
   sheetEl.querySelectorAll('[data-more-tab]').forEach(btn=>btn.onclick=()=>{
     closeSheet();
-    state.tab=btn.dataset.moreTab;
+    const next=btn.dataset.moreTab;
+    if(next!=='stock' && state.tab==='stock'){ clearStockDraft(); clearStockOrderFreeze(); }
+    if(next!=='shop' && state.tab==='shop'){ clearListPendingRemove(true); }
+    state.tab=next;
+    if(next==='admin'){ state.adminPane='ops'; state.adminWorkerId=null; }
     syncLocationHash();
     if(state.tab==='gallery'){
       state.galleryLoading=true; render(); refreshGallery({silent:true}).finally(()=>render()); return;
@@ -23040,7 +23725,7 @@ async function sheetSecurityAccess(){
     };
     paintProfile(data.profileId);
     count=Number(data.passkeys)||0;
-    const supported=passkeyCapable()&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().catch(()=>false);
+    const supported=await platformAuthenticatorAvailable();
     card.innerHTML=`<div class="row between"><div><b>${esc(t('profileSectionBio'))} · ${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
       <p class="muted" style="font-size:11.5px;line-height:1.5">${t('passkeyHint')}</p>
       ${supported?`<button class="btn" id="securityAddPasskey">＋ ${t('passkeySetup')}</button>`:`<div class="status-box error">${t('passkeyUnavailable')}</div>`}
@@ -23154,7 +23839,8 @@ function syncGateKeyboardLayout(){
   const active = document.activeElement;
   const typing = !!(active && active.closest && active.closest('#gate') &&
     (active.matches('input,textarea,select') || active.isContentEditable));
-  const kbOpen = typing || shrink > 100;
+  // Profile search must not move cards between pointer-down and click on blur.
+  const kbOpen = document.getElementById('gateBody')?.dataset.gateView !== 'profiles' && (typing || shrink > 100);
   document.body.dataset.gateKb = kbOpen ? '1' : '0';
   if(gate){
     gate.style.setProperty('--gate-vvh', Math.round(visH) + 'px');
@@ -23259,6 +23945,8 @@ function renderProfiles(mode = 'staff'){
       <p>${esc(t('childInstallIos'))}</p>
       <p>${esc(t('childInstallAndroid'))}</p>
     </div>`:''}
+    <label class="gate-profile-search"><span>${state.lang==='el'?'Αναζήτηση ονόματος':'Name suchen'}</span><input id="gateProfileSearch" type="search" autocomplete="off" placeholder="${state.lang==='el'?'Αναζήτηση ονόματος':'Name suchen'}"></label>
+    <p id="gateProfileEmpty" class="gate-search-empty" role="status" hidden>${state.lang==='el'?'Δεν βρέθηκε προφίλ. Έλεγξε το όνομα ή καθάρισε την αναζήτηση.':'Kein passendes Profil. Prüfe den Namen oder lösche die Suche.'}</p>
     <div class="profiles">
       ${people.map(p=>`
         <button class="profile" data-p="${p.id}">
@@ -23268,6 +23956,17 @@ function renderProfiles(mode = 'staff'){
         </button>`).join('')}
     </div>
     <div class="gate-footer-row"><button class="gate-back" id="gHome">${t('gateBack')}</button>${gateMeta()}</div>`);
+  gateBody.querySelector('#gateProfileSearch')?.addEventListener('input',event=>{
+    const normalize=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase();
+    const query=normalize(event.target.value.trim());
+    let visible=0;
+    gateBody.querySelectorAll('[data-p]').forEach(button=>{
+      const person=people.find(p=>p.id===button.dataset.p);
+      button.hidden=!normalize(person?.name||'').includes(query);
+      if(!button.hidden)visible++;
+    });
+    gateBody.querySelector('#gateProfileEmpty').hidden=visible>0;
+  });
   wireLangSwitch();
   gateBody.querySelector('#gHome').onclick = renderEntrance;
   gateBody.querySelectorAll('.profile').forEach(b=>{
@@ -23297,13 +23996,14 @@ function renderGatePin(who, mode = 'staff'){
       </div>
       <button class="passkey-btn primary-bio" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricName())}</b><span class="pk-sub">${esc(biometricHint())}</span></span></button>
       <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
+      ${mode==='child'?`<p class="gate-pin-help" id="gatePinHelp">${state.lang==='el'?'Πληκτρολόγησε τον προσωπικό σου κωδικό. Αν τον ξέχασες, ζήτησε βοήθεια από την ομάδα.':'Gib deinen persönlichen Zahlencode ein. Wenn du ihn vergessen hast, hilft dir das Team.'}</p>`:''}
       <div class="pindots" id="gpd" aria-live="polite"></div>
       <input class="pin-field" id="gPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6"
-        autocomplete="one-time-code" enterkeyhint="done" aria-label="PIN" value="">
+        autocomplete="one-time-code" enterkeyhint="done" aria-label="PIN" ${mode==='child'?'aria-describedby="gatePinHelp"':''} value="">
       <div id="gpErr" style="min-height:18px;color:#f87171;font-size:12.5px" role="alert"></div>
       <div class="pinpad" id="gPinpad" role="group" aria-label="PIN">
         ${[1,2,3,4,5,6,7,8,9].map(n=>`<button type="button" data-k="${n}">${n}</button>`).join('')}
-        <button type="button" data-k="del" aria-label="Backspace">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="clr" aria-label="Clear">C</button>
+        <button type="button" data-k="del" aria-label="${state.lang==='el'?'Διαγραφή τελευταίου ψηφίου':'Letzte Ziffer löschen'}">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="clr" aria-label="${state.lang==='el'?'Καθαρισμός κωδικού':'PIN löschen'}">C</button>
       </div>
       <button class="btn gate-login-submit" id="gLogin" type="button">${t('loginEntry')}</button>
       <div class="gate-pin-links" style="grid-template-columns:1fr 1fr">
@@ -23325,10 +24025,7 @@ function renderGatePin(who, mode = 'staff'){
     button.hidden=false;button.classList.add('on');divider.hidden=false;divider.style.display='flex';
   };
   if(passkeyCapable()){
-    showPasskey();
-    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable?.().then(available=>{
-      if(available) showPasskey();
-    }).catch(()=>{});
+    platformAuthenticatorAvailable().then(available=>{ if(available) showPasskey(); }).catch(()=>{});
   }
   fetch('/api/auth/health',{credentials:'same-origin'}).then(r=>r.json()).then(health=>{
     paintWebauthnOriginWarn(health, gateBody.querySelector('#gpErr')?.parentElement || gateBody.querySelector('.gate-pin'));
@@ -24271,7 +24968,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||188;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||213;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
@@ -24588,4 +25285,62 @@ function shiftStockCheckPending(){
 window.addEventListener('beforeinstallprompt', (e)=>{
   e.preventDefault();
   window.__paidiaDeferredInstall = e;
+  try{ paintPwaInstallBar(); }catch{}
 });
+
+function isPaidiaStandalone(){
+  try{
+    if(window.matchMedia('(display-mode: standalone)').matches) return true;
+    if(window.matchMedia('(display-mode: minimal-ui)').matches) return true;
+    if(navigator.standalone===true) return true;
+  }catch{}
+  return false;
+}
+
+function paintPwaInstallBar(){
+  const existing=document.getElementById('pwaInstallBar');
+  if(isPaidiaStandalone()){
+    existing?.remove();
+    return;
+  }
+  let dismissed=false;
+  try{ dismissed=localStorage.getItem('paidia.pwaInstallDismiss')==='1'; }catch{}
+  const deferred=window.__paidiaDeferredInstall;
+  const ua=navigator.userAgent||'';
+  const isIos=/iPad|iPhone|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+  const canChromeInstall=!!deferred;
+  if(dismissed || (!canChromeInstall && !isIos)){
+    existing?.remove();
+    return;
+  }
+  const body=canChromeInstall?t('pwaInstallBody'):t('pwaInstallIosHint');
+  const goLabel=canChromeInstall?t('pwaInstallGo'):t('childInstallTitle');
+  const html=`<div class="pwa-install-bar" id="pwaInstallBar" role="region" aria-label="${esc(t('pwaInstallTitle'))}">
+    <div class="grow" style="min-width:0;flex:1 1 160px">
+      <b style="display:block;font-size:14px">${esc(t('pwaInstallTitle'))}</b>
+      <span style="font-size:12px;opacity:.9;line-height:1.35">${esc(body)}</span>
+    </div>
+    <button type="button" class="pwa-install-go" id="pwaInstallGo">${esc(goLabel)}</button>
+    <button type="button" class="pwa-install-dismiss" id="pwaInstallDismiss">${esc(t('pwaInstallLater'))}</button>
+  </div>`;
+  if(existing){
+    existing.outerHTML=html;
+  }else{
+    document.body.insertAdjacentHTML('beforeend', html);
+  }
+  const bar=document.getElementById('pwaInstallBar');
+  bar?.querySelector('#pwaInstallDismiss')?.addEventListener('click', ()=>{
+    try{ localStorage.setItem('paidia.pwaInstallDismiss','1'); }catch{}
+    bar.remove();
+  });
+  bar?.querySelector('#pwaInstallGo')?.addEventListener('click', async ()=>{
+    if(canChromeInstall && deferred){
+      deferred.prompt();
+      try{ await deferred.userChoice; }catch{}
+      window.__paidiaDeferredInstall=null;
+      bar.remove();
+      return;
+    }
+    sheetInstallNotif();
+  });
+}

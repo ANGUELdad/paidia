@@ -1,8 +1,8 @@
 {
-  "version": 205,
-  "label": "v205",
+  "version": 213,
+  "label": "v213",
   "changed": {
-    "de": "Deploy freigegeben · Admin/Ops · Schicht-Notifs",
-    "el": "Deploy OK · Admin/Ops · ειδοπ. βάρδιας"
+    "de": "Lager: − stapeln, Grund erst beim Speichern. UI-Overhaul + native PWA.",
+    "el": "Lager: − μαζικά, λόγος μόνο στο Save. UI overhaul + native PWA."
   }
 }

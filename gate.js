@@ -75,7 +75,8 @@
     const active = document.activeElement;
     const typing = !!(active && active.closest && active.closest('#gate') &&
       (active.matches('input,textarea,select') || active.isContentEditable));
-    const kbOpen = typing || shrink > 100;
+    // Profile search must not move cards between pointer-down and click on blur.
+  const kbOpen = document.getElementById('gateBody')?.dataset.gateView !== 'profiles' && (typing || shrink > 100);
     document.body.dataset.gateKb = kbOpen ? '1' : '0';
     gate.style.setProperty('--gate-vvh', Math.round(visH) + 'px');
     gate.style.setProperty('--gate-vvo', Math.round(offsetTop) + 'px');
@@ -122,11 +123,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 205,
-    label: 'v205',
+    version: 213,
+    label: 'v213',
     changed: {
-      de: 'Deploy freigegeben · Admin/Ops · Schicht-Notifs',
-      el: 'Deploy OK · Admin/Ops · ειδοπ. βάρδιας',
+      de: 'Lager: − stapeln, Grund erst beim Speichern. UI-Overhaul + native PWA.',
+      el: 'Lager: − μαζικά, λόγος μόνο στο Save. UI overhaul + native PWA.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -227,18 +228,24 @@
       child: 'Kinder',
       childSub: 'Kinder-Anmeldung',
       childInstall: 'App aufs Handy: iPhone → Teilen → Zum Home-Bildschirm · Android → Menü → App installieren',
-      pick: 'Profil wählen',
+      pick: 'Wähle dein Profil, um weiterzumachen.',
+      searchProfile: 'Name suchen',
+      noProfiles: 'Kein passendes Profil. Prüfe den Namen oder lösche die Suche.',
+      kidPinHelp: 'Gib deinen persönlichen Zahlencode ein. Wenn du ihn vergessen hast, hilft dir das Team.',
+      deleteDigit: 'Letzte Ziffer löschen',
       pin: 'PIN eingeben',
       login: 'Anmelden',
       back: '← Zurück',
       pinFallback: 'Oder PIN',
       bioFace: 'Face ID',
+      bioTouch: 'Touch ID',
+      bioAppleBoth: 'Face ID / Touch ID',
       bioFinger: 'Fingerabdruck',
       bioPasskey: 'Biometrie',
       bioHint: 'Schnelle Anmeldung auf diesem Gerät',
       bioFail: 'Biometrie fehlgeschlagen — PIN nutzen',
-      bioUnavailable: 'Biometrie hier nicht verfügbar (HTTPS + Face ID / Fingerabdruck nötig)',
-      bioSetupNeeded: 'Zuerst mit PIN anmelden, dann unter Profil Face ID einrichten',
+      bioUnavailable: 'Biometrie hier nicht verfügbar (HTTPS + Face ID / Touch ID nötig)',
+      bioSetupNeeded: 'Zuerst mit PIN anmelden, dann unter Profil Face ID / Touch ID einrichten',
       wrong: 'Falsche PIN',
       pinNeed: 'PIN: 4–6 Ziffern, dann Anmelden',
       loadingApp: 'Angemeldet — App wird geladen…',
@@ -277,18 +284,24 @@
       child: 'Παιδιά',
       childSub: 'Είσοδος παιδιών',
       childInstall: 'App στο κινητό: iPhone → Κοινή χρήση → Στην οθόνη Αφετηρίας · Android → Μενού → Εγκατάσταση εφαρμογής',
-      pick: 'Επίλεξε προφίλ',
+      pick: 'Επίλεξε το προφίλ σου για να συνεχίσεις.',
+      searchProfile: 'Αναζήτηση ονόματος',
+      noProfiles: 'Δεν βρέθηκε προφίλ. Έλεγξε το όνομα ή καθάρισε την αναζήτηση.',
+      kidPinHelp: 'Πληκτρολόγησε τον προσωπικό σου κωδικό. Αν τον ξέχασες, ζήτησε βοήθεια από την ομάδα.',
+      deleteDigit: 'Διαγραφή τελευταίου ψηφίου',
       pin: 'Βάλε PIN',
       login: 'Είσοδος',
       back: '← Πίσω',
       pinFallback: 'Ή PIN',
       bioFace: 'Face ID',
+      bioTouch: 'Touch ID',
+      bioAppleBoth: 'Face ID / Touch ID',
       bioFinger: 'Δακτυλικό αποτύπωμα',
       bioPasskey: 'Βιομετρικά',
       bioHint: 'Γρήγορη είσοδος σε αυτή τη συσκευή',
       bioFail: 'Αποτυχία βιομετρικών — χρησιμοποίησε PIN',
-      bioUnavailable: 'Τα βιομετρικά δεν είναι διαθέσιμα (HTTPS + Face ID / δακτυλικό)',
-      bioSetupNeeded: 'Πρώτα είσοδος με PIN, μετά Face ID από το Προφίλ',
+      bioUnavailable: 'Τα βιομετρικά δεν είναι διαθέσιμα (HTTPS + Face ID / Touch ID)',
+      bioSetupNeeded: 'Πρώτα είσοδος με PIN, μετά Face ID / Touch ID από το Προφίλ',
       wrong: 'Λάθος PIN',
       pinNeed: 'PIN: 4–6 ψηφία, μετά Σύνδεση',
       loadingApp: 'Συνδέθηκες — φόρτωση εφαρμογής…',
@@ -500,6 +513,8 @@
         <p>${t('pick')}</p>
       </div>
       ${mode === 'child' ? `<p class="muted" style="font-size:12px;line-height:1.4;margin:0 0 12px">${esc(t('childInstall'))}</p>` : ''}
+      <label class="gate-profile-search"><span>${esc(t('searchProfile'))}</span><input id="gateProfileSearch" type="search" autocomplete="off" placeholder="${esc(t('searchProfile'))}"></label>
+      <p id="gateProfileEmpty" class="gate-search-empty" role="status" hidden>${esc(t('noProfiles'))}</p>
       <div class="profiles">
         ${people.map((person) => `
           <button class="profile" type="button" data-p="${person.id}">
@@ -511,6 +526,17 @@
       <div class="gate-footer-row"><button class="gate-back" type="button" id="gHome">${t('back')}</button>${gateBuildHtml()}</div>`);
     wireLang();
     body.querySelector('#gHome').onclick = renderEntrance;
+    body.querySelector('#gateProfileSearch')?.addEventListener('input',event=>{
+      const normalize=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase();
+      const query=normalize(event.target.value.trim());
+      let visible=0;
+      body.querySelectorAll('[data-p]').forEach(button=>{
+        const person=people.find(p=>p.id===button.dataset.p);
+        button.hidden=!normalize(person?.name||'').includes(query);
+        if(!button.hidden)visible++;
+      });
+      body.querySelector('#gateProfileEmpty').hidden=visible>0;
+    });
     body.querySelectorAll('[data-p]').forEach((button) => {
       const person = people.find((item) => item.id === button.dataset.p);
       button.onclick = () => renderPin(person, mode);
@@ -519,15 +545,27 @@
 
   function biometricLabel() {
     const ua = navigator.userAgent || '';
-    if (/iPhone|iPad|iPod/i.test(ua)) return t('bioFace');
+    const isIPad = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1);
+    if (isIPad) return t('bioAppleBoth');
+    if (/iPhone SE/i.test(ua)) return t('bioTouch');
+    if (/iPhone|iPod/i.test(ua)) return t('bioFace');
     if (/Android/i.test(ua)) return t('bioFinger');
-    if (/Macintosh|Mac OS/i.test(ua)) return t('bioFace');
+    if (/Macintosh|Mac OS/i.test(ua)) return t('bioTouch');
     if (/Windows/i.test(ua)) return 'Windows Hello';
     return t('bioPasskey');
   }
 
   function passkeyCapable() {
     return window.isSecureContext && !!window.PublicKeyCredential && !!navigator.credentials;
+  }
+  async function platformAuthenticatorAvailable() {
+    if (!passkeyCapable()) return false;
+    try {
+      if (typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function') {
+        return !!(await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable());
+      }
+    } catch (error) {}
+    return true;
   }
 
   const b64ToBytes = (value) => {
@@ -546,7 +584,13 @@
     out.challenge = b64ToBytes(out.challenge);
     if (out.user?.id) out.user.id = b64ToBytes(out.user.id);
     for (const key of ['allowCredentials', 'excludeCredentials']) {
-      if (out[key]) out[key] = out[key].map((c) => ({ ...c, id: b64ToBytes(c.id) }));
+      if (!out[key]) continue;
+      out[key] = out[key].map((c) => {
+        const transports = Array.isArray(c.transports) && c.transports.length
+          ? c.transports
+          : ['internal'];
+        return { ...c, id: b64ToBytes(c.id), transports };
+      });
     }
     return out;
   }
@@ -604,13 +648,14 @@
         </div>
         <button class="passkey-btn primary-bio" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricLabel())}</b><span class="pk-sub">${esc(t('bioHint'))}</span></span></button>
         <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
+        ${mode==='child'?`<p class="gate-pin-help" id="gatePinHelp">${esc(t('kidPinHelp'))}</p>`:''}
         <div class="pindots" id="gpd"></div>
         <input class="pin-field" id="gPinInput" type="password" inputmode="numeric" pattern="[0-9]*"
-          maxlength="6" autocomplete="one-time-code" enterkeyhint="done" aria-label="PIN" value="">
+          maxlength="6" autocomplete="one-time-code" enterkeyhint="done" aria-label="PIN" ${mode==='child'?'aria-describedby="gatePinHelp"':''} value="">
         <div id="gpErr" style="min-height:18px;color:#f87171;font-size:12.5px" role="alert"></div>
         <div class="pinpad" id="gPinpad" role="group" aria-label="PIN">
           ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => `<button type="button" data-k="${n}">${n}</button>`).join('')}
-          <button type="button" data-k="del" aria-label="Backspace">⌫</button>
+          <button type="button" data-k="del" aria-label="${esc(t('deleteDigit'))}">⌫</button>
           <button type="button" data-k="0">0</button>
           <button type="button" data-k="clr" aria-label="Clear">C</button>
         </div>
@@ -669,8 +714,7 @@
       divider.style.display = 'flex';
     };
     if (passkeyCapable()) {
-      showPasskey();
-      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable?.().then((available) => {
+      platformAuthenticatorAvailable().then((available) => {
         if (available) showPasskey();
       }).catch(() => {});
     }
@@ -747,6 +791,10 @@
 
     const finishPasskey = async () => {
       if (busy || succeeded || !passkeyCapable()) return;
+      if (!(await platformAuthenticatorAvailable())) {
+        setErr(t('bioUnavailable'));
+        return;
+      }
       busy = true;
       setControlsEnabled(false);
       setErr('');
@@ -781,7 +829,7 @@
           setErr(t('locked')(minutes));
         } else if (error.name === 'NotAllowedError') setErr(t('bioFail'));
         else if (error.code === 'no_passkey') setErr(t('bioSetupNeeded'));
-        else if (error.code === 'passkey_unavailable' || error.code === 'configuration') setErr(t('bioUnavailable'));
+        else if (error.code === 'passkey_unavailable' || error.code === 'configuration' || error.code === 'unsupported') setErr(t('bioUnavailable'));
         else setErr(t('bioFail'));
       } finally {
         if (!succeeded) {

@@ -1,5 +1,56 @@
 # Changelog
 
+## v213 · 2026-09-06
+
+- **Lager − batch:** minus only stages into draft; reason modal opens once on Save (never per tap).
+- **Visual overhaul:** multipage spacing/color layer (`ui-v213.css`), richer Home/Lager/Liste/Plan surfaces, safe touch targets, overflow guards.
+- **PWA native feel:** manifest shortcuts + display_override, Apple/Android meta, install bar (A2HS / iOS tip), standalone safe-areas.
+- **Admin Ops:** denser Tageslage tiles, live Bewegungen feed, Team shortcuts; clearer DE/EL copy.
+- **Kids:** narrow-phone grids (Stundenplan, badges, CTAs) without overflow.
+- Cache `paidia-v213`.
+
+## v212 · 2026-09-06
+
+- **Admin sidebar:** Admin dock button for admins (`data-admin-only`); still in Mehr as backup.
+- **Admin Ops | Team:** Ops cockpit (KPIs, filter feed, week rail) + Team roster with per-worker moves (log, trips, stock checks, shift notes) and range chips.
+- **One page scroll:** removed nested `.stock-board-pane` / Ops feed scrollers.
+- **Lager:** ± stages into draft; one OUT reason on Save (cancel keeps draft).
+- **Liste:** X marks for remove; Remove all; one reason on Confirm.
+- Cache `paidia-v212`.
+
+## v211 — 2026-09-06
+
+- **Face ID / Touch ID:** Apple WebKit-correct WebAuthn — `transports: ["internal"]`, platform-only register, proper iPhone / iPad / Mac / Android labels, show biometrics only when the platform authenticator is available.
+- Cache `paidia-v211`.
+
+## v210 — 2026-09-06
+
+- **Lager desktop:** product list fills the stage (no empty side column); 2–3 column dense board; product names stay visible.
+- Cache `paidia-v210`.
+
+## v209 — 2026-09-06
+
+- **Taschengeld:** multiple income sources per kid (Eltern, Programm, Geschenk, Extra…); pick source then tap ± amount; month breakdown by source; settings split income/expense categories.
+- Cache `paidia-v209`.
+
+## v208 — 2026-09-06
+
+- **Taschengeld:** one-tap presets **＋1/2/5/10/20/50** and **−1/2/5/10/20/50** (instant book); same chips fill the amount in the compose form.
+- Cache `paidia-v208`.
+
+
+## v207 — 2026-09-06
+
+- **Liste / Supermarkt:** each bought/missing tap saves immediately; **←** pauses the trip (keeps decisions) instead of wiping; resume card + explicit abort.
+- Cache `paidia-v207`.
+
+
+## v206 — 2026-09-06
+
+- **Liste:** bulk **Entfernen** opens the shared reason sheet (one reason for all selected); cancel leaves items on the list.
+- Cache `paidia-v206`.
+
+
 ## v205 — 2026-09-06
 
 - **Deploy:** remove Vercel `crons` from `vercel.json` (Hobby blocks deploys; `/api/notify/tick` remains for `PAIDIA_CRON_SECRET` / admin / external cron).

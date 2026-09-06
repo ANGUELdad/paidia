@@ -116,12 +116,14 @@ try:
     )
     from webauthn.helpers.exceptions import InvalidAuthenticationResponse, InvalidRegistrationResponse
     from webauthn.helpers.structs import (
-        AuthenticatorAttachment, AuthenticatorSelectionCriteria, PublicKeyCredentialDescriptor,
-        ResidentKeyRequirement, UserVerificationRequirement,
+        AuthenticatorAttachment, AuthenticatorSelectionCriteria, AuthenticatorTransport,
+        PublicKeyCredentialDescriptor, ResidentKeyRequirement, UserVerificationRequirement,
     )
     WEBAUTHN_AVAILABLE = True
 except ImportError:  # The app still starts with PIN login until requirements are installed.
     WEBAUTHN_AVAILABLE = False
+    AuthenticatorTransport = None  # type: ignore
+    PublicKeyCredentialDescriptor = None  # type: ignore
 
 
 def load_env(path: str = ".env") -> None:
@@ -393,6 +395,35 @@ WEBAUTHN_ORIGIN = resolve_webauthn_origin()
 WEBAUTHN_RP_ID = os.environ.get(
     "PAIDIA_WEBAUTHN_RP_ID", urllib.parse.urlsplit(WEBAUTHN_ORIGIN).hostname or "localhost"
 )
+WEBAUTHN_RP_NAME = os.environ.get("PAIDIA_WEBAUTHN_RP_NAME", "Armonia Thassos").strip() or "Armonia Thassos"
+
+
+def passkey_transports_from_record(item: dict | None) -> list:
+    """Apple WebKit: mark platform credentials as internal so Safari does not ask for security keys."""
+    if not WEBAUTHN_AVAILABLE or AuthenticatorTransport is None:
+        return []
+    raw = []
+    if isinstance(item, dict):
+        raw = item.get("transports") or []
+    if not isinstance(raw, list) or not raw:
+        raw = ["internal"]
+    out = []
+    for value in raw:
+        key = str(value or "").strip().lower().replace("_", "-")
+        if not key:
+            continue
+        try:
+            out.append(AuthenticatorTransport(key))
+        except ValueError:
+            continue
+    return out or [AuthenticatorTransport.INTERNAL]
+
+
+def passkey_credential_descriptor(item: dict) -> "PublicKeyCredentialDescriptor":
+    return PublicKeyCredentialDescriptor(
+        id=unb64url(item["credential_id"]),
+        transports=passkey_transports_from_record(item),
+    )
 
 
 def load_trusted_networks() -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
@@ -3391,6 +3422,23 @@ def build_ops_snapshot(body: dict, session: dict | None = None) -> tuple[int, di
     day = str(body.get("date") or "").strip()[:10]
     kid_id = str(body.get("kidId") or "").strip()[:64]
     house_id = str(body.get("houseId") or "").strip()[:32]
+    def row_matches(row):
+        if house_id and str(row.get("houseId") or "") != house_id:
+            return False
+        if kid_id and str(row.get("kidId") or "") != kid_id:
+            return False
+        if day:
+            ds = str(row.get("date") or "")[:10]
+            if not ds:
+                try:
+                    ts = float(row.get("ts") or row.get("at") or 0)
+                    ds = time.strftime("%Y-%m-%d", time.localtime(ts / 1000 if ts > 1e12 else ts))
+                except (TypeError, ValueError, OSError, OverflowError):
+                    ds = ""
+            if ds != day:
+                return False
+        return True
+
     refresh_ops_state_from_disk()
     log_rows = []
     for row in reversed(OPS_STATE.get("log") or []):
@@ -3399,7 +3447,7 @@ def build_ops_snapshot(body: dict, session: dict | None = None) -> tuple[int, di
         ts = row.get("ts") or row.get("at") or 0
         try:
             ds = time.strftime("%Y-%m-%d", time.localtime(int(ts) / 1000 if int(ts) > 1e12 else int(ts)))
-        except (TypeError, ValueError, OSError):
+        except (TypeError, ValueError, OSError, OverflowError):
             ds = ""
         if day and ds != day:
             continue
@@ -3410,7 +3458,7 @@ def build_ops_snapshot(body: dict, session: dict | None = None) -> tuple[int, di
                 continue
             if kid_id and kid_id.lower() not in msg.lower():
                 continue
-        if house_id and str(row.get("houseId") or "") not in {"", house_id}:
+        if house_id and str(row.get("houseId") or "") != house_id:
             continue
         log_rows.append({
             "ts": ts, "type": row.get("type"), "msg": msg,
@@ -3419,10 +3467,12 @@ def build_ops_snapshot(body: dict, session: dict | None = None) -> tuple[int, di
         if len(log_rows) >= 40:
             break
     notes = []
-    for row in OPS_STATE.get("shiftNotes") or []:
+    stored_notes = OPS_STATE.get("shiftNotes") or {}
+    note_rows = stored_notes.values() if isinstance(stored_notes, dict) else stored_notes
+    for row in note_rows:
         if not isinstance(row, dict):
             continue
-        if day and str(row.get("date") or "")[:10] != day:
+        if not row_matches(row):
             continue
         notes.append({
             "date": row.get("date"), "houseId": row.get("houseId"),
@@ -3435,20 +3485,22 @@ def build_ops_snapshot(body: dict, session: dict | None = None) -> tuple[int, di
     for row in OPS_STATE.get("pocketMoneyTxns") or []:
         if not isinstance(row, dict):
             continue
-        if kid_id and str(row.get("kidId") or "") != kid_id:
+        if not row_matches(row):
             continue
         pocket.append({
-            "kidId": row.get("kidId"), "amount": row.get("amount") or row.get("delta"),
+            "kidId": row.get("kidId"), "amount": row.get("amount") if row.get("amount") is not None else row.get("delta"),
             "note": str(row.get("note") or "")[:120], "ts": row.get("ts") or row.get("at"),
         })
         if len(pocket) >= 30:
             break
     school = []
     for key in ("schoolActivity", "kidNotes", "staffKidRatings"):
+        if len(school) >= 30:
+            break
         for row in OPS_STATE.get(key) or []:
             if not isinstance(row, dict):
                 continue
-            if kid_id and str(row.get("kidId") or "") != kid_id:
+            if not row_matches(row):
                 continue
             school.append({"kind": key, "kidId": row.get("kidId"), "text": str(row.get("text") or row.get("note") or row.get("area") or "")[:160], "ts": row.get("ts")})
             if len(school) >= 30:
@@ -5308,6 +5360,7 @@ class Handler(SimpleHTTPRequestHandler):
                 "passkeyCredentials": len(PASSKEYS["credentials"]),
                 "passkeyOrigin": WEBAUTHN_ORIGIN,
                 "passkeyRpId": WEBAUTHN_RP_ID,
+                "passkeyRpName": WEBAUTHN_RP_NAME,
                 "onboardingVersion": ONBOARDING_VERSION,
                 "database": db_info,
                 "durableStorage": bool(db_info.get("ok")),
@@ -5453,6 +5506,7 @@ class Handler(SimpleHTTPRequestHandler):
             "app.js",
             "gate.js",
             "ui-v110.css",
+            "ui-v213.css",
             "sw.js",
             "manifest.webmanifest",
             # Login shows the running version + DE/EL "what changed" from this.
@@ -5948,15 +6002,15 @@ class Handler(SimpleHTTPRequestHandler):
         store = self.passkey_store_for_request()
         existing = profile_passkeys(profile_id, mode, store=store)
         options = generate_registration_options(
-            rp_id=WEBAUTHN_RP_ID, rp_name="Armonia Thassos", user_name=profile_id,
+            rp_id=WEBAUTHN_RP_ID, rp_name=WEBAUTHN_RP_NAME, user_name=profile_id,
             user_id=passkey_user_handle(profile_id), user_display_name=display_name,
             authenticator_selection=AuthenticatorSelectionCriteria(
                 authenticator_attachment=AuthenticatorAttachment.PLATFORM,
                 resident_key=ResidentKeyRequirement.PREFERRED, require_resident_key=False,
                 user_verification=UserVerificationRequirement.REQUIRED,
             ),
-            exclude_credentials=[PublicKeyCredentialDescriptor(id=unb64url(item["credential_id"]))
-                                 for item in existing], timeout=60_000,
+            exclude_credentials=[passkey_credential_descriptor(item) for item in existing],
+            timeout=60_000,
         )
         challenge_b64 = b64url(options.challenge if isinstance(options.challenge, (bytes, bytearray))
                                else unb64url(str(options.challenge)))
@@ -5996,11 +6050,18 @@ class Handler(SimpleHTTPRequestHandler):
             self.json_response(401, {"error": "The passkey could not be verified", "code": "verification_failed"})
             return
         credential_id = b64url(verified.credential_id)
+        transports = []
+        raw_transports = credential.get("response", {}).get("transports") if isinstance(credential.get("response"), dict) else None
+        if isinstance(raw_transports, list):
+            transports = [str(t).strip().lower() for t in raw_transports if str(t).strip()]
+        if not transports:
+            transports = ["internal"]
         record = {
             "credential_id": credential_id, "profile_id": challenge["profile_id"],
             "mode": challenge["mode"], "public_key": b64url(verified.credential_public_key),
             "sign_count": verified.sign_count, "device_type": verified.credential_device_type.value,
             "backed_up": verified.credential_backed_up, "label": challenge["label"],
+            "transports": transports,
             "created_at": int(time.time()),
         }
         device_bundle = decode_passkey_device_bundle(self.passkey_device_cookie())
@@ -6034,8 +6095,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
         options = generate_authentication_options(
             rp_id=WEBAUTHN_RP_ID,
-            allow_credentials=[PublicKeyCredentialDescriptor(id=unb64url(item["credential_id"]))
-                               for item in credentials],
+            allow_credentials=[passkey_credential_descriptor(item) for item in credentials],
             user_verification=UserVerificationRequirement.REQUIRED, timeout=60_000,
         )
         challenge_b64 = b64url(options.challenge if isinstance(options.challenge, (bytes, bytearray))
