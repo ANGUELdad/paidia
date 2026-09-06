@@ -10,7 +10,7 @@
   - `POST /api/push/subscribe` stores the subscription in durable KV
   - `/api/health` → `notifications.webPush` / `webPushSend`
 - **Send:** admin `POST /api/notify/push` (`title`, `body`/`message`, optional `audience` / `profileIds`, `url`, `tag`) via `pywebpush`
-- **Cron:** `GET|POST /api/notify/tick` — Vercel hourly cron (`vercel.json`) or `PAIDIA_CRON_SECRET` / admin session; reminds for ops `events` starting within ~90 minutes (once per event)
+- **Cron:** `GET|POST /api/notify/tick` — call with `PAIDIA_CRON_SECRET` / admin session (or an external hourly cron). Vercel Hobby cannot declare `crons` in `vercel.json` (blocks deploy); keep the endpoint, schedule outside Vercel Cron until Pro.
 - PWA install sheet: iOS A2HS steps + Android `beforeinstallprompt` (honest Safari-tab block via `notifNeedInstall`)
 
 ## Optional later

@@ -1,5 +1,11 @@
 # Changelog
 
+## v205 — 2026-09-06
+
+- **Deploy:** remove Vercel `crons` from `vercel.json` (Hobby blocks deploys; `/api/notify/tick` remains for `PAIDIA_CRON_SECRET` / admin / external cron).
+- Cache `paidia-v205` (ship label only; unblocks production after v199–v204 cron failures).
+
+
 ## v204 — 2026-09-06
 
 - **Admin/Ops:** sticky session admin (PIN flows no longer drop Ops); Ops in Mehr + profile sheet.

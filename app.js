@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 204,
-  label: 'v204',
+  version: 205,
+  label: 'v205',
   changed: {
-    de: 'Admin/Ops · Schicht-Notifs · Profil iOS',
-    el: 'Admin/Ops · ειδοπ. βάρδιας · προφίλ iOS',
+    de: 'Deploy freigegeben · Admin/Ops · Schicht-Notifs',
+    el: 'Deploy OK · Admin/Ops · ειδοπ. βάρδιας',
   },
 };
 const T = {
