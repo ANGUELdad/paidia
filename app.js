@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 175,
-  label: 'v175',
+  version: 188,
+  label: 'v188',
   changed: {
-    de: 'Lager + Zo-Ai Design-Polish (Fokus, Chips, Senden klar)',
-    el: 'Αποθήκη + Zo-Ai polish (focus, chips, καθαρό Αποστολή)',
+    de: 'Layout-Scroll · Taschengeld-Panel · Woche Foto→Zo-Ai',
+    el: 'Layout-scroll · Πάνελ χαρτζιλικιού · Εβδομάδα φωτό→Zo-Ai',
   },
 };
 const T = {
@@ -17,7 +17,19 @@ const T = {
     titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
     kidsOverview:'Übersicht', kidsTracked:n=>`${n} Kinder`, kidsOpenHomework:n=>`${n} Hausaufgaben offen`,
     schoolOverview:'Schulübersicht', gradeAverage:'Notenschnitt', gradeNoData:'Noch keine Noten', attendanceWeek:'Anwesenheit diese Woche',
-    homeworkOpen:'Offene Hausaufgaben', gameProgress:'Spiele & Fortschritt', gameWins:'Spiel-Siege', gameRounds:'Spielrunden',
+    homeworkOpen:'Offene Hausaufgaben',
+    schoolMaterialTitle:'Schulmaterial', schoolMaterialHint:'Checkliste + Fotos (Bücher, Hefte, …)',
+    schoolMaterialAdd:'Material hinzufügen', schoolMaterialPh:'z.B. Mathebuch',
+    schoolMaterialNeeded:'braucht', schoolMaterialBrought:'dabei', schoolMaterialMissing:'fehlt',
+    schoolMaterialPhoto:'Foto', schoolMaterialNote:'Notiz', schoolMaterialEmpty:'Noch kein Material',
+    schoolActivityTitle:'Was sie gemacht haben', schoolActivityHint:'Noten, Anwesenheit, Hausaufgaben, Material',
+    schoolActivityEmpty:'Noch keine Einträge', schoolActivityToday:'Heute', schoolActivityWeek:'Diese Woche',
+    matSaved:'Material gespeichert', matStatusSaved:'Status gespeichert', actLogged:'Gespeichert',
+    hwDelete:'Löschen', hwEdit:'Ändern', ttDelete:'Stunde entfernen',
+    kidsPaneMaterials:'Material', kidsPaneActivity:'Verlauf',
+    childHwMine:'Meine Hausaufgaben', childMatMine:'Mein Material',
+    childHwDone:'Erledigt', childSchoolToday:'Heute in der Schule',
+ gameProgress:'Spiele & Fortschritt', gameWins:'Spiel-Siege', gameRounds:'Spielrunden',
     kidGameRounds:n=>n===1?'1 Runde':`${n} Runden`, kidGameNone:'Noch keine gespeicherten Spielrunden.',
     childSchoolTitle:'Meine Schule', childSchoolHint:'Noten, Anwesenheit und Hausaufgaben dieser Woche',
     staffWeekAverage:'Team-Wochenschnitt', staffWeekAverageHint:n=>n===1?'Aus 1 Mitarbeiter-Bewertung':`Aus ${n} Mitarbeiter-Bewertungen`,
@@ -134,12 +146,19 @@ const T = {
     importWeekConflictReplace:'Ersetzen', importWeekConflictReplaceHint:'Zielwoche-Änderungen löschen, dann kopieren',
     importWeekCopyNotes:'Wochenhinweise mitkopieren', importWeekConflict:n=>n===1?'1 Konflikt':`${n} Konflikte`,
     aiSchedule:'Zo-Ai Plan', aiScheduleTitle:'Wochenplan mit Zo-Ai',
-    aiScheduleHint:'WhatsApp-Notiz, Stichpunkte oder Freitext einfügen — Zo-Ai schlägt Termine vor. Du bestätigst.',
+    aiScheduleHint:'WhatsApp-Notiz, Stichpunkte, Freitext oder Bildschirmfoto — Zo-Ai schlägt Termine vor. Du bestätigst.',
     aiSchedulePh:'z.B.\nMo Nachmittag Fußball Dora\nDi Vormittag Strand Kalyvia\nMi Abend Film Limenaria',
     aiScheduleAnalyze:'Analysieren', aiScheduleApply:'In Woche übernehmen',
     aiScheduleEmpty:'Keine Einträge erkannt', aiScheduleNeedText:'Bitte Text einfügen',
+    aiScheduleNeedImage:'Bitte ein Bildschirmfoto oder Foto wählen',
     aiScheduleApplied:n=>n===1?'1 Eintrag gespeichert':`${n} Einträge gespeichert`,
     aiScheduleUnresolved:'Aktivität unklar', aiScheduleConflict:'Konflikt',
+    aiSchedulePhoto:'Foto → Woche',
+    aiSchedulePhotoHint:'Bildschirmfoto des Wochenplans hochladen — Zo-Ai füllt vor allem Lücken.',
+    aiScheduleGapsOnly:'Nur Lücken füllen',
+    aiScheduleGapsOnlyHint:'Belegte Zellen bleiben unverändert',
+    aiScheduleAllowConflict:'Auch belegte vorschlagen',
+    aiScheduleAllowConflictHint:'Konflikte markieren — du entscheidest beim Übernehmen',
     aiFillText:'Mit Text füllen', aiClearWeek:'Zo-Ai-Einträge leeren',
     aiClearConfirm:n=>n===1?'1 Zo-Ai-Eintrag dieser Woche wirklich entfernen?':`${n} Zo-Ai-Einträge dieser Woche wirklich entfernen?`,
     aiClearEmpty:'Keine Zo-Ai-Einträge in dieser Woche',
@@ -151,7 +170,11 @@ const T = {
     weekShowFull:'Volle Woche', weekShowDay:'Ein Tag',
     weekPortraitOnly:'Hochkant zeigt einen Tag — Gerät quer drehen für die volle Woche.',
     weekSwipeHint:'Wische oder tippe Mo–So',
-    dayAgenda:'Tagesablauf', weekAgenda:'Wochenübersicht', agendaEmpty:'Noch nichts geplant', agendaEmptyHint:'Füge den ersten Eintrag direkt zum Tagesablauf hinzu.', openDay:'Tag öffnen',
+    weekLayoutAgenda:'Agenda', weekLayoutMatrix:'Tabelle',
+    weekLayoutLabel:'Wochenansicht',
+    weekMatrixPortraitHint:'Tabelle braucht Querformat oder Desktop — hier die volle Woche als Programm.',
+    weekFullHint:'Alle sieben Tage · Vormittag · Nachmittag · Abend',
+    dayAgenda:'Tagesprogramm', weekAgenda:'Wochenprogramm', agendaEmpty:'Noch nichts geplant', agendaEmptyHint:'Füge den ersten Eintrag direkt zum Tagesablauf hinzu.', openDay:'Tag öffnen',
     tableFullscreen:'Vollbild', tableExitFullscreen:'Schließen',
     allHouses:'Kombiniert',
     morning:'Vormittagsprogramm', afternoon:'Nachmittagsbetreuung', evening:'Abendprogramm',
@@ -556,6 +579,8 @@ const T = {
     bothHouses:'Alle Häuser', shortage:'Fehlmenge',
     boughtNotOnList:'gekauft, war nicht auf der Liste',
     batchBooked:n=>`${n} Positionen gebucht`, nothingToStart:'Die Liste ist leer',
+    shopRespAck:'Ich übernehme die Verantwortung — fehlt etwas, kaufe ich es selbst.',
+    shopRespNeed:'Bitte Verantwortung bestätigen.',
     shoppingHistory:'Einkaufsverlauf', shoppingHistoryHint:'Jeder abgeschlossene Einkauf – mit gekauft und nicht gekauft.',
     noShoppingHistory:'Noch kein abgeschlossener Einkauf', noShoppingHistoryHint:'Nach der Bestätigung im Supermarkt erscheint der Einkauf automatisch hier.',
     boughtItems:'Gekauft', notBoughtItems:'Nicht gekauft', completedBy:'Abgeschlossen von', completedOn:'Abgeschlossen',
@@ -588,6 +613,18 @@ const T = {
     shopPlan:'Planen', shopTake:'Mitnehmen', shopTakeHint:'Kompakt nach Gang — was mitnehmen',
     shopTakeEmptyHint:'Unter Planen Produkte hinzufügen oder „Fehlendes aus Lager“ nutzen.',
     shopAutoFill:'Fehlendes aus Lager', shopAutoFilled:n=>`${n} Produkte ergänzt`,
+    shopUndo:'Rückgängig', shopListUndone:'Listen-Einträge rückgängig gemacht',
+    shopPhotoHint:'Foto oder Bildschirmfoto senden — Produkte landen in der Liste.',
+    shopPhotoCta:'Foto → Liste',
+    shopHelpKicker:'Hilfe!!',
+    shopItemsAdded:n=>n===1?'1 Produkt auf die Liste':`${n} Produkte auf die Liste`,
+    shopEasyFill:'Aus Lager füllen', shopEasyStart:'Einkauf starten', shopEasyFoto:'Foto → Liste',
+    shopStockOnHand:(q,u)=>`Lager: ${q}${u?` ${u}`:''}`, shopStockLow:'wenig', shopStockEmpty:'leer',
+    shopStockNew:'neu → Lager beim Bestätigen',
+    shopRequestOnList:'Auf Freitagsliste — im Laden bestätigen',
+    shopBookedTitle:'Eingebucht in Lager', shopBookedHint:'Gekauftes ist im Bestand.',
+    shopOpenLager:'Lager öffnen', shopBookedNone:'Nichts eingebucht',
+    shopBookedItem:(name,qty,unit)=>`${name} +${qty}${unit?` ${unit}`:''}`,
     shopRequests:'Anfragen', shopRequest:'Anfrage', shopRequestBig:'Anfrage',
     shopRequestHint:'Vorschlag für die Einkaufsliste — noch nicht übernommen.',
     shopRequestNamePh:'Was soll gekauft werden?', shopRequestQtyPh:'Menge (optional)',
@@ -604,6 +641,15 @@ const T = {
     shopRequestBulkAccept:'Übernehmen', shopRequestBulkReject:'Ablehnen',
     shopRequestAskedBy:name=>`von ${name}`, shopRequestMine:'Meine Anfragen',
     shopRequestKidHint:'Schreibe was du brauchst — das Team prüft es.',
+    pocketMoneyTitle:'Taschengeld', pocketMoneyBalance:'Guthaben', pocketMoneyIn:'Einzahlung',
+    pocketMoneyOut:'Auszahlung', pocketMoneyAdjust:'Korrektur', pocketMoneyNote:'Notiz',
+    pocketMoneyNotePh:'z.B. Wochenende, Geburtstag…', pocketMoneyAdd:'Hinzufügen', pocketMoneyRemove:'Abziehen',
+    pocketMoneySaved:'Taschengeld gespeichert', pocketMoneyEmpty:'Noch keine Buchungen',
+    pocketMoneyHistory:'Verlauf', pocketMoneyNeedAmount:'Bitte einen Betrag eingeben.',
+    galGroupFeed:'Feed', galGroupDay:'Tag', galGroupWeek:'Woche', galGroupMonth:'Monat',
+    galGroupCategory:'Kategorie', galGroupBetreuer:'Betreuer', galFilterAll:'Alle',
+    galCatAllgemein:'Allgemein', galCatAusflug:'Ausflug', galCatSport:'Sport', galCatEssen:'Essen',
+    galCatSchule:'Schule', galCatFeier:'Feier', galCatAlltag:'Alltag', galCategory:'Kategorie',
     notifNewRequest:name=>`Neue Anfrage · ${name}`,
     selectMode:'Auswählen', selectDone:'Fertig', selectedCount:n=>`${n} gewählt`,
     bulkRemove:'Entfernen', bulkQtyMinus:'Menge −', bulkQtyPlus:'Menge ＋', bulkToList:'→ Liste',
@@ -1056,7 +1102,19 @@ const T = {
     titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
     kidsOverview:'Επισκόπηση', kidsTracked:n=>`${n} παιδιά`, kidsOpenHomework:n=>`${n} ανοιχτές εργασίες`,
     schoolOverview:'Σχολική εικόνα', gradeAverage:'Μέσος βαθμός', gradeNoData:'Δεν υπάρχουν βαθμοί ακόμα', attendanceWeek:'Παρουσία αυτή την εβδομάδα',
-    homeworkOpen:'Ανοιχτές εργασίες', gameProgress:'Παιχνίδια & πρόοδος', gameWins:'Νίκες παιχνιδιών', gameRounds:'Γύροι παιχνιδιών',
+    homeworkOpen:'Ανοιχτές εργασίες',
+    schoolMaterialTitle:'Υλικό σχολείου', schoolMaterialHint:'Λίστα + φωτογραφίες (βιβλία, τετράδια, …)',
+    schoolMaterialAdd:'Προσθήκη υλικού', schoolMaterialPh:'π.χ. βιβλίο μαθηματικών',
+    schoolMaterialNeeded:'χρειάζεται', schoolMaterialBrought:'το έχει', schoolMaterialMissing:'λείπει',
+    schoolMaterialPhoto:'Φωτο', schoolMaterialNote:'Σημείωση', schoolMaterialEmpty:'Δεν υπάρχει υλικό ακόμα',
+    schoolActivityTitle:'Τι έκαναν', schoolActivityHint:'Βαθμοί, παρουσίες, εργασίες, υλικό',
+    schoolActivityEmpty:'Δεν υπάρχουν καταγραφές', schoolActivityToday:'Σήμερα', schoolActivityWeek:'Αυτή την εβδομάδα',
+    matSaved:'Το υλικό αποθηκεύτηκε', matStatusSaved:'Η κατάσταση αποθηκεύτηκε', actLogged:'Αποθηκεύτηκε',
+    hwDelete:'Διαγραφή', hwEdit:'Επεξεργασία', ttDelete:'Αφαίρεση ώρας',
+    kidsPaneMaterials:'Υλικό', kidsPaneActivity:'Ιστορικό',
+    childHwMine:'Οι εργασίες μου', childMatMine:'Το υλικό μου',
+    childHwDone:'Ολοκληρώθηκε', childSchoolToday:'Σήμερα στο σχολείο',
+ gameProgress:'Παιχνίδια & πρόοδος', gameWins:'Νίκες παιχνιδιών', gameRounds:'Γύροι παιχνιδιών',
     kidGameRounds:n=>n===1?'1 γύρος':`${n} γύροι`, kidGameNone:'Δεν υπάρχουν αποθηκευμένοι γύροι ακόμα.',
     childSchoolTitle:'Το σχολείο μου', childSchoolHint:'Βαθμοί, παρουσία και εργασίες αυτής της εβδομάδας',
     staffWeekAverage:'Μέσος όρος ομάδας', staffWeekAverageHint:n=>n===1?'Από 1 αξιολόγηση προσωπικού':`Από ${n} αξιολογήσεις προσωπικού`,
@@ -1173,12 +1231,19 @@ const T = {
     importWeekConflictReplace:'Αντικατάσταση', importWeekConflictReplaceHint:'Διαγραφή αλλαγών στόχου, μετά αντιγραφή',
     importWeekCopyNotes:'Αντιγραφή σημειώσεων εβδομάδας', importWeekConflict:n=>n===1?'1 σύγκρουση':`${n} συγκρούσεις`,
     aiSchedule:'Zo-Ai πρόγραμμα', aiScheduleTitle:'Εβδομαδιαίο με Zo-Ai',
-    aiScheduleHint:'Επικόλλησε σημείωση WhatsApp, λίστα ή ελεύθερο κείμενο — η Zo-Ai προτείνει ώρες. Εσύ επιβεβαιώνεις.',
+    aiScheduleHint:'Επικόλλησε σημείωση WhatsApp, λίστα, ελεύθερο κείμενο ή στιγμιότυπο — η Zo-Ai προτείνει ώρες. Εσύ επιβεβαιώνεις.',
     aiSchedulePh:'π.χ.\nΔευ απόγευμα ποδόσφαιρο Dora\nΤρι πρωί παραλία Kalyvia\nΤετ βράδυ ταινία Limenaria',
     aiScheduleAnalyze:'Ανάλυση', aiScheduleApply:'Εφαρμογή στην εβδομάδα',
     aiScheduleEmpty:'Δεν βρέθηκαν εγγραφές', aiScheduleNeedText:'Βάλε κείμενο',
+    aiScheduleNeedImage:'Επίλεξε στιγμιότυπο ή φωτογραφία',
     aiScheduleApplied:n=>n===1?'1 εγγραφή αποθηκεύτηκε':`${n} εγγραφές αποθηκεύτηκαν`,
     aiScheduleUnresolved:'Ασαφής δραστηριότητα', aiScheduleConflict:'Σύγκρουση',
+    aiSchedulePhoto:'Φωτό → Εβδομάδα',
+    aiSchedulePhotoHint:'Ανέβασε στιγμιότυπο του εβδομαδιαίου — η Zo-Ai γεμίζει κυρίως τα κενά.',
+    aiScheduleGapsOnly:'Μόνο κενά',
+    aiScheduleGapsOnlyHint:'Τα γεμάτα κελιά μένουν όπως είναι',
+    aiScheduleAllowConflict:'Πρότεινε και γεμάτα',
+    aiScheduleAllowConflictHint:'Οι συγκρούσεις σημειώνονται — αποφασίζεις εσύ',
     aiFillText:'Γέμισμα με κείμενο', aiClearWeek:'Καθαρισμός προτάσεων Zo-Ai',
     aiClearConfirm:n=>n===1?'Να αφαιρεθεί 1 εγγραφή Zo-Ai αυτής της εβδομάδας;':`Να αφαιρεθούν ${n} εγγραφές Zo-Ai αυτής της εβδομάδας;`,
     aiClearEmpty:'Καμία εγγραφή Zo-Ai σε αυτή την εβδομάδα',
@@ -1190,7 +1255,11 @@ const T = {
     weekShowFull:'Όλη η εβδομάδα', weekShowDay:'Μία ημέρα',
     weekPortraitOnly:'Όρθια μόνο μία μέρα — γύρισε οριζόντια για όλη την εβδομάδα.',
     weekSwipeHint:'Σύρε ή πάτα Δευ–Κυρ',
-    dayAgenda:'Ροή ημέρας', weekAgenda:'Εικόνα εβδομάδας', agendaEmpty:'Δεν έχει προγραμματιστεί κάτι', agendaEmptyHint:'Πρόσθεσε την πρώτη εγγραφή απευθείας στη ροή της ημέρας.', openDay:'Άνοιγμα ημέρας',
+    weekLayoutAgenda:'Ροή', weekLayoutMatrix:'Πίνακας',
+    weekLayoutLabel:'Προβολή εβδομάδας',
+    weekMatrixPortraitHint:'Ο πίνακας χρειάζεται οριζόντια ή desktop — εδώ φαίνεται όλη η εβδομάδα.',
+    weekFullHint:'Και οι επτά μέρες · Πρωί · Απόγευμα · Βράδυ',
+    dayAgenda:'Πρόγραμμα ημέρας', weekAgenda:'Πρόγραμμα εβδομάδας', agendaEmpty:'Δεν έχει προγραμματιστεί κάτι', agendaEmptyHint:'Πρόσθεσε την πρώτη εγγραφή απευθείας στη ροή της ημέρας.', openDay:'Άνοιγμα ημέρας',
     tableFullscreen:'Πλήρης οθόνη', tableExitFullscreen:'Κλείσιμο',
     allHouses:'Συνδυαστικά',
     morning:'Πρωινό πρόγραμμα', afternoon:'Απογευματινή φροντίδα', evening:'Βραδινό πρόγραμμα',
@@ -1595,6 +1664,8 @@ const T = {
     bothHouses:'Όλα τα σπίτια', shortage:'Έλλειψη',
     boughtNotOnList:'αγοράστηκε, δεν ήταν στη λίστα',
     batchBooked:n=>`${n} είδη καταχωρήθηκαν`, nothingToStart:'Η λίστα είναι άδεια',
+    shopRespAck:'Αναλαμβάνω την ευθύνη — αν λείπει κάτι, θα το αγοράσω εγώ.',
+    shopRespNeed:'Επιβεβαίωσε την ευθύνη.',
     shoppingHistory:'Ιστορικό αγορών', shoppingHistoryHint:'Κάθε ολοκληρωμένη αγορά – με όσα αγοράστηκαν και όσα δεν αγοράστηκαν.',
     noShoppingHistory:'Δεν υπάρχει ολοκληρωμένη αγορά ακόμη', noShoppingHistoryHint:'Μετά την επιβεβαίωση στο σουπερμάρκετ, η αγορά εμφανίζεται αυτόματα εδώ.',
     boughtItems:'Αγοράστηκαν', notBoughtItems:'Δεν αγοράστηκαν', completedBy:'Ολοκληρώθηκε από', completedOn:'Ολοκληρώθηκε',
@@ -1627,6 +1698,18 @@ const T = {
     shopPlan:'Σχεδιασμός', shopTake:'Παίρνω', shopTakeHint:'Συμπαγής λίστα ανά διάδρομο — τι παίρνω',
     shopTakeEmptyHint:'Πρόσθεσε προϊόντα στον Σχεδιασμό ή χρησιμοποίησε Αυτόματα από αποθήκη.',
     shopAutoFill:'Αυτόματα από αποθήκη', shopAutoFilled:n=>`${n} προϊόντα προστέθηκαν`,
+    shopUndo:'Αναίρεση', shopListUndone:'Οι καταχωρήσεις στη λίστα αναιρέθηκαν',
+    shopPhotoHint:'Στείλε φωτογραφία ή στιγμιότυπο — τα προϊόντα μπαίνουν στη λίστα.',
+    shopPhotoCta:'Φωτο → λίστα',
+    shopHelpKicker:'Βοήθεια!!',
+    shopItemsAdded:n=>n===1?'1 προϊόν στη λίστα':`${n} προϊόντα στη λίστα`,
+    shopEasyFill:'Γέμισμα από αποθήκη', shopEasyStart:'Έναρξη αγορών', shopEasyFoto:'Φωτο → λίστα',
+    shopStockOnHand:(q,u)=>`Αποθήκη: ${q}${u?` ${u}`:''}`, shopStockLow:'λίγο', shopStockEmpty:'άδειο',
+    shopStockNew:'νέο → αποθήκη στην επιβεβαίωση',
+    shopRequestOnList:'Στη λίστα Παρασκευής — επιβεβαίωση στο μαγαζί',
+    shopBookedTitle:'Καταχωρήθηκε στην αποθήκη', shopBookedHint:'Τα αγορασμένα μπήκαν στο απόθεμα.',
+    shopOpenLager:'Άνοιγμα αποθήκης', shopBookedNone:'Τίποτα δεν καταχωρήθηκε',
+    shopBookedItem:(name,qty,unit)=>`${name} +${qty}${unit?` ${unit}`:''}`,
     shopRequests:'Αιτήματα', shopRequest:'Αίτημα', shopRequestBig:'Αίτημα',
     shopRequestHint:'Πρόταση για τη λίστα αγορών — δεν έχει μπει ακόμη.',
     shopRequestNamePh:'Τι να αγοραστεί;', shopRequestQtyPh:'Ποσότητα (προαιρετικά)',
@@ -1643,6 +1726,15 @@ const T = {
     shopRequestBulkAccept:'Αποδοχή', shopRequestBulkReject:'Απόρριψη',
     shopRequestAskedBy:name=>`από ${name}`, shopRequestMine:'Τα αιτήματά μου',
     shopRequestKidHint:'Γράψε τι χρειάζεσαι — η ομάδα το ελέγχει.',
+    pocketMoneyTitle:'Χαρτζιλίκι', pocketMoneyBalance:'Υπόλοιπο', pocketMoneyIn:'Κατάθεση',
+    pocketMoneyOut:'Ανάληψη', pocketMoneyAdjust:'Διόρθωση', pocketMoneyNote:'Σημείωση',
+    pocketMoneyNotePh:'π.χ. Σαββατοκύριακο, γενέθλια…', pocketMoneyAdd:'Πρόσθεσε', pocketMoneyRemove:'Αφαίρεσε',
+    pocketMoneySaved:'Το χαρτζιλίκι αποθηκεύτηκε', pocketMoneyEmpty:'Δεν υπάρχουν κινήσεις ακόμα',
+    pocketMoneyHistory:'Ιστορικό', pocketMoneyNeedAmount:'Γράψε ένα ποσό.',
+    galGroupFeed:'Feed', galGroupDay:'Ημέρα', galGroupWeek:'Εβδομάδα', galGroupMonth:'Μήνας',
+    galGroupCategory:'Κατηγορία', galGroupBetreuer:'Φροντιστής', galFilterAll:'Όλα',
+    galCatAllgemein:'Γενικά', galCatAusflug:'Εκδρομή', galCatSport:'Άθλημα', galCatEssen:'Φαγητό',
+    galCatSchule:'Σχολείο', galCatFeier:'Γιορτή', galCatAlltag:'Καθημερινά', galCategory:'Κατηγορία',
     notifNewRequest:name=>`Νέο αίτημα · ${name}`,
     selectMode:'Επιλογή', selectDone:'Έτοιμο', selectedCount:n=>`${n} επιλεγμένα`,
     bulkRemove:'Διαγραφή', bulkQtyMinus:'Ποσ. −', bulkQtyPlus:'Ποσ. ＋', bulkToList:'→ Λίστα',
@@ -2427,6 +2519,7 @@ const SEED = {
   listEntries: [],
   shoppingTrips: [],
   listRequests: [],
+  pocketMoneyTxns: [],
   feedbackReports: [],
   stock: {},
   log: [],
@@ -2444,15 +2537,18 @@ const SEED = {
   attendance: [],
   homework: [],
   schoolTimetable: [],
+  schoolMaterials: [],
+  schoolMaterialMedia: [],
+  schoolActivity: [],
 };
 
 /* v5: καθαρή λειτουργική κατάσταση· παλιά v3/v4 demo data μένουν ως backup στο browser. */
 const KEY = 'paidia.v5';
 /** Αποθηκεύονται μόνο όσα αλλάζουν εν χρήσει· τα δεδομένα αναφοράς έρχονται από το SEED. */
-const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'listRequests', 'feedbackReports', 'stock', 'log',
+const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 'aiImports', 'listEntries', 'shoppingTrips', 'listRequests', 'pocketMoneyTxns', 'feedbackReports', 'stock', 'log',
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
-                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable'];
+                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable', 'schoolMaterials', 'schoolMaterialMedia', 'schoolActivity'];
 
 let DB = load();
 function load(){
@@ -2472,7 +2568,7 @@ function load(){
 function normalizeDbShape(db = DB){
   if(!db || typeof db !== 'object') return db;
   [
-    'overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','listRequests',
+    'overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','listRequests','pocketMoneyTxns',
     'feedbackReports','customProducts','customCategories','customActivities','customReasons',
     'customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings',
     'staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework',
@@ -2509,11 +2605,11 @@ function normalizeDbShape(db = DB){
 
 /** Shared across all staff devices — full operational state (survives when Postgres is configured). */
 const SHARED_KEYS = [
-  'listEntries','shoppingTrips','listRequests','feedbackReports','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
+  'listEntries','shoppingTrips','listRequests','pocketMoneyTxns','feedbackReports','stock','customProducts','customCategories','customReasons','customListRemoveReasons',
   'productOverrides','profilePrefs','template','overrides','weeks','events','taskCompletions',
   'aiImports','log','customActivities','shiftNotes','stockChecks','shiftCheckins',
   'xpLog','gameStats',
-  'kidRatings','staffKidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable',
+  'kidRatings','staffKidRatings','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity',
 ];
 const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes']);
 let sharedRevision = Number(localStorage.getItem('paidia.sharedRev') || 0) || 0;
@@ -2936,9 +3032,27 @@ const kidNames = ids => (ids||[]).map(i=>kid(i)?.name).filter(Boolean).join(', '
 
 let toastT;
 let toastActionHandler = null;
+let toastRouteKey = '';
+function dismissToast(){
+  const el = document.getElementById('toast');
+  if(!el) return;
+  clearTimeout(toastT);
+  toastActionHandler = null;
+  el.classList.remove('on', 'has-action', 'success', 'error', 'info');
+  el.textContent = '';
+}
+function toastRouteContext(){
+  if(state.mode==='child') return `child:${state.childView||'today'}`;
+  let key = `staff:${state.tab||'home'}`;
+  if(state.tab==='schedule') key += `:${state.scheduleView||'day'}`;
+  if(state.tab==='shop') key += `:${state.shopPanel||'plan'}`;
+  if(state.tab==='book') key += `:${state.bookPane||'shift'}`;
+  return key;
+}
 function toast(msg, type='info', duration){
   const el = document.getElementById('toast');
   if(!el) return;
+  toastRouteKey = toastRouteContext();
   toastActionHandler = null;
   el.textContent = msg;
   el.className = `toast on ${type}`;
@@ -2947,9 +3061,10 @@ function toast(msg, type='info', duration){
   toastT = setTimeout(()=>el.classList.remove('on'), duration || (type==='error'?4800:3000));
 }
 /** Action toast (e.g. Undo after ±). `onAction` runs once if the button is tapped. */
-function toastAction(msg, {type='success', actionLabel='', onAction=null, duration=5200}={}){
+function toastAction(msg, {type='success', actionLabel='', onAction=null, duration=4000}={}){
   const el = document.getElementById('toast');
   if(!el) return;
+  toastRouteKey = toastRouteContext();
   toastActionHandler = typeof onAction==='function' ? onAction : null;
   el.className = `toast on ${type}${toastActionHandler?' has-action':''}`;
   el.setAttribute('role', type==='error' ? 'alert' : 'status');
@@ -3185,6 +3300,9 @@ const state = {
   galleryUpdatedAt: 0,
   galleryLoading: false,
   galleryDrive: false,
+  galGroup: 'feed',
+  galFilterCat: '',
+  galFilterBy: '',
   mode: 'staff',
   user: null,
   child: null,
@@ -3193,6 +3311,7 @@ const state = {
   shopPanel: 'plan',
   shopRequestFilter: 'open',
   shopRequestWho: 'all',
+  shopRespAck: false,
   calendarMonth: null,
   stockFilter: 'attention',
   stockQuery: '',
@@ -3243,6 +3362,27 @@ const state = {
   profilePhone: '',
   contactComplete: false,
 };
+(function loadGalOrg(){
+  try{
+    const raw = sessionStorage.getItem('paidia.galOrg');
+    if(!raw) return;
+    const o = JSON.parse(raw);
+    if(o && typeof o === 'object'){
+      if(o.galGroup) state.galGroup = o.galGroup;
+      if(o.galFilterCat !== undefined) state.galFilterCat = o.galFilterCat || '';
+      if(o.galFilterBy !== undefined) state.galFilterBy = o.galFilterBy || '';
+    }
+  }catch{}
+})();
+function saveGalOrg(){
+  try{
+    sessionStorage.setItem('paidia.galOrg', JSON.stringify({
+      galGroup: state.galGroup || 'feed',
+      galFilterCat: state.galFilterCat || '',
+      galFilterBy: state.galFilterBy || '',
+    }));
+  }catch{}
+}
 const isAdminUser = () => !!(state.mode==='staff' && state.user?.admin);
 const helpChatRole = () => state.mode==='child' ? 'child' : (isAdminUser() ? 'admin' : (state.user ? 'staff' : 'anonymous'));
 const helpChatStorageKey = () => {
@@ -3368,15 +3508,20 @@ function setUiMode(mode, {scope='page'}={}){
 
 function normalizeUiModeSurfaces(){
   if(!isEasy()) return;
-  if(state.mode==='staff' && state.tab==='schedule' && !['day','week'].includes(state.scheduleView)){
-    /* Keep roster day/week; advanced calendar/shift/events are Pro chrome. */
+  if(state.mode==='staff' && state.tab==='schedule' && !['day','week','calendar'].includes(state.scheduleView)){
+    /* Easy: day/week/calendar; shift/events stay Pro-only. */
     state.scheduleView = 'week';
   }
   if(state.mode==='staff' && state.tab==='book' && state.bookPane!=='shift'){
     state.bookPane = 'shift';
   }
-  if(state.mode==='staff' && state.tab==='kids' && state.kidsPane && state.kidsPane!=='directory'){
-    state.kidsPane = 'directory';
+  /* Easy school: directory / attendance / homework / materials / activity.
+     Keep subjects + dense timetable Pro-only. */
+  if(state.mode==='staff' && state.tab==='kids'){
+    const easyKidsPanes = new Set(['directory','attendance','homework','materials','activity']);
+    if(state.kidsPane && !easyKidsPanes.has(state.kidsPane)){
+      state.kidsPane = 'directory';
+    }
   }
   if(state.mode==='staff' && state.tab==='stock' && state.stockFilter==='all'){
     /* Easy Lager = attention/empty + search; full shelves are Pro. */
@@ -3421,6 +3566,7 @@ function applyUiModeClass(){
   });
   const top = document.getElementById('uiModeToggle');
   if(top) top.setAttribute('aria-label', t('uiModeLabel')+': '+(easy?t('uiModeEasy'):t('uiModePro')));
+  try{ syncWeekLayoutToUiMode(); }catch{}
 }
 
 function wireUiModeControls(root=document){
@@ -3449,7 +3595,7 @@ function paintUiModeToggle(){
   const host = document.getElementById('uiModeToggle');
   if(!host) return;
   const mode = uiMode();
-  host.hidden = !(state.user || state.child);
+  host.hidden = !(state.user || state.child) || state.mode==='child';
   host.innerHTML = `
     <button type="button" class="ui-mode-btn ${mode==='easy'?'on':''}" data-set-ui-mode="easy" data-ui-scope="page" title="${esc(t('uiModeEasyHint'))}" aria-pressed="${mode==='easy'?'true':'false'}">
       ${ui('u-leaf','sm')}<span>${esc(t('uiModeEasy'))}</span>
@@ -4564,8 +4710,8 @@ function describeHelpAction(action){
   if(action.type==='subject_grade_set'){
     const k=matchKid(action.kidQuery||action.kidId); const s=matchSubject(action.subjectQuery||action.subjectId);
     return state.lang==='el'
-      ? `★ ${k?.name||'?'} · ${subjectLabel(s)} · ${action.score||'?'} αστέρια`
-      : `★ ${k?.name||'?'} · ${subjectLabel(s)} · ${action.score||'?'} Sterne`;
+      ? `📘 ${k?.name||'?'} · ${subjectLabel(s)} · βαθμός ${action.score||'?'}`
+      : `📘 ${k?.name||'?'} · ${subjectLabel(s)} · Note ${action.score||'?'}`;
   }
   if(action.type==='kid_note_add'){
     const k=matchKid(action.kidQuery||action.kidId);
@@ -4581,6 +4727,21 @@ function describeHelpAction(action){
   }
   if(action.type==='homework_add'){
     return state.lang==='el' ? `📚 Εργασία: ${String(action.title||'').slice(0,40)}` : `📚 Hausaufgabe: ${String(action.title||'').slice(0,40)}`;
+  }
+  if(action.type==='homework_done'){
+    return state.lang==='el' ? `✓ Εργασία ολοκληρώθηκε` : `✓ Hausaufgabe erledigt`;
+  }
+  if(action.type==='material_set'){
+    const k=matchKid(action.kidQuery||action.kidId);
+    return state.lang==='el' ? `📦 Υλικό · ${k?.name||'?'} · ${String(action.title||'').slice(0,40)}` : `📦 Material · ${k?.name||'?'} · ${String(action.title||'').slice(0,40)}`;
+  }
+  if(action.type==='material_status'){
+    const k=matchKid(action.kidQuery||action.kidId);
+    return state.lang==='el' ? `📦 Κατάσταση υλικού · ${k?.name||'?'}` : `📦 Material-Status · ${k?.name||'?'}`;
+  }
+  if(action.type==='school_note'){
+    const k=matchKid(action.kidQuery||action.kidId);
+    return state.lang==='el' ? `📝 Σχολική σημείωση · ${k?.name||'?'}` : `📝 Schulnotiz · ${k?.name||'?'}`;
   }
   if(action.type==='broadcast_email'){
     return state.lang==='el'
@@ -4622,6 +4783,7 @@ function describeHelpAction(action){
 function applyHelpActions(actions){
   if(state.mode!=='staff' || !state.user){ toast(t('helpProposeDenied'),'error'); return 0; }
   let applied=0;
+  const listUndoIds=[];
   actions.forEach(action=>{
     const kind=action.type;
     if(kind==='stock_adjust' || kind==='stock_set' || kind==='want_bought' || kind==='shop_add' || kind==='shop_remove'){
@@ -4672,7 +4834,11 @@ function applyHelpActions(actions){
         const friday=state.shopFriday||fridayFor();
         const existing=fridayEntries(hid,friday).find(e=>e.status==='open'&&((product&&e.productId===product.id)||norm(e.name)===norm(nm)));
         if(existing) existing.qty=Math.round((Number(existing.qty)+qty)*100)/100;
-        else DB.listEntries.push({id:uid(),productId:product?.id||null,name:nm,qty,unit,houseId:hid,fridayDate:friday,by:state.user.id,status:'open'});
+        else{
+          const id=uid();
+          DB.listEntries.push({id,productId:product?.id||null,name:nm,qty,unit,houseId:hid,fridayDate:friday,by:state.user.id,status:'open'});
+          listUndoIds.push(id);
+        }
         logEntry('SHOP',`Zo-Ai · ${describeHelpAction(action)}`,{houseId:hid});
         applied++;
         return;
@@ -4856,10 +5022,70 @@ function applyHelpActions(actions){
       const s=matchSubject(action.subjectQuery||action.subjectId);
       const k=action.kidQuery||action.kidId ? matchKid(action.kidQuery||action.kidId) : null;
       ensureSchoolDb();
-      DB.homework.push({
+      const row={
         id:uid(), title:title.slice(0,120), subjectId:s?.id||'',
         kidId:k?.id||null, due:action.due||iso(new Date()), done:false, ts:Date.now(),
+      };
+      DB.homework.push(row);
+      if(k) logSchoolActivity({kidId:k.id, kind:'homework', title:row.title, subjectId:row.subjectId, refId:row.id});
+      logEntry('SCHOOL',`Zo-Ai · ${describeHelpAction(action)}`);
+      applied++;
+      return;
+    }
+    if(kind==='homework_done'){
+      const title=String(action.title||action.homeworkQuery||'').trim().toLowerCase();
+      const k=action.kidQuery||action.kidId ? matchKid(action.kidQuery||action.kidId) : null;
+      const hit=(DB.homework||[]).find(h=>{
+        if(action.homeworkId && h.id===action.homeworkId) return true;
+        if(title && String(h.title||'').toLowerCase().includes(title)){
+          if(!k || !h.kidId || h.kidId===k.id) return true;
+        }
+        return false;
       });
+      if(!hit) return;
+      hit.done=true; hit.ts=Date.now();
+      if(hit.kidId) logSchoolActivity({kidId:hit.kidId, kind:'homework', title:hit.title, subjectId:hit.subjectId, refId:hit.id});
+      logEntry('SCHOOL',`Zo-Ai · ${describeHelpAction(action)}`);
+      applied++;
+      return;
+    }
+    if(kind==='material_set'){
+      const k=matchKid(action.kidQuery||action.kidId);
+      const title=String(action.title||'').trim();
+      if(!k||!title) return;
+      const s=matchSubject(action.subjectQuery||action.subjectId);
+      if(upsertSchoolMaterial({
+        kidId:k.id, title, subjectId:s?.id||null,
+        status:action.status||'needed', note:action.note||'',
+      })){
+        logEntry('SCHOOL',`Zo-Ai · ${describeHelpAction(action)}`);
+        applied++;
+      }
+      return;
+    }
+    if(kind==='material_status'){
+      const title=String(action.title||action.materialQuery||'').trim().toLowerCase();
+      const k=matchKid(action.kidQuery||action.kidId);
+      const hit=(DB.schoolMaterials||[]).find(m=>{
+        if(action.materialId && m.id===action.materialId) return true;
+        if(k && m.kidId!==k.id) return false;
+        return title && String(m.title||'').toLowerCase().includes(title);
+      });
+      if(!hit) return;
+      if(setSchoolMaterialStatus(hit.id, action.status||'brought')){
+        logEntry('SCHOOL',`Zo-Ai · ${describeHelpAction(action)}`);
+        applied++;
+      }
+      return;
+    }
+    if(kind==='school_note'){
+      const k=matchKid(action.kidQuery||action.kidId);
+      const text=String(action.text||action.note||'').trim();
+      if(!k||!text) return;
+      ensureSchoolDb();
+      const row={id:uid(), kidId:k.id, text:text.slice(0,2000), ts:Date.now(), by:state.user?.id};
+      DB.kidNotes.push(row);
+      logSchoolActivity({kidId:k.id, kind:'note', title:text.slice(0,80), refId:row.id});
       logEntry('SCHOOL',`Zo-Ai · ${describeHelpAction(action)}`);
       applied++;
       return;
@@ -4883,6 +5109,10 @@ function applyHelpActions(actions){
     }
   });
   if(applied) save();
+  if(listUndoIds.length){
+    noteListUndo(listUndoIds);
+    offerListUndoToast(t('shopItemsAdded')(listUndoIds.length));
+  }
   return applied;
 }
 
@@ -4957,7 +5187,7 @@ function sheetHelpProposals(actions, {inline=false, onDone=null}={}){
         if(kinds.has('stock_adjust')||kinds.has('stock_set')) msg=t('zoSavedLager');
         else if(kinds.has('shop_add')||kinds.has('shop_remove')||kinds.has('want_bought')) msg=t('zoSavedListe');
         else if(String([...kinds].join()).includes('schedule')) msg=t('zoSavedPlan');
-        else if(kinds.has('subject_grade_set')||kinds.has('attendance_set')||kinds.has('homework_add')) msg=t('zoSavedSchool');
+        else if(kinds.has('subject_grade_set')||kinds.has('attendance_set')||kinds.has('homework_add')||kinds.has('homework_done')||kinds.has('material_set')||kinds.has('material_status')||kinds.has('school_note')||kinds.has('kid_note_add')) msg=t('zoSavedSchool');
         else if(kinds.has('kid_note_add')) msg=t('zoSavedNote');
         toast(msg,'success',4200);
       }else toast(t('helpProposeEmpty'));
@@ -5254,6 +5484,111 @@ function canDeleteGalleryPost(post){
   return state.mode === 'staff' && !!state.user;
 }
 
+const GALLERY_CATEGORIES = [
+  {id:'allgemein', key:'galCatAllgemein'},
+  {id:'ausflug', key:'galCatAusflug'},
+  {id:'sport', key:'galCatSport'},
+  {id:'essen', key:'galCatEssen'},
+  {id:'schule', key:'galCatSchule'},
+  {id:'feier', key:'galCatFeier'},
+  {id:'alltag', key:'galCatAlltag'},
+];
+
+function galleryCategoryLabel(id){
+  const cat = GALLERY_CATEGORIES.find(c=>c.id===id);
+  return cat ? t(cat.key) : t('galCatAllgemein');
+}
+
+function galleryPostCategory(post){
+  const id = String(post?.category||'allgemein').toLowerCase();
+  return GALLERY_CATEGORIES.some(c=>c.id===id) ? id : 'allgemein';
+}
+
+function filterGalleryPosts(posts){
+  let out = Array.isArray(posts) ? posts.slice() : [];
+  if(state.galFilterCat) out = out.filter(p=>galleryPostCategory(p)===state.galFilterCat);
+  if(state.galFilterBy) out = out.filter(p=>String(p.by||'')===state.galFilterBy);
+  return out;
+}
+
+function galleryWeekKey(at){
+  const d = new Date(Number(at)||0);
+  const mon = new Date(d);
+  mon.setDate(d.getDate()-((d.getDay()+6)%7));
+  return iso(mon);
+}
+
+function galleryMonthKey(at){
+  const d = new Date(Number(at)||0);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+function groupGalleryPosts(posts){
+  const filtered = filterGalleryPosts(posts);
+  const group = state.galGroup || 'feed';
+  if(group==='feed' || !filtered.length) return [{key:'feed', label:'', posts: filtered}];
+  const map = new Map();
+  const add = (key, label, post)=>{
+    if(!map.has(key)) map.set(key, {key, label, posts:[]});
+    map.get(key).posts.push(post);
+  };
+  filtered.forEach(p=>{
+    const at = Number(p.at)||0;
+    if(group==='day') add(iso(new Date(at)), eventDayLabel(iso(new Date(at))), p);
+    else if(group==='week') add(galleryWeekKey(at), `${t('galGroupWeek')} · ${eventDayLabel(galleryWeekKey(at))}`, p);
+    else if(group==='month'){
+      const mk = galleryMonthKey(at);
+      const [y,m] = mk.split('-');
+      const label = state.lang==='el' ? `${m}/${y}` : `${m}.${y}`;
+      add(mk, label, p);
+    }
+    else if(group==='category') add(galleryPostCategory(p), galleryCategoryLabel(galleryPostCategory(p)), p);
+    else if(group==='betreuer') add(String(p.by||''), p.byName||'—', p);
+    else add('feed', '', p);
+  });
+  const sections = [...map.values()];
+  sections.forEach(s=>{ s.posts.sort((a,b)=>(Number(b.at)||0)-(Number(a.at)||0)); });
+  if(group==='day' || group==='week' || group==='month') sections.sort((a,b)=>b.key.localeCompare(a.key));
+  else if(group==='category'){
+    const order = GALLERY_CATEGORIES.map(c=>c.id);
+    sections.sort((a,b)=>order.indexOf(a.key)-order.indexOf(b.key));
+  }
+  else sections.sort((a,b)=>a.label.localeCompare(b.label));
+  return sections;
+}
+
+function galleryOrgBarHtml(posts){
+  const groups = [
+    ['feed', t('galGroupFeed')],
+    ['day', t('galGroupDay')],
+    ['week', t('galGroupWeek')],
+    ['month', t('galGroupMonth')],
+    ['category', t('galGroupCategory')],
+    ['betreuer', t('galGroupBetreuer')],
+  ];
+  const groupSeg = `<div class="seg gal-org-seg" id="galGroupSeg" role="group">
+    ${groups.map(([id,label])=>`<button type="button" class="${state.galGroup===id?'on':''}" data-gal-group="${id}">${esc(label)}</button>`).join('')}
+  </div>`;
+  const usedCats = [...new Set((posts||[]).map(p=>galleryPostCategory(p)))];
+  const catChips = `<div class="gal-filter-row">
+    <button type="button" class="chip ${!state.galFilterCat?'on':''}" data-gal-cat="">${esc(t('galFilterAll'))}</button>
+    ${GALLERY_CATEGORIES.filter(c=>usedCats.includes(c.id)).map(c=>
+      `<button type="button" class="chip ${state.galFilterCat===c.id?'on':''}" data-gal-cat="${c.id}">${esc(t(c.key))}</button>`
+    ).join('')}
+  </div>`;
+  const authorMap = new Map();
+  (posts||[]).forEach(p=>{
+    const id = String(p.by||'');
+    if(id) authorMap.set(id, p.byName||'—');
+  });
+  const authors = [...authorMap.entries()];
+  const authorChips = authors.length>1 ? `<div class="gal-filter-row">
+    <button type="button" class="chip ${!state.galFilterBy?'on':''}" data-gal-by="">${esc(t('galFilterAll'))}</button>
+    ${authors.map(([id,name])=>`<button type="button" class="chip ${state.galFilterBy===id?'on':''}" data-gal-by="${esc(id)}">${esc(name)}</button>`).join('')}
+  </div>` : '';
+  return `<div class="gal-org-bar">${groupSeg}${catChips}${authorChips}</div>`;
+}
+
 function galleryPhotoSrc(photo){
   if(!photo) return '';
   if(String(photo).startsWith('/api/gallery/media/')) return photo;
@@ -5275,6 +5610,8 @@ function galleryPostCard(post, idx=0){
   const flagged = !!post.flagged;
   const showFlag = flagged && state.mode==='staff';
   const photoSrc = galleryPhotoSrc(post.photo);
+  const catId = galleryPostCategory(post);
+  const catBadge = `<span class="gal-cat-pill">${esc(galleryCategoryLabel(catId))}</span>`;
   return `<article class="gal-post gal-enter ${flagged?'is-flagged':''}" style="--gal-i:${idx}" data-gal-id="${esc(post.id)}">
     <header class="gal-head">
       <span class="gal-ava" style="background:${esc(post.byColor||'#94a3b8')}">${esc((post.byName||'?').slice(0,2).toUpperCase())}</span>
@@ -5282,6 +5619,7 @@ function galleryPostCard(post, idx=0){
         <b>${esc(post.byName||'—')}</b>
         <div class="muted gal-meta">${esc(role)} · ${esc(galleryRelative(post.at))}${showFlag?` · ⚑ ${esc(t('galleryFlagged'))}`:''}</div>
       </div>
+      ${catBadge}
       ${post.by!==me?`<button class="chip ghost gal-report" type="button" data-gal-report="${esc(post.id)}" title="${esc(t('galleryReport'))}">⚑</button>`:''}
       ${del?`<button class="chip ghost gal-del" type="button" data-gal-del="${esc(post.id)}" aria-label="${esc(t('galleryDelete'))}">🗑</button>`:''}
     </header>
@@ -5317,6 +5655,14 @@ function galleryPostCard(post, idx=0){
 function viewGallery(){
   const posts = state.galleryPosts || [];
   const hasFeed = posts.length > 0;
+  const sections = groupGalleryPosts(posts);
+  let cardIdx = 0;
+  const feedHtml = sections.map(sec=>{
+    const cards = sec.posts.map(p=>galleryPostCard(p, cardIdx++)).join('');
+    if(!cards) return '';
+    if(!sec.label || state.galGroup==='feed') return cards;
+    return `<section class="gal-section"><h3 class="gal-section-h">${esc(sec.label)}</h3><div class="gal-section-feed">${cards}</div></section>`;
+  }).join('');
   return `<div class="gal-shell" data-tour="gallery-main">
     <div class="gal-hero ${hasFeed?'compact':''}">
       <div class="brand-kicker">Armonia Thassos</div>
@@ -5326,6 +5672,7 @@ function viewGallery(){
       ${isEasy()?`<p class="easy-only muted">${esc(t('galleryEasyHint'))}</p>`:''}
       <p class="gal-drive-line pro-only mode-pro-block">${esc(state.galleryDrive?t('galleryDriveOn'):t('galleryDriveOff'))}</p>
     </div>
+    ${hasFeed?galleryOrgBarHtml(posts):''}
     <div class="gal-compose-bar">
       <button class="gal-fab" type="button" id="galShare" aria-label="${esc(t('galleryShare'))}">
         <span>${ui('u-camera')}</span><b>${esc(t('galleryNewPost'))}</b>
@@ -5334,7 +5681,7 @@ function viewGallery(){
     </div>
     ${state.galleryLoading && !posts.length?`<div class="empty">${esc(t('galleryLoading'))}</div>`:''}
     <div class="gal-feed" id="galFeed">
-      ${posts.length ? posts.map((p,i)=>galleryPostCard(p,i)).join('') : emptyState(ui('u-camera'), t('galleryEmpty'), t('galleryEmptyHint'), `<button class="btn" type="button" id="galEmptyShare">${esc(t('galleryComposeCta'))}</button>`)}
+      ${posts.length ? feedHtml : emptyState(ui('u-camera'), t('galleryEmpty'), t('galleryEmptyHint'), `<button class="btn" type="button" id="galEmptyShare">${esc(t('galleryComposeCta'))}</button>`)}
     </div>
     <div class="gal-lightbox" id="galLightbox" hidden>
       <button type="button" class="gal-lightbox-close" id="galLightClose" aria-label="${esc(t('close'))}">×</button>
@@ -5356,6 +5703,27 @@ function bindGallery(root){
     feedback('select');
     await refreshGallery();
     render();
+  });
+  root.querySelectorAll('[data-gal-group]').forEach(btn=>{
+    btn.onclick = ()=>{
+      state.galGroup = btn.dataset.galGroup || 'feed';
+      saveGalOrg();
+      render();
+    };
+  });
+  root.querySelectorAll('[data-gal-cat]').forEach(btn=>{
+    btn.onclick = ()=>{
+      state.galFilterCat = btn.dataset.galCat || '';
+      saveGalOrg();
+      render();
+    };
+  });
+  root.querySelectorAll('[data-gal-by]').forEach(btn=>{
+    btn.onclick = ()=>{
+      state.galFilterBy = btn.dataset.galBy || '';
+      saveGalOrg();
+      render();
+    };
   });
   const openLight = (src)=>{
     const box = root.querySelector('#galLightbox');
@@ -5497,6 +5865,10 @@ function sheetGalleryCompose(opts={}){
   const presetCaption = opts.caption || '';
   const topicHint = opts.topic || '';
   const gameHint = opts.game || '';
+  let galCat = opts.category || 'allgemein';
+  const catChips = GALLERY_CATEGORIES.map(c=>
+    `<button type="button" class="chip ${galCat===c.id?'on':''}" data-gal-compose-cat="${c.id}">${esc(t(c.key))}</button>`
+  ).join('');
   openSheet(`<div class="gal-compose">
       <div class="import-kicker">Armonia</div>
       <h2>${t('galleryShare')}</h2>
@@ -5512,6 +5884,8 @@ function sheetGalleryCompose(opts={}){
         <video id="galVideo" playsinline autoplay muted style="width:100%;border-radius:14px;background:#0f172a"></video>
         <button class="btn sm" type="button" id="galSnap" style="margin-top:8px">${t('galleryCamera')}</button>
       </div>
+      <label class="f"><span>${t('galCategory')}</span>
+        <div class="gal-filter-row" id="galComposeCats">${catChips}</div></label>
       <label class="f"><span>${t('galleryCaption')}</span>
         <textarea id="galCaption" rows="3" maxlength="280" placeholder="${esc(t('galleryCaptionPh'))}">${esc(presetCaption)}</textarea>
       </label>
@@ -5521,6 +5895,12 @@ function sheetGalleryCompose(opts={}){
 
   const preview = sheetEl.querySelector('#galPreview');
   const status = sheetEl.querySelector('#galStatus');
+  sheetEl.querySelectorAll('[data-gal-compose-cat]').forEach(btn=>{
+    btn.onclick = ()=>{
+      galCat = btn.dataset.galComposeCat || 'allgemein';
+      sheetEl.querySelectorAll('[data-gal-compose-cat]').forEach(b=>b.classList.toggle('on', b.dataset.galComposeCat===galCat));
+    };
+  });
   const setPhoto = (dataUrl)=>{
     photo = dataUrl;
     preview.classList.remove('empty');
@@ -5596,7 +5976,7 @@ function sheetGalleryCompose(opts={}){
     const btn = sheetEl.querySelector('#galSubmit');
     btn.disabled = true;
     try{
-      const data = await galleryApi('create', {photo, caption});
+      const data = await galleryApi('create', {photo, caption, category: galCat});
       applyGallerySnapshot(data);
       stopCamera();
       closeSheet();
@@ -6344,6 +6724,8 @@ const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
 const SCHEDULE_VIEW_LAST_KEY = 'paidia.scheduleViewLast';
 const SCHEDULE_DATE_KEY = 'paidia.scheduleDate';
 const WEEK_MOBILE_FULL_KEY = 'paidia.weekMobileFull';
+const WEEK_LAYOUT_KEY = 'paidia.weekLayout';
+const WEEK_LAYOUT_EXPLICIT_KEY = 'paidia.weekLayoutExplicit';
 
 function recallScheduleDate(){
   try{
@@ -6386,6 +6768,35 @@ function weekNeedsMatrixHtml(){
   }catch{ return true; }
 }
 
+function defaultWeekLayout(){
+  try{
+    if(!window.matchMedia('(min-width:900px)').matches) return 'agenda';
+  }catch{}
+  return isEasy() ? 'agenda' : 'matrix';
+}
+function weekLayoutExplicit(){
+  try{ return localStorage.getItem(WEEK_LAYOUT_EXPLICIT_KEY)==='1'; }catch{ return false; }
+}
+function weekLayout(){
+  try{
+    const v = localStorage.getItem(WEEK_LAYOUT_KEY);
+    if(v==='agenda' || v==='matrix') return v;
+  }catch{}
+  return defaultWeekLayout();
+}
+function setWeekLayout(mode, {explicit=true}={}){
+  mode = mode==='matrix' ? 'matrix' : 'agenda';
+  try{
+    localStorage.setItem(WEEK_LAYOUT_KEY, mode);
+    if(explicit) localStorage.setItem(WEEK_LAYOUT_EXPLICIT_KEY, '1');
+  }catch{}
+  document.body.dataset.weekLayout = mode;
+}
+function syncWeekLayoutToUiMode(){
+  if(weekLayoutExplicit()) return;
+  setWeekLayout(defaultWeekLayout(), {explicit:false});
+}
+
 
 function rememberScheduleView(view){
   if(!ROUTE_SCHEDULE_VIEWS.includes(view)) return;
@@ -6396,7 +6807,7 @@ function recalledScheduleView(){
   try{
     const v = sessionStorage.getItem(SCHEDULE_VIEW_LAST_KEY);
     if(ROUTE_SCHEDULE_VIEWS.includes(v)){
-      if(isEasy() && !['day','week'].includes(v)) return 'week';
+      if(isEasy() && !['day','week','calendar'].includes(v)) return 'week';
       return v;
     }
   }catch{}
@@ -6405,7 +6816,7 @@ function recalledScheduleView(){
 
 function setScheduleView(view, {persist=true}={}){
   if(!ROUTE_SCHEDULE_VIEWS.includes(view)) view = 'week';
-  if(isEasy() && !['day','week'].includes(view)) view = 'week';
+  if(isEasy() && !['day','week','calendar'].includes(view)) view = 'week';
   state.scheduleView = view;
   if(view === 'calendar' && !state.calendarMonth){
     state.calendarMonth = iso(new Date()).slice(0, 7) + '-01';
@@ -6422,6 +6833,11 @@ function routeFromHash(){
   const route = {tab};
   if(tab === 'schedule' && parts[1] && ROUTE_SCHEDULE_VIEWS.includes(parts[1])) route.scheduleView = parts[1];
   if(tab === 'shop' && parts[1] && ROUTE_SHOP_PANELS.includes(parts[1])) route.shopPanel = parts[1];
+  if(tab === 'kids' && parts[1]){
+    const pane = parts[1];
+    const kidsPanes = ['directory','attendance','homework','materials','activity','timetable','subjects'];
+    if(kidsPanes.includes(pane)) route.kidsPane = pane;
+  }
   return route;
 }
 
@@ -6433,6 +6849,7 @@ function applyRouteFromHash(){
   if(route.shopPanel){
     state.shopPanel = route.shopPanel === 'store' ? 'plan' : route.shopPanel;
   }
+  if(route.kidsPane) state.kidsPane = route.kidsPane;
   return true;
 }
 
@@ -6453,6 +6870,10 @@ function hashForState(){
     }catch{}
     const panel = ['take','requests'].includes(state.shopPanel) ? state.shopPanel : 'plan';
     return `#shop/${panel}`;
+  }
+  if(state.tab === 'kids'){
+    const pane = state.kidsPane || 'directory';
+    return pane && pane !== 'directory' ? `#kids/${pane}` : '#kids';
   }
   return '';
 }
@@ -6682,10 +7103,67 @@ function scheduleAgendaEntry(e,dateStr,{compact=false}={}){
   </div>`;
 }
 
-function scheduleAgendaEmpty(dateStr,{compact=false}={}){
-  return `<button class="schedule-agenda-empty ${compact?'compact':''}" type="button" data-add="afternoon" data-add-date="${esc(dateStr)}">
+function scheduleAgendaEmpty(dateStr,{compact=false, block='afternoon'}={}){
+  const bid = blockDef(block) ? block : 'afternoon';
+  return `<button class="schedule-agenda-empty ${compact?'compact':''}" type="button" data-add="${esc(bid)}" data-add-date="${esc(dateStr)}">
     <span aria-hidden="true">＋</span><b>${esc(t('agendaEmpty'))}</b>${compact?'':`<small>${esc(t('agendaEmptyHint'))}</small>`}
   </button>`;
+}
+
+/** Day program: Vormittag / Nachmittag / Abend as clear blocks with timed entries. */
+function dayProgramFlowHtml(dateStr, all){
+  return BLOCKS.map((b, bi)=>{
+    const list = (all||[]).filter(e=>e.block===b.id)
+      .sort((a,c)=>String(entryTime(a)||'99:99').localeCompare(String(entryTime(c)||'99:99')));
+    const body = list.length
+      ? `<div class="schedule-agenda-list">${list.map(e=>scheduleAgendaEntry(e, dateStr)).join('')}</div>`
+      : scheduleAgendaEmpty(dateStr, {block:b.id});
+    return `<section class="plan-block block block-${b.id}" style="--block-i:${bi}" aria-labelledby="dayBlock-${b.id}">
+      <div class="plan-block-h block-h">
+        <span class="t" id="dayBlock-${b.id}">${esc(t(b.id))}</span>
+        <span class="hrs plan-time-chip">${b.from}–${b.to}</span>
+        <span class="plan-block-count" aria-hidden="true">${list.length}</span>
+      </div>
+      ${body}
+      <div class="plan-block-add"><button class="btn ghost sm" type="button" data-add="${b.id}" data-add-date="${esc(dateStr)}">${esc(t('add'))}</button></div>
+    </section>`;
+  }).join('');
+}
+
+function weekAgendaBoardHtml(week, byDate, stamps, today){
+  const columns = stamps.map(s=>{
+    const dayList = byDate[s.ds]||[];
+    const blocks = BLOCKS.map(b=>{
+      const list = dayList.filter(e=>e.block===b.id)
+        .sort((a,c)=>String(entryTime(a)||'99:99').localeCompare(String(entryTime(c)||'99:99')));
+      const body = list.length
+        ? list.map(e=>scheduleAgendaEntry(e, s.ds, {compact:true})).join('')
+        : scheduleAgendaEmpty(s.ds, {compact:true, block:b.id});
+      return `<div class="week-agenda-block block-${b.id}">
+        <div class="week-agenda-block-h"><span>${esc(t(b.id))}</span><b>${b.from}–${b.to}</b><i>${list.length}</i></div>
+        <div class="week-agenda-block-list">${body}</div>
+      </div>`;
+    }).join('');
+    return `<article class="week-agenda-column ${s.ds===today?'is-today':''} ${s.ds===state.date?'is-focus':''}" data-date="${s.ds}" id="weekDay-${s.ds}">
+      <button type="button" class="week-agenda-head" data-week-focus="${s.ds}" aria-label="${esc(s.long)} ${esc(s.full)}">
+        <span>${esc(s.long)}</span>
+        <b>${esc(s.full)}</b>
+        <i>${dayList.length}</i>
+      </button>
+      <div class="week-agenda-column-list">${blocks}</div>
+      <div class="week-agenda-foot">
+        <button type="button" class="week-agenda-add" data-add="afternoon" data-add-date="${s.ds}">${esc(t('add'))}</button>
+        <button type="button" class="week-open-day" data-jump-day="${s.ds}">${esc(t('openDay'))}</button>
+      </div>
+    </article>`;
+  }).join('');
+  return `<section class="week-agenda-shell week-full-program" aria-labelledby="weekAgendaTitle">
+    <header>
+      <div><span>${esc(t('viewWeek'))}</span><h3 id="weekAgendaTitle">${esc(t('weekAgenda'))}</h3></div>
+      <p class="week-full-hint muted">${esc(t('weekFullHint'))}</p>
+    </header>
+    <div class="week-agenda-board" role="list">${columns}</div>
+  </section>`;
 }
 
 function viewScheduleDay(){
@@ -6697,12 +7175,13 @@ function viewScheduleDay(){
   const days = week.map(ds=>{
     const d = new Date(ds+'T12:00:00');
     const di = dowIdx(d);
+    const count = entriesFor(ds).filter(e => !e.cancelled &&
+      (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter))).length;
     return `<button type="button" class="plan-day-chip day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}" aria-pressed="${ds===state.date?'true':'false'}" aria-label="${esc(DAY_LONG[state.lang][di])} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}">
       <span class="d">${DAY_NAMES[state.lang][di]}</span>
-      <span class="n">${d.getDate()}<i>.${d.getMonth()+1}.${String(d.getFullYear()).slice(2)}</i></span></button>`;
+      <span class="n">${d.getDate()}<i>.${d.getMonth()+1}.${String(d.getFullYear()).slice(2)}</i></span>
+      <span class="c">${count}</span></button>`;
   }).join('');
-
-  const agenda=all.slice().sort((a,b)=>String(entryTime(a)||'99:99').localeCompare(String(entryTime(b)||'99:99')));
 
   const d = new Date(state.date+'T12:00:00');
   const longDate = `${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
@@ -6723,11 +7202,7 @@ function viewScheduleDay(){
       </div>
     </header>
     <div class="plan-days days" role="tablist" aria-label="${esc(t('viewDay'))}">${days}</div>
-    <section class="schedule-day-agenda" aria-labelledby="scheduleDayAgendaTitle">
-      <header><div><span>${esc(eventDayLabel(state.date))}</span><h3 id="scheduleDayAgendaTitle">${esc(t('dayAgenda'))}</h3></div>
-        <button type="button" data-add="afternoon">${esc(t('add'))}</button></header>
-      <div class="schedule-agenda-list">${agenda.length?agenda.map(e=>scheduleAgendaEntry(e,state.date)).join(''):scheduleAgendaEmpty(state.date)}</div>
-    </section>
+    <div class="plan-day-flow plan-day-program" aria-label="${esc(t('dayAgenda'))}">${dayProgramFlowHtml(state.date, all)}</div>
     ${validationCard(state.date)}
     ${weekNotesCard()}`;
 }
@@ -6931,7 +7406,11 @@ function viewScheduleWeek(){
   const personLabel = state.lang==='de'?'Person':'Άτομο';
   const houseLabel = state.lang==='de'?'Haus':'Σπίτι';
   const portraitMobile = weekPortraitMobile();
-  const needMatrix = weekNeedsMatrixHtml();
+  const layout = weekLayout();
+  // Portrait phones always render the full 7-day program (agenda). Matrix DOM stays desktop/landscape.
+  const effectiveLayout = portraitMobile ? 'agenda' : layout;
+  document.body.dataset.weekLayout = effectiveLayout;
+  const needMatrix = effectiveLayout==='matrix' && weekNeedsMatrixHtml();
 
   const houseTable = (blockId) => matrixView(dayHeaders, visibleHouses.map(h=>({
     label:esc(h.short || h.name),
@@ -6985,18 +7464,11 @@ function viewScheduleWeek(){
 
   const focusDs = week.includes(state.date) ? state.date : week[0];
   if(focusDs !== state.date){ state.date = focusDs; persistScheduleDate(focusDs); }
-  const focusStamp = stamps.find(s=>s.ds===focusDs) || stamps[0];
-  const focusIdx = week.indexOf(focusDs);
-  const prevDay = focusIdx > 0 ? week[focusIdx-1] : '';
-  const nextDay = focusIdx < 6 ? week[focusIdx+1] : '';
-  // Portrait phones stay on day-focus — full matrix HTML blank-screens / OOMs at 390px.
-  let mobileFull = !portraitMobile && weekMobileFullMode();
-  if(portraitMobile){
-    try{ sessionStorage.setItem(WEEK_MOBILE_FULL_KEY, '0'); }catch{}
-    mobileFull = false;
-  }
-  document.body.classList.toggle('week-mobile-dayforce', !!portraitMobile);
-  document.body.classList.toggle('week-mobile-full', !!mobileFull);
+  document.body.classList.toggle('week-mobile-dayforce', false);
+  document.body.classList.toggle('week-mobile-full', layout==='matrix' && !portraitMobile);
+  document.body.classList.toggle('week-layout-agenda', effectiveLayout==='agenda');
+  document.body.classList.toggle('week-layout-matrix', effectiveLayout==='matrix');
+  document.body.classList.toggle('week-full-mobile', !!portraitMobile || effectiveLayout==='agenda');
 
   const weekJump = `<nav class="week-jump" aria-label="${esc(t('viewWeek'))}">
     ${stamps.map(s=>{
@@ -7010,69 +7482,9 @@ function viewScheduleWeek(){
     }).join('')}
   </nav>`;
 
-  const stackBlock = (ds, blockId) => {
-    const list = byDate[ds].filter(e=>e.block===blockId);
-    const b = blockDef(blockId);
-    let body;
-    if(b.by==='house'){
-      body = `<div class="week-stack-table" role="table">
-        <div class="week-stack-tr week-stack-thead" role="row">
-          <span role="columnheader">${esc(houseLabel)}</span>
-          <span role="columnheader">${esc(t('dueToday'))}</span>
-          <span role="columnheader" class="week-stack-add-h">${esc(t('add'))}</span>
-        </div>
-        ${visibleHouses.map(h=>{
-          const rows = list.filter(e=>entryHouseIds(e).includes(h.id));
-          return `<div class="week-stack-tr" role="row">
-            <span class="week-stack-rh" role="rowheader">${esc(h.short||h.name)}</span>
-            <div class="week-stack-cell" role="cell">${rows.length ? cellItems(rows,true,ds) : `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}</div>
-            <button type="button" class="week-stack-add" data-add="${blockId}" data-house="${h.id}" data-add-date="${ds}" aria-label="${esc(t('add'))}">＋</button>
-          </div>`;
-        }).join('')}
-      </div>`;
-    }else{
-      // Mobile day-focus: skip empty staff rows — 8 blank 44px rows bury filled slots.
-      const peopleRows = DB.employees.map(p=>{
-        const rows = list.filter(e=>entryEmployeeIds(e).includes(p.id));
-        if(!rows.length) return '';
-        return `<div class="week-stack-tr" role="row">
-          <span class="week-stack-rh" role="rowheader">${esc(p.name)}</span>
-          <div class="week-stack-cell" role="cell">${cellItems(rows,false,ds)}</div>
-          <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" data-employee="${p.id}" aria-label="${esc(t('add'))}">＋</button>
-        </div>`;
-      }).join('');
-      const unassigned = list.filter(e=>!entryEmployeeIds(e).length);
-      const unassignedRow = `<div class="week-stack-tr" role="row">
-        <span class="week-stack-rh roster-unassigned" role="rowheader">${esc(t('unassigned'))}</span>
-        <div class="week-stack-cell" role="cell">${unassigned.length ? cellItems(unassigned,false,ds) : `<span class="matrix-empty">${esc(t('matrixEmpty'))}</span>`}</div>
-        <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" aria-label="${esc(t('add'))}">＋</button>
-      </div>`;
-      const emptyStaffAdd = !peopleRows && !unassigned.length
-        ? `<div class="week-stack-tr week-stack-empty-hint" role="row">
-            <span class="week-stack-rh" role="rowheader">—</span>
-            <div class="week-stack-cell" role="cell"><span class="matrix-empty">${esc(t('matrixEmpty'))}</span></div>
-            <button type="button" class="week-stack-add" data-add="${blockId}" data-add-date="${ds}" aria-label="${esc(t('add'))}">＋</button>
-          </div>`
-        : '';
-      body = `<div class="week-stack-table" role="table">
-        <div class="week-stack-tr week-stack-thead" role="row">
-          <span role="columnheader">${esc(personLabel)}</span>
-          <span role="columnheader">${esc(t('dueToday'))}</span>
-          <span role="columnheader" class="week-stack-add-h">${esc(t('add'))}</span>
-        </div>
-        ${peopleRows}${unassigned.length ? unassignedRow : ''}${!peopleRows && !unassigned.length ? emptyStaffAdd : ''}
-      </div>`;
-    }
-    return `<div class="week-stack-block block-${blockId}" data-block="${blockId}">
-      <div class="week-stack-block-h"><span>${t(blockId)}</span><span class="plan-time-chip">${b.from}–${b.to}</span></div>
-      ${body}
-    </div>`;
-  };
-
   const weekEntries=week.flatMap(ds=>byDate[ds]);
   const activeDays=week.filter(ds=>byDate[ds].length).length;
   const unassignedCount=weekEntries.filter(e=>!entryEmployeeIds(e).length).length;
-  const denseWeek = weekEntries.length >= 8 || activeDays >= 4;
   const aiFilledCount = countAiOverridesInWeek(weekKey(state.date));
   const todayMon = weekKey(iso(new Date()));
   const viewingThisWeek = weekKey(state.date) === todayMon;
@@ -7087,49 +7499,25 @@ function viewScheduleWeek(){
   </div>`;
 
   const weekAiBar = `<div class="week-ai-bar" role="toolbar" aria-label="Zo-Ai">
-    <button class="btn primary week-ai-fill" type="button" data-page-act="aiSchedule">${esc(t('aiFillText'))}</button>
+    <button class="btn primary week-ai-photo" type="button" data-page-act="aiSchedulePhoto">${esc(t('aiSchedulePhoto'))}</button>
+    <button class="btn sec week-ai-fill" type="button" data-page-act="aiSchedule">${esc(t('aiFillText'))}</button>
     <button class="btn sec week-ai-clear" type="button" data-page-act="aiClearSchedule" ${aiFilledCount?'' : 'disabled'} title="${esc(t('aiClearWeek'))}">${esc(t('aiClearWeek'))}${aiFilledCount?` (${aiFilledCount})`:''}</button>
     <button class="btn sm sec pro-only mode-pro-block" type="button" data-page-act="importWeek" title="${esc(t('importWeek'))}">${esc(t('importWeek'))}</button>
   </div>`;
 
-  const rotateCoach = (portraitMobile && denseWeek) ? `<div class="week-rotate-coach week-rotate-coach-slim" role="status">
+  const rotateCoach = (portraitMobile && layout==='matrix') ? `<div class="week-rotate-coach week-rotate-coach-slim" role="status">
     <div class="week-rotate-copy">
       <b>${esc(t('weekRotateCoach'))}</b>
+      <span class="muted">${esc(t('weekMatrixPortraitHint'))}</span>
     </div>
   </div>` : '';
 
-  const dayFocus = `<div class="week-day-focus week-stack-roster" data-density="roster" data-week-swipe aria-label="${esc(t('viewWeek'))}">
-    ${portraitMobile ? '' : `<div class="week-day-focus-nav">
-      <button type="button" class="btn sm sec" data-week-focus="${prevDay||''}" ${prevDay?'':'disabled'} aria-label="${esc(t('prevWeek'))}">‹</button>
-      <span class="week-day-focus-title">${esc(focusStamp.long)} · ${esc(focusStamp.full)}</span>
-      <button type="button" class="btn sm sec" data-week-focus="${nextDay||''}" ${nextDay?'':'disabled'} aria-label="${esc(t('nextWeek'))}">›</button>
-    </div>
-    <p class="week-swipe-hint muted">${esc(t('weekSwipeHint'))}</p>`}
-    <section class="week-day-card week-day-table ${focusDs===today?'is-today':''} is-selected is-focus" data-date="${focusDs}">
-      <header class="week-day-card-h">
-        <span class="wd-main">
-          <span class="wd-name">${esc(focusStamp.long)}</span>
-          <span class="wd-date">${esc(focusStamp.full)}</span>
-        </span>
-        <span class="wd-meta"><b>${byDate[focusDs].length}</b>
-          <button type="button" class="week-open-day" data-jump-day="${focusDs}">${esc(t('openDay'))}</button>
-        </span>
-      </header>
-      <div class="week-day-card-body">
-        ${stackBlock(focusDs,'morning')}
-        ${stackBlock(focusDs,'afternoon')}
-        ${stackBlock(focusDs,'evening')}
-      </div>
-    </section>
-    ${portraitMobile ? '' : `<div class="week-mobile-mode-row">
-      <button type="button" class="btn sec sm" data-week-mobile-full="1">${esc(t('weekShowFull'))}</button>
-    </div>`}
+  const layoutSeg = `<div class="week-layout-seg" role="group" aria-label="${esc(t('weekLayoutLabel'))}">
+    <button type="button" class="${layout==='agenda'?'on':''}" data-week-layout="agenda" aria-pressed="${layout==='agenda'?'true':'false'}">${esc(t('weekLayoutAgenda'))}</button>
+    <button type="button" class="${layout==='matrix'?'on':''}" data-week-layout="matrix" aria-pressed="${layout==='matrix'?'true':'false'}">${esc(t('weekLayoutMatrix'))}</button>
   </div>`;
 
   const matrixBlock = needMatrix ? `<div class="week-roster week-matrix-desktop" data-density="roster" data-roster="week">
-      <div class="week-mobile-matrix-bar">
-        <button type="button" class="btn sec sm" data-week-mobile-full="0">${esc(t('weekShowDay'))}</button>
-      </div>
       <div class="week-roster-block block-morning">
         <div class="plan-block-h block-h block-morning week-roster-h"><span class="t">${t('morning')}</span><span class="hrs plan-time-chip">10:00–14:00</span></div>
         ${houseTable('morning')}
@@ -7144,10 +7532,13 @@ function viewScheduleWeek(){
       </div>
     </div>` : `<div class="week-roster week-matrix-desktop" hidden aria-hidden="true"></div>`;
 
+  const agendaBlock = weekAgendaBoardHtml(week, byDate, stamps, today);
+  const showAgenda = effectiveLayout==='agenda';
+  const showMatrixFull = effectiveLayout==='matrix' && needMatrix;
+
   const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   return `
     ${weekJump}
-    ${dayFocus}
     <header class="plan-hero plan-hero-week">
       <div class="plan-hero-copy">
         <div class="brand-kicker">${esc(t('viewWeek'))}</div>
@@ -7155,6 +7546,7 @@ function viewScheduleWeek(){
         <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
       </div>
       <div class="plan-hero-actions">
+        ${layoutSeg}
         ${weekSwitcher}
         <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
       </div>
@@ -7166,7 +7558,8 @@ function viewScheduleWeek(){
       </div>
     </header>
     ${rotateCoach}
-    ${matrixBlock}
+    ${showAgenda ? agendaBlock : ''}
+    ${showMatrixFull ? matrixBlock : ''}
     ${weekNotesCard()}`;
 }
 
@@ -7458,11 +7851,15 @@ function parseScheduleTextLocal(text, weekMon){
   return {entries, extracted_text: text, model: 'local-parser'};
 }
 
-async function aiExtractSchedule(text, weekMon){
+async function aiExtractSchedule(payload, weekMon, {fillMode='gaps'}={}){
   if(location.protocol==='file:'){
     const error=new Error('file-protocol'); error.status=503; throw error;
   }
   const week = weekDates(weekMon);
+  const sourceType = payload && payload.sourceType === 'image' ? 'image' : 'text';
+  const content = sourceType === 'image'
+    ? String(payload.content || '')
+    : String(payload.text || payload.content || '').slice(0, 50000);
   const ctl = new AbortController();
   const timer = setTimeout(()=>ctl.abort(), 90000);
   try{
@@ -7470,10 +7867,14 @@ async function aiExtractSchedule(text, weekMon){
       method:'POST', signal:ctl.signal, credentials:'same-origin',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        text: String(text||'').slice(0,50000),
+        sourceType,
+        content,
+        text: sourceType === 'text' ? content : '',
         locale: state.lang,
         weekStart: weekMon,
         weekDates: week,
+        fillMode,
+        occupied: weekOccupiedSlots(weekMon),
         activities: (DB.activities||[]).slice(0,100).map(a=>({id:a.id, de:a.de, el:a.el, en:a.en})),
         employees: (DB.employees||[]).map(e=>({id:e.id, name:e.name})),
         houses: planningHouses().map(h=>({id:h.id, name:h.short||h.name})),
@@ -7494,7 +7895,23 @@ async function aiExtractSchedule(text, weekMon){
   }finally{ clearTimeout(timer); }
 }
 
-function decorateAiScheduleRows(rawEntries, weekMon){
+function weekOccupiedSlots(weekMon){
+  const out = [];
+  weekDates(weekMon).forEach(ds=>{
+    entriesFor(ds).filter(e=>!e.cancelled).forEach(e=>{
+      out.push({
+        date: ds,
+        block: e.block,
+        employeeIds: entryEmployeeIds(e),
+        houseIds: entryHouseIds(e),
+        activityId: e.activityId || null,
+      });
+    });
+  });
+  return out.slice(0, 200);
+}
+
+function decorateAiScheduleRows(rawEntries, weekMon, {gapsOnly=true}={}){
   const week = weekDates(weekMon);
   const weekSet = new Set(week);
   return (rawEntries||[]).map(row=>{
@@ -7518,6 +7935,7 @@ function decorateAiScheduleRows(rawEntries, weekMon){
         : houseHit ? entryHouseIds(e).includes(houseHit.id)
         : true
     )) : [];
+    const conflict = existing.length>0;
     return {
       date, block,
       activityId: activity?.id||null,
@@ -7530,8 +7948,8 @@ function decorateAiScheduleRows(rawEntries, weekMon){
       from: row.from||'', to: row.to||'', note: row.note||'',
       confidence: row.confidence|| (activity?'medium':'low'),
       raw: row.raw||row.activityQuery||'',
-      conflict: existing.length>0,
-      include: !!(date && activity),
+      conflict,
+      include: !!(date && activity && (!gapsOnly || !conflict)),
     };
   }).filter(r=>r.date);
 }
@@ -7570,9 +7988,22 @@ function clearAiScheduleWeek(){
   });
 }
 
-function sheetAiSchedule(){
+function sheetAiSchedule(opts={}){
   const weekMon = weekKey(state.date);
-  let rows = null, busy=false, aiMeta=null, sourceText='';
+  const preferPhoto = !!opts.preferPhoto;
+  let rows = null, busy=false, aiMeta=null, sourceText='', photo=null, imageSource='';
+  let gapsOnly = opts.gapsOnly !== false;
+  let rawEntries = null;
+
+  const currentFillMode = () => (sheetEl.querySelector('input[name="asFillMode"]:checked')?.value || (gapsOnly?'gaps':'all'));
+
+  const applyGapsMode = () => {
+    gapsOnly = currentFillMode() === 'gaps';
+    if(rawEntries){
+      rows = decorateAiScheduleRows(rawEntries, weekMon, {gapsOnly});
+      draw();
+    }
+  };
 
   const draw = () => {
     const box = sheetEl.querySelector('#asRows');
@@ -7622,15 +8053,17 @@ function sheetAiSchedule(){
             employeeId:r.employeeId||null, employeeIds:r.employeeId?[r.employeeId]:[],
             childIds:r.childIds||[], activityId:r.activityId,
             from:r.from||'', to:r.to||'', note:r.note||'',
-            aiImportId:importId, source:'ai-schedule',
+            aiImportId:importId, source: photo ? 'ai-schedule-image' : 'ai-schedule',
           });
         });
         DB.aiImports.push({
           id:importId, ts:Date.now(), uploader:who.id, kind:'schedule',
-          weekStart:weekMon, originalText:sourceText, model:aiMeta?.model||'local-parser',
-          responseId:aiMeta?.responseId||null, finalRows:structuredClone(chosen),
+          weekStart:weekMon, originalText:sourceText, sourceType:photo?'image':'text',
+          imageSource, model:aiMeta?.model||'local-parser',
+          responseId:aiMeta?.responseId||null, fillMode:currentFillMode(),
+          finalRows:structuredClone(chosen),
         });
-        logEntry('SCHEDULE', `Zo-Ai · ${t('aiSchedule')} · ${chosen.length}`, {aiImportId:importId});
+        logEntry('SCHEDULE', `Zo-Ai · ${photo?t('aiSchedulePhoto'):t('aiSchedule')} · ${chosen.length}`, {aiImportId:importId});
         if(!save()) return;
         closeSheet();
         setScheduleView('week');
@@ -7642,18 +8075,114 @@ function sheetAiSchedule(){
 
   openSheet(`<div class="import-flow">
     <div class="import-hero"><div class="import-kicker">Zo-Ai</div>
-      <h2>${esc(t('aiScheduleTitle'))}</h2><p>${esc(t('aiScheduleHint'))}</p>
+      <h2>${esc(t('aiScheduleTitle'))}</h2><p>${esc(preferPhoto?t('aiSchedulePhotoHint'):t('aiScheduleHint'))}</p>
       <div class="import-context"><div>${esc(t('importWeekTarget'))}<b>${esc(formatWeekRangeLabel(weekMon))}</b></div></div>
     </div>
-    <section class="import-source"><h3>✍️ ${esc(t('aiScheduleTitle'))}</h3>
-      <textarea id="asTxt" rows="8" placeholder="${esc(t('aiSchedulePh'))}"></textarea>
-      <div class="import-action-row"><button class="btn" type="button" id="asParse">✨ ${esc(t('aiScheduleAnalyze'))}</button></div>
-    </section>
+    <div class="merge-choice as-fill-mode">
+      <label><input type="radio" name="asFillMode" value="gaps" ${gapsOnly?'checked':''}><b>${esc(t('aiScheduleGapsOnly'))}</b><small>${esc(t('aiScheduleGapsOnlyHint'))}</small></label>
+      <label><input type="radio" name="asFillMode" value="all" ${gapsOnly?'':'checked'}><b>${esc(t('aiScheduleAllowConflict'))}</b><small>${esc(t('aiScheduleAllowConflictHint'))}</small></label>
+    </div>
+    <div class="import-source-grid">
+      <section class="import-source ${preferPhoto?'':'as-source-text'}"><h3>✍️ ${esc(t('aiFillText'))}</h3>
+        <textarea id="asTxt" rows="7" placeholder="${esc(t('aiSchedulePh'))}"></textarea>
+        <div class="import-action-row"><button class="btn" type="button" id="asParse">✨ ${esc(t('aiScheduleAnalyze'))}</button></div>
+      </section>
+      <section class="import-source"><h3>🖼️ ${esc(t('aiSchedulePhoto'))}</h3>
+        <p>${esc(t('aiSchedulePhotoHint'))}</p>
+        <div class="screenshot-drop" id="asDrop" role="button" tabindex="0" aria-label="${esc(t('pickScreenshot'))}">
+          <span class="big">＋</span><strong>${esc(t('screenshotDrop'))}</strong>
+          <div class="muted">${esc(t('screenshotPaste'))}</div></div>
+        <input class="file-input-hidden" id="asFile" type="file" accept="image/*,.heic,.heif,image/heic,image/heif">
+        <div class="import-pick-row">
+          <button class="btn" type="button" id="asPick">${esc(t('pickScreenshot'))}</button>
+          <button class="btn sec" type="button" id="asPasteClip">${esc(t('pasteScreenshot'))}</button>
+        </div>
+        <div class="import-preview-card" id="asPreviewCard" hidden><img id="asPreview" alt=""><div><b>✓ ${esc(t('imagePreview'))}</b><p>${esc(t('imagePreviewHint'))}</p>
+          <div class="import-preview-actions"><button type="button" id="asChangeImage">↻ ${esc(t('changeImage'))}</button><button type="button" id="asRemoveImage">× ${esc(t('removeImage'))}</button></div></div></div>
+        <div class="import-action-row"><button class="btn primary" type="button" id="asParseImg">✨ ${esc(t('aiScheduleAnalyze'))}</button></div>
+      </section>
+    </div>
     <div id="asStatus" class="status-box"></div>
     <div id="asRows"></div>
   </div>`);
 
   const status=sheetEl.querySelector('#asStatus');
+  const dropZone=sheetEl.querySelector('#asDrop');
+  const fileInput=sheetEl.querySelector('#asFile');
+  const previewCard=sheetEl.querySelector('#asPreviewCard');
+  const previewImg=sheetEl.querySelector('#asPreview');
+
+  sheetEl.querySelectorAll('input[name="asFillMode"]').forEach(inp=>{
+    inp.onchange = applyGapsMode;
+  });
+
+  const setBusy = on => {
+    busy=on;
+    sheetEl.querySelectorAll('#asParse,#asParseImg,#asPick,#asPasteClip,#asChangeImage').forEach(b=>{ if(b) b.disabled=on; });
+  };
+
+  const showPhoto = (dataUrl, srcLabel) => {
+    photo = dataUrl;
+    imageSource = srcLabel || 'upload';
+    if(previewImg) previewImg.src = dataUrl;
+    if(previewCard) previewCard.hidden = false;
+    if(dropZone) dropZone.hidden = true;
+  };
+
+  const clearPhoto = () => {
+    photo = null; imageSource = '';
+    if(previewImg) previewImg.removeAttribute('src');
+    if(previewCard) previewCard.hidden = true;
+    if(dropZone) dropZone.hidden = false;
+    if(fileInput) fileInput.value = '';
+  };
+
+  const runParse = async (sourceType, content) => {
+    gapsOnly = currentFillMode() === 'gaps';
+    setBusy(true); setStatus(status,t('aiReading'),'busy'); rows=null; rawEntries=null; draw();
+    try{
+      const result = await aiExtractSchedule(
+        sourceType === 'image' ? {sourceType:'image', content} : {sourceType:'text', text:content},
+        weekMon,
+        {fillMode: gapsOnly ? 'gaps' : 'all'}
+      );
+      aiMeta = {model:result.model, responseId:result.responseId, provider:result.provider};
+      sourceText = result.extracted_text || (sourceType==='text'?content:'');
+      rawEntries = result.entries || [];
+      rows = decorateAiScheduleRows(rawEntries, weekMon, {gapsOnly});
+      setStatus(status, rows.length ? `${rows.length}` : t('aiScheduleEmpty'), rows.length?'success':'error');
+    }catch(error){
+      if(sourceType==='text'){
+        aiMeta = {model:'local-parser'};
+        const local = parseScheduleTextLocal(content, weekMon);
+        sourceText = content;
+        rawEntries = local.entries || [];
+        rows = decorateAiScheduleRows(rawEntries, weekMon, {gapsOnly});
+        setStatus(status, t('aiUnavailable'), rows.length?'success':'error');
+      }else{
+        aiMeta = null; rawEntries = null; rows = null;
+        setStatus(status, friendlyAiError(error), 'error');
+      }
+    }
+    setBusy(false); draw();
+  };
+
+  const ingestFile = async (file, srcLabel='upload') => {
+    if(!file) return;
+    const type=(file.type||'').toLowerCase();
+    const name=(file.name||'').toLowerCase();
+    const looksImage=type.startsWith('image/') || /\.(png|jpe?g|webp|heic|heif|gif)$/.test(name);
+    if(!looksImage || file.size>10*1024*1024){ toast(t('galleryTooBig')||t('aiScheduleNeedImage'),'error'); return; }
+    try{
+      const dataUrl = await imageFileData(file);
+      showPhoto(dataUrl, srcLabel);
+      setStatus(status, t('screenshotReady'), 'busy');
+      await runParse('image', dataUrl);
+    }catch(error){
+      setStatus(status, friendlyAiError(error), 'error');
+    }
+  };
+
   (async()=>{
     if(location.protocol==='file:'){ setStatus(status,t('errConfig'),'error'); return; }
     try{
@@ -7667,21 +8196,48 @@ function sheetAiSchedule(){
   sheetEl.querySelector('#asParse').onclick = async () => {
     const text = sheetEl.querySelector('#asTxt').value.trim();
     if(!text){ toast(t('aiScheduleNeedText')); return; }
-    sourceText = text;
-    busy=true; setStatus(status,t('aiReading'),'busy'); rows=null; draw();
-    try{
-      const result = await aiExtractSchedule(text, weekMon);
-      aiMeta = {model:result.model, responseId:result.responseId};
-      rows = decorateAiScheduleRows(result.entries, weekMon);
-      setStatus(status, rows.length ? `${rows.length}` : t('aiScheduleEmpty'), rows.length?'success':'error');
-    }catch(error){
-      aiMeta = {model:'local-parser'};
-      const local = parseScheduleTextLocal(text, weekMon);
-      rows = decorateAiScheduleRows(local.entries, weekMon);
-      setStatus(status, t('aiUnavailable'), rows.length?'success':'error');
-    }
-    busy=false; draw();
+    photo = null; imageSource = '';
+    await runParse('text', text);
   };
+
+  sheetEl.querySelector('#asParseImg').onclick = async () => {
+    if(!photo){ toast(t('aiScheduleNeedImage')); return; }
+    await runParse('image', photo);
+  };
+
+  sheetEl.querySelector('#asPick').onclick = () => fileInput?.click();
+  sheetEl.querySelector('#asChangeImage').onclick = () => fileInput?.click();
+  sheetEl.querySelector('#asRemoveImage').onclick = () => { clearPhoto(); };
+  fileInput.onchange = () => ingestFile(fileInput.files?.[0], 'upload');
+
+  dropZone?.addEventListener('click', ()=>fileInput?.click());
+  dropZone?.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fileInput?.click(); }});
+  ;['dragenter','dragover'].forEach(ev=>dropZone?.addEventListener(ev, e=>{ e.preventDefault(); dropZone.classList.add('is-drag'); }));
+  ;['dragleave','drop'].forEach(ev=>dropZone?.addEventListener(ev, e=>{ e.preventDefault(); dropZone.classList.remove('is-drag'); }));
+  dropZone?.addEventListener('drop', e=>{
+    const f = e.dataTransfer?.files?.[0];
+    if(f) ingestFile(f, 'drop');
+  });
+
+  sheetEl.querySelector('#asPasteClip').onclick = async () => {
+    try{
+      const items = await navigator.clipboard.read();
+      for(const item of items){
+        const type = item.types.find(tp=>tp.startsWith('image/'));
+        if(!type) continue;
+        const blob = await item.getType(type);
+        await ingestFile(new File([blob], 'clipboard.png', {type}), 'paste');
+        return;
+      }
+      toast(t('screenshotMissing'),'error');
+    }catch{
+      toast(t('screenshotMissing'),'error');
+    }
+  };
+
+  if(preferPhoto){
+    queueMicrotask(()=>sheetEl.querySelector('#asDrop')?.scrollIntoView({behavior:'smooth',block:'nearest'}));
+  }
 }
 
 function calendarMarkersForMonth(y, m){
@@ -7690,10 +8246,12 @@ function calendarMarkersForMonth(y, m){
   const daysInMonth = new Date(y, m+1, 0).getDate();
   for(let d=1; d<=daysInMonth; d++){
     const ds = y+'-'+pad(m+1)+'-'+pad(d);
-    const entries = entriesFor(ds).filter(e=>!e.cancelled);
+    const entries = entriesFor(ds).filter(e=>!e.cancelled &&
+      (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter)));
     const events = (DB.events||[]).filter(e=>e.status==='published' && e.date===ds);
     if(entries.length || events.length){
-      markers.set(ds, {tasks:entries.length, events:events.length});
+      const titles = entries.map(e=>actLabel(e.activityId)).filter(Boolean);
+      markers.set(ds, {tasks:entries.length, events:events.length, titles});
     }
   }
   return markers;
@@ -7783,11 +8341,23 @@ function viewScheduleCalendar(){
       if(!c) return `<div class="cal-cell empty" role="presentation"></div>`;
       const on = c.ds===state.date, isToday = c.ds===today;
       const dots = c.mark ? `<span class="cal-dots">${c.mark.events?'<i class="ev"></i>':''}${c.mark.tasks?'<i class="tk"></i>':''}</span>` : '';
-      return `<button type="button" class="cal-cell ${on?'on':''} ${isToday?'today':''}" data-cal-date="${c.ds}"
-        role="gridcell" aria-pressed="${on?'true':'false'}" aria-label="${esc(c.d + (isToday ? ' · ' + t('today') : ''))}">
-        <span class="cal-n">${c.d}</span>${dots}</button>`;
+      const titles = c.mark?.titles || [];
+      const preview = titles.length ? (()=>{
+        const shown = titles.slice(0,2).map(title=>{
+          const s = String(title||'').trim();
+          return esc(s.length>9 ? s.slice(0,8)+'…' : s);
+        });
+        const extra = titles.length > 2 ? `<span class="cal-preview-more">+${titles.length-2}</span>` : '';
+        return `<span class="cal-previews" style="display:flex;flex-direction:column;width:100%;gap:1px;font-size:9px;line-height:1.1;text-align:left;overflow:hidden;padding:0 2px;font-weight:650">${shown.map(s=>`<span class="cal-preview">${s}</span>`).join('')}${extra}</span>`;
+      })() : '';
+      const ariaTitles = titles.length ? ' · ' + titles.slice(0,3).join(', ') + (titles.length>3?` +${titles.length-3}`:'') : '';
+      return `<button type="button" class="cal-cell ${on?'on':''} ${isToday?'today':''} ${preview?'has-previews':''}" data-cal-date="${c.ds}"
+        style="${preview?'justify-content:flex-start;padding-top:3px;align-items:stretch;':''}"
+        role="gridcell" aria-pressed="${on?'true':'false'}" aria-label="${esc(c.d + (isToday ? ' · ' + t('today') : '') + ariaTitles)}">
+        <span class="cal-n">${c.d}</span>${preview}${dots}</button>`;
     }).join('')}</div>
     <div class="cal-actions">
+      <button class="btn sm sec" type="button" id="calToday">${esc(t('bookCalToday'))}</button>
       <button class="btn sec sm" type="button" id="exportIcs">${ui('u-calendar')} ${esc(t('exportCalendar'))}</button>
       ${notifRow}
     </div>
@@ -7800,7 +8370,7 @@ function viewScheduleCalendar(){
 
 function viewSchedule(){
   const sv = state.scheduleView;
-  const showHouse = ['day','week'].includes(sv);
+  const showHouse = ['day','week','calendar'].includes(sv);
   const viewBtn = (id, icon, label, shortLabel) =>
     `<button type="button" class="${sv===id?'on':''}" data-v="${id}" title="${esc(label)}" aria-label="${esc(label)}" aria-pressed="${sv===id?'true':'false'}">
       <span class="planner-seg-ico" aria-hidden="true">${ui(icon,'sm')}</span>
@@ -7816,8 +8386,8 @@ function viewSchedule(){
         <div class="seg planner-seg" id="schView" role="tablist" aria-label="${esc(t('filterView'))}">
           ${viewBtn('day','u-calendar',t('viewDay'))}
           ${viewBtn('week','u-tasks',t('viewWeek'))}
-          <span class="pro-only mode-pro-block contents">${viewBtn('calendar','u-calendar',t('viewCalendar'),calShort)}
-          ${viewBtn('shift','u-clock',t('viewShift'))}
+          ${viewBtn('calendar','u-calendar',t('viewCalendar'),calShort)}
+          <span class="pro-only mode-pro-block contents">${viewBtn('shift','u-clock',t('viewShift'))}
           ${viewBtn('events','u-megaphone',t('viewEvents'),eventsShort)}</span>
         </div>
         ${showHouse?`<div class="seg planner-seg planner-seg-house house-selector" id="hFilter" role="tablist" aria-label="${esc(t('filterHouse'))}">
@@ -7826,10 +8396,10 @@ function viewSchedule(){
         </div>`:''}`;
   return `
     <div class="planner ${sv==='day'?'plan-day':sv==='week'?'plan-week':sv==='calendar'?'plan-calendar':sv==='shift'?'plan-shift':'plan-events'}">
-      <div class="ui-mode-row plan-mode-row">${uiModeToggleHtml({compact:true})}</div>
       <div class="planner-focus-switch" data-tour="plan-views" role="tablist" aria-label="${esc(t('filterView'))}">
         ${viewBtn('day','u-calendar',t('viewDay'))}
         ${viewBtn('week','u-tasks',t('viewWeek'))}
+        ${viewBtn('calendar','u-calendar',t('viewCalendar'),calShort)}
         <button type="button" class="planner-more-toggle pro-only mode-pro-block" id="plannerMoreToggle" aria-label="${esc(t('menuFilters'))}"><b aria-hidden="true">···</b><span>${esc(t('navMore'))}</span></button>
       </div>
       ${showHouse?`<div class="planner-mobile-house" role="tablist" aria-label="${esc(t('filterHouse'))}">
@@ -8275,17 +8845,25 @@ function viewStock(){
     }
     const qty=DB.stock[stockKey(hid,p.id)]??0;
     const step=stepFor(p);
+    const thr=lowThreshold(p);
     const selecting=state.selectMode==='stock' && hid!=='all';
     const sel=selecting && isSelected(p.id);
     const flash=state.stockFlashPid===p.id?(state.stockFlashDir==='IN'?'flash-in':'flash-out'):'';
     const pendingOut=state.stockPendingStep?.pid===p.id;
-    return `<div class="stock-product ${st} has-stepper ${flash} ${pendingOut?'await-reason':''} ${sel?'selected':''}" data-stock-row="${p.id}">
+    const onList=fridayEntries(hid).some(e=>['open','pending'].includes(e.status)&&(e.productId===p.id||norm(e.name)===norm(L(p))));
+    const lastMove=(typeof recentStockMoves==='function'?recentStockMoves(hid,40):[]).find(m=>m.productId===p.id);
+    const lastWho=lastMove?(emp(lastMove.employeeId)?.name||'') : '';
+    const lastWhen=lastMove?.ts?(typeof relativeTime==='function'?relativeTime(lastMove.ts):'') : '';
+    const lastBit=lastMove?`${lastMove.type==='IN'?'＋':'−'} ${lastWhen}${lastWho?` · ${lastWho}`:''}`:'';
+    return `<div class="stock-product stock-board-row ${st} has-stepper ${flash} ${pendingOut?'await-reason':''} ${sel?'selected':''}" data-stock-row="${p.id}">
       ${selecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${p.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
       ${jarHtml(qty,p,st)}
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
         <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}</div>
-        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')}</div>
+        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · min ${thr}${esc(p.unit)}${onList?` · ${esc(t('navShop'))}`:''}</div>
+        ${lastBit?`<div class="stock-product-last muted">${esc(lastBit)}</div>`:''}
       </button>
+      ${!selecting && !onList?`<button class="btn ghost sm stock-to-list" type="button" data-stock-want="${p.id}" title="${esc(t('bulkToList'))}" aria-label="${esc(t('bulkToList'))}">→ ${esc(t('navShop'))}</button>`:''}
       <div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
         <button class="stock-step out pine-settle" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${qty<=0?'disabled':''}><span class="stock-step-glyph" aria-hidden="true">−</span></button>
         <div class="stock-qty">${qty}<small>${esc(p.unit)}</small></div>
@@ -8299,9 +8877,10 @@ function viewStock(){
     const hasFocus=hid!=='all'&&products.some(p=>state.stockFlashPid===p.id||state.stockPendingStep?.pid===p.id);
     const catEmpty=products.filter(p=>productState(p)==='empty').length;
     const catLow=products.filter(p=>productState(p)==='low').length;
-    const shouldOpen=hasFocus||(openCats?openCats.includes(c.id):index===0);
+    const needsAttention=catEmpty+catLow>0;
+    const shouldOpen=hasFocus||(openCats?openCats.includes(c.id):(needsAttention||index===0));
     const badges=`${catEmpty?`<span class="stock-shelf-badge empty">${catEmpty}</span>`:''}${catLow?`<span class="stock-shelf-badge low">${catLow}</span>`:''}`;
-    return `<details class="stock-category stock-shelf" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"${shouldOpen?' open':''}>
+    return `<details class="stock-category stock-shelf ${needsAttention?'needs-attention':''}" data-stock-category="${c.id}" data-default-open="${shouldOpen?'1':'0'}"${shouldOpen?' open':''}>
       <summary>
         <span class="stock-shelf-rail" aria-hidden="true"></span>
         <span class="cat-ico-wrap">${catIcon(c.id)}</span>
@@ -8335,6 +8914,9 @@ function viewStock(){
         </li>`;
       }).join('')}</ol>`:`<p class="stock-recent-empty muted">${esc(t('stockNoRecent'))}</p>`}
     </section>`:'';
+  const focusShelf = (!flatView && Array.isArray(state.stockOpenCategories) && state.stockOpenCategories.length===1)
+    ? state.stockOpenCategories[0] : null;
+  const boardVisible = focusShelf ? visible.filter(p=>p.cat===focusShelf) : visible;
   const resultsHtml=flatView
     ? `<section class="stock-priority" aria-label="${esc(resultTitle)}">
         <header class="stock-section-heading"><div><p class="tide-line">${esc(resultTitle)}</p><span>${esc(resultHint)}</span></div>
@@ -8342,16 +8924,18 @@ function viewStock(){
         </header>
         <div class="stock-priority-grid">${visible.map(productCard).join('')||emptyState(ui('u-check'),t('stockAllHealthy'),'',state.stockQuery?`<button class="btn sm sec" type="button" id="stockEmptyClear">${esc(t('stockClearSearch'))}</button>`:'')}</div>
       </section>`
-    : `<section class="stock-catalogue" aria-label="${esc(t('stockCatalogue'))}">
+    : (focusShelf || isEasy()?`<section class="stock-priority" aria-label="${esc(resultTitle)}">
+        <header class="stock-section-heading"><div><p class="tide-line">${esc(focusShelf?(L(CATS().find(c=>c.id===focusShelf)||{de:focusShelf,el:focusShelf})||focusShelf):resultTitle)}</p><span>${esc(resultHint)}</span></div></header>
+        <div class="stock-priority-grid">${boardVisible.map(productCard).join('')||emptyState(ui('u-check'),t('stockAllHealthy'),'',state.stockQuery?`<button class="btn sm sec" type="button" id="stockEmptyClear">${esc(t('stockClearSearch'))}</button>`:'')}</div>
+      </section>`:`<section class="stock-catalogue" aria-label="${esc(t('stockCatalogue'))}">
         <header class="stock-section-heading"><div><p class="tide-line">${esc(t('stockShelves'))}</p><span>${esc(T[state.lang].stockShelfHint(shelfCount))} · ${allProducts.length} ${esc(t('productTypes'))}</span></div></header>
         <div class="stock-categories stock-shelf-islands">${categoryHtml||emptyState(ui('u-search'),t('noStockResults'),t('noStockHint'))}</div>
-      </section>`;
+      </section>`);
 
   return `<div class="stock-shell" data-tour="stock-main">
     <header class="stock-overview stock-pantry-hero">
       <div class="stock-overview-copy">
         <p class="brand-kicker">${esc(t('headerStock'))}</p>
-        <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
         <h2 class="tide-line">${esc(location)}</h2>
         <span>${esc(t('stockHeroHint'))}</span>
       </div>
@@ -8372,8 +8956,7 @@ function viewStock(){
       </div>
       <div class="stock-command-row">
         <label class="stock-search">${ui('u-search','sm')}<input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}" autocomplete="off" enterkeyhint="search">${state.stockQuery?`<button type="button" id="stockClear" aria-label="${t('close')}">×</button>`:''}</label>
-        ${hid!=='all'?`<button class="btn stock-primary-action stock-quick-add-btn pine-settle" type="button" id="stockQuickAdd">${ui('u-plus')} ${esc(t('stockQuickAdd'))}</button>`:''}
-        <button class="btn sec sm stock-shift-check-cta pro-only mode-pro-block" type="button" id="stockShiftCheckEasy" title="${esc(t('shiftStockCheck'))}">${ui('u-check','sm')} ${esc(t('shiftStockCheckStart'))}</button>
+        ${hid!=='all'&&isPro()?`<button class="btn stock-primary-action stock-quick-add-btn pine-settle" type="button" id="stockQuickAdd">${ui('u-plus')} ${esc(t('stockQuickAdd'))}</button>`:''}
         <details class="stock-more pro-only mode-pro-block"><summary aria-label="${esc(t('stockMoreActions'))}">•••</summary><div class="stock-more-popover">
           ${hid==='all'?`<button class="stock-more-action ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle">${ui('u-tasks','sm')} ${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}</button>`:''}
           ${hid!=='all'?`<button class="stock-more-action" type="button" id="stockOpenBoard">${ui('u-plus','sm')} ${esc(t('stockBoardShort'))}</button>
@@ -8381,24 +8964,32 @@ function viewStock(){
           <button class="stock-more-action" type="button" id="stockShiftCheck">${ui('u-check','sm')} ${esc(t('shiftStockCheck'))}</button>`:''}
         </div></details>
       </div>
-      ${hid!=='all'?`<div class="stock-easy-actions" role="toolbar" aria-label="${esc(t('headerStock'))}">
+      ${hid!=='all'&&isEasy()?`<div class="stock-easy-actions" role="toolbar" aria-label="${esc(t('headerStock'))}">
         <button class="btn stock-easy-btn pine-settle" type="button" id="stockQuickAddEasy">${ui('u-plus','sm')} ${esc(t('stockQuickAdd'))}</button>
-        <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockShiftCheckEasyBar">${ui('u-check','sm')} ${esc(t('shiftStockCheckStart'))}</button>
         <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockPhotoRead">${ui('u-camera','sm')} ${esc(t('stockPhotoRead'))}</button>
+        <button class="btn sec stock-easy-btn pine-settle" type="button" id="stockShiftCheckEasyBar">${ui('u-check','sm')} ${esc(t('shiftStockCheckStart'))}</button>
         <button class="btn pine-settle stock-easy-btn" type="button" id="stockEasySave"${easySaveOn?'':' disabled'}>${ui('u-check','sm')} ${esc(easySaveLabel)}</button>
-        <button class="btn sec stock-easy-btn" type="button" id="stockOrderRefresh"${orderFrozen?'':' disabled'}>${esc(t('stockOrderRefresh'))}</button>
       </div>`:''}
       ${orderFrozen?`<div class="stock-order-freeze-note" role="status"><span>${esc(t('stockOrderFrozen'))}</span><button type="button" class="btn sm sec" id="stockOrderRefreshNote">${esc(t('stockOrderRefresh'))}</button></div>`:''}
     </div>
     <div class="stock-view-tabs stock-zone-pier" role="toolbar" aria-label="${esc(t('stockZonePier'))}">
       <button type="button" class="${state.stockFilter==='attention'?'on':''}" data-stock-filter="attention"><b>${attention}</b><span>${esc(t('stockAttention'))}</span><small>${counts.empty} ${esc(t('stockEmpty'))} · ${counts.low} ${esc(t('stockLow'))}</small></button>
       <button type="button" class="${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b><span>${esc(t('stockEmpty'))}</span><small>${esc(t('stockOutState'))}</small></button>
-      <button type="button" class="pro-only mode-pro-block ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b><span>${esc(t('stockShelves'))}</span><small>${esc(t('stockCatalogue'))}</small></button>
+      ${isPro()?`<button type="button" class="pro-only mode-pro-block ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b><span>${esc(t('stockShelves'))}</span><small>${esc(t('stockCatalogue'))}</small></button>`:''}
     </div>
     ${shiftPresenceBannerHtml()}
     ${shiftStockCheckBannerHtml()}
     ${missing.length?`<div class="stock-notice">${ui('u-alert','sm')}<b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
-    ${resultsHtml}
+    <div class="stock-board-layout">
+      ${!flatView && isPro()?`<nav class="stock-shelf-rail" aria-label="${esc(t('stockShelves'))}">
+        ${CATS().map(c=>{
+          const n=visible.filter(p=>p.cat===c.id).length; if(!n) return '';
+          const open=Array.isArray(state.stockOpenCategories)?state.stockOpenCategories.includes(c.id):true;
+          return `<button type="button" class="stock-rail-chip ${open?'on':''}" data-stock-rail="${c.id}"><span class="cat-ico-wrap">${catIcon(c.id)}</span><b>${esc(L(c))}</b><small>${n}</small></button>`;
+        }).join('')}
+      </nav>`:''}
+      <div class="stock-board-pane">${resultsHtml}</div>
+    </div>
     ${recentHtml}
     ${state.selectMode==='stock'&&hid!=='all'?bulkBarHtml([
       {id:'in', label:t('bulkIn')},
@@ -8731,21 +9322,38 @@ function isProductOnFridayList(houseId, pid, friday=state.shopFriday||fridayFor(
   return fridayEntries(houseId, friday).some(e=>['open','pending'].includes(e.status)&&e.productId===pid);
 }
 
+/** Live Lager qty chip for a list/store row (house-scoped). */
+function listEntryStockChipHtml(hid, entry){
+  if(!hid || hid==='all') return '';
+  const product = entry?.productId ? prod(entry.productId) : matchProduct(entry?.name||'');
+  if(!product){
+    return `<span class="shop-stock-chip is-new">${esc(t('shopStockNew'))}</span>`;
+  }
+  const qty = DB.stock[stockKey(hid, product.id)] ?? 0;
+  const low = qty <= lowThreshold(product);
+  const empty = qty <= 0;
+  const tone = empty ? 'is-empty' : (low ? 'is-low' : 'is-ok');
+  const tag = empty ? t('shopStockEmpty') : (low ? t('shopStockLow') : '');
+  return `<span class="shop-stock-chip ${tone}">${esc(t('shopStockOnHand')(roundStock(qty), product.unit||entry.unit||''))}${tag?` · ${esc(tag)}`:''}</span>`;
+}
+
 /** Personal: «Θέλω να αγοραστεί» → ανοιχτή θέση στη λίστα Παρασκευής. */
 function requestWantBought(pid, houseId=state.house){
   if(!houseId || houseId==='all'){ toast(t('pickOneHouse'),'info'); return false; }
   const p=prod(pid); if(!p) return false;
   const friday=state.shopFriday||fridayFor();
   if(isProductOnFridayList(houseId, pid, friday)){ toast(t('alreadyPlanned')); return false; }
+  const id=uid();
   DB.listEntries.push({
-    id:uid(), productId:pid, name:L(p),
+    id, productId:pid, name:L(p),
     qty:Math.max(stepFor(p), lowThreshold(p)),
     unit:p.unit, houseId, fridayDate:friday,
     by:state.user?.id||null, status:'open'
   });
   if(!save()) return false;
   feedback('save');
-  toast(t('wantBoughtToast'),'success');
+  noteListUndo([id]);
+  offerListUndoToast(t('wantBoughtToast'));
   return true;
 }
 
@@ -8853,6 +9461,38 @@ function clearStockDraft(){
 }
 
 let stockUndoPayload = null;
+/** Last list insert batch — toast Undo removes these ids if still present. */
+let listUndoPayload = null;
+
+function noteListUndo(ids){
+  const clean = (Array.isArray(ids)?ids:[]).filter(Boolean).map(String);
+  listUndoPayload = clean.length ? {ids:clean, at:Date.now()} : null;
+}
+function offerListUndoToast(msg){
+  if(!listUndoPayload?.ids?.length){
+    toast(msg,'success');
+    return;
+  }
+  toastAction(msg,{
+    type:'success',
+    actionLabel:t('shopUndo'),
+    onAction:()=>undoLastListInsert(),
+    duration:5600,
+  });
+}
+function undoLastListInsert(){
+  const u = listUndoPayload;
+  if(!u?.ids?.length){ toast(t('shopListUndone'),'info'); return; }
+  listUndoPayload = null;
+  const set = new Set(u.ids);
+  const before = (DB.listEntries||[]).length;
+  DB.listEntries = (DB.listEntries||[]).filter(e=>!set.has(String(e.id)));
+  if(DB.listEntries.length===before){ toast(t('shopListUndone'),'info'); return; }
+  if(!save()) return;
+  feedback('toggle');
+  render();
+  toast(t('shopListUndone'),'success');
+}
 
 function findStockNameMatches(raw, limit=5){
   const q = norm(raw||'');
@@ -10104,18 +10744,25 @@ function autoFillShoppingFromStock(hid){
   if(!hid || hid==='all'){ toast(t('selectHouse'),'info'); return 0; }
   const friday = state.shopFriday||fridayFor();
   let added = 0;
+  const insertedIds = [];
   PRODUCTS().forEach(p=>{
     const qty = DB.stock[stockKey(hid,p.id)] ?? 0;
     if(qty > lowThreshold(p)) return;
     if(isProductOnFridayList(hid, p.id, friday)) return;
+    const id = uid();
     DB.listEntries.push({
-      id:uid(), productId:p.id, name:L(p),
+      id, productId:p.id, name:L(p),
       qty: Math.max(stepFor(p), lowThreshold(p)), unit:p.unit,
       houseId:hid, fridayDate:friday, by:state.user?.id||null, status:'open',
     });
+    insertedIds.push(id);
     added++;
   });
-  if(added){ if(!save()) return 0; toast(t('shopAutoFilled')(added),'success'); }
+  if(added){
+    if(!save()) return 0;
+    noteListUndo(insertedIds);
+    offerListUndoToast(t('shopAutoFilled')(added));
+  }
   else toast(t('stockHealthy'),'info');
   return added;
 }
@@ -10153,6 +10800,127 @@ function listRequestsFor(hid, {status, who}={}){
 
 function openListRequestCount(hid){
   return listRequestsFor(hid,{status:'open'}).length;
+}
+
+/* ── Taschengeld / Χαρτζιλίκι ───────────────────────────────────────── */
+function formatEuro(n){
+  const v = Math.round((Number(n)||0)*100)/100;
+  try{
+    return new Intl.NumberFormat(state.lang==='el'?'el-GR':'de-DE', {style:'currency', currency:'EUR'}).format(v);
+  }catch(_){
+    return v.toFixed(2)+' €';
+  }
+}
+function pocketTxnsFor(kidId){
+  return (DB.pocketMoneyTxns||[]).filter(x=>x && x.kidId===kidId)
+    .sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0));
+}
+function pocketBalance(kidId){
+  const rows = pocketTxnsFor(kidId);
+  if(!rows.length) return 0;
+  if(rows[0].balanceAfter!=null) return Number(rows[0].balanceAfter)||0;
+  return rows.slice().reverse().reduce((s,r)=>s+(Number(r.amount)||0), 0);
+}
+function addPocketTxn({kidId, amount, kind='in', note=''}={}){
+  if(!kidId) return null;
+  let amt = Math.round(Math.abs(Number(amount)||0)*100)/100;
+  if(!(amt>0)) return null;
+  if(kind==='out') amt = -amt;
+  else if(kind==='adjust') amt = Math.round(Number(amount)*100)/100;
+  const bal = Math.round((pocketBalance(kidId)+amt)*100)/100;
+  const row = {
+    id: uid(), kidId, amount: amt, kind: kind==='out'?'out':(kind==='adjust'?'adjust':'in'),
+    note: String(note||'').trim().slice(0,160),
+    by: state.user?.id || null, ts: Date.now(), balanceAfter: bal,
+  };
+  DB.pocketMoneyTxns = DB.pocketMoneyTxns || [];
+  DB.pocketMoneyTxns.push(row);
+  if(DB.pocketMoneyTxns.length>4000) DB.pocketMoneyTxns = DB.pocketMoneyTxns.slice(-4000);
+  return row;
+}
+function pocketTxnRowsHtml(kidId, {limit=10, readonly=false}={}){
+  const rows = pocketTxnsFor(kidId).slice(0, limit);
+  if(!rows.length) return `<li class="pocket-txn pocket-txn-empty muted">${esc(t('pocketMoneyEmpty'))}</li>`;
+  return rows.map(r=>{
+    const sign = r.amount>=0?'+':'';
+    const who = emp(r.by)?.name || '';
+    const when = r.ts ? (typeof relativeTime==='function'?relativeTime(r.ts):new Date(r.ts).toLocaleDateString()) : '';
+    return `<li class="pocket-txn ${r.amount>=0?'in':'out'}">
+      <b>${sign}${esc(formatEuro(Math.abs(r.amount)))}</b>
+      <span>${esc(r.note||t(r.kind==='out'?'pocketMoneyOut':'pocketMoneyIn'))}${who?` · ${esc(who)}`:''}</span>
+      <small>${esc(when)}${r.balanceAfter!=null?` · ${esc(formatEuro(r.balanceAfter))}`:''}</small>
+    </li>`;
+  }).join('');
+}
+
+/** Shared clear Taschengeld / Χαρτζιλίκι panel — child view-only, staff ±. */
+function pocketMoneyPanelHtml(kidId, {mode='staff', limit}={}){
+  const bal = formatEuro(pocketBalance(kidId));
+  const isChild = mode==='child';
+  const histLimit = limit!=null ? limit : (isChild ? 12 : 8);
+  const actions = isChild ? '' : `<div class="pocket-staff-actions" role="group" aria-label="${esc(t('pocketMoneyTitle'))}">
+      <button type="button" class="btn pocket-act-in" data-pocket-add="${esc(kidId)}">＋ ${esc(t('pocketMoneyIn'))}</button>
+      <button type="button" class="btn sec pocket-act-out" data-pocket-remove="${esc(kidId)}">− ${esc(t('pocketMoneyOut'))}</button>
+    </div>`;
+  return `<section class="pocket-panel ${isChild?'pocket-child':'pocket-staff'}" aria-labelledby="pocketTitle-${esc(kidId)}">
+    <header class="pocket-panel-head">
+      <div class="pocket-panel-titles">
+        <span class="pocket-kicker">${esc(t('pocketMoneyBalance'))}</span>
+        <h2 class="pocket-panel-title" id="pocketTitle-${esc(kidId)}">${esc(t('pocketMoneyTitle'))}</h2>
+      </div>
+      <div class="pocket-balance-big" aria-label="${esc(t('pocketMoneyBalance'))}">${esc(bal)}</div>
+    </header>
+    ${actions}
+    <h3 class="pocket-history-h">${esc(t('pocketMoneyHistory'))}</h3>
+    <ul class="pocket-txn-list">${pocketTxnRowsHtml(kidId, {limit:histLimit, readonly:isChild})}</ul>
+  </section>`;
+}
+function sheetPocketTxn(kidId, kind='in'){
+  if(!kidId) return;
+  const k = kid(kidId);
+  openSheet(`<div class="pocket-sheet">
+    <div class="import-kicker">${esc(t('pocketMoneyTitle'))}</div>
+    <h2>${esc(kind==='out'?t('pocketMoneyOut'):t('pocketMoneyIn'))} · ${esc(k?.name||'')}</h2>
+    <p class="muted">${esc(t('pocketMoneyBalance'))}: <b>${esc(formatEuro(pocketBalance(kidId)))}</b></p>
+    <label class="f"><span>${esc(t('pocketMoneyIn'))} €</span><input id="pocketAmt" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="5.00"></label>
+    <label class="f"><span>${esc(t('pocketMoneyNote'))}</span><input id="pocketNote" placeholder="${esc(t('pocketMoneyNotePh'))}"></label>
+    <button class="btn" type="button" id="pocketSave">${esc(t('pocketMoneyAdd'))}</button>
+  </div>`);
+  sheetEl.querySelector('#pocketSave').onclick=()=>{
+    const amt = Number(String(sheetEl.querySelector('#pocketAmt')?.value||'').replace(',','.'));
+    const note = sheetEl.querySelector('#pocketNote')?.value||'';
+    if(!(amt>0)){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
+    if(!addPocketTxn({kidId, amount:amt, kind, note})){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
+    if(!save()) return;
+    closeSheet(); toast(t('pocketMoneySaved'),'success'); feedback('save'); render();
+  };
+}
+function kidOpenRequestCount(kidId){
+  return (DB.listRequests||[]).filter(r=>r && r.kidId===kidId && r.status==='open').length;
+}
+function sheetChildMyRequests(kidId){
+  if(!kidId) return;
+  const mine = (DB.listRequests||[]).filter(r=>r && r.kidId===kidId)
+    .sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0)).slice(0,40);
+  const statusLabel = st => t(st==='open'?'shopRequestOpen':st==='accepted'?'shopRequestStatusAccepted':st==='bought'?'shopRequestStatusBought':'shopRequestStatusRejected');
+  const rows = mine.length ? mine.map(r=>`<article class="req-item ${r.status}">
+    <div class="req-item-main">
+      <div class="req-item-name"><b>${esc(r.name)}</b></div>
+      <div class="req-item-sub">${r.qty!=null?`${r.qty} ${esc(r.unit||'')} · `:''}${r.note?esc(r.note):''}</div>
+      <span class="req-status pill ${r.status}">${esc(statusLabel(r.status))}</span>
+    </div>
+  </article>`).join('') : `<p class="muted">${esc(t('shopRequestEmpty'))}</p>`;
+  openSheet(`<div class="child-req-sheet">
+    <div class="import-kicker">${esc(t('shopRequestMine'))}</div>
+    <h2>${esc(t('shopRequestMine'))}</h2>
+    <p class="muted">${esc(t('shopRequestKidHint'))}</p>
+    <button class="btn" type="button" id="childReqNew">${ui('u-cart','sm')} ${esc(t('shopRequestCreate'))}</button>
+    <div class="req-mine-list" style="margin-top:12px">${rows}</div>
+  </div>`);
+  sheetEl.querySelector('#childReqNew').onclick=()=>{
+    closeSheet();
+    sheetCreateListRequest({kidMode:true});
+  };
 }
 
 function notifyListRequestCreated(req){
@@ -10233,7 +11001,7 @@ function acceptListRequest(reqId, whoId){
   req.listEntryId = entry.id;
   req.decidedAt = Date.now();
   req.decidedBy = whoId || state.user?.id || null;
-  return true;
+  return entry.id;
 }
 
 function rejectListRequest(reqId, whoId, reason=''){
@@ -10249,10 +11017,86 @@ function rejectListRequest(reqId, whoId, reason=''){
 function markListRequestBought(reqId, whoId){
   const req = ensureListRequests().find(r=>r.id===reqId);
   if(!req || !['open','accepted'].includes(req.status)) return false;
-  req.status = 'bought';
+  const who = whoId || state.user?.id || null;
+  /* Join Friday path — stock books only via confirmFridayBatch. */
+  if(req.status==='open'){
+    if(!acceptListRequest(reqId, who)) return false;
+  }
+  let entry = req.listEntryId ? DB.listEntries.find(e=>e.id===req.listEntryId) : null;
+  if(!entry){
+    const hid = req.houseId || shopHouse();
+    const friday = req.fridayDate || state.shopFriday || fridayFor();
+    const product = matchProduct(req.name);
+    entry = {
+      id: uid(),
+      productId: product?.id || null,
+      name: req.name,
+      qty: req.qty!=null ? req.qty : (product ? Math.max(stepFor(product),1) : 1),
+      unit: req.unit || product?.unit || 'x',
+      note: req.note || '',
+      houseId: hid,
+      fridayDate: friday,
+      by: who,
+      status: 'open',
+      fromRequestId: req.id,
+    };
+    DB.listEntries.push(entry);
+    req.listEntryId = entry.id;
+  }
+  if(entry.status==='bought'){
+    req.status = 'bought';
+    req.decidedAt = Date.now();
+    req.decidedBy = who;
+    return true;
+  }
+  if(!['open','pending'].includes(entry.status)){
+    entry.status = 'open';
+    delete entry.decision;
+  }
+  req.status = 'accepted';
   req.decidedAt = Date.now();
-  req.decidedBy = whoId || state.user?.id || null;
+  req.decidedBy = who;
+  toast(t('shopRequestOnList'),'info',4200);
   return true;
+}
+
+function syncListRequestsFromFridayEntries(entries, whoId, at){
+  const reqs = ensureListRequests();
+  (entries||[]).forEach(e=>{
+    if(!e?.fromRequestId) return;
+    const req = reqs.find(r=>r.id===e.fromRequestId);
+    if(!req) return;
+    if(e.status==='bought'){
+      req.status = 'bought';
+      req.listEntryId = e.id;
+      req.decidedAt = at || Date.now();
+      req.decidedBy = whoId || req.decidedBy || null;
+    }else if(e.status==='missing' && req.status==='accepted'){
+      /* keep accepted so staff can carry / re-shop */
+      req.listEntryId = e.id;
+    }
+  });
+}
+
+function sheetShopBookedSummary(gotLines, hid){
+  const lines = Array.isArray(gotLines) ? gotLines : [];
+  openSheet(`<div class="sheet-head"><h3>${esc(t('shopBookedTitle'))}</h3><button class="x" id="sx">×</button></div>
+    <p class="muted" style="margin:0 0 12px">${esc(t('shopBookedHint'))}</p>
+    ${lines.length?`<ul class="shop-booked-list">${lines.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:
+      `<p class="muted">${esc(t('shopBookedNone'))}</p>`}
+    <div class="row" style="margin-top:14px;gap:8px;flex-wrap:wrap">
+      <button class="btn" type="button" id="shopBookedToLager">${esc(t('shopOpenLager'))}</button>
+      <button class="btn sec" type="button" id="shopBookedClose">${esc(t('close'))}</button>
+    </div>`);
+  sheetEl.querySelector('#sx').onclick = closeSheet;
+  sheetEl.querySelector('#shopBookedClose').onclick = closeSheet;
+  sheetEl.querySelector('#shopBookedToLager').onclick = ()=>{
+    closeSheet();
+    state.tab = 'stock';
+    state.house = hid || state.house;
+    try{ location.hash = '#stock'; }catch{}
+    render();
+  };
 }
 
 
@@ -10643,8 +11487,19 @@ function viewShop(){
           <button class="shop-more-action" type="button" data-page-act="shopHistory">${ui('u-book','sm')} ${esc(t('topHistory'))}</button>
         </div></details>
       </div>
-      ${state.shopPanel==='plan'?`<div class="shop-add-row"><div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋ <span>${esc(t('addToCart'))}</span></button></div>
-        <button class="btn sec sm shop-auto-fill pro-only mode-pro-block" type="button" id="shopAutoFill">${ui('u-sparkle','sm')} ${t('shopAutoFill')}</button></div>`:''}
+      ${state.shopPanel==='plan'?`<div class="shop-easy-strip" role="group" aria-label="${esc(t('shopPlan'))}">
+          <button class="btn sec sm shop-resp-ack ${state.shopRespAck?'on':''}" type="button" id="shopRespAckStart" aria-pressed="${state.shopRespAck?'true':'false'}">${esc(t('shopRespAck'))}</button>
+          <button class="btn sec sm" type="button" id="shopAutoFill">${ui('u-sparkle','sm')} ${esc(isEasy()?t('shopEasyFill'):t('shopAutoFill'))}</button>
+          ${open.length?`<button class="btn sm" type="button" id="startFridayTop">${esc(T[state.lang].cartReady(open.length))}</button>`:
+            `<button class="btn sm sec" type="button" id="shopEasyFoto" data-page-act="shopScan">${ui('u-camera','sm')} ${esc(t('shopEasyFoto'))}</button>`}
+        </div>
+        <p class="shop-photo-banner" role="note">
+          ${ui('u-camera','sm')}
+          <span>${esc(t('shopPhotoHint'))}</span>
+          <button type="button" class="btn ghost sm" data-page-act="shopScan">${esc(t('shopPhotoCta'))}</button>
+        </p>
+        <div class="shop-add-row"><div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋ <span>${esc(t('addToCart'))}</span></button></div>
+        </div>`:''}
       ${state.shopPanel==='requests'?`<div class="shop-add-row req-easy-row">
         <button class="btn req-cta" type="button" id="shopRequestCreate">${ui('u-cart','sm')} ${esc(t('shopRequestBig'))}</button>
       </div>`:''}
@@ -10764,7 +11619,8 @@ function viewShop(){
       <button class="store-choice-main" type="button" data-decision="${st==='bought'?'undo':'bought'}" data-entry="${e.id}" aria-label="${st==='bought'?t('undoDecision'):t('markBought')}">
         <span class="store-product-icon">${svgIcon(prodIconId(product),'prod-ico')}</span>
         <span class="store-choice-copy"><span class="store-choice-name">${esc(e.name)}</span>
-        <span class="store-choice-qty"><b>${e.qty} ${esc(e.unit)}</b>${e.note?' · '+esc(e.note):''}</span></span>
+        <span class="store-choice-qty"><b>${e.qty} ${esc(e.unit)}</b>${e.note?' · '+esc(e.note):''}</span>
+        ${listEntryStockChipHtml(hid, e)}</span>
       </button>
       <div class="store-choice-actions" role="group" aria-label="${esc(e.name)}">
         <button class="store-decision yes ${st==='bought'?'on':''}" data-decision="bought" data-entry="${e.id}" type="button" aria-pressed="${st==='bought'?'true':'false'}"><span>✓</span>${esc(t('markBought'))}</button>
@@ -10817,9 +11673,10 @@ function viewShop(){
       ]):''}
       <div class="store-finish bottom-dock">
         <div class="store-finish-copy"><b>${done}/${pending.length} · ${esc(t('shoppingProgress'))}</b><span>${remaining?T[state.lang].storeProgressHint(done,pending.length):esc(t('storeComplete'))}</span></div>
+        <button class="btn sec sm shop-resp-ack ${state.shopRespAck?'on':''}" type="button" id="shopRespAck" aria-pressed="${state.shopRespAck?'true':'false'}">${esc(t('shopRespAck'))}</button>
         <div class="row">
           <button class="btn sec sm" id="btnReceipt" type="button">${ui('u-receipt','sm')} ${t('scanReceipt')}</button>
-          <button class="btn" id="confirmBatch" type="button" ${remaining?'disabled':''}>${remaining?`${done}/${pending.length} · ${t('storeRemaining')}`:t('confirmBatch')}</button>
+          <button class="btn" id="confirmBatch" type="button" ${remaining || !state.shopRespAck?'disabled':''}>${remaining?`${done}/${pending.length} · ${t('storeRemaining')}`:t('confirmBatch')}</button>
         </div>
       </div>
     </section>` : '';
@@ -10833,7 +11690,7 @@ function viewShop(){
       return `<div class="shop-item ${sel?'selected':''}">
       ${shopSelecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${e.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
       <div><div class="shop-item-name">${svgIcon(prodIconId(e.productId?prod(e.productId):matchProduct(e.name)),'prod-ico')}${esc(e.name)}</div>
-      <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)}</div></div>
+      <div class="shop-item-sub">${e.note?esc(e.note)+' · ':''}${esc(e.unit)} · ${listEntryStockChipHtml(hid, e)}</div></div>
       ${shopSelecting?'':`<div class="cart-controls"><button class="cart-step" data-list-qty="-1" data-entry="${e.id}" aria-label="−">−</button><input class="cart-qty-input" data-list-q="${e.id}" value="${e.qty}" inputmode="decimal" aria-label="${esc(e.name)}"><button class="cart-step" data-list-qty="1" data-entry="${e.id}" aria-label="＋">＋</button><button class="mini-x" data-remove-list="${e.id}" aria-label="${t('close')}">×</button></div>`}
       </div>`;
     }).join('')}</div>`:
@@ -10864,6 +11721,7 @@ function viewShop(){
 
 /** Ανοίγει την παρτίδα Παρασκευής: όλα τα open μπαίνουν σε αναμονή αποδοχής. */
 function startFridayBatch(){
+  if(!state.shopRespAck){ toast(t('shopRespNeed'),'error'); return; }
   const hid = shopHouse();
   const open = fridayEntries(hid).filter(e=>e.status==='open');
   if(!open.length){ toast(t('nothingToStart')); return; }
@@ -10874,7 +11732,10 @@ function startFridayBatch(){
 
 function cancelFridayBatch(){
   const pending=fridayEntries(shopHouse()).filter(e=>e.status==='pending');
-  pending.forEach(e=>{e.status='open';delete e.decision;});state.shopQuery='';save();render();
+  pending.forEach(e=>{e.status='open';delete e.decision;});
+  state.shopQuery='';
+  state.shopRespAck=false;
+  save();render();
 }
 
 function inventoryProductForEntry(entry){
@@ -10893,10 +11754,11 @@ function confirmFridayBatch(){
   const hid = shopHouse();
   const pending = fridayEntries(hid).filter(e=>e.status==='pending');
   if(!pending.length){ toast(t('nothingPending')); return; }
+  if(!state.shopRespAck){ toast(t('shopRespNeed'),'error'); return; }
   if(pending.some(e=>!e.decision)){toast(t('decideAll'),'error',3600);return;}
   askPin(t('confirmBatch'), who => {
     state.user = who;
-    const got = [], miss = [], completedAt=Date.now(), friday=state.shopFriday||fridayFor();
+    const got = [], gotLines = [], miss = [], completedAt=Date.now(), friday=state.shopFriday||fridayFor();
     pending.forEach(e=>{
       e.decidedBy = who.id; e.decidedAt = completedAt;
       if(e.decision === 'bought'){
@@ -10905,6 +11767,7 @@ function confirmFridayBatch(){
         const inventoryProduct=inventoryProductForEntry(e),k=stockKey(hid,inventoryProduct.id);
         DB.stock[k] = (DB.stock[k] ?? 0) + e.qty;
         got.push(`${e.name} ${e.qty}${e.unit}`);
+        gotLines.push(t('shopBookedItem')(e.name, e.qty, e.unit));
       }else if(e.decision === 'unavailable' || e.decision === 'expensive' || e.decision === 'missing'){
         // legacy `missing` treated as unavailable
         e.missReason = e.decision === 'expensive' ? 'expensive' : 'unavailable';
@@ -10913,15 +11776,20 @@ function confirmFridayBatch(){
       }
       delete e.decision;
     });
+    syncListRequestsFromFridayEntries(pending, who.id, completedAt);
     DB.shoppingTrips ||= [];
     const tripId='trip-'+uid();
     DB.shoppingTrips.push({id:tripId,houseId:hid,fridayDate:friday,completedAt,completedBy:who.id,
+      responsibilityAck:true,responsibilityAckBy:who.id,responsibilityAckAt:completedAt,
       items:pending.map(e=>({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status,reason:e.missReason||null}))});
     logEntry('SHOP',
       `${t('typeSHOP')} @ ${houseShort(hid)} — ${t('stBought')}: ${got.join(', ') || '—'}` +
       ` | ${t('shortage')}: ${miss.join(', ') || '—'}`,
       {houseId:hid,tripId,items:pending.map(e=>({productId:e.productId,name:e.name,qty:e.qty,unit:e.unit,result:e.status,reason:e.missReason||null}))});
-    save(); render(); toast(`${T[state.lang].batchBooked(pending.length)} · ${T[state.lang].bookedToHouse(houseShort(hid))}`,'success',4800);
+    state.shopRespAck=false;
+    save(); render();
+    toast(`${T[state.lang].batchBooked(pending.length)} · ${T[state.lang].bookedToHouse(houseShort(hid))}`,'success',4800);
+    try{ sheetShopBookedSummary(gotLines, hid); }catch{}
   });
 }
 
@@ -11339,11 +12207,14 @@ function sheetImportList(opts={}){
       if(behavior==='replace'){
         DB.listEntries=DB.listEntries.filter(e=>!(e.houseId===hid&&listEntryFriday(e)===friday&&['open','pending'].includes(e.status)));
       }
+      const insertedIds = [];
       rows.forEach(r => {
         const match=behavior==='merge'&&DB.listEntries.find(e=>e.houseId===hid&&listEntryFriday(e)===friday&&
           ['open','pending'].includes(e.status)&&(r.productId&&e.productId===r.productId||norm(e.name)===norm(r.name))&&norm(e.unit)===norm(r.unit));
         if(match){ match.qty=(Number(match.qty)||0)+(Number(r.qty)||0); match.note=[match.note,r.note].filter(Boolean).join(' · '); match.aiImportId=importId; return; }
-        DB.listEntries.push({id:uid(),productId:r.productId,name:r.name,qty:r.qty,unit:r.unit,note:r.note||'',
+        const id=uid();
+        insertedIds.push(id);
+        DB.listEntries.push({id,productId:r.productId,name:r.name,qty:r.qty,unit:r.unit,note:r.note||'',
           houseId:hid,fridayDate:friday,by:who.id,status:batchIsActive?'pending':'open',
           source:photo?`${imageSource||'image'}-ai`:aiMeta?'text-ai':'text-local',aiImportId:importId});
       });
@@ -11355,7 +12226,8 @@ function sheetImportList(opts={}){
       logEntry('SHOP', `${t('importTitle')} @ ${houseShort(hid)}: ` +
         rows.map(r=>`${r.name} ${r.qty}${r.unit}`).join(', '), {houseId: hid, photo, aiImportId:importId});
       save(); closeSheet(); render();
-      toast(T[state.lang].importedToFriday(fridayText(friday)),'success',4200);
+      if(insertedIds.length) noteListUndo(insertedIds);
+      offerListUndoToast(T[state.lang].importedToFriday(fridayText(friday)));
     });
   };
 
@@ -11569,9 +12441,25 @@ function sheetReceipt(){
             ${l.matchId?'':`<span class="pill ovr">${t('notOnList')}</span>`}</div>
           <div class="muted">${l.qty} ${esc(l.unit)}</div></div>`).join('')}
         </div>
-        <button class="btn" id="rSave">${t('bookBatch')}</button>`;
+        <button class="btn sec sm shop-resp-ack ${state.shopRespAck?'on':''}" type="button" id="rRespAck" aria-pressed="${state.shopRespAck?'true':'false'}">${esc(t('shopRespAck'))}</button>
+        <button class="btn" id="rSave" ${state.shopRespAck?'':'disabled'}>${t('bookBatch')}</button>`;
       /* Το OCR τσεκάρει μόνο· η τελική αποδοχή γίνεται με το PIN στην παρτίδα. */
+      const syncRSave = ()=>{
+        const btn = sheetEl.querySelector('#rSave');
+        if(btn) btn.disabled = !state.shopRespAck;
+      };
+      sheetEl.querySelector('#rRespAck').onclick = ()=>{
+        state.shopRespAck = !state.shopRespAck;
+        const el = sheetEl.querySelector('#rRespAck');
+        if(el){
+          el.classList.toggle('on', state.shopRespAck);
+          el.setAttribute('aria-pressed', state.shopRespAck?'true':'false');
+        }
+        syncRSave();
+        feedback('toggle');
+      };
       sheetEl.querySelector('#rSave').onclick = () => {
+        if(!state.shopRespAck){ toast(t('shopRespNeed'),'error'); return; }
         const hid = shopHouse();
         lines.forEach(l=>{
           if(l.matchId){
@@ -13453,18 +14341,17 @@ function kidFirstRunHtml(){
 }
 
 function kidGuideHtml(view){
+  /* Compact “you are here” — full howto lives in Menü / dock Mehr (less banner noise). */
+  if(view==='today') return '';
   const title = kidViewTitle(view);
   const hint = kidViewHint(view);
-  const modeHint = isPro() ? t('kidGuideHintPro') : t('kidGuideHintEasy');
-  return `<div class="kid-guide" role="status">
+  return `<div class="kid-guide kid-guide-compact" role="status">
     <div class="kid-guide-where">
       <span class="eyebrow">${esc(t('kidGuideWhere'))}</span>
       <b>${esc(title)}</b>
       <span class="kid-guide-hint">${esc(hint)}</span>
     </div>
     <div class="kid-guide-actions">
-      <span class="kid-guide-mode easy-only">${esc(t('kidGuideNext'))}: ${esc(modeHint)}</span>
-      <span class="kid-guide-mode pro-only mode-pro-block">${esc(modeHint)}</span>
       <button type="button" class="chip" id="childHowToBtn">${ui('u-sparkle','sm')} ${esc(t('childHowTo'))}</button>
     </div>
   </div>`;
@@ -13631,14 +14518,12 @@ function mountKidDock(active){
   const dockZo = document.getElementById('dockZoAi');
   if(dockZo) dockZo.hidden = true;
   bottom.querySelector('nav.kid-dock')?.remove();
-  /* Desktop: visible side site menu. Mobile: hamburger in header owns nav. */
-  if(desktop){
-    bottom.insertAdjacentHTML('beforeend', kidDockHtml(active));
-    const dock = bottom.querySelector('nav.kid-dock');
-    wireKidChrome(dock);
-    const more = dock?.querySelector('#kidDockMore');
-    if(more) more.onclick = ()=>{ try{ feedback('open'); }catch{} openKidSiteMenu(); };
-  }
+  /* Always mount dock: desktop = left rail, mobile = playful bottom pill (kids need visible nav). */
+  bottom.insertAdjacentHTML('beforeend', kidDockHtml(active));
+  const dock = bottom.querySelector('nav.kid-dock');
+  wireKidChrome(dock);
+  const more = dock?.querySelector('#kidDockMore');
+  if(more) more.onclick = ()=>{ try{ feedback('open'); }catch{} openKidSiteMenu(); };
 }
 
 function unmountKidDock(){
@@ -13662,6 +14547,19 @@ function childSchoolSnapshotHtml(kidId){
   const summary=childProgressSummary(kidId);
   const gradeRows=summary.grades.filter(row=>row.score>0).slice(0,4).map(row=>`
     <span class="child-grade-chip"><b>${esc(subjectLabel(row.subject))}</b>${starsHtml(row.score)}</span>`).join('');
+  const hw=(DB.homework||[]).filter(h=>(!h.kidId||h.kidId===kidId)&&!h.done).slice(0,5)
+    .map(h=>`<label class="hw-row child-hw-row"><input type="checkbox" data-child-hw-toggle="${h.id}"/> <span class="grow"><b>${esc(h.title||'')}</b><small>${esc([subjectLabel(subjectById(h.subjectId)),h.due].filter(Boolean).join(' · '))}</small></span></label>`)
+    .join('') || `<p class="muted">${esc(t('hwEmpty'))}</p>`;
+  const mats=schoolMaterialsFor({kidId, week:kidWeekMonday()}).slice(0,5)
+    .map(m=>`<div class="mat-mini"><b>${esc(m.title)}</b><span class="pill">${esc(schoolMaterialStatusLabel(m.status))}</span></div>`)
+    .join('') || `<p class="muted">${esc(t('schoolMaterialEmpty'))}</p>`;
+  const todayDow=(new Date().getDay()+6)%7;
+  const todaySlots=(DB.schoolTimetable||[]).filter(s=>Number(s.day)===todayDow)
+    .map(s=>`<li>${esc(s.from||'')}–${esc(s.to||'')} · ${esc(subjectLabel(subjectById(s.subjectId)))}</li>`).join('')
+    || `<li class="muted">${esc(t('ttEmpty'))}</li>`;
+  const acts=schoolActivityFor(kidId,{days:7}).slice(0,5)
+    .map(a=>`<li><b>${esc(a.title||a.kind)}</b><small>${esc(a.kind)}</small></li>`).join('')
+    || `<li class="muted">${esc(t('schoolActivityEmpty'))}</li>`;
   return `<section class="child-school-card">
     <div class="kid-panel-h"><div><b>${esc(t('childSchoolTitle'))}</b><span>${esc(t('childSchoolHint'))}</span></div>
       <button class="chip" type="button" data-child-view="rate">${esc(t('childGrades'))}</button></div>
@@ -13672,6 +14570,10 @@ function childSchoolSnapshotHtml(kidId){
       <span><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):'—'}</b>${esc(t('staffWeekAverage'))}</span>
     </div>
     <div class="child-grade-strip">${gradeRows||`<span class="muted">${esc(t('gradeNoData'))}</span>`}</div>
+    <div class="child-school-block"><b>${esc(t('childHwMine'))}</b>${hw}</div>
+    <div class="child-school-block"><b>${esc(t('childMatMine'))}</b>${mats}</div>
+    <div class="child-school-block"><b>${esc(t('childSchoolToday'))}</b><ul>${todaySlots}</ul></div>
+    <div class="child-school-block"><b>${esc(t('schoolActivityTitle'))}</b><ul class="act-list">${acts}</ul></div>
   </section>`;
 }
 
@@ -13785,10 +14687,9 @@ function childStartView(c){
   }).join('');
 
   return `
-    <div class="kid-home" data-tour="kid-start">
+    <div class="kid-home kid-home-play" data-tour="kid-start">
       <header class="kid-header tide-reveal">
         <p class="eyebrow">Armonia · ${esc(t('kidHomeDash'))}</p>
-        <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
         <h2>${esc(t('kidHello')(c.name))}</h2>
         <p class="kid-hello">${esc(lvName)} · ${esc(t('xpLevel')(lv))} · ${esc(t('kidStarsCollected')(xp))}</p>
       </header>
@@ -13832,11 +14733,11 @@ function childStartView(c){
             <div class="kid-panel-h"><b>${esc(t('kidHomeSubjectsPeek'))}</b></div>
             <div class="kid-sub-chip-row">${subjectPeek||`<p class="muted">${esc(t('subEmpty'))}</p>`}</div>
           </section>
-          <div class="mode-pro-block">${childSchoolSnapshotHtml(c.id)}</div>
+          ${childSchoolSnapshotHtml(c.id)}
           <div class="kid-secondary">
-            <button type="button" class="chip" id="childRequestBtn">${esc(t('shopRequestBig'))}</button>
+            <button type="button" class="chip" id="childRequestBtn">${esc(t('shopRequestBig'))}${kidOpenRequestCount(c.id)?` · ${kidOpenRequestCount(c.id)}`:''}</button>
             <button type="button" class="chip" data-child-view="notes">${esc(t('kidNotesTitle'))}</button>
-            <button type="button" class="chip" data-child-view="bonus">${esc(t('kidBonusTitle'))}</button>
+            <button type="button" class="chip" data-child-view="bonus">${esc(t('kidBonusTitle'))} · ${esc(formatEuro(pocketBalance(c.id)))}</button>
             <button type="button" class="chip mode-pro-block" data-child-view="events">${esc(t('childEvents'))}</button>
             <button type="button" class="chip mode-pro-block" data-child-view="gallery">${esc(t('galleryChildTab'))}</button>
           </div>
@@ -13902,7 +14803,7 @@ const DEFAULT_SUBJECTS = [
 
 function ensureSchoolDb(){
   if(!Array.isArray(DB.subjects) || !DB.subjects.length) DB.subjects = structuredClone(DEFAULT_SUBJECTS);
-  ['subjectGrades','attendance','homework','schoolTimetable','kidRatings','staffKidRatings','kidNotes'].forEach(k=>{
+  ['subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity','kidRatings','staffKidRatings','kidNotes'].forEach(k=>{
     if(!Array.isArray(DB[k])) DB[k] = [];
   });
 }
@@ -13947,6 +14848,7 @@ function setSubjectGrade(kidId, subjectId, score, note){
   const hit = DB.subjectGrades.find(g=>g.kidId===kidId && g.subjectId===subjectId && g.week===wk);
   if(hit){ hit.score=sc; hit.scale='de6'; hit.ts=Date.now(); if(note!=null) hit.note=String(note).slice(0,200); }
   else DB.subjectGrades.push({id:uid(), kidId, subjectId, score:sc, scale:'de6', note:note?String(note).slice(0,200):'', week:wk, ts:Date.now()});
+  logSchoolActivity({kidId, kind:'grade', title:`${subjectLabel(subjectById(subjectId))}: ${sc}`, subjectId, refId:`${kidId}:${subjectId}:${wk}`});
   return true;
 }
 
@@ -13960,6 +14862,7 @@ function setAttendance(kidId, dateStr, status){
   const hit = DB.attendance.find(a=>a.kidId===kidId && a.date===dateStr);
   if(hit){ hit.status=st; hit.ts=Date.now(); }
   else DB.attendance.push({id:uid(), kidId, date:dateStr, status:st, ts:Date.now()});
+  logSchoolActivity({kidId, kind:'attendance', title:t('att_'+st), date:dateStr, refId:`${kidId}:${dateStr}`});
   return true;
 }
 
@@ -14069,6 +14972,112 @@ function stockQtySparkHistory(hid){
   return days.some(n=>n>0) ? days : [];
 }
 
+
+function kidWeekMonday(dateStr){
+  const d = new Date((dateStr||iso(new Date()))+'T12:00:00');
+  d.setDate(d.getDate()-((d.getDay()+6)%7));
+  return iso(d);
+}
+
+function logSchoolActivity({kidId, kind, title, subjectId=null, refId=null, date=null}={}){
+  if(!kidId || !kind) return null;
+  ensureSchoolDb();
+  const ds = date || iso(new Date());
+  const row = {
+    id: uid(),
+    kidId,
+    date: ds,
+    kind: String(kind).slice(0,32),
+    title: String(title||kind).slice(0,160),
+    subjectId: subjectId || null,
+    refId: refId || null,
+    by: state.user?.id || state.child?.id || null,
+    ts: Date.now(),
+  };
+  /* Dedupe same day+kind+ref within 2 minutes */
+  const dup = (DB.schoolActivity||[]).find(a=>a.kidId===kidId && a.kind===row.kind && a.refId===row.refId && a.date===ds && Math.abs((a.ts||0)-row.ts)<120000);
+  if(dup){ dup.title=row.title; dup.ts=row.ts; dup.by=row.by; return dup; }
+  DB.schoolActivity.push(row);
+  if(DB.schoolActivity.length > 8000) DB.schoolActivity = DB.schoolActivity.slice(-6000);
+  return row;
+}
+
+function schoolMaterialsFor({kidId=null, week=null, status=null}={}){
+  ensureSchoolDb();
+  const wk = week || kidWeekMonday();
+  return (DB.schoolMaterials||[]).filter(m=>{
+    if(!m || m.archived) return false;
+    if(kidId && m.kidId!==kidId) return false;
+    if(week!==false && m.week && m.week!==wk && week!=null) return false;
+    if(status && m.status!==status) return false;
+    return true;
+  }).sort((a,b)=>(a.status||'').localeCompare(b.status||'')||String(a.title||'').localeCompare(String(b.title||'')));
+}
+
+function upsertSchoolMaterial({id=null, kidId, title, subjectId=null, status='needed', note='', week=null}={}){
+  ensureSchoolDb();
+  const clean = String(title||'').trim().slice(0,120);
+  if(!kidId || !clean) return null;
+  const wk = week || kidWeekMonday();
+  const st = ['needed','brought','missing'].includes(status) ? status : 'needed';
+  let row = id ? (DB.schoolMaterials||[]).find(m=>m.id===id) : null;
+  if(row){
+    row.title=clean; row.subjectId=subjectId||null; row.status=st; row.note=String(note||'').slice(0,240); row.ts=Date.now();
+  }else{
+    row = {id:uid(), kidId, title:clean, subjectId:subjectId||null, status:st, note:String(note||'').slice(0,240), week:wk, ts:Date.now(), by:state.user?.id||null};
+    DB.schoolMaterials.push(row);
+  }
+  logSchoolActivity({kidId, kind:'material', title:clean, subjectId:row.subjectId, refId:row.id});
+  return row;
+}
+
+function setSchoolMaterialStatus(id, status){
+  ensureSchoolDb();
+  const row = (DB.schoolMaterials||[]).find(m=>m.id===id);
+  if(!row) return false;
+  const st = ['needed','brought','missing'].includes(status) ? status : row.status;
+  row.status = st; row.ts = Date.now();
+  logSchoolActivity({kidId:row.kidId, kind:'material', title:`${row.title} → ${st}`, subjectId:row.subjectId, refId:row.id});
+  return true;
+}
+
+async function addSchoolMaterialPhoto({kidId, materialId=null, subjectId=null, note='', file=null, dataUrl=null}={}){
+  ensureSchoolDb();
+  if(!kidId) throw new Error('kid');
+  let photo = dataUrl;
+  if(file) photo = await galleryFileData(file);
+  if(!photo || !String(photo).startsWith('data:image/')) throw new Error('photo');
+  const compressed = String(photo).startsWith('data:image/jpeg') ? photo : await compressGalleryPhoto(photo);
+  const row = {
+    id: uid(),
+    materialId: materialId || null,
+    kidId,
+    subjectId: subjectId || null,
+    note: String(note||'').trim().slice(0,240),
+    mediaPath: compressed,
+    ts: Date.now(),
+    by: state.user?.id || state.child?.id || null,
+  };
+  DB.schoolMaterialMedia.push(row);
+  if(DB.schoolMaterialMedia.length > 2000) DB.schoolMaterialMedia = DB.schoolMaterialMedia.slice(-1500);
+  logSchoolActivity({kidId, kind:'material', title:row.note||t('schoolMaterialPhoto'), subjectId, refId:row.id});
+  return row;
+}
+
+function schoolActivityFor(kidId, {days=7}={}){
+  ensureSchoolDb();
+  const since = Date.now() - (Math.max(1, days)*86400000);
+  return (DB.schoolActivity||[])
+    .filter(a=>a && a.kidId===kidId && (a.ts||0)>=since)
+    .sort((a,b)=>(b.ts||0)-(a.ts||0));
+}
+
+function schoolMaterialStatusLabel(st){
+  if(st==='brought') return t('schoolMaterialBrought');
+  if(st==='missing') return t('schoolMaterialMissing');
+  return t('schoolMaterialNeeded');
+}
+
 function viewKids(){
   ensureSchoolDb();
   if(state.staffKidId) return viewKidProfile(state.staffKidId);
@@ -14103,8 +15112,10 @@ function viewKids(){
   </section>`;
   const tabs=`<div class="kids-pane-tabs" role="tablist">
     <button type="button" class="chip ${pane==='directory'?'on':''}" data-kids-pane="directory">${esc(t('navKids'))}</button>
-    <button type="button" class="chip pro-only mode-pro-block ${pane==='attendance'?'on':''}" data-kids-pane="attendance">${esc(t('schoolAttendance'))}</button>
-    <button type="button" class="chip pro-only mode-pro-block ${pane==='homework'?'on':''}" data-kids-pane="homework">${esc(t('schoolHomework'))}</button>
+    <button type="button" class="chip ${pane==='attendance'?'on':''}" data-kids-pane="attendance">${esc(t('schoolAttendance'))}</button>
+    <button type="button" class="chip ${pane==='homework'?'on':''}" data-kids-pane="homework">${esc(t('schoolHomework'))}</button>
+    <button type="button" class="chip ${pane==='materials'?'on':''}" data-kids-pane="materials">${esc(t('kidsPaneMaterials'))}</button>
+    <button type="button" class="chip ${pane==='activity'?'on':''}" data-kids-pane="activity">${esc(t('kidsPaneActivity'))}</button>
     <button type="button" class="chip pro-only mode-pro-block ${pane==='timetable'?'on':''}" data-kids-pane="timetable">${esc(t('schoolTimetable'))}</button>
     ${isAdminUser()?`<button type="button" class="chip pro-only mode-pro-block ${pane==='subjects'?'on':''}" data-kids-pane="subjects">${esc(t('schoolSubjects'))}</button>`:''}
   </div>`;
@@ -14112,6 +15123,8 @@ function viewKids(){
   if(pane==='directory') body=`${overview}<div class="kid-dir-list">${dir||emptyState(ui('u-person'), t('kidsEmpty'))}</div>`;
   else if(pane==='attendance') body=viewAttendanceGrid();
   else if(pane==='homework') body=viewHomeworkStaff();
+  else if(pane==='materials') body=viewSchoolMaterials();
+  else if(pane==='activity') body=viewSchoolActivityPane();
   else if(pane==='timetable') body=viewSchoolTimetable();
   else if(pane==='subjects' && isAdminUser()) body=viewSubjectsAdmin();
   else body=`<div class="kid-dir-list">${dir}</div>`;
@@ -14166,11 +15179,18 @@ function viewKidProfile(kidId){
   const hw=(DB.homework||[]).filter(h=>!h.kidId || h.kidId===k.id).sort((a,b)=>Number(a.done)-Number(b.done)).slice(0,8)
     .map(h=>`<label class="hw-row"><input type="checkbox" data-hw-toggle="${h.id}" ${h.done?'checked':''}/> <span class="grow"><b>${esc(h.title||'')}</b><small>${esc([subjectLabel(subjectById(h.subjectId)),h.due].filter(Boolean).join(' · '))}</small></span></label>`).join('')
     || `<p class="muted">${esc(t('hwEmpty'))}</p>`;
+  const matMini=schoolMaterialsFor({kidId:k.id, week:kidWeekMonday()}).slice(0,6)
+    .map(m=>`<div class="mat-mini"><b>${esc(m.title)}</b><span class="pill">${esc(schoolMaterialStatusLabel(m.status))}</span></div>`).join('')
+    || `<p class="muted">${esc(t('schoolMaterialEmpty'))}</p>`;
+  const actMini=schoolActivityFor(k.id,{days:7}).slice(0,6)
+    .map(a=>`<li><b>${esc(a.title||a.kind)}</b><small>${esc(a.kind)}</small></li>`).join('')
+    || `<li class="muted">${esc(t('schoolActivityEmpty'))}</li>`;
+  const pocketBal = formatEuro(pocketBalance(k.id));
   return `<div class="kids-shell kid-profile">
     <button type="button" class="btn ghost sm" id="kidProfileBack">← ${esc(t('navKids'))}</button>
     <header class="kid-profile-mast">
       <span class="kid-dir-av lg" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0])}</span>
-      <div class="grow"><p class="brand-kicker">Armonia</p><h2>${esc(k.name)}</h2><p>${esc(t('xpTotal')(xp))} · ${esc(t('xpLevel')(lv))}</p></div>
+      <div class="grow"><p class="brand-kicker">Armonia</p><h2>${esc(k.name)}</h2><p>${esc(t('xpTotal')(xp))} · ${esc(t('xpLevel')(lv))} · ${esc(t('pocketMoneyTitle'))} ${esc(pocketBal)}</p></div>
       ${progressRingHtml(pct,'Lv '+lv)}
     </header>
     <section class="kid-profile-kpis">
@@ -14179,12 +15199,17 @@ function viewKidProfile(kidId){
       <div><b>${summary.homeworkOpen}</b><span>${esc(t('homeworkOpen'))}</span></div>
       <div><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):'—'}</b><span>${esc(t('staffWeekAverage'))}</span></div>
     </section>
+    <section class="kid-profile-pocket">
+      ${pocketMoneyPanelHtml(k.id, {mode:'staff', limit:8})}
+    </section>
     <div class="kid-profile-grid">
       <section class="card pine-settle kid-team-rating">${staffRatingPanelHtml(k.id)}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolSubjects'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>${subs}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('gameProgress'))}</span><span class="hrs">${summary.gamePlays} ${esc(t('gameRounds'))}</span></div>${staffGameProgressHtml(k.id)}</section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolAttendance'))}</span></div><div class="att-week">${attWeek.join('')}</div></section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolHomework'))}</span><span class="hrs">${summary.homeworkOpen} ${esc(t('homeworkOpen'))}</span></div>${hw}</section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolMaterialTitle'))}</span></div>${matMini}</section>
+      <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('schoolActivityTitle'))}</span></div><ul class="act-list">${actMini}</ul></section>
       <section class="card pine-settle"><div class="block-h"><span class="t">${esc(t('kidNavRate'))}</span><span class="hrs">${esc(t('kidRateKicker'))}</span></div>
         <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
         ${rates}${thingRates}</section>
@@ -14198,6 +15223,66 @@ function viewKidProfile(kidId){
       <ul class="kid-note-list">${notes}</ul>
     </section>
     <section class="card pine-settle kid-recent-card"><div class="block-h"><span class="t">${esc(t('headerScheduleDay'))}</span></div><ul>${recent}</ul></section>
+  </div>`;
+}
+
+
+function viewSchoolMaterials(){
+  ensureSchoolDb();
+  const wk = kidWeekMonday();
+  const filterKid = state.schoolMatKid || '';
+  const kidOpts = `<option value="">${esc(t('hwAllKids'))}</option>`+(DB.children||[]).map(k=>`<option value="${k.id}" ${filterKid===k.id?'selected':''}>${esc(k.name)}</option>`).join('');
+  const subOpts = `<option value="">—</option>`+activeSubjects().map(s=>`<option value="${s.id}">${esc(subjectLabel(s))}</option>`).join('');
+  const rows = schoolMaterialsFor({kidId:filterKid||null, week:wk}).map(m=>{
+    const kn = kid(m.kidId)?.name || '—';
+    const media = (DB.schoolMaterialMedia||[]).filter(x=>x.materialId===m.id).slice(-2);
+    const thumbs = media.map(x=>`<img class="mat-thumb" src="${esc(x.mediaPath)}" alt=""/>`).join('');
+    return `<article class="mat-row card">
+      <div class="mat-row-main">
+        <b>${esc(m.title)}</b>
+        <small>${esc(kn)}${m.subjectId?` · ${esc(subjectLabel(subjectById(m.subjectId)))}`:''}</small>
+        ${m.note?`<small class="muted">${esc(m.note)}</small>`:''}
+        ${thumbs?`<div class="mat-thumbs">${thumbs}</div>`:''}
+      </div>
+      <div class="mat-status seg" role="group">
+        ${['needed','brought','missing'].map(st=>`<button type="button" class="chip ${m.status===st?'on':''}" data-mat-status="${m.id}" data-mat-st="${st}">${esc(schoolMaterialStatusLabel(st))}</button>`).join('')}
+      </div>
+      <label class="mat-photo-btn btn sm sec">${esc(t('schoolMaterialPhoto'))}<input type="file" accept="image/*" capture="environment" hidden data-mat-photo="${m.id}" data-mat-kid="${m.kidId}"/></label>
+    </article>`;
+  }).join('') || emptyState(ui('u-book'), t('schoolMaterialEmpty'));
+  return `<div class="mat-staff">
+    <form class="card pine-settle" id="matAddForm">
+      <div class="block-h"><span class="t">${esc(t('schoolMaterialAdd'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>
+      <p class="muted" style="margin:0 0 8px;font-size:12px">${esc(t('schoolMaterialHint'))}</p>
+      <input name="title" class="inp" required placeholder="${esc(t('schoolMaterialPh'))}"/>
+      <div class="row" style="gap:8px;margin-top:8px;flex-wrap:wrap">
+        <select name="kidId" class="inp grow" required>${(DB.children||[]).map(k=>`<option value="${k.id}">${esc(k.name)}</option>`).join('')}</select>
+        <select name="subjectId" class="inp grow">${subOpts}</select>
+      </div>
+      <input name="note" class="inp" style="margin-top:8px" placeholder="${esc(t('schoolMaterialNote'))}"/>
+      <button class="btn" type="submit" style="margin-top:10px">${esc(t('schoolMaterialAdd'))}</button>
+    </form>
+    <div class="row" style="gap:8px;margin:10px 0;align-items:center">
+      <label class="muted" style="font-size:12px">${esc(t('navKids'))}</label>
+      <select id="matKidFilter" class="inp grow">${kidOpts}</select>
+    </div>
+    <div class="mat-list">${rows}</div>
+  </div>`;
+}
+
+function viewSchoolActivityPane(){
+  ensureSchoolDb();
+  const filterKid = state.schoolActKid || (DB.children||[])[0]?.id || '';
+  const kidOpts = (DB.children||[]).map(k=>`<option value="${k.id}" ${filterKid===k.id?'selected':''}>${esc(k.name)}</option>`).join('');
+  const rows = filterKid ? schoolActivityFor(filterKid, {days:14}).slice(0,40).map(a=>{
+    const when = a.ts ? new Date(a.ts).toLocaleString() : (a.date||'');
+    return `<li class="act-row"><b>${esc(a.title||a.kind)}</b><small>${esc(a.kind)} · ${esc(when)}</small></li>`;
+  }).join('') : '';
+  return `<div class="act-staff card pine-settle">
+    <div class="block-h"><span class="t">${esc(t('schoolActivityTitle'))}</span></div>
+    <p class="muted" style="margin:0 0 8px;font-size:12px">${esc(t('schoolActivityHint'))}</p>
+    <select id="actKidFilter" class="inp" style="margin-bottom:10px">${kidOpts}</select>
+    <ul class="act-list">${rows || `<li class="muted">${esc(t('schoolActivityEmpty'))}</li>`}</ul>
   </div>`;
 }
 
@@ -14225,10 +15310,11 @@ function viewHomeworkStaff(){
     const sub=subjectById(h.subjectId);
     const kidN=h.kidId?kid(h.kidId)?.name:'';
     const meta=[subjectLabel(sub), h.due, kidN].filter(Boolean).join(' · ');
-    return `<label class="hw-row card">
-      <input type="checkbox" data-hw-toggle="${h.id}" ${h.done?'checked':''}/>
-      <span class="grow"><b>${esc(h.title||'')}</b><small>${esc(meta)}</small></span>
-    </label>`;
+    return `<div class="hw-row card">
+      <label class="hw-row-main"><input type="checkbox" data-hw-toggle="${h.id}" ${h.done?'checked':''}/>
+      <span class="grow"><b>${esc(h.title||'')}</b><small>${esc(meta)}</small></span></label>
+      <button type="button" class="mini-x" data-hw-del="${h.id}" aria-label="${esc(t('hwDelete'))}">×</button>
+    </div>`;
   }).join('') || emptyState(ui('u-book'), t('hwEmpty'));
   const subOpts=activeSubjects().map(s=>`<option value="${s.id}">${esc(subjectLabel(s))}</option>`).join('');
   const kidOpts=`<option value="">${esc(t('hwAllKids'))}</option>`+(DB.children||[]).map(k=>`<option value="${k.id}">${esc(k.name)}</option>`).join('');
@@ -14254,7 +15340,8 @@ function viewSchoolTimetable(){
   const byDay=[0,1,2,3,4,5,6].map(di=>{
     const rows=slots.filter(s=>Number(s.day)===di).map(s=>{
       const sub=subjectById(s.subjectId);
-      return `<div class="tt-slot"><b>${esc(s.from||'')}–${esc(s.to||'')}</b> ${esc(subjectLabel(sub))}</div>`;
+      return `<div class="tt-slot"><b>${esc(s.from||'')}–${esc(s.to||'')}</b> <span class="grow">${esc(subjectLabel(sub))}</span>
+        ${isAdminUser()?`<button type="button" class="mini-x" data-tt-del="${s.id}" aria-label="${esc(t('ttDelete'))}">×</button>`:''}</div>`;
     }).join('') || `<p class="muted">${esc(t('ttEmpty'))}</p>`;
     return `<section class="card pine-settle tt-day"><div class="block-h"><span class="t">${esc(days[di])}</span></div>${rows}</section>`;
   }).join('');
@@ -14332,6 +15419,18 @@ function wireKidsView(v){
       }
     };
   });
+  v.querySelectorAll('[data-rate-week]').forEach(b=>{
+    b.onclick=()=>{ state.rateWeek=b.dataset.rateWeek; feedback('toggle'); render(); };
+  });
+  v.querySelectorAll('[data-rate-cal-shift]').forEach(b=>{
+    b.onclick=()=>{
+      if(!state.rateCalMonth) state.rateCalMonth=iso(new Date()).slice(0,7)+'-01';
+      const d=new Date(state.rateCalMonth+'T12:00:00');
+      d.setMonth(d.getMonth()+Number(b.dataset.rateCalShift||0));
+      state.rateCalMonth=iso(d).slice(0,7)+'-01';
+      render();
+    };
+  });
   v.querySelectorAll('[data-att-kid]').forEach(b=>{
     b.onclick=()=>{
       let st=b.dataset.attStatus;
@@ -14348,7 +15447,24 @@ function wireKidsView(v){
   v.querySelectorAll('[data-hw-toggle]').forEach(inp=>{
     inp.onchange=()=>{
       const h=(DB.homework||[]).find(x=>x.id===inp.dataset.hwToggle);
-      if(h){ h.done=!!inp.checked; h.ts=Date.now(); save(); toast(t('hwSaved'),'success'); }
+      if(h){
+        h.done=!!inp.checked; h.ts=Date.now();
+        if(h.kidId) logSchoolActivity({kidId:h.kidId, kind:'homework', title:h.title||t('schoolHomework'), subjectId:h.subjectId, refId:h.id});
+        else (DB.children||[]).forEach(c=>logSchoolActivity({kidId:c.id, kind:'homework', title:h.title||t('schoolHomework'), subjectId:h.subjectId, refId:h.id}));
+        save(); toast(t('hwSaved'),'success');
+      }
+    };
+  });
+  v.querySelectorAll('[data-hw-del]').forEach(b=>{
+    b.onclick=()=>{
+      DB.homework=(DB.homework||[]).filter(h=>h.id!==b.dataset.hwDel);
+      save(); toast(t('hwSaved'),'success'); render();
+    };
+  });
+  v.querySelectorAll('[data-tt-del]').forEach(b=>{
+    b.onclick=()=>{
+      DB.schoolTimetable=(DB.schoolTimetable||[]).filter(s=>s.id!==b.dataset.ttDel);
+      save(); toast(t('ttSaved'),'success'); render();
     };
   });
   const hwForm=v.querySelector('#hwAddForm');
@@ -14356,13 +15472,53 @@ function wireKidsView(v){
     ev.preventDefault();
     const fd=new FormData(hwForm);
     ensureSchoolDb();
-    DB.homework.push({
+    const row={
       id:uid(), title:String(fd.get('title')||'').trim().slice(0,120),
       subjectId:fd.get('subjectId')||'', kidId:fd.get('kidId')||null,
       due:fd.get('due')||iso(new Date()), done:false, ts:Date.now(),
-    });
+    };
+    DB.homework.push(row);
+    if(row.kidId) logSchoolActivity({kidId:row.kidId, kind:'homework', title:row.title, subjectId:row.subjectId, refId:row.id});
     save(); toast(t('hwSaved'),'success'); render();
   };
+  const matForm=v.querySelector('#matAddForm');
+  if(matForm) matForm.onsubmit=ev=>{
+    ev.preventDefault();
+    const fd=new FormData(matForm);
+    if(upsertSchoolMaterial({
+      kidId:fd.get('kidId'), title:fd.get('title'), subjectId:fd.get('subjectId')||null,
+      note:fd.get('note')||'', status:'needed',
+    })){
+      save(); toast(t('matSaved'),'success'); render();
+    }
+  };
+  const matKidFilter=v.querySelector('#matKidFilter');
+  if(matKidFilter) matKidFilter.onchange=()=>{ state.schoolMatKid=matKidFilter.value||''; render(); };
+  const actKidFilter=v.querySelector('#actKidFilter');
+  if(actKidFilter) actKidFilter.onchange=()=>{ state.schoolActKid=actKidFilter.value||''; render(); };
+  v.querySelectorAll('[data-mat-status]').forEach(b=>{
+    b.onclick=()=>{
+      if(setSchoolMaterialStatus(b.dataset.matStatus, b.dataset.matSt)){
+        save(); toast(t('matStatusSaved'),'success'); render();
+      }
+    };
+  });
+  v.querySelectorAll('[data-mat-photo]').forEach(inp=>{
+    inp.onchange=async()=>{
+      const file=inp.files&&inp.files[0];
+      if(!file) return;
+      try{
+        await addSchoolMaterialPhoto({
+          kidId:inp.dataset.matKid,
+          materialId:inp.dataset.matPhoto,
+          file,
+        });
+        save(); toast(t('matSaved'),'success'); render();
+      }catch(err){
+        toast(t('unexpectedError'),'error');
+      }
+    };
+  });
   const ttForm=v.querySelector('#ttAddForm');
   if(ttForm) ttForm.onsubmit=ev=>{
     ev.preventDefault();
@@ -14379,9 +15535,17 @@ function wireKidsView(v){
     const text=(v.querySelector('#staffKidNote')?.value||'').trim();
     if(!text) return;
     ensureSchoolDb();
-    DB.kidNotes.push({id:uid(), kidId:noteSave.dataset.noteKid, text:text.slice(0,2000), ts:Date.now(), by:state.user?.id});
+    const row={id:uid(), kidId:noteSave.dataset.noteKid, text:text.slice(0,2000), ts:Date.now(), by:state.user?.id};
+    DB.kidNotes.push(row);
+    logSchoolActivity({kidId:row.kidId, kind:'note', title:text.slice(0,80), refId:row.id});
     save(); toast(t('kidNotesSaved'),'success'); render();
   };
+  v.querySelectorAll('[data-pocket-add]').forEach(btn=>{
+    btn.onclick=()=>sheetPocketTxn(btn.dataset.pocketAdd, 'in');
+  });
+  v.querySelectorAll('[data-pocket-remove]').forEach(btn=>{
+    btn.onclick=()=>sheetPocketTxn(btn.dataset.pocketRemove, 'out');
+  });
   v.querySelectorAll('[data-sub-toggle]').forEach(b=>{
     b.onclick=()=>{
       const s=subjectById(b.dataset.subToggle);
@@ -14484,11 +15648,11 @@ function kidRating(kidId, area, week){
   return hit ? ensureGradeScale(hit) : 0;
 }
 
-function setKidRating(kidId, area, value){
+function setKidRating(kidId, area, value, week){
   if(!kidId || !isValidKidRateArea(area)) return false;
   const score = clampGrade(value);
   if(!score) return false;
-  const wk = kidWeekKey();
+  const wk = week || state.rateWeek || kidWeekKey();
   DB.kidRatings = DB.kidRatings || [];
   const hit = DB.kidRatings.find(r=>r.kidId===kidId && r.area===area && r.week===wk);
   if(hit){ hit.value = score; hit.scale = 'de6'; hit.ts = Date.now(); }
@@ -14508,10 +15672,10 @@ function staffKidRating(kidId, raterId, area, week){
   return hit?ensureGradeScale(hit):0;
 }
 
-function setStaffKidRating(kidId, area, value){
+function setStaffKidRating(kidId, area, value, week){
   const raterId=state.user?.id;
   if(!kidId || !raterId || !isValidKidRateArea(area)) return false;
-  const wk=kidWeekKey();
+  const wk=week || state.rateWeek || kidWeekKey();
   const score=clampGrade(value);
   if(!score) return false;
   DB.staffKidRatings=DB.staffKidRatings||[];
@@ -14585,18 +15749,60 @@ function staffRatingAreaRows(summary){
   }).join('');
 }
 
+/** Month grid of weekly grade averages — tap a week to focus rating panel. */
+function kidRatingMonthHtml(kidId, {mode='staff'}={}){
+  if(!state.rateCalMonth) state.rateCalMonth = iso(new Date()).slice(0,7)+'-01';
+  const cm = new Date(state.rateCalMonth+'T12:00:00');
+  const y = cm.getFullYear(), m = cm.getMonth();
+  const monthName = cm.toLocaleDateString(state.lang==='el'?'el-GR':'de-DE', {month:'long', year:'numeric'});
+  const focusWeek = state.rateWeek || kidWeekKey();
+  const markers = new Map();
+  const pad = n=>String(n).padStart(2,'0');
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = y+'-'+pad(m+1)+'-'+pad(d);
+    const wk = kidWeekKey(new Date(ds+'T12:00:00'));
+    const avg = mode==='staff'
+      ? (staffKidWeeklySummary(kidId, wk).average || 0)
+      : kidWeekAverage(kidId, wk);
+    if(avg) markers.set(ds, {avg, wk});
+  }
+  const cells = calendarMonthGrid(y, m, markers);
+  const title = state.lang==='el' ? 'Ημερολόγιο βαθμών' : 'Bewertungs-Kalender';
+  return `<section class="rate-cal-shell" aria-label="${esc(title)}">
+    <div class="rate-cal-head">
+      <button class="btn sm sec rate-cal-nav" type="button" data-rate-cal-shift="-1" aria-label="${esc(t('calPrev'))}">${esc(t('calPrev'))}</button>
+      <b>${esc(monthName)}</b>
+      <button class="btn sm sec rate-cal-nav" type="button" data-rate-cal-shift="1" aria-label="${esc(t('calNext'))}">${esc(t('calNext'))}</button>
+    </div>
+    <div class="cal-weekdays rate-cal-wd">${DAY_NAMES[state.lang].map(dn=>`<span>${esc(dn.slice(0,2))}</span>`).join('')}</div>
+    <div class="cal-grid rate-cal-grid">${cells.map(c=>{
+      if(!c) return `<div class="cal-cell empty"></div>`;
+      const wk = kidWeekKey(new Date(c.ds+'T12:00:00'));
+      const mark = markers.get(c.ds);
+      const on = wk===focusWeek;
+      const avgTxt = mark?.avg ? mark.avg.toFixed(1) : '';
+      return `<button type="button" class="cal-cell rate-cal-cell ${on?'on':''} ${mark?'has':''}" data-rate-week="${wk}" aria-pressed="${on?'true':'false'}">
+        <span class="cal-n">${c.d}</span>${avgTxt?`<span class="rate-cal-avg">${avgTxt}</span>`:''}</button>`;
+    }).join('')}</div>
+  </section>`;
+}
+
 function staffRatingPanelHtml(kidId){
-  const summary=staffKidWeeklySummary(kidId);
+  const focusWeek = state.rateWeek || kidWeekKey();
+  const summary=staffKidWeeklySummary(kidId, focusWeek);
   const own=KID_RATE_AREAS.map(area=>{
-    const value=staffKidRating(kidId,state.user?.id,area.id);
+    const value=staffKidRating(kidId,state.user?.id,area.id, focusWeek);
     return `<div class="school-sub-row grade-rate-row"><span class="grow">${esc(t(area.key))}</span>${staffRatingStarsHtml(kidId,area.id,value)}</div>`;
   }).join('');
   const things=importantThingsForKid(kidId).slice(0,8).map(ch=>{
     const area=kidThingArea(ch.id);
-    const value=staffKidRating(kidId,state.user?.id,area);
+    const value=staffKidRating(kidId,state.user?.id,area, focusWeek);
     return `<div class="school-sub-row grade-rate-row mode-pro-block"><span class="grow">${esc(choreLabel(ch))}</span>${staffRatingStarsHtml(kidId,area,value)}</div>`;
   }).join('');
-  return `<div class="block-h"><span class="t">${esc(t('staffWeekAverage'))}</span><span class="hrs">${esc(t('thisWeek'))}</span></div>
+  const weekLabel = focusWeek.slice(5).replace('-','.');
+  return `<div class="block-h"><span class="t">${esc(t('staffWeekAverage'))}</span><span class="hrs">${esc(weekLabel)}</span></div>
+    ${kidRatingMonthHtml(kidId, {mode:'staff'})}
     <p class="muted grade-scale-legend">${esc(t('kidRateScaleHint'))}</p>
     <div class="staff-rating-summary"><b>${summary.average?summary.average.toFixed(1):'—'}<small>/6</small></b><span>${summary.raterCount?esc(t('staffRatingsCount')(summary.raterCount)):esc(t('staffRatingEmpty'))}</span></div>
     ${staffRatingAreaRows(summary)}
@@ -14783,6 +15989,7 @@ function childBewertungenView(kidId){
 
   return `<div class="kid-rate-pc" data-tour="kid-rate">
     <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    ${kidRatingMonthHtml(kidId, {mode:'staff'})}
     ${childStaffRatingHtml(kidId)}
     ${selfRate}
     <div class="kid-rate-layout">
@@ -14828,6 +16035,7 @@ function childBonusView(kidId){
       <span class="kid-bonus-pts">+${it.pts}</span>
     </div>`).join('');
   return `<div data-tour="kid-bonus"><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    ${pocketMoneyPanelHtml(kidId, {mode:'child', limit:12})}
     <section class="kid-card kid-bonus-hero">
       <span class="kid-bonus-stars" aria-hidden="true">${ui('u-sparkle')}</span>
       <div class="kid-bonus-copy">
@@ -14896,6 +16104,18 @@ function childNotizenView(kidId){
 }
 
 function bindKidExtras(root){
+  root.querySelectorAll('[data-rate-week]').forEach(b=>{
+    b.addEventListener('click', ()=>{ state.rateWeek=b.dataset.rateWeek; feedback('toggle'); render(); });
+  });
+  root.querySelectorAll('[data-rate-cal-shift]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      if(!state.rateCalMonth) state.rateCalMonth=iso(new Date()).slice(0,7)+'-01';
+      const d=new Date(state.rateCalMonth+'T12:00:00');
+      d.setMonth(d.getMonth()+Number(b.dataset.rateCalShift||0));
+      state.rateCalMonth=iso(d).slice(0,7)+'-01';
+      render();
+    });
+  });
   root.querySelectorAll('[data-kid-rate]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const area = btn.getAttribute('data-kid-rate');
@@ -15070,6 +16290,8 @@ function childRewardsView(kidId){
 }
 
 function renderChild(){
+  const nextRoute = toastRouteContext();
+  if(toastRouteKey && toastRouteKey !== nextRoute) dismissToast();
   if((DB.staffKidRatings||[]).length){
     DB.staffKidRatings=[];
     saveLocal();
@@ -15153,7 +16375,17 @@ function renderChild(){
     const teamBanner=root.querySelector('#teamNoticeBanner');
     if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
     const childReq=root.querySelector('#childRequestBtn');
-    if(childReq) childReq.onclick=()=>sheetCreateListRequest({kidMode:true});
+    if(childReq) childReq.onclick=()=>sheetChildMyRequests(state.child?.id);
+    root.querySelectorAll('[data-child-hw-toggle]').forEach(inp=>{
+      inp.onchange=()=>{
+        const h=(DB.homework||[]).find(x=>x.id===inp.dataset.childHwToggle);
+        if(!h || !state.child) return;
+        if(h.kidId && h.kidId!==state.child.id) return;
+        h.done=!!inp.checked; h.ts=Date.now();
+        logSchoolActivity({kidId:state.child.id, kind:'homework', title:h.title||t('childHwDone'), subjectId:h.subjectId, refId:h.id});
+        save(); toast(t('childHwDone'),'success'); render();
+      };
+    });
     root.querySelectorAll('[data-game-challenge]').forEach(button=>{
       button.onclick=()=>{
         setChildView('games');
@@ -17484,6 +18716,17 @@ function maybePromptPasskeySetup(){
   }, 1200);
 }
 
+function mobileChromeTitle(){
+  const map = {
+    home:'navHome', schedule:'navSchedule', stock:'navStock', shop:'navShop',
+    book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids',
+  };
+  return t(map[state.tab] || 'navHome');
+}
+function chromeHeaderTitle(){
+  if(state.mode==='staff' && window.matchMedia('(max-width:899px)').matches) return mobileChromeTitle();
+  return dynamicHeaderTitle();
+}
 function dynamicHeaderTitle(){
   if(state.tab==='home') return t('headerHome');
   if(state.tab==='schedule'){
@@ -17515,10 +18758,15 @@ function dynamicHeaderTitle(){
 function paintTopChrome(){
   const titleEl=document.getElementById('title');
   const whoEl=document.getElementById('who');
-  if(titleEl) titleEl.textContent = dynamicHeaderTitle();
+  if(titleEl) titleEl.textContent = chromeHeaderTitle();
   if(whoEl){
-    whoEl.textContent = state.user
+    let whoLine = state.user
       ? profileLabel(state.user) + ' · ' + L(state.user.role) : t('noUser');
+    if(state.mode==='staff' && window.matchMedia('(max-width:899px)').matches){
+      const ctx = dynamicHeaderTitle();
+      if(ctx && ctx !== chromeHeaderTitle()) whoLine = ctx;
+    }
+    whoEl.textContent = whoLine;
     if(isAdminUser()) whoEl.innerHTML += ' <span class="admin-badge">ADMIN</span>';
   }
   const dockWho=document.getElementById('dockWho');
@@ -17565,6 +18813,9 @@ function onTopAction(id){
   }
   if(id==='aiSchedule'){
     sheetAiSchedule(); return;
+  }
+  if(id==='aiSchedulePhoto'){
+    sheetAiSchedule({preferPhoto:true, gapsOnly:true}); return;
   }
   if(id==='aiClearSchedule'){
     clearAiScheduleWeek(); return;
@@ -18176,8 +19427,11 @@ function measureChrome(){
     && !document.body.classList.contains('adaptive-open')
     && !storeFs && !matrixFs;
   const fabClear=fabVisible ? 72 : 0;
+  /* One clearance token for #app padding — includes dock + FAB once. --nav-total stays nav-only for FAB/tip positioning. */
+  const chromeBottom = Math.max(0, navH + dockH + fabClear);
   [root, document.body].forEach(el=>{
     el.style.setProperty('--nav-total', `${navH}px`);
+    el.style.setProperty('--chrome-bottom', `${chromeBottom}px`);
     el.style.setProperty('--dock-h', `${dockH}px`);
     el.style.setProperty('--chat-h', `${chatH}px`);
     el.style.setProperty('--fab-clear', `${fabClear}px`);
@@ -18195,11 +19449,16 @@ function scheduleMeasureChrome(){
    untouched by the label-length guard below. This keeps language fitting a
    shared behaviour instead of a page-by-page exception list. */
 const BUTTON_FIT_SELECTOR = 'button';
+const BUTTON_FIT_SKIP = '#uiModeToggle button, .ui-mode-seg button, .ui-mode-btn, .week-layout-seg button, .task-check, .week-open-day, .store-row .tick, .plan-hero-cta';
 let buttonFitFrame=0;
 function fitButtonLabels(root=document){
   cancelAnimationFrame(buttonFitFrame);
   buttonFitFrame=requestAnimationFrame(()=>{
-    const buttons=[...root.querySelectorAll(BUTTON_FIT_SELECTOR)].filter(button=>button.getClientRects().length);
+    root.querySelectorAll(BUTTON_FIT_SKIP).forEach(button=>{
+      button.classList.remove('ui-fit-text','ui-fit-tight','ui-fit-wrap');
+    });
+    const buttons=[...root.querySelectorAll(BUTTON_FIT_SELECTOR)]
+      .filter(button=>button.getClientRects().length && !button.matches(BUTTON_FIT_SKIP));
     buttons.forEach(button=>{
       button.classList.remove('ui-fit-text','ui-fit-tight','ui-fit-wrap');
       const label=(button.innerText||button.textContent||'').replace(/\s+/g,' ').trim();
@@ -18254,6 +19513,8 @@ function childViewHtml(c){
 }
 
 function render(){
+  const nextRoute = toastRouteContext();
+  if(toastRouteKey && toastRouteKey !== nextRoute) dismissToast();
   if(state.mode === 'child' && state.child) return renderChild();
   if(!document.body.classList.contains('auth-pending') && !state._routeBoot){
     state._routeBoot = true;
@@ -18521,6 +19782,10 @@ function wire(){
       render();
     };
   });
+  const weekFocusCol = v.querySelector('.week-agenda-column.is-focus') || v.querySelector('.week-agenda-column.is-today');
+  if(weekFocusCol && document.body.classList.contains('layout-mobile')){
+    try{ requestAnimationFrame(()=>weekFocusCol.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'})); }catch{}
+  }
   v.querySelectorAll('[data-shift]').forEach(b=>{
     b.onclick = () => {
       const d = new Date(state.date+'T12:00:00');
@@ -18543,14 +19808,26 @@ function wire(){
       render();
     };
   });
+  v.querySelectorAll('.week-layout-seg [data-week-layout]').forEach(b=>{
+    b.onclick = () => {
+      setWeekLayout(b.dataset.weekLayout);
+      feedback('select');
+      render();
+    };
+  });
   v.querySelectorAll('[data-week-mobile-full]').forEach(b=>{
     b.onclick = () => {
-      if(b.dataset.weekMobileFull==='1' && weekPortraitMobile()){
-        toast(t('weekPortraitOnly'), 'info', 4200);
-        feedback('tap');
-        return;
+      /* Legacy Voll Woche → prefer explicit matrix layout. */
+      if(b.dataset.weekMobileFull==='1'){
+        if(weekPortraitMobile()){
+          toast(t('weekPortraitOnly'), 'info', 4200);
+          feedback('tap');
+          return;
+        }
+        setWeekLayout('matrix');
+      }else{
+        setWeekLayout('agenda');
       }
-      setWeekMobileFullMode(b.dataset.weekMobileFull==='1');
       feedback('select');
       render();
     };
@@ -18672,19 +19949,25 @@ function wire(){
     if(!lines.length){ toast(t('materials')); return; }
     askPin(t('toShoppingList'), who => {
       state.user = who;
+      const inserted=[];
       lines.forEach(line=>{
         const m = line.match(/^(.*?)\s+(\d+(?:[.,]\d+)?)\s*(\S+)?$/);
         const nm = (m ? m[1] : line).trim();
         const p = PRODUCTS().find(x=>x.de===nm || x.el===nm);
+        const id = uid();
         DB.listEntries.push({
-          id: uid(), productId: p ? p.id : null, name: nm,
+          id, productId: p ? p.id : null, name: nm,
           qty:  m ? parseFloat(m[2].replace(',','.')) : 1,
           unit: (m && m[3]) ? m[3] : 'Stk',
           houseId: shopHouse(), fridayDate:state.shopFriday||fridayFor(), by: who.id, status:'open',
         });
+        inserted.push(id);
       });
       logEntry('SHOP', `${t('materials')} → ${t('shopTitle')}: ${lines.join(', ')}`, {houseId: state.house});
-      save(); render(); toast(T[state.lang].materialsMoved(lines.length));
+      save();
+      noteListUndo(inserted);
+      offerListUndoToast(T[state.lang].materialsMoved(lines.length));
+      render();
     });
   };
 
@@ -18867,6 +20150,34 @@ function wire(){
       };
     });
   }
+  v.querySelectorAll('[data-stock-rail]').forEach(b=>{
+    b.onclick=()=>{
+      const id=b.dataset.stockRail;
+      /* Single active shelf on narrow / always prefer one focused category. */
+      const narrow = window.matchMedia && window.matchMedia('(max-width:900px)').matches;
+      if(narrow){
+        state.stockOpenCategories=[id];
+      }else{
+        if(!Array.isArray(state.stockOpenCategories)) state.stockOpenCategories=[];
+        const set=new Set(state.stockOpenCategories);
+        if(set.has(id) && set.size===1){ /* keep at least one */ }
+        else if(set.has(id)) set.delete(id);
+        else set.add(id);
+        if(!set.size) set.add(id);
+        state.stockOpenCategories=[...set];
+      }
+      state.stockFilter='all';
+      feedback('toggle');
+      render();
+    };
+  });
+  v.querySelectorAll('[data-stock-want]').forEach(b=>{
+    b.onclick=()=>{
+      const pid=b.dataset.stockWant;
+      if(state.house==='all'){ toast(t('selectHouse'),'info'); return; }
+      if(requestWantBought(pid, state.house)){ feedback('save'); render(); }
+    };
+  });
   v.querySelectorAll('[data-stock-filter]').forEach(b=>{
     b.onclick=()=>{
       if(state.stockFilter!==b.dataset.stockFilter) clearStockOrderFreeze();
@@ -18887,6 +20198,18 @@ function wire(){
 
   const sf = v.querySelector('#startFriday');
   if(sf) sf.onclick = startFridayBatch;
+  const sfTop = v.querySelector('#startFridayTop');
+  if(sfTop) sfTop.onclick = startFridayBatch;
+  const shopRespAckStart = v.querySelector('#shopRespAckStart');
+  if(shopRespAckStart) shopRespAckStart.onclick = ()=>{
+    state.shopRespAck = !state.shopRespAck;
+    feedback('toggle'); render();
+  };
+  const shopRespAckBtn = v.querySelector('#shopRespAck');
+  if(shopRespAckBtn) shopRespAckBtn.onclick = ()=>{
+    state.shopRespAck = !state.shopRespAck;
+    feedback('toggle'); render();
+  };
   const shopAutoFill=v.querySelector('#shopAutoFill');
   if(shopAutoFill) shopAutoFill.onclick=()=>{ autoFillShoppingFromStock(shopHouse()); render(); };
   v.querySelectorAll('[data-shop-panel]').forEach(b=>{
@@ -18920,9 +20243,11 @@ function wire(){
   if(reqWho) reqWho.onchange=()=>{ state.shopRequestWho=reqWho.value||'all'; render(); };
   v.querySelectorAll('[data-req-accept]').forEach(b=>{
     b.onclick=()=>{
-      if(acceptListRequest(b.dataset.reqAccept)){
+      const entryId=acceptListRequest(b.dataset.reqAccept);
+      if(entryId){
         if(!save()) return;
-        toast(t('shopRequestAccepted'),'success');
+        noteListUndo([entryId]);
+        offerListUndoToast(t('shopRequestAccepted'));
         feedback('save'); render();
       }
     };
@@ -18940,7 +20265,8 @@ function wire(){
     b.onclick=()=>{
       if(markListRequestBought(b.dataset.reqBought)){
         if(!save()) return;
-        toast(t('shopRequestMarkedBought'),'success');
+        const after = ensureListRequests().find(r=>r.id===b.dataset.reqBought);
+        if(after?.status==='bought') toast(t('shopRequestMarkedBought'),'success');
         feedback('save'); render();
       }
     };
@@ -19059,8 +20385,13 @@ function wire(){
       if(state.selectMode==='requests'){
         let n=0;
         if(act==='req-accept'){
-          ids.forEach(id=>{ if(acceptListRequest(id)) n++; });
-          if(n){ save(); toast(t('shopRequestAccepted'),'success'); }
+          const inserted=[];
+          ids.forEach(id=>{ const eid=acceptListRequest(id); if(eid){ n++; inserted.push(eid); } });
+          if(n){
+            save();
+            if(inserted.length){ noteListUndo(inserted); offerListUndoToast(t('shopRequestAccepted')); }
+            else toast(t('shopRequestAccepted'),'success');
+          }
         }else if(act==='req-reject'){
           ids.forEach(id=>{ if(rejectListRequest(id)) n++; });
           if(n){ save(); toast(t('shopRequestRejected'),'info'); }
@@ -19077,6 +20408,13 @@ function wire(){
       render();
     };
   });
+  const calToday = v.querySelector('#calToday');
+  if(calToday) calToday.onclick = ()=>{
+    const today = iso(new Date());
+    state.calendarMonth = today.slice(0,7)+'-01';
+    state.date = today;
+    feedback('toggle'); render();
+  };
   v.querySelectorAll('[data-cal-date]').forEach(b=>{
     b.onclick=()=>{ state.date=b.dataset.calDate; setScheduleView('day'); render(); };
   });
@@ -19153,9 +20491,19 @@ function wire(){
     const name=quickName?.value.trim();if(!name){quickName?.focus();return;}
     const product=matchProduct(name),friday=state.shopFriday||fridayFor(),hid=shopHouse();
     const existing=fridayEntries(hid,friday).find(e=>e.status==='open'&&((product&&e.productId===product.id)||norm(e.name)===norm(name)));
-    if(existing)existing.qty=Math.round((Number(existing.qty)+stepFor(product||{unit:existing.unit||'Stk'}))*100)/100;
-    else DB.listEntries.push({id:uid(),productId:product?.id||null,name:product?L(product):name,qty:product?stepFor(product):1,unit:product?.unit||'Stk',houseId:hid,fridayDate:friday,by:state.user?.id||null,status:'open'});
-    save();render();const next=document.querySelector('#cartQuickName');if(next)next.focus();
+    if(existing){
+      existing.qty=Math.round((Number(existing.qty)+stepFor(product||{unit:existing.unit||'Stk'}))*100)/100;
+      save();render();
+      toast(t('shopItemsAdded')(1),'success');
+    }else{
+      const id=uid();
+      DB.listEntries.push({id,productId:product?.id||null,name:product?L(product):name,qty:product?stepFor(product):1,unit:product?.unit||'Stk',houseId:hid,fridayDate:friday,by:state.user?.id||null,status:'open'});
+      save();
+      noteListUndo([id]);
+      offerListUndoToast(t('shopItemsAdded')(1));
+      render();
+    }
+    const next=document.querySelector('#cartQuickName');if(next)next.focus();
   };
   if(quickAdd)quickAdd.onclick=addQuick;
   if(quickName)quickName.onkeydown=event=>{if(event.key==='Enter'){event.preventDefault();addQuick();}};
@@ -19338,15 +20686,15 @@ function sheetMobileMore(){
     {tab:'gallery', ico:'u-camera', label:t('navGallery')},
     {tab:'talk', ico:'u-chat', label:t('navTalk')},
     {tab:'book', ico:'u-book', label:t('navBook')},
+    {act:'chat', ico:'u-sparkle', label:t('navChat')},
   ];
   const extras = [
-    {act:'chat', ico:'u-sparkle', label:t('navChat'), pro:true},
     {act:'feedback', ico:'u-note', label:t('feedbackNav'), pro:true},
   ].filter(r=>!r.pro || !easy);
   openNavMenu(`<div class="nav-menu-head"><span class="brand-kicker">Armonia</span><h2>${esc(t('navMore'))}</h2></div>
     <div class="nav-menu-list" role="menu">
       ${items.map(r=>navMenuRowHtml({
-        attrs:`data-more-tab="${r.tab}" role="menuitem"`,
+        attrs:(r.tab?`data-more-tab="${r.tab}"`:`data-more-act="${r.act}"`) + ' role="menuitem"',
         ico:r.ico, label:r.label,
       })).join('')}
       ${extras.map(r=>navMenuRowHtml({
@@ -20904,7 +22252,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||175;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||188;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

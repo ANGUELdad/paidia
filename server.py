@@ -254,6 +254,16 @@ ONBOARDING_VERSION = 2
 TALK_MESSAGE_LIMIT = 200
 TALK_TOPIC_LIMIT = 120
 TALK_LOCK = threading.Lock()
+GALLERY_CATEGORIES = frozenset({
+    "allgemein", "ausflug", "sport", "essen", "schule", "feier", "alltag",
+})
+
+
+def normalize_gallery_category(raw: object) -> str:
+    cat = str(raw or "").strip().lower()[:32]
+    return cat if cat in GALLERY_CATEGORIES else "allgemein"
+
+
 GALLERY_POST_LIMIT = 80
 GALLERY_PHOTO_MAX = 140_000  # chars of data-URL (~100KB JPEG)
 GALLERY_CAPTION_MAX = 280
@@ -306,8 +316,13 @@ OPS_KEYS = (
     "attendance",
     "homework",
     "schoolTimetable",
+    "schoolMaterials",
+    "schoolMaterialMedia",
+    "schoolActivity",
     # In-app bug / change / addition reports (staff + kids create; staff triage).
     "feedbackReports",
+    # Staff-managed pocket money ledger (kids read via ops pull; client filters by kidId).
+    "pocketMoneyTxns",
 )
 OPS_DICT_KEYS = {"stock", "profilePrefs", "productOverrides", "weeks", "shiftNotes", "stockChecks", "gameStats"}
 OPS_LIST_CAPS = {
@@ -322,6 +337,9 @@ OPS_LIST_CAPS = {
     "attendance": 8000,
     "homework": 4000,
     "schoolTimetable": 800,
+    "schoolMaterials": 4000,
+    "schoolMaterialMedia": 2000,
+    "schoolActivity": 8000,
     "listEntries": 4000,
     "shoppingTrips": 4000,
     "listRequests": 4000,
@@ -338,6 +356,7 @@ OPS_LIST_CAPS = {
     "customReasons": 200,
     "customActivities": 300,
     "template": 2000,
+    "pocketMoneyTxns": 4000,
 }
 def resolve_webauthn_origin() -> str:
     explicit = os.environ.get("PAIDIA_WEBAUTHN_ORIGIN", "").strip()
@@ -1305,6 +1324,7 @@ def _normalize_gallery_state(value: object) -> dict:
         clean.append({
             "id": str(item.get("id") or secrets.token_urlsafe(8))[:40],
             "caption": str(item.get("caption") or "").strip()[:GALLERY_CAPTION_MAX],
+            "category": normalize_gallery_category(item.get("category")),
             "photo": photo,
             "by": str(item.get("by") or "")[:80],
             "byName": str(item.get("byName") or "")[:80],
@@ -1587,10 +1607,12 @@ def mutate_gallery(action: str, body: dict, session: dict) -> tuple[int, dict]:
 
         if action == "create":
             caption = str(body.get("caption") or "").strip()[:GALLERY_CAPTION_MAX]
+            category = normalize_gallery_category(body.get("category"))
             photo = drive_photo_ref or create_photo_raw
             posts.append({
                 "id": "gm-" + secrets.token_urlsafe(8),
                 "caption": caption,
+                "category": category,
                 "photo": photo,
                 "by": profile_id,
                 "byName": by_name,
@@ -2605,11 +2627,37 @@ def run_shopping(body: dict, api_key: str | None = None, *, session: dict | None
 
 
 
-def run_schedule_parse(body: dict, api_key: str) -> tuple[int, dict]:
-    """Parse free-text roster notes into week matrix draft entries."""
-    text = body.get("text") or body.get("content") or ""
-    if not isinstance(text, str) or not text.strip():
-        return 400, {"error": "text is required"}
+def run_schedule_parse(body: dict, api_key: str | None = None, *, session: dict | None = None) -> tuple[int, dict]:
+    """Parse free-text or week-plan screenshot into week matrix draft entries."""
+    content = body.get("content") if isinstance(body.get("content"), str) else ""
+    text = body.get("text") if isinstance(body.get("text"), str) else ""
+    source_type = str(body.get("sourceType") or "").strip().lower()
+    if source_type not in {"text", "image"}:
+        source_type = "image" if content.startswith("data:image/") else "text"
+    if source_type == "image":
+        payload_content = content or text
+    else:
+        payload_content = (text or content).strip()
+    if not payload_content:
+        return 400, {"error": "text or image content is required", "code": "input"}
+
+    mode = "child" if (session or {}).get("mode") == "child" else "staff"
+    if source_type == "image" and mode != "staff":
+        return 403, {
+            "error": "Schedule screenshot OCR is staff-only",
+            "code": "staff_required",
+        }
+    if source_type == "image":
+        if not payload_content.startswith("data:image/"):
+            return 400, {"error": "Image must be a data URL", "code": "input"}
+        max_chars = getattr(ocr_xai, "OCR_MAX_IMAGE_CHARS", 2_800_000) if ocr_xai else 2_800_000
+        if len(payload_content) > max_chars:
+            return 413, {
+                "error": "Image too large for OCR — use a smaller photo",
+                "code": "too_large",
+                "maxChars": max_chars,
+            }
+
     week_start = body.get("weekStart") or ""
     week_dates = body.get("weekDates") or []
     locale = body.get("locale") or "de"
@@ -2622,32 +2670,79 @@ def run_schedule_parse(body: dict, api_key: str) -> tuple[int, dict]:
         "houses": body.get("houses") or [],
         "blocks": body.get("blocks") or [],
         "children": body.get("children") or [],
+        "occupied": body.get("occupied") or [],
+        "fillMode": body.get("fillMode") or "gaps",
     }
-    user_content = (
-        SCHEDULE_PROMPT
-        + "\n\nCONTEXT:\n"
-        + json.dumps(context, ensure_ascii=False)[:12000]
-        + "\n\nSOURCE TEXT:\n"
-        + text.strip()[:50000]
-    )
-    request_body = {
-        "model": CHAT_MODEL,
+    context_blob = json.dumps(context, ensure_ascii=False)[:14000]
+    prompt_head = SCHEDULE_PROMPT + "\n\nCONTEXT:\n" + context_blob
+
+    endpoint = None
+    if source_type == "image" and ocr_xai:
+        endpoint = ocr_xai.resolve_ocr_endpoint(
+            "image", groq_ocr_model=OCR_MODEL, groq_chat_model=CHAT_MODEL
+        )
+    if not endpoint and api_key and source_type == "text":
+        endpoint = ("groq", GROQ_URL, api_key, CHAT_MODEL)
+    if not endpoint and api_key and source_type == "image":
+        # Groq vision fallback when xAI helper missing but Groq key present
+        if ocr_xai:
+            endpoint = ocr_xai.resolve_ocr_endpoint(
+                "image", groq_ocr_model=OCR_MODEL, groq_chat_model=CHAT_MODEL
+            )
+        else:
+            endpoint = ("groq", GROQ_URL, api_key, OCR_MODEL)
+    if not endpoint:
+        setup = (
+            "Set XAI_API_KEY or GROK_API_KEY for Grok OCR (preferred), "
+            "or GROQ_API_KEY for Groq vision fallback"
+            if source_type == "image"
+            else "Set GROQ_API_KEY for text schedule parse"
+        )
+        return 503, {
+            "error": "AI schedule parse unavailable — no API key configured",
+            "code": "configuration",
+            "setup": setup,
+        }
+    provider, url, key, model_name = endpoint
+
+    if source_type == "image":
+        user_content: list[dict] | str = [
+            {"type": "text", "text": prompt_head + "\n\nSOURCE: week planner screenshot/photo. Extract every readable slot."},
+            {"type": "image_url", "image_url": {"url": payload_content}},
+        ]
+    else:
+        user_content = prompt_head + "\n\nSOURCE TEXT:\n" + payload_content[:50000]
+
+    request_body: dict[str, Any] = {
+        "model": model_name,
         "messages": [{"role": "user", "content": user_content}],
         "temperature": 0.1,
-        "max_completion_tokens": 2200,
+        "max_completion_tokens": 2600 if source_type == "image" else 2200,
         "response_format": {"type": "json_object"},
     }
+    if source_type == "image" and provider == "groq":
+        request_body.update({"reasoning_effort": "none", "reasoning_format": "hidden"})
+    if provider == "xai":
+        request_body["max_tokens"] = request_body.pop("max_completion_tokens", 2600)
+
     try:
-        response = groq_completion(api_key, request_body)
+        if provider == "xai" and ocr_xai:
+            response = ocr_xai.openai_compatible_completion(url, key, request_body)
+        elif ocr_xai and provider == "groq" and source_type == "image":
+            response = ocr_xai.openai_compatible_completion(url, key, request_body)
+        else:
+            response = groq_completion(key, request_body)
         parsed = parse_json_output(completion_text(response))
         entries = parsed.get("entries") if isinstance(parsed, dict) else None
         if not isinstance(entries, list):
             return 502, {"error": "invalid-result", "code": "parse"}
         return 200, {
-            "extracted_text": parsed.get("extracted_text") or text[:2000],
+            "extracted_text": parsed.get("extracted_text") or (payload_content[:2000] if source_type == "text" else ""),
             "language": parsed.get("language") or locale,
             "entries": entries[:80],
-            "model": response.get("model", CHAT_MODEL),
+            "model": response.get("model", model_name),
+            "provider": provider,
+            "sourceType": source_type,
             "responseId": response.get("id"),
         }
     except urllib.error.HTTPError as exc:
@@ -3735,8 +3830,8 @@ name, canonical_name, quantity, unit, category, brand, package_size, notes, conf
 (high, medium, or low), and ambiguous (boolean). Do not add other fields."""
 
 
-SCHEDULE_PROMPT = """You extract a weekly care-ops schedule (Armonia Thassos / PAIDIA) from free text.
-The text may be a WhatsApp dump, bullet list, German, Greek, or mixed shorthand.
+SCHEDULE_PROMPT = """You extract a weekly care-ops schedule (Armonia Thassos / PAIDIA) from free text OR from a screenshot/photo of a week planner, matrix, whiteboard, WhatsApp dump, or printed roster.
+The source may be German, Greek, or mixed shorthand. OCR the image carefully when an image is supplied.
 Map each placement into the week matrix. Use ONLY the catalogues provided in CONTEXT.
 
 Rules:
@@ -3745,6 +3840,7 @@ Rules:
 - date must be YYYY-MM-DD and must be one of weekDates; or set dayIndex 0=Mon … 6=Sun
 - morning/evening are usually house-based; afternoon is usually person-based
 - Do not invent children, staff, houses, or activities that are not in CONTEXT
+- If CONTEXT.occupied lists filled slots, prefer proposing entries for empty gaps; still return all readable cells with confidence
 - confidence: high|medium|low; put leftover wording in note or raw
 - This is a draft only — never claim the schedule was saved
 
@@ -5115,6 +5211,25 @@ class Handler(SimpleHTTPRequestHandler):
             status, payload = run_shopping(body, api_key, session=session)
             self.json_response(status, payload)
             return
+        if path == "/api/ai-schedule":
+            session = self.current_auth_session()
+            if not session:
+                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+                return
+            rate_key = chat_rate_key(session, self.client_ip())
+            source_type = str((body or {}).get("sourceType") or "").strip().lower()
+            content = (body or {}).get("content") if isinstance((body or {}).get("content"), str) else ""
+            if source_type == "image" or str(content).startswith("data:image/"):
+                if ocr_xai and not ocr_xai.ocr_rate_allow(rate_key):
+                    self.json_response(429, {
+                        "error": "OCR rate limit — please wait a few minutes",
+                        "code": "rate_limit",
+                        "retryAfter": 60,
+                    })
+                    return
+            status, payload = run_schedule_parse(body, api_key, session=session)
+            self.json_response(status, payload)
+            return
         if path == "/api/chat":
             if not self.current_auth_session():
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
@@ -5166,20 +5281,6 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return
 
-        if path == "/api/ai-schedule":
-            if not self.current_auth_session():
-                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
-                return
-            status, payload = run_schedule_parse(body, api_key)
-            self.json_response(status, payload)
-            return
-        if path == "/api/chore-verify":
-            if not self.current_auth_session():
-                self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
-                return
-            status, payload = run_chore_verify(body, api_key)
-            self.json_response(status, payload)
-            return
         self.json_response(404, {"error": "Not found"})
 
     def finish_authentication(self, profile_id: str, mode: str, method: str = "pin",

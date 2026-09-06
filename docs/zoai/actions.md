@@ -22,11 +22,15 @@ Max **12** actions per reply. Never claim they are already saved — the app sho
 | `schedule_cancel` | **date**, entryId and/or activityQuery, block? |
 | `shift_note` | **text**, houseId? — append own shift diary |
 | `open_tab` | **tab** home\|gallery\|schedule\|stock\|shop\|book\|talk\|kids — UI only |
-| `subject_grade_set` | **kidQuery**\|kidId, **subjectQuery**\|subjectId, **score** 1–5, note? |
+| `subject_grade_set` | **kidQuery**\|kidId, **subjectQuery**\|subjectId, **score** 1–6 (de6), note? |
 | `kid_note_add` | **kidQuery**\|kidId, **text** |
 | `open_kid` | **kidQuery**\|kidId — opens staff kid profile |
 | `attendance_set` | **kidQuery**\|kidId, date?, **status** present\|absent\|excused |
 | `homework_add` | **title**, subjectQuery?, kidQuery?, due? |
+| `homework_done` | homeworkId or title/homeworkQuery, kidQuery? |
+| `material_set` | **kidQuery**\|kidId, **title**, subjectQuery?, status needed\|brought\|missing?, note? |
+| `material_status` | materialId or title/materialQuery, kidQuery?, **status** needed\|brought\|missing |
+| `school_note` | **kidQuery**\|kidId, **text**\|note — staff note + activity log |
 
 ## Admin only
 

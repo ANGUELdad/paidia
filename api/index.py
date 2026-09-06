@@ -654,14 +654,42 @@ def entry(flask_path: str = ""):
         session = _session_from_request()
         if not session:
             return _json(401, {"error": "Authentication required", "code": "auth_required"})
-        api_key = os.environ.get("GROQ_API_KEY", "").strip()
-        if not api_key:
+        body = _body()
+        api_key = os.environ.get("GROQ_API_KEY", "").strip() or None
+        source_type = str(body.get("sourceType") or "").strip().lower()
+        content = body.get("content") if isinstance(body.get("content"), str) else ""
+        is_image = source_type == "image" or str(content).startswith("data:image/")
+        ocr_ok = False
+        if getattr(paidia, "ocr_xai", None):
+            try:
+                ocr_ok = bool(paidia.ocr_xai.ocr_image_configured(
+                    groq_ocr_model=getattr(paidia, "OCR_MODEL", "qwen/qwen3.6-27b"),
+                    groq_chat_model=getattr(paidia, "CHAT_MODEL", "openai/gpt-oss-120b"),
+                ))
+            except TypeError:
+                ocr_ok = False
+        if is_image and not (api_key or ocr_ok):
+            return _json(503, {
+                "error": "OCR unavailable — no API key configured",
+                "code": "configuration",
+                "setup": "Set XAI_API_KEY or GROK_API_KEY (Grok OCR) or GROQ_API_KEY (fallback) in Vercel env",
+            })
+        if not is_image and not api_key:
             return _json(503, {
                 "error": "Groq is not configured",
                 "code": "configuration",
                 "setup": "Set GROQ_API_KEY in Vercel env",
             })
-        status, payload = paidia.run_schedule_parse(_body(), api_key)
+        if is_image:
+            client_ip = (request.headers.get("X-Forwarded-For") or request.remote_addr or "").split(",")[0].strip()
+            rate_key = paidia.chat_rate_key(session, client_ip) if hasattr(paidia, "chat_rate_key") else str(session.get("profile_id") or "anon")
+            if getattr(paidia, "ocr_xai", None) and not paidia.ocr_xai.ocr_rate_allow(rate_key):
+                return _json(429, {
+                    "error": "OCR rate limit — please wait a few minutes",
+                    "code": "rate_limit",
+                    "retryAfter": 60,
+                })
+        status, payload = paidia.run_schedule_parse(body, api_key, session=session)
         return _json(status, payload)
 
     if request.method == "POST" and api in {"/chat", "/api/chat"}:

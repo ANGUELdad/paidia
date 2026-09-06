@@ -543,3 +543,57 @@
 - **Bug:** Global-ish replaces turned many `||0` (and `||1`) into `||168`/`||171`/`||172` — stock check qty, scrollY, game scores, grades, nav heights.
 - **Fix:** Restore from last good commit by normalizing `||N` keys; version-bump only the APP_BUILD block + `build.json` + `gate.js` APP_BUILD + `sw.js` CACHE + asset `?v=` — never `s/||0/||$VER/`.
 - **Skill candidate:** safe-semver-bump (forbid replacing numeric `||0` fallbacks).
+
+## 2026-08-30 — forever-login tip allowlist
+
+- **Trigger:** User: login loads forever on production after v154 timeouts.
+- **Root cause:** `page-tips.js` / `zoai-tips.js` referenced in `index.html` but missing from Vercel `_STATIC_EXACT`; sync scripts *before* `gate.js` meant hung SW/network never reached the login shell (static Laden…).
+- **Fix:** allowlist tip files; `gate.js` first + `async` tips; paint entrance/PIN immediately; takeover watchdog. New client JS must be allowlisted or prod 404s.
+- **Principle:** Never put non-critical sync scripts before the login shell; strict allowlists need a ship checklist entry for every new static asset.
+
+## 2026-09-01 — kids mobile nav missing = “broken”
+
+- **Trigger:** User: kids UI still breaking; wants fun playful 2026.
+- **Root cause:** v169 `mountKidDock` only inserted `nav.kid-dock` on desktop; mobile CSS also `display:none` on `#bottomPanel.is-kid-chrome`. Kids only had header “Menü” → felt broken/lost.
+- **Fix:** always mount dock; floating white pill dock on phone; playful 2026 Start tiles (coral/sky/sun/mint). Don’t remove kids primary nav for “website hamburger” aesthetics.
+
+## 2026-09-03 — Week Agenda/Matrix + Lager Easy/Pro
+
+- **Trigger:** Implement phase-1 plan (week layout switch + Lager Easy/Pro).
+- **Insight:** Orphan CSS (`.week-agenda-*`) looked “done” until wired; mobile had `display:none` on the shell. Prefer feature-flagging unfinished surfaces in JS, not CSS-hide forever.
+- **Reusable pattern:** Mode defaults (`agenda` Easy / `matrix` Pro) + explicit override key avoid fighting the user’s last choice when toggling Easy/Pro.
+- **Pitfall:** Do not put the same `data-*` switch attribute on both the control and the panel (`data-week-layout` on shell broke the click wire).
+
+## 2026-09-05 — multi-OS stress suite + v179 tap/zoom fixes
+- Built `qa_multi_os_stress.mjs` (5 Playwright device emulators).
+- First run: 476 issues mostly zoom-lock + Easy/Pro width + under-header FP.
+- Fixed viewport zoom, ≥44 tap targets, auditor noise; re-run pending.
+
+## 2026-09-05 — school + supermarket v180
+- Liste Easy bridge + stock chips + request↔Friday + booked sheet.
+- School materials/media/activity; child snapshot; Zo-Ai school actions.
+
+## 2026-09-05 — Practical overhaul audit→notes→fixes (v182)
+
+- **Trigger:** Full practical overhaul plan: Playwright all pages, layered notes, fix P0/P1.
+- **Insight:** Kids were missing from multi-OS STAFF_PAGES; tourPlaceStep hijacks dock without tourSeen; empty store keeps plan hash so autofill asserts must key off `.shop-easy-strip` not hash alone; attendance `.linkish`/chips were sub-44.
+- **Reusable pattern:** Expand suite first → catalog JSON → notes under docs/agents/overhaul/ → fix only proven P0/P1 → re-run to P0=P1=0 (accept Pixel P2 soft-48).
+- **Evidence:** qa_multi_os_stress.mjs kids+store; overhaul/*.md; index.html att-grid CSS; build v182; full matrix P0=0 P1=0 P2=43.
+
+## 2026-09-05 — Apple design skill install
+
+- **Trigger:** User asked to install github.com/dickwu/apple-design-skill and apply Apple design thoughtfully.
+- **Insight:** Install skill + Cursor rule + Paidia map; HIG = a11y/layout/modality bar, Armonia brand stays. Global focus-visible + reduced-motion are high-ROI HIG without iOS skin.
+- **Locations:** .cursor/skills/apple-design, ~/.agents/skills/apple-design, .cursor/rules/apple-design.mdc, docs/agents/APPLE_HIG_PAIDIA.md
+
+## 2026-09-05 — List undo + daily Hilfe!! screenshots
+
+- **Trigger:** User asked for list-insert undo, Foto→Liste copy, random/daily help popups with real screenshots.
+- **Insight:** Reuse `toastAction` / stock-undo pattern for list rows; keep help shots in served `help/` (not only under docs/marketing); daily key `paidia.helpDaily` separate from dismiss forever.
+- **Reusable pattern:** When adding coach UI, bump build + document in TIPS_SYSTEM; max 2 tips/page/session avoids spam with Zo-Ai stagger.
+
+## 2026-09-05 — v185 feature pack + multi-OS QA
+
+- **Trigger:** User asked for calendar, ratings, requests, Taschengeld, Momente org, list responsibility, Lager board; then leave-and-act with Playwright + Apple HIG.
+- **Insight:** Incomplete helper stubs (pocketBalance etc.) break silently until syntax/runtime; always `node --check` after parallel agents. Rating month cells need explicit 44px chrome — day-number width fails tap audit even when height is OK.
+- **Reusable pattern:** Ship feature pack → bump vN → full qa_multi_os_stress → fix P1 taps → re-run; accept Pixel soft-48 as P2.

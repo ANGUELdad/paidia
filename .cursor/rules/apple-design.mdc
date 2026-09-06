@@ -1,0 +1,44 @@
+---
+description: Apple HIG design review for Paidia UI — use when editing or reviewing any UI/CSS/layout/a11y/motion
+globs:
+  - "**/*.html"
+  - "**/*.css"
+  - "**/ui-v110.css"
+  - "**/app.js"
+  - "**/gate.js"
+  - "**/page-tips.js"
+  - "design/**"
+alwaysApply: false
+---
+
+# Apple Design (HIG) — Paidia
+
+When reviewing or changing UI/UX, follow the installed skill:
+
+1. Read `.cursor/skills/apple-design/SKILL.md`
+2. Route topics via `.cursor/skills/apple-design/references/hig-lookup.md`
+3. Load only the relevant `references/hig/*.md` files (typically 3–8)
+4. Cite guideline sections; use **vanilla JS / CSS / PWA** terms (not SwiftUI)
+
+## Paidia constraints (do not violate)
+
+- Brand authority remains `design/VISUAL_MOTION_SYSTEM.md` + Armonia pine / Fraunces / Outfit — **not** a generic iOS clone
+- Translate HIG “SF Pro / system blue” → our tokens (`--brand`, `--font-ui`, `--font-display`)
+- Glass already ships (v106–v110): follow `liquid-glass.md` **restraint** — no extra purple glow, no glass on every card
+- Mobile-first care-ops: tap ≥44, safe-area insets, bilingual DE/EL, Easy vs Pro density
+- Prefer small diffs; no full redesign unless the user asks
+
+## Where HIG applies hardest in this app
+
+| Surface | HIG topics |
+|---------|------------|
+| Gate / PIN / Face ID | launching, privacy, accessibility, modality |
+| Dock + desktop sidebar | layout, gestures, focus-and-selection |
+| Sheets / tips / tour | modality, onboarding, offering-help |
+| Liste / Lager / Plan | layout, feedback, entering-data, undo |
+| Kids / school | typography, accessibility, inclusion |
+| Child portal / games | motion, feedback, game-controls (light) |
+| Zo-Ai chat | generative-ai, offering-help, privacy |
+| Toasts / loading | feedback, loading |
+
+Map detail: `docs/agents/APPLE_HIG_PAIDIA.md`

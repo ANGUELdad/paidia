@@ -7,10 +7,10 @@ Use this instead of grepping the whole repo for “where is X stored?”.
 | Store | What | Access |
 |-------|------|--------|
 | Postgres / SQLite (`db.py`) | Auth users, PIN overrides, passkeys, ops blob, talk, onboarding, security events | `DATABASE_URL` on Vercel; local SQLite/file fallback |
-| Ops state (`OPS_STATE` / `/api/ops`) | stock, listEntries, shoppingTrips, listRequests, **feedbackReports**, weeks, overrides, template, events, log, shiftNotes, shiftCheckins, stockChecks, profilePrefs, custom*, taskCompletions, aiImports, kid* | Staff push; all pull; kids write own open feedback via `/api/kid-ops` |
+| Ops state (`OPS_STATE` / `/api/ops`) | stock, listEntries, shoppingTrips, listRequests, **pocketMoneyTxns**, **feedbackReports**, weeks, overrides, template, events, log, shiftNotes, shiftCheckins, stockChecks, profilePrefs, custom*, taskCompletions, aiImports, kid* | Staff push; all pull; kids write own open feedback via `/api/kid-ops` |
 | Passkeys | WebAuthn public credentials per profile | DB or `.paidia-passkeys.json`; HTTPS + matching origin |
 | Profile contacts | Email / phone for reset + broadcast | `/api/auth/profile/email` |
-| Gallery posts | Moments metadata (+ Drive if configured) | `/api/gallery` |
+| Gallery posts | Moments metadata (+ optional **category**) (+ Drive if configured) | `/api/gallery` |
 
 ## Session / device
 

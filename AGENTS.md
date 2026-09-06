@@ -23,6 +23,10 @@ authority; the Figma build of it is [Armonia Thassos — Design System v2](https
 `<style>` block in `index.html`. Living style guide: `design/system-preview.html`
 (regenerate with `python3 scripts/build-style-guide.py` after any CSS change).
 
+**Apple HIG (interaction/a11y bar):** skill `.cursor/skills/apple-design/` + map
+[docs/agents/APPLE_HIG_PAIDIA.md](docs/agents/APPLE_HIG_PAIDIA.md) + rule `.cursor/rules/apple-design.mdc`.
+Brand stays Armonia; HIG does not mean “look like iOS”.
+
 **Handoff to another agent (Cursor etc.):** [docs/agents/CURSOR_HANDOFF.md](docs/agents/CURSOR_HANDOFF.md)
 — token reference, the Kids/widgets build spec, real `app.js` anchors, ship checklist, guardrails.
 

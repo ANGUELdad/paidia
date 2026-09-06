@@ -10,7 +10,7 @@
 // cache-first — fresh on release, instant on every load in between. The shell
 // and build.json stay network-first so a release is picked up immediately, with
 // a cached copy as the offline fallback.
-const CACHE = 'paidia-v175';
+const CACHE = 'paidia-v188';
 const ASSETS = ['./manifest.webmanifest'];
 
 // Fresh every time: the shell and the version manifest that drives the banner.
@@ -34,7 +34,7 @@ function safeAppUrl(url) {
 function isImmutable(url) {
   if (ALWAYS_FRESH.test(url.pathname + url.search)) return false;
   if (/[?&]v=\d+/.test(url.search)) return true;
-  return url.pathname.startsWith('/icons/') || url.pathname.startsWith('/kids-games/');
+  return url.pathname.startsWith('/icons/') || url.pathname.startsWith('/kids-games/') || url.pathname.startsWith('/help/');
 }
 
 self.addEventListener('install', (e) => {

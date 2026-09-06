@@ -7,14 +7,29 @@ Zo-Ai capability nags belong to the always-on FAB sibling; this catalog stays **
 
 | Rule | Behaviour |
 |------|-----------|
-| When | After navigation to a page, random delay **45–120s** |
-| Frequency | **Once per page per browser session** |
-| Persist | Dismissed tip ids in `localStorage` key `paidia.tipsDismissed` |
-| Easy | Fewer tips — `proOnly` skipped; first matching tip preferred |
+| Daily first | First open of a page **each calendar day** → **Hilfe!! / Βοήθεια!!** sooner (~6–18s), often with screenshot under `help/` |
+| Random later | Mid-session random delay **25–90s**; up to **2 tips per page per browser session** |
+| Persist | Dismissed tip ids: `localStorage` `paidia.tipsDismissed`. Daily page keys: `paidia.helpDaily` `{day, pages[]}` |
+| Easy | Fewer tips — `proOnly` skipped |
 | Pro | Random among remaining undismissed tips for the page |
 | Skip | PIN gate (`gate.on` / `auth-pending`), tour active, sheet open, chat open |
 | Motion | `prefers-reduced-motion`: no slide/fade |
 | Zo-Ai stagger | Shared `window.__paidiaLastCoachAt` + `paidiaMarkCoachShown()`; min gap **28s**. Also skips if `#zoaiTipRoot` visible / `body.zoai-tip-open` / `paidiaZoAiTipVisible()` |
+
+## Screenshots
+
+Static PNGs served from repo root `help/` (copied from marketing QA shots):
+
+| File | Page |
+|------|------|
+| `help/home.png` | staff home |
+| `help/plan.png` | schedule |
+| `help/lager.png` | stock |
+| `help/shop-plan.png` | liste plan |
+| `help/kids.png` | kids |
+| `help/child-today.png` | child today |
+
+Tip card uses `#tipShot` + `.tip-shot` CSS in `index.html`. Missing images hide via `onerror`.
 
 ## Entry / hooks
 
@@ -34,7 +49,7 @@ if (window.paidiaPageTipVisible?.()) { /* wait / reschedule */ }
 window.paidiaMarkCoachShown?.();
 
 // Optional markers page tips already respect:
-// body.zoai-tip-open  |  #zoaiTipRoot (not hidden)  |  window.paidiaZoAiTipVisible()
+// body.zoai-tip-open  |  #zoaiTipRoot (not hidden) | window.paidiaZoAiTipVisible()
 ```
 
 ## Pages covered (1–3 tips each)
@@ -42,11 +57,11 @@ window.paidiaMarkCoachShown?.();
 **Staff:** `home`, `schedule`, `stock`, `shop`, `talk`, `kids`, `gallery`, `book`  
 **Kids:** `today`, `games`, `rate`, `bonus`, `notes`
 
-No Zo-Ai “ask me about…” tips here — page chrome only (filters, ±, dock, Easy/Pro, etc.).
+No Zo-Ai “ask me about…” tips here — page chrome only (filters, ±, dock, Easy/Pro, Foto→Liste, etc.).
 
 ## CSS
 
-`index.html`: `.tip-root`, `.tip-card`, `.tip-on`. z-index **8600** (below tour 12000).
+`index.html`: `.tip-root`, `.tip-card`, `.tip-on`, `.tip-shot`, `.tip-kicker.is-help`. z-index **8600** (below tour 12000).
 
 
 ## Zo-Ai FAB tips (`zoai-tips.js` / `PaidiaZoAiTips`)

@@ -1,5 +1,105 @@
 # Changelog
 
+## v188 — 2026-09-06
+
+- **Layout:** one `--chrome-bottom` on `#app` (no fighting `#view` paddings); `measureChrome` owns clearance; sheets lock body scroll.
+- **Taschengeld / Χαρτζιλίκι:** clear shared panel (large balance + history) on child Bonus and staff kid profile.
+- **Talk:** flex chat log (`min-height:0`) instead of fixed 570px trap.
+- Scroll contract documented in `docs/agents/overhaul/CSS.md`.
+- Cache `paidia-v188`.
+
+## v187 — 2026-09-06
+
+- **Plan Woche:** **Foto → Woche** — upload / paste / drop a week-plan screenshot; Zo-Ai (Grok OCR) proposes entries.
+- Default **Nur Lücken füllen** (occupied slots stay); PIN confirm before save; text fill still available.
+- `/api/ai-schedule` accepts `sourceType: "image"` (staff); same OCR stack as Liste.
+- Cache `paidia-v187`.
+
+## v186 — 2026-09-06
+
+- **Tagesprogramm:** Vormittag / Nachmittag / Abend blocks with timed entries (not a flat list).
+- **Wochenprogramm:** each day shows the three blocks; desktop 7-column board.
+- **Mobile:** full Mo–So week stacked (no single-day collapse); matrix stays landscape/desktop.
+- Cache `paidia-v186`.
+
+## v185 — 2026-09-05
+
+- **Plan calendar:** Easy + Pro; day titles on cells; house filter; Heute; mobile Kalender seg.
+- **Kid rating calendar:** per-kid month grid (staff + child); tap week to focus grades.
+- **Taschengeld / Χαρτζιλίκι:** `pocketMoneyTxns` ops; staff ± on kid profile; child view on Bonus.
+- **Momente:** group/filter by feed/day/week/month/category/Betreuer; category on compose.
+- **Liste responsibility:** mandatory ack before start, confirm batch, and receipt book (DE/EL).
+- **Lager board:** richer rows (min, last move, on-list, → Liste); shelf rail + focused board pane.
+- **Kids:** Meine Anfragen status sheet + open-count badge.
+- Cache `paidia-v185`.
+
+## v184 — 2026-09-05
+
+- **Liste undo:** After fill / Foto-import / quick-add / request accept / Zo-Ai shop_add, toast shows **Rückgängig** to remove the inserted rows.
+- **Foto→Liste:** Plan strip banner explains sending a photo/screenshot; CTA opens scan.
+- **Hilfe!! popups:** First visit to a page each day shows a help tip with a real app screenshot (`help/*.png`); later random nudges (up to 2/session/page).
+- Cache `paidia-v184`.
+
+## v183 — 2026-09-05
+
+- **Apple HIG skill** installed (`.cursor/skills/apple-design/` + user `~/.agents/skills/apple-design/`); map `docs/agents/APPLE_HIG_PAIDIA.md`; rule `.cursor/rules/apple-design.mdc`.
+- **A11y:** global `:focus-visible` rings; stronger `prefers-reduced-motion` (HIG motion/accessibility).
+- Brand stays Armonia — HIG is the interaction bar, not an iOS skin.
+- Cache `paidia-v183`.
+
+## v182 — 2026-09-05
+
+- **Overhaul QA:** Multi-OS suite covers Kids panes + Liste store; tour/contact preflight; page catalog JSON.
+- **Fix:** Attendance grid kid names + Da/Fehlt/Entschuldigt chips ≥44px; kids pane tabs ≥44 mobile.
+- **Assert:** Easy `#shopAutoFill` only when `.shop-easy-strip` is visible (store/requests skipped).
+- Cache `paidia-v182`.
+
+## v181 — 2026-09-05
+
+- **Fix Easy Schule:** `normalizeUiModeSurfaces` no longer resets attendance / homework / materials / activity back to directory (only Pro panes timetable/subjects).
+- **Kids routes:** hash `#kids` / `#kids/materials` (etc.) so deep links and syncLocationHash work.
+- Cache `paidia-v181`.
+
+## v180 — 2026-09-05
+
+- **Liste Easy ↔ Lager:** Easy strip (fill from stock / start Friday / photo); live stock chips on list + store rows; requests join Friday path; post-confirm Eingebucht sheet → Lager.
+- **School:** Materials checklist + compressed photo attachments; activity log (“what they did”); Easy panes for attendance/HW/materials/activity; HW/timetable delete; child school snapshot with HW/materials/timetable/activity; Zo-Ai `material_*` / `homework_done` / `school_note`; grades docs 1–6.
+- Ops keys: `schoolMaterials`, `schoolMaterialMedia`, `schoolActivity`.
+- Cache `paidia-v180`.
+
+## v179 — 2026-09-05
+
+- **A11y:** Viewport allows pinch-zoom again (removed `user-scalable=no` / `maximum-scale=1`).
+- **Tap targets ≥44:** Easy/Pro header toggle, week Agenda|Tabelle + Tag öffnen, task-check, Liste ticks, Buch chips, shop steppers.
+- **QA:** Multi-OS stress suite (`qa_multi_os_stress.mjs`) — iPhone / Pixel / iPad / Desktop / Galaxy landscape; UI/CSS/button-fail/edge; report in `docs/agents/QA_MULTI_OS_STRESS_REPORT.md`.
+- Cache `paidia-v179`.
+
+## v178 — 2026-09-03
+
+- **Plan Week:** Agenda | Tabelle switch in Easy and Pro (Easy defaults Agenda, Pro defaults Matrix); preference in `paidia.weekLayout`.
+- **Plan Week:** Wired 7-day agenda board (was CSS-only); Matrix keeps portrait day-focus fallback.
+- **Lager Easy:** Single action strip (Add / Foto / Lagercheck / Speichern); no duplicate Add or Regale.
+- **Lager Pro:** Regale open attention shelves first; stronger shelf rail + sticky headers + recent ribbon.
+- Removed duplicate Easy/Pro toggles from Plan + Lager heroes (header toggle only).
+- Cache `paidia-v178`.
+
+## v177 — 2026-09-01
+
+- **iOS P0:** Stock toast clears on tab/route change; toast z-index below compose bars (Talk send reachable).
+- **iOS P0:** Staff mobile — hide floating Zo FAB (open via Mehr → Zo-Ai); no overlap on Send/calendar/arrows.
+- **iOS P1:** Single Easy/Pro toggle (header only); mobile header short tab titles + context in subtitle line.
+- **iOS P1:** Kids dock/FAB bottom padding; hide redundant guide banner on mobile; Easy/Pro hidden in child chrome.
+- **iOS P1:** Liste hero stacks on narrow screens; Lager Regale catalogue gated to Pro (JS + CSS specificity fix).
+- **iOS P1:** Mobile tap targets — plan week remove (44px), Lager product row, Buch house chips.
+- Cache `paidia-v177`.
+
+## v176 — 2026-09-01
+
+- **Kids broken on phone:** mobile dock was never mounted (hamburger-only) — kids got lost. Dock restored as playful floating pill.
+- **Kids playful 2026:** cream canvas, coral/sky/mint destination tiles, sunny hero, coral Zo FAB; Start drops duplicate Easy toggle + noisy “you are here” banner.
+- Cache `paidia-v176`.
+
+
 ## v175 — 2026-08-31
 
 - **Design skill polish (Lager + Zo-Ai):** Linear-calm density on Armonia tokens — outlined Easy action tiles with icons, status-dot tide legend, product unit meta, pine selected pier chips, FAB list clearance.
