@@ -1,5 +1,18 @@
 # Changelog
 
+## v218 · 2026-09-06
+- Dual websites: `/m/` mobile-only shell + `/desk/` desktop/PC shell; shared core under `shared/`.
+- Root `/` is login + router (after auth → correct shell). Override via localStorage `paidia.shell` or PC/Phone button.
+- Cache `paidia-v218`.
+
+## v217 · 2026-09-06
+- Kid PIN: do not auto-submit after the 4th digit (kids use 6-digit codes; early submit cleared the pad).
+- Cache `paidia-v217`.
+
+## v216 · 2026-09-06
+- Unsaved leave guard: warn + block tab/hash/house/logout/browser close for Lager draft, Liste pending remove, Pocket compose.
+- Cache `paidia-v216`.
+
 ## v215 · 2026-09-06
 
 - **Desktop UI polish (Playwright audit):** week matrix contained (no page-level X overflow); denser Home pulse; Admin/Pocket button spacing; detail stats labels wrapped.

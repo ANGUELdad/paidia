@@ -1,8 +1,8 @@
 {
-  "version": 215,
-  "label": "v215",
+  "version": 218,
+  "label": "v218",
   "changed": {
-    "de": "Desktop-UI: Matrix bleibt im Frame, dichtere Home/Admin/Pocket-Buttons.",
-    "el": "Desktop UI: πίνακας Plan στο frame, πυκνότερα Home/Admin/Pocket."
+    "de": "Zwei Websites: /m Mobile + /desk Desktop — gemeinsamer Kern.",
+    "el": "Δύο sites: /m κινητό + /desk υπολογιστής — κοινός πυρήνας."
   }
 }

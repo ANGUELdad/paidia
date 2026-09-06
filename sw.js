@@ -10,11 +10,11 @@
 // cache-first — fresh on release, instant on every load in between. The shell
 // and build.json stay network-first so a release is picked up immediately, with
 // a cached copy as the offline fallback.
-const CACHE = 'paidia-v215';
+const CACHE = 'paidia-v218';
 const ASSETS = ['./manifest.webmanifest'];
 
 // Fresh every time: the shell and the version manifest that drives the banner.
-const ALWAYS_FRESH = /(?:^|\/)(?:index\.html|build\.json|sw\.js)(?:\?|$)/i;
+const ALWAYS_FRESH = /(?:^|\/)(?:index\.html|build\.json|sw\.js|mobile\/index\.html|desk\/index\.html)(?:\?|$)/i;
 
 function safeAppUrl(url) {
   const raw = String(url || './');

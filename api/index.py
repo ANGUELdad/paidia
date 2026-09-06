@@ -395,6 +395,23 @@ _STATIC_EXACT = frozenset({
     # Contextual page tips + Zo-Ai FAB tips (index.html / loadApp).
     "page-tips.js",
     "zoai-tips.js",
+    # Dual shells
+    "shared/shell.js",
+    "shared/core.js",
+    "shared/bridge.js",
+    "shared/i18n.js",
+    "shared/ops.js",
+    "shared/dirty.js",
+    "mobile/index.html",
+    "mobile/mobile.css",
+    "mobile/mobile-app.js",
+    "desk/index.html",
+    "desk/desk.css",
+    "desk/desk-app.js",
+    "m",
+    "m/",
+    "desk",
+    "desk/",
 })
 _ICON_SUFFIXES = frozenset({".png", ".svg", ".ico", ".webp", ".jpg", ".jpeg"})
 _KIDS_GAME_SUFFIXES = frozenset({".html", ".js", ".css", ".txt", ".md", ".svg", ".png", ".webp"})
@@ -422,6 +439,11 @@ def _serve_static(rel: str):
     rel = (rel or "index.html").lstrip("/")
     if not rel or rel.endswith("/"):
         rel = (rel or "") + "index.html"
+    # Dual-site entry aliases
+    if rel in ("m", "m/", "m/index.html"):
+        rel = "mobile/index.html"
+    elif rel in ("desk", "desk/", "desk/index.html"):
+        rel = "desk/index.html"
     if not _static_allowed(rel):
         return _json(404, {"error": "Not found"})
     target = (ROOT / rel).resolve()
@@ -434,7 +456,13 @@ def _serve_static(rel: str):
         # client cannot be served a stale bundle. Marking these no-store meant
         # app.js (~730 KB) was re-downloaded on every single load.
         versioned = re.fullmatch(r"\d+", (request.args.get("v") or "").strip())
-        shell = rel in ("", "index.html", "build.json")
+        shell = rel in (
+            "",
+            "index.html",
+            "build.json",
+            "mobile/index.html",
+            "desk/index.html",
+        )
         if versioned and not shell:
             response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
         elif rel.endswith((".html", ".js", ".webmanifest", ".json")):

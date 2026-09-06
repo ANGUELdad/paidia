@@ -1,0 +1,181 @@
+/* Desktop-only shell — PC / wide aspect; no phone bottom dock as primary nav */
+html[data-shell="desk"],
+body.shell-desk {
+  --rail-w: 220px;
+}
+
+body.shell-desk #app.app-shell {
+  display: grid !important;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  min-height: 100dvh;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+body.shell-desk .app-chrome {
+  grid-column: 2;
+  grid-row: 1;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(250, 248, 244, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line, #d5ddd8);
+}
+
+body.shell-desk #view {
+  grid-column: 2;
+  grid-row: 2;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 28px 48px;
+  min-width: 0;
+}
+
+/* Turn bottom dock into persistent left sidebar */
+body.shell-desk #bottomPanel {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  bottom: auto !important;
+  right: auto !important;
+  width: var(--rail-w) !important;
+  max-width: var(--rail-w) !important;
+  height: 100dvh !important;
+  margin: 0 !important;
+  padding: 16px 10px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px;
+  background: #15241f !important;
+  color: #e8f2ec;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  z-index: 50;
+}
+
+body.shell-desk #bottomPanel .dock-brand {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.shell-desk #bottomPanel .dock-brand-copy span {
+  display: block;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+body.shell-desk #bottomPanel .dock-brand-copy strong {
+  font-size: 15px;
+  color: #fff;
+}
+
+body.shell-desk nav.dock[data-staff-dock] {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto;
+  gap: 4px;
+  overflow: auto;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 8px 0 !important;
+}
+
+body.shell-desk nav.dock button {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: flex-start !important;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 12px !important;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.78) !important;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+body.shell-desk nav.dock button .nav-ico,
+body.shell-desk nav.dock button .i {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+
+body.shell-desk nav.dock button.on {
+  background: rgba(61, 138, 106, 0.35) !important;
+  color: #fff !important;
+}
+
+body.shell-desk nav.dock button.dock-secondary {
+  display: flex !important;
+}
+
+body.shell-desk #dockZoAi,
+body.shell-desk .dock-zoai {
+  width: 100%;
+  margin-top: auto;
+  border-radius: 12px;
+}
+
+body.shell-desk #dockWho {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+/* Dense desk surfaces */
+body.shell-desk .matrix,
+body.shell-desk .week-matrix-desktop {
+  font-size: 13px;
+}
+
+body.shell-desk .shell-switch {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body.shell-desk.route-enter #view > * {
+    animation: paidiaDeskEnter 0.32s ease-out both;
+  }
+  @keyframes paidiaDeskEnter {
+    from { opacity: 0; transform: translateX(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  body.shell-desk nav.dock button:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+body.shell-desk:not(.auth-pending) #gate {
+  display: none !important;
+}
+
+/* Narrow window on desk site: keep sidebar usable */
+@media (max-width: 900px) {
+  body.shell-desk {
+    --rail-w: 72px;
+  }
+  body.shell-desk nav.dock button span:not(.i):not(.nav-ico) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  body.shell-desk #bottomPanel .dock-brand-copy {
+    display: none;
+  }
+}

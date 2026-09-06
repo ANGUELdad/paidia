@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 215,
-  label: 'v215',
+  version: 218,
+  label: 'v218',
   changed: {
-    de: 'Desktop-UI: Matrix im Frame, dichtere Home/Admin/Pocket.',
-    el: 'Desktop UI: πίνακας Plan στο frame, πυκνότερα κουμπιά.',
+    de: 'Zwei Websites: /m Mobile + /desk Desktop.',
+    el: 'Δύο sites: /m κινητό + /desk υπολογιστής.',
   },
 };
 const T = {
@@ -548,6 +548,11 @@ const T = {
     stockDraftNeedReason:'Für Ausgang einen Grund wählen.',
     stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
     stockDraftPending:'Noch nicht gespeichert',
+    unsavedLeaveBody:'Du hast ungespeicherte Änderungen. Seite wirklich verlassen? Die Änderungen gehen verloren.',
+    unsavedLeaveStock:'Lager: ± noch nicht gespeichert',
+    unsavedLeaveList:'Liste: Entfernungen noch nicht bestätigt',
+    unsavedLeavePocket:'Taschengeld-Eingabe noch offen',
+    unsavedLeaveDiscarded:'Änderungen verworfen',
     stockQuickAdd:'Hinzufügen',
     stockQuickAddTitle:'Produkt hinzufügen',
     stockQuickAddHint:'Name und Menge reichen. Ähnliche Namen werden sofort erkannt.',
@@ -1744,6 +1749,11 @@ const T = {
     stockDraftNeedReason:'Για έξοδο διάλεξε λόγο.',
     stockDraftSummary:(n,ins,outs)=>`${n} · +${ins} / −${outs}`,
     stockDraftPending:'Δεν αποθηκεύτηκε ακόμη',
+    unsavedLeaveBody:'Έχεις μη αποθηκευμένες αλλαγές. Να φύγεις από τη σελίδα; Οι αλλαγές θα χαθούν.',
+    unsavedLeaveStock:'Αποθήκη: ± δεν αποθηκεύτηκε',
+    unsavedLeaveList:'Λίστα: αφαιρέσεις χωρίς επιβεβαίωση',
+    unsavedLeavePocket:'Η καταχώρηση χαρτζιλικιού είναι ανοιχτή',
+    unsavedLeaveDiscarded:'Οι αλλαγές ακυρώθηκαν',
     stockQuickAdd:'Προσθήκη',
     stockQuickAddTitle:'Προσθήκη προϊόντος',
     stockQuickAddHint:'Όνομα και ποσότητα αρκούν. Παρόμοια ονόματα εντοπίζονται αμέσως.',
@@ -4418,6 +4428,10 @@ async function logoutServerSession(){
   state.helpMessages=[]; state.helpChatUserKey=null; state.pendingHelpActions=[];
   document.body.classList.add('auth-pending');
   document.getElementById('app').hidden=true;
+  if(window.PaidiaShell && window.PaidiaShell.currentShellFromPath()){
+    location.replace('/');
+    return;
+  }
   openGate();
 }
 
@@ -7426,6 +7440,18 @@ function routeFromHash(){
 function applyRouteFromHash(){
   const route = routeFromHash();
   if(!route) return false;
+  const leavingDirty =
+    hasUnsavedChanges() && (
+      route.tab !== state.tab
+      || (state.pocketCompose && route.pocketKidId && route.pocketKidId !== state.pocketKidId)
+    );
+  if(leavingDirty){
+    if(!confirmLeaveUnsaved()){
+      // replaceState does not fire hashchange — snap URL back to current tab.
+      syncLocationHash();
+      return false;
+    }
+  }
   state.tab = route.tab;
   if(route.scheduleView) setScheduleView(route.scheduleView, {persist:true});
   if(route.shopPanel){
@@ -10192,6 +10218,85 @@ function clearStockDraft(){
   state.stockPendingStep = null;
 }
 
+/** Dirty UI state that would be lost if the user leaves the page (or switches house). */
+function unsavedChangeParts(){
+  const parts=[];
+  if(stockDraftEntries().length) parts.push(t('unsavedLeaveStock'));
+  const pending=state.stockPendingStep;
+  if(pending && (pending.commitDraft || pending.pid || (pending.bulkOut||[]).length)){
+    if(!parts.includes(t('unsavedLeaveStock'))) parts.push(t('unsavedLeaveStock'));
+  }
+  if((state.listPendingRemove||[]).length) parts.push(t('unsavedLeaveList'));
+  if(state.pocketCompose) parts.push(t('unsavedLeavePocket'));
+  return parts;
+}
+function hasUnsavedChanges(){
+  return unsavedChangeParts().length>0;
+}
+function discardUnsavedChanges(){
+  const had=hasUnsavedChanges();
+  clearStockDraft();
+  clearStockOrderFreeze();
+  clearListPendingRemove(true);
+  state.pocketCompose=null;
+  return had;
+}
+/** Confirm leave/discard. Returns false if the user stays. */
+function confirmLeaveUnsaved({silentDiscard=false}={}){
+  const parts=unsavedChangeParts();
+  if(!parts.length) return true;
+  const detail=parts.map(p=>`• ${p}`).join('\n');
+  const ok=window.confirm(`${t('unsavedLeaveBody')}\n\n${detail}`);
+  if(!ok) return false;
+  discardUnsavedChanges();
+  if(!silentDiscard) toast(t('unsavedLeaveDiscarded'),'info');
+  return true;
+}
+/**
+ * Staff tab change with unsaved guard. Returns false if navigation was blocked.
+ * @param {string} next
+ * @param {{shopPanel?:string, scheduleView?:string, adminOps?:boolean, clearSel?:boolean, kidReset?:boolean}} [opts]
+ */
+function navigateStaffTab(next, opts={}){
+  if(!next) return false;
+  const leaving=state.tab;
+  if(next===leaving && !opts.scheduleView && !opts.shopPanel && !opts.adminOps && !opts.kidReset){
+    return true;
+  }
+  if(next!==leaving && !confirmLeaveUnsaved()) return false;
+  if(leaving==='schedule' && next!=='schedule') rememberScheduleView(state.scheduleView || 'week');
+  if(next==='schedule' && leaving!=='schedule'){
+    if(opts.scheduleView) setScheduleView(opts.scheduleView);
+    else{
+      const route=routeFromHash();
+      if(!(route && route.tab==='schedule' && route.scheduleView)){
+        setScheduleView(recalledScheduleView(), {persist:false});
+      }
+    }
+  }else if(opts.scheduleView && next==='schedule'){
+    setScheduleView(opts.scheduleView);
+  }
+  if(opts.shopPanel) state.shopPanel=opts.shopPanel;
+  if(opts.kidReset) state.staffKidId=null;
+  if(opts.adminOps || next==='admin'){
+    state.adminPane='ops';
+    state.adminWorkerId=null;
+  }
+  if(opts.clearSel!==false && next!==leaving) clearSelection();
+  state.tab=next;
+  syncLocationHash();
+  if(state.tab==='gallery'){
+    state.galleryLoading=true;
+    render();
+    refreshGallery({silent:true}).finally(()=>render());
+    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
+    return true;
+  }
+  render();
+  requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
+  return true;
+}
+
 let stockUndoPayload = null;
 /** Last list insert batch — toast Undo removes these ids if still present. */
 let listUndoPayload = null;
@@ -12248,6 +12353,7 @@ function wirePocketView(v){
   wirePaidiaCal(v);
   v.querySelectorAll('.pocket-kid-card[data-pocket-kid]').forEach(btn=>{
     btn.onclick=()=>{
+      if(state.pocketCompose && !confirmLeaveUnsaved()) return;
       state.pocketKidId = btn.dataset.pocketKid;
       state.pocketPane = 'ledger';
       state.pocketCompose = null;
@@ -12256,7 +12362,13 @@ function wirePocketView(v){
     };
   });
   v.querySelectorAll('[data-pocket-pane]').forEach(btn=>{
-    btn.onclick=()=>{ state.pocketPane = btn.dataset.pocketPane; state.pocketCompose=null; feedback('tap'); render(); };
+    btn.onclick=()=>{
+      if(state.pocketCompose && !confirmLeaveUnsaved()) return;
+      state.pocketPane = btn.dataset.pocketPane;
+      state.pocketCompose=null;
+      feedback('tap');
+      render();
+    };
   });
   v.querySelectorAll('[data-pocket-filter]').forEach(btn=>{
     btn.onclick=()=>{ state.pocketFilter = btn.dataset.pocketFilter; feedback('tap'); render(); };
@@ -14372,6 +14484,7 @@ function ensureBookCalMonth(){
 }
 
 function openBookJournal({focusWrite=false, keepDay=false}={}){
+  if(state.tab!=='book' && !confirmLeaveUnsaved()) return;
   const today = iso(new Date());
   if(!keepDay){
     state.bookDate = today;
@@ -14382,6 +14495,7 @@ function openBookJournal({focusWrite=false, keepDay=false}={}){
   state.tab = 'book';
   state.bookPane = 'shift';
   state.bookJournalMode = 'ink';
+  syncLocationHash();
   render();
   if(focusWrite) queueMicrotask(()=>{
     const first = document.querySelector('[data-handoff-sec="urgent"]') || document.getElementById('shiftNoteText');
@@ -20165,14 +20279,17 @@ function wireAdminOpsView(root){
   root.querySelectorAll('[data-admin-worker-go]').forEach(btn=>btn.onclick=()=>{
     const act=btn.dataset.adminWorkerGo;
     const id=state.adminWorkerId;
-    if(act==='schedule'){ state.tab='schedule'; setScheduleView('week'); render(); return; }
-    if(act==='stock'){ state.tab='stock'; render(); return; }
-    if(act==='shop'){ state.tab='shop'; render(); return; }
+    if(act==='schedule'){ navigateStaffTab('schedule',{scheduleView:'week'}); return; }
+    if(act==='stock'){ navigateStaffTab('stock'); return; }
+    if(act==='shop'){ navigateStaffTab('shop'); return; }
     if(act==='audit'){ sheetSecurityAudit({profileId:id}); return; }
     if(act==='contact'){ sheetSecurityAccess(); return; }
     if(act==='sheet' && id){ sheetAdminStaff(id); return; }
   });
-  root.querySelectorAll('[data-ops-house]').forEach(btn=>btn.onclick=()=>{state.house=btn.dataset.opsHouse; location.hash='#stock';});
+  root.querySelectorAll('[data-ops-house]').forEach(btn=>btn.onclick=()=>{
+    state.house=btn.dataset.opsHouse;
+    navigateStaffTab('stock');
+  });
   root.querySelector('#opsFeedback')?.addEventListener('click',()=>sheetFeedbackInbox());
   const syncQ=()=>{
     const q=adminOpsLegoState();
@@ -20434,11 +20551,12 @@ function sheetAdminStaff(employeeId){
   const todayDow=dowIdx(new Date(today+'T12:00:00'));
   const go=(tab,view)=>{
     closeSheet();
-    state.tab=tab;
-    if(view && tab==='schedule') setScheduleView(view);
-    else if(view) state.scheduleView=view;
-    if(tab==='schedule') state.date=today;
-    render();
+    if(tab==='schedule'){
+      state.date=today;
+      navigateStaffTab('schedule',{scheduleView:view||'day'});
+      return;
+    }
+    navigateStaffTab(tab);
   };
   openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:${safeColor(person.color)}">${initials(person.name)}</div>
       <div class="grow"><div class="muted">${t('adminDetails')}</div><h3 style="margin:1px 0">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</h3>
@@ -20768,16 +20886,14 @@ function runInboxJump(jump){
   if(String(jump||'').startsWith('late:')){ sheetLateAlert(String(jump).slice(5)); return; }
   if(jump==='presence'){ sheetShiftPresence(); return; }
   if(jump==='stockcheck'){ sheetShiftStockCheck(); return; }
-  if(jump==='stock'){ state.tab='stock'; clearSelection(); render(); return; }
-  if(jump==='shop'){ state.tab='shop'; state.shopPanel='plan'; clearSelection(); render(); return; }
+  if(jump==='stock'){ navigateStaffTab('stock'); return; }
+  if(jump==='shop'){ navigateStaffTab('shop',{shopPanel:'plan'}); return; }
   if(jump==='book'){ openBookJournal(); return; }
-  if(jump==='kids'){ state.tab='kids'; render(); return; }
-  if(jump==='gallery'){ state.tab='gallery'; refreshGallery({silent:true}).finally(()=>render()); return; }
+  if(jump==='kids'){ navigateStaffTab('kids'); return; }
+  if(jump==='gallery'){ navigateStaffTab('gallery'); return; }
   if(jump==='home-end'){ sheetShiftEnd(); return; }
-  if(jump==='day'){ state.tab='schedule'; state.scheduleView='day'; render(); return; }
-  state.tab='schedule';
-  state.scheduleView=jump==='events'?'events':'day';
-  render();
+  if(jump==='day'){ navigateStaffTab('schedule',{scheduleView:'day'}); return; }
+  navigateStaffTab('schedule',{scheduleView:jump==='events'?'events':'day'});
 }
 
 function sheetLateAlert(alertId){
@@ -21767,7 +21883,16 @@ function wireAdaptiveChrome(root=document){
 }
 
 function syncLayoutMode(){
-  const desktop=window.matchMedia('(min-width:900px)').matches;
+  const shellLocked = document.documentElement.dataset.shell === 'm' || document.documentElement.dataset.shell === 'desk'
+    || document.body.classList.contains('shell-m') || document.body.classList.contains('shell-desk')
+    || (typeof window.__PAIDIA_SHELL__ === 'string' && window.__PAIDIA_SHELL__);
+  let desktop;
+  if(shellLocked){
+    const s = document.documentElement.dataset.shell || window.__PAIDIA_SHELL__ || (document.body.classList.contains('shell-desk')?'desk':'m');
+    desktop = s === 'desk';
+  }else{
+    desktop=window.matchMedia('(min-width:900px)').matches;
+  }
   document.body.classList.toggle('layout-desktop', desktop);
   document.body.classList.toggle('layout-mobile', !desktop);
   if(desktop){
@@ -22056,6 +22181,14 @@ function render(){
   if(consumePresenceDeepLink()) queueMicrotask(()=>sheetShiftPresence());
   else maybePromptShiftPresence();
   if(state.tourActive) queueMicrotask(()=>tourPaintCurrent());
+  try{
+    if(window.PaidiaDirty && typeof hasUnsavedChanges==='function'){
+      window.PaidiaDirty.set('stockDraft', !!(stockDraftEntries&&stockDraftEntries().length));
+      window.PaidiaDirty.set('listPending', !!((state.listPendingRemove||[]).length));
+      window.PaidiaDirty.set('pocketCompose', !!state.pocketCompose);
+    }
+  }catch{}
+  try{ window.dispatchEvent(new CustomEvent('paidia:rendered')); }catch{}
   try{ tipNotifyPageChange(); }catch{}
   try{ zoaiTipNotifySession(); }catch{}
   try{ paintPwaInstallBar(); }catch{}
@@ -22118,25 +22251,22 @@ function wire(){
   };
 
   const homeAllEvents=v.querySelector('#homeAllEvents');
-  if(homeAllEvents) homeAllEvents.onclick=()=>{state.tab='schedule';setScheduleView('events');render();};
+  if(homeAllEvents) homeAllEvents.onclick=()=>{navigateStaffTab('schedule',{scheduleView:'events'});};
   v.querySelectorAll('[data-home-jump]').forEach(btn=>{
     btn.onclick=()=>{
       feedback('tap');
       const jump=btn.dataset.homeJump;
-      if(jump==='shop'){ state.tab='shop'; state.shopPanel='plan'; clearSelection(); render(); return; }
-      if(jump==='stock'){ state.tab='stock'; clearSelection(); render(); return; }
-      if(jump==='kids'){ state.tab='kids'; state.staffKidId=null; render(); return; }
-      if(jump==='gallery'){ state.tab='gallery'; refreshGallery({silent:true}).finally(()=>render()); return; }
-      state.tab='schedule';
-      setScheduleView(jump==='events'?'events':jump==='week'?'week':'day');
-      render();
+      if(jump==='shop'){ navigateStaffTab('shop',{shopPanel:'plan'}); return; }
+      if(jump==='stock'){ navigateStaffTab('stock'); return; }
+      if(jump==='kids'){ navigateStaffTab('kids',{kidReset:true}); return; }
+      if(jump==='gallery'){ navigateStaffTab('gallery'); return; }
+      navigateStaffTab('schedule',{scheduleView:jump==='events'?'events':jump==='week'?'week':'day'});
     };
   });
   const homeGalleryOpen=v.querySelector('#homeGalleryOpen');
   if(homeGalleryOpen) homeGalleryOpen.onclick=()=>{
     feedback('open');
-    state.tab='gallery';
-    refreshGallery({silent:true}).finally(()=>render());
+    navigateStaffTab('gallery');
   };
   const homeWriteBook=v.querySelector('#homeWriteBook');
   if(homeWriteBook) homeWriteBook.onclick=()=>{
@@ -22232,9 +22362,7 @@ function wire(){
   v.querySelectorAll('#sHouse button, #shHouse button').forEach(b=>{
     b.onclick = () => {
       if(b.dataset.h!==state.house){
-        clearStockDraft();
-        clearStockOrderFreeze();
-        clearListPendingRemove(true);
+        if(!confirmLeaveUnsaved()) return;
       }
       state.house = b.dataset.h;
       render();
@@ -23184,28 +23312,7 @@ function wire(){
 
 document.querySelectorAll('nav button[data-tab]').forEach(b=>{
   b.onclick = () => {
-    if(b.dataset.tab!=='stock' && state.tab==='stock'){ clearStockDraft(); clearStockOrderFreeze(); }
-    if(b.dataset.tab!=='shop' && state.tab==='shop'){ clearListPendingRemove(true); }
-    if(b.dataset.tab!==state.tab) clearSelection();
-    const leaving = state.tab;
-    const next = b.dataset.tab;
-    if(leaving === 'schedule' && next !== 'schedule') rememberScheduleView(state.scheduleView || 'week');
-    if(next === 'schedule' && leaving !== 'schedule'){
-      const route = routeFromHash();
-      if(!(route && route.tab === 'schedule' && route.scheduleView)){
-        setScheduleView(recalledScheduleView(), {persist:false});
-      }
-    }
-    state.tab = next;
-    syncLocationHash();
-    if(state.tab==='gallery'){
-      state.galleryLoading = true;
-      render();
-      refreshGallery({silent:true}).finally(()=>render());
-      return;
-    }
-    render();
-    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
+    navigateStaffTab(b.dataset.tab);
   };
 });
 function sheetMobileMore(){
@@ -23236,17 +23343,7 @@ function sheetMobileMore(){
     </div>`);
   sheetEl.querySelectorAll('[data-more-tab]').forEach(btn=>btn.onclick=()=>{
     closeSheet();
-    const next=btn.dataset.moreTab;
-    if(next!=='stock' && state.tab==='stock'){ clearStockDraft(); clearStockOrderFreeze(); }
-    if(next!=='shop' && state.tab==='shop'){ clearListPendingRemove(true); }
-    state.tab=next;
-    if(next==='admin'){ state.adminPane='ops'; state.adminWorkerId=null; }
-    syncLocationHash();
-    if(state.tab==='gallery'){
-      state.galleryLoading=true; render(); refreshGallery({silent:true}).finally(()=>render()); return;
-    }
-    render();
-    requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
+    navigateStaffTab(btn.dataset.moreTab, {adminOps:btn.dataset.moreTab==='admin'});
   });
   sheetEl.querySelectorAll('[data-more-act]').forEach(btn=>btn.onclick=()=>{
     const act = btn.dataset.moreAct;
@@ -23286,6 +23383,7 @@ document.getElementById('dockZoAi')?.addEventListener('click', ()=>{
 });
 document.getElementById('btnProfiles').onclick = () => {
   feedback('tap');
+  if(hasUnsavedChanges() && !confirmLeaveUnsaved()) return;
   if(state.user||state.child) logoutServerSession();
   else openGate();
 };
@@ -23902,7 +24000,13 @@ function stopPinKeyboard(){
   syncGateKeyboardLayout();
 }
 
-function openGate(){ try{ tipCancelSchedule(); tipHide(); zoaiTipStopAll(); }catch{} closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); document.body.classList.add('auth-pending'); startGateKeyboardWatch(); renderEntrance(); }
+function openGate(){
+  if(window.PaidiaShell && window.PaidiaShell.currentShellFromPath()){
+    location.replace('/');
+    return;
+  }
+  try{ tipCancelSchedule(); tipHide(); zoaiTipStopAll(); }catch{} closeSheet(); stopPinKeyboard(); gateEl.classList.add('on'); document.body.classList.add('auth-pending'); startGateKeyboardWatch(); renderEntrance();
+}
 function closeGate(){ stopPinKeyboard(); stopGateKeyboardWatch(); gateEl.classList.remove('on'); document.body.classList.remove('auth-pending'); document.body.dataset.gateKb='0'; }
 
 /** Βήμα 1 — δύο ξεχωριστές είσοδοι: Προσωπικό / Παιδιά (§31.3). */
@@ -24005,7 +24109,7 @@ function renderGatePin(who, mode = 'staff'){
       </div>
       <button class="passkey-btn primary-bio" id="gPasskey" type="button" hidden>🔐 <span><b>${esc(biometricName())}</b><span class="pk-sub">${esc(biometricHint())}</span></span></button>
       <div class="pin-divider" id="gPinDivider" hidden>${t('pinFallback')}</div>
-      ${mode==='child'?`<p class="gate-pin-help" id="gatePinHelp">${state.lang==='el'?'Πληκτρολόγησε τον προσωπικό σου κωδικό. Αν τον ξέχασες, ζήτησε βοήθεια από την ομάδα.':'Gib deinen persönlichen Zahlencode ein. Wenn du ihn vergessen hast, hilft dir das Team.'}</p>`:''}
+      ${mode==='child'?`<p class="gate-pin-help" id="gatePinHelp">${state.lang==='el'?'Πληκτρολόγησε όλα τα ψηφία (συνήθως 6). Πάτα Σύνδεση όταν τελειώσεις.':'Gib alle Ziffern ein (meist 6). Tippe Anmelden, wenn du fertig bist.'}</p>`:''}
       <div class="pindots" id="gpd" aria-live="polite"></div>
       <input class="pin-field" id="gPinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6"
         autocomplete="one-time-code" enterkeyhint="done" aria-label="PIN" ${mode==='child'?'aria-describedby="gatePinHelp"':''} value="">
@@ -24084,11 +24188,13 @@ function renderGatePin(who, mode = 'staff'){
     if(autoTimer){ clearTimeout(autoTimer); autoTimer=0; }
     if(busy || succeeded) return;
     if(buf.length===6){ finishLogin(); return; }
+    // Kids use 6-digit PINs — never auto-submit at 4/5 (that rejected + cleared the pad).
+    if(mode==='child') return;
     if(buf.length>=4){
       autoTimer=setTimeout(()=>{
         autoTimer=0;
-        if(!busy && !succeeded && buf.length>=4) finishLogin();
-      }, 520);
+        if(!busy && !succeeded && buf.length>=4 && buf.length<6) finishLogin();
+      }, 900);
     }
   };
 
@@ -24295,6 +24401,11 @@ window.addEventListener('keydown', event=>{
 window.addEventListener('hashchange', ()=>{
   if(document.body.classList.contains('auth-pending')) return;
   if(applyRouteFromHash()) render();
+});
+window.addEventListener('beforeunload', (event)=>{
+  if(!hasUnsavedChanges()) return;
+  event.preventDefault();
+  event.returnValue = '';
 });
 let lastResponsiveDesktop=window.matchMedia('(min-width:900px)').matches;
 window.addEventListener('resize', ()=>{
@@ -24977,7 +25088,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||215;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||218;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

@@ -123,11 +123,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 215,
-    label: 'v215',
+    version: 218,
+    label: 'v218',
     changed: {
-      de: 'Desktop-UI: Matrix im Frame, dichtere Home/Admin/Pocket.',
-      el: 'Desktop UI: πίνακας Plan στο frame, πυκνότερα κουμπιά.',
+      de: 'Zwei Websites: /m Mobile + /desk Desktop.',
+      el: 'Δύο sites: /m κινητό + /desk υπολογιστής.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -231,7 +231,7 @@
       pick: 'Wähle dein Profil, um weiterzumachen.',
       searchProfile: 'Name suchen',
       noProfiles: 'Kein passendes Profil. Prüfe den Namen oder lösche die Suche.',
-      kidPinHelp: 'Gib deinen persönlichen Zahlencode ein. Wenn du ihn vergessen hast, hilft dir das Team.',
+      kidPinHelp: 'Gib alle Ziffern ein (meist 6). Tippe Anmelden, wenn du fertig bist.',
       deleteDigit: 'Letzte Ziffer löschen',
       pin: 'PIN eingeben',
       login: 'Anmelden',
@@ -287,7 +287,7 @@
       pick: 'Επίλεξε το προφίλ σου για να συνεχίσεις.',
       searchProfile: 'Αναζήτηση ονόματος',
       noProfiles: 'Δεν βρέθηκε προφίλ. Έλεγξε το όνομα ή καθάρισε την αναζήτηση.',
-      kidPinHelp: 'Πληκτρολόγησε τον προσωπικό σου κωδικό. Αν τον ξέχασες, ζήτησε βοήθεια από την ομάδα.',
+      kidPinHelp: 'Πληκτρολόγησε όλα τα ψηφία (συνήθως 6). Πάτα Σύνδεση όταν τελειώσεις.',
       deleteDigit: 'Διαγραφή τελευταίου ψηφίου',
       pin: 'Βάλε PIN',
       login: 'Είσοδος',
@@ -384,32 +384,44 @@
     try { localStorage.setItem(REMEMBER_KEY, on ? '1' : '0'); } catch (e) {}
   }
   function preloadApp() {
-    if (document.querySelector('link[data-paidia-preload], script[data-paidia-app]')) return;
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'script';
-    link.href = 'app.js?v=' + APP_BUILD.version;
-    link.dataset.paidiaPreload = '1';
-    document.head.appendChild(link);
+    /* Shell sites load app.js themselves; root only routes after auth. */
+    if (typeof PaidiaShell !== 'undefined' && PaidiaShell.currentShellFromPath()) {
+      if (document.querySelector('link[data-paidia-preload], script[data-paidia-app]')) return;
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'script';
+      link.href = PaidiaCore ? PaidiaCore.rootAsset('app.js?v=' + APP_BUILD.version) : ('app.js?v=' + APP_BUILD.version);
+      link.dataset.paidiaPreload = '1';
+      document.head.appendChild(link);
+    }
   }
 
   function loadApp() {
     window.__paidiaAuthed = true;
+    /* After login on root gate → dedicated mobile or desktop site */
+    if (typeof PaidiaShell !== 'undefined' && !PaidiaShell.currentShellFromPath()) {
+      try {
+        PaidiaShell.routeAfterAuth(window.__paidiaBootSession || null);
+      } catch (e) {
+        location.replace('/m/');
+      }
+      return;
+    }
     if (document.querySelector('script[data-paidia-app]')) return;
     if (!document.querySelector('script[data-paidia-page-tips]')) {
       const tips = document.createElement('script');
-      tips.src = 'page-tips.js?v=' + APP_BUILD.version;
+      tips.src = (typeof PaidiaCore !== 'undefined' ? PaidiaCore.rootAsset('page-tips.js?v=' + APP_BUILD.version) : ('page-tips.js?v=' + APP_BUILD.version));
       tips.dataset.paidiaPageTips = '1';
       document.body.appendChild(tips);
     }
     if (!document.querySelector('script[data-paidia-zoai-tips]')) {
       const ztips = document.createElement('script');
-      ztips.src = 'zoai-tips.js?v=' + APP_BUILD.version;
+      ztips.src = (typeof PaidiaCore !== 'undefined' ? PaidiaCore.rootAsset('zoai-tips.js?v=' + APP_BUILD.version) : ('zoai-tips.js?v=' + APP_BUILD.version));
       ztips.dataset.paidiaZoaiTips = '1';
       document.body.appendChild(ztips);
     }
     const script = document.createElement('script');
-    script.src = 'app.js?v=' + APP_BUILD.version;
+    script.src = (typeof PaidiaCore !== 'undefined' ? PaidiaCore.rootAsset('app.js?v=' + APP_BUILD.version) : ('app.js?v=' + APP_BUILD.version));
     script.defer = true;
     script.dataset.paidiaApp = '1';
     script.onerror = () => {
@@ -842,16 +854,19 @@
     const scheduleAutoFinish = () => {
       if (autoTimer) { clearTimeout(autoTimer); autoTimer = 0; }
       if (busy || succeeded) return;
+      // Full length always submits immediately.
       if (buf.length === 6) {
         finish();
         return;
       }
-      // 4–5 digit PINs: wait briefly so a longer PIN can still be typed.
+      // Kids use 6-digit PINs — never auto-submit at 4/5 (that rejected + cleared the pad).
+      if (mode === 'child') return;
+      // Staff 4–5 digit PINs: wait so a 5th/6th digit can still be typed.
       if (buf.length >= 4) {
         autoTimer = setTimeout(() => {
           autoTimer = 0;
-          if (!busy && !succeeded && buf.length >= 4) finish();
-        }, 520);
+          if (!busy && !succeeded && buf.length >= 4 && buf.length < 6) finish();
+        }, 900);
       }
     };
 
@@ -1160,5 +1175,11 @@
   }
 
   window.PaidiaGate = { start, loadApp, renderResetForm, renderResetRequest };
-  start();
+  // Dual shells (/m, /desk): PaidiaBridge boots the app — do not paint the login gate here.
+  if (typeof PaidiaShell !== 'undefined' && PaidiaShell.currentShellFromPath()) {
+    try { document.getElementById('gate')?.classList.remove('on'); } catch (e) {}
+    try { document.body.classList.remove('auth-pending'); } catch (e) {}
+  } else {
+    start();
+  }
 })();

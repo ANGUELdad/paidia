@@ -5516,6 +5516,19 @@ class Handler(SimpleHTTPRequestHandler):
             # Contextual page tips + Zo-Ai FAB tips (index.html / loadApp).
             "page-tips.js",
             "zoai-tips.js",
+            # Dual shells (mobile / desktop) + shared core
+            "shared/shell.js",
+            "shared/core.js",
+            "shared/bridge.js",
+            "shared/i18n.js",
+            "shared/ops.js",
+            "shared/dirty.js",
+            "mobile/index.html",
+            "mobile/mobile.css",
+            "mobile/mobile-app.js",
+            "desk/index.html",
+            "desk/desk.css",
+            "desk/desk-app.js",
             # Local-only design reference. Exact match, no directory
             # fallthrough — the Vercel handler (api/index.py) has its own
             # allowlist and does not serve this.
@@ -5534,9 +5547,13 @@ class Handler(SimpleHTTPRequestHandler):
             and not any(part.startswith(".") for part in static_rel.split("/"))
             and static_rel.rsplit(".", 1)[-1].lower() in {"html", "js", "css", "txt", "md", "svg", "png", "webp"}
         )
-        if static_rel in allowed_exact or parsed.path == "/" or icon_ok or kids_games_ok:
+        if static_rel in allowed_exact or parsed.path == "/" or parsed.path in ("/m", "/m/", "/desk", "/desk/") or icon_ok or kids_games_ok:
             if parsed.path == "/":
                 static_rel = "index.html"
+            elif parsed.path in ("/m", "/m/"):
+                static_rel = "mobile/index.html"
+            elif parsed.path in ("/desk", "/desk/"):
+                static_rel = "desk/index.html"
             path = os.path.join(os.getcwd(), static_rel)
             if os.path.isdir(path):
                 self.send_error(404, "File not found")
