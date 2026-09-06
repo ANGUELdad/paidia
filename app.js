@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 189,
-  label: 'v189',
+  version: 190,
+  label: 'v190',
   changed: {
-    de: 'Taschengeld-Tab · voller Verlauf · Kinder-Ansicht',
-    el: 'Καρτέλα χαρτζιλικιού · πλήρες ιστορικό · θέα παιδιού',
+    de: 'Taschengeld inline · Monatskalender · Lager-Layout',
+    el: 'Χαρτζιλίκι inline · Μηνιαίο ημερολόγιο · Layout αποθήκης',
   },
 };
 const T = {
@@ -657,6 +657,11 @@ const T = {
     pocketMoneyCatDe:'Name DE', pocketMoneyCatEl:'Name EL',
     pocketMoneyAllowance:'Wochen-Taschengeld', pocketMoneyPayAllowance:'Wochenbetrag buchen',
     pocketMoneyAllowancePaid:'Wochen-Taschengeld gebucht',
+    pocketMoneyMonthly:'Monats-Taschengeld', pocketMoneyPayMonthly:'Monatsbetrag buchen',
+    pocketMoneyMonthlyPaid:'Monats-Taschengeld gebucht',
+    pocketMoneyMonthView:'Monatsübersicht', pocketMoneyComposeTitle:'Buchung',
+    pocketMoneyComposeCancel:'Schließen', pocketMoneyDayTotal:'Tag',
+    pocketMoneyThisMonth:'Dieser Monat',
     pocketMoneyDelete:'Buchung löschen', pocketMoneyDeleted:'Buchung gelöscht',
     pocketMoneyDeleteAsk:'Diese Buchung wirklich löschen?',
     pocketMoneySearchPh:'Suche Notiz / Betrag…',
@@ -1761,6 +1766,11 @@ const T = {
     pocketMoneyCatDe:'Όνομα DE', pocketMoneyCatEl:'Όνομα EL',
     pocketMoneyAllowance:'Εβδομαδιαίο χαρτζιλίκι', pocketMoneyPayAllowance:'Καταχώριση εβδομάδας',
     pocketMoneyAllowancePaid:'Το εβδομαδιαίο χαρτζιλίκι καταχωρήθηκε',
+    pocketMoneyMonthly:'Μηνιαίο χαρτζιλίκι', pocketMoneyPayMonthly:'Καταχώριση μήνα',
+    pocketMoneyMonthlyPaid:'Το μηνιαίο χαρτζιλίκι καταχωρήθηκε',
+    pocketMoneyMonthView:'Μηνιαία επισκόπηση', pocketMoneyComposeTitle:'Κίνηση',
+    pocketMoneyComposeCancel:'Κλείσιμο', pocketMoneyDayTotal:'Ημέρα',
+    pocketMoneyThisMonth:'Αυτός ο μήνας',
     pocketMoneyDelete:'Διαγραφή κίνησης', pocketMoneyDeleted:'Η κίνηση διαγράφηκε',
     pocketMoneyDeleteAsk:'Να διαγραφεί αυτή η κίνηση;',
     pocketMoneySearchPh:'Αναζήτηση σημείωσης / ποσού…',
@@ -3331,6 +3341,12 @@ const state = {
   pocketFilter: 'all',
   pocketQuery: '',
   pocketPane: 'ledger',
+  pocketMonth: null,
+  pocketCompose: null,
+  pocketDay: null,
+  notesCalMonth: null,
+  notesCalDay: null,
+  gamesCalMonth: null,
   kidsPane: 'directory',
   scheduleView: 'week',
   childView: 'today',
@@ -8320,6 +8336,74 @@ function calendarMonthGrid(year, month, markers){
   return cells;
 }
 
+/** Shared month key helpers + HTML shell used by Plan, Buch, Kids, Taschengeld. */
+function paidiaCalMonthKey(d=new Date()){
+  try{ return iso(d instanceof Date ? d : new Date(d)).slice(0,7)+'-01'; }
+  catch{ return iso(new Date()).slice(0,7)+'-01'; }
+}
+function paidiaCalShiftMonth(monthKey, delta){
+  const d = new Date((monthKey||paidiaCalMonthKey())+'T12:00:00');
+  d.setMonth(d.getMonth()+(Number(delta)||0));
+  return paidiaCalMonthKey(d);
+}
+function paidiaCalMonthLabel(monthKey){
+  const d = new Date((monthKey||paidiaCalMonthKey())+'T12:00:00');
+  return d.toLocaleDateString(state.lang==='el'?'el-GR':'de-DE', {month:'long', year:'numeric'});
+}
+/**
+ * Unified calendar markup. markers: Map(ds -> {dots?:string[], label?:string})
+ * cellOpts(c) may return {className, attrs, extraHtml}
+ */
+function paidiaCalHtml({
+  monthKey, markers, ariaLabel='', extraClass='', stateKey='calendarMonth',
+  cellOpts, legendHtml='', kicker='',
+}={}){
+  const mk = monthKey || paidiaCalMonthKey();
+  const cm = new Date(mk+'T12:00:00');
+  const y = cm.getFullYear(), m = cm.getMonth();
+  const map = markers instanceof Map ? markers : new Map();
+  const cells = calendarMonthGrid(y, m, map);
+  const today = iso(new Date());
+  const weekdays = (DAY_NAMES[state.lang]||DAY_NAMES.de||[]).map(dn=>`<span>${esc(String(dn).slice(0,2))}</span>`).join('');
+  const grid = cells.map(c=>{
+    if(!c) return `<div class="cal-cell empty" role="presentation"></div>`;
+    const mark = map.get(c.ds);
+    const opt = typeof cellOpts==='function' ? (cellOpts(c, mark)||{}) : {};
+    const dots = (mark?.dots||[]).map(k=>`<i class="${esc(k)}"></i>`).join('');
+    const extra = opt.extraHtml || (mark?.label?`<span class="paidia-cal-label">${esc(mark.label)}</span>`:'');
+    const cls = ['cal-cell', c.ds===today?'today':'', mark?'has':'', opt.className||''].filter(Boolean).join(' ');
+    return `<button type="button" class="${cls}" ${opt.attrs||`data-cal-day="${esc(c.ds)}"`}>
+      <span class="cal-n">${c.d}</span>${extra}${dots?`<span class="cal-dots">${dots}</span>`:''}
+    </button>`;
+  }).join('');
+  const kick = kicker || '';
+  return `<section class="paidia-cal ${esc(extraClass||'')}" aria-label="${esc(ariaLabel||t('calTitle')||'Calendar')}">
+    <div class="paidia-cal-head">
+      <button type="button" class="btn sm sec paidia-cal-nav" data-cal-state="${esc(stateKey)}" data-cal-shift="-1" aria-label="${esc(t('calPrev'))}">‹</button>
+      <div class="paidia-cal-month">
+        ${kick?`<span class="paidia-cal-kicker">${esc(kick)}</span>`:''}
+        <b class="paidia-cal-title">${esc(paidiaCalMonthLabel(mk))}</b>
+      </div>
+      <button type="button" class="btn sm sec paidia-cal-nav" data-cal-state="${esc(stateKey)}" data-cal-shift="1" aria-label="${esc(t('calNext'))}">›</button>
+    </div>
+    <div class="paidia-cal-weekdays cal-weekdays">${weekdays}</div>
+    <div class="paidia-cal-grid cal-grid">${grid}</div>
+    ${legendHtml||''}
+  </section>`;
+}
+function wirePaidiaCal(root){
+  if(!root) return;
+  root.querySelectorAll('[data-cal-shift]').forEach(btn=>{
+    btn.onclick=()=>{
+      const key = btn.dataset.calState || 'calendarMonth';
+      const cur = state[key] || paidiaCalMonthKey();
+      state[key] = paidiaCalShiftMonth(cur, Number(btn.dataset.calShift)||0);
+      feedback('tap');
+      render();
+    };
+  });
+}
+
 function exportScheduleCalendarIcs(){
   const items = [];
   (DB.events||[]).filter(e=>e.status==='published').forEach(e=>{
@@ -8981,7 +9065,8 @@ function viewStock(){
         <div class="stock-categories stock-shelf-islands">${categoryHtml||emptyState(ui('u-search'),t('noStockResults'),t('noStockHint'))}</div>
       </section>`);
 
-  return `<div class="stock-shell" data-tour="stock-main">
+  return `<div class="stock-shell stock-layout-v2" data-tour="stock-main">
+    <div class="stock-layout-top">
     <header class="stock-overview stock-pantry-hero">
       <div class="stock-overview-copy">
         <p class="brand-kicker">${esc(t('headerStock'))}</p>
@@ -9026,10 +9111,11 @@ function viewStock(){
       <button type="button" class="${state.stockFilter==='empty'?'on':''}" data-stock-filter="empty"><b>${counts.empty}</b><span>${esc(t('stockEmpty'))}</span><small>${esc(t('stockOutState'))}</small></button>
       ${isPro()?`<button type="button" class="pro-only mode-pro-block ${state.stockFilter==='all'?'on':''}" data-stock-filter="all"><b>${allProducts.length}</b><span>${esc(t('stockShelves'))}</span><small>${esc(t('stockCatalogue'))}</small></button>`:''}
     </div>
+    </div>
     ${shiftPresenceBannerHtml()}
     ${shiftStockCheckBannerHtml()}
     ${missing.length?`<div class="stock-notice">${ui('u-alert','sm')}<b>${T[state.lang].missingFromShop(missing.length)}</b><button class="btn sec sm" id="stockToList">${t('openShopping')}</button></div>`:''}
-    <div class="stock-board-layout">
+    <div class="stock-workspace">
       ${!flatView && isPro()?`<nav class="stock-shelf-rail" aria-label="${esc(t('stockShelves'))}">
         ${CATS().map(c=>{
           const n=visible.filter(p=>p.cat===c.id).length; if(!n) return '';
@@ -9037,9 +9123,11 @@ function viewStock(){
           return `<button type="button" class="stock-rail-chip ${open?'on':''}" data-stock-rail="${c.id}"><span class="cat-ico-wrap">${catIcon(c.id)}</span><b>${esc(L(c))}</b><small>${n}</small></button>`;
         }).join('')}
       </nav>`:''}
-      <div class="stock-board-pane">${resultsHtml}</div>
+      <div class="stock-workspace-main">
+        <div class="stock-board-pane">${resultsHtml}</div>
+        ${recentHtml}
+      </div>
     </div>
-    ${recentHtml}
     ${state.selectMode==='stock'&&hid!=='all'?bulkBarHtml([
       {id:'in', label:t('bulkIn')},
       {id:'out', label:t('bulkOut')},
@@ -10854,6 +10942,7 @@ function openListRequestCount(hid){
 /* ── Taschengeld / Χαρτζιλίκι ───────────────────────────────────────── */
 const POCKET_DEFAULT_CATS = [
   {id:'pcat-week', de:'Wochen-Taschengeld', el:'Εβδομαδιαίο'},
+  {id:'pcat-month', de:'Monats-Taschengeld', el:'Μηνιαίο'},
   {id:'pcat-weekend', de:'Wochenende', el:'Σαββατοκύριακο'},
   {id:'pcat-bday', de:'Geburtstag', el:'Γενέθλια'},
   {id:'pcat-shop', de:'Einkauf', el:'Αγορές'},
@@ -10877,6 +10966,7 @@ function ensurePocketSettings(){
     s.categories = POCKET_DEFAULT_CATS.map(c=>({...c, active:true}));
   }
   if(!s.allowances || typeof s.allowances !== 'object' || Array.isArray(s.allowances)) s.allowances = {};
+  if(!s.monthlyAllowances || typeof s.monthlyAllowances !== 'object' || Array.isArray(s.monthlyAllowances)) s.monthlyAllowances = {};
   if(typeof s.rulesDe !== 'string') s.rulesDe = '';
   if(typeof s.rulesEl !== 'string') s.rulesEl = '';
   return s;
@@ -10902,6 +10992,36 @@ function pocketRulesText(){
 function pocketAllowance(kidId){
   const n = Number(ensurePocketSettings().allowances?.[kidId]);
   return Number.isFinite(n) && n>0 ? Math.round(n*100)/100 : 0;
+}
+function pocketMonthlyAllowance(kidId){
+  const n = Number(ensurePocketSettings().monthlyAllowances?.[kidId]);
+  return Number.isFinite(n) && n>0 ? Math.round(n*100)/100 : 0;
+}
+function pocketTxnInMonth(r, monthKey){
+  if(!r || !r.ts) return false;
+  const mk = (monthKey||paidiaCalMonthKey()).slice(0,7);
+  try{ return iso(new Date(r.ts)).slice(0,7)===mk; }catch{ return false; }
+}
+function pocketTxnOnDay(r, day){
+  if(!r || !r.ts || !day) return false;
+  try{ return iso(new Date(r.ts))===day; }catch{ return false; }
+}
+function pocketMonthMarkers(kidId, monthKey){
+  const markers = new Map();
+  pocketTxnsFor(kidId).filter(r=>pocketTxnInMonth(r, monthKey)).forEach(r=>{
+    let ds;
+    try{ ds = iso(new Date(r.ts)); }catch{ return; }
+    const cur = markers.get(ds) || {in:0, out:0, dots:[], label:''};
+    const amt = Number(r.amount)||0;
+    if(amt>=0) cur.in += amt; else cur.out += Math.abs(amt);
+    cur.dots = [];
+    if(cur.in>0) cur.dots.push('in');
+    if(cur.out>0) cur.dots.push('out');
+    const net = cur.in - cur.out;
+    cur.label = (net>=0?'+':'') + formatEuro(net).replace('\u00a0',' ');
+    markers.set(ds, cur);
+  });
+  return markers;
 }
 function pocketTxnsFor(kidId){
   return (DB.pocketMoneyTxns||[]).filter(x=>x && x.kidId===kidId)
@@ -11018,53 +11138,96 @@ function pocketMoneyPanelHtml(kidId, {mode='staff', limit}={}){
     <ul class="pocket-txn-list">${pocketTxnRowsHtml(kidId, {limit:histLimit, readonly:isChild})}</ul>
   </section>`;
 }
-function sheetPocketTxn(kidId, kind='in'){
-  if(!kidId) return;
+function pocketComposeHtml(kidId){
+  const compose = state.pocketCompose;
+  if(!compose || !kidId) return '';
+  const kind = compose.kind||'in';
   const k = kid(kidId);
   const cats = pocketCategories();
   const isAdj = kind==='adjust';
   const title = isAdj ? t('pocketMoneyAdjust') : (kind==='out'?t('pocketMoneyOut'):t('pocketMoneyIn'));
   const catOpts = `<option value="">${esc(t('pocketMoneyCategoryNone'))}</option>`
     + cats.map(c=>`<option value="${esc(c.id)}">${esc(pocketCatLabel(c))}</option>`).join('');
-  openSheet(`<div class="pocket-sheet">
-    <div class="import-kicker">${esc(t('pocketMoneyTitle'))}</div>
-    <h2>${esc(title)} · ${esc(k?.name||'')}</h2>
-    <p class="muted">${esc(t('pocketMoneyBalance'))}: <b>${esc(formatEuro(pocketBalance(kidId)))}</b></p>
-    <label class="f"><span>${esc(isAdj?t('pocketMoneyAdjust'):t('pocketMoneyIn'))} €</span>
-      <input id="pocketAmt" type="number" inputmode="decimal" ${isAdj?'step="0.01"':'min="0.01" step="0.01"'} placeholder="${isAdj?'±5.00':'5.00'}">
-    </label>
-    <label class="f"><span>${esc(t('pocketMoneyCategory'))}</span><select id="pocketCat">${catOpts}</select></label>
-    <label class="f"><span>${esc(t('pocketMoneyNote'))}</span><input id="pocketNote" placeholder="${esc(t('pocketMoneyNotePh'))}"></label>
-    <button class="btn" type="button" id="pocketSave">${esc(isAdj?t('pocketMoneyAdjust'):(kind==='out'?t('pocketMoneyRemove'):t('pocketMoneyAdd')))}</button>
-  </div>`);
-  sheetEl.querySelector('#pocketSave').onclick=()=>{
-    const amt = Number(String(sheetEl.querySelector('#pocketAmt')?.value||'').replace(',','.'));
-    const note = sheetEl.querySelector('#pocketNote')?.value||'';
-    const categoryId = sheetEl.querySelector('#pocketCat')?.value||'';
+  return `<section class="pocket-compose-stage on" aria-label="${esc(t('pocketMoneyComposeTitle'))}">
+    <form class="pocket-compose-card" id="pocketComposeForm">
+      <header class="pocket-compose-head">
+        <div>
+          <span class="pocket-kicker">${esc(t('pocketMoneyComposeTitle'))}</span>
+          <h3>${esc(title)} · ${esc(k?.name||'')}</h3>
+        </div>
+        <button type="button" class="btn ghost sm" id="pocketComposeCancel">${esc(t('pocketMoneyComposeCancel'))}</button>
+      </header>
+      <p class="muted pocket-compose-bal">${esc(t('pocketMoneyBalance'))}: <b>${esc(formatEuro(pocketBalance(kidId)))}</b></p>
+      <div class="pocket-compose-grid">
+        <label class="f"><span>${esc(isAdj?t('pocketMoneyAdjust'):t('pocketMoneyIn'))} €</span>
+          <input id="pocketAmt" type="number" inputmode="decimal" ${isAdj?'step="0.01"':'min="0.01" step="0.01"'} placeholder="${isAdj?'±5.00':'5.00'}" required>
+        </label>
+        <label class="f"><span>${esc(t('pocketMoneyCategory'))}</span><select id="pocketCat">${catOpts}</select></label>
+        <label class="f pocket-compose-note"><span>${esc(t('pocketMoneyNote'))}</span><input id="pocketNote" placeholder="${esc(t('pocketMoneyNotePh'))}"></label>
+      </div>
+      <div class="pocket-compose-actions">
+        <button class="btn" type="submit" id="pocketSave">${esc(isAdj?t('pocketMoneyAdjust'):(kind==='out'?t('pocketMoneyRemove'):t('pocketMoneyAdd')))}</button>
+      </div>
+    </form>
+  </section>`;
+}
+function openPocketCompose(kidId, kind='in'){
+  if(!kidId) return;
+  state.tab = 'pocket';
+  state.pocketKidId = kidId;
+  state.pocketPane = 'ledger';
+  state.pocketCompose = {kind};
+  syncLocationHash();
+  render();
+  queueMicrotask(()=>document.querySelector('#pocketAmt')?.focus());
+}
+function closePocketCompose(){
+  state.pocketCompose = null;
+}
+function wirePocketCompose(root){
+  const form = root.querySelector('#pocketComposeForm');
+  if(!form) return;
+  root.querySelector('#pocketComposeCancel')?.addEventListener('click', ()=>{
+    closePocketCompose(); feedback('tap'); render();
+  });
+  form.onsubmit = ev=>{
+    ev.preventDefault();
+    const kidId = state.pocketKidId;
+    const kind = state.pocketCompose?.kind||'in';
+    const isAdj = kind==='adjust';
+    const amt = Number(String(root.querySelector('#pocketAmt')?.value||'').replace(',','.'));
+    const note = root.querySelector('#pocketNote')?.value||'';
+    const categoryId = root.querySelector('#pocketCat')?.value||'';
     if(isAdj){
       if(!Number.isFinite(amt) || amt===0){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
     }else if(!(amt>0)){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
     if(!addPocketTxn({kidId, amount:amt, kind, note, categoryId})){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
     if(!save()) return;
-    closeSheet(); toast(t('pocketMoneySaved'),'success'); feedback('save'); render();
+    closePocketCompose();
+    toast(t('pocketMoneySaved'),'success'); feedback('save'); render();
   };
+}
+/** @deprecated sheets removed — keep alias for any leftover callers */
+function sheetPocketTxn(kidId, kind='in'){
+  openPocketCompose(kidId, kind);
 }
 function wirePocketActions(root){
   if(!root) return;
   root.querySelectorAll('[data-pocket-add]').forEach(btn=>{
-    btn.onclick=()=>sheetPocketTxn(btn.dataset.pocketAdd, 'in');
+    btn.onclick=()=>openPocketCompose(btn.dataset.pocketAdd, 'in');
   });
   root.querySelectorAll('[data-pocket-remove]').forEach(btn=>{
-    btn.onclick=()=>sheetPocketTxn(btn.dataset.pocketRemove, 'out');
+    btn.onclick=()=>openPocketCompose(btn.dataset.pocketRemove, 'out');
   });
   root.querySelectorAll('[data-pocket-adjust]').forEach(btn=>{
-    btn.onclick=()=>sheetPocketTxn(btn.dataset.pocketAdjust, 'adjust');
+    btn.onclick=()=>openPocketCompose(btn.dataset.pocketAdjust, 'adjust');
   });
   root.querySelectorAll('[data-pocket-goto]').forEach(btn=>{
     btn.onclick=()=>{
       state.tab='pocket';
       state.pocketKidId=btn.dataset.pocketGoto||null;
       state.pocketPane='ledger';
+      state.pocketCompose=null;
       syncLocationHash();
       render();
     };
@@ -11088,10 +11251,42 @@ function wirePocketActions(root){
       toast(t('pocketMoneyAllowancePaid'),'success'); feedback('save'); render();
     };
   });
+  root.querySelectorAll('[data-pocket-pay-month]').forEach(btn=>{
+    btn.onclick=()=>{
+      const id = btn.dataset.pocketPayMonth;
+      const amt = pocketMonthlyAllowance(id);
+      if(!(amt>0)){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
+      const monthCat = pocketCategories().find(c=>c.id==='pcat-month')?.id || '';
+      if(!addPocketTxn({kidId:id, amount:amt, kind:'in', note:t('pocketMoneyMonthly'), categoryId:monthCat})) return;
+      if(!save()) return;
+      toast(t('pocketMoneyMonthlyPaid'),'success'); feedback('save'); render();
+    };
+  });
+}
+
+function pocketMonthCalHtml(kidId){
+  if(!state.pocketMonth) state.pocketMonth = paidiaCalMonthKey();
+  const markers = pocketMonthMarkers(kidId, state.pocketMonth);
+  const day = state.pocketDay;
+  return paidiaCalHtml({
+    monthKey: state.pocketMonth,
+    markers,
+    stateKey: 'pocketMonth',
+    ariaLabel: t('pocketMoneyMonthView'),
+    kicker: t('pocketMoneyMonthView'),
+    extraClass: 'pocket-month-cal',
+    cellOpts: (c, mark)=>({
+      className: [day===c.ds?'on':'', mark?'has':''].filter(Boolean).join(' '),
+      attrs: `data-pocket-day="${esc(c.ds)}"`,
+      extraHtml: mark?.label ? `<span class="paidia-cal-label">${esc(mark.label)}</span>` : '',
+    }),
+    legendHtml: `<div class="paidia-cal-legend"><span><i class="in"></i> ${esc(t('pocketMoneyFilterIn'))}</span><span><i class="out"></i> ${esc(t('pocketMoneyFilterOut'))}</span></div>`,
+  });
 }
 
 function viewPocket(){
   ensurePocketSettings();
+  if(!state.pocketMonth) state.pocketMonth = paidiaCalMonthKey();
   const kids = (DB.children||[]).filter(Boolean);
   const kidId = state.pocketKidId && kids.some(k=>k.id===state.pocketKidId)
     ? state.pocketKidId
@@ -11100,6 +11295,9 @@ function viewPocket(){
   const pane = state.pocketPane==='settings' ? 'settings' : 'ledger';
   const filter = state.pocketFilter || 'all';
   const query = state.pocketQuery || '';
+  const monthKey = state.pocketMonth;
+  const day = state.pocketDay;
+
   const summary = kids.map(k=>{
     const bal = pocketBalance(k.id);
     const on = k.id===kidId ? ' on' : '';
@@ -11119,11 +11317,14 @@ function viewPocket(){
     const allowRows = kids.map(k=>`<label class="f pocket-allow-row"><span>${esc(k.name)}</span>
       <input type="number" min="0" step="0.5" inputmode="decimal" data-pocket-allow="${esc(k.id)}" value="${pocketAllowance(k.id)||''}" placeholder="0">
     </label>`).join('');
-    body = `<section class="pocket-settings kid-card">
+    const monthRows = kids.map(k=>`<label class="f pocket-allow-row"><span>${esc(k.name)}</span>
+      <input type="number" min="0" step="0.5" inputmode="decimal" data-pocket-month-allow="${esc(k.id)}" value="${pocketMonthlyAllowance(k.id)||''}" placeholder="0">
+    </label>`).join('');
+    body = `<section class="pocket-settings">
       <h3>${esc(t('pocketMoneyRules'))}</h3>
       <label class="f"><span>DE</span><textarea id="pocketRulesDe" rows="3" placeholder="${esc(t('pocketMoneyRulesPh'))}">${esc(s.rulesDe||'')}</textarea></label>
       <label class="f"><span>EL</span><textarea id="pocketRulesEl" rows="3" placeholder="${esc(t('pocketMoneyRulesPh'))}">${esc(s.rulesEl||'')}</textarea></label>
-      <button type="button" class="btn" id="pocketRulesSave">${esc(t('save'))}</button>
+      <button type="button" class="btn" id="pocketRulesSave">${esc(t('shiftStockCheckSave'))}</button>
       <h3>${esc(t('pocketMoneyCats'))}</h3>
       <ul class="pocket-cat-list">${cats}</ul>
       <form id="pocketCatAdd" class="pocket-cat-add">
@@ -11133,49 +11334,73 @@ function viewPocket(){
       </form>
       <h3>${esc(t('pocketMoneyAllowance'))}</h3>
       <div class="pocket-allow-grid">${allowRows}</div>
-      <button type="button" class="btn" id="pocketAllowSave">${esc(t('save'))}</button>
+      <h3>${esc(t('pocketMoneyMonthly'))}</h3>
+      <div class="pocket-allow-grid">${monthRows}</div>
+      <button type="button" class="btn" id="pocketAllowSave">${esc(t('shiftStockCheckSave'))}</button>
     </section>`;
   }else if(!kidId){
     body = `<p class="muted">${esc(t('pocketMoneyNoKid'))}</p>`;
   }else{
     const k = kid(kidId);
-    const rows = pocketFilterRows(kidId, {filter, query});
+    let rows = pocketFilterRows(kidId, {filter, query}).filter(r=>pocketTxnInMonth(r, monthKey));
+    if(day) rows = rows.filter(r=>pocketTxnOnDay(r, day));
     const totalIn = rows.filter(r=>(Number(r.amount)||0)>0).reduce((s,r)=>s+Number(r.amount),0);
     const totalOut = rows.filter(r=>(Number(r.amount)||0)<0).reduce((s,r)=>s+Math.abs(Number(r.amount)),0);
     const allow = pocketAllowance(kidId);
+    const monthly = pocketMonthlyAllowance(kidId);
+    const listHtml = rows.length
+      ? rows.map(r=>{
+          const sign = r.amount>=0?'+':'';
+          const who = emp(r.by)?.name || '';
+          const when = r.ts ? (typeof relativeTime==='function'?relativeTime(r.ts):new Date(r.ts).toLocaleDateString()) : '';
+          const cat = pocketCatLabel(r.categoryId);
+          return `<li class="pocket-txn ${r.amount>=0?'in':'out'}">
+            <b>${sign}${esc(formatEuro(Math.abs(r.amount)))}</b>
+            <span>${esc(r.note||pocketTxnKindLabel(r))}${cat?` · ${esc(cat)}`:''}${who?` · ${esc(who)}`:''}</span>
+            <small>${esc(when)}${r.balanceAfter!=null?` · ${esc(formatEuro(r.balanceAfter))}`:''}</small>
+            <button type="button" class="btn ghost sm pocket-txn-del" data-pocket-del="${esc(r.id)}" aria-label="${esc(t('pocketMoneyDelete'))}">×</button>
+          </li>`;
+        }).join('')
+      : `<li class="pocket-txn pocket-txn-empty muted">${esc(t('pocketMoneyEmpty'))}</li>`;
     body = `<section class="pocket-ledger" data-tour="pocket-ledger">
-      <header class="pocket-panel-head">
-        <div class="pocket-panel-titles">
-          <span class="pocket-kicker">${esc(k?.name||'')}</span>
-          <h2 class="pocket-panel-title">${esc(t('pocketMoneyBalance'))}</h2>
-        </div>
-        <div class="pocket-balance-big">${esc(formatEuro(pocketBalance(kidId)))}</div>
-      </header>
+      <div class="pocket-ledger-top">
+        <header class="pocket-balance-card">
+          <div class="pocket-panel-titles">
+            <span class="pocket-kicker">${esc(k?.name||'')}</span>
+            <h2 class="pocket-panel-title">${esc(t('pocketMoneyBalance'))}</h2>
+          </div>
+          <div class="pocket-balance-big">${esc(formatEuro(pocketBalance(kidId)))}</div>
+          <div class="pocket-stats">
+            <span>${esc(t('pocketMoneyThisMonth'))}: <b>${esc(formatEuro(totalIn-totalOut))}</b></span>
+            <span>${esc(t('pocketMoneyTotalIn'))}: <b>${esc(formatEuro(totalIn))}</b></span>
+            <span>${esc(t('pocketMoneyTotalOut'))}: <b>${esc(formatEuro(totalOut))}</b></span>
+          </div>
+        </header>
+        <div class="pocket-cal-wrap">${pocketMonthCalHtml(kidId)}</div>
+      </div>
+      ${pocketComposeHtml(kidId)}
       <div class="pocket-staff-actions" role="group">
         <button type="button" class="btn" data-pocket-add="${esc(kidId)}">＋ ${esc(t('pocketMoneyIn'))}</button>
         <button type="button" class="btn sec" data-pocket-remove="${esc(kidId)}">− ${esc(t('pocketMoneyOut'))}</button>
         <button type="button" class="btn ghost" data-pocket-adjust="${esc(kidId)}">${esc(t('pocketMoneyAdjust'))}</button>
-        ${allow>0?`<button type="button" class="btn ghost" data-pocket-pay-allow="${esc(kidId)}">${esc(t('pocketMoneyPayAllowance'))} (${esc(formatEuro(allow))})</button>`:''}
-      </div>
-      <div class="pocket-stats muted">
-        <span>${esc(t('pocketMoneyTotalIn'))}: <b>${esc(formatEuro(totalIn))}</b></span>
-        <span>${esc(t('pocketMoneyTotalOut'))}: <b>${esc(formatEuro(totalOut))}</b></span>
-        <span>${rows.length}</span>
+        ${allow>0?`<button type="button" class="btn ghost" data-pocket-pay-allow="${esc(kidId)}">${esc(t('pocketMoneyPayAllowance'))}</button>`:''}
+        ${monthly>0?`<button type="button" class="btn ghost" data-pocket-pay-month="${esc(kidId)}">${esc(t('pocketMoneyPayMonthly'))}</button>`:''}
       </div>
       <div class="pocket-filters" role="tablist">
         ${[['all','pocketMoneyFilterAll'],['in','pocketMoneyFilterIn'],['out','pocketMoneyFilterOut'],['adjust','pocketMoneyAdjust']].map(([id,key])=>
           `<button type="button" class="chip ${filter===id?'on':''}" data-pocket-filter="${id}">${esc(t(key))}</button>`
         ).join('')}
+        ${day?`<button type="button" class="chip on" data-pocket-day-clear="1">${esc(t('pocketMoneyDayTotal'))}: ${esc(day.slice(8))} ×</button>`:''}
       </div>
       <label class="f pocket-search"><span class="sr-only">${esc(t('pocketMoneySearchPh'))}</span>
         <input id="pocketSearch" type="search" value="${esc(query)}" placeholder="${esc(t('pocketMoneySearchPh'))}">
       </label>
       <h3 class="pocket-history-h">${esc(t('pocketMoneyHistory'))}</h3>
-      <ul class="pocket-txn-list pocket-txn-full">${pocketTxnRowsHtml(kidId, {readonly:false, filter, query})}</ul>
+      <ul class="pocket-txn-list pocket-txn-full">${listHtml}</ul>
     </section>`;
   }
 
-  return `<div class="pocket-shell" data-tour="pocket-main">
+  return `<div class="pocket-shell pocket-stage" data-tour="pocket-main">
     <header class="ops-hero pocket-hero hero-texture">
       <p class="brand-kicker">Armonia</p>
       <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
@@ -11186,25 +11411,41 @@ function viewPocket(){
       <button type="button" class="chip ${pane==='ledger'?'on':''}" data-pocket-pane="ledger">${esc(t('pocketMoneyHistory'))}</button>
       <button type="button" class="chip ${pane==='settings'?'on':''}" data-pocket-pane="settings">${esc(t('pocketMoneySettings'))}</button>
     </div>
-    <div class="pocket-kid-grid" aria-label="${esc(t('pocketMoneyPickKid'))}">${summary}</div>
-    ${body}
+    <div class="pocket-layout">
+      <aside class="pocket-kids-rail" aria-label="${esc(t('pocketMoneyPickKid'))}">${summary}</aside>
+      <div class="pocket-main-col">${body}</div>
+    </div>
   </div>`;
 }
 
 function wirePocketView(v){
   wirePocketActions(v);
+  wirePocketCompose(v);
+  wirePaidiaCal(v);
   v.querySelectorAll('[data-pocket-kid]').forEach(btn=>{
     btn.onclick=()=>{
       state.pocketKidId = btn.dataset.pocketKid;
       state.pocketPane = 'ledger';
+      state.pocketCompose = null;
+      state.pocketDay = null;
       feedback('tap'); render();
     };
   });
   v.querySelectorAll('[data-pocket-pane]').forEach(btn=>{
-    btn.onclick=()=>{ state.pocketPane = btn.dataset.pocketPane; feedback('tap'); render(); };
+    btn.onclick=()=>{ state.pocketPane = btn.dataset.pocketPane; state.pocketCompose=null; feedback('tap'); render(); };
   });
   v.querySelectorAll('[data-pocket-filter]').forEach(btn=>{
     btn.onclick=()=>{ state.pocketFilter = btn.dataset.pocketFilter; feedback('tap'); render(); };
+  });
+  v.querySelectorAll('[data-pocket-day]').forEach(btn=>{
+    btn.onclick=()=>{
+      const ds = btn.dataset.pocketDay;
+      state.pocketDay = state.pocketDay===ds ? null : ds;
+      feedback('tap'); render();
+    };
+  });
+  v.querySelectorAll('[data-pocket-day-clear]').forEach(btn=>{
+    btn.onclick=()=>{ state.pocketDay=null; feedback('tap'); render(); };
   });
   const search = v.querySelector('#pocketSearch');
   if(search){
@@ -11235,10 +11476,16 @@ function wirePocketView(v){
   if(allowSave) allowSave.onclick=()=>{
     const s = ensurePocketSettings();
     s.allowances = s.allowances || {};
+    s.monthlyAllowances = s.monthlyAllowances || {};
     v.querySelectorAll('[data-pocket-allow]').forEach(inp=>{
       const n = Number(String(inp.value||'').replace(',','.'));
       if(Number.isFinite(n) && n>0) s.allowances[inp.dataset.pocketAllow] = Math.round(n*100)/100;
       else delete s.allowances[inp.dataset.pocketAllow];
+    });
+    v.querySelectorAll('[data-pocket-month-allow]').forEach(inp=>{
+      const n = Number(String(inp.value||'').replace(',','.'));
+      if(Number.isFinite(n) && n>0) s.monthlyAllowances[inp.dataset.pocketMonthAllow] = Math.round(n*100)/100;
+      else delete s.monthlyAllowances[inp.dataset.pocketMonthAllow];
     });
     if(!save()) return;
     toast(t('pocketMoneySaved'),'success'); feedback('save'); render();
@@ -11270,10 +11517,29 @@ function wirePocketView(v){
 }
 
 function childPocketView(kidId){
+  if(!state.pocketMonth) state.pocketMonth = paidiaCalMonthKey();
   const rules = pocketRulesText();
   const allow = pocketAllowance(kidId);
-  return `<div data-tour="kid-pocket"><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
-    <section class="pocket-panel pocket-child">
+  const monthly = pocketMonthlyAllowance(kidId);
+  const monthKey = state.pocketMonth;
+  const day = state.pocketDay;
+  let rows = pocketTxnsFor(kidId).filter(r=>pocketTxnInMonth(r, monthKey));
+  if(day) rows = rows.filter(r=>pocketTxnOnDay(r, day));
+  const list = rows.length
+    ? rows.map(r=>{
+        const sign = r.amount>=0?'+':'';
+        const when = r.ts ? (typeof relativeTime==='function'?relativeTime(r.ts):new Date(r.ts).toLocaleDateString()) : '';
+        const cat = pocketCatLabel(r.categoryId);
+        return `<li class="pocket-txn ${r.amount>=0?'in':'out'}">
+          <b>${sign}${esc(formatEuro(Math.abs(r.amount)))}</b>
+          <span>${esc(r.note||pocketTxnKindLabel(r))}${cat?` · ${esc(cat)}`:''}</span>
+          <small>${esc(when)}${r.balanceAfter!=null?` · ${esc(formatEuro(r.balanceAfter))}`:''}</small>
+        </li>`;
+      }).join('')
+    : `<li class="pocket-txn pocket-txn-empty muted">${esc(t('pocketMoneyEmpty'))}</li>`;
+  return `<div class="pocket-stage kid-pocket-stage" data-tour="kid-pocket">
+    <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    <section class="pocket-panel pocket-child pocket-balance-card">
       <header class="pocket-panel-head">
         <div class="pocket-panel-titles">
           <span class="pocket-kicker">${esc(t('pocketMoneyBalance'))}</span>
@@ -11282,11 +11548,15 @@ function childPocketView(kidId){
         <div class="pocket-balance-big">${esc(formatEuro(pocketBalance(kidId)))}</div>
       </header>
       <p class="muted">${esc(t('pocketMoneyKidViewHint'))}</p>
-      ${allow>0?`<p class="pocket-allow-hint">${esc(t('pocketMoneyAllowance'))}: <b>${esc(formatEuro(allow))}</b></p>`:''}
+      <div class="pocket-allow-row-inline">
+        ${allow>0?`<span>${esc(t('pocketMoneyAllowance'))}: <b>${esc(formatEuro(allow))}</b></span>`:''}
+        ${monthly>0?`<span>${esc(t('pocketMoneyMonthly'))}: <b>${esc(formatEuro(monthly))}</b></span>`:''}
+      </div>
       ${rules?`<div class="pocket-rules-box"><b>${esc(t('pocketMoneyRules'))}</b><p>${esc(rules)}</p></div>`:''}
-      <h3 class="pocket-history-h">${esc(t('pocketMoneyHistory'))}</h3>
-      <ul class="pocket-txn-list pocket-txn-full">${pocketTxnRowsHtml(kidId, {readonly:true})}</ul>
     </section>
+    <div class="pocket-cal-wrap">${pocketMonthCalHtml(kidId)}</div>
+    <h3 class="pocket-history-h">${esc(t('pocketMoneyHistory'))}</h3>
+    <ul class="pocket-txn-list pocket-txn-full">${list}</ul>
   </div>`;
 }
 function kidOpenRequestCount(kidId){
@@ -15104,6 +15374,7 @@ function childStartView(c){
           </section>
           ${kidHomeCtaHtml()}
           ${childRateDueBannerHtml(c.id)}
+          <div class="kid-tab-cal-wrap">${kidTodayCalHtml(c.id)}</div>
           ${nextHtml}
           <section class="kid-panel">
             <div class="kid-panel-h"><b>${esc(t('kidTodayLessons'))}</b><span>${esc(t('kidLessonsDone')(done, lessons.length||0))}</span></div>
@@ -15822,13 +16093,14 @@ function wireKidsView(v){
   });
   v.querySelectorAll('[data-rate-cal-shift]').forEach(b=>{
     b.onclick=()=>{
-      if(!state.rateCalMonth) state.rateCalMonth=iso(new Date()).slice(0,7)+'-01';
+      if(!state.rateCalMonth) state.rateCalMonth=paidiaCalMonthKey();
       const d=new Date(state.rateCalMonth+'T12:00:00');
       d.setMonth(d.getMonth()+Number(b.dataset.rateCalShift||0));
-      state.rateCalMonth=iso(d).slice(0,7)+'-01';
+      state.rateCalMonth=paidiaCalMonthKey(d);
       render();
     };
   });
+  wirePaidiaCal(v);
   v.querySelectorAll('[data-att-kid]').forEach(b=>{
     b.onclick=()=>{
       let st=b.dataset.attStatus;
@@ -16148,15 +16420,89 @@ function staffRatingAreaRows(summary){
   }).join('');
 }
 
+function kidNotesCalHtml(kidId){
+  if(!state.notesCalMonth) state.notesCalMonth = paidiaCalMonthKey();
+  const markers = new Map();
+  (DB.kidNotes||[]).filter(n=>kidOwnsNoteRow(n, kidId) && n.ts).forEach(n=>{
+    let ds; try{ ds = iso(new Date(n.ts)); }catch{ return; }
+    if(!ds.startsWith(state.notesCalMonth.slice(0,7))) return;
+    const cur = markers.get(ds) || {dots:['tk'], n:0};
+    cur.n += 1;
+    cur.label = String(cur.n);
+    markers.set(ds, cur);
+  });
+  const day = state.notesCalDay;
+  return paidiaCalHtml({
+    monthKey: state.notesCalMonth,
+    markers,
+    stateKey: 'notesCalMonth',
+    ariaLabel: t('kidNotesTitle'),
+    extraClass: 'kid-tab-cal notes-cal',
+    cellOpts: (c, mark)=>({
+      className: [day===c.ds?'on':'', mark?'has':''].filter(Boolean).join(' '),
+      attrs: `data-notes-cal-day="${esc(c.ds)}"`,
+      extraHtml: mark?.label ? `<span class="paidia-cal-label">${esc(mark.label)}</span>` : '',
+    }),
+  });
+}
+function kidXpCalHtml(kidId){
+  if(!state.gamesCalMonth) state.gamesCalMonth = paidiaCalMonthKey();
+  const markers = new Map();
+  (DB.xpLog||[]).filter(x=>x && x.kidId===kidId && (x.ts||x.at)).forEach(x=>{
+    let ds; try{ ds = iso(new Date(x.ts||x.at)); }catch{ return; }
+    if(!ds.startsWith(state.gamesCalMonth.slice(0,7))) return;
+    const cur = markers.get(ds) || {dots:['ev'], xp:0};
+    cur.xp += Number(x.xp)||0;
+    cur.label = '+'+cur.xp;
+    markers.set(ds, cur);
+  });
+  return paidiaCalHtml({
+    monthKey: state.gamesCalMonth,
+    markers,
+    stateKey: 'gamesCalMonth',
+    ariaLabel: t('kidNavGames'),
+    extraClass: 'kid-tab-cal games-cal',
+    cellOpts: (c, mark)=>({
+      className: mark?'has':'',
+      attrs: `data-cal-day="${esc(c.ds)}"`,
+      extraHtml: mark?.label ? `<span class="paidia-cal-label">${esc(mark.label)}</span>` : '',
+    }),
+  });
+}
+function kidTodayCalHtml(kidId){
+  const monthKey = paidiaCalMonthKey();
+  const markers = new Map();
+  const pad = n=>String(n).padStart(2,'0');
+  const cm = new Date(monthKey+'T12:00:00');
+  const y = cm.getFullYear(), m = cm.getMonth();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = y+'-'+pad(m+1)+'-'+pad(d);
+    const entries = (typeof entriesFor==='function'?entriesFor(ds):[]).filter(e=>!e.cancelled && (e.childIds||[]).includes(kidId));
+    if(entries.length) markers.set(ds, {dots:['tk'], label:String(entries.length)});
+  }
+  return paidiaCalHtml({
+    monthKey,
+    markers,
+    stateKey: 'calendarMonth',
+    ariaLabel: t('kidNavStart'),
+    extraClass: 'kid-tab-cal today-cal',
+    cellOpts: (c, mark)=>({
+      className: [c.ds===iso(new Date())?'on':'', mark?'has':''].filter(Boolean).join(' '),
+      attrs: `data-date="${esc(c.ds)}"`,
+      extraHtml: mark?.label ? `<span class="paidia-cal-label">${esc(mark.label)}</span>` : '',
+    }),
+  });
+}
+
 /** Month grid of weekly grade averages — tap a week to focus rating panel. */
 function kidRatingMonthHtml(kidId, {mode='staff'}={}){
-  if(!state.rateCalMonth) state.rateCalMonth = iso(new Date()).slice(0,7)+'-01';
-  const cm = new Date(state.rateCalMonth+'T12:00:00');
-  const y = cm.getFullYear(), m = cm.getMonth();
-  const monthName = cm.toLocaleDateString(state.lang==='el'?'el-GR':'de-DE', {month:'long', year:'numeric'});
+  if(!state.rateCalMonth) state.rateCalMonth = paidiaCalMonthKey();
   const focusWeek = state.rateWeek || kidWeekKey();
   const markers = new Map();
   const pad = n=>String(n).padStart(2,'0');
+  const cm = new Date(state.rateCalMonth+'T12:00:00');
+  const y = cm.getFullYear(), m = cm.getMonth();
   const daysInMonth = new Date(y, m+1, 0).getDate();
   for(let d=1; d<=daysInMonth; d++){
     const ds = y+'-'+pad(m+1)+'-'+pad(d);
@@ -16164,27 +16510,24 @@ function kidRatingMonthHtml(kidId, {mode='staff'}={}){
     const avg = mode==='staff'
       ? (staffKidWeeklySummary(kidId, wk).average || 0)
       : kidWeekAverage(kidId, wk);
-    if(avg) markers.set(ds, {avg, wk});
+    if(avg) markers.set(ds, {avg, wk, label: avg.toFixed(1), dots:['tk']});
   }
-  const cells = calendarMonthGrid(y, m, markers);
   const title = state.lang==='el' ? 'Ημερολόγιο βαθμών' : 'Bewertungs-Kalender';
-  return `<section class="rate-cal-shell" aria-label="${esc(title)}">
-    <div class="rate-cal-head">
-      <button class="btn sm sec rate-cal-nav" type="button" data-rate-cal-shift="-1" aria-label="${esc(t('calPrev'))}">${esc(t('calPrev'))}</button>
-      <b>${esc(monthName)}</b>
-      <button class="btn sm sec rate-cal-nav" type="button" data-rate-cal-shift="1" aria-label="${esc(t('calNext'))}">${esc(t('calNext'))}</button>
-    </div>
-    <div class="cal-weekdays rate-cal-wd">${DAY_NAMES[state.lang].map(dn=>`<span>${esc(dn.slice(0,2))}</span>`).join('')}</div>
-    <div class="cal-grid rate-cal-grid">${cells.map(c=>{
-      if(!c) return `<div class="cal-cell empty"></div>`;
+  return paidiaCalHtml({
+    monthKey: state.rateCalMonth,
+    markers,
+    stateKey: 'rateCalMonth',
+    ariaLabel: title,
+    extraClass: 'rate-cal-shell kid-tab-cal',
+    cellOpts: (c, mark)=>{
       const wk = kidWeekKey(new Date(c.ds+'T12:00:00'));
-      const mark = markers.get(c.ds);
-      const on = wk===focusWeek;
-      const avgTxt = mark?.avg ? mark.avg.toFixed(1) : '';
-      return `<button type="button" class="cal-cell rate-cal-cell ${on?'on':''} ${mark?'has':''}" data-rate-week="${wk}" aria-pressed="${on?'true':'false'}">
-        <span class="cal-n">${c.d}</span>${avgTxt?`<span class="rate-cal-avg">${avgTxt}</span>`:''}</button>`;
-    }).join('')}</div>
-  </section>`;
+      return {
+        className: [wk===focusWeek?'on':'', mark?'has':''].filter(Boolean).join(' '),
+        attrs: `data-rate-week="${esc(wk)}" aria-pressed="${wk===focusWeek?'true':'false'}"`,
+        extraHtml: mark?.avg ? `<span class="rate-cal-avg">${mark.avg.toFixed(1)}</span>` : '',
+      };
+    },
+  });
 }
 
 function staffRatingPanelHtml(kidId){
@@ -16466,8 +16809,10 @@ function childNotizenView(kidId){
     const on = m.id===activeMood ? ' on' : '';
     return `<button type="button" class="kid-mood ${m.tint}${on}" data-kid-mood="${m.id}">${esc(t(m.key))}</button>`;
   }).join('');
+  const day = state.notesCalDay;
+  const shown = day ? mine.filter(n=>{ try{ return iso(new Date(n.ts))===day; }catch{ return false; } }) : mine;
   const emptyCta = `<button type="button" class="btn" id="kidNoteEmptyCta">${esc(t('kidNotesWrite'))}</button>`;
-  const list = mine.length ? mine.map(n=>{
+  const list = shown.length ? shown.map(n=>{
     const m = KID_MOODS.find(x=>x.id===n.mood) || KID_MOODS[0];
     const isEdit = editingId===n.id;
     return `<article class="kid-card kid-note ${m.tint}${isEdit?' is-editing':''}" data-kid-note-id="${esc(n.id)}">
@@ -16489,6 +16834,7 @@ function childNotizenView(kidId){
     : '';
 
   return `<div data-tour="kid-notes"><div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
+    <div class="kid-tab-cal-wrap">${kidNotesCalHtml(kidId)}</div>
     <section class="kid-card kid-note-compose-card" id="kidNoteCompose">
       <p class="eyebrow">${esc(t('kidNotesKicker'))}</p>
       <h2>${esc(t('kidNotesAsk'))}</h2>
@@ -16508,11 +16854,26 @@ function bindKidExtras(root){
   });
   root.querySelectorAll('[data-rate-cal-shift]').forEach(b=>{
     b.addEventListener('click', ()=>{
-      if(!state.rateCalMonth) state.rateCalMonth=iso(new Date()).slice(0,7)+'-01';
+      if(!state.rateCalMonth) state.rateCalMonth=paidiaCalMonthKey();
       const d=new Date(state.rateCalMonth+'T12:00:00');
       d.setMonth(d.getMonth()+Number(b.dataset.rateCalShift||0));
-      state.rateCalMonth=iso(d).slice(0,7)+'-01';
+      state.rateCalMonth=paidiaCalMonthKey(d);
       render();
+    });
+  });
+  wirePaidiaCal(root);
+  root.querySelectorAll('[data-pocket-day]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const ds = btn.dataset.pocketDay;
+      state.pocketDay = state.pocketDay===ds ? null : ds;
+      feedback('tap'); render();
+    });
+  });
+  root.querySelectorAll('[data-notes-cal-day]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const ds = btn.dataset.notesCalDay;
+      state.notesCalDay = state.notesCalDay===ds ? null : ds;
+      feedback('tap'); render();
     });
   });
   root.querySelectorAll('[data-kid-rate]').forEach(btn=>{
@@ -16792,7 +17153,8 @@ function renderChild(){
       };
     });
     if(state.childView==='games' || state.childView==='learn') bindChildGames(root);
-    if(state.childView==='rate' || state.childView==='notes') bindKidExtras(root);
+    if(state.childView==='rate' || state.childView==='notes' || state.childView==='pocket' || state.childView==='games' || state.childView==='today' || state.childView==='bonus') bindKidExtras(root);
+    else wirePaidiaCal(root);
     if(state.childView==='gallery') bindGallery(root);
     root.querySelectorAll('[data-chore-submit]').forEach(btn=>{
       btn.onclick = ()=>{
@@ -17040,6 +17402,7 @@ function childGamesLobby(){
         </div>
         ${streakChip}
       </div>
+      <div class="kid-tab-cal-wrap">${kidXpCalHtml(state.child?.id)}</div>
       <div class="arcade-rail featured">${featured.map((g,i)=>card(g,i)).join('')}</div>
       <div class="arcade-grid pro-only mode-pro-block">${rest.map((g,i)=>card(g,i+featured.length)).join('')}</div>
     </div>`;

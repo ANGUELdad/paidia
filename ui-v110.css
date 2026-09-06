@@ -6280,6 +6280,213 @@ body.mode-child .pocket-panel{ margin-top:8px; }
   position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
   clip:rect(0,0,0,0); white-space:nowrap; border:0;
 }
+
+/* ── Shared paidia calendar (Plan / Buch / Kids / Taschengeld) ───────── */
+.paidia-cal,
+.rate-cal-shell.paidia-cal,
+.kid-tab-cal{
+  background:rgba(255,255,255,.94);
+  border:1px solid color-mix(in srgb, var(--brand,#2a6b52) 18%, var(--line,#dce2dd));
+  border-radius:18px;
+  padding:14px 12px;
+  margin:0 0 14px;
+  box-shadow:0 8px 24px rgba(26,40,34,.06);
+}
+.paidia-cal-head{
+  display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;
+}
+.paidia-cal-nav{ min-width:44px; min-height:44px; border-radius:12px; font-size:18px; font-weight:700; }
+.paidia-cal-month{ flex:1; text-align:center; min-width:0; }
+.paidia-cal-kicker{
+  display:block; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:2px;
+}
+.paidia-cal-title{
+  display:block; font-family:var(--font-display, Georgia, serif);
+  font-size:clamp(15px,4.2vw,17px); font-weight:750; color:var(--ink); text-transform:capitalize; line-height:1.15;
+}
+.paidia-cal-weekdays,
+.paidia-cal .cal-weekdays{
+  display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:6px;
+}
+.paidia-cal-weekdays span,
+.paidia-cal .cal-weekdays span{
+  text-align:center; font-size:11px; font-weight:750; color:var(--muted);
+  letter-spacing:.04em; text-transform:uppercase;
+}
+.paidia-cal-grid,
+.paidia-cal .cal-grid{
+  display:grid; grid-template-columns:repeat(7,1fr); gap:5px;
+}
+.paidia-cal .cal-cell{
+  aspect-ratio:1; min-height:44px; border:1.5px solid var(--line,#dce2dd); border-radius:12px;
+  background:rgba(255,255,255,.78); display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:2px; font-size:13px; font-weight:700; cursor:pointer; padding:4px 2px;
+  color:var(--ink); font-variant-numeric:tabular-nums;
+}
+.paidia-cal .cal-cell.empty{ background:transparent; border:0; cursor:default; min-height:0; pointer-events:none; }
+.paidia-cal .cal-cell.today{ box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--sea,#2f5a63) 45%, transparent); }
+.paidia-cal .cal-cell.has{ background:#eef5f0; border-color:color-mix(in srgb, var(--brand) 22%, transparent); }
+.paidia-cal .cal-cell.on{
+  background:var(--brand,#2a6b52); border-color:var(--brand,#2a6b52); color:#fff;
+}
+.paidia-cal .cal-cell.on .cal-n,
+.paidia-cal .cal-cell.on .paidia-cal-label,
+.paidia-cal .cal-cell.on .rate-cal-avg{ color:#fff; }
+.paidia-cal .cal-n{ line-height:1; }
+.paidia-cal-label,
+.rate-cal-avg{
+  font-size:9px; font-weight:800; color:var(--brand,#2a6b52); max-width:100%;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.1;
+}
+.paidia-cal .cal-dots{ display:flex; gap:3px; height:5px; align-items:center; }
+.paidia-cal .cal-dots i{ display:block; width:5px; height:5px; border-radius:50%; background:var(--brand); }
+.paidia-cal .cal-dots i.in{ background:var(--brand,#2a6b52); }
+.paidia-cal .cal-dots i.out{ background:#b45309; }
+.paidia-cal .cal-dots i.ev{ background:#c48a1a; }
+.paidia-cal .cal-dots i.tk{ background:var(--sea,#2f5a63); }
+.paidia-cal-legend{
+  display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; font-size:11px; color:var(--muted); font-weight:650;
+}
+.paidia-cal-legend span{ display:inline-flex; align-items:center; gap:5px; }
+.paidia-cal-legend i{ display:inline-block; width:6px; height:6px; border-radius:50%; }
+.paidia-cal-legend i.in{ background:var(--brand); }
+.paidia-cal-legend i.out{ background:#b45309; }
+.kid-tab-cal-wrap{ margin:0 0 12px; }
+@media (min-width:900px){
+  .paidia-cal .cal-cell{ min-height:52px; border-radius:14px; }
+  .paidia-cal-label{ font-size:10px; }
+}
+
+/* Pocket stage — centered page, no sheet popup */
+.pocket-stage{
+  width:min(1080px,100%);
+  margin:0 auto;
+  display:grid;
+  gap:14px;
+}
+.pocket-layout{
+  display:grid;
+  gap:14px;
+  align-items:start;
+}
+.pocket-kids-rail{
+  display:grid;
+  gap:8px;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+}
+.pocket-main-col{ min-width:0; display:grid; gap:12px; }
+.pocket-ledger-top{
+  display:grid;
+  gap:12px;
+}
+.pocket-balance-card{
+  padding:18px 16px;
+  border-radius:18px;
+  border:1px solid color-mix(in srgb, var(--brand) 22%, var(--line));
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(42,107,82,.12), transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,.96), rgba(232,242,234,.88));
+}
+.pocket-compose-stage{
+  display:none;
+}
+.pocket-compose-stage.on{
+  display:grid;
+  place-items:center;
+  padding:4px 0 8px;
+}
+.pocket-compose-card{
+  width:min(520px,100%);
+  display:grid;
+  gap:12px;
+  padding:16px;
+  border-radius:18px;
+  border:1.5px solid color-mix(in srgb, var(--brand) 35%, var(--line));
+  background:rgba(255,255,255,.97);
+  box-shadow:0 16px 40px rgba(26,40,34,.12);
+}
+.pocket-compose-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+}
+.pocket-compose-head h3{ margin:2px 0 0; font-size:17px; }
+.pocket-compose-grid{
+  display:grid; gap:10px;
+  grid-template-columns:1fr 1fr;
+}
+.pocket-compose-note{ grid-column:1 / -1; }
+.pocket-compose-actions{ display:flex; justify-content:flex-end; }
+.pocket-allow-row-inline{
+  display:flex; flex-wrap:wrap; gap:10px 16px; font-size:13px; margin:4px 0 8px;
+}
+.pocket-settings{
+  display:grid; gap:12px; padding:16px;
+  border-radius:18px; border:1px solid var(--line); background:rgba(255,255,255,.94);
+}
+@media (min-width:900px){
+  .pocket-layout{
+    grid-template-columns:220px minmax(0,1fr);
+  }
+  .pocket-kids-rail{
+    grid-template-columns:1fr;
+    position:sticky; top:calc(var(--header-h,56px) + 12px);
+  }
+  .pocket-ledger-top{
+    grid-template-columns:minmax(0,1fr) minmax(280px,360px);
+    align-items:start;
+  }
+}
+@media (max-width:899px){
+  .pocket-compose-grid{ grid-template-columns:1fr; }
+  .pocket-staff-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .pocket-staff-actions .btn{ width:100%; }
+}
+
+/* Lager workspace rearrange */
+.stock-layout-v2{
+  display:grid;
+  gap:12px;
+}
+.stock-layout-top{
+  display:grid;
+  gap:10px;
+}
+.stock-workspace{
+  display:grid;
+  gap:12px;
+  align-items:start;
+}
+.stock-workspace-main{
+  min-width:0;
+  display:grid;
+  gap:12px;
+}
+@media (min-width:900px){
+  .stock-layout-v2 .stock-layout-top{
+    grid-template-columns:minmax(0,1.2fr) minmax(260px,.9fr);
+    align-items:stretch;
+  }
+  .stock-layout-v2 .stock-overview{ grid-column:1; }
+  .stock-layout-v2 .stock-command{ grid-column:2; align-self:stretch; }
+  .stock-layout-v2 .stock-view-tabs{ grid-column:1 / -1; }
+  .stock-workspace{
+    grid-template-columns:200px minmax(0,1fr);
+  }
+  .stock-workspace .stock-shelf-rail{
+    position:sticky;
+    top:calc(var(--header-h,56px) + 10px);
+    max-height:calc(100dvh - var(--header-h,56px) - var(--chrome-bottom,80px) - 24px);
+    overflow:auto;
+  }
+}
+@media (max-width:899px){
+  .stock-workspace{ grid-template-columns:1fr; }
+  .stock-workspace .stock-shelf-rail{
+    display:flex; gap:6px; overflow-x:auto; padding-bottom:4px;
+  }
+  .stock-workspace .stock-rail-chip{ flex:0 0 auto; }
+}
+
 .gal-org-bar{ display:flex; flex-direction:column; gap:8px; margin:0 0 12px; }
 .gal-org-seg{ flex-wrap:wrap; }
 .gal-filter-row{ display:flex; flex-wrap:wrap; gap:6px; }

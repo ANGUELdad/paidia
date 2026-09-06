@@ -1,8 +1,8 @@
 {
-  "version": 189,
-  "label": "v189",
+  "version": 190,
+  "label": "v190",
   "changed": {
-    "de": "Taschengeld-Tab · voller Verlauf · Kinder-Ansicht",
-    "el": "Καρτέλα χαρτζιλικιού · πλήρες ιστορικό · θέα παιδιού"
+    "de": "Taschengeld inline · Monatskalender · Lager-Layout",
+    "el": "Χαρτζιλίκι inline · Μηνιαίο ημερολόγιο · Layout αποθήκης"
   }
 }

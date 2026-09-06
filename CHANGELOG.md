@@ -1,5 +1,12 @@
 # Changelog
 
+## v190 — 2026-09-06
+
+- **Taschengeld:** centered in-page booking (no sheet popup); month calendar filter; weekly + **monthly** allowance; desktop split layout.
+- **Shared calendar CSS** (`.paidia-cal`) on kids Start / Rate / Notes / Games / Pocket (+ staff pocket).
+- **Lager:** rearranged workspace — top hero/command/zones, shelf rail + board column on desktop.
+- Cache `paidia-v190`.
+
 ## v189 — 2026-09-06
 
 - **Taschengeld tab (staff):** dedicated `#pocket` page — kid picker, ± / Korrektur, full searchable history, delete, weekly allowance, categories + rules (DE/EL).
