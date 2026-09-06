@@ -6509,6 +6509,14 @@ body.mode-pro .stock-recent {
 .pocket-staff-actions .btn{
   min-height:48px;
   font-weight:750;
+  min-width:0;
+  width:100%;
+  justify-content:center;
+  text-align:center;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  padding-inline:10px;
 }
 .pocket-presets{
   display:grid;
@@ -6671,12 +6679,17 @@ body.mode-child .pocket-panel{ margin-top:8px; }
   padding:14px 12px;
   margin:0 0 14px;
   box-shadow:0 8px 24px rgba(26,40,34,.06);
+  min-width:0;
+  max-width:100%;
+  overflow:hidden;
+  box-sizing:border-box;
 }
 .paidia-cal-head{
   display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px;
+  min-width:0;
 }
-.paidia-cal-nav{ min-width:44px; min-height:44px; border-radius:12px; font-size:18px; font-weight:700; }
-.paidia-cal-month{ flex:1; text-align:center; min-width:0; }
+.paidia-cal-nav{ min-width:44px; min-height:44px; border-radius:12px; font-size:18px; font-weight:700; flex:0 0 auto; }
+.paidia-cal-month{ flex:1; text-align:center; min-width:0; overflow:hidden; }
 .paidia-cal-kicker{
   display:block; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
   color:var(--muted); margin-bottom:2px;
@@ -6684,25 +6697,31 @@ body.mode-child .pocket-panel{ margin-top:8px; }
 .paidia-cal-title{
   display:block; font-family:var(--font-display, Georgia, serif);
   font-size:clamp(15px,4.2vw,17px); font-weight:750; color:var(--ink); text-transform:capitalize; line-height:1.15;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
 }
 .paidia-cal-weekdays,
 .paidia-cal .cal-weekdays{
-  display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:6px;
+  display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; margin-bottom:6px;
+  min-width:0;
 }
 .paidia-cal-weekdays span,
 .paidia-cal .cal-weekdays span{
   text-align:center; font-size:11px; font-weight:750; color:var(--muted);
   letter-spacing:.04em; text-transform:uppercase;
+  min-width:0; overflow:hidden; text-overflow:ellipsis;
 }
 .paidia-cal-grid,
 .paidia-cal .cal-grid{
-  display:grid; grid-template-columns:repeat(7,1fr); gap:5px;
+  display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px;
+  min-width:0; width:100%;
 }
 .paidia-cal .cal-cell{
-  aspect-ratio:1; min-height:44px; border:1.5px solid var(--line,#dce2dd); border-radius:12px;
+  aspect-ratio:1; min-height:44px; min-width:0; width:100%;
+  border:1.5px solid var(--line,#dce2dd); border-radius:12px;
   background:rgba(255,255,255,.78); display:flex; flex-direction:column; align-items:center;
   justify-content:center; gap:2px; font-size:13px; font-weight:700; cursor:pointer; padding:4px 2px;
   color:var(--ink); font-variant-numeric:tabular-nums;
+  overflow:hidden; box-sizing:border-box;
 }
 .paidia-cal .cal-cell.empty{ background:transparent; border:0; cursor:default; min-height:0; pointer-events:none; }
 .paidia-cal .cal-cell.today{ box-shadow:inset 0 0 0 1.5px color-mix(in srgb, var(--sea,#2f5a63) 45%, transparent); }
@@ -6713,29 +6732,43 @@ body.mode-child .pocket-panel{ margin-top:8px; }
 .paidia-cal .cal-cell.on .cal-n,
 .paidia-cal .cal-cell.on .paidia-cal-label,
 .paidia-cal .cal-cell.on .rate-cal-avg{ color:#fff; }
-.paidia-cal .cal-n{ line-height:1; }
+.paidia-cal .cal-n{ line-height:1; flex:0 0 auto; }
 .paidia-cal-label,
 .rate-cal-avg{
-  font-size:9px; font-weight:800; color:var(--brand,#2a6b52); max-width:100%;
+  display:block; width:100%; max-width:100%;
+  font-size:clamp(7px,1.8vw,9px); font-weight:800; color:var(--brand,#2a6b52);
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.1;
+  text-align:center; padding:0 1px; box-sizing:border-box;
 }
-.paidia-cal .cal-dots{ display:flex; gap:3px; height:5px; align-items:center; }
-.paidia-cal .cal-dots i{ display:block; width:5px; height:5px; border-radius:50%; background:var(--brand); }
+.paidia-cal .cal-dots{ display:flex; gap:3px; height:5px; align-items:center; max-width:100%; overflow:hidden; }
+.paidia-cal .cal-dots i{ display:block; width:5px; height:5px; border-radius:50%; background:var(--brand); flex:0 0 auto; }
 .paidia-cal .cal-dots i.in{ background:var(--brand,#2a6b52); }
 .paidia-cal .cal-dots i.out{ background:#b45309; }
 .paidia-cal .cal-dots i.ev{ background:#c48a1a; }
 .paidia-cal .cal-dots i.tk{ background:var(--sea,#2f5a63); }
 .paidia-cal-legend{
   display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; font-size:11px; color:var(--muted); font-weight:650;
+  min-width:0;
 }
-.paidia-cal-legend span{ display:inline-flex; align-items:center; gap:5px; }
-.paidia-cal-legend i{ display:inline-block; width:6px; height:6px; border-radius:50%; }
+.paidia-cal-legend span{ display:inline-flex; align-items:center; gap:5px; min-width:0; }
+.paidia-cal-legend i{ display:inline-block; width:6px; height:6px; border-radius:50%; flex:0 0 auto; }
 .paidia-cal-legend i.in{ background:var(--brand); }
 .paidia-cal-legend i.out{ background:#b45309; }
-.kid-tab-cal-wrap{ margin:0 0 12px; }
+.kid-tab-cal-wrap{ margin:0 0 12px; min-width:0; max-width:100%; overflow:hidden; }
+.pocket-cal-wrap{
+  min-width:0; max-width:100%; overflow:hidden;
+}
+.pocket-cal-wrap .paidia-cal{ margin-bottom:0; }
 @media (min-width:900px){
   .paidia-cal .cal-cell{ min-height:52px; border-radius:14px; }
-  .paidia-cal-label{ font-size:10px; }
+  .paidia-cal-label, .rate-cal-avg{ font-size:9px; }
+}
+@media (max-width:420px){
+  .paidia-cal{ padding:10px 8px; }
+  .paidia-cal-grid, .paidia-cal .cal-grid,
+  .paidia-cal-weekdays, .paidia-cal .cal-weekdays{ gap:3px; }
+  .paidia-cal .cal-cell{ min-height:40px; border-radius:10px; padding:2px 1px; font-size:12px; }
+  .paidia-cal-label, .rate-cal-avg{ font-size:7px; }
 }
 
 /* Pocket stage — centered page, no sheet popup */

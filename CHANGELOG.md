@@ -1,5 +1,10 @@
 # Changelog
 
+## v214 · 2026-09-06
+
+- **Overflow fix:** paidia calendar day cells clip euro labels (`minmax(0,1fr)`, compact `+50€`); pocket/staff/admin text containment.
+- Cache `paidia-v214`.
+
 ## v213 · 2026-09-06
 
 - **Lager − batch:** minus only stages into draft; reason modal opens once on Save (never per tap).

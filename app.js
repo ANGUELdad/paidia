@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 213,
-  label: 'v213',
+  version: 214,
+  label: 'v214',
   changed: {
-    de: 'Lager: − stapeln, Grund erst beim Speichern. UI-Overhaul + native PWA.',
-    el: 'Lager: − μαζικά, λόγος μόνο στο Save. UI overhaul + native PWA.',
+    de: 'UI-Overflow: Kalender-€ in Zellen, Taschengeld + Containment.',
+    el: 'UI overflow: € ημερολογίου στα κελιά + containment.',
   },
 };
 const T = {
@@ -11602,6 +11602,15 @@ function formatEuro(n){
     return v.toFixed(2)+' €';
   }
 }
+/** Compact € for tiny calendar cells — avoids "+50,00 €" overflow. */
+function formatEuroCompact(n){
+  const v = Math.round((Number(n)||0)*100)/100;
+  const abs = Math.abs(v);
+  let num;
+  if(Math.abs(abs - Math.round(abs)) < 0.001) num = String(Math.round(abs));
+  else num = abs.toFixed(2).replace('.', ',');
+  return `${v<0?'−':v>0?'+':''}${num}€`;
+}
 function ensurePocketSettings(){
   if(!DB.pocketMoneySettings || typeof DB.pocketMoneySettings !== 'object' || Array.isArray(DB.pocketMoneySettings)){
     DB.pocketMoneySettings = {};
@@ -11695,7 +11704,7 @@ function pocketMonthMarkers(kidId, monthKey){
     if(cur.in>0) cur.dots.push('in');
     if(cur.out>0) cur.dots.push('out');
     const net = cur.in - cur.out;
-    cur.label = (net>=0?'+':'') + formatEuro(net).replace('\u00a0',' ');
+    cur.label = formatEuroCompact(net);
     markers.set(ds, cur);
   });
   return markers;
@@ -24968,7 +24977,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||213;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||214;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

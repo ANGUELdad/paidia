@@ -1,8 +1,8 @@
 {
-  "version": 213,
-  "label": "v213",
+  "version": 214,
+  "label": "v214",
   "changed": {
-    "de": "Lager: − stapeln, Grund erst beim Speichern. UI-Overhaul + native PWA.",
-    "el": "Lager: − μαζικά, λόγος μόνο στο Save. UI overhaul + native PWA."
+    "de": "UI-Overflow: Kalender-€ in Zellen, Taschengeld + globale Containment.",
+    "el": "UI overflow: € ημερολογίου στα κελιά, Χαρτζιλίκι + containment."
   }
 }

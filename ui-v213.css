@@ -559,3 +559,91 @@ header.app-chrome{
   .pwa-install-bar{ display:none !important; }
   body{ overscroll-behavior-y:none; }
 }
+
+/* ── Overflow containment audit (v214) ──────────────────────────────────── */
+#view .pocket-stage,
+#view .pocket-layout,
+#view .pocket-ledger-top,
+#view .pocket-main-col,
+#view .pocket-cal-wrap,
+#view .pocket-balance-card,
+#view .pocket-kid-card,
+#view .pocket-txn,
+#view .admin-ops,
+#view .admin-ops-desktop,
+#view .admin-ops-section,
+#view .stock-shell,
+#view .stock-product,
+#view .shop-shell,
+#view .shop-item,
+#view .home-start,
+#view .ops-house{
+  min-width:0;
+  max-width:100%;
+}
+#view .pocket-cal-wrap,
+#view .paidia-cal,
+#view .kid-tab-cal-wrap{
+  overflow:hidden;
+}
+#view .pocket-kid-card b,
+#view .pocket-kid-card small,
+#view .pocket-txn span,
+#view .pocket-txn small,
+#view .stock-product-name,
+#view .stock-product-meta,
+#view .shop-item .grow,
+#view .admin-ops-card p,
+#view .admin-person-name,
+#view .ops-house h3{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#view .pocket-txn span,
+#view .stock-product-meta,
+#view .admin-ops-card p{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+#view .pocket-filters,
+#view .pocket-pane-tabs,
+#view .admin-ops-chips,
+#view .chips{
+  max-width:100%;
+}
+#view .pocket-stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 12px;
+  min-width:0;
+}
+#view .pocket-stats span{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+#view .pocket-by-source-list li{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  min-width:0;
+}
+#view .pocket-by-source-list li span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+/* Sidebar Zo-Ai: keep clear of safe-area / dock edge */
+nav.dock .zoai-rail,
+.bottom-panel .zoai-rail,
+body.layout-desktop .rail-zoai,
+body.layout-desktop .bottom-panel .btn.zoai,
+body.layout-desktop [data-rail-zoai]{
+  margin-bottom:max(8px, env(safe-area-inset-bottom, 0px));
+}
+body.layout-desktop .bottom-panel{
+  padding-bottom:max(12px, env(safe-area-inset-bottom, 0px));
+}
