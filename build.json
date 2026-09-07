@@ -1,8 +1,8 @@
 {
-  "version": 227,
-  "label": "v227",
+  "version": 228,
+  "label": "v228",
   "changed": {
-    "de": "Ruhigeres Home: Anwesenheit per Banner, klarere CTAs, weniger Ablenkung.",
-    "el": "Πιο ήσυχη αρχική: παρουσία με banner, καθαρά CTA, λιγότερες παρεμβολές."
+    "de": "Konflikt per Banner, Chrome 44px, leere Pulse weg, Schienen-Fade.",
+    "el": "Σύγκρουση με banner, Chrome 44px, χωρίς κενά pulse, fade σε ράγες."
   }
 }

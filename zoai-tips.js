@@ -369,21 +369,12 @@
     if (!show(tip)) scheduleNext();
   }
 
-  function scheduleNext() {
-    cancelSchedule();
-    const s = state();
-    if (!s || gateBlocking() || s.tourActive) return;
-    if (!s.user && s.mode !== 'child') return;
-    if (s.mode === 'child' && !s.child) return;
-    const span = ZOAI_TIP_MAX_MS - ZOAI_TIP_MIN_MS;
-    const delay = ZOAI_TIP_MIN_MS + Math.floor(Math.random() * Math.max(1, span + 1));
-    zoaiTipTimer = setTimeout(tryShow, delay);
-  }
-
   function notifySession() {
     const s = state();
     if (gateBlocking()) { cancelSchedule(); hide(); return; }
     if (!s) return;
+    // Kids: FAB only — never schedule tip sessions that open Zo.
+    if (s.mode === 'child') { cancelSchedule(); hide(); return; }
     if (!s.user && !(s.mode === 'child' && s.child)) return;
     if (s.chatOpen || s.tourActive) { hide({ keepId: true }); return; }
     if (!zoaiTipSessionStarted) {
@@ -394,6 +385,18 @@
       return;
     }
     if (!zoaiTipTimer && !zoaiTipVisibleId) scheduleNext();
+  }
+
+  function scheduleNext() {
+    cancelSchedule();
+    const s = state();
+    if (!s || gateBlocking() || s.tourActive) return;
+    if (s.mode === 'child') return;
+    if (!s.user && s.mode !== 'child') return;
+    if (s.mode === 'child' && !s.child) return;
+    const span = ZOAI_TIP_MAX_MS - ZOAI_TIP_MIN_MS;
+    const delay = ZOAI_TIP_MIN_MS + Math.floor(Math.random() * Math.max(1, span + 1));
+    zoaiTipTimer = setTimeout(tryShow, delay);
   }
 
   function stopAll() {

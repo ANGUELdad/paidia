@@ -102,21 +102,32 @@ body.shell-m:not(.mode-child) .brand-mark {
   font-size: 14px;
 }
 body.shell-m:not(.mode-child) .topbtn {
-  width: 40px !important;
-  min-width: 40px !important;
-  height: 40px !important;
-  min-height: 40px !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  box-sizing: border-box !important;
 }
 body.shell-m:not(.mode-child) #btnUser {
   border-radius: 999px !important;
   overflow: hidden !important;
   order: 99; /* always far right */
+  box-shadow: 0 0 0 2px rgba(42,107,82,.28);
 }
 body.shell-m:not(.mode-child) #btnLang {
   order: 2;
+  font-size: 12px !important;
+  font-weight: 800 !important;
 }
 body.shell-m:not(.mode-child) #btnNotifs {
   order: 1;
+}
+body.shell-m .brand-mark {
+  border-radius: 9px !important;
+  background: var(--brand, #2a6b52) !important;
+  color: #fff !important;
+  font-family: var(--font-display, Georgia, serif) !important;
+  font-weight: 700 !important;
 }
 
 body.shell-m .topbtn,
@@ -257,7 +268,7 @@ body.shell-m .pwa-install-bar button {
   white-space: nowrap;
 }
 
-/* Horizontal strips: scroll inside, never blow page width */
+/* Horizontal strips: scroll inside, never blow page width — fade peeks edges */
 body.shell-m #view .kids-pane-tabs,
 body.shell-m #view .pocket-kids-rail,
 body.shell-m #view .pocket-pane-tabs,
@@ -267,7 +278,8 @@ body.shell-m #view .house-selector,
 body.shell-m #view .seg:not(.admin-pane-seg),
 body.shell-m #view .chips,
 body.shell-m #view .book-panes,
-body.shell-m #view .stock-view-tabs {
+body.shell-m #view .stock-view-tabs,
+body.shell-m #view .shop-house-rail {
   display: flex !important;
   flex-wrap: nowrap !important;
   gap: 8px !important;
@@ -277,6 +289,8 @@ body.shell-m #view .stock-view-tabs {
   max-width: 100% !important;
   padding-bottom: 2px;
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 18px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 12px, #000 calc(100% - 18px), transparent 100%);
 }
 body.shell-m #view .kids-pane-tabs::-webkit-scrollbar,
 body.shell-m #view .pocket-kids-rail::-webkit-scrollbar,

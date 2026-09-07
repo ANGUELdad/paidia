@@ -5,7 +5,13 @@
   de:{saving:'Wird gespeichert …',saved:'Gespeichert',failed:'Nicht gespeichert. Bitte erneut versuchen.',conflict:'Die Daten wurden inzwischen geändert. Prüfe die aktuellen Werte.',offline:'Offline. Änderungen sind noch nicht gespeichert.',retry:'Erneut versuchen',selected:'ausgewählt',clear:'Auswahl aufheben',all:'Alle angezeigten auswählen',working:'Wird ausgeführt …'},
   el:{saving:'Αποθήκευση …',saved:'Αποθηκεύτηκε',failed:'Δεν αποθηκεύτηκε. Δοκίμασε ξανά.',conflict:'Τα δεδομένα έχουν αλλάξει. Έλεγξε τις τρέχουσες τιμές.',offline:'Χωρίς σύνδεση. Οι αλλαγές δεν έχουν αποθηκευτεί ακόμη.',retry:'Δοκίμασε ξανά',selected:'επιλεγμένα',clear:'Καθαρισμός επιλογής',all:'Επιλογή όλων των εμφανιζόμενων',working:'Εκτέλεση …'}
  };
- const text=key=>(copy[document.documentElement.lang==='el'?'el':'de'][key]||key);
+ const text=key=>{
+  const lang=(global.state&&global.state.lang)
+    || localStorage.getItem('paidia.lang')
+    || document.documentElement.lang
+    || 'de';
+  return (copy[lang==='el'?'el':'de'][key]||key);
+ };
  let requestCounter=0;
  const latestRequests=new Map();
  async function search(key,url){

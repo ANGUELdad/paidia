@@ -2805,6 +2805,10 @@
     border:1px solid rgba(155,196,176,.28);background:rgba(26,40,34,.45);
     display:grid;gap:4px;text-align:left}
   .gate-build b{font-size:12px;font-weight:850;letter-spacing:.06em;color:#9bc4b0;text-transform:uppercase}
+  .gate-build span{
+    font-size:12px;line-height:1.35;color:#c5d4cc;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;
+    overflow:hidden}
   .broadcast-preview{margin:10px 0}
   .broadcast-preview-card{padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,#f3f7f4,#fff)}
   .broadcast-preview-card .bp-kicker{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#2f5a63;margin-bottom:4px}
@@ -6064,9 +6068,9 @@
   }
 
 </style>
-<link rel="stylesheet" href="ui-v110.css?v=227">
-<link rel="stylesheet" href="ui-v213.css?v=227">
-<link rel="stylesheet" href="shared/workspace.css?v=227">
+<link rel="stylesheet" href="ui-v110.css?v=228">
+<link rel="stylesheet" href="ui-v213.css?v=228">
+<link rel="stylesheet" href="shared/workspace.css?v=228">
 <style>
   /* v177 — staff mobile: no floating Zo (Mehr → Zo-Ai); hide when chat open */
   body.layout-mobile:not(.mode-child) .zoai-fab,
@@ -6183,12 +6187,12 @@
   <span class="u-sr" data-nav-chat>Zo-Ai</span>
 </button>
 
-<script src="shared/shell.js?v=227"></script>
-<script src="shared/core.js?v=227"></script>
-<script src="shared/workspace.js?v=227"></script>
-<script src="shared/i18n.js?v=227"></script>
-<script src="shared/ops.js?v=227"></script>
-<script src="shared/dirty.js?v=227"></script>
+<script src="shared/shell.js?v=228"></script>
+<script src="shared/core.js?v=228"></script>
+<script src="shared/workspace.js?v=228"></script>
+<script src="shared/i18n.js?v=228"></script>
+<script src="shared/ops.js?v=228"></script>
+<script src="shared/dirty.js?v=228"></script>
 <script>
 /* Gate FIRST — never block PIN behind tip/notif scripts (hung SW = forever Laden). */
 /* After auth, PaidiaShell routes to /m/ or /desk/ (dual websites). */
@@ -6207,9 +6211,9 @@
   }catch(e){}
 })();
 </script>
-<script src="gate.js?v=227"></script>
-<script src="page-tips.js?v=227" async></script>
-<script src="zoai-tips.js?v=227" async></script>
-<script src="notifications.js?v=227" async></script>
+<script src="gate.js?v=228"></script>
+<script src="page-tips.js?v=228" async></script>
+<script src="zoai-tips.js?v=228" async></script>
+<script src="notifications.js?v=228" async></script>
 </body>
 </html>

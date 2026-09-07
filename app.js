@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 227,
-  label: 'v227',
+  version: 228,
+  label: 'v228',
   changed: {
-    de: 'Ruhigeres Home: Anwesenheit per Banner, klarere CTAs, weniger Ablenkung.',
-    el: 'Πιο ήσυχη αρχική: παρουσία με banner, καθαρά CTA, λιγότερες παρεμβολές.',
+    de: 'Konflikt per Banner, Chrome 44px, leere Pulse weg, Schienen-Fade.',
+    el: 'Σύγκρουση με banner, Chrome 44px, χωρίς κενά pulse, fade σε ράγες.',
   },
 };
 const T = {
@@ -3202,9 +3202,8 @@ async function pushShared(retry=false){
     });}finally{clearTimeout(timeout);}
     const data=await response.json().catch(()=>null);
     if(response.status===409 && data?.code==='conflict'){
-      // Never merge stale financial/stock snapshots over a concurrent write.
+      // Banner-first: never auto-open the conflict sheet (covers dock / hijacks taps).
       workspace?.status('conflict',()=>reviewSharedConflict(data));
-      reviewSharedConflict(data);
       return false;
     }
     if(!response.ok||!data?.durable){
@@ -3218,7 +3217,9 @@ async function pushShared(retry=false){
     if(reconciled.conflicts.length){
       pendingSharedOperation={operationId:crypto.randomUUID(),action:'state.commit',expectedRevision:data.revision,payload:mineNow,baseline:op.payload};
       sessionStorage.setItem(pendingKey,JSON.stringify(pendingSharedOperation));
-      sharedRevision=data.revision;reviewSharedConflict(data);return false;
+      sharedRevision=data.revision;
+      workspace?.status('conflict',()=>reviewSharedConflict(data));
+      return false;
     }
     SHARED_KEYS.forEach(k=>{if(reconciled.value[k]!==undefined)DB[k]=reconciled.value[k];});saveLocal();
     pendingSharedOperation=null;sessionStorage.removeItem(pendingKey);
@@ -3267,10 +3268,11 @@ async function runDomainOperation(action,payload,button){
           if(merged.conflicts.length){
             pendingSharedOperation={operationId:crypto.randomUUID(),action:'state.commit',expectedRevision:sharedRevision,payload:mine,baseline:before,reviewDraft:true};
             sharedDirty=true;sessionStorage.setItem('paidia.pendingOperation:'+owner,JSON.stringify(pendingSharedOperation));
-            reviewSharedConflict(error.data);
-          }else sharedDirty=JSON.stringify(merged.value)!==JSON.stringify(theirs);
-          workspace.status('conflict',()=>runDomainOperation(action,payload,button));
-        }else workspace.status('failed',()=>runDomainOperation(action,payload,button));
+            workspace.status('conflict',()=>reviewSharedConflict(error.data));
+          }else{
+            sharedDirty=JSON.stringify(merged.value)!==JSON.stringify(theirs);
+            workspace.status('conflict',()=>runDomainOperation(action,payload,button));
+          }
       }else workspace.status('failed',()=>runDomainOperation(action,payload,button));
       return false;
     }
@@ -3284,7 +3286,8 @@ async function runDomainOperation(action,payload,button){
       pendingSharedOperation={operationId:crypto.randomUUID(),action:'state.commit',expectedRevision:sharedRevision,payload:mine,baseline:before,reviewDraft:true};
       sessionStorage.setItem('paidia.pendingOperation:'+owner,JSON.stringify(pendingSharedOperation));
       SHARED_KEYS.forEach(k=>{if(merged.value[k]!==undefined)DB[k]=merged.value[k];});saveLocal();
-      sharedDirty=true;setTimeout(()=>reviewSharedConflict(data),0);
+      sharedDirty=true;
+      setTimeout(()=>workspace?.status('conflict',()=>reviewSharedConflict(data)),0);
     }else{
       SHARED_KEYS.forEach(k=>{if(merged.value[k]!==undefined)DB[k]=merged.value[k];});saveLocal();
       sharedDirty=JSON.stringify(merged.value)!==JSON.stringify(theirs);
@@ -3304,6 +3307,12 @@ function postPocketCommand({kidId,amount,kind='in',note='',categoryId=''},button
 
 function reviewSharedConflict(server){
   const op=pendingSharedOperation;if(!op)return;
+  // Never stack on an open sheet / chat; keep dock usable until the user taps Retry.
+  if(document.body.classList.contains('sheet-open') || document.body.classList.contains('chat-open') || sheetEl?.classList?.contains('on')){
+    window.PaidiaWorkspace?.status('conflict',()=>reviewSharedConflict(server));
+    return;
+  }
+  try{ document.documentElement.lang = state.lang==='el'?'el':'de'; }catch{}
   const theirs={};const mine={};SHARED_KEYS.forEach(k=>{theirs[k]=server[k];mine[k]=op.reviewDraft?op.payload[k]:DB[k];});
   const result=window.PaidiaWorkspace?.reconcile
     ? window.PaidiaWorkspace.reconcile(op.baseline||{},mine,theirs)
@@ -3311,6 +3320,7 @@ function reviewSharedConflict(server){
   const el=state.lang==='el';
   const label=path=>path.map(part=>typeof part==='object'?part.id:part).join(' · ');
   const display=value=>value===undefined?(el?'Αφαίρεση':'Entfernen'):typeof value==='object'?JSON.stringify(value):String(value);
+  try{ document.getElementById('workspaceSaveStatus')?.remove(); }catch{}
   openSheet(`<h2>${el?'Έλεγχος αλλαγών':'Änderungen prüfen'}</h2><p>${el?'Έγιναν αλλαγές από άλλη συσκευή. Διάλεξε ποια τιμή θα κρατηθεί όπου υπάρχει σύγκρουση.':'Ein anderes Gerät hat Änderungen gespeichert. Wähle bei jedem Konflikt den passenden Wert.'}</p>
     <div class="conflict-list">${result.conflicts.map((c,i)=>`<fieldset><legend>${esc(label(c.path))}</legend><label><input type="radio" name="conflict-${i}" value="server" checked> ${el?'Τρέχουσα τιμή':'Aktueller Wert'}<span>${esc(display(c.theirs))}</span></label><label><input type="radio" name="conflict-${i}" value="mine"> ${el?'Δική μου αλλαγή':'Meine Änderung'}<span>${esc(display(c.mine))}</span></label></fieldset>`).join('')||`<p>${el?'Οι αλλαγές αφορούν διαφορετικές εγγραφές και μπορούν να συνδυαστούν.':'Die Änderungen betreffen unterschiedliche Einträge und können zusammengeführt werden.'}</p>`}</div>
     <div class="workspace-form-actions"><button class="btn" id="resolveShared">${el?'Αποθήκευση επιλογών':'Auswahl speichern'}</button><button class="btn sec" id="useShared">${el?'Κράτησε τις τρέχουσες τιμές':'Aktuelle Werte übernehmen'}</button></div>`);
@@ -17155,7 +17165,7 @@ function viewKids(){
       </span>
       <span class="kid-dir-arrow" aria-hidden="true">→</span>
     </button>
-    ${isAdminUser()?`<div class="kid-dir-admin"><button type="button" class="btn sm sec" data-kid-edit="${k.id}">${esc(t('kidEdit'))}</button><button type="button" class="btn sm danger" data-kid-remove="${k.id}">${esc(t('kidRemove'))}</button></div>`:''}
+    ${isAdminUser()?`<div class="kid-dir-admin"><button type="button" class="btn sm sec" data-kid-edit="${k.id}">${esc(t('kidEdit'))}</button><button type="button" class="btn sm ghost kid-dir-remove" data-kid-remove="${k.id}">${esc(t('kidRemove'))}</button></div>`:''}
     </div>`;
   }).join('');
   const openHomework=(DB.homework||[]).filter(row=>!row.done).length;
@@ -18623,6 +18633,8 @@ function renderChild(){
   try{ tipNotifyPageChange(); }catch{}
   if(state.mode!=='child'){
     try{ zoaiTipNotifySession(); }catch{}
+  } else {
+    try{ zoaiTipStopAll(); }catch{}
   }
   try{ paintPwaInstallBar(); }catch{}
 }
@@ -21264,13 +21276,21 @@ function viewHome(){
       <b class="w-stat-val">${esc(String(value))}</b>
       <span class="w-stat-lbl">${esc(label)}</span>
     </button>`;
-  const pulseCandidates = [
+  const pulsePool = [
     {jump:'day', value:overdue.length, label:t('overdue'), icon:'u-alert', tone:overdue.length?'tone-out':'', weight:overdue.length?400:40},
     {jump:'day', value:todayOpen.length, label:t('dueToday'), icon:'u-tasks', tone:todayOpen.length?'tone-pine':'', weight:todayOpen.length?300:30},
     {jump:'shop', value:openListCount, label:t('homeSignalList'), icon:'u-cart', tone:openListCount?'tone-sea':'', weight:openListCount?200:20},
     {jump:'stock', value:lowStockCount, label:t('homeSignalStock'), icon:'u-leaf', tone:lowStockCount?'tone-amber':'', weight:lowStockCount?100:10},
-  ].sort((a,b)=>b.weight-a.weight).slice(0, 2);
+  ];
+  const pulseLive = pulsePool.filter(p=>p.value>0).sort((a,b)=>b.weight-a.weight).slice(0, 2);
+  const pulseCandidates = pulseLive;
   const pulseHtml = pulseCandidates.map(p=>signal(p.jump, p.value, p.label, p.icon, p.tone)).join('');
+  const pulseBlock = pulseHtml
+    ? `<div class="home-mobile-pulse" role="group" aria-label="${esc(t('homeSignals'))}">${pulseHtml}</div>`
+    : '';
+  const pulseBlockDesk = pulseHtml
+    ? `<div class="home-command-pulse home-command-pulse-compact" role="group" aria-label="${esc(t('homeSignals'))}">${pulseHtml}</div>`
+    : '';
   const heroPrimaryBtn = presenceNeedsLate
     ? `<button class="home-primary" type="button" id="homeHeroPresence" data-home-presence="1">${esc(primaryLabel)}</button>`
     : `<button class="home-primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>`;
@@ -21289,9 +21309,7 @@ function viewHome(){
         ${ui('u-alert','sm')}<span><b>${esc(t('journalDutyHome'))}</b><small>${esc(t('bookJournalHint'))}</small></span><span>→</span>
       </button>`:''}
       ${teamNoticeBannerHtml()}
-      <div class="home-mobile-pulse" role="group" aria-label="${esc(t('homeSignals'))}">
-        ${pulseHtml}
-      </div>
+      ${pulseBlock}
       <section class="home-mobile-tasks" aria-labelledby="mobileTasksTitle">
         <header><div><span>${esc(eventDayLabel(today))}</span><h2 id="mobileTasksTitle">${esc(t('myTasks'))}</h2></div><b>${esc(String(todayOpen.length))}</b></header>
         <div class="task-list">${todayAssignments.length
@@ -21364,9 +21382,7 @@ function viewHome(){
           <button class="home-secondary ghost" type="button" id="homeQuickBook">${ui('u-note','sm')} ${esc(t('headerBook'))}</button>
         </div>
       </div>
-      <div class="home-command-pulse home-command-pulse-compact" role="group" aria-label="${esc(t('homeSignals'))}">
-        ${pulseHtml}
-      </div>
+      ${pulseBlockDesk}
     </section>
     <div class="home-command-grid">
       <div class="home-command-main">${main}</div>

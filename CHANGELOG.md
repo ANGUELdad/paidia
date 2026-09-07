@@ -1,5 +1,9 @@
 # Changelog
 
+## v228 · 2026-09-07
+- CEO critique fixes: conflict banner-first (lang-locked, dock-safe); chrome hit targets ≥44; hide empty Home pulse; horizontal rail fade peeks; gate changelog 2-line clamp; kids Zo tips disabled; Kids entfernen demoted; Easy tip height capped.
+- Cache `paidia-v228`.
+
 ## v227 · 2026-09-07
 - Critique ship: presence is banner-first (no auto sheet); late CTA copy cleaned; desk Home hero late-aware primary + max 2 pulse tiles; kids Zo closes on nav / no tip session; bell badge contrast; dock secondary hide aligned; reduced-motion for gallery; dead-host gate warn; QA click re-query.
 - Cache `paidia-v227`.

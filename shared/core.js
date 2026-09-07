@@ -6,7 +6,7 @@
   'use strict';
 
   const Core = {
-    version: Number(new URL(document.currentScript.src, location.href).searchParams.get('v')) || 227,
+    version: Number(new URL(document.currentScript.src, location.href).searchParams.get('v')) || 228,
     shell() {
       if (global.__PAIDIA_SHELL__) return global.__PAIDIA_SHELL__;
       if (global.PaidiaShell) return global.PaidiaShell.detect();
