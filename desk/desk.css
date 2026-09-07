@@ -497,24 +497,40 @@ body.shell-desk #view .kid-dir-list {
 body.shell-desk #view .kid-dir-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 6px;
+  gap: 0;
   align-items: stretch;
-  padding: 0;
-  background: transparent;
-  border: 0;
+  padding: 0 6px 0 0;
+  background: #fff;
+  border: 1px solid rgba(26, 40, 34, 0.09);
+  border-radius: 12px;
 }
 
 body.shell-desk #view .kid-dir-card {
   display: grid !important;
-  grid-template-columns: 40px minmax(0, 1fr) 16px !important;
+  grid-template-columns: 40px minmax(0, 1fr) !important;
   gap: 10px !important;
   align-items: center !important;
-  padding: 8px 12px !important;
+  padding: 8px 8px 8px 12px !important;
   min-height: 0 !important;
   width: 100%;
   border-radius: 12px !important;
-  background: #fff !important;
-  border: 1px solid rgba(26, 40, 34, 0.09) !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+body.shell-desk #view .kid-dir-arrow {
+  display: none !important; /* pencil/open is enough on desk */
+}
+
+body.shell-desk #view .kid-dir-admin {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 4px !important;
+  align-items: center;
+  align-self: center;
+  padding-right: 2px;
 }
 
 body.shell-desk #view .kid-dir-av {

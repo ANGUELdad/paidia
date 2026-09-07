@@ -1,7 +1,7 @@
 ## v236 · 2026-09-07
 
 - Desk Kids: full-width dense directory, compact KPI strip, pencil/trash icon actions instead of long edit labels.
-- Staff overview label fixed (`mit Noten` instead of child-facing `Meine Noten`); empty attendance shows `offen`.
+- Staff overview label fixed (`mit Noten` instead of child-facing `Meine Noten`); empty attendance shows `kein Eintrag` (not “offen/unsaved”).
 - Cache `paidia-v236`.
 
 ## v235 · 2026-09-07
