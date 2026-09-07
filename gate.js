@@ -123,15 +123,27 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 225,
-    label: 'v225',
+    version: 227,
+    label: 'v227',
     changed: {
-      de: 'UI-Audit: Overflow, Talk, CTAs, Kids/Pocket.',
-      el: 'UI audit: overflow, talk, CTAs, kids/pocket.',
+      de: 'Ruhigeres Home: Anwesenheit per Banner, klarere CTAs, weniger Ablenkung.',
+      el: 'Πιο ήσυχη αρχική: παρουσία με banner, καθαρά CTA, λιγότερες παρεμβολές.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
   const BUILD_RELOAD_KEY = 'paidia.buildReload';
+  const CANONICAL_HOST = 'armonia-thassos.vercel.app';
+  const DEAD_HOST_ALIASES = ['a-thassos.vercel.app', 'www.a-thassos.vercel.app'];
+
+  function deadHostBannerHtml() {
+    const host = String(location.hostname || '').toLowerCase();
+    if (!DEAD_HOST_ALIASES.includes(host)) return '';
+    const dest = location.protocol + '//' + CANONICAL_HOST + (location.pathname || '/') + (location.search || '');
+    const msg = lang === 'el'
+      ? 'Λάθος διεύθυνση (νεκρό alias). Άνοιξε το: '
+      : 'Falsche Adresse (toter Alias). Öffne: ';
+    return `<p class="gate-host-warn" role="alert" style="margin:0 0 10px;padding:10px 12px;border-radius:12px;background:#fef2f2;color:#991b1b;font:650 13px/1.35 var(--font-ui,system-ui)">${msg}<a href="${dest}" style="color:inherit;text-decoration:underline;word-break:break-all">${CANONICAL_HOST}</a></p>`;
+  }
 
   function fetchTimeout(resource, options, ms) {
     const controller = new AbortController();
@@ -476,11 +488,10 @@
 
   function renderEntrance() {
     paintGate('entrance', `
+      ${deadHostBannerHtml()}
       ${langSwitch()}
       <div class="gate-head">
-        <div class="mark" aria-hidden="true">A</div>
-        <h2>${t('title')}</h2>
-        <p>${t('who')}</p>
+        <h2>${t('who')}</h2>
       </div>
       <div class="profiles" style="grid-template-columns:1fr">
         <button class="profile gate-mode-card" type="button" data-mode="staff">

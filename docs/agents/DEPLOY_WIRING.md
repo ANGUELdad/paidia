@@ -16,6 +16,8 @@ This repo ships **two related stacks**. The **production care PWA** (what caregi
 
 If a user says “the website” or “Armonia app”, assume **armonia-thassos** unless they name the Next platform explicitly.
 
+**Canonical host only:** `armonia-thassos.vercel.app`. The short alias `a-thassos.vercel.app` is **dead (404)** and must not be linked in docs or staff instructions. If that domain is still owned on Vercel, attach a redirect to the canonical URL (or delete the project). Safari’s compact URL bar can visually truncate the hostname — always verify the full host when debugging blank `/m` or stale SW builds.
+
 **Do not open `index.html` via `file://`.** AI and auth routes require the Python server.
 
 ---

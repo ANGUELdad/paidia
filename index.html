@@ -1445,7 +1445,7 @@
   .gal-drive-line{margin-top:4px;font-size:11px;color:#9bc4b0;opacity:.9}
   .gal-compose-bar{display:flex;gap:8px;align-items:center;margin:0 0 12px}
   .gal-fab{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    min-height:48px;border:0;border-radius:14px;cursor:pointer;color:#fff;font:inherit;font-weight:800;
+    min-height:48px;max-height:52px;height:48px;border:0;border-radius:14px;cursor:pointer;color:#fff;font:inherit;font-weight:800;
     background:linear-gradient(135deg,#2a6b52,#2f5a63);box-shadow:0 10px 24px rgba(42,107,82,.28)}
   .gal-fab:active{transform:scale(.98)}
   .gal-refresh{width:48px;height:48px;border:1px solid #e6ebe7;border-radius:14px;background:#fff;
@@ -1461,6 +1461,11 @@
     border:1px solid var(--line);box-shadow:0 12px 30px rgba(26,40,34,.08)}
   .gal-post.gal-enter{animation:galEnter .45s ease both;animation-delay:calc(var(--gal-i,0) * 45ms)}
   @keyframes galEnter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){
+    .gal-post.gal-enter{animation:none!important}
+    .gal-photo.liked-burst::after{animation:none!important}
+    .pine-settle{transition:none!important;animation:none!important}
+  }
   .gal-head{display:flex;align-items:center;gap:8px;padding:12px 14px 8px}
   .gal-ava{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:12px;flex:0 0 auto}
   .gal-meta{font-size:11px;margin-top:2px}
@@ -5134,7 +5139,8 @@
     box-shadow:0 4px 12px rgba(26,40,34,.05);
   }
   body:not(.mode-child) .topbtn-bell .bell-count{
-    background:var(--sun); color:var(--ink);
+    background:var(--out,#c0392b); color:#fff;
+    box-shadow:0 0 0 1.5px #fff;
   }
   body:not(.mode-child) nav.dock button{
     min-height:48px;
@@ -5378,8 +5384,9 @@
   .topbtn-bell{position:relative; display:inline-flex; align-items:center; gap:4px}
   .topbtn-bell .bell-count{
     min-width:18px; height:18px; padding:0 5px; border-radius:999px;
-    background:var(--sun); color:var(--ink); font-size:10px; font-weight:800;
-    display:inline-grid; place-items:center; line-height:1}
+    background:var(--out,#c0392b); color:#fff; font-size:10px; font-weight:800;
+    display:inline-grid; place-items:center; line-height:1;
+    box-shadow:0 0 0 1.5px rgba(255,255,255,.95)}
   .topbtn-bell .bell-count[hidden]{display:none!important}
   .home-pc{display:flex; flex-direction:column; gap:var(--space-4)}
   .home-pc-rail{display:grid; gap:var(--space-3)}
@@ -5512,7 +5519,7 @@
   }
   body.layout-desktop:not(.mode-child) .topbtn:active{transform:scale(.97)}
   body.layout-desktop:not(.mode-child) .topbtn-bell .bell-count{
-    background:var(--sun); color:var(--ink);
+    background:var(--out,#c0392b); color:#fff;
   }
   body.layout-desktop:not(.mode-child) .bottom-panel{
     pointer-events:auto!important;
@@ -5827,7 +5834,9 @@
     .mobile-more-grid .ui-ico{width:20px;height:20px;padding:0;border-radius:0;background:transparent;color:#47675c}
 
     /* v119 — Kids is a phone workflow, not a squeezed desktop dashboard. */
-    body.layout-mobile:not(.mode-child) nav.dock .dock-secondary[data-tab="kids"]{display:flex!important}
+    body.layout-mobile:not(.mode-child) nav.dock .dock-secondary[data-tab="kids"]{display:none!important}
+    body.layout-mobile:not(.mode-child) nav.dock .dock-secondary[data-tab="pocket"]{display:none!important}
+    body.layout-mobile:not(.mode-child) nav.dock .dock-secondary[data-tab="gallery"]{display:none!important}
     body.layout-mobile:not(.mode-child) nav.dock button{min-width:0!important;padding-inline:3px!important;font-size:10px!important}
     body.layout-mobile:not(.mode-child) .kids-shell{display:grid;gap:12px}
     body.layout-mobile:not(.mode-child) .kids-hero{padding:0 0 4px!important;background:none!important;border:0!important;box-shadow:none!important}
@@ -6055,9 +6064,9 @@
   }
 
 </style>
-<link rel="stylesheet" href="ui-v110.css?v=225">
-<link rel="stylesheet" href="ui-v213.css?v=225">
-<link rel="stylesheet" href="shared/workspace.css?v=225">
+<link rel="stylesheet" href="ui-v110.css?v=227">
+<link rel="stylesheet" href="ui-v213.css?v=227">
+<link rel="stylesheet" href="shared/workspace.css?v=227">
 <style>
   /* v177 — staff mobile: no floating Zo (Mehr → Zo-Ai); hide when chat open */
   body.layout-mobile:not(.mode-child) .zoai-fab,
@@ -6134,7 +6143,7 @@
       <button type="button" class="dock-secondary" data-tab="talk" data-staff-only="1" data-tour="nav-talk"><svg class="i nav-ico" aria-hidden="true"><use href="#i-talk"/></svg><span data-nav="talk"></span></button>
       <button type="button" class="dock-secondary" data-tab="book" data-tour="nav-book"><svg class="i nav-ico" aria-hidden="true"><use href="#i-book"/></svg><span data-nav="book"></span></button>
       <button type="button" class="dock-secondary" data-tab="admin" data-admin-only="1" data-tour="nav-admin"><svg class="i nav-ico" aria-hidden="true"><use href="#u-sparkle"/></svg><span data-nav="admin"></span></button>
-      <button type="button" class="dock-more" id="dockMore" aria-haspopup="dialog"><svg class="i nav-ico" aria-hidden="true"><use href="#u-plus"/></svg><span id="dockMoreLabel">Mehr</span></button>
+      <button type="button" class="dock-more" id="dockMore" aria-haspopup="dialog"><span class="nav-ico dock-more-glyph" aria-hidden="true">···</span><span id="dockMoreLabel">Mehr</span></button>
     </nav>
     <button type="button" class="dock-zoai" id="dockZoAi" data-chat="1" data-tour="nav-zoai">Zo-Ai</button>
     <div class="dock-who" id="dockWho"></div>
@@ -6174,12 +6183,12 @@
   <span class="u-sr" data-nav-chat>Zo-Ai</span>
 </button>
 
-<script src="shared/shell.js?v=225"></script>
-<script src="shared/core.js?v=225"></script>
-<script src="shared/workspace.js?v=225"></script>
-<script src="shared/i18n.js?v=225"></script>
-<script src="shared/ops.js?v=225"></script>
-<script src="shared/dirty.js?v=225"></script>
+<script src="shared/shell.js?v=227"></script>
+<script src="shared/core.js?v=227"></script>
+<script src="shared/workspace.js?v=227"></script>
+<script src="shared/i18n.js?v=227"></script>
+<script src="shared/ops.js?v=227"></script>
+<script src="shared/dirty.js?v=227"></script>
 <script>
 /* Gate FIRST — never block PIN behind tip/notif scripts (hung SW = forever Laden). */
 /* After auth, PaidiaShell routes to /m/ or /desk/ (dual websites). */
@@ -6198,9 +6207,9 @@
   }catch(e){}
 })();
 </script>
-<script src="gate.js?v=225"></script>
-<script src="page-tips.js?v=225" async></script>
-<script src="zoai-tips.js?v=225" async></script>
-<script src="notifications.js?v=225" async></script>
+<script src="gate.js?v=227"></script>
+<script src="page-tips.js?v=227" async></script>
+<script src="zoai-tips.js?v=227" async></script>
+<script src="notifications.js?v=227" async></script>
 </body>
 </html>

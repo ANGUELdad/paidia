@@ -96,7 +96,7 @@ body.shell-desk header .who {
 body.shell-desk .topbar-core {
   flex: 0 0 auto !important;
   max-width: none !important;
-  gap: 6px !important;
+  gap: 10px !important;
   align-items: center;
 }
 
@@ -380,13 +380,21 @@ body.shell-desk #view .stock-primary-action,
 body.shell-desk #view .stock-command .btn.primary,
 body.shell-desk #view [data-stock-add],
 body.shell-desk #view .stock-easy-btn,
-body.shell-desk #view .stock-command > button.btn {
+body.shell-desk #view .stock-command > button.btn,
+body.shell-desk #view .stock-command-row .stock-tool,
+body.shell-desk #view .stock-command-row button,
+body.shell-desk #view .stock-command-row .stock-more-action,
+body.shell-desk #view #stockOpenBoard,
+body.shell-desk #view #stockSelectToggle,
+body.shell-desk #view #stockShiftCheck,
+body.shell-desk #view #stockQuickList {
   min-height: 44px !important;
   height: 44px !important;
-  max-height: 44px !important;
+  max-height: 48px !important;
   align-self: center !important;
   padding: 0 16px !important;
   white-space: nowrap !important;
+  writing-mode: horizontal-tb !important;
 }
 
 body.shell-desk #view .stock-overview,
@@ -707,6 +715,11 @@ body.shell-desk #view #homeQuickBook {
   padding: 0 16px !important;
   white-space: nowrap !important;
 }
+body.shell-desk #view .home-command-pulse {
+  align-self: center !important;
+  margin: 16px !important;
+  max-height: 220px !important;
+}
 body.shell-desk #view .home-command-pulse .home-pulse-item {
   display: flex !important;
   flex-direction: column !important;
@@ -714,7 +727,64 @@ body.shell-desk #view .home-command-pulse .home-pulse-item {
   justify-content: center !important;
   gap: 6px !important;
   min-height: 88px !important;
+  max-height: 110px !important;
+  padding: 14px 12px !important;
   text-align: center !important;
+}
+body.shell-desk #view .home-command-copy .ui-mode-row,
+body.shell-desk #view .home-command-hero .ui-mode-row {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  align-self: start !important;
+  gap: 6px !important;
+  width: auto !important;
+  max-width: max-content !important;
+  height: auto !important;
+  max-height: 44px !important;
+  margin: 0 0 8px !important;
+  writing-mode: horizontal-tb !important;
+}
+body.shell-desk #view .home-command-hero .ui-mode-seg,
+body.shell-desk #view .home-command-hero .ui-mode-seg.is-compact {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  height: 36px !important;
+  max-height: 40px !important;
+  width: auto !important;
+}
+body.shell-desk #view .home-command-hero .ui-mode-seg button,
+body.shell-desk #view .home-command-hero .ui-mode-row .ui-mode-btn,
+body.shell-desk #view .home-command-hero #uiModeToggle .ui-mode-btn {
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 40px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 40px !important;
+  align-self: center !important;
+  writing-mode: horizontal-tb !important;
+  flex: 0 0 36px !important;
+  padding: 0 !important;
+}
+body.shell-desk #view #kidAddBtn,
+body.shell-desk #view .kids-admin-bar .btn {
+  min-height: 44px !important;
+  max-height: 48px !important;
+  height: 44px !important;
+  width: auto !important;
+  max-width: 280px !important;
+  align-self: start !important;
+}
+body.shell-desk #view .shop-easy-strip .btn,
+body.shell-desk #view #shopEasyFoto,
+body.shell-desk #view .gal-fab,
+body.shell-desk #view #galShare {
+  min-height: 44px !important;
+  max-height: 48px !important;
+  height: 44px !important;
+  align-self: center !important;
 }
 body.shell-desk #view .home-command-pulse .w-stat-val {
   align-self: center !important;
@@ -736,10 +806,21 @@ body.shell-desk #view .stock-easy-btn,
 body.shell-desk #view #shopAutoFill,
 body.shell-desk #view .shop-more-action,
 body.shell-desk #view #importList,
-body.shell-desk #view #talkVideoOpen {
+body.shell-desk #view #shopEasyFoto,
+body.shell-desk #view #galShare,
+body.shell-desk #view #talkVideoOpen,
+body.shell-desk #view #talkToZoAi {
   max-height: 48px !important;
   min-height: 44px !important;
   height: 44px !important;
+  align-self: center !important;
+}
+body.shell-desk #view .week-ai-bar .btn,
+body.shell-desk #view .week-ai-clear,
+body.shell-desk #view .schedule-agenda-empty {
+  min-height: 44px !important;
+  max-height: 72px !important;
+  height: auto !important;
   align-self: center !important;
 }
 body.shell-desk .admin-section-nav {

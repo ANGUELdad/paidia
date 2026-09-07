@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 225,
-  label: 'v225',
+  version: 227,
+  label: 'v227',
   changed: {
-    de: 'UI-Audit: Overflow, Talk-Compose, CTA-Höhe, Kids/Pocket.',
-    el: 'UI audit: overflow, talk compose, ύψος CTA, kids/pocket.',
+    de: 'Ruhigeres Home: Anwesenheit per Banner, klarere CTAs, weniger Ablenkung.',
+    el: 'Πιο ήσυχη αρχική: παρουσία με banner, καθαρά CTA, λιγότερες παρεμβολές.',
   },
 };
 const T = {
@@ -1030,8 +1030,8 @@ const T = {
     presencePanelTitle:'Schichtstart',
     presencePanelReady:'Melde dich, wenn du da bist.',
     presencePanelLateTitle:'Du bist später',
-    presencePanelLateAsk:'Warum? Kurz tippen — dann „Ich bin da“.',
-    presenceConfirmLate:'Verspätung melden & ich bin da',
+    presencePanelLateAsk:'Warum? Kurz tippen — dann melden.',
+    presenceConfirmLate:'Verspätung melden',
     presenceNotifActionThere:'Ich bin da',
     presenceNotifActionLate:'Warum zu spät?',
     presenceNotifBodyReady:'Tippe die Mitteilung → „Ich bin da“.',
@@ -1060,7 +1060,7 @@ const T = {
     homeShiftStartLate:'Schicht hat begonnen — du bist später',
     homeShiftStartOn:'Schicht läuft',
     homeShiftStartHint:'Beim Start: Anwesenheit, Lagercheck, dann Seite im Schichtbuch.',
-    homeShiftStepPresence:'Ich bin da',
+    homeShiftStepPresence:'Anwesenheit',
     homeShiftStepStock:'Lagercheck Kalyvia',
     homeShiftStepJournal:'Schichtbuch schreiben',
     homeShiftStartDone:'Schichtstart erledigt',
@@ -2233,8 +2233,8 @@ const T = {
     presencePanelTitle:'Έναρξη βάρδιας',
     presencePanelReady:'Δήλωσε όταν είσαι εδώ.',
     presencePanelLateTitle:'Αργείς',
-    presencePanelLateAsk:'Γιατί; Διάλεξε σύντομα — μετά «Είμαι εδώ».',
-    presenceConfirmLate:'Δήλωσε καθυστέρηση & είμαι εδώ',
+    presencePanelLateAsk:'Γιατί; Διάλεξε σύντομα — μετά δήλωσε.',
+    presenceConfirmLate:'Δήλωσε καθυστέρηση',
     presenceNotifActionThere:'Είμαι εδώ',
     presenceNotifActionLate:'Γιατί αργώ;',
     presenceNotifBodyReady:'Πάτα την ειδοποίηση → «Είμαι εδώ».',
@@ -2263,7 +2263,7 @@ const T = {
     homeShiftStartLate:'Η βάρδια ξεκίνησε — αργείς',
     homeShiftStartOn:'Η βάρδια τρέχει',
     homeShiftStartHint:'Στην έναρξη: παρουσία, έλεγχος αποθέματος, μετά σελίδα στο βιβλίο.',
-    homeShiftStepPresence:'Είμαι εδώ',
+    homeShiftStepPresence:'Παρουσία',
     homeShiftStepStock:'Έλεγχος αποθέματος Kalyvia',
     homeShiftStepJournal:'Γράψε στο βιβλίο βάρδιας',
     homeShiftStartDone:'Η έναρξη ολοκληρώθηκε',
@@ -3236,9 +3236,75 @@ async function pushShared(retry=false){
   }finally{sharedBusy=false;}
 }
 
+let domainCommandBusy=false;
+async function runDomainOperation(action,payload,button){
+  if(state.mode!=='staff'||!state.user||domainCommandBusy||sharedBusy)return false;
+  const workspace=window.PaidiaWorkspace;
+  const owner=state.user.id,key='paidia.domainOperation:'+owner;
+  let pending;try{pending=JSON.parse(sessionStorage.getItem(key)||'null');}catch{}
+  if(pending&&(pending.action!==action||JSON.stringify(pending.payload)!==JSON.stringify(payload))){
+    workspace.status('failed',()=>runDomainOperation(pending.action,pending.payload));return false;
+  }
+  domainCommandBusy=true;if(button)button.disabled=true;
+  try{
+    if(!navigator.onLine){workspace.status('offline',()=>runDomainOperation(action,payload,button));return false;}
+    if(sharedDirty||pendingSharedOperation){if(!await pushShared())return false;}
+    // Preserve the complete logical request across timeouts and page reloads.
+    pending=pending||{operationId:crypto.randomUUID(),action,payload:structuredClone(payload),expectedRevision:sharedRevision};
+    sessionStorage.setItem(key,JSON.stringify(pending));
+    const before={};SHARED_KEYS.forEach(k=>before[k]=structuredClone(DB[k]));
+    sharedBusy=true;workspace.status('saving');
+    let data;
+    try{data=await workspace.command(pending.action,pending.payload,pending.expectedRevision,pending.operationId);}
+    catch(error){
+      if(error.status&&error.status<500){
+        sessionStorage.removeItem(key);
+        if(error.status===409&&error.data?.code==='conflict'){
+          const theirs={},mine={};SHARED_KEYS.forEach(k=>{theirs[k]=error.data[k];mine[k]=DB[k];});
+          const merged=workspace.reconcile(before,mine,theirs);
+          sharedRevision=error.data.revision;sharedBaseline=structuredClone(theirs);
+          SHARED_KEYS.forEach(k=>{if(merged.value[k]!==undefined)DB[k]=merged.value[k];});saveLocal();
+          if(merged.conflicts.length){
+            pendingSharedOperation={operationId:crypto.randomUUID(),action:'state.commit',expectedRevision:sharedRevision,payload:mine,baseline:before,reviewDraft:true};
+            sharedDirty=true;sessionStorage.setItem('paidia.pendingOperation:'+owner,JSON.stringify(pendingSharedOperation));
+            reviewSharedConflict(error.data);
+          }else sharedDirty=JSON.stringify(merged.value)!==JSON.stringify(theirs);
+          workspace.status('conflict',()=>runDomainOperation(action,payload,button));
+        }else workspace.status('failed',()=>runDomainOperation(action,payload,button));
+      }else workspace.status('failed',()=>runDomainOperation(action,payload,button));
+      return false;
+    }
+    if(state.user?.id!==owner)return false;
+    sessionStorage.removeItem(key);
+    const mine={},theirs={};SHARED_KEYS.forEach(k=>{mine[k]=DB[k];theirs[k]=data[k];});
+    const merged=workspace.reconcile(before,mine,theirs);
+    sharedRevision=data.revision;localStorage.setItem('paidia.sharedRev',String(sharedRevision));
+    sharedBaseline=structuredClone(theirs);noteDurability(data);
+    if(merged.conflicts.length){
+      pendingSharedOperation={operationId:crypto.randomUUID(),action:'state.commit',expectedRevision:sharedRevision,payload:mine,baseline:before,reviewDraft:true};
+      sessionStorage.setItem('paidia.pendingOperation:'+owner,JSON.stringify(pendingSharedOperation));
+      SHARED_KEYS.forEach(k=>{if(merged.value[k]!==undefined)DB[k]=merged.value[k];});saveLocal();
+      sharedDirty=true;setTimeout(()=>reviewSharedConflict(data),0);
+    }else{
+      SHARED_KEYS.forEach(k=>{if(merged.value[k]!==undefined)DB[k]=merged.value[k];});saveLocal();
+      sharedDirty=JSON.stringify(merged.value)!==JSON.stringify(theirs);
+      workspace.status(sharedDirty?'saving':'saved');
+    }
+    return true;
+  }finally{
+    sharedBusy=false;domainCommandBusy=false;if(button)button.disabled=false;
+    if(sharedDirty&&!pendingSharedOperation)setTimeout(()=>pushShared(),0);
+  }
+}
+function postPocketCommand({kidId,amount,kind='in',note='',categoryId=''},button){
+  const signed=kind==='out'?-Math.abs(amount):kind==='adjust'?amount:Math.abs(amount);
+  if(!Number.isFinite(signed)||signed===0)return Promise.resolve(false);
+  return runDomainOperation('pocket.post',{changes:[{kidId,amountMinor:Math.round(signed*100),note:String(note||pocketCatLabel(categoryId)||(state.lang==='el'?'Χειροκίνητη καταχώριση':'Manuelle Buchung')).trim(),categoryId}]},button);
+}
+
 function reviewSharedConflict(server){
   const op=pendingSharedOperation;if(!op)return;
-  const theirs={};const mine={};SHARED_KEYS.forEach(k=>{theirs[k]=server[k];mine[k]=DB[k];});
+  const theirs={};const mine={};SHARED_KEYS.forEach(k=>{theirs[k]=server[k];mine[k]=op.reviewDraft?op.payload[k]:DB[k];});
   const result=window.PaidiaWorkspace?.reconcile
     ? window.PaidiaWorkspace.reconcile(op.baseline||{},mine,theirs)
     : {value:theirs,conflicts:[]};
@@ -4272,6 +4338,18 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   let who=mode==='child'?kid(data.profileId):emp(data.profileId);
   if(!who) who=ensureDirectoryPerson(data, mode);
   if(!who) return false;
+  const cacheOwner=mode+':'+data.profileId;
+  let previousOwner;try{previousOwner=localStorage.getItem('paidia.cacheOwner');}catch{}
+  if(previousOwner!==cacheOwner&&(previousOwner||mode==='child')){
+    // A different account must never render the previous account's cached records.
+    SHARED_KEYS.forEach(key=>{DB[key]=SHARED_DICT_KEYS.has(key)?{}:[];});
+    DB.children=mode==='child'?[{...who}]:structuredClone(SEED.children||[]);
+    DB.groups=mode==='child'?[]:structuredClone(SEED.groups||[]);
+    sharedRevision=0;sharedBaseline={};sharedDirty=false;pendingSharedOperation=null;pendingSharedOwner=null;
+    state.galleryItems=[];state.helpMessages=[];state.pendingHelpActions=[];
+    try{localStorage.removeItem(KEY);localStorage.setItem('paidia.sharedRev','0');}catch{}
+  }
+  try{localStorage.setItem('paidia.cacheOwner',cacheOwner);}catch{}
   state.mode=mode;
   if(mode==='staff'){
     state.sessionAdmin = data.admin===true || !!who.admin || KNOWN_ADMIN_IDS.has(who.id);
@@ -7224,6 +7302,7 @@ function homeShiftStartCardHtml(){
         : T[state.lang].presenceBannerReady(active.shift.from, toLabel))
     : t('shiftStockCheckPending');
   const tone = !presenceDone && active?.late ? 'late' : (allDone ? 'done' : 'go');
+  const heroOwnsLateCta = !!(active && !presenceDone && active.late && !window.matchMedia('(max-width:899px)').matches);
 
   const step = (ok, label, cta, id, primary) => `
     <div class="home-shift-step ${ok?'ok':''}">
@@ -7241,7 +7320,7 @@ function homeShiftStartCardHtml(){
         <h2>${esc(title)}</h2>
         <p>${esc(allDone?t('homeShiftStartDone'):subtitle)}</p>
       </div>
-      ${!presenceDone && active ? `<button type="button" class="home-shift-primary" id="homeShiftPresence">${esc(t('homeShiftOpen'))}</button>` : ''}
+      ${!presenceDone && active && !heroOwnsLateCta ? `<button type="button" class="home-shift-primary" id="homeShiftPresence">${esc(t('homeShiftOpen'))}</button>` : ''}
     </header>
     <p class="home-shift-hint">${esc(t('homeShiftStartHint'))}</p>
     <div class="home-shift-steps">
@@ -7599,22 +7678,17 @@ function openPresenceFromSignal(){
   queueMicrotask(()=>sheetShiftPresence());
 }
 function maybePromptShiftPresence(){
+  /* Banner-first: never auto-open the sheet. Home checklist / banners own the nudge;
+     sheet opens only from CTAs, deep-link, or SW presence-open. */
   if(state.mode!=='staff' || !state.user || state.tab!=='home') return;
-  if(typeof sheetEl!=='undefined' && sheetEl?.classList?.contains('on')) return;
   const active = activeShiftPresence(state.user.id);
   if(!active || active.checkin) return;
   const key = `auto-presence:${active.dateStr}:${active.shift.id}`;
-  try{ if(sessionStorage.getItem(key)==='1') return; }catch{}
   const now = Date.now();
-  // Prompt from 5 minutes before start, or whenever already late.
   if(!active.late && now < active.start.getTime() - 5*60*1000) return;
-  try{ sessionStorage.setItem(key,'1'); }catch{}
-  setTimeout(()=>{
-    if(state.tab!=='home') return;
-    const still = activeShiftPresence(state.user.id);
-    if(!still || still.checkin) return;
-    sheetShiftPresence();
-  }, 500);
+  try{
+    if(sessionStorage.getItem(key)!=='1') sessionStorage.setItem(key,'1');
+  }catch{}
 }
 
 /* ── Validation engine (§9, §35) — warnings, όχι απαγορεύσεις ── */
@@ -10350,6 +10424,9 @@ function navigateStaffTab(next, opts={}){
     state.adminWorkerId=null;
   }
   if(opts.clearSel!==false && next!==leaving) clearSelection();
+  if(next!==leaving){
+    try{ closeSheet(); }catch{}
+  }
   state.tab=next;
   syncLocationHash();
   if(state.tab==='gallery'){
@@ -10511,11 +10588,25 @@ function undoLastStockStep(){
   toast(t('stockUndone'),'success');
 }
 
+function sheetInitialStockCount(hid,pid){
+  const product=prod(pid);if(!product)return;
+  const el=state.lang==='el';
+  openSheet(`<h2>${esc(L(product))}</h2><p>${el?'Δεν υπάρχει καταγεγραμμένη ποσότητα. Μέτρησε το απόθεμα πριν καταχωρίσεις κινήσεις.':'Es ist noch kein Bestand erfasst. Zähle den Vorrat, bevor du Bewegungen buchst.'}</p><form id="initialStockForm"><label class="f"><span>${el?'Μετρημένη ποσότητα':'Gezählte Menge'} · ${esc(product.unit)}</span><input id="initialStockQty" type="number" min="0" max="1000000" step="any" inputmode="decimal" required></label><p id="initialStockError" role="alert"></p><button class="btn" type="submit">${el?'Αποθήκευση μέτρησης':'Zählung speichern'}</button></form>`);
+  sheetEl.querySelector('#initialStockForm').onsubmit=async event=>{
+    event.preventDefault();const input=sheetEl.querySelector('#initialStockQty');
+    if(!input.reportValidity())return;
+    const quantity=Number(input.value);if(!Number.isFinite(quantity)||quantity<0)return;
+    const ok=await runDomainOperation('stock.record',{changes:[{houseId:hid,productId:pid,quantity,reason:el?'Αρχική καταμέτρηση':'Erstaufnahme'}]},event.submitter);
+    if(ok){closeSheet();render();}else{const error=sheetEl.querySelector('#initialStockError');if(error)error.textContent=el?'Η μέτρηση δεν επιβεβαιώθηκε. Έλεγξε τη σύνδεση και δοκίμασε ξανά.':'Die Zählung wurde nicht bestätigt. Prüfe die Verbindung und versuche es erneut.';}
+  };
+}
+
 function adjustStockDraft(pid, dir){
   /* Stage ± into draft; reason asked once on Save when any OUT exists. */
   const hid = state.house;
   if(hid==='all'){ toast(t('selectHouse'),'info'); return; }
   const p = prod(pid); if(!p) return;
+  if(!Number.isFinite(DB.stock[stockKey(hid,pid)])){sheetInitialStockCount(hid,pid);return;}
   ensureStockOrderFreeze();
   const step = stepFor(p);
   const live = DB.stock[stockKey(hid, pid)] ?? 0;
@@ -10548,29 +10639,16 @@ function commitStockDraft(){
     render();
     return;
   }
-  askPin(T[state.lang].bookN(entries.length), who=>{
+  const changes=entries.map(([productId,delta])=>({houseId:hid,productId,delta,reason:delta<0?reason:(state.lang==='el'?'Παραλαβή αποθέματος':'Wareneingang')}));
+  askPin(T[state.lang].bookN(entries.length), async who=>{
     setStaffUser(who);
-    const label = ([pid, delta]) => `${Math.abs(delta)} ${prod(pid).unit} ${L(prod(pid))}`;
-    const ins = entries.filter(([,d])=>d>0);
-    const outList = entries.filter(([,d])=>d<0);
-    [['IN', ins ], [ 'OUT', outList ]].forEach(([d, list])=>{
-      if(!list.length) return;
-      list.forEach(([pid, delta])=>{
-        const k = stockKey(hid, pid);
-        DB.stock[k] = Math.max(0, roundStock((DB.stock[k] ?? 0) + delta));
-      });
-      logEntry(d,
-        `${d==='IN'?t('typeIN'):t('typeOUT')} @ ${houseShort(hid)}` +
-        `${d==='OUT' && reason ? ' · ' + reason : ''}: ${list.map(label).join(', ')}`,
-        {houseId:hid, reason: d==='OUT' ? reason : '',
-         items: list.map(([pid, delta])=>({pid, qty: Math.abs(delta)}))});
+    if(!await runDomainOperation('stock.adjust',{changes},document.querySelector('#stockDraftSave')))return;
+    // Remove only the submitted deltas; later taps remain in the draft.
+    entries.forEach(([pid,delta])=>{
+      const remaining=roundStock(Number(state.stockDraft[pid]||0)-delta);
+      if(Math.abs(remaining)<0.0001)delete state.stockDraft[pid];else state.stockDraft[pid]=remaining;
     });
-    clearStockDraft();
-    clearStockOrderFreeze();
-    if(!save()) return;
-    render();
-    feedback('save');
-    toast(t('saved'),'success');
+    clearStockOrderFreeze();render();feedback('save');toast(t('saved'),'success');
   });
 }
 
@@ -11978,7 +12056,7 @@ function pocketPresetChipsHtml(kidId, {fillOnly=false, signed=true}={}){
     </div>
   </div>`;
 }
-function applyPocketPreset(kidId, raw, {fillOnly=false}={}){
+async function applyPocketPreset(kidId, raw, {fillOnly=false,button=null}={}){
   const n = Number(raw);
   if(!kidId || !Number.isFinite(n) || n===0) return false;
   if(fillOnly || state.pocketCompose){
@@ -12001,8 +12079,7 @@ function applyPocketPreset(kidId, raw, {fillOnly=false}={}){
   const kind = n<0 ? 'out' : 'in';
   const amt = Math.abs(n);
   const categoryId = pocketQuickCatId(kind);
-  if(!addPocketTxn({kidId, amount:amt, kind, note:'', categoryId})) return false;
-  if(!save()) return false;
+  if(!await postPocketCommand({kidId,amount:amt,kind,note:'',categoryId},button))return false;
   const sign = n<0 ? '−' : '＋';
   const catLabel = pocketCatLabel(categoryId);
   const msg = catLabel
@@ -12145,7 +12222,7 @@ function wirePocketCompose(root){
   root.querySelector('#pocketComposeCancel')?.addEventListener('click', ()=>{
     closePocketCompose(); feedback('tap'); render();
   });
-  form.onsubmit = ev=>{
+  form.onsubmit = async ev=>{
     ev.preventDefault();
     const kidId = state.pocketKidId;
     const kind = state.pocketCompose?.kind||'in';
@@ -12156,8 +12233,7 @@ function wirePocketCompose(root){
     if(isAdj){
       if(!Number.isFinite(amt) || amt===0){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
     }else if(!(amt>0)){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
-    if(!addPocketTxn({kidId, amount:amt, kind, note, categoryId})){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
-    if(!save()) return;
+    if(!await postPocketCommand({kidId,amount:amt,kind,note,categoryId},root.querySelector('#pocketSave')))return;
     closePocketCompose();
     toast(t('pocketMoneySaved'),'success'); feedback('save'); render();
   };
@@ -12191,7 +12267,7 @@ function wirePocketActions(root){
       ev.preventDefault();
       const kidId = btn.dataset.pocketKid || state.pocketKidId;
       const fillOnly = btn.dataset.pocketFill==='1' || !!state.pocketCompose;
-      applyPocketPreset(kidId, btn.dataset.pocketPreset, {fillOnly});
+      applyPocketPreset(kidId, btn.dataset.pocketPreset, {fillOnly,button:btn});
     };
   });
   root.querySelectorAll('[data-pocket-add]').forEach(btn=>{
@@ -12214,32 +12290,29 @@ function wirePocketActions(root){
     };
   });
   root.querySelectorAll('[data-pocket-del]').forEach(btn=>{
-    btn.onclick=()=>{
+    btn.onclick=async ()=>{
       if(!confirm(t('pocketMoneyDeleteAsk'))) return;
-      if(!deletePocketTxn(btn.dataset.pocketDel)) return;
-      if(!save()) return;
+      if(!await runDomainOperation('pocket.reverse',{transactionId:btn.dataset.pocketDel,reason:state.lang==='el'?'Αντιλογισμός προηγούμενης κίνησης':'Stornierung einer früheren Buchung'},btn))return;
       toast(t('pocketMoneyDeleted'),'success'); feedback('save'); render();
     };
   });
   root.querySelectorAll('[data-pocket-pay-allow]').forEach(btn=>{
-    btn.onclick=()=>{
+    btn.onclick=async ()=>{
       const id = btn.dataset.pocketPayAllow;
       const amt = pocketAllowance(id);
       if(!(amt>0)){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
       const weekCat = pocketCategories().find(c=>c.id==='pcat-week')?.id || '';
-      if(!addPocketTxn({kidId:id, amount:amt, kind:'in', note:t('pocketMoneyAllowance'), categoryId:weekCat})) return;
-      if(!save()) return;
+      if(!await postPocketCommand({kidId:id,amount:amt,kind:'in',note:t('pocketMoneyAllowance'),categoryId:weekCat},btn))return;
       toast(t('pocketMoneyAllowancePaid'),'success'); feedback('save'); render();
     };
   });
   root.querySelectorAll('[data-pocket-pay-month]').forEach(btn=>{
-    btn.onclick=()=>{
+    btn.onclick=async ()=>{
       const id = btn.dataset.pocketPayMonth;
       const amt = pocketMonthlyAllowance(id);
       if(!(amt>0)){ toast(t('pocketMoneyNeedAmount'),'error'); return; }
       const monthCat = pocketCategories().find(c=>c.id==='pcat-month')?.id || '';
-      if(!addPocketTxn({kidId:id, amount:amt, kind:'in', note:t('pocketMoneyMonthly'), categoryId:monthCat})) return;
-      if(!save()) return;
+      if(!await postPocketCommand({kidId:id,amount:amt,kind:'in',note:t('pocketMoneyMonthly'),categoryId:monthCat},btn))return;
       toast(t('pocketMoneyMonthlyPaid'),'success'); feedback('save'); render();
     };
   });
@@ -13470,44 +13543,19 @@ function inventoryProductForEntry(entry){
  * απόθεμα του σπιτιού· unavailable / expensive γίνονται έλλειψη με λόγο.
  */
 function confirmFridayBatch(){
-  const hid = shopHouse();
-  const pending = fridayEntries(hid).filter(e=>e.status==='pending');
-  if(!pending.length){ toast(t('nothingPending')); return; }
+  const hid=shopHouse(),pending=fridayEntries(hid).filter(e=>e.status==='pending');
+  if(!pending.length){toast(t('nothingPending'));return;}
   if(pending.some(e=>!e.decision)){toast(t('decideAll'),'error',3600);return;}
-  askPin(t('confirmBatch'), who => {
-    setStaffUser(who);
-    const got = [], gotLines = [], miss = [], completedAt=Date.now(), friday=state.shopFriday||fridayFor();
-    pending.forEach(e=>{
-      e.decidedBy = who.id; e.decidedAt = completedAt;
-      if(e.decision === 'bought'){
-        e.status = 'bought';
-        delete e.missReason;
-        const inventoryProduct=inventoryProductForEntry(e),k=stockKey(hid,inventoryProduct.id);
-        DB.stock[k] = (DB.stock[k] ?? 0) + e.qty;
-        got.push(`${e.name} ${e.qty}${e.unit}`);
-        gotLines.push(t('shopBookedItem')(e.name, e.qty, e.unit));
-      }else if(e.decision === 'unavailable' || e.decision === 'expensive' || e.decision === 'missing'){
-        e.missReason = e.decision === 'expensive' ? 'expensive' : 'unavailable';
-        e.status = 'missing';
-        miss.push(`${e.name} ${e.qty}${e.unit} (${missReasonLabel(e.missReason)})`);
-      }
-      delete e.decision;
-    });
-    syncListRequestsFromFridayEntries(pending, who.id, completedAt);
-    DB.shoppingTrips ||= [];
-    const tripId='trip-'+uid();
-    DB.shoppingTrips.push({id:tripId,houseId:hid,fridayDate:friday,completedAt,completedBy:who.id,
-      items:pending.map(e=>({entryId:e.id,productId:e.productId||null,name:e.name,qty:e.qty,unit:e.unit,note:e.note||'',result:e.status,reason:e.missReason||null}))});
-    logEntry('SHOP',
-      `${t('typeSHOP')} @ ${houseShort(hid)} — ${t('stBought')}: ${got.join(', ') || '—'}` +
-      ` | ${t('shortage')}: ${miss.join(', ') || '—'}`,
-      {houseId:hid,tripId,items:pending.map(e=>({productId:e.productId,name:e.name,qty:e.qty,unit:e.unit,result:e.status,reason:e.missReason||null}))});
-    save(); render();
-    state.shopInStore=false;
-    toast(`${T[state.lang].batchBooked(pending.length)} · ${T[state.lang].bookedToHouse(houseShort(hid))}`,'success',4800);
-    try{ queueOpsAlert('shop', {houseId:hid, by:who.name, bought:got.length, missing:miss.length}); }catch{}
-    try{ sheetShopBookedSummary(gotLines, hid); }catch{}
-  });
+  const el=state.lang==='el';
+  const missingCounts=pending.filter(e=>e.decision==='bought'&&!Number.isFinite(DB.stock[stockKey(hid,e.productId||matchProduct(e.name)?.id)]));
+  openSheet(`<h2>${esc(t('confirmBatch'))}</h2><p>${esc(houseShort(hid))} · ${pending.length} ${el?'είδη':'Positionen'}</p><form id="shoppingConfirmForm"><div class="admin-record-list">${pending.map(e=>`<article class="admin-record"><div><h3>${esc(e.name)}</h3><p>${esc(String(e.qty))} ${esc(e.unit)} · ${esc(e.decision==='bought'?t('stBought'):t('shortage'))}</p>${missingCounts.includes(e)?`<label class="f"><span>${el?'Μετρημένο απόθεμα πριν την αγορά':'Gezählter Bestand vor dem Einkauf'}</span><input data-receipt-initial="${esc(e.id)}" type="number" min="0" step="any" required inputmode="decimal"></label>`:''}</div></article>`).join('')}</div><p id="shoppingConfirmError" role="alert"></p><button class="btn" type="submit">${el?'Επιβεβαίωση και ενημέρωση αποθήκης':'Bestätigen und Bestand buchen'}</button></form>`);
+  sheetEl.querySelector('#shoppingConfirmForm').onsubmit=async event=>{
+    event.preventDefault();
+    const items=pending.map(e=>({entryId:e.id,outcome:e.decision==='bought'?'bought':'missing',reason:e.decision==='expensive'?'expensive':'unavailable',...(missingCounts.includes(e)?{initialQuantity:Number(sheetEl.querySelector(`[data-receipt-initial="${CSS.escape(e.id)}"]`).value)}:{})}));
+    const ok=await runDomainOperation('shopping.confirm',{houseId:hid,fridayDate:state.shopFriday||fridayFor(),items},event.submitter);
+    if(!ok){const error=sheetEl.querySelector('#shoppingConfirmError');if(error)error.textContent=el?'Δεν επιβεβαιώθηκε η αγορά. Έλεγξε τις ποσότητες, τις μονάδες και τη σύνδεση.':'Der Einkauf wurde nicht bestätigt. Prüfe Mengen, Einheiten und Verbindung.';return;}
+    state.shopInStore=false;closeSheet();render();toast(T[state.lang].batchBooked(pending.length),'success');
+  };
 }
 
 /* ── Εισαγωγή λίστας από κείμενο ή φωτογραφία (§11.5, §58–§59) ──
@@ -15716,6 +15764,9 @@ function pushKidHist(view){
 function setChildView(next, opts={}){
   if(!next) return;
   const cur = state.childView || 'today';
+  if(state.chatOpen && next !== cur){
+    try{ closeChatPanel(); }catch{}
+  }
   if(next !== 'games' && next !== 'learn'){
     try{ stopChildGameTimers(); }catch{}
     state.gameId = null;
@@ -15792,11 +15843,15 @@ function kidGoBack(){
 function onOssGameMessage(ev){
   const data = ev?.data;
   if(!data || data.type!=='paidia-score') return;
-  if(ev.origin && ev.origin !== location.origin) return;
+  if(ev.origin !== location.origin) return;
+  const frame=document.querySelector('iframe.oss-frame');
+  if(!frame||ev.source!==frame.contentWindow)return;
   const meta = CHILD_GAMES.find(g=>g.id===data.gameId && g.src);
   if(!meta || state.gameId!==meta.id) return;
   const score = Number(data.score);
-  if(!Number.isFinite(score) || score<=0) return;
+  if(!Number.isSafeInteger(score) || score<=0 || score>10000000) return;
+  const source=new URL(frame.src,location.href);
+  if(source.origin!==location.origin||!source.pathname.startsWith('/kids-games/'))return;
   writeGameBest(meta.id, score);
   if(state.game) state.game.score = Math.max(Number(state.game.score)||0, score);
   const el = document.querySelector('.game-shell.oss .game-stats b');
@@ -16195,7 +16250,7 @@ function kidDockHtml(active){
       <span>${esc(it.label)}</span>
     </button>`).join('')}
     <button type="button" class="kid-dock-more ${active==='more'?'on':''}" id="kidDockMore" data-tour="kid-nav-more" aria-haspopup="dialog" aria-label="${esc(t('navMore'))}">
-      ${ui('u-plus','nav-ico')}
+      <span class="nav-ico dock-more-glyph" aria-hidden="true">···</span>
       <span>${esc(t('navMore'))}</span>
     </button>
   </nav>`;
@@ -18566,7 +18621,9 @@ function renderChild(){
   syncLayoutMode();
   if(state.tourActive) queueMicrotask(()=>tourPaintCurrent());
   try{ tipNotifyPageChange(); }catch{}
-  try{ zoaiTipNotifySession(); }catch{}
+  if(state.mode!=='child'){
+    try{ zoaiTipNotifySession(); }catch{}
+  }
   try{ paintPwaInstallBar(); }catch{}
 }
 
@@ -21196,13 +21253,27 @@ function viewHome(){
     const hid = state.house==='all'?'h1':state.house;
     return (DB.stock[stockKey(hid,p.id)]??0) <= lowThreshold(p);
   }).length;
-  const primaryLabel = shiftStartCard ? t('homePrimaryCta') : (todayOpen.length ? t('homePrimaryCta') : t('homeOpenPlan'));
+  const presenceActive = user ? activeShiftPresence(user.id) : null;
+  const presenceNeedsLate = !!(presenceActive && !presenceActive.checkin && presenceActive.late);
+  const primaryLabel = presenceNeedsLate
+    ? t('homeShiftOpen')
+    : (shiftStartCard ? t('homePrimaryCta') : (todayOpen.length ? t('homePrimaryCta') : t('homeOpenPlan')));
   const signal=(jump,value,label,icon,tone)=>`
     <button type="button" class="home-signal home-pulse-item ${tone||''}" data-home-jump="${jump}">
       <span class="w-stat-ico" aria-hidden="true">${ui(icon,'sm')}</span>
       <b class="w-stat-val">${esc(String(value))}</b>
       <span class="w-stat-lbl">${esc(label)}</span>
     </button>`;
+  const pulseCandidates = [
+    {jump:'day', value:overdue.length, label:t('overdue'), icon:'u-alert', tone:overdue.length?'tone-out':'', weight:overdue.length?400:40},
+    {jump:'day', value:todayOpen.length, label:t('dueToday'), icon:'u-tasks', tone:todayOpen.length?'tone-pine':'', weight:todayOpen.length?300:30},
+    {jump:'shop', value:openListCount, label:t('homeSignalList'), icon:'u-cart', tone:openListCount?'tone-sea':'', weight:openListCount?200:20},
+    {jump:'stock', value:lowStockCount, label:t('homeSignalStock'), icon:'u-leaf', tone:lowStockCount?'tone-amber':'', weight:lowStockCount?100:10},
+  ].sort((a,b)=>b.weight-a.weight).slice(0, 2);
+  const pulseHtml = pulseCandidates.map(p=>signal(p.jump, p.value, p.label, p.icon, p.tone)).join('');
+  const heroPrimaryBtn = presenceNeedsLate
+    ? `<button class="home-primary" type="button" id="homeHeroPresence" data-home-presence="1">${esc(primaryLabel)}</button>`
+    : `<button class="home-primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>`;
   if(window.matchMedia('(max-width:899px)').matches){
     return `<div class="home-start home-start-mobile" data-tour="home-main">
       <header class="home-start-hero">
@@ -21219,10 +21290,7 @@ function viewHome(){
       </button>`:''}
       ${teamNoticeBannerHtml()}
       <div class="home-mobile-pulse" role="group" aria-label="${esc(t('homeSignals'))}">
-        ${signal('day', todayOpen.length, t('dueToday'), 'u-tasks', todayOpen.length?'tone-pine':'')}
-        ${signal('day', overdue.length, t('overdue'), 'u-alert', overdue.length?'tone-out':'')}
-        ${signal('shop', openListCount, t('homeSignalList'), 'u-cart', openListCount?'tone-sea':'')}
-        ${signal('stock', lowStockCount, t('homeSignalStock'), 'u-leaf', lowStockCount?'tone-amber':'')}
+        ${pulseHtml}
       </div>
       <section class="home-mobile-tasks" aria-labelledby="mobileTasksTitle">
         <header><div><span>${esc(eventDayLabel(today))}</span><h2 id="mobileTasksTitle">${esc(t('myTasks'))}</h2></div><b>${esc(String(todayOpen.length))}</b></header>
@@ -21292,15 +21360,12 @@ function viewHome(){
         <p>${esc(t('homeOverview'))}</p>
         ${isEasy()?`<p class="easy-only muted home-easy-hint">${esc(t('homeEasyHint'))}</p>`:''}
         <div class="home-command-actions">
-          <button class="home-primary" type="button" data-home-jump="day">${esc(primaryLabel)}</button>
-          <button class="home-secondary" type="button" id="homeQuickBook">${ui('u-note','sm')} ${esc(t('headerBook'))}</button>
+          ${heroPrimaryBtn}
+          <button class="home-secondary ghost" type="button" id="homeQuickBook">${ui('u-note','sm')} ${esc(t('headerBook'))}</button>
         </div>
       </div>
-      <div class="home-command-pulse" role="group" aria-label="${esc(t('homeSignals'))}">
-        ${signal('day', todayOpen.length, t('dueToday'), 'u-tasks', todayOpen.length?'tone-pine':'')}
-        ${signal('day', overdue.length, t('overdue'), 'u-alert', overdue.length?'tone-out':'')}
-        ${signal('shop', openListCount, t('homeSignalList'), 'u-cart', openListCount?'tone-sea':'')}
-        ${signal('stock', lowStockCount, t('homeSignalStock'), 'u-leaf', lowStockCount?'tone-amber':'')}
+      <div class="home-command-pulse home-command-pulse-compact" role="group" aria-label="${esc(t('homeSignals'))}">
+        ${pulseHtml}
       </div>
     </section>
     <div class="home-command-grid">
@@ -22405,7 +22470,7 @@ function wire(){
   const teamBanner=v.querySelector('#teamNoticeBanner');
   if(teamBanner) teamBanner.onclick=()=>{dismissTeamNotice();render();};
   const openHomePresence=()=>{ feedback('open'); sheetShiftPresence(); };
-  v.querySelectorAll('#homeShiftPresence, #homeShiftPresenceStep').forEach(btn=>{
+  v.querySelectorAll('#homeShiftPresence, #homeShiftPresenceStep, #homeHeroPresence, [data-home-presence]').forEach(btn=>{
     btn.onclick=openHomePresence;
   });
   const homeShiftStock=v.querySelector('#homeShiftStock');
@@ -25211,7 +25276,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||225;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||227;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

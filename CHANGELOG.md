@@ -1,5 +1,20 @@
 # Changelog
 
+## v227 · 2026-09-07
+- Critique ship: presence is banner-first (no auto sheet); late CTA copy cleaned; desk Home hero late-aware primary + max 2 pulse tiles; kids Zo closes on nav / no tip session; bell badge contrast; dock secondary hide aligned; reduced-motion for gallery; dead-host gate warn; QA click re-query.
+- Cache `paidia-v227`.
+
+## v226 · 2026-09-07
+- Full Playwright sweep notes: `docs/agents/APPLE_UI_CRITIQUE_FULL_V226.md` (65 pages, 778 taps, live gate + iOS Simulator).
+- UI rescan + critique fixes: Talk 44×44, stock search wrap, desk stock ≤48, week AI/empty compact, gate landmark/lang/changelog, Home Anwesenheit, chrome gap 12px, Easy/Pro compact slabs locked to 36×36, Liste Foto + Momente Neu ≤52px, dock secondary (Kids/Pocket/Gallery) under Mehr on phone.
+- Money entries, presets, allowances and reversals await durable command confirmation; repeated taps cannot create duplicate in-flight payments.
+- Stock draft adjustments commit atomically; unrecorded stock requires an explicit initial count. Shopping confirmation validates entries and commits stock, trip, requests and audit together.
+- Account changes clear the previous operational cache; embedded-game messages must originate from the active iframe.
+- Five primary mobile destinations, larger touch controls, and responsive admin sections.
+- Shell app URLs now derive their build from the shared-core script version; removes the hardcoded v219 bundle request.
+- Database configuration loads before adapters. Dedicated local QA launcher isolates SQLite and avoids the project environment.
+- Full redesign release gates remain open; see docs/agents/redesign/IMPLEMENTATION.md. Cache: `paidia-v226`.
+
 ## v225 · 2026-09-07
 - UI audit fixes: horizontal rail peek padding, Talk compose no longer covers tabs, CTA max-height, Kids double-count copy, Pocket stats alignment, stock 3-col grid, Plan day chips, PWA install duplicate text, desk Home CTAs, gate redundancy.
 - Cache `paidia-v225`.

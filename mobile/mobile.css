@@ -85,7 +85,7 @@ body.shell-m:not(.mode-child) header h1 {
 body.shell-m:not(.mode-child) .topbar-core {
   flex: 0 0 auto !important;
   max-width: none !important;
-  gap: 4px !important;
+  gap: 12px !important;
   overflow: visible !important;
 }
 body.shell-m:not(.mode-child) #uiModeToggle,
@@ -121,12 +121,12 @@ body.shell-m:not(.mode-child) #btnNotifs {
 
 body.shell-m .topbtn,
 body.shell-m nav.dock button {
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 48px;
+  min-width: 48px;
 }
 body.shell-m:not(.mode-child) .topbtn {
-  min-height: 40px;
-  min-width: 40px;
+  min-height: 48px;
+  min-width: 48px;
 }
 
 body.shell-m .shell-switch {
@@ -174,7 +174,7 @@ body.shell-m main.app-stage {
 
 body.shell-m:not(.mode-child) main.app-stage,
 body.shell-m:not(.mode-child) #view {
-  padding: 12px 14px calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 72px) !important;
+  padding: 16px 16px calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 72px) !important;
   gap: 12px;
 }
 
@@ -191,11 +191,11 @@ body.shell-m nav.dock button {
   flex: 1 1 0 !important;
   padding: 4px 2px !important;
   gap: 2px !important;
-  font-size: 11px !important;
+  font-size: 12px !important;
   line-height: 1.1 !important;
 }
 body.shell-m nav.dock button span {
-  font-size: 11px !important;
+  font-size: 12px !important;
   letter-spacing: -0.01em;
   white-space: nowrap;
   overflow: hidden;
@@ -217,6 +217,7 @@ body.shell-m .page-act.ui-fit-text {
   font-size: max(12px, 1em) !important;
 }
 body.shell-m .bell-count {
+  /* positioned via .topbtn-bell .bell-count rules below */
   font-size: 10px !important;
 }
 
@@ -242,7 +243,7 @@ body.shell-m .pwa-install-bar .grow b {
 }
 body.shell-m .pwa-install-bar .grow span {
   display: block;
-  font-size: 11px !important;
+  font-size: 12px !important;
   line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
@@ -319,7 +320,7 @@ body.shell-m #view .kids-overview b {
   color: var(--ink, #1a2822) !important;
 }
 body.shell-m #view .kids-overview span {
-  font-size: 11px !important;
+  font-size: 12px !important;
   line-height: 1.25 !important;
   overflow-wrap: anywhere;
   color: #3d4f46 !important;
@@ -458,7 +459,7 @@ body.shell-m #view .pocket-stats span {
   color: #3d4f46 !important;
 }
 body.shell-m #view .paidia-cal-kicker {
-  font-size: 11px !important;
+  font-size: 12px !important;
   color: #4a5c54 !important;
 }
 
@@ -534,7 +535,7 @@ body.shell-m #view .home-signals {
   gap: 8px !important;
 }
 body.shell-m #view .home-signal .w-stat-lbl {
-  font-size: 11px !important;
+  font-size: 12px !important;
 }
 
 /* Talk / Book / Gallery */
@@ -582,9 +583,14 @@ body.shell-m #view .home-today-card {
   gap: 10px !important;
 }
 body.shell-m #view .home-shift-start .btn,
-body.shell-m #view .home-today-card .btn {
+body.shell-m #view .home-today-card .btn,
+body.shell-m #view .home-shift-primary,
+body.shell-m #view .home-shift-step-cta {
   justify-self: stretch;
-  min-height: 44px;
+  min-height: 48px !important;
+  max-height: 52px !important;
+  height: 48px !important;
+  padding-block: 0 !important;
 }
 
 
@@ -652,7 +658,7 @@ body.shell-m #view .plan-day-chip.day .c {
 }
 body.shell-m #view .plan-day-chip.day.ui-fit-text,
 body.shell-m #view .plan-day-chip.day.ui-fit-wrap {
-  font-size: 11px !important;
+  font-size: 12px !important;
 }
 
 /* Cap stretched CTAs */
@@ -683,8 +689,7 @@ body.shell-m #view #stockOpenBoard,
 body.shell-m #view #stockSelectToggle,
 body.shell-m #view #stockShiftCheck,
 body.shell-m #view #stockQuickList,
-body.shell-m #view #importList,
-body.shell-m #view #talkVideoOpen {
+body.shell-m #view #importList {
   align-self: center !important;
   min-height: 44px !important;
   max-height: 56px !important;
@@ -858,11 +863,40 @@ body.shell-m .topbar {
   align-items: center !important;
   gap: 8px !important;
 }
-body.shell-m .chrome-actions,
-body.shell-m .chrome .actions {
+body.shell-m .topbar-core {
   display: inline-flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 12px !important;
+  padding-right: 4px !important;
+}
+body.shell-m .topbar-core .topbtn {
+  flex: 0 0 auto !important;
+}
+body.shell-m .chrome-actions,
+body.shell-m .chrome .actions,
+body.shell-m header.chrome .actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding-right: 2px !important;
+}
+body.shell-m .topbtn-bell {
+  position: relative !important;
+  overflow: visible !important;
+}
+body.shell-m .topbtn-bell .bell-count,
+body.shell-m .bell-count {
+  position: absolute !important;
+  top: -2px !important;
+  right: -2px !important;
+  left: auto !important;
+  transform: none !important;
+  font-size: 10px !important;
+  min-width: 16px !important;
+  height: 16px !important;
+  padding: 0 4px !important;
+  line-height: 16px !important;
+  z-index: 2;
 }
 body.shell-m nav.dock button {
   min-width: 0 !important;
@@ -900,13 +934,14 @@ body.shell-m[data-tab="talk"] #view .talk-chat-shell {
 }
 body.shell-m[data-tab="talk"] #view .talk-channel-head {
   display: grid !important;
-  min-height: 52px !important;
-  grid-template-columns: 36px minmax(72px, 1fr) max-content !important;
+  grid-template-columns: 36px minmax(0, 1fr) auto !important;
   align-items: center !important;
+  min-height: 52px !important;
+  max-height: 64px !important;
   gap: 8px !important;
 }
 body.shell-m[data-tab="talk"] #view .talk-channel-head > div:nth-child(2) {
-  min-width: 72px !important;
+  min-width: 0 !important;
   max-width: 100% !important;
   overflow: hidden !important;
 }
@@ -921,16 +956,32 @@ body.shell-m[data-tab="talk"] #view .talk-channel-head h3 {
 }
 body.shell-m[data-tab="talk"] #view .talk-channel-actions {
   display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  align-self: center !important;
   flex: 0 0 auto !important;
-  width: max-content !important;
-  max-width: none !important;
-  gap: 4px !important;
+  gap: 6px !important;
+  height: 44px !important;
+  max-height: 44px !important;
+  width: auto !important;
 }
-body.shell-m[data-tab="talk"] #view .talk-channel-actions .btn {
-  min-width: 40px !important;
-  width: 40px !important;
-  padding-inline: 0 !important;
+body.shell-m[data-tab="talk"] #view .talk-channel-actions .btn,
+body.shell-m[data-tab="talk"] #view .talk-channel-actions #talkVideoOpen,
+body.shell-m[data-tab="talk"] #view .talk-channel-actions #talkToZoAi {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  align-self: center !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  padding: 0 !important;
+  flex: 0 0 44px !important;
   font-size: 0 !important;
+  writing-mode: horizontal-tb !important;
 }
 
 /* Kids admin edit/remove: compact row */
@@ -945,4 +996,125 @@ body.shell-m #view .kid-dir-admin .btn {
   max-height: 44px !important;
   padding: 8px 10px !important;
   font-size: 12px !important;
+}
+
+/* Five primary staff destinations; directory remains in the labeled menu. */
+body.shell-m nav.dock[data-staff-dock] button[data-tab="kids"],
+body.shell-m nav.dock[data-staff-dock] button[data-tab="pocket"],
+body.shell-m nav.dock[data-staff-dock] button[data-tab="gallery"]{display:none!important}
+/* Larger touch targets — never clear max-height (that stretched Talk/icon tools). */
+body.shell-m #view :is(button.btn, .btn, input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select),
+body.shell-m #sheet :is(button.btn, .btn, input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select){
+  min-height: 48px !important;
+}
+body.shell-m #view .talk-channel-actions .btn,
+body.shell-m #view .stock-more > summary,
+body.shell-m #view .plan-day-chip,
+body.shell-m #view .house-selector button{
+  min-height: 44px !important;
+}
+body.shell-m #sheet :is(button, .btn){white-space:normal}
+body.shell-m nav.dock .dock-more-glyph{
+  display: grid !important;
+  place-items: center !important;
+  width: 22px !important;
+  height: 22px !important;
+  font: 700 16px/1 var(--font-ui, system-ui) !important;
+  letter-spacing: .04em;
+}
+@media(max-width:340px){body.shell-m:not(.mode-child) main.app-stage,body.shell-m:not(.mode-child) #view{padding-inline:12px!important}}
+
+body.shell-m #view .shop-easy-strip {
+  align-items: center !important;
+  min-height: 0 !important;
+}
+body.shell-m #view .shop-easy-strip .btn,
+body.shell-m #view #shopEasyFoto,
+body.shell-m #view #shopAutoFill,
+body.shell-m #view #startFridayTop {
+  min-height: 48px !important;
+  max-height: 52px !important;
+  height: 48px !important;
+  align-self: center !important;
+  flex: 1 1 auto !important;
+}
+body.shell-m #view .gal-compose-bar {
+  align-items: center !important;
+  min-height: 0 !important;
+}
+body.shell-m #view .gal-fab,
+body.shell-m #view #galShare {
+  min-height: 48px !important;
+  max-height: 52px !important;
+  height: 48px !important;
+  align-self: center !important;
+  flex: 1 1 auto !important;
+}
+body.shell-m #view .gal-refresh {
+  width: 48px !important;
+  height: 48px !important;
+  max-height: 48px !important;
+}
+body.shell-m #view .stock-command-row,
+body.shell-m.mode-pro #view .stock-command-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 44px !important;
+  grid-template-rows: auto auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+body.shell-m #view .stock-command-row .stock-search {
+  grid-column: 1 / 2 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+body.shell-m #view .stock-command-row .stock-search input {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 44px !important;
+}
+body.shell-m #view .stock-command-row .stock-more {
+  grid-column: 2 / 3 !important;
+  grid-row: 1 !important;
+  justify-self: end !important;
+}
+body.shell-m #view .stock-command-row .stock-primary-action,
+body.shell-m #view .stock-command-row #stockQuickAdd {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  width: 100% !important;
+  max-height: 48px !important;
+}
+
+/* Plan Woche: keep AI + empty states compact */
+body.shell-m #view .week-ai-bar,
+body.shell-m #view .week-ai-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+body.shell-m #view .week-ai-bar .btn,
+body.shell-m #view .week-ai-photo,
+body.shell-m #view .week-ai-fill,
+body.shell-m #view .week-ai-clear {
+  min-height: 44px !important;
+  max-height: 48px !important;
+  height: 44px !important;
+  align-self: center !important;
+  flex: 1 1 auto !important;
+  white-space: nowrap !important;
+}
+body.shell-m #view .schedule-agenda-empty {
+  min-height: 44px !important;
+  max-height: 72px !important;
+  height: auto !important;
+  padding: 10px 12px !important;
+  align-items: center !important;
+}
+body.shell-m #view .home-command-copy h1,
+body.shell-m #view .home-start h1 {
+  line-height: 1.15 !important;
+  font-size: clamp(22px, 6.2vw, 28px) !important;
 }

@@ -76,10 +76,7 @@ body[data-tab="home"] .home-command-hero::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: .28;
-  background-image:
-    repeating-linear-gradient(112deg, transparent 0 12px, rgba(255,255,255,.018) 13px 14px),
-    radial-gradient(ellipse at 12% 110%, rgba(196,138,26,.22), transparent 36%);
+  display: none;
 }
 
 body[data-tab="home"] .home-command-copy {
@@ -87,6 +84,13 @@ body[data-tab="home"] .home-command-copy {
   flex-direction: column;
   justify-content: center;
   padding: 42px 44px;
+}
+
+body[data-tab="home"] .home-command-actions .home-secondary.ghost {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.28);
+  color: #e8f2ec;
+  box-shadow: none;
 }
 
 body[data-tab="home"] .home-start-kicker {
@@ -152,7 +156,40 @@ body[data-tab="home"] .home-command-actions .home-secondary {
   color: #fff;
 }
 
-body[data-tab="home"] .home-command-pulse {
+/* Compact Easy/Pro icon toggle — never stretch into vertical slabs */
+.ui-mode-row {
+  display: inline-flex !important;
+  align-items: center !important;
+  align-self: start !important;
+  max-height: 44px !important;
+  width: auto !important;
+}
+.ui-mode-seg.is-compact {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  height: 36px !important;
+  max-height: 40px !important;
+  width: auto !important;
+}
+.ui-mode-seg.is-compact > button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 40px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 40px !important;
+  align-self: center !important;
+  flex: 0 0 36px !important;
+  padding: 0 !important;
+  writing-mode: horizontal-tb !important;
+}
+
+body[data-tab="home"] .home-command-pulse,
+body[data-tab="home"] .home-command-pulse-compact {
   display: grid;
   grid-template-columns: repeat(2, minmax(0,1fr));
   align-content: stretch;
@@ -162,13 +199,17 @@ body[data-tab="home"] .home-command-pulse {
   border-radius: 18px;
   background: rgba(7,23,18,.22);
 }
+body[data-tab="home"] .home-command-pulse-compact:has(.home-pulse-item:only-child) {
+  grid-template-columns: 1fr;
+}
 
 body[data-tab="home"] .home-command-pulse .home-pulse-item {
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: 1fr auto;
-  min-height: 104px;
-  padding: 18px;
+  min-height: 88px;
+  max-height: 110px;
+  padding: 14px;
   border: 0 !important;
   border-right: 1px solid rgba(255,255,255,.12) !important;
   border-bottom: 1px solid rgba(255,255,255,.12) !important;
@@ -826,33 +867,58 @@ body.auth-pending .gate-wrap {
     grid-row: 1;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     min-height: 48px;
     max-height: 52px;
-    padding: max(6px, env(safe-area-inset-top)) 14px 6px;
+    padding: max(8px, env(safe-area-inset-top)) 14px 6px max(14px, env(safe-area-inset-left));
     flex: 0 0 auto;
   }
   .gate-landmark::before { opacity: .2; }
   .gate-landmark-top { gap: 8px; }
   .gate-landmark-mark { width: 32px; height: 32px; border-radius: 8px; font-size: 15px; }
-  .gate-landmark-message { display: block; max-width: 160px; text-align: right; }
-  .gate-landmark-message small,.gate-landmark-line { display: none; }
-  .gate-landmark-message strong { font: 600 13px/1.2 var(--font-display); letter-spacing: -.01em; }
+  /* One brand signal on phone — hide clipped right “Armonia” */
+  .gate-landmark-message,
+  .gate-landmark-line { display: none !important; }
   .gate-main {
     grid-row: 2;
     display: flex !important;
     flex-direction: column;
     justify-content: flex-start;
-    padding: 10px 14px max(10px, env(safe-area-inset-bottom));
+    padding: 6px 14px max(10px, env(safe-area-inset-bottom));
     overflow: hidden !important;
     min-height: 0;
     -webkit-overflow-scrolling: auto;
   }
-  .gate-main .gate-lang { position: static; align-self: flex-end; margin: 0 0 8px !important; flex: 0 0 auto; }
+  .gate-main .gate-lang {
+    position: static;
+    align-self: stretch;
+    display: flex !important;
+    justify-content: flex-end;
+    margin: 0 0 6px !important;
+    flex: 0 0 auto;
+  }
   .gate-main .gate-lang button { min-width: 64px; min-height: 40px; padding: 6px 10px; font-size: 13px; }
-  .gate-main .gate-head { margin: 0 0 10px; flex: 0 0 auto; }
-  .gate-main .gate-head h2 { font: 650 clamp(24px, 7vw, 30px)/1.05 var(--font-display) !important; }
+  .gate-main .gate-head { margin: 0 0 8px; flex: 0 0 auto; }
+  .gate-main .gate-head .brand-kicker { display: none; }
+  .gate-main .gate-head h2 { font: 650 clamp(24px, 7vw, 30px)/1.05 var(--font-display) !important; color: var(--ink) !important; }
   .gate-main .gate-head p { margin-top: 4px; font-size: 13px; }
+  .gate-wrap[data-gate-view="entrance"] .gate-main,
+  .gate-wrap:has([data-gate-view="entrance"]) .gate-main,
+  [data-gate-view="entrance"].gate-wrap .gate-main,
+  #gateBody[data-gate-view="entrance"] .gate-main {
+    justify-content: flex-start !important;
+    gap: 8px;
+  }
+  #gateBody[data-gate-view="entrance"] .profiles {
+    flex: 0 0 auto !important;
+    overflow: visible !important;
+    margin-top: 4px;
+  }
+  #gateBody[data-gate-view="entrance"] .gate-mode-card {
+    min-height: 72px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
   /* 2-col profiles: readable names + ≥44px touch rows */
   .gate-main .profiles {
     grid-template-columns: repeat(2,minmax(0,1fr)) !important;
@@ -3005,8 +3071,8 @@ body.layout-mobile[data-tab="schedule"] .week-ai-bar { margin-top: 8px; gap: 6px
 body.layout-mobile[data-tab="schedule"] .week-ai-fill,
 body.layout-mobile[data-tab="schedule"] .week-ai-photo,
 body.layout-mobile[data-tab="schedule"] .week-ai-clear {
-  width: auto; flex: 1 1 0; min-width: 0; min-height: 44px;
-  font-size: 12px; padding: 0 10px; white-space: nowrap;
+  width: auto; flex: 1 1 0; min-width: 0; min-height: 44px; max-height: 48px; height: 44px;
+  font-size: 12px; padding: 0 10px; white-space: nowrap; align-self: center;
 }
 body.layout-mobile[data-tab="schedule"] .week-switcher { width: 100%; justify-content: space-between; }
 body.layout-mobile[data-tab="stock"] .stock-shift-check-cta {
@@ -3613,7 +3679,7 @@ body.layout-mobile[data-tab="schedule"] .schedule-agenda-entry {
 }
 body.layout-mobile[data-tab="schedule"] .schedule-agenda-entry > time { padding-top: 15px; font-size: 11px; }
 body.layout-mobile[data-tab="schedule"] .week-day-card-body .schedule-agenda-list { padding: 0; }
-body.layout-mobile[data-tab="schedule"] .week-day-card-body .schedule-agenda-empty { min-height: 94px; padding: 12px; }
+body.layout-mobile[data-tab="schedule"] .week-day-card-body .schedule-agenda-empty { min-height: 56px; max-height: 72px; padding: 10px 12px; }
 body.layout-mobile[data-tab="schedule"] .week-day-card-body .schedule-agenda-empty > span { width: 32px; height: 32px; }
 body.layout-mobile[data-tab="schedule"] .week-day-card-body .schedule-agenda-empty b { font-size: 11px; }
 body.layout-mobile[data-tab="schedule"] .week-day-actions {
@@ -4179,8 +4245,9 @@ body:not(.mode-child) .stock-notice { margin: 0 !important; }
   body.layout-mobile:not(.mode-child) .stock-overview h2 { font-size: 22px; }
   body.layout-mobile:not(.mode-child) .stock-overview-copy > span { margin-top: 5px; font-size: 11px; }
   body.layout-mobile:not(.mode-child) .stock-command { margin: 0 !important; padding: 7px !important; }
-  body.layout-mobile:not(.mode-child) .stock-command-row { display: grid !important; grid-template-columns: minmax(0,1fr) auto auto !important; }
-  .stock-primary-action { min-height: 44px !important; padding-inline: 12px !important; font-size: 11px !important; }
+  body.layout-mobile:not(.mode-child) .stock-command-row { display: grid !important; grid-template-columns: minmax(0,1fr) 44px !important; grid-template-rows: auto auto !important; gap: 8px !important; }
+  body.layout-mobile:not(.mode-child) .stock-command-row .stock-more { grid-column: 2; grid-row: 1; }
+  body.layout-mobile:not(.mode-child) .stock-primary-action { grid-column: 1 / -1; grid-row: 2; width: 100% !important; }
   .stock-more > summary { width: 44px; height: 44px; }
   .stock-view-tabs { gap: 5px; }
   .stock-view-tabs > button {
@@ -4681,7 +4748,20 @@ body:not(.mode-child) .talk-compose .btn { width: auto; min-width: 100px; min-he
   .talk-overview-stats { grid-template-columns: repeat(3,minmax(0,1fr)); }
   .talk-overview-stats > div { min-width: 0; }
   .talk-overview p { max-width: none; }
-  .talk-channel-actions .btn { font-size: 0 !important; gap: 0; }
+  .talk-channel-actions .btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    padding-inline: 0 !important;
+    flex: 0 0 44px !important;
+    font-size: 0 !important;
+    gap: 0;
+  }
   .talk-channel-actions .btn .ui-ico { width: 18px; height: 18px; }
   .talk-message { max-width: 91%; }
   body:not(.mode-child) .talk-compose { grid-template-columns: minmax(0,1fr) 44px minmax(82px,auto); }
@@ -5190,7 +5270,10 @@ body:not(.mode-child) .shop-list-card .shop-item {
 }
 .shop-easy-strip .btn {
   min-height: 44px;
+  max-height: 52px;
+  height: 48px;
   flex: 1 1 auto;
+  align-self: center;
 }
 .shop-photo-banner {
   display: flex;
@@ -5791,10 +5874,18 @@ body.layout-desktop #chatScrim{ background:rgba(26,40,34,.28); }
     display: block !important;
   }
   body.mode-pro.layout-mobile:not(.mode-child) .stock-command-row{
-    grid-template-columns: minmax(0,1fr) auto auto !important;
+    grid-template-columns: minmax(0,1fr) 44px !important;
+    grid-template-rows: auto auto !important;
   }
   body.mode-pro.layout-mobile:not(.mode-child) .stock-primary-action{
     display: inline-flex !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+  }
+  body.mode-pro.layout-mobile:not(.mode-child) .stock-more{
+    grid-column: 2 !important;
+    grid-row: 1 !important;
   }
 
   /* Easy actions: 2×2 thumb targets */

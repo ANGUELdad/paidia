@@ -1,8 +1,8 @@
 {
-  "version": 225,
-  "label": "v225",
+  "version": 227,
+  "label": "v227",
   "changed": {
-    "de": "UI-Audit: Overflow, Talk-Compose, CTA-Höhe, Kids/Pocket-Text.",
-    "el": "UI audit: overflow, talk compose, ύψος CTA, κείμενα kids/pocket."
+    "de": "Ruhigeres Home: Anwesenheit per Banner, klarere CTAs, weniger Ablenkung.",
+    "el": "Πιο ήσυχη αρχική: παρουσία με banner, καθαρά CTA, λιγότερες παρεμβολές."
   }
 }

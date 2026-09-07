@@ -91,7 +91,7 @@
     document.body.classList.remove('auth-pending');
     if (app) app.hidden = false;
 
-    const ver = (global.PaidiaCore && global.PaidiaCore.version) || 219;
+    const ver = (global.PaidiaCore && global.PaidiaCore.version) || 227;
     const appSrc = (global.PaidiaCore && global.PaidiaCore.rootAsset('app.js?v=' + ver)) || ('../app.js?v=' + ver);
 
     await loadScript(appSrc);
