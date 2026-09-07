@@ -24,6 +24,27 @@ from email.utils import parseaddr
 from http.cookies import SimpleCookie
 from pathlib import Path
 
+
+
+def load_env(path: str = ".env") -> None:
+    """Load local .env. File values win so restarting always picks up new PINs/secrets."""
+    try:
+        with open(path, encoding="utf-8") as env_file:
+            for raw_line in env_file:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                key = key.strip()
+                if not key:
+                    continue
+                os.environ[key] = value.strip().strip("'\"")
+    except FileNotFoundError:
+        pass
+
+
+load_env()
+
 try:
     import db as paidia_db
 except ImportError:  # pragma: no cover
@@ -126,24 +147,7 @@ except ImportError:  # The app still starts with PIN login until requirements ar
     PublicKeyCredentialDescriptor = None  # type: ignore
 
 
-def load_env(path: str = ".env") -> None:
-    """Load local .env. File values win so restarting always picks up new PINs/secrets."""
-    try:
-        with open(path, encoding="utf-8") as env_file:
-            for raw_line in env_file:
-                line = raw_line.strip()
-                if not line or line.startswith("#") or "=" not in line:
-                    continue
-                key, value = line.split("=", 1)
-                key = key.strip()
-                if not key:
-                    continue
-                os.environ[key] = value.strip().strip("'\"")
-    except FileNotFoundError:
-        pass
 
-
-load_env()
 
 try:
     import ocr_xai
@@ -2258,10 +2262,11 @@ def execute_operation(body: dict, session: dict | None) -> tuple[int, dict]:
     if paidia_db is None:
         return 503, {"error":"Durable storage unavailable", "code":"storage", "durable":False}
     try:
+        catalog=json.loads((Path(__file__).resolve().parent / "domain-catalog.json").read_text())
         with OPS_LOCK:
             # Do not use the warm-instance cache as the revision authority.
             updated, result = paidia_db.update_json_atomic('ops', lambda value: apply_operation(
-                _normalize_ops_state(value), body, session, OPS_KEYS, OPS_DICT_KEYS))
+                _normalize_ops_state(value), body, session, OPS_KEYS, OPS_DICT_KEYS, catalog=catalog))
             OPS_STATE.clear()
             OPS_STATE.update(updated)
             _durable_invalidate('ops')
@@ -5523,6 +5528,9 @@ class Handler(SimpleHTTPRequestHandler):
             "desk/index.html",
             "desk/desk.css",
             "desk/desk-app.js",
+            "school/index.html",
+            "school/school.css",
+            "school/school-app.js",
             # Local-only design reference. Exact match, no directory
             # fallthrough — the Vercel handler (api/index.py) has its own
             # allowlist and does not serve this.
@@ -5544,6 +5552,7 @@ class Handler(SimpleHTTPRequestHandler):
         shell_alias = parsed.path in (
             "/m", "/m/", "/m/mobile.css", "/m/mobile-app.js",
             "/desk", "/desk/", "/desk/desk.css", "/desk/desk-app.js",
+            "/school", "/school/", "/school/school.css", "/school/school-app.js",
         )
         if static_rel in allowed_exact or parsed.path == "/" or shell_alias or icon_ok or kids_games_ok:
             if parsed.path == "/":
@@ -5560,6 +5569,12 @@ class Handler(SimpleHTTPRequestHandler):
                 static_rel = "desk/desk.css"
             elif parsed.path in ("/desk/desk-app.js",):
                 static_rel = "desk/desk-app.js"
+            elif parsed.path in ("/school", "/school/"):
+                static_rel = "school/index.html"
+            elif parsed.path in ("/school/school.css",):
+                static_rel = "school/school.css"
+            elif parsed.path in ("/school/school-app.js",):
+                static_rel = "school/school-app.js"
             path = os.path.join(os.getcwd(), static_rel)
             if os.path.isdir(path):
                 self.send_error(404, "File not found")
