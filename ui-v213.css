@@ -528,7 +528,9 @@ header.app-chrome{
   color:var(--ink);
 }
 @media (max-width:420px){
-  #view .stock-context{ grid-template-columns:1fr 1fr; }
+  #view .stock-context{ grid-template-columns:repeat(3, minmax(0,1fr)); gap:6px; }
+  #view .stock-context b{ font-size:1.05rem; }
+  #view .stock-context span{ font-size:10px; }
 }
 
 /* ── Schedule / Plan ────────────────────────────────────────────────────── */
@@ -616,13 +618,24 @@ header.app-chrome{
 }
 #view .pocket-stats{
   display:flex;
-  flex-wrap:wrap;
-  gap:8px 12px;
+  flex-direction:column;
+  flex-wrap:nowrap;
+  gap:8px;
   min-width:0;
 }
 #view .pocket-stats span{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
   min-width:0;
+  min-height:32px;
   overflow-wrap:anywhere;
+}
+#view .pocket-stats span b{
+  font-size:16px;
+  font-variant-numeric:tabular-nums;
+  line-height:1.2;
 }
 #view .pocket-by-source-list li{
   display:flex;

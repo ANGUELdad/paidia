@@ -717,7 +717,7 @@ body.auth-pending .gate-wrap {
   text-align: left;
 }
 .gate-main .gate-build b { color: var(--brand); }
-.gate-main .gate-build span { overflow: hidden; font-size: 11px; line-height: 1.25; text-overflow: ellipsis; }
+.gate-main .gate-build span { overflow: hidden; font-size: 11px; line-height: 1.35; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 
 .gate-footer-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 .gate-footer-row .gate-back { flex: 0 0 auto; }
@@ -885,7 +885,7 @@ body.auth-pending .gate-wrap {
     margin-top: auto;
     padding: 6px 10px;
   }
-  .gate-main .gate-build span { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 1; font-size: 11px; }
+  .gate-main .gate-build span { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 11px; line-height: 1.3; white-space: normal; text-overflow: ellipsis; }
   .gate-wrap[data-gate-view="profiles"] .gate-main { justify-content: flex-start; padding: 8px 12px max(8px, env(safe-area-inset-bottom)); }
   .gate-wrap[data-gate-view="profiles"] .gate-lang { margin-bottom: 6px !important; }
   .gate-wrap[data-gate-view="profiles"] .gate-head { margin-bottom: 8px; }
@@ -2894,11 +2894,11 @@ body.layout-mobile[data-tab="schedule"] .plan-hero {
 }
 body.layout-mobile[data-tab="schedule"] .plan-hero .brand-kicker { display: block !important; color: var(--sea) !important; }
 body.layout-mobile[data-tab="schedule"] .plan-hero-date {
-  max-width: 13ch;
+  max-width: none;
   color: var(--ink) !important;
   font-family: "Fraunces", Georgia, serif !important;
-  font-size: clamp(27px,8vw,34px) !important;
-  line-height: 1.05 !important;
+  font-size: clamp(22px,6vw,28px) !important;
+  line-height: 1.15 !important;
   white-space: normal !important;
 }
 body.layout-mobile[data-tab="schedule"] .plan-hero-meet { display: block !important; margin-top: 7px; font-size: 12px; color: var(--muted) !important; }
@@ -4692,18 +4692,21 @@ body:not(.mode-child) .talk-compose .btn { width: auto; min-width: 100px; min-he
 }
 
 @media (max-width: 899px) {
+  /* Compose stays in document flow so it never covers Nachrichten/Besprechung */
   body.layout-mobile:not(.mode-child) .talk-page[data-talk-pane="chat"] .talk-compose {
-    position: fixed;
-    right: 12px;
-    bottom: calc(var(--nav-total,64px) + 8px);
-    left: 12px;
-    z-index: 48;
-    border: 1px solid rgba(26,40,34,.14);
-    border-radius: 15px;
-    box-shadow: 0 14px 34px rgba(26,40,34,.16);
+    position: static;
+    z-index: auto;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+    box-shadow: none;
   }
   body.layout-mobile:not(.mode-child) .talk-page[data-talk-pane="chat"] .talk-chat-fast {
-    padding-bottom: 88px !important;
+    padding-bottom: 12px !important;
+  }
+  body.layout-mobile:not(.mode-child) .talk-mobile-switch button {
+    min-height: 44px;
+    max-height: 52px;
+    height: 48px;
   }
 }
 

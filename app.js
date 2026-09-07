@@ -4,18 +4,18 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 224,
-  label: 'v224',
+  version: 225,
+  label: 'v225',
   changed: {
-    de: 'Ops-Workspace: atomare Speicherung, Admin-Bereiche, Sync-Status.',
-    el: 'Ops-workspace: ατομική αποθήκευση, περιοχές admin, sync status.',
+    de: 'UI-Audit: Overflow, Talk-Compose, CTA-Höhe, Kids/Pocket.',
+    el: 'UI audit: overflow, talk compose, ύψος CTA, kids/pocket.',
   },
 };
 const T = {
   de: {
     appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navPocket:'Taschengeld', navAdmin:'Admin', navMore:'Mehr',
     titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', titlePocket:'Taschengeld', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', kidAdd:'Kind hinzufügen', kidRemove:'Kind entfernen', kidEdit:'Kind bearbeiten', kidNamePh:'Vorname', kidPinPh:'PIN (4–6 Ziffern)', kidPinConfirm:'PIN bestätigen', kidAdded:'Kind gespeichert', kidRemoved:'Kind entfernt', kidRemoveConfirm:'Dieses Kind wirklich entfernen? Login wird gelöscht.', kidPinMismatch:'PIN stimmt nicht', kidNameRequired:'Name fehlt', kidAdminOnly:'Nur Admins können Kinder hinzufügen/entfernen', profilePhoto:'Profilfoto', profilePhotoChange:'Foto ändern', profilePhotoRemove:'Foto entfernen', profilePhotoHint:'Wird oben rechts angezeigt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
-    kidsOverview:'Übersicht', kidsTracked:n=>`${n} Kinder`, kidsOpenHomework:n=>`${n} Hausaufgaben offen`,
+    kidsOverview:'Übersicht', kidsTracked:'Kinder', kidsOpenHomework:'Hausaufgaben offen',
     schoolOverview:'Schulübersicht', gradeAverage:'Notenschnitt', gradeNoData:'Noch keine Noten', attendanceWeek:'Anwesenheit diese Woche',
     homeworkOpen:'Offene Hausaufgaben',
     schoolMaterialTitle:'Schulmaterial', schoolMaterialHint:'Checkliste + Fotos (Bücher, Hefte, …)',
@@ -765,7 +765,7 @@ const T = {
     homeSignalList:'Liste', homeSignalStock:'Lager', homeCompactTitle:'Heute · kompakt',
     stockQuickList:'Alles Wenige → Liste', stockQuickListShort:'Wenige',
     stockAddedLow:n=>`${n} auf Einkaufsliste`,
-    viewCalendar:'Kalender', calPrev:'‹', calNext:'›',
+    viewCalendar:'Kalender', calPrev:'←', calNext:'→',
     exportCalendar:'Kalender exportieren', upcomingEvents:'Kommende Events',
     pasteList:'Liste einfügen oder tippen',
     pastePh:'Nutella 2, Milch light 2, Wasser groß 4, Nektarinen 10–12',
@@ -1216,7 +1216,7 @@ const T = {
   el: {
     appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navPocket:'Χαρτζιλίκι', navAdmin:'Admin', navMore:'Άλλα',
     titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', titlePocket:'Χαρτζιλίκι', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', kidAdd:'Προσθήκη παιδιού', kidRemove:'Αφαίρεση παιδιού', kidEdit:'Επεξεργασία παιδιού', kidNamePh:'Όνομα', kidPinPh:'PIN (4–6 ψηφία)', kidPinConfirm:'Επιβεβαίωση PIN', kidAdded:'Το παιδί αποθηκεύτηκε', kidRemoved:'Το παιδί αφαιρέθηκε', kidRemoveConfirm:'Να αφαιρεθεί αυτό το παιδί; Το login θα διαγραφεί.', kidPinMismatch:'Το PIN δεν ταιριάζει', kidNameRequired:'Λείπει το όνομα', kidAdminOnly:'Μόνο admins μπορούν να προσθέτουν/αφαιρούν παιδιά', profilePhoto:'Φωτογραφία προφίλ', profilePhotoChange:'Αλλαγή φωτογραφίας', profilePhotoRemove:'Αφαίρεση φωτογραφίας', profilePhotoHint:'Εμφανίζεται πάνω δεξιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
-    kidsOverview:'Επισκόπηση', kidsTracked:n=>`${n} παιδιά`, kidsOpenHomework:n=>`${n} ανοιχτές εργασίες`,
+    kidsOverview:'Επισκόπηση', kidsTracked:'παιδιά', kidsOpenHomework:'ανοιχτές εργασίες',
     schoolOverview:'Σχολική εικόνα', gradeAverage:'Μέσος βαθμός', gradeNoData:'Δεν υπάρχουν βαθμοί ακόμα', attendanceWeek:'Παρουσία αυτή την εβδομάδα',
     homeworkOpen:'Ανοιχτές εργασίες',
     schoolMaterialTitle:'Υλικό σχολείου', schoolMaterialHint:'Λίστα + φωτογραφίες (βιβλία, τετράδια, …)',
@@ -1967,7 +1967,7 @@ const T = {
     homeSignalList:'Λίστα', homeSignalStock:'Αποθήκη', homeCompactTitle:'Σήμερα · συμπαγές',
     stockQuickList:'Όλα τα λίγα → λίστα', stockQuickListShort:'Λίγα',
     stockAddedLow:n=>`${n} στη λίστα`,
-    viewCalendar:'Ημερολόγιο', calPrev:'‹', calNext:'›',
+    viewCalendar:'Ημερολόγιο', calPrev:'←', calNext:'→',
     exportCalendar:'Εξαγωγή ημερολογίου', upcomingEvents:'Επόμενα events',
     pasteList:'Επικόλλησε ή γράψε τη λίστα',
     pastePh:'Γάλα 2, Ψωμί 4, Ντομάτες 3 kg, Νεκταρίνια 10–12',
@@ -17106,9 +17106,9 @@ function viewKids(){
   const openHomework=(DB.homework||[]).filter(row=>!row.done).length;
   const graded=(DB.children||[]).filter(child=>childProgressSummary(child.id).gradedCount>0).length;
   const overview=`<section class="kids-overview" aria-label="${esc(t('kidsOverview'))}">
-    <div><b>${kids.length}</b><span>${esc(t('kidsTracked')(kids.length))}</span></div>
+    <div><b>${kids.length}</b><span>${esc(t('kidsTracked'))}</span></div>
     <div><b>${graded}</b><span>${esc(t('childGrades'))}</span></div>
-    <div><b>${openHomework}</b><span>${esc(t('kidsOpenHomework')(openHomework))}</span></div>
+    <div><b>${openHomework}</b><span>${esc(t('kidsOpenHomework'))}</span></div>
   </section>`;
   const tabs=`<div class="kids-pane-tabs" role="tablist">
     <button type="button" class="chip ${pane==='directory'?'on':''}" data-kids-pane="directory">${esc(t('navKids'))}</button>
@@ -22118,7 +22118,7 @@ function scheduleMeasureChrome(){
    untouched by the label-length guard below. This keeps language fitting a
    shared behaviour instead of a page-by-page exception list. */
 const BUTTON_FIT_SELECTOR = 'button';
-const BUTTON_FIT_SKIP = '#uiModeToggle button, .ui-mode-seg button, .ui-mode-btn, .week-layout-seg button, .task-check, .week-open-day, .store-row .tick, .plan-hero-cta';
+const BUTTON_FIT_SKIP = '#uiModeToggle button, .ui-mode-seg button, .ui-mode-btn, .week-layout-seg button, .task-check, .week-open-day, .store-row .tick, .plan-hero-cta, .plan-day-chip, .house-selector button, .pocket-kid-card, .talk-mobile-switch button, .planner-focus-switch button, .kids-pane-tabs .chip, .paidia-cal-nav, nav.dock button';
 let buttonFitFrame=0;
 function fitButtonLabels(root=document){
   cancelAnimationFrame(buttonFitFrame);
@@ -22220,7 +22220,14 @@ function render(){
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   const dockMore=document.getElementById('dockMore');
   if(dockMore){
-    dockMore.classList.toggle('on', ['gallery','talk','book','kids','pocket','rules','admin'].includes(state.tab));
+    const moreTabs=['gallery','talk','book','kids','pocket','rules','admin'];
+    const tabBtn=[...document.querySelectorAll('nav.dock button[data-tab]')].find(b=>b.dataset.tab===state.tab);
+    let primaryVisible=false;
+    if(tabBtn && !tabBtn.hidden){
+      const st=getComputedStyle(tabBtn);
+      primaryVisible=st.display!=='none' && st.visibility!=='hidden' && st.opacity!=='0';
+    }
+    dockMore.classList.toggle('on', moreTabs.includes(state.tab) && !primaryVisible);
     dockMore.setAttribute('aria-label', t('navMore'));
   }
   const dockMoreLabel=document.getElementById('dockMoreLabel');
@@ -24995,8 +25002,7 @@ function sheetInstallNotif(){
   openSheet(`<div class="ios-install-sheet">
     <div class="import-kicker">Armonia</div>
     <h2>${esc(t('childInstallTitle'))}</h2>
-    <p class="muted">${esc(t('notifInstallSteps'))}</p>
-    <p class="muted" style="font-size:12px;line-height:1.45">${esc(t('childInstallIos'))}</p>
+    <p class="muted" style="line-height:1.45">${esc(t('notifInstallSteps'))}</p>
     ${androidBtn}
     <button class="btn sec" type="button" id="pwaInstallClose">${esc(t('close'))}</button>
   </div>`);
@@ -25205,7 +25211,7 @@ async function registerPaidiaServiceWorker(timeoutMs){
       reg=await navigator.serviceWorker.getRegistration();
     }
     if(!reg){
-      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||224;
+      const ver=(typeof APP_BUILD==='object'&&APP_BUILD&&APP_BUILD.version)||225;
       reg=await navigator.serviceWorker.register('./sw.js?v='+ver,{scope:'./'});
     }
     if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});

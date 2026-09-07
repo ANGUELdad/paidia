@@ -1,8 +1,8 @@
 {
-  "version": 224,
-  "label": "v224",
+  "version": 225,
+  "label": "v225",
   "changed": {
-    "de": "Ops-Workspace: atomare Speicherung, Admin-Bereiche, Sync-Status.",
-    "el": "Ops-workspace: ατομική αποθήκευση, περιοχές admin, sync status."
+    "de": "UI-Audit: Overflow, Talk-Compose, CTA-Höhe, Kids/Pocket-Text.",
+    "el": "UI audit: overflow, talk compose, ύψος CTA, κείμενα kids/pocket."
   }
 }

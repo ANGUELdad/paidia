@@ -685,3 +685,73 @@ body.shell-desk:not(.auth-pending) #gate {
     display: none;
   }
 }
+
+
+/* ═══ v225 desk UI audit fixes ══════════════════════════════════════════ */
+body.shell-desk #view .home-command-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex-wrap: wrap !important;
+}
+body.shell-desk #view .home-command-actions .home-primary,
+body.shell-desk #view .home-command-actions .home-secondary,
+body.shell-desk #view #homeQuickBook {
+  min-height: 48px !important;
+  max-height: 52px !important;
+  height: 48px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 0 16px !important;
+  white-space: nowrap !important;
+}
+body.shell-desk #view .home-command-pulse .home-pulse-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 88px !important;
+  text-align: center !important;
+}
+body.shell-desk #view .home-command-pulse .w-stat-val {
+  align-self: center !important;
+}
+body.shell-desk #view .home-command-pulse .w-stat-lbl {
+  grid-column: auto !important;
+}
+body.shell-desk #view .house-selector button,
+body.shell-desk #view .planner-seg button,
+body.shell-desk #view .seg button {
+  max-height: 48px !important;
+  min-height: 40px !important;
+  height: auto !important;
+  writing-mode: horizontal-tb !important;
+  flex-direction: row !important;
+}
+body.shell-desk #view .stock-primary-action,
+body.shell-desk #view .stock-easy-btn,
+body.shell-desk #view #shopAutoFill,
+body.shell-desk #view .shop-more-action,
+body.shell-desk #view #importList,
+body.shell-desk #view #talkVideoOpen {
+  max-height: 48px !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  align-self: center !important;
+}
+body.shell-desk .admin-section-nav {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  max-width: 100% !important;
+}
+body.shell-desk .admin-section-picker {
+  display: none !important;
+}
+@media (max-width: 1100px) {
+  body.shell-desk .admin-section-nav { display: none !important; }
+  body.shell-desk .admin-section-picker { display: grid !important; }
+}

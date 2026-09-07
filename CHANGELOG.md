@@ -1,5 +1,9 @@
 # Changelog
 
+## v225 · 2026-09-07
+- UI audit fixes: horizontal rail peek padding, Talk compose no longer covers tabs, CTA max-height, Kids double-count copy, Pocket stats alignment, stock 3-col grid, Plan day chips, PWA install duplicate text, desk Home CTAs, gate redundancy.
+- Cache `paidia-v225`.
+
 ## v224 · 2026-09-07
 - Durable ops workspace: `POST /api/operations` with atomic `state.commit` / stock / pocket commands, idempotency, revision conflicts.
 - Client `PaidiaWorkspace` status bar + reconcile; Admin section hub (supplies, school, review, finance, audit, communications, automations, system).

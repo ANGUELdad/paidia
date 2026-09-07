@@ -123,11 +123,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 224,
-    label: 'v224',
+    version: 225,
+    label: 'v225',
     changed: {
-      de: 'Ops-Workspace: atomare Speicherung + Admin-Bereiche.',
-      el: 'Ops-workspace: ατομική αποθήκευση + admin περιοχές.',
+      de: 'UI-Audit: Overflow, Talk, CTAs, Kids/Pocket.',
+      el: 'UI audit: overflow, talk, CTAs, kids/pocket.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';
@@ -464,7 +464,7 @@
   function gateLandmarkHtml() {
     return `<aside class="gate-landmark" aria-hidden="true">
       <div class="gate-landmark-top"><span class="gate-landmark-mark">A</span><span>Armonia Thassos</span></div>
-      <div class="gate-landmark-message"><small>THASSOS · GREECE</small><strong>${esc(t('brand'))}</strong></div>
+      <div class="gate-landmark-message"><small>THASSOS · GREECE</small><strong>Armonia</strong></div>
       <div class="gate-landmark-line"></div>
     </aside>`;
   }
@@ -479,7 +479,6 @@
       ${langSwitch()}
       <div class="gate-head">
         <div class="mark" aria-hidden="true">A</div>
-        <div class="brand-kicker">${t('brand')}</div>
         <h2>${t('title')}</h2>
         <p>${t('who')}</p>
       </div>
