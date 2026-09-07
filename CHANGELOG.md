@@ -1,3 +1,9 @@
+## v242 · 2026-09-07
+
+- Mobile tutorial: pin coach card top/bottom above dock; cap spotlight hole so page targets no longer float randomly.
+- Page tips use the same phone sheet placement.
+- Cache `paidia-v242`.
+
 ## v241 · 2026-09-07
 
 - Mobile `/m/` iPhone layout containment: stock/home no longer expand to ~560px or clip CTAs.

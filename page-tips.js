@@ -396,6 +396,14 @@
     return document.querySelector('[data-tour="' + sel + '"]');
   }
 
+  function tipIsMobile(){
+    try{
+      if(document.body?.classList.contains('shell-m')) return true;
+      if(document.body?.classList.contains('layout-mobile')) return true;
+    }catch(_){}
+    return window.innerWidth < 720;
+  }
+
   function tipPaint() {
     const root = document.getElementById('tipRoot');
     const tip = tipVisibleTip;
@@ -418,14 +426,25 @@
 
     tipLiveEl = el;
     el.classList.add('tip-target-live');
-    try { el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }); } catch (_) {}
 
+    const mobile = tipIsMobile();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
     const r = el.getBoundingClientRect();
-    const pad = 8;
-    const top = Math.max(6, r.top - pad);
-    const left = Math.max(6, r.left - pad);
-    const width = Math.min(window.innerWidth - left - 6, r.width + pad * 2);
-    const height = Math.min(window.innerHeight - top - 6, r.height + pad * 2);
+    const pad = mobile ? 8 : 8;
+    let top = Math.max(6, r.top - pad);
+    let left = Math.max(6, r.left - pad);
+    let width = Math.min(vw - left - 6, r.width + pad * 2);
+    let height = Math.min(vh - top - 6, r.height + pad * 2);
+
+    if (mobile) {
+      const maxH = Math.min(Math.floor(vh * 0.34), 260);
+      width = Math.min(Math.max(40, width), vw - 16);
+      height = Math.min(Math.max(40, height), maxH);
+      if (r.height > maxH) top = Math.max(56, Math.min(r.top + (r.height - maxH) / 2, vh - maxH - 90));
+      left = Math.min(Math.max(6, left), Math.max(6, vw - width - 6));
+    }
+
     hole.hidden = false;
     hole.style.top = top + 'px';
     hole.style.left = left + 'px';
@@ -433,16 +452,35 @@
     hole.style.height = Math.max(40, height) + 'px';
 
     root.classList.add('tip-anchored');
-    const cardW = Math.min(340, window.innerWidth - 24);
     const cardH = card.offsetHeight || 150;
-    const spaceBelow = window.innerHeight - (top + height);
+    if (mobile) {
+      const holeMid = top + height / 2;
+      const pinTop = holeMid > vh * 0.42;
+      card.style.left = '12px';
+      card.style.right = '12px';
+      card.style.width = 'auto';
+      if (pinTop) {
+        card.style.top = '64px';
+        card.style.bottom = 'auto';
+        card.dataset.placement = 'top-sheet';
+      } else {
+        card.style.top = 'auto';
+        card.style.bottom = 'calc(72px + env(safe-area-inset-bottom, 0px))';
+        card.dataset.placement = 'bottom-sheet';
+      }
+      arrow.hidden = true;
+      return;
+    }
+
+    const cardW = Math.min(340, vw - 24);
+    const spaceBelow = vh - (top + height);
     const preferBelow = spaceBelow > cardH + 28;
     const cardTop = preferBelow
-      ? Math.min(window.innerHeight - cardH - 12, top + height + 16)
+      ? Math.min(vh - cardH - 12, top + height + 16)
       : Math.max(12, top - cardH - 16);
     const cardLeft = Math.min(
       Math.max(12, left + width / 2 - cardW / 2),
-      window.innerWidth - cardW - 12
+      vw - cardW - 12
     );
     card.style.top = cardTop + 'px';
     card.style.left = cardLeft + 'px';

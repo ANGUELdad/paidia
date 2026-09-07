@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 241,
-  label: 'v241',
+  version: 242,
+  label: 'v242',
   changed: {
-    de: 'Mobile: Lager/Home passen aufs iPhone — kein seitliches Abschneiden, Buttons in der Mitte.',
-    el: 'Κινητό: Lager/Home χωράνε στο iPhone — χωρίς οριζόντια κοψίματα, κουμπιά στο κέντρο.',
+    de: 'Tutorial auf dem Handy: Karte unten/oben verankert, Spotlight nicht mehr zufällig.',
+    el: 'Tutorial στο κινητό: κάρτα σταθερά πάνω/κάτω, όχι τυχαίο spotlight.',
   },
 };
 const T = {
@@ -5127,7 +5127,11 @@ function tourEnsureRoot(){
     tourAdvance({activate:true});
   };
   window.addEventListener('resize', ()=>{ if(state.tourActive) tourPaintCurrent(); }, {passive:true});
-  window.addEventListener('scroll', ()=>{ if(state.tourActive) tourPaintCurrent(); }, {passive:true, capture:true});
+  window.addEventListener('scroll', ()=>{
+    if(!state.tourActive || state._tourScrollLock) return;
+    clearTimeout(state._tourScrollPaintTimer);
+    state._tourScrollPaintTimer = setTimeout(()=>tourPaintCurrent(), 60);
+  }, {passive:true, capture:true});
   return root;
 }
 
@@ -5155,17 +5159,82 @@ function tourPlaceStep(step){
   return changed;
 }
 
+function tourIsMobileShell(){
+  try{
+    if(document.body?.classList.contains('shell-m')) return true;
+    if(document.body?.classList.contains('layout-mobile')) return true;
+    if(document.documentElement?.dataset?.shell==='m') return true;
+  }catch{}
+  return window.innerWidth < 720;
+}
+
+function tourChromeInsets(){
+  const safeT = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-t'))||0;
+  const safeB = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-b'))||0;
+  let header = 56 + safeT;
+  let dock = 72 + safeB;
+  try{
+    const chrome = document.querySelector('header.app-chrome');
+    if(chrome){
+      const r = chrome.getBoundingClientRect();
+      if(r.bottom > 0) header = Math.max(header, Math.ceil(r.bottom) + 8);
+    }
+  }catch{}
+  try{
+    const panel = document.getElementById('bottomPanel') || document.querySelector('nav.dock');
+    if(panel && getComputedStyle(panel).display!=='none'){
+      const r = panel.getBoundingClientRect();
+      if(r.height > 0) dock = Math.max(dock, Math.ceil(window.innerHeight - r.top) + 10);
+    }
+  }catch{}
+  return {header, dock, safeT, safeB};
+}
+
 function tourPosition(el){
   const hole = document.getElementById('tourHole');
   const hit = document.getElementById('tourHit');
   const card = document.getElementById('tourCard');
   if(!hole || !card || !el) return;
+  const mobile = tourIsMobileShell();
+  const insets = tourChromeInsets();
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
   const r = el.getBoundingClientRect();
-  const pad = 10;
-  const top = Math.max(8, r.top - pad);
-  const left = Math.max(8, r.left - pad);
-  const width = Math.min(window.innerWidth - left - 8, r.width + pad*2);
-  const height = Math.min(window.innerHeight - top - 8, r.height + pad*2);
+  const pad = mobile ? 8 : 10;
+
+  // Keep target visible without fighting the scroll listener (that caused random jumps).
+  const offscreen = r.bottom < insets.header + 20 || r.top > vh - insets.dock - 20;
+  if(offscreen && !state._tourScrollLock){
+    state._tourScrollLock = true;
+    try{ el.scrollIntoView({block: mobile ? 'center' : 'nearest', inline:'nearest', behavior:'auto'}); }catch{}
+    setTimeout(()=>{ state._tourScrollLock = false; if(state.tourActive) tourPosition(el); }, 80);
+    return;
+  }
+
+  let top = Math.max(8, r.top - pad);
+  let left = Math.max(8, r.left - pad);
+  let width = Math.min(vw - left - 8, r.width + pad*2);
+  let height = Math.min(vh - top - 8, r.height + pad*2);
+
+  if(mobile){
+    // Huge page targets (home-main) used to open a near-fullscreen hole and
+    // park the card in a nonsense corner. Cap the spotlight and pin the card.
+    const maxHoleH = Math.min(Math.floor(vh * 0.28), Math.max(110, vh - insets.header - insets.dock - 200));
+    const maxHoleW = vw - 16;
+    width = Math.min(Math.max(44, width), maxHoleW);
+    height = Math.min(Math.max(44, height), maxHoleH);
+    const bandTop = insets.header;
+    const bandBottom = vh - insets.dock;
+    if(r.height + pad * 2 > maxHoleH){
+      // Oversized page targets: spotlight the top band, not a random mid slice.
+      top = Math.min(Math.max(bandTop, r.top - pad), bandBottom - maxHoleH);
+      height = maxHoleH;
+    }else{
+      top = Math.min(Math.max(bandTop, top), Math.max(bandTop, bandBottom - height));
+    }
+    left = Math.min(Math.max(8, left), Math.max(8, vw - width - 8));
+  }
+
   hole.style.top = `${top}px`;
   hole.style.left = `${left}px`;
   hole.style.width = `${Math.max(44, width)}px`;
@@ -5177,16 +5246,41 @@ function tourPosition(el){
     hit.style.width = hole.style.width;
     hit.style.height = hole.style.height;
   }
+
   const cardH = card.offsetHeight || 160;
-  const spaceBelow = window.innerHeight - (top + height);
-  const preferBelow = spaceBelow > cardH + 24;
-  const cardTop = preferBelow ? (top + height + 14) : Math.max(12, top - cardH - 14);
-  const cardLeft = Math.min(Math.max(12, left), window.innerWidth - Math.min(360, window.innerWidth - 24) - 12);
-  card.style.top = `${cardTop}px`;
-  card.style.left = `${cardLeft}px`;
-  card.dataset.placement = preferBelow ? 'below' : 'above';
+  if(mobile){
+    const holeMid = top + height / 2;
+    const pinTop = holeMid > vh * 0.42;
+    card.style.left = '12px';
+    card.style.right = '12px';
+    card.style.width = 'auto';
+    card.style.maxWidth = 'none';
+    card.style.transform = 'none';
+    if(pinTop){
+      card.style.top = `${Math.max(10, insets.header)}px`;
+      card.style.bottom = 'auto';
+      card.dataset.placement = 'top-sheet';
+    }else{
+      card.style.top = 'auto';
+      card.style.bottom = `${Math.max(12, insets.dock)}px`;
+      card.dataset.placement = 'bottom-sheet';
+    }
+  }else{
+    const spaceBelow = vh - (top + height);
+    const preferBelow = spaceBelow > cardH + 24;
+    const cardTop = preferBelow ? (top + height + 14) : Math.max(12, top - cardH - 14);
+    const cardW = Math.min(360, vw - 24);
+    const cardLeft = Math.min(Math.max(12, left), vw - cardW - 12);
+    card.style.top = `${cardTop}px`;
+    card.style.left = `${cardLeft}px`;
+    card.style.right = 'auto';
+    card.style.bottom = 'auto';
+    card.style.width = '';
+    card.style.maxWidth = '';
+    card.style.transform = '';
+    card.dataset.placement = preferBelow ? 'below' : 'above';
+  }
   el.classList.add('tour-target-live');
-  try{ el.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'}); }catch{}
 }
 
 function tourPaintCurrent(){

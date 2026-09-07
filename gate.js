@@ -123,11 +123,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 241,
-    label: 'v241',
+    version: 242,
+    label: 'v242',
     changed: {
-      de: 'Mobile: Lager/Home passen aufs iPhone — kein seitliches Abschneiden, Buttons in der Mitte.',
-      el: 'Κινητό: Lager/Home χωράνε στο iPhone — χωρίς οριζόντια κοψίματα, κουμπιά στο κέντρο.',
+      de: 'Tutorial auf dem Handy: Karte unten/oben verankert, Spotlight nicht mehr zufällig.',
+      el: 'Tutorial στο κινητό: κάρτα σταθερά πάνω/κάτω, όχι τυχαίο spotlight.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

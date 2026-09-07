@@ -1539,3 +1539,31 @@ body.shell-m #pwaInstallBar p {
   white-space: nowrap !important;
   max-width: 100% !important;
 }
+
+/* ═══ v242 — mobile tour / tip card sheets (not PC floating) ═════════════ */
+body.shell-m.tour-open #tourCard,
+body.shell-m #tourCard[data-placement="bottom-sheet"],
+body.shell-m #tourCard[data-placement="top-sheet"] {
+  left: 12px !important;
+  right: 12px !important;
+  width: auto !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+body.shell-m #tourCard[data-placement="bottom-sheet"] {
+  top: auto !important;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+}
+body.shell-m #tourCard[data-placement="top-sheet"] {
+  bottom: auto !important;
+}
+body.shell-m #tourCard .tour-actions {
+  flex-wrap: wrap !important;
+}
+body.shell-m #tourCard .tour-actions .btn {
+  flex: 1 1 140px !important;
+  min-height: 48px !important;
+}
+body.shell-m #tourHole {
+  max-width: calc(100vw - 16px) !important;
+}
