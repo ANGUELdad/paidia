@@ -143,6 +143,8 @@ body.shell-desk #view {
   display: grid;
   gap: var(--desk-gap);
   align-content: start;
+  color: var(--ink, #1a2822);
+  opacity: 1;
 }
 
 /* ── Left rail ──────────────────────────────────────────────────────────── */
@@ -651,11 +653,15 @@ body.shell-desk #zoaiFab {
 
 @media (prefers-reduced-motion: no-preference) {
   body.shell-desk.route-enter #view > * {
-    animation: paidiaDeskEnter 0.32s ease-out both;
+    animation: paidiaDeskEnter 0.32s ease-out;
   }
   @keyframes paidiaDeskEnter {
     from { opacity: 0; transform: translateX(8px); }
     to { opacity: 1; transform: none; }
+  }
+  body.shell-desk:not(.route-enter) #view > * {
+    opacity: 1;
+    transform: none;
   }
   body.shell-desk nav.dock button:hover {
     background: rgba(255, 255, 255, 0.06);
@@ -664,6 +670,24 @@ body.shell-desk #zoaiFab {
 
 body.shell-desk:not(.auth-pending) #gate {
   display: none !important;
+}
+
+/* Auth gate must fully cover desk chrome — desk rail/app use !important display
+   that otherwise wins over the global auth-pending hide and leaves a blank white stage. */
+body.shell-desk.auth-pending #app,
+body.shell-desk.auth-pending #bottomPanel,
+body.shell-desk.auth-pending .zoai-fab,
+body.shell-desk.auth-pending #zoaiFab,
+body.shell-desk.auth-pending #navChat {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+body.shell-desk.auth-pending #gate {
+  display: grid !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 100 !important;
 }
 
 /* Narrow window on desk site: keep sidebar usable */

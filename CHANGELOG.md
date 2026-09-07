@@ -1,3 +1,9 @@
+## v234 · 2026-09-07
+
+- Desk login: auth gate fully covers app/rail (fixes blank white main stage when chrome leaked through).
+- Page enter animations no longer use fill-mode `both` that could leave content at opacity 0.
+- Cache `paidia-v234`.
+
 ## v233 · 2026-09-07
 
 - Nested Moments (`#gallery/*`) and Account (`#account/*`) with section shell (desk sidebar / mobile subnav).

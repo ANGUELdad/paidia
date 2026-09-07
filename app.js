@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 233,
-  label: 'v233',
+  version: 234,
+  label: 'v234',
   changed: {
-    de: 'Momente & Konto als Unterseiten; Lager-Zeilen; Plan-Woche; Liste Remove-all; Pocket-Schiene.',
-    el: 'Στιγμές & λογαριασμός ως υποσελίδες· λεπτές γραμμές αποθήκης· εβδομάδα· Liste· pocket.',
+    de: 'Login-Gate deckt Desk-Chrome ab — kein leeres weißes Hauptfenster mehr.',
+    el: 'Η πύλη σύνδεσης καλύπτει το Desk — όχι άλλο κενό άσπρο παράθυρο.',
   },
 };
 const T = {

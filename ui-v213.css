@@ -53,7 +53,9 @@ body.layout-desktop #view.app-stage{
   display:grid;
   gap:var(--stage-gap);
   min-width:0;
-  animation:pageEnter .42s var(--ease-out, cubic-bezier(.2,.8,.3,1)) both;
+  color:var(--ink, #18231e);
+  opacity:1;
+  animation:pageEnter .42s var(--ease-out, cubic-bezier(.2,.8,.3,1));
 }
 @keyframes pageEnter{
   from{ opacity:0; transform:translateY(8px); }
