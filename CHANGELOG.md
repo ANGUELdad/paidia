@@ -1,3 +1,8 @@
+## v243 · 2026-09-07
+
+- Mobile fill + density: single 10px gutter, cards full-width, 44px controls (less chunky empty space).
+- Cache `paidia-v243`.
+
 ## v242 · 2026-09-07
 
 - Mobile tutorial: pin coach card top/bottom above dock; cap spotlight hole so page targets no longer float randomly.

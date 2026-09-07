@@ -187,10 +187,8 @@ body.shell-m main.app-stage {
   box-sizing: border-box;
 }
 
-body.shell-m:not(.mode-child) main.app-stage,
-body.shell-m:not(.mode-child) #view {
-  padding: 16px 16px calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 72px) !important;
-  gap: 12px;
+body.shell-m:not(.mode-child) main.app-stage#view {
+  /* superseded by v243 density gutter */
 }
 
 /* Readable dock — never shrink labels below 11px */
@@ -1566,4 +1564,204 @@ body.shell-m #tourCard .tour-actions .btn {
 }
 body.shell-m #tourHole {
   max-width: calc(100vw - 16px) !important;
+}
+
+/* ═══ v243 — fill phone width + denser, less chunky controls ═════════════ */
+body.shell-m {
+  --m-gutter: 10px;
+  --m-btn-h: 44px;
+  --m-card-pad: 12px;
+  --m-radius: 14px;
+}
+
+/* One gutter owner — #view IS main.app-stage on this shell */
+body.shell-m:not(.mode-child) main.app-stage#view,
+body.shell-m:not(.mode-child) main#view.app-stage,
+body.shell-m:not(.mode-child) #view.app-stage {
+  padding: 8px var(--m-gutter) calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 56px) !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-sizing: border-box !important;
+}
+
+/* Kill leftover tablet measure + centered shrink wrappers */
+body.shell-m #view,
+body.shell-m #view .stock-command-center,
+body.shell-m #view .stock-command-core,
+body.shell-m #view .stock-command-row,
+body.shell-m #view .home-start,
+body.shell-m #view .home-start-mobile,
+body.shell-m #view .home-shell-v2,
+body.shell-m #view .planner,
+body.shell-m #view .shop-shell,
+body.shell-m #view .shop-command {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-inline: 0 !important;
+}
+
+/* Cards fill the content column — less airy / less “floating island” */
+body.shell-m #view .card,
+body.shell-m #view .block,
+body.shell-m #view .panel,
+body.shell-m #view .stock-overview,
+body.shell-m #view .stock-pantry-hero,
+body.shell-m #view .stock-command,
+body.shell-m #view .shop-overview,
+body.shell-m #view .home-start-hero,
+body.shell-m #view .home-today-card,
+body.shell-m #view .home-shift-start,
+body.shell-m #view .shift-check-banner,
+body.shell-m #view .plan-week-chrome,
+body.shell-m #view .plan-block {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin-inline: 0 !important;
+  border-radius: var(--m-radius) !important;
+  padding: var(--m-card-pad) !important;
+}
+
+body.shell-m #view .home-start-hero {
+  margin-inline: 0 !important;
+  padding: 14px 12px 12px !important;
+  min-height: 0 !important;
+}
+body.shell-m #view .home-start-hero h1,
+body.shell-m #view .home-start-mobile h1 {
+  font-size: clamp(22px, 6vw, 28px) !important;
+  margin: 4px 0 2px !important;
+  line-height: 1.12 !important;
+}
+body.shell-m #view .home-start-hero p,
+body.shell-m #view .home-start-hero .home-lede {
+  font-size: 13px !important;
+  line-height: 1.35 !important;
+  margin: 0 !important;
+}
+
+/* Dense buttons — 44px floor, not 48–56 chunk towers */
+body.shell-m #view :is(button.btn, .btn, .page-act, .home-shift-step-cta, .home-shift-primary, .shift-check-open-btn, .stock-primary-action, #stockQuickAdd, #stockQuickAddEasy, .stock-easy-btn, .week-ai-bar .btn, .shop-easy-strip .btn) {
+  min-height: var(--m-btn-h) !important;
+  max-height: 46px !important;
+  height: var(--m-btn-h) !important;
+  padding-block: 0 !important;
+  padding-inline: 12px !important;
+  font-size: 14px !important;
+  border-radius: 12px !important;
+  box-sizing: border-box !important;
+}
+body.shell-m #view .home-mobile-actions button {
+  min-height: 48px !important;
+  max-height: 52px !important;
+  height: auto !important;
+  padding: 6px 4px !important;
+  font-size: 12px !important;
+}
+
+/* Home shift rows: compact label + 44px CTA */
+body.shell-m #view .home-shift-start {
+  padding: 10px 0 !important;
+  gap: 6px !important;
+}
+body.shell-m #view .home-shift-step {
+  padding: 6px 0 !important;
+  gap: 4px 8px !important;
+}
+body.shell-m #view .home-shift-step-cta,
+body.shell-m #view .home-shift-step-done {
+  height: var(--m-btn-h) !important;
+  min-height: var(--m-btn-h) !important;
+  max-height: var(--m-btn-h) !important;
+}
+body.shell-m #view .home-shift-step-label {
+  font-size: 13px !important;
+}
+
+/* Stock / shop denser */
+body.shell-m #view .stock-pantry-hero,
+body.shell-m #view .stock-overview {
+  padding: 12px !important;
+  gap: 8px !important;
+}
+body.shell-m #view .stock-context {
+  gap: 8px !important;
+}
+body.shell-m #view .stock-context b {
+  font-size: 1.05rem !important;
+}
+body.shell-m #view .stock-view-tabs .chip,
+body.shell-m #view .stock-zone-pier .chip {
+  min-height: 36px !important;
+  height: 36px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+}
+body.shell-m #view .house-selector button,
+body.shell-m #view .planner-mobile-house button {
+  min-height: 40px !important;
+  max-height: 42px !important;
+  height: 40px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+}
+
+/* Plan week chrome denser */
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome {
+  padding: 10px !important;
+  gap: 8px !important;
+}
+body.shell-m[data-tab="schedule"] #view .week-ai-bar .btn,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .plan-hero-cta {
+  height: var(--m-btn-h) !important;
+  min-height: var(--m-btn-h) !important;
+  max-height: var(--m-btn-h) !important;
+}
+body.shell-m[data-tab="schedule"] #view.app-stage {
+  padding-top: 8px !important;
+}
+body.shell-m.layout-mobile[data-tab="schedule"] #view.app-stage {
+  padding-left: var(--m-gutter, 10px) !important;
+  padding-right: var(--m-gutter, 10px) !important;
+}
+
+/* Edge-to-edge horizontal rails (bleed into gutter, scroll full width) */
+body.shell-m #view .house-selector,
+body.shell-m #view .plan-days,
+body.shell-m #view .plan-day-strip,
+body.shell-m #view .kids-pane-tabs,
+body.shell-m #view .pocket-kids-rail,
+body.shell-m #view .shop-house-rail,
+body.shell-m #view .planner-mobile-house,
+body.shell-m #view .stock-view-tabs,
+body.shell-m #view .chips {
+  margin-inline: calc(var(--m-gutter) * -1) !important;
+  padding-inline: var(--m-gutter) !important;
+  width: calc(100% + var(--m-gutter) * 2) !important;
+  max-width: none !important;
+}
+
+/* Global 48px hammer → 44px on phone */
+body.shell-m #view :is(button.btn, .btn, input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select),
+body.shell-m #sheet :is(button.btn, .btn, input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select) {
+  min-height: var(--m-btn-h) !important;
+}
+body.shell-m #view .talk-channel-actions .btn,
+body.shell-m #view .stock-more > summary,
+body.shell-m #view .plan-day-chip,
+body.shell-m #view .house-selector button {
+  min-height: 40px !important;
+}
+
+/* Tighter vertical rhythm between sections */
+body.shell-m #view > * + * {
+  margin-top: 8px !important;
+}
+body.shell-m #view .home-shell-v2,
+body.shell-m #view .home-start-mobile {
+  gap: 8px !important;
 }
