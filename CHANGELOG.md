@@ -1,3 +1,18 @@
+## v244 · 2026-09-07
+
+Full UI audit of both surfaces (PC 1440x900 + iPhone 393x852) across all staff
+tabs and kid views. New auditor `scripts/qa-ui-audit-2026.mjs`; notes in
+[docs/agents/UI_AUDIT_V244.md](docs/agents/UI_AUDIT_V244.md). 60 P0 / 132 P1 → 0 P0 / 16 P1.
+
+- Invisible text fixed: the kid "Als Nächstes" label and its chip rendered at 1.00:1 and 1.05:1 (sea on sea) on every kid view; the desktop Home greeting and kicker rendered dark on the dark hero.
+- Icon boxes: `#view svg { height:auto }` outranked every `.ui-ico` height, so icons laid out 150px tall and kept every icon button stuck in `ui-fit-tight` with shrunken labels.
+- Type scale: the small end is pinned in px, so desktop's 14px root no longer collapses caption/eyebrow/micro to 11.4/9.6/8.75px.
+- Contrast: muted ink darkened to clear WCAG AA on white and on tinted cards; sun accent darkened where used as label text.
+- Unclickable controls: Taschengeld's sticky action bar covered its own chip rails; Liste's three-way segmented control spilled under the ••• trigger.
+- Phone chrome: kid header no longer clips the title, kid dock no longer cuts "Taschengeld", Zo-Ai FAB no longer blocks a shortcut tile.
+- Phone layout: empty planner card removed, Home reads as one card column, 44px touch floor across rails and segmented controls, tile grids no longer end on a lone tile.
+- Cache `paidia-v244`, new stylesheet `ui-v244.css`.
+
 ## v243 · 2026-09-07
 
 - Mobile fill + density: single 10px gutter, cards full-width, 44px controls (less chunky empty space).

@@ -475,7 +475,7 @@ body.shell-desk #view .kids-overview b {
 }
 
 body.shell-desk #view .kids-overview span {
-  font-size: 11px !important;
+  font-size: 12px !important;
   color: #3d4f46 !important;
   margin-top: 2px !important;
 }
@@ -568,7 +568,7 @@ body.shell-desk #view .kid-dir-name b {
 }
 
 body.shell-desk #view .kid-dir-att {
-  font-size: 10px !important;
+  font-size: 12px !important;
   font-weight: 700 !important;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -590,7 +590,7 @@ body.shell-desk #view .kid-dir-att.att-late {
 }
 
 body.shell-desk #view .kid-dir-att.att-none {
-  color: #9aa8a0 !important;
+  color: #5c6a63 !important;
 }
 
 body.shell-desk #view .kid-dir-metrics {
@@ -607,7 +607,7 @@ body.shell-desk #view .kid-dir-metrics > span {
   display: flex !important;
   flex-direction: column-reverse !important;
   gap: 1px !important;
-  font-size: 10px !important;
+  font-size: 12px !important;
   color: #5a6c64 !important;
   line-height: 1.15 !important;
   min-width: 0;
@@ -1112,7 +1112,7 @@ body.shell-desk #view .shop-overview h2 {
 
 body.shell-desk #view .shop-overview-copy > span {
   margin-top: 2px !important;
-  font-size: 11px !important;
+  font-size: 12px !important;
   max-width: none !important;
 }
 
@@ -1132,7 +1132,7 @@ body.shell-desk #view .shop-overview-stats b {
 
 body.shell-desk #view .shop-overview-stats span {
   margin-top: 2px !important;
-  font-size: 10px !important;
+  font-size: 12px !important;
 }
 
 body.shell-desk #view .shop-shell-plan > .shop-command,
@@ -1182,7 +1182,7 @@ body.shell-desk #view .friday-picker .friday-date b {
 }
 
 body.shell-desk #view .friday-picker .friday-date span {
-  font-size: 11px !important;
+  font-size: 12px !important;
 }
 
 body.shell-desk #view .shop-panel-seg button {
@@ -1265,7 +1265,7 @@ body.shell-desk #view .shop-list-heading p {
 
 body.shell-desk #view .shop-list-heading span {
   margin-top: 1px !important;
-  font-size: 11px !important;
+  font-size: 12px !important;
 }
 
 body.shell-desk #view .shop-list-heading .btn,
@@ -1300,7 +1300,7 @@ body.shell-desk #view .shop-list-card .shop-item-name .prod-ico {
 }
 
 body.shell-desk #view .shop-list-card .shop-item-sub {
-  font-size: 11px !important;
+  font-size: 12px !important;
   line-height: 1.2 !important;
   margin-top: 1px !important;
   color: #5a6c64 !important;

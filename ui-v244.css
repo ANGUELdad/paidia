@@ -1,0 +1,377 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ui-v244.css — UI correctness layer (loads last on every shell)
+
+   Driven by scripts/qa-ui-audit-2026.mjs, which measures both surfaces
+   (PC 1440x900 + iPhone 393x852) across all staff tabs and kid views.
+   Every block below fixes a measured defect class, not a one-off symptom.
+   Re-run: node scripts/qa-ui-audit-2026.mjs --tag=<name>
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1. Type scale floors
+
+   Desktop drops the root to 14px (index.html: @media(min-width:900px)), so the
+   whole rem-based scale shrank with it: caption rendered at 11.4px, eyebrow at
+   9.6px and micro at 8.75px. Pinning the small end to px keeps those labels
+   legible on desktop without inflating the mobile scale.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --t-caption: 12.75px;
+  --t-label: 13.25px;
+  --t-eyebrow: 12px;
+  --t-micro: 12px;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1b. Icon sizing floor
+
+   The responsive-media reset `#view img, #view svg, #view video { height:auto }`
+   carries ID specificity, so it beat every `.ui-ico` height and left icons
+   laid out at the SVG default height of 150px. The glyph still looked right
+   (the button clipped the box) but every icon button reported scrollHeight
+   ~150 against a ~44px client height, which kept fitButtonLabels() permanently
+   in `ui-fit-tight` and shrank labels to 12px app-wide.
+
+   Icons are square, so `aspect-ratio` derives the height from whichever width
+   the per-context rule set — no width is overridden here.
+   ─────────────────────────────────────────────────────────────────────────── */
+#view svg.ui-ico,
+#view .ui-ico {
+  height: auto;
+  aspect-ratio: 1 / 1;
+  flex: 0 0 auto;
+}
+
+.ui-ico {
+  flex: 0 0 auto;
+}
+
+/* A bare `<small>` inherits the UA `font-size:smaller`, which compounds against
+   an already-reduced parent — the Home date stamp landed at 10px on desktop. */
+#view .home-today-card .block-h .t small {
+  font-size: 11.5px;
+}
+
+/* Uppercase micro labels get letter-spacing, so give them room to wrap rather
+   than clip once they are a pixel or two wider. */
+.eyebrow,
+.level-tag,
+.home-shift-kicker,
+.w-stat-lbl,
+.kid-dir-att {
+  overflow-wrap: anywhere;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   2. Ink contrast — WCAG 1.4.3 AA
+
+   The muted ink measured 4.13:1 on white and 3.75:1 on the tinted card
+   surfaces. Darkening the token clears 4.5:1 on every surface in the system.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --muted: #5c6a63;
+  --meta: #5c6a63;
+}
+
+/* Explicit greys that bypass the token. Scoped to `body #view` so they clear
+   the shell overrides without touching light-on-dark surfaces, which have
+   their own ink and must keep it. */
+body #view .journal-blank,
+body #view .kid-dir-att,
+body #view .kid-dir-att.att-none,
+body #view .kid-dir-att.att-absent {
+  color: #5c6a63 !important;
+}
+
+/* The sun accent reads at 2.74:1 as body text on light cards. Keep the token
+   for fills and icons; darken it where it is used as a label. */
+body #view .child-game-reward,
+body #view .child-game-reward strong {
+  color: #8a5a00;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   3. Light ink on dark surfaces
+
+   `#view .eyebrow` (ui-v213) carries ID specificity, so it beat the
+   `body.mode-child .next-up .eyebrow` white override and painted sea-on-sea:
+   the kid "Als Nächstes" label measured 1.00:1 — literally invisible on every
+   kid view. The desktop home hero had the same class of bug: an ink-coloured
+   h1 and a sea-coloured kicker on the dark green gradient.
+   ─────────────────────────────────────────────────────────────────────────── */
+#view .next-up,
+#view .next-up :is(h1, h2, h3, b, strong, p, span, div) {
+  color: #fff;
+}
+
+#view .next-up :is(.eyebrow, small) {
+  color: rgba(255, 255, 255, .82);
+}
+
+#view .next-up .chip,
+#view .next-up .chip.on {
+  background: rgba(255, 255, 255, .18);
+  border-color: rgba(255, 255, 255, .38);
+  color: #fff;
+}
+
+#view .home-command-hero :is(h1, h2, p, .home-start-kicker) {
+  color: #fff;
+}
+
+#view .home-command-hero :is(.home-start-kicker, .eyebrow) {
+  color: rgba(255, 255, 255, .80);
+}
+
+#view .home-command-hero p {
+  color: rgba(255, 255, 255, .82);
+}
+
+/* Keep the display accent inside the greeting — it is the one deliberate
+   non-white token on the hero and it already clears AA. */
+#view .home-command-hero h1 span {
+  color: var(--gold, #e3b23c);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   4. Controls that render but cannot be clicked
+
+   Measured with elementFromPoint at each control's own centre.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Taschengeld: the action bar was `position:sticky; bottom:…` inside the card,
+   so it floated over the source/preset chip rails that wrap above it. It lives
+   in normal flow — nothing about it needs to be pinned. */
+body.layout-desktop #view .pocket-staff-actions,
+body.shell-desk #view .pocket-staff-actions {
+  position: static;
+  bottom: auto;
+  z-index: auto;
+}
+
+/* Liste: the Planen / Mitnehmen / Anfragen segmented control declares three
+   buttons in a two-column grid, so "Anfragen" wrapped into an implicit row and
+   spilled under the ••• trigger. */
+#view .shop-flow-row .shop-panel-seg,
+body:not(.mode-child) #view .shop-flow-row .shop-panel-seg {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: auto;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   4e. Tile grids with an odd count
+
+   The kid shortcut grid and the Lager stat row both ended on a single
+   half-width tile sitting next to an empty gap. Let the trailing tile span the
+   row so the block reads as a finished grid.
+   ─────────────────────────────────────────────────────────────────────────── */
+#view .kid-home-cta-grid > *:nth-child(odd):last-child,
+#view .stock-context > *:nth-child(odd):last-child {
+  grid-column: 1 / -1;
+}
+
+body.shell-desk #view .kid-home-cta-grid > *:nth-child(3n + 1):last-child,
+body.shell-desk #view .stock-context > *:nth-child(3n + 1):last-child,
+body.layout-desktop #view .kid-home-cta-grid > *:nth-child(3n + 1):last-child,
+body.layout-desktop #view .stock-context > *:nth-child(3n + 1):last-child {
+  grid-column: 1 / -1;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   5. Zo-Ai FAB must not sit on top of a control
+
+   At rest the 56px FAB landed dead-centre on the bottom-right kid shortcut
+   tile, making it unclickable. Tucking it into the corner keeps it reachable
+   while leaving tile centres clear.
+   ─────────────────────────────────────────────────────────────────────────── */
+body .zoai-fab,
+body.mode-child .zoai-fab,
+body:not(.mode-child) .zoai-fab {
+  width: 48px !important;
+  height: 48px !important;
+}
+
+body .zoai-fab .zoai-fab-icon {
+  font-size: 22px;
+}
+
+body .zoai-fab .zoai-fab-icon svg,
+body .zoai-fab svg {
+  width: 22px;
+  height: 22px;
+}
+
+body.mode-child:not(.layout-desktop) .zoai-fab {
+  right: 8px !important;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   6. Phone-only layout + sizing
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+
+  /* 6a. App header — the kid shell kept five 44px actions behind a 46% cap, so
+     the title was squeezed to "S…" and the role line to "Sta…". Staff already
+     hides the two secondary actions on phones; kids get the same treatment. */
+  body.shell-m.mode-child #uiModeToggle,
+  body.shell-m.mode-child #btnProfiles,
+  body.layout-mobile.mode-child #uiModeToggle,
+  body.layout-mobile.mode-child #btnProfiles {
+    display: none;
+  }
+
+  body.shell-m .topbar-core,
+  body.layout-mobile .topbar-core {
+    max-width: none;
+    gap: 6px;
+  }
+
+  body.shell-m header.app-chrome h1,
+  body.layout-mobile header.app-chrome h1 {
+    min-width: 0;
+    font-size: clamp(15px, 4.2vw, 18px);
+  }
+
+  /* 6a-2. The kid brand block stacks kicker + name + role in three lines and
+     squeezes the title column. Staff runs a single line here; kids get the
+     same, so the name has the full width it needs. */
+  body.shell-m.mode-child header.app-chrome .brand-kicker-live,
+  body.layout-mobile.mode-child header.app-chrome .brand-kicker-live {
+    display: none;
+  }
+
+  /* 6b. Kid dock — six columns at 393px cut "Taschengeld" to "Taschen…".
+     Allow a second line, but break on words: `hyphens:auto` was splitting
+     "Bewertung" into "Bewer-tung". */
+  body.mode-child .kid-dock button span {
+    font-size: 10.5px;
+    line-height: 1.12;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    hyphens: manual;
+    overflow-wrap: normal;
+    word-break: keep-all;
+  }
+
+  body.mode-child:not(.layout-desktop) .kid-dock button {
+    min-height: 56px;
+    padding: 6px 2px;
+    overflow: visible;
+  }
+
+  /* 6c. Touch floor. The house/segment/tab rails were rendering 38-42px tall,
+     under the 44pt HIG minimum. Applied broadly rather than per-component so
+     new rails inherit the floor instead of regressing. */
+  body.shell-m #view :is(button, a[href], select, [role="tab"], [role="button"]) {
+    min-height: 44px !important;
+    min-width: 36px;
+  }
+
+  /* Calendar grids and inline icon affordances size to their own cell. */
+  body.shell-m #view :is(.cal-cell, .paidia-cal-cell, .week-jump-day, .stars-cell) {
+    min-height: 40px !important;
+    min-width: 0;
+  }
+
+  /* Segmented controls declare a fixed `height`, which a min-height floor
+     cannot lift on its own. */
+  body.shell-m :is(.week-layout-seg, .talk-mobile-switch, .shop-panel-seg, .planner-focus-switch) button {
+    height: auto !important;
+    min-height: 44px !important;
+  }
+
+  body.shell-m .talk-mobile-switch button {
+    font-size: 12px !important;
+  }
+
+  /* 6c-2. Labels wrapping inside a fixed-height chip clipped mid-word
+     (measured scrollHeight 95 inside a 40px box on the house rails). Let the
+     control grow instead of hiding the overflow. */
+  body.shell-m #view :is(.planner-mobile-house, .shop-house-rail, .stock-house-rail) button,
+  body.shell-m #view .rail button {
+    height: auto;
+    white-space: nowrap;
+  }
+
+  /* 6d. Plan: `.adaptive-chrome-summary` is hidden inside the planner wrapper
+     on phones, which left the wrapper rendering as an empty 22px card between
+     the shift banner and the week card. No opener means no reachable panel. */
+  body.shell-m[data-tab="schedule"] #view .planner-chrome-wrap,
+  body.layout-mobile[data-tab="schedule"] #view .planner-chrome-wrap {
+    display: none;
+  }
+
+  /* 6e. The week jump rail bled 14px past the stage gutter without being able
+     to scroll (`overflow:visible`), pushing content off the viewport. Keep the
+     bleed but make it a real scroller. */
+  body.shell-m[data-tab="schedule"] #view .week-jump,
+  body.layout-mobile[data-tab="schedule"] #view .week-jump {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin-inline: 0 !important;
+    padding-inline: 0 !important;
+    scrollbar-width: none;
+  }
+
+  body.shell-m[data-tab="schedule"] #view .week-jump::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 6f. Header title room — "Betriebszentrale" was still ellipsised at 393px.
+     Trimming the action buttons buys the ~30px the title needs. */
+  body.shell-m header.app-chrome .topbtn,
+  body.layout-mobile header.app-chrome .topbtn {
+    min-width: 40px !important;
+    min-height: 40px !important;
+    width: 40px;
+    padding-inline: 0 !important;
+  }
+
+  body.shell-m header.app-chrome .topbar-core,
+  body.layout-mobile header.app-chrome .topbar-core {
+    gap: 5px !important;
+  }
+
+  body.shell-m header.app-chrome .chrome-brand,
+  body.layout-mobile header.app-chrome .chrome-brand {
+    gap: 7px;
+  }
+
+  /* 6g. Home surface consistency — the shift-start block and the pulse row
+     rendered transparent between two white cards, so the page read as
+     "card, loose text, card" and the loose blocks looked unaligned against the
+     card padding. Give them the same surface as the rest of the column. */
+  body.shell-m[data-tab="home"] #view .home-shift-start,
+  body.shell-m[data-tab="home"] #view .home-mobile-pulse,
+  body.shell-m[data-tab="home"] #view .home-command-pulse {
+    padding: 12px 14px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: var(--m-radius, 16px) !important;
+    background: rgba(255, 255, 255, .92) !important;
+  }
+
+  /* Rows inside the block now sit on the block's padding, not their own. */
+  body.shell-m[data-tab="home"] #view .home-shift-step {
+    padding-inline: 0 !important;
+  }
+
+  body.shell-m[data-tab="home"] #view .home-shift-step-cta,
+  body.shell-m[data-tab="home"] #view .home-shift-step-done {
+    margin-inline: 0 !important;
+    width: 100% !important;
+  }
+
+  /* 6h. Plan week tools stacked as four full-width buttons — a tower of
+     identical bars with no hierarchy. Pair the secondary actions instead. */
+  body.shell-m[data-tab="schedule"] #view .week-ai-bar {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  body.shell-m[data-tab="schedule"] #view .week-ai-bar .btn {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+}
