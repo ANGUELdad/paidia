@@ -408,10 +408,15 @@ _STATIC_EXACT = frozenset({
     "desk/index.html",
     "desk/desk.css",
     "desk/desk-app.js",
+    "school/index.html",
+    "school/school.css",
+    "school/school-app.js",
     "m",
     "m/",
     "desk",
     "desk/",
+    "school",
+    "school/",
 })
 _ICON_SUFFIXES = frozenset({".png", ".svg", ".ico", ".webp", ".jpg", ".jpeg"})
 _KIDS_GAME_SUFFIXES = frozenset({".html", ".js", ".css", ".txt", ".md", ".svg", ".png", ".webp"})
@@ -452,6 +457,12 @@ def _serve_static(rel: str):
         rel = "desk/desk.css"
     elif rel in ("desk/desk-app.js",):
         rel = "desk/desk-app.js"
+    elif rel in ("school", "school/", "school/index.html"):
+        rel = "school/index.html"
+    elif rel in ("school/school.css",):
+        rel = "school/school.css"
+    elif rel in ("school/school-app.js",):
+        rel = "school/school-app.js"
     if not _static_allowed(rel):
         return _json(404, {"error": "Not found"})
     target = (ROOT / rel).resolve()
@@ -470,6 +481,7 @@ def _serve_static(rel: str):
             "build.json",
             "mobile/index.html",
             "desk/index.html",
+            "school/index.html",
         )
         if versioned and not shell:
             response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
