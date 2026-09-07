@@ -1,0 +1,273 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ui-v245.css — phone density + bottom-chrome layer (loads after ui-v244.css)
+
+   v244 fixed measurable correctness (contrast, tap floors, clipping). This pass
+   fixes what a real iPhone login actually looks like: too much chrome before any
+   content, and four pinned layers fighting over the bottom 150px.
+
+   Driven by scripts/qa-iphone-login-flow.mjs (real gate login, 393x852) plus
+   scripts/qa-ui-audit-2026.mjs. Re-run both after editing.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1. Bottom chrome stack
+
+   On a kid's first login the PWA install bar, the Zo-Ai FAB and the dock all
+   claim the bottom of the screen. The install bar positions itself off
+   `--nav-h` (the *staff* dock token) while kid mode sizes its dock from
+   `--kid-dock-h`, so it landed 4px underneath the dock; the FAB then sat on top
+   of the bar's "Später" button, which is how two dismiss affordances ended up
+   inside one 48px square.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+
+  body.mode-child #pwaInstallBar,
+  body.mode-child .pwa-install-bar {
+    bottom: calc(var(--kid-dock-h, 72px) + env(safe-area-inset-bottom, 0px) + 16px) !important;
+    z-index: 61 !important;
+  }
+
+  /* The kid dock owns navigation and the Mehr sheet now carries Zo-Ai, so the
+     FAB has no home on a phone: it is `position:fixed`, the kid calendars are
+     full-bleed 7-column grids, and their right-hand column therefore sits under
+     it at every scroll offset — Sunday was never tappable. */
+  body.mode-child .zoai-fab {
+    display: none !important;
+  }
+
+  body.mode-child .toast {
+    bottom: calc(var(--kid-dock-h, 72px) + env(safe-area-inset-bottom, 0px) + 88px) !important;
+  }
+}
+
+/* Desktop already carries a full-width Zo-Ai row in the sidebar dock
+   (`body.layout-desktop:not(.mode-child) .dock-zoai`, 171x44 at the bottom
+   left), so the floating button is a second entry point to the same panel —
+   one that parks itself on the bottom-right of the content column and covers
+   whatever lands there, most visibly the Buch calendar's last date cells. */
+body.layout-desktop:not(.mode-child) .zoai-fab,
+body.shell-desk:not(.mode-child) .zoai-fab {
+  display: none !important;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   2. Kid hero cards
+
+   `.kid-hero-compact` was never compact: `body.mode-child #view .kid-hero` in
+   ui-v110 carries an id and re-applied 24px padding and a 28-40px display face,
+   so every kid view opened with a ~150px card whose headline only repeated the
+   title already in the app header.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+
+  body.mode-child #view .kid-hero,
+  body.mode-child #view .arcade-hero {
+    padding: 12px 16px 14px;
+    margin-bottom: 0;
+  }
+
+  body.mode-child #view .kid-hero h2,
+  body.mode-child #view .arcade-hero h2 {
+    font: 700 22px/1.15 var(--font-display);
+    margin: 2px 0 0;
+  }
+
+  body.mode-child #view .kid-hero .kid-hello,
+  body.mode-child #view .kid-hero > p,
+  body.mode-child #view .arcade-hero p {
+    margin: 4px 0 0;
+    font-size: 12.75px;
+    line-height: 1.35;
+  }
+
+  /* 2b. Empty month calendars
+
+     kidXpCalHtml / kidNotesCalHtml build day markers from DB.xpLog and
+     DB.kidNotes. A new child has neither, so Spiele, Notizen and Start each
+     opened with a 345px grid of 30 blank cells above the real content.
+     `paidiaCalHtml` stamps `.has` on any marked cell, so "no data at all" is
+     expressible in CSS. */
+  body.mode-child #view .kid-tab-cal-wrap:not(:has(.cal-cell.has)) {
+    display: none;
+  }
+
+  /* When the calendar does carry data it is history, so it ranks below the
+     games rather than in front of them. */
+  body.mode-child #view .arcade-lobby {
+    display: flex;
+    flex-direction: column;
+  }
+
+  body.mode-child #view .arcade-lobby > .arcade-hero { order: 0; }
+  body.mode-child #view .arcade-lobby > .arcade-rail { order: 1; }
+  body.mode-child #view .arcade-lobby > .arcade-grid { order: 2; }
+  body.mode-child #view .arcade-lobby > .kid-tab-cal-wrap { order: 3; }
+
+  /* Easy mode hides `.arcade-grid.pro-only`, so the featured rail is the whole
+     page. As a 72%-wide horizontal snap scroller that put four of five games
+     off-screen and left ~475px of empty stage below. With nothing to scroll
+     past, stack it: the games become the page instead of a filmstrip. */
+  body.mode-child.mode-easy #view .arcade-rail {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: minmax(0, 1fr);
+    overflow-x: visible;
+  }
+
+  /* 2c. The rating calendar fills a whole week with solid pine, which reads as
+     seven selected days rather than one focused week — and it swallows the
+     `.today` ring. Tint the week, underline it, keep the ink readable. */
+  body.mode-child #view .rate-cal-shell .cal-cell.on {
+    background: var(--pine-tint, rgba(42, 107, 82, .10));
+    border-color: color-mix(in srgb, var(--brand, #2a6b52) 40%, transparent);
+    color: var(--ink, #1a2822);
+    box-shadow: inset 0 -3px 0 var(--brand, #2a6b52);
+  }
+
+  body.mode-child #view .rate-cal-shell .cal-cell.on :is(.cal-n, .rate-cal-avg) {
+    color: var(--ink, #1a2822);
+  }
+
+  /* 2d. Taschengeld spent ~113px on a single figure. Kicker and amount share a
+     baseline instead of stacking, and the allowance row collapses when the kid
+     has no rules configured. */
+  body.mode-child #view .pocket-balance-card {
+    padding: 12px 16px !important;
+  }
+
+  body.mode-child #view .pocket-balance-card .pocket-panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  body.mode-child #view .pocket-allow-row-inline:empty {
+    display: none;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   3. Staff Plan — content above the fold
+
+   Everything in the first viewport was chrome: two nav rows, then five
+   full-width CTAs of which three were filled Armonia green. Three co-equal
+   primaries means none of them is primary.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+
+  /* Disabled only ever means "nothing to undo", so the row is dead weight. */
+  body.shell-m[data-tab="schedule"] #view .week-ai-bar .week-ai-clear:disabled,
+  body.layout-mobile[data-tab="schedule"] #view .week-ai-bar .week-ai-clear:disabled {
+    display: none !important;
+  }
+
+  /* One filled primary per card — `+ Eintrag` keeps it. */
+  body.shell-m[data-tab="schedule"] #view .week-ai-bar .week-ai-photo,
+  body.layout-mobile[data-tab="schedule"] #view .week-ai-bar .week-ai-photo {
+    background: var(--glass, #fff) !important;
+    color: var(--ink, #1a2822) !important;
+    border: 1px solid var(--line, #d5ddd8) !important;
+  }
+
+  /* `Diese Woche` is disabled precisely when it is true, and .on then dimmed it
+     to 55% — the only "you are here" marker in the week switcher rendered as a
+     dead grey button. State, not unavailability. */
+  body.shell-m #view .week-switcher .week-today-btn.on,
+  body.shell-m #view .week-switcher .week-today-btn:disabled,
+  body.layout-mobile #view .week-switcher .week-today-btn.on {
+    opacity: 1 !important;
+    background: var(--pine-tint, #e8f2ec) !important;
+    border-color: transparent !important;
+    color: var(--brand, #2a6b52) !important;
+  }
+
+  /* mobile.css pins the week arrows to a hard 40px, which beats the v244
+     min-width floor and lands them under the 44pt touch minimum. */
+  body.shell-m[data-tab="schedule"] #view .week-switcher > button[data-shift],
+  body.layout-mobile[data-tab="schedule"] #view .week-switcher > button[data-shift] {
+    flex: 0 0 44px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+  }
+
+  /* The week chrome header ran 18px narrower than the button bar directly below
+     it, so the card read as ragged on its right edge. */
+  body.shell-m[data-tab="schedule"] #view .plan-week-chrome > *,
+  body.shell-m[data-tab="schedule"] #view .plan-week-chrome-top > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   4. Staff Home — density
+
+   The tasks card nested three paddings written for a padding-less shell, so its
+   ink sat 42-50px from the edge while every neighbouring block aligned at 22px.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+
+  body.shell-m[data-tab="home"] #view .home-mobile-tasks,
+  body.layout-mobile[data-tab="home"] #view .home-mobile-tasks {
+    padding: 0 !important;
+  }
+
+  body.shell-m[data-tab="home"] #view .home-mobile-tasks > header,
+  body.layout-mobile[data-tab="home"] #view .home-mobile-tasks > header {
+    padding: 12px 14px 10px !important;
+  }
+
+  body.shell-m[data-tab="home"] #view .home-mobile-tasks .task-list {
+    padding: 6px 8px 8px !important;
+  }
+
+  body.shell-m[data-tab="home"] #view .home-mobile-tasks .mobile-empty-row {
+    min-height: 48px !important;
+    padding: 8px 6px !important;
+    border-bottom: 0 !important;
+  }
+
+  /* The pulse row keeps a two-column grid even when only one signal is live,
+     leaving half the card empty. Same family as the v244 §4e orphan rules.
+     Keyed off the item rather than the wrapper: Home renders the row as
+     `.home-mobile-pulse` or `.home-command-pulse` depending on the shift card. */
+  body.shell-m[data-tab="home"] #view :is(.home-mobile-pulse, .home-command-pulse) {
+    padding: 0 !important;
+  }
+
+  body.shell-m[data-tab="home"] #view :is(.home-mobile-pulse, .home-command-pulse) > .home-pulse-item:nth-child(odd):last-child {
+    grid-column: 1 / -1;
+  }
+
+  /* icon · value · label on one baseline. The markup has three children, so a
+     two-column grid pushed the label onto its own centred row. */
+  body.shell-m[data-tab="home"] #view .home-pulse-item {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    text-align: left !important;
+    gap: 10px !important;
+    min-height: 52px !important;
+    padding: 10px 12px !important;
+  }
+
+  body.shell-m[data-tab="home"] #view .home-pulse-item > :is(.w-stat-val, .w-stat-lbl) {
+    text-align: left !important;
+    margin: 0 !important;
+  }
+
+  body.shell-m[data-tab="home"] #view .home-pulse-item .w-stat-lbl {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  body.shell-m[data-tab="home"] #view .home-pulse-item .w-stat-val {
+    font-size: 20px !important;
+    flex: 0 0 auto !important;
+  }
+}

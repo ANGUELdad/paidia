@@ -426,7 +426,7 @@ const T = {
     childHowToNotes:'Notizen: nur für dich',
     childHowToMore:'Mehr: Plan, Lernen, Sterne und Hilfe',
     kidGuideWelcome:'Willkommen in deiner App',
-    kidGuideWelcomeHint:'Öffne Menü oben: Start, Spiele, Bewertung, Bonus, Notizen. Unter Mehr findest du Plan und Sterne.',
+    kidGuideWelcomeHint:'Unten findest du: Start, Spiele, Bewertung, Taschengeld, Notizen. Tippe „Mehr“ für Bonus, Plan und Sterne.',
     kidGuideGotIt:'Alles klar',
     kidGuideWhere:'Du bist hier',
     kidGuideNext:'Als Nächstes',
@@ -982,6 +982,8 @@ const T = {
     gameMathPlus:'Plus', gameMathMinus:'Minus', gameMathTimes:'Mal',
     eventOfWeek:'Event der Woche', eventToday:'Heute', eventTomorrow:'Morgen', upcomingEvents:'Demnächst',
     bring:'Mitbringen', accompaniedBy:'Begleitung', noEvents:'Keine kommenden Events', published:'Veröffentlicht',
+    kidZoaiHint:'Frag mich etwas über die App.',
+    unassignedStat:'Ohne Person',
     helpChat:'Zo-Ai', helpWelcome:'Hallo! Ich bin Zo-Ai. Frag mich zur App — oder sag z. B. „füge 2 Milch zu Kalyvia hinzu“. Änderungen brauche ich danach deine Bestätigung.',
     helpWelcomeChild:'Hallo! Ich bin Zo-Ai. Ich helfe dir bei deinem Tag, Events und Spielen. Frag z. B. „Was habe ich heute?“ oder „Wie spiele ich Memory?“',
     helpWelcomeStaff:'Hallo! Ich bin Zo-Ai, dein Assistent. Ich helfe bei Plan, Events, Lager und Liste. Sag z. B. „2 Milch nach Kalyvia“ oder „Fußball morgen Nachmittag für Maria“. Danach bestätigen.',
@@ -1683,7 +1685,7 @@ const T = {
     childHowToNotes:'Σημειώσεις: μόνο για σένα',
     childHowToMore:'Άλλα: Πρόγραμμα, Μάθηση, Αστέρια και βοήθεια',
     kidGuideWelcome:'Καλώς ήρθες στην εφαρμογή σου',
-    kidGuideWelcomeHint:'Άνοιξε Μενού πάνω: Αρχή, Παιχνίδια, Αξιολόγηση, Μπόνους, Σημειώσεις. Στα Άλλα βρίσκεις Πρόγραμμα και Αστέρια.',
+    kidGuideWelcomeHint:'Κάτω βρίσκεις: Αρχή, Παιχνίδια, Αξιολόγηση, Χαρτζιλίκι, Σημειώσεις. Πάτα «Άλλα» για Μπόνους, Πρόγραμμα και Αστέρια.',
     kidGuideGotIt:'Εντάξει',
     kidGuideWhere:'Είσαι εδώ',
     kidGuideNext:'Επόμενο',
@@ -2240,6 +2242,8 @@ const T = {
     gameMathPlus:'Πρόσθεση', gameMathMinus:'Αφαίρεση', gameMathTimes:'Πολλαπλασιασμός',
     eventOfWeek:'Event της εβδομάδας', eventToday:'Σήμερα', eventTomorrow:'Αύριο', upcomingEvents:'Επόμενα events',
     bring:'Να φέρεις', accompaniedBy:'Συνοδός', noEvents:'Δεν υπάρχουν επόμενα events', published:'Δημοσιευμένο',
+    kidZoaiHint:'Ρώτα με κάτι για την εφαρμογή.',
+    unassignedStat:'Χωρίς άτομο',
     helpChat:'Zo-Ai', helpWelcome:'Γεια! Είμαι η Zo-Ai. Ρώτα με για την εφαρμογή — ή πες π.χ. «πρόσθεσε 2 γάλατα στο Kalyvia». Οι αλλαγές χρειάζονται επιβεβαίωση.',
     helpWelcomeChild:'Γεια! Είμαι η Zo-Ai. Σε βοηθάω με τη μέρα σου, τα events και τα παιχνίδια. Ρώτα π.χ. «Τι έχω σήμερα;» ή «Πώς παίζω Μνήμη;»',
     helpWelcomeStaff:'Γεια! Είμαι η Zo-Ai, ο βοηθός σου. Σε βοηθάω με πρόγραμμα, events, αποθήκη και λίστα. Πες π.χ. «2 γάλα στο Kalyvia» ή «βάλε αύριο απόγευμα ποδόσφαιρο για τη Μαρία». Μετά επιβεβαίωσε.',
@@ -8640,7 +8644,7 @@ function viewScheduleDay(){
       <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry" data-tour="plan-add">${esc(t('topAdd'))}</button>
       <div class="plan-day-summary" aria-label="${esc(t('planDayLoad'))}">
         <span><b>${all.length}</b><small>${esc(t('dueToday'))}</small></span>
-        <span><b>${unassignedCount}</b><small>${esc(t('unassigned'))}</small></span>
+        <span><b>${unassignedCount}</b><small>${esc(t('unassignedStat'))}</small></span>
         <span><b>${housesCount}</b><small>${esc(t('filterHouse'))}</small></span>
       </div>
     </header>
@@ -8998,7 +9002,7 @@ function viewScheduleWeek(){
       <div class="plan-week-summary compact">
         <span><b>${weekEntries.length}</b><small>${esc(t('dueToday'))}</small></span>
         <span><b>${activeDays}</b><small>${esc(t('viewDay'))}</small></span>
-        <span><b>${unassignedCount}</b><small>${esc(t('unassigned'))}</small></span>
+        <span><b>${unassignedCount}</b><small>${esc(t('unassignedStat'))}</small></span>
       </div>
     </header>
     ${weekJump}
@@ -10176,7 +10180,6 @@ function viewSchedule(){
         <button type="button" class="${state.houseFilter===''?'on':''}" data-plan-house="">${esc(t('all'))}</button>
         ${planningHouses().map(h=>`<button type="button" class="${state.houseFilter===h.id?'on':''}" data-plan-house="${h.id}">${esc(h.short)}</button>`).join('')}
       </div>`:''}
-      ${typeof shiftStockCheckPending==='function' && shiftStockCheckPending() ? shiftStockCheckBannerHtml() : ''}
       <div class="adaptive-chrome planner-chrome-wrap">
         <button type="button" class="adaptive-chrome-summary" data-adaptive-toggle aria-expanded="false">
           <span class="adaptive-summary-label">${esc(t('menuFilters'))}</span>
@@ -11324,7 +11327,8 @@ function stockOutReasonModalHtml(){
 }
 
 function stockDraftEntries(){
-  return Object.entries(state.stockDraft||{}).filter(([,delta])=>delta);
+  // Float noise from repeated ±steps must not read as a pending change.
+  return Object.entries(state.stockDraft||{}).filter(([,delta])=>Math.abs(Number(delta)||0)>=0.0001);
 }
 function clearStockDraft(){
   state.stockDraft = {};
@@ -11332,16 +11336,44 @@ function clearStockDraft(){
   state.stockPendingStep = null;
 }
 
+/** An open-but-untouched Taschengeld form is not a change — only typed input counts. */
+function pocketComposeDirty(){
+  if(!state.pocketCompose) return false;
+  const amt=document.getElementById('pocketAmt');
+  const note=document.getElementById('pocketNote');
+  if(!amt && !note) return false;
+  return !!(String(amt?.value||'').trim() || String(note?.value||'').trim());
+}
+/** Pending removals that no longer point at an open entry are stale, not unsaved. */
+function listPendingRemoveLive(){
+  const ids=(state.listPendingRemove||[]).filter(id=>{
+    const e=(DB.listEntries||[]).find(x=>String(x.id)===String(id));
+    return e && e.status==='open';
+  });
+  if(ids.length!==(state.listPendingRemove||[]).length) state.listPendingRemove=ids;
+  return ids;
+}
+/** Horizontal chip rails clip their overflow, so an active chip can sit off-screen. */
+function revealActiveRailChips(root){
+  const scope = root || document.getElementById('view');
+  if(!scope) return;
+  queueMicrotask(()=>{
+    scope.querySelectorAll('.seg, .rail, .house-selector, .shop-house-rail, .stock-house-rail, .planner-mobile-house, .stock-view-tabs').forEach(rail=>{
+      if(rail.scrollWidth <= rail.clientWidth + 4) return;
+      const on = rail.querySelector('.on, [aria-selected="true"], .is-selected');
+      if(on) try{ on.scrollIntoView({inline:'center', block:'nearest', behavior:'auto'}); }catch{}
+    });
+  });
+}
 /** Dirty UI state that would be lost if the user leaves the page (or switches house). */
 function unsavedChangeParts(){
   const parts=[];
   if(stockDraftEntries().length) parts.push(t('unsavedLeaveStock'));
-  const pending=state.stockPendingStep;
-  if(pending && (pending.commitDraft || pending.pid || (pending.bulkOut||[]).length)){
-    if(!parts.includes(t('unsavedLeaveStock'))) parts.push(t('unsavedLeaveStock'));
+  if(state.stockPendingStep?.commitDraft && !parts.includes(t('unsavedLeaveStock'))){
+    parts.push(t('unsavedLeaveStock'));
   }
-  if((state.listPendingRemove||[]).length) parts.push(t('unsavedLeaveList'));
-  if(state.pocketCompose) parts.push(t('unsavedLeavePocket'));
+  if(listPendingRemoveLive().length) parts.push(t('unsavedLeaveList'));
+  if(pocketComposeDirty()) parts.push(t('unsavedLeavePocket'));
   return parts;
 }
 function hasUnsavedChanges(){
@@ -14225,11 +14257,11 @@ function viewShop(){
           ${open.length?`<button class="btn sm" type="button" id="startFridayTop">${esc(T[state.lang].cartReady(open.length))}</button>`:
             `<button class="btn sm sec" type="button" id="shopEasyFoto" data-page-act="shopScan">${ui('u-camera','sm')} ${esc(t('shopEasyFoto'))}</button>`}
         </div>
-        <p class="shop-photo-banner" role="note">
+        ${open.length?`<p class="shop-photo-banner" role="note">
           ${ui('u-camera','sm')}
           <span>${esc(t('shopPhotoHint'))}</span>
           <button type="button" class="btn ghost sm" data-page-act="shopScan">${esc(t('shopPhotoCta'))}</button>
-        </p>
+        </p>`:''}
         <div class="shop-add-row"><div class="cart-quick"><input id="cartQuickName" placeholder="${t('cartQuickAdd')}" aria-label="${t('cartQuickAdd')}" autocomplete="off" enterkeyhint="done"><button class="btn sm" id="cartQuickAdd" aria-label="${esc(t('addToCart'))}">＋ <span>${esc(t('addToCart'))}</span></button></div>
         </div>`:''}
       ${state.shopPanel==='requests'?`<div class="shop-add-row req-easy-row">
@@ -16801,7 +16833,9 @@ function kidShowBackChrome(){
   if(state.mode !== 'child') return false;
   if(state.gameId) return false; // in-game #gameBack owns return-to-hub
   const v = state.childView || 'today';
-  return v !== 'today';
+  // Dock destinations are siblings, not a hierarchy — a back row there costs a
+  // full row to offer what the dock already does. Keep it for the Mehr views.
+  return !['today','games','rate','pocket','notes','aufgaben'].includes(v);
 }
 
 function kidBackHtml(){
@@ -17183,9 +17217,12 @@ function kidViewHint(view){
   return t('kidGuideHintMore');
 }
 
-function kidFirstRunHtml(){
+function kidFirstRunHtml(view){
+  /* Start only — until it is dismissed this costs ~120px on every view it renders on,
+     and it only earns that space on the landing screen. */
+  if((view || 'today') !== 'today') return '';
   try{ if(localStorage.getItem('paidia.kidGuideSeen')==='1') return ''; }catch{}
-  return `<aside class="kid-first-run" role="status">
+  return `<aside class="kid-first-run">
     <div class="kid-first-run-copy">
       <b>${esc(t('kidGuideWelcome'))}</b>
       <p>${esc(t('kidGuideWelcomeHint'))}</p>
@@ -17199,7 +17236,7 @@ function kidGuideHtml(view){
   if(view==='today') return '';
   const title = kidViewTitle(view);
   const hint = kidViewHint(view);
-  return `<div class="kid-guide kid-guide-compact" role="status">
+  return `<div class="kid-guide kid-guide-compact">
     <div class="kid-guide-where">
       <span class="eyebrow">${esc(t('kidGuideWhere'))}</span>
       <b>${esc(title)}</b>
@@ -17239,6 +17276,9 @@ function kidMoreExtraItems(){
   const easy = isEasy();
   return [
     {id:'howto', label:t('childHowTo'), ico:'u-sparkle', hint:easy?'':t('childHowToHint')},
+    // Zo-Ai lives here rather than on a floating button: a fixed FAB always lands
+    // on the right-hand column of the kid calendars and covers real day buttons.
+    {id:'zoai', label:t('helpChat'), ico:'u-chat', hint:easy?'':t('kidZoaiHint')},
     {id:'feedback', label:t('feedbackTitle'), ico:'u-note', hint:easy?'':t('feedbackHint'), pro:true},
   ].filter(r=>!r.pro || !easy);
 }
@@ -17265,6 +17305,7 @@ function wireKidSiteMenuRoot(root){
       const act = b.dataset.kidMoreAct;
       closeSheet();
       if(act==='howto') sheetChildHowTo();
+      else if(act==='zoai') openChatPanel('ai');
       else if(act==='feedback') sheetFeedbackHub();
     };
   });
@@ -19596,7 +19637,7 @@ function renderChild(){
   }
   viewEl.innerHTML = `
     <div class="kid-shell">
-      ${kidFirstRunHtml()}
+      ${kidFirstRunHtml(state.childView)}
       ${kidBackHtml()}
       ${kidGuideHtml(state.childView)}
       ${viewBody}
@@ -23623,10 +23664,11 @@ function render(){
   try{
     if(window.PaidiaDirty && typeof hasUnsavedChanges==='function'){
       window.PaidiaDirty.set('stockDraft', !!(stockDraftEntries&&stockDraftEntries().length));
-      window.PaidiaDirty.set('listPending', !!((state.listPendingRemove||[]).length));
-      window.PaidiaDirty.set('pocketCompose', !!state.pocketCompose);
+      window.PaidiaDirty.set('listPending', !!listPendingRemoveLive().length);
+      window.PaidiaDirty.set('pocketCompose', pocketComposeDirty());
     }
   }catch{}
+  revealActiveRailChips();
   try{ window.dispatchEvent(new CustomEvent('paidia:rendered')); }catch{}
   try{ tipNotifyPageChange(); }catch{}
   try{ zoaiTipNotifySession(); }catch{}

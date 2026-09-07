@@ -5725,6 +5725,7 @@ class Handler(SimpleHTTPRequestHandler):
             "ui-v110.css",
             "ui-v213.css",
             "ui-v244.css",
+            "ui-v245.css",
             "sw.js",
             "manifest.webmanifest",
             # Login shows the running version + DE/EL "what changed" from this.

@@ -1,3 +1,20 @@
+## v245 · 2026-09-07
+
+Audited by driving the **real gate login** on an iPhone (mode card → profile →
+pinpad → app → dock walk) rather than jumping in via the API. New flow script
+`scripts/qa-iphone-login-flow.mjs`; notes in
+[docs/agents/UI_AUDIT_V245.md](docs/agents/UI_AUDIT_V245.md). 16 P1 → 3 P1, and
+**zero findings on the phone** across 20 phone pages.
+
+- "Nicht gespeichert" only warns about real changes: opening the Taschengeld form and leaving no longer triggers a native confirm, stale list-removal ids are pruned instead of counted, and float noise in the stock draft no longer registers. Locked in by `scripts/qa-unsaved-guard.mjs`.
+- Kid bottom chrome: the install bar sized itself off the staff dock token and rendered under the kid dock; the Zo-Ai FAB covered its dismiss button. Zo-Ai moved into the Mehr sheet, where the kid dock already suppresses it — a fixed FAB always covered the right-hand column of the kid calendars.
+- Desktop Zo-Ai FAB removed: the sidebar already carries a full-width Zo-Ai row, and the floating duplicate covered the Buch calendar's last date cells.
+- Less chrome before content on the kid views: the welcome banner is scoped to Start (and its copy now points at the dock, not a menu that is hidden on phones), the back row is limited to Mehr-only views, hero cards are actually compact, and empty month calendars collapse. First game moved from y≈791 to y≈250.
+- Kid Spiele in Easy mode stacks the games as a list instead of a filmstrip that put four of five off-screen.
+- Staff Plan shows the week above the fold: the Lagercheck prompt no longer repeats on a third tab, the disabled Zo-Ai clear is hidden, and "+ Eintrag" is the single filled primary. "Diese Woche" reads as current state instead of a dead grey button.
+- Staff dock icons switched to the same stroke set as the rest of the app; Liste no longer shows two identical "Foto → Liste" buttons; the "wer?" stat caption is now "Ohne Person"; active chips in horizontal rails scroll into view.
+- Cache `paidia-v245`, new stylesheet `ui-v245.css`.
+
 ## v244 · 2026-09-07
 
 Full UI audit of both surfaces (PC 1440x900 + iPhone 393x852) across all staff
