@@ -1,3 +1,10 @@
+## v241 · 2026-09-07
+
+- Mobile `/m/` iPhone layout containment: stock/home no longer expand to ~560px or clip CTAs.
+- Full-width Lager “+ Hinzufügen”; stacked Home shift-step rows; week chrome nav fits without overlap.
+- Horizontal house/chip rails scroll inside the viewport (page scrollWidth stays phone-width).
+- Cache `paidia-v241`.
+
 ## v240 · 2026-09-07
 
 - Anti-spam notifications: quieter category defaults; one-shot migrate existing installs (`antiSpam239`).

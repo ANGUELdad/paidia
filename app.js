@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 240,
-  label: 'v240',
+  version: 241,
+  label: 'v241',
   changed: {
-    de: 'Ruhigere Mitteilungen: weniger Kategorien, kein Doppel-Toast, max. 1 OS-Hinweis alle ~12 Min.',
-    el: 'Πιο ήσυχες ειδοποιήσεις: λιγότερες κατηγορίες, χωρίς διπλό toast, το πολύ 1 OS ανά ~12 λεπτά.',
+    de: 'Mobile: Lager/Home passen aufs iPhone — kein seitliches Abschneiden, Buttons in der Mitte.',
+    el: 'Κινητό: Lager/Home χωράνε στο iPhone — χωρίς οριζόντια κοψίματα, κουμπιά στο κέντρο.',
   },
 };
 const T = {

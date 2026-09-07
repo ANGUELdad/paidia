@@ -145,7 +145,7 @@ body.shell-m:not(.mode-child) .topbtn {
 }
 
 body.shell-m .shell-switch {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -233,7 +233,7 @@ body.shell-m .page-act.ui-fit-text {
 }
 body.shell-m .bell-count {
   /* positioned via .topbtn-bell .bell-count rules below */
-  font-size: 10px !important;
+  font-size: 12px !important;
 }
 
 /* Compact install bar — one row, clear of dock, no mid-page blob */
@@ -688,9 +688,6 @@ body.shell-m #view .kids-admin-bar {
 }
 body.shell-m #view .kids-admin-bar .btn,
 body.shell-m #view #kidAddBtn,
-body.shell-m #view .stock-primary-action,
-body.shell-m #view #stockQuickAdd,
-body.shell-m #view #stockQuickAddEasy,
 body.shell-m #view .stock-easy-btn,
 body.shell-m #view #shopAutoFill,
 body.shell-m #view .shop-more-action,
@@ -708,7 +705,7 @@ body.shell-m #view #stockSelectToggle,
 body.shell-m #view #stockShiftCheck,
 body.shell-m #view #stockQuickList,
 body.shell-m #view #importList {
-  align-self: center !important;
+  align-self: stretch !important;
   min-height: 44px !important;
   max-height: 56px !important;
   height: auto !important;
@@ -720,6 +717,8 @@ body.shell-m #view #importList {
   white-space: nowrap !important;
   writing-mode: horizontal-tb !important;
   flex-direction: row !important;
+  box-sizing: border-box !important;
+  max-width: 100% !important;
 }
 body.shell-m #view .home-mobile-actions {
   align-items: stretch !important;
@@ -909,7 +908,7 @@ body.shell-m .bell-count {
   right: -2px !important;
   left: auto !important;
   transform: none !important;
-  font-size: 10px !important;
+  font-size: 12px !important;
   min-width: 16px !important;
   height: 16px !important;
   padding: 0 4px !important;
@@ -922,7 +921,7 @@ body.shell-m nav.dock button {
   padding-inline: 2px !important;
 }
 body.shell-m nav.dock button span:not(.i):not(.nav-ico) {
-  font-size: 10px !important;
+  font-size: 12px !important;
   line-height: 1.1 !important;
   text-align: center !important;
 }
@@ -1135,4 +1134,407 @@ body.shell-m #view .home-command-copy h1,
 body.shell-m #view .home-start h1 {
   line-height: 1.15 !important;
   font-size: clamp(22px, 6.2vw, 28px) !important;
+}
+
+/* ═══ v241 — iPhone fit / center / containment (Playwright 393×852) ═══════
+   House rails + desktop stock grids were expanding parents to ~560px and
+   clipping CTAs / empty states. Contain every stock/shop/home stage to the
+   phone measure; restore shift-step 3-col; full-width add CTA. */
+
+body.shell-m #app.app-shell,
+body.shell-m main.app-stage,
+body.shell-m #view,
+body.shell-m #view > * {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+body.shell-m #view .stock-layout-v2,
+body.shell-m #view .stock-layout-top,
+body.shell-m #view .stock-command,
+body.shell-m #view .stock-command-center,
+body.shell-m #view .stock-command-core,
+body.shell-m #view .stock-workspace,
+body.shell-m #view .stock-workspace-main,
+body.shell-m #view .stock-board-pane,
+body.shell-m #view .stock-priority,
+body.shell-m #view .stock-priority-grid,
+body.shell-m #view .stock-recent,
+body.shell-m #view .stock-overview,
+body.shell-m #view .stock-pantry-hero,
+body.shell-m #view .stock-context,
+body.shell-m #view .stock-view-tabs,
+body.shell-m #view .shift-check-banner,
+body.shell-m #view .shop-command,
+body.shell-m #view .shop-house-rail,
+body.shell-m #view .home-start,
+body.shell-m #view .home-shift-start,
+body.shell-m #view .home-start-hero {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Horizontal rails must scroll inside the phone — never widen the page */
+body.shell-m #view .house-selector,
+body.shell-m #view .plan-day-strip,
+body.shell-m #view .plan-days,
+body.shell-m #view .planner-seg,
+body.shell-m #view .kids-pane-tabs,
+body.shell-m #view .pocket-kids-rail,
+body.shell-m #view .pocket-pane-tabs,
+body.shell-m #view .book-panes,
+body.shell-m #view .shop-house-rail,
+body.shell-m #view .chips,
+body.shell-m #view .seg:not(.admin-pane-seg),
+body.shell-m #view .stock-view-tabs,
+body.shell-m #view .pocket-filters {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+body.shell-m #view .stock-command-center,
+body.shell-m #view .stock-command-core {
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+}
+body.shell-m #view .stock-command-center .stock-command-row,
+body.shell-m #view .stock-command-row {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+}
+body.shell-m #view .stock-command-row .stock-primary-action,
+body.shell-m #view .stock-command-row #stockQuickAdd,
+body.shell-m #view .stock-primary-action,
+body.shell-m #view #stockQuickAdd,
+body.shell-m #view #stockQuickAddEasy {
+  display: flex !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex-direction: row !important;
+}
+
+/* Stock context: 2 cols on phone so the third cell does not shove right */
+body.shell-m #view .stock-context {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+body.shell-m #view .stock-context > :nth-child(3) {
+  grid-column: 1 / -1 !important;
+}
+
+body.shell-m #view .stock-priority-grid,
+body.shell-m #view .stock-priority-grid .empty-state,
+body.shell-m #view .empty-state {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  place-items: center !important;
+  text-align: center !important;
+  overflow: hidden !important;
+}
+body.shell-m #view .empty-state .empty-title,
+body.shell-m #view .empty-state .empty-hint,
+body.shell-m #view .stock-priority-grid .empty-state {
+  max-width: 100% !important;
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+}
+
+/* Home: stop negative-bleed hero; restore shift step row */
+body.shell-m[data-tab="home"] #view .home-start-hero,
+body.shell-m #view .home-start-hero {
+  margin-inline: 0 !important;
+  padding-inline: 16px !important;
+  overflow: visible !important;
+  max-width: 100% !important;
+}
+body.shell-m #view .home-start-hero h1,
+body.shell-m #view .home-mast .home-brand {
+  max-width: none !important;
+  color: var(--ink, #1a2822) !important;
+  opacity: 1 !important;
+}
+body.shell-m #view .home-start-hero p,
+body.shell-m #view .home-start-hero .home-lede,
+body.shell-m #view .home-mast .home-lede {
+  color: #3d4f46 !important;
+  opacity: 1 !important;
+}
+body.shell-m #view .home-shift-start {
+  overflow: visible !important;
+  min-width: 0 !important;
+  padding-inline: 0 !important;
+}
+body.shell-m #view .home-shift-steps {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+body.shell-m #view .home-shift-step {
+  display: grid !important;
+  grid-template-columns: 28px minmax(0, 1fr) !important;
+  grid-template-areas:
+    "mark label"
+    ". cta" !important;
+  gap: 6px 8px !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 10px 0 !important;
+  overflow: hidden !important;
+}
+body.shell-m #view .home-shift-mark { grid-area: mark !important; }
+body.shell-m #view .home-shift-step-label {
+  grid-area: label !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-size: 14px !important;
+}
+body.shell-m #view .home-shift-step-cta,
+body.shell-m #view .home-shift-step-done {
+  grid-area: cta !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}
+body.shell-m #view .home-shift-primary,
+body.shell-m #view .home-shift-start > .btn,
+body.shell-m #view .shift-check-banner .btn {
+  width: 100% !important;
+  max-width: 100% !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  box-sizing: border-box !important;
+}
+
+/* Plan sticky chrome: stay in flow, don't cover day title */
+body.shell-m[data-tab="schedule"] #view {
+  padding-top: 8px !important;
+}
+body.shell-m[data-tab="schedule"] #view .planner-focus-switch {
+  position: sticky !important;
+  top: calc(var(--header-h, 52px) + env(safe-area-inset-top, 0px)) !important;
+  z-index: 12 !important;
+  margin-inline: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--line, #d5ddd8) !important;
+  background: rgba(247,248,245,.98) !important;
+}
+body.shell-m[data-tab="schedule"] #view .planner-mobile-house,
+body.shell-m[data-tab="schedule"] #view .plan-days,
+body.shell-m[data-tab="schedule"] #view .plan-day-strip {
+  margin-inline: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+body.shell-m[data-tab="schedule"] #view .plan-hero,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome,
+body.shell-m[data-tab="schedule"] #view .plan-day-program,
+body.shell-m[data-tab="schedule"] #view .week-agenda,
+body.shell-m[data-tab="schedule"] #view .schedule-agenda {
+  position: relative !important;
+  z-index: 1 !important;
+  margin-top: 10px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+body.shell-m[data-tab="schedule"] #view .planner-sticky,
+body.shell-m[data-tab="schedule"] #view .plan-sticky,
+body.shell-m[data-tab="schedule"] #view .schedule-sticky {
+  position: sticky !important;
+  top: calc(var(--header-h, 52px) + env(safe-area-inset-top, 0px) + 52px) !important;
+  z-index: 3 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-inline: 0 !important;
+  background: color-mix(in srgb, var(--bg, #f4f7f5) 92%, transparent) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin-bottom: 8px !important;
+}
+
+/* Page action rows: 2-up wrap, never overflow */
+body.shell-m #view .page-actions,
+body.shell-m #view .block-h,
+body.shell-m #view .stock-toolbar,
+body.shell-m #view .shop-easy-strip {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: stretch !important;
+}
+body.shell-m #view .page-act,
+body.shell-m #view .page-actions > .btn,
+body.shell-m #view .shop-easy-strip .btn {
+  flex: 1 1 calc(50% - 8px) !important;
+  min-width: min(100%, 140px) !important;
+  max-width: 100% !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+}
+
+/* Dock labels: prefer readable EL/DE over ellipsis when possible */
+body.shell-m nav.dock button {
+  min-width: 0 !important;
+  flex: 1 1 0 !important;
+  padding-inline: 2px !important;
+}
+body.shell-m nav.dock button span:not(.dock-ico):not(.dock-more-glyph) {
+  font-size: 10px !important;
+  letter-spacing: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Week chrome: keep nav + AI tools on phone without wrap-break */
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 12px !important;
+  overflow: hidden !important;
+}
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-top {
+  display: grid !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .week-layout-seg,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .week-switcher,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .week-nav,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions > .row {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  gap: 6px !important;
+  align-items: center !important;
+  min-width: 0 !important;
+}
+body.shell-m[data-tab="schedule"] #view .week-switcher > button[data-shift] {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  padding: 0 !important;
+}
+body.shell-m[data-tab="schedule"] #view .week-switcher .week-today-btn {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: 40% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-size: 12px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+}
+body.shell-m[data-tab="schedule"] #view .week-switcher .week-pick-label {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  max-width: 46% !important;
+  display: block !important;
+}
+body.shell-m[data-tab="schedule"] #view .week-switcher .week-pick {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: 40px !important;
+  box-sizing: border-box !important;
+  font-size: 12px !important;
+}
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .week-layout-seg button {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-height: 40px !important;
+  max-height: 44px !important;
+  height: 40px !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+}
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .plan-hero-cta,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .page-act {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 44px !important;
+  max-height: 48px !important;
+  height: 44px !important;
+}
+body.shell-m[data-tab="schedule"] #view .week-ai-bar {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+  width: 100% !important;
+}
+body.shell-m[data-tab="schedule"] #view .week-ai-bar .week-ai-clear {
+  grid-column: 1 / -1 !important;
+}
+body.shell-m[data-tab="schedule"] #view .week-ai-bar .btn {
+  width: 100% !important;
+  min-height: 40px !important;
+  max-height: 44px !important;
+  height: 40px !important;
+  margin: 0 !important;
+  align-self: stretch !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-size: 12px !important;
+}
+
+/* Install banner: don't crush the dock */
+body.shell-m #pwaInstallBar {
+  left: 10px !important;
+  right: 10px !important;
+  bottom: calc(var(--nav-h, 64px) + env(safe-area-inset-bottom, 0px) + 8px) !important;
+  max-width: calc(100vw - 20px) !important;
+  box-sizing: border-box !important;
+}
+body.shell-m #pwaInstallBar .pwa-install-copy,
+body.shell-m #pwaInstallBar p {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
 }
