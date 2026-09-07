@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 235,
-  label: 'v235',
+  version: 236,
+  label: 'v236',
   changed: {
-    de: 'Zo-Ai Kind: kein Admin-/Lager-Leck — härtere Isolation gegen Prompt-Injection.',
-    el: 'Zo-Ai παιδί: χωρίς διαρροή admin/αποθέματος — ισχυρότερη απομόνωση.',
+    de: 'Desk Kinder: dichtere Liste, Stift statt „Bearbeiten“, korrekte Noten-Kennzahl.',
+    el: 'Desk Παιδιά: πυκνότερη λίστα, μολύβι αντί για κείμενο επεξεργασίας.',
   },
 };
 const T = {
@@ -16,6 +16,7 @@ const T = {
     appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navPocket:'Taschengeld', navPersonnel:'Personal', navSchool:'Schule', navAdmin:'Admin', navMore:'Mehr',
     titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', titlePocket:'Taschengeld', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', kidAdd:'Kind hinzufügen', kidRemove:'Kind entfernen', kidEdit:'Kind bearbeiten', kidNamePh:'Vorname', kidPinPh:'PIN (4–6 Ziffern)', kidPinConfirm:'PIN bestätigen', kidAdded:'Kind gespeichert', kidRemoved:'Kind entfernt', kidRemoveConfirm:'Dieses Kind wirklich entfernen? Login wird gelöscht.', kidPinMismatch:'PIN stimmt nicht', kidNameRequired:'Name fehlt', kidAdminOnly:'Nur Admins können Kinder hinzufügen/entfernen', profilePhoto:'Profilfoto', profilePhotoChange:'Foto ändern', profilePhotoRemove:'Foto entfernen', profilePhotoHint:'Wird oben rechts angezeigt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
     kidsOverview:'Übersicht', kidsTracked:'Kinder', kidsOpenHomework:'Hausaufgaben offen',
+    kidsWithGrades:'mit Noten', kidsAttNone:'offen', kidsMetricEmpty:'—',
     schoolOverview:'Schulübersicht', gradeAverage:'Notenschnitt', gradeNoData:'Noch keine Noten', attendanceWeek:'Anwesenheit diese Woche',
     homeworkOpen:'Offene Hausaufgaben',
     schoolMaterialTitle:'Schulmaterial', schoolMaterialHint:'Checkliste + Fotos (Bücher, Hefte, …)',
@@ -1272,6 +1273,7 @@ const T = {
     appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navPocket:'Χαρτζιλίκι', navPersonnel:'Προσωπικό', navSchool:'Σχολείο', navAdmin:'Admin', navMore:'Άλλα',
     titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', titlePocket:'Χαρτζιλίκι', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', kidAdd:'Προσθήκη παιδιού', kidRemove:'Αφαίρεση παιδιού', kidEdit:'Επεξεργασία παιδιού', kidNamePh:'Όνομα', kidPinPh:'PIN (4–6 ψηφία)', kidPinConfirm:'Επιβεβαίωση PIN', kidAdded:'Το παιδί αποθηκεύτηκε', kidRemoved:'Το παιδί αφαιρέθηκε', kidRemoveConfirm:'Να αφαιρεθεί αυτό το παιδί; Το login θα διαγραφεί.', kidPinMismatch:'Το PIN δεν ταιριάζει', kidNameRequired:'Λείπει το όνομα', kidAdminOnly:'Μόνο admins μπορούν να προσθέτουν/αφαιρούν παιδιά', profilePhoto:'Φωτογραφία προφίλ', profilePhotoChange:'Αλλαγή φωτογραφίας', profilePhotoRemove:'Αφαίρεση φωτογραφίας', profilePhotoHint:'Εμφανίζεται πάνω δεξιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
     kidsOverview:'Επισκόπηση', kidsTracked:'παιδιά', kidsOpenHomework:'ανοιχτές εργασίες',
+    kidsWithGrades:'με βαθμούς', kidsAttNone:'ανοιχτό', kidsMetricEmpty:'—',
     schoolOverview:'Σχολική εικόνα', gradeAverage:'Μέσος βαθμός', gradeNoData:'Δεν υπάρχουν βαθμοί ακόμα', attendanceWeek:'Παρουσία αυτή την εβδομάδα',
     homeworkOpen:'Ανοιχτές εργασίες',
     schoolMaterialTitle:'Υλικό σχολείου', schoolMaterialHint:'Λίστα + φωτογραφίες (βιβλία, τετράδια, …)',
@@ -2916,6 +2918,7 @@ function load(){
 /** Coerce mutable collections so page renders never throw on bad local/shared data. */
 function normalizeDbShape(db = DB){
   if(!db || typeof db !== 'object') return db;
+  const missingChildren=!Array.isArray(db.children);
   [
     'overrides','events','taskCompletions','aiImports','listEntries','shoppingTrips','listRequests','pocketMoneyTxns',
     'feedbackReports','customProducts','customCategories','customActivities','customReasons',
@@ -2937,7 +2940,7 @@ function normalizeDbShape(db = DB){
   if(typeof SEED === 'object' && SEED){
     db.houses = Array.isArray(SEED.houses) ? SEED.houses.map(h => ({...h})) : [];
     if(!Array.isArray(db.employees) || !db.employees.length) db.employees = structuredClone(SEED.employees||[]);
-    if(!Array.isArray(db.children)) db.children = structuredClone(SEED.children||[]);
+    if(missingChildren) db.children = structuredClone(SEED.children||[]);
     if(!Array.isArray(db.groups)) db.groups = structuredClone(SEED.groups||[]);
     if(!Array.isArray(db.activities) || !db.activities.length) db.activities = structuredClone(SEED.activities||[]);
     if(!Array.isArray(db.products) || !db.products.length) db.products = structuredClone(SEED.products||[]);
@@ -5420,7 +5423,7 @@ async function ensureContactDetails(){
         <input type="email" id="contactEmail" value="${esc(state.profileEmail||'')}" autocomplete="email" placeholder="name@example.com" required></label>
       <label class="f"><span>📱 ${esc(t('phoneLabel'))}</span>
         <input type="tel" id="contactPhone" value="${esc(state.profilePhone||'')}" autocomplete="tel" inputmode="tel" placeholder="+30 … / +49 …" required></label>
-      <p class="muted" style="font-size:11.5px;line-height:1.5;margin-top:-4px">${esc(t('phoneHint'))}</p>
+      <p class="muted" style="font-size:12px;line-height:1.5;margin-top:-4px">${esc(t('phoneHint'))}</p>
       <div id="contactStatus" class="status-box" style="display:none" role="status"></div>
       <button class="btn" id="contactSave">✓ ${esc(t('contactSave'))}</button>
     `, {dismissable:false});
@@ -6268,7 +6271,7 @@ function sheetHelpProposals(actions, {inline=false, onDone=null}={}){
     }else{
       box.hidden=false;
       box.innerHTML=`<div class="help-propose-inline"><div class="strong">${esc(t('helpProposeTitle'))}</div>
-        <div class="muted" style="font-size:11.5px;margin:4px 0 8px">${esc(t('helpProposeHint'))}${needPin?' · '+esc(t('helpProposeNeedPin')):''}</div>
+        <div class="muted" style="font-size:12px;margin:4px 0 8px">${esc(t('helpProposeHint'))}${needPin?' · '+esc(t('helpProposeNeedPin')):''}</div>
         <div class="help-propose-list">${actions.map((action,i)=>`<div class="help-propose-row"><b>${i+1}.</b><span>${esc(describeHelpAction(action))}</span></div>`).join('')}</div>
         <div class="row" style="gap:8px;margin-top:10px">
           <button class="btn sec" id="helpProposeCancel" type="button">${t('helpDiscardInline')}</button>
@@ -6318,7 +6321,7 @@ function sheetHelp(){
           : ['2 Milch nach Kalyvia','1 Butter raus Limenaria','Reis auf die Liste']);
   const quickLabel = role==='child' ? t('helpQuickChild') : role==='admin' ? t('helpQuickAdmin') : t('helpQuickFood');
   const quick=`<div class="chips help-quick" id="helpQuick" style="margin:0 0 10px">
-      <span class="muted" style="width:100%;font-size:11px">${esc(quickLabel)}</span>
+      <span class="muted" style="width:100%;font-size:12px">${esc(quickLabel)}</span>
       ${quickPrompts.map(q=>`<button class="chip" type="button" data-q="${esc(q)}">${esc(q)}</button>`).join('')}
     </div>`;
   openSheet(`<div class="row between" style="align-items:flex-start;gap:10px;margin-bottom:8px">
@@ -9080,12 +9083,12 @@ function sheetImportWeek(){
         (entryEmployeeIds(o).length ? employeeNames(o) : (houseNames(o)||t('unassigned')));
       return `<div class="import-review-row">
         <div><b>${label}</b>
-          <div class="muted" style="font-size:10.5px">${esc(row.source.date)} → ${esc(row.targetDate)} · ${esc(t(o.block||'afternoon'))} · ${esc(who)}</div>
+          <div class="muted" style="font-size:12px">${esc(row.source.date)} → ${esc(row.targetDate)} · ${esc(t(o.block||'afternoon'))} · ${esc(who)}</div>
           ${row.conflict?`<span class="pill ovr">${esc(t('aiScheduleConflict'))}</span>`:''}
         </div></div>`;
     }).join('');
     box.innerHTML = `<div class="import-review"><div class="import-review-head"><div><b>${esc(t('importWeekPreview'))}</b>
-      <div class="muted" style="font-size:10.5px">${plan.planned.length}/${plan.sourceRows.length} · ${T[state.lang].importWeekConflict(plan.conflicts)}</div></div>
+      <div class="muted" style="font-size:12px">${plan.planned.length}/${plan.sourceRows.length} · ${T[state.lang].importWeekConflict(plan.conflicts)}</div></div>
       <span class="pill gray">${plan.planned.length}</span></div>
       <div class="import-review-body">${rows||`<div class="empty">${esc(t('importWeekEmpty'))}</div>`}</div></div>`;
   };
@@ -9361,14 +9364,14 @@ function sheetAiSchedule(opts={}){
       return;
     }
     box.innerHTML = `<div class="import-review"><div class="import-review-head"><div><b>${esc(t('importWeekPreview'))}</b>
-      <div class="muted" style="font-size:10.5px">${esc(t('checkBeforeSave')||t('aiScheduleHint'))}</div></div>
+      <div class="muted" style="font-size:12px">${esc(t('checkBeforeSave')||t('aiScheduleHint'))}</div></div>
       <span class="pill gray">${rows.filter(r=>r.include).length}/${rows.length}</span></div>
       <div class="import-review-body">${rows.map((r,i)=>`<div class="import-review-row">
         <label style="display:flex;gap:8px;align-items:flex-start;flex:1">
           <input type="checkbox" data-inc="${i}" ${r.include?'checked':''}>
           <div><b>${esc(r.activityLabel)}</b>
-            <div class="muted" style="font-size:10.5px">${esc(r.date)} · ${esc(t(r.block))} · ${esc(r.employeeLabel||r.houseLabel||t('unassigned'))}</div>
-            ${r.note?`<div class="muted" style="font-size:10.5px">${esc(r.note)}</div>`:''}
+            <div class="muted" style="font-size:12px">${esc(r.date)} · ${esc(t(r.block))} · ${esc(r.employeeLabel||r.houseLabel||t('unassigned'))}</div>
+            ${r.note?`<div class="muted" style="font-size:12px">${esc(r.note)}</div>`:''}
             <div style="margin-top:4px">
               <span class="pill ${confidenceClass(r.confidence)}">${confidenceLabel(r.confidence)}</span>
               ${!r.activityId?`<span class="pill ovr">${esc(t('aiScheduleUnresolved'))}</span>`:''}
@@ -10012,7 +10015,7 @@ function viewScheduleCalendar(){
           return esc(s.length>9 ? s.slice(0,8)+'…' : s);
         });
         const extra = titles.length > 2 ? `<span class="cal-preview-more">+${titles.length-2}</span>` : '';
-        return `<span class="cal-previews" style="display:flex;flex-direction:column;width:100%;gap:1px;font-size:9px;line-height:1.1;text-align:left;overflow:hidden;padding:0 2px;font-weight:650">${shown.map(s=>`<span class="cal-preview">${s}</span>`).join('')}${extra}</span>`;
+        return `<span class="cal-previews" style="display:flex;flex-direction:column;width:100%;gap:1px;font-size:12px;line-height:1.1;text-align:left;overflow:hidden;padding:0 2px;font-weight:650">${shown.map(s=>`<span class="cal-preview">${s}</span>`).join('')}${extra}</span>`;
       })() : '';
       const ariaTitles = titles.length ? ' · ' + titles.slice(0,3).join(', ') + (titles.length>3?` +${titles.length-3}`:'') : '';
       return `<button type="button" class="cal-cell ${on?'on':''} ${isToday?'today':''} ${preview?'has-previews':''}" data-cal-date="${c.ds}"
@@ -10894,7 +10897,7 @@ function shortagesCard(hid){
   if(!miss.length) return '';
   return `<div class="card"><h2>${t('secMissing')}</h2>
     ${miss.map(e=>`<div class="kv"><div class="grow">${esc(e.name)}
-      <div class="muted" style="font-size:11.5px">🏠 ${esc(house(e.houseId).short)}${
+      <div class="muted" style="font-size:12px">🏠 ${esc(house(e.houseId).short)}${
         e.decidedAt?' · '+fmtDT(e.decidedAt):''}${e.missReason?' · '+esc(missReasonLabel(e.missReason)):''}</div></div>
       <div class="row" style="flex:0 0 auto;gap:6px;align-items:center">
         ${e.missReason?missReasonPill(e.missReason):''}
@@ -12125,7 +12128,7 @@ function sheetStockBoard(dir,initialPid=null){
         </div>
         <div id="sbCam" style="display:none">
           <label class="f"><span>${t('photoLabel')}</span></label>
-          <div class="muted" style="font-size:11.5px;margin:-2px 0 8px">${esc(t('photoOptional'))}</div>
+          <div class="muted" style="font-size:12px;margin:-2px 0 8px">${esc(t('photoOptional'))}</div>
           <video id="sbVid" playsinline muted></video>
           <div class="muted" id="sbStatus" style="margin:6px 0 10px"></div>
           <button class="btn sec" id="sbSnap" type="button">${t('takePhoto')}</button>
@@ -12134,7 +12137,7 @@ function sheetStockBoard(dir,initialPid=null){
       </div>
       <div class="stock-drops-dock" aria-label="${esc(t('stockDragDock'))}">
         <button class="btn stock-board-save" id="sbSave" type="button" disabled></button>
-        <div class="muted" style="text-align:center;font-size:11px;margin-bottom:7px">${esc(t('stockDragDock'))}</div>
+        <div class="muted" style="text-align:center;font-size:12px;margin-bottom:7px">${esc(t('stockDragDock'))}</div>
         <div class="drops">
           <div class="dropzone zin"  id="sbDropIN"  data-dz="IN">${t('stockIn')}</div>
           <div class="dropzone zout" id="sbDropOUT" data-dz="OUT">${t('stockOut')}</div>
@@ -12332,7 +12335,7 @@ function sheetStockBoard(dir,initialPid=null){
         <button class="dirbtn ${b.dir==='IN'?'in':'out'}" data-f="${pid}"
           title="${t('switchDir')}">${b.dir==='IN'?'+':'−'}</button>
         <div class="grow"><span class="strong">${esc(L(p))}</span>
-          <div class="muted" style="font-size:11.5px">${stockOf(pid)} → ${
+          <div class="muted" style="font-size:12px">${stockOf(pid)} → ${
             after < 0 ? `<b style="color:#dc2626">${after}</b>` : after} ${esc(p.unit)}</div></div>
         <button class="mini-x" data-basket-remove="${pid}" type="button" aria-label="${t('close')}: ${esc(L(p))}">×</button>
         <div class="quantity-controls">
@@ -12605,9 +12608,9 @@ function missReasonPill(reason){
 function entryRow(e, extra = ''){
   const by = e.by ? emp(e.by) : null;
   return `<div class="kv"><div class="grow">${esc(e.name)}
-      ${e.note?`<div class="muted" style="font-size:11.5px">${esc(e.note)}</div>`:''}
-      ${e.missReason?`<div class="muted" style="font-size:11.5px">${esc(missReasonLabel(e.missReason))}</div>`:''}
-      ${by?`<div class="muted" style="font-size:11.5px">${t('byWhom')} ${esc(by.name)}</div>`:''}</div>
+      ${e.note?`<div class="muted" style="font-size:12px">${esc(e.note)}</div>`:''}
+      ${e.missReason?`<div class="muted" style="font-size:12px">${esc(missReasonLabel(e.missReason))}</div>`:''}
+      ${by?`<div class="muted" style="font-size:12px">${t('byWhom')} ${esc(by.name)}</div>`:''}</div>
     <div class="row" style="flex:0 0 auto;gap:8px">
       <span class="muted">${e.qty} ${esc(e.unit)}</span>${e.missReason?missReasonPill(e.missReason):''}${extra}</div></div>`;
 }
@@ -12641,7 +12644,7 @@ function sheetShoppingHistory(){
   const hid=shopHouse(),trips=shoppingHistory(hid);
   const itemList=(items,kind)=>{
     const rows=items.filter(item=>item.result===kind);
-    return rows.length?`<ul>${rows.map(item=>`<li><span>${esc(item.name)}${item.reason?` · ${esc(missReasonLabel(item.reason))}`:''}</span><span>${item.qty} ${esc(item.unit)}</span></li>`).join('')}</ul>`:`<div class="muted" style="font-size:11px">—</div>`;
+    return rows.length?`<ul>${rows.map(item=>`<li><span>${esc(item.name)}${item.reason?` · ${esc(missReasonLabel(item.reason))}`:''}</span><span>${item.qty} ${esc(item.unit)}</span></li>`).join('')}</ul>`:`<div class="muted" style="font-size:12px">—</div>`;
   };
   openSheet(`<div class="help-center-hero"><div class="import-kicker">${esc(houseShort(hid))}</div><h2>🛒 ${t('shoppingHistory')}</h2><p>${t('shoppingHistoryHint')}</p></div>
     <div class="seg house-selector" id="historyHouse" style="margin-top:12px">${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-history-house="${h.id}">🏠 ${esc(h.short)}</button>`).join('')}</div>
@@ -12652,7 +12655,7 @@ function sheetShoppingHistory(){
       const dateDay=new Date(trip.fridayDate+'T12:00:00').getDate();
       return `<details class="trip-card" ${index===0?'open':''}><summary><div class="trip-date">${dateDay}</div><div><h3>${esc(fridayText(trip.fridayDate))}</h3><div class="trip-meta">${t('completedBy')} ${esc(who?.name||'—')}${trip.completedAt?' · '+t('completedOn')+' '+esc(fmtDT(trip.completedAt)):''}</div></div><div class="trip-counts"><span class="pill in">✓ ${bought.length}</span><span class="pill out">∅ ${unavail}</span>${expensive?`<span class="pill miss-reason expensive">€ ${expensive}</span>`:''}</div></summary>
         <div class="trip-results"><section class="trip-result bought"><h4>✓ ${t('boughtItems')}</h4>${itemList(trip.items,'bought')}</section><section class="trip-result missing"><h4>× ${t('notBoughtItems')}</h4>${itemList(trip.items,'missing')}</section></div></details>`;
-    }).join(''):`<div class="trip-empty"><div class="big">🧾</div><b>${t('noShoppingHistory')}</b><div style="margin-top:5px;font-size:11.5px">${t('noShoppingHistoryHint')}</div></div>`}</div>`);
+    }).join(''):`<div class="trip-empty"><div class="big">🧾</div><b>${t('noShoppingHistory')}</b><div style="margin-top:5px;font-size:12px">${t('noShoppingHistoryHint')}</div></div>`}</div>`);
   sheetEl.querySelectorAll('[data-history-house]').forEach(button=>button.onclick=()=>{state.house=button.dataset.historyHouse;closeSheet();sheetShoppingHistory();});
 }
 
@@ -13938,7 +13941,7 @@ function sheetFeedbackInbox(){
           <b>${esc(r.title||'')}</b>
           <div class="muted" style="font-size:12px;margin-top:4px">${esc(r.context||'')} · ${esc(t('feedbackBy'))} ${esc(feedbackAuthorLabel(r))} · ${esc(when)}</div>
           <p class="fb-inbox-desc">${esc(r.description||'')}</p>
-          ${r.screenshotNote?`<div class="muted" style="font-size:11px">📷 ${esc(r.screenshotNote)}</div>`:''}
+          ${r.screenshotNote?`<div class="muted" style="font-size:12px">📷 ${esc(r.screenshotNote)}</div>`:''}
         </div>
       </div>
       <div class="fb-triage pro-only mode-pro-block">
@@ -14820,14 +14823,14 @@ function sheetImportList(opts={}){
     if(!rows){ box.innerHTML = ''; return; }
     box.innerHTML = `
       <div class="import-review"><div class="import-review-head"><div><b>${t('importReview')}</b>
-        <div class="muted" style="font-size:10.5px">${t('checkBeforeSave')}</div></div><span class="pill gray">${rows.length}</span></div><div class="import-review-body">
+        <div class="muted" style="font-size:12px">${t('checkBeforeSave')}</div></div><span class="pill gray">${rows.length}</span></div><div class="import-review-body">
       ${extractedText ? `<details style="padding:9px 12px"><summary class="muted">${t('extractedText')}</summary><div class="muted" style="white-space:pre-wrap;margin-top:6px">${esc(extractedText)}</div></details>` : ''}
       ${rows.map((r,i)=>`<div class="import-review-row">
         <div><input data-n="${i}" value="${esc(r.name)}" aria-label="${t('itemName')}" style="font-weight:650">
           <div style="margin-top:5px"><span class="pill ${confidenceClass(r.confidence)}">${confidenceLabel(r.confidence)}</span>
           ${r.unknown ? '<span class="pill ovr">?</span>' : ''}
           ${r.dupe ? `<span class="pill ovr">${t('alreadyOnList')}</span>` : ''}</div>
-          ${r.note ? `<div class="muted" style="font-size:10.5px;margin-top:4px">${esc(r.note)}</div>` : ''}</div>
+          ${r.note ? `<div class="muted" style="font-size:12px;margin-top:4px">${esc(r.note)}</div>` : ''}</div>
         <input type="number" data-q="${i}" value="${r.qty}" step="0.5" min="0" aria-label="${t('qty')}">
         <input data-u="${i}" value="${esc(r.unit)}" aria-label="${t('unit')}">
         <button class="mini-x" data-rm="${i}" aria-label="${t('close')}">×</button></div>`).join('')}</div></div>
@@ -17517,7 +17520,7 @@ function childStundenplanView(c){
     return `<button type="button" class="sp-day ${ds===state.date?'on':''} ${ds===today?'today':''}" data-date="${ds}">
       <span class="d">${DAY_NAMES[state.lang][dowIdx(d)]}</span>
       <span class="n">${d.getDate()}</span>
-      <span class="muted" style="font-size:9px">${n||''}</span>
+      <span class="muted" style="font-size:12px">${n||''}</span>
     </button>`;
   }).join('');
   const list = childEntriesFor(state.date, c.id);
@@ -18040,34 +18043,39 @@ function viewKids(){
   if(state.staffKidId) return viewKidProfile(state.staffKidId);
   const pane=state.kidsPane||'directory';
   const kids=(DB.children||[]).filter(k=>!k.temporary || true);
+  const emptyMark=t('kidsMetricEmpty');
   const dir=kids.map(k=>{
     const summary=childProgressSummary(k.id);
     const att=attendanceFor(k.id, state.date||iso(new Date()));
-    const attLbl=att?t('att_'+att.status):'·';
+    const attLbl=att?t('att_'+att.status):t('kidsAttNone');
+    const attClass=att?` att-${att.status}`:' att-none';
     return `<div class="kid-dir-row">
       <button type="button" class="kid-dir-card pine-settle" data-open-kid="${k.id}">
       <span class="kid-dir-av" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0]||'?')}</span>
       <span class="kid-dir-main grow">
-        <span class="kid-dir-name"><b>${esc(k.name)}</b><small>${esc(attLbl)}</small></span>
+        <span class="kid-dir-name"><b>${esc(k.name)}</b><small class="kid-dir-att${attClass}">${esc(attLbl)}</small></span>
         <span class="kid-dir-metrics">
-          <span><b>${summary.gradeAverage||'—'}</b>${esc(t('gradeAverage'))}</span>
-          <span><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:'—'}</b>${esc(t('schoolAttendance'))}</span>
+          <span><b>${summary.gradeAverage||emptyMark}</b>${esc(t('gradeAverage'))}</span>
+          <span><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:emptyMark}</b>${esc(t('schoolAttendance'))}</span>
           <span class="pro-only mode-pro-block"><b>${summary.homeworkOpen}</b>${esc(t('schoolHomework'))}</span>
-          <span><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):'—'}</b>${esc(t('staffWeekAverage'))}</span>
+          <span><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):emptyMark}</b>${esc(t('staffWeekAverage'))}</span>
           <span class="pro-only mode-pro-block"><b>${summary.xp}</b>XP · Lv ${summary.level}</span>
           <span class="pro-only mode-pro-block"><b>${summary.game.wins||0}</b>${esc(t('gameWins'))}</span>
         </span>
       </span>
       <span class="kid-dir-arrow" aria-hidden="true">→</span>
     </button>
-    ${isAdminUser()?`<div class="kid-dir-admin"><button type="button" class="btn sm sec" data-kid-edit="${k.id}">${esc(t('kidEdit'))}</button><button type="button" class="btn sm ghost kid-dir-remove" data-kid-remove="${k.id}">${esc(t('kidRemove'))}</button></div>`:''}
+    ${isAdminUser()?`<div class="kid-dir-admin">
+      <button type="button" class="btn sm ghost kid-dir-ico" data-kid-edit="${k.id}" title="${esc(t('kidEdit'))}" aria-label="${esc(t('kidEdit'))}: ${esc(k.name)}"><span aria-hidden="true">✎</span></button>
+      <button type="button" class="btn sm ghost kid-dir-ico kid-dir-remove" data-kid-remove="${k.id}" title="${esc(t('kidRemove'))}" aria-label="${esc(t('kidRemove'))}: ${esc(k.name)}"><span aria-hidden="true">⌫</span></button>
+    </div>`:''}
     </div>`;
   }).join('');
   const openHomework=(DB.homework||[]).filter(row=>!row.done).length;
   const graded=(DB.children||[]).filter(child=>childProgressSummary(child.id).gradedCount>0).length;
   const overview=`<section class="kids-overview" aria-label="${esc(t('kidsOverview'))}">
     <div><b>${kids.length}</b><span>${esc(t('kidsTracked'))}</span></div>
-    <div><b>${graded}</b><span>${esc(t('childGrades'))}</span></div>
+    <div><b>${graded}</b><span>${esc(t('kidsWithGrades'))}</span></div>
     <div><b>${openHomework}</b><span>${esc(t('kidsOpenHomework'))}</span></div>
   </section>`;
   const tabs=`<div class="kids-pane-tabs" data-tour="kids-tabs" role="tablist">
@@ -22140,9 +22148,9 @@ function sheetNotifCenter(){
     </div>
     ${!on?`${cap.reason==='ios-install'
       ? `<button class="btn" type="button" id="notifCenterInstall" style="margin-top:10px">${esc(t('childInstallTitle'))}</button>
-         <p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(t('notifInstallSteps'))}</p>`
+         <p class="muted" style="font-size:12px;margin:8px 0 0;line-height:1.4">${esc(t('notifInstallSteps'))}</p>`
       : `<button class="btn" type="button" id="notifCenterEnable" style="margin-top:10px" ${canEnable?'':'disabled'}>${esc(t('notifEnable'))}</button>
-      ${platformHint?`<p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}`}`:''}
+      ${platformHint?`<p class="muted" style="font-size:12px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}`}`:''}
     <button class="btn ${on?'':'sec'}" type="button" id="notifCenterSettings" style="margin-top:10px">${esc(t('notifOpenSettings'))}</button>
     <button class="btn sec" type="button" id="notifCenterClose" style="margin-top:8px">${esc(t('close'))}</button>`);
   sheetEl.querySelector('#notifCenterClose').onclick=()=>closeSheet();
@@ -24824,8 +24832,8 @@ async function fillSecurityDevicesCard(card){
     const child=state.mode==='child';
     const rows=devices.slice(0, child?5:8).map(d=>`<div class="row between" style="gap:8px;padding:8px 0;border-bottom:1px solid var(--line,rgba(0,0,0,.08))">
       <div class="grow"><b style="font-size:13px">${esc(d.deviceLabel||t('thisDevice'))}</b>
-        <div class="muted" style="font-size:11px;margin-top:2px">${esc(d.ip||'—')}${d.method?` · ${esc(d.method)}`:''}</div></div>
-      <div class="muted" style="font-size:11px;text-align:right;white-space:nowrap">${esc(t('devicesLastSeen'))}<br>${esc(formatDeviceWhen(d.lastSeen))}</div>
+        <div class="muted" style="font-size:12px;margin-top:2px">${esc(d.ip||'—')}${d.method?` · ${esc(d.method)}`:''}</div></div>
+      <div class="muted" style="font-size:12px;text-align:right;white-space:nowrap">${esc(t('devicesLastSeen'))}<br>${esc(formatDeviceWhen(d.lastSeen))}</div>
     </div>`).join('');
     card.innerHTML=`<b>📱 ${esc(t('devicesTitle'))}</b>
       <p class="muted" style="font-size:12px;margin:6px 0 8px">${esc(child?t('devicesHintChild'):t('devicesHint'))}</p>
@@ -24893,7 +24901,7 @@ async function sheetSecurityAudit(opts={}){
         const device=d.deviceLabel||row.deviceLabel||'—';
         return `<div style="padding:10px 0;border-bottom:1px solid var(--line,rgba(0,0,0,.08))">
           <div class="row between" style="gap:8px"><b style="font-size:13px">${esc(label)}</b>
-            <span class="muted" style="font-size:11px;white-space:nowrap">${esc(formatDeviceWhen(row.ts))}</span></div>
+            <span class="muted" style="font-size:12px;white-space:nowrap">${esc(formatDeviceWhen(row.ts))}</span></div>
           <div class="muted" style="font-size:12px;margin-top:4px">${esc(who)} · ${esc(device)} · ${esc(row.ip||'—')}${d.method?` · ${esc(d.method)}`:''}</div>
         </div>`;
       }).join('');
@@ -25043,9 +25051,9 @@ async function mountSecurityAccess(pageHost){
     const canEnable=on || cap.canRequest || (perm==='granted' && !notifPrefs().enabled);
     notifCard.innerHTML=`<b class="notif-bell">${ui('u-bell')} ${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</b>
       <p class="muted" style="font-size:12px;margin:6px 0 10px">${esc(child?t('notifHintChild'):t('notifHint'))}</p>
-      <p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
-      ${platformHint?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(platformHint)}</p>`:''}
-      ${(child||cap.ios)?`<p class="muted" style="font-size:11px;margin:0 0 10px;line-height:1.4">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>`:''}
+      <p class="muted" style="font-size:12px;margin:0 0 10px;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
+      ${platformHint?`<p class="muted" style="font-size:12px;margin:0 0 10px;line-height:1.4">${esc(platformHint)}</p>`:''}
+      ${(child||cap.ios)?`<p class="muted" style="font-size:12px;margin:0 0 10px;line-height:1.4">${esc(t('childInstallIos'))}<br>${esc(t('childInstallAndroid'))}</p>`:''}
       <button class="btn ${on?'sec':''}" type="button" id="notifToggle" ${canEnable?'':'disabled'}>${esc(on?t('notifEnabled'):(cap.reason==='ios-install'?t('childInstallTitle'):(child?t('notifEnableChild'):t('notifEnable'))))}</button>
       <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
       ${on?notifPrefsFormHtml({child}):''}
@@ -25091,9 +25099,9 @@ async function mountSecurityAccess(pageHost){
   if(uiModeCard){
     uiModeCard.innerHTML=`<b>${ui('u-leaf','sm')} ${esc(t('uiModeLabel'))}</b>
       <p class="muted" style="font-size:12px;margin:6px 0 10px;line-height:1.45">${esc(t('uiModeHint'))}</p>
-      <div class="muted" style="font-size:11px;margin:0 0 6px">${esc(t('uiModeGlobal'))}</div>
+      <div class="muted" style="font-size:12px;margin:0 0 6px">${esc(t('uiModeGlobal'))}</div>
       ${uiModeToggleHtml({scope:'global'})}
-      <div class="muted" style="font-size:11px;margin:12px 0 6px">${esc(t('uiModePage'))}</div>
+      <div class="muted" style="font-size:12px;margin:12px 0 6px">${esc(t('uiModePage'))}</div>
       ${uiModeToggleHtml({scope:'page'})}
       <button class="btn sec sm" type="button" id="uiModeResetPages" style="margin-top:10px">${esc(t('uiModeResetPages'))}</button>`;
     uiModeCard.querySelectorAll('[data-set-ui-mode], #uiModeResetPages').forEach(el=>{ el.dataset.uiModeWired=''; });
@@ -25101,7 +25109,7 @@ async function mountSecurityAccess(pageHost){
   }
   if(customizeCard){
     customizeCard.innerHTML=`<div class="row between" style="align-items:center;gap:10px;margin-bottom:8px">
-        <div><b>${t('profileSectionLook')}</b><div class="muted" style="font-size:11px;margin-top:3px">${esc(who.name)}</div></div>
+        <div><b>${t('profileSectionLook')}</b><div class="muted" style="font-size:12px;margin-top:3px">${esc(who.name)}</div></div>
         ${profileAvatarHtml(who,{className:'pa avatar profile-look-av'})}
       </div>
       <div class="profile-photo-row">
@@ -25109,7 +25117,7 @@ async function mountSecurityAccess(pageHost){
         <input id="profilePhotoFile" class="profile-photo-input" type="file" accept="image/*">
         ${profilePhoto(who)?`<button class="btn sm ghost" type="button" id="profilePhotoClear">${esc(t('profilePhotoRemove'))}</button>`:''}
       </div>
-      <p class="muted" style="font-size:11px;margin:0 0 10px">${esc(t('profilePhotoHint'))}</p>
+      <p class="muted" style="font-size:12px;margin:0 0 10px">${esc(t('profilePhotoHint'))}</p>
       <label class="f"><span>${t('profileNickname')}</span><input id="profileNick" value="${esc(pref.nickname||'')}" placeholder="${esc(who.name)}" maxlength="40"></label>
       <label class="f"><span>${t('profileEmoji')}</span><input id="profileEmoji" value="${esc(pref.emoji||'')}" placeholder="🙂" maxlength="4"></label>
       <label class="f"><span>${t('profileColor')}</span><input id="profileColor" type="color" value="${esc(profileColor(who))}"></label>
@@ -25154,7 +25162,7 @@ async function mountSecurityAccess(pageHost){
   }
   if(pinCard){
     pinCard.innerHTML=`<b>${t('profileSectionPin')}</b>
-      <div class="muted" style="font-size:11.5px;margin:4px 0 10px;line-height:1.45">${esc(t('profilePinHint'))}</div>
+      <div class="muted" style="font-size:12px;margin:4px 0 10px;line-height:1.45">${esc(t('profilePinHint'))}</div>
       <label class="f"><span>${t('profilePinCurrent')}</span><input id="pinCurrent" type="password" inputmode="numeric" autocomplete="current-password" maxlength="6"></label>
       <label class="f"><span>${t('profilePinNew')}</span><input id="pinNew" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6"></label>
       <label class="f"><span>${t('profilePinConfirm')}</span><input id="pinConfirm" type="password" inputmode="numeric" autocomplete="new-password" maxlength="6"></label>
@@ -25222,7 +25230,7 @@ async function mountSecurityAccess(pageHost){
           <div>
             <div class="email-panel-kicker">${t('profileSectionContact')}</div>
             <h3>${t('contactCardTitle')}</h3>
-            <div class="muted" style="font-size:11.5px;margin-top:4px">${profilesData.canManageAll?t('adminsManageEmails'):esc(displayName(selected))}</div>
+            <div class="muted" style="font-size:12px;margin-top:4px">${profilesData.canManageAll?t('adminsManageEmails'):esc(displayName(selected))}</div>
           </div>
           <span class="status-pill ${ready?'ok':'warn'}">${ready?`✓ ${esc(providerLabel)}`:`! ${esc(providerLabel)}`}</span>
         </div>
@@ -25237,7 +25245,7 @@ async function mountSecurityAccess(pageHost){
         ${profiles.length>1?`<label class="f"><span>${t('profileDetails')}</span><select id="profileEmailPicker">${profiles.map(p=>`<option value="${esc(p.profileId)}" ${p.profileId===selected.profileId?'selected':''}>${esc(displayName(p))} · ${p.mode==='child'?t('entryChild'):t('entryStaff')}</option>`).join('')}</select></label>`:''}
         <label class="f"><span>✉️ ${t('recoveryEmail')}</span><input type="email" id="profileEmail" value="${esc(selected.email||'')}" autocomplete="email" placeholder="name@example.com"></label>
         <label class="f"><span>📱 ${t('phoneLabel')}</span><input type="tel" id="profilePhone" value="${esc(selected.phone||'')}" autocomplete="tel" inputmode="tel" placeholder="+30 … / +49 …"></label>
-        <p class="muted" style="font-size:11.5px;line-height:1.5">${t('recoveryEmailHint')} ${t('phoneHint')}</p>
+        <p class="muted" style="font-size:12px;line-height:1.5">${t('recoveryEmailHint')} ${t('phoneHint')}</p>
         <div id="profileEmailStatus" class="status-box" style="display:none" role="status" aria-live="polite"></div>
         <div class="email-actions">
           <button class="btn" id="saveProfileEmail" type="button">${t('saveContact')}</button>
@@ -25289,8 +25297,8 @@ async function mountSecurityAccess(pageHost){
     paintProfile(data.profileId);
     count=Number(data.passkeys)||0;
     const supported=await platformAuthenticatorAvailable();
-    card.innerHTML=`<div class="row between"><div><b>${esc(t('profileSectionBio'))} · ${esc(biometricName())}</b><div class="muted" style="font-size:11px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
-      <p class="muted" style="font-size:11.5px;line-height:1.5">${t('passkeyHint')}</p>
+    card.innerHTML=`<div class="row between"><div><b>${esc(t('profileSectionBio'))} · ${esc(biometricName())}</b><div class="muted" style="font-size:12px;margin-top:3px">${count?T[state.lang].passkeyCount(count):t('passkeyNone')}</div></div><span style="font-size:25px">${supported?'✓':'!'}</span></div>
+      <p class="muted" style="font-size:12px;line-height:1.5">${t('passkeyHint')}</p>
       ${supported?`<button class="btn" id="securityAddPasskey">＋ ${t('passkeySetup')}</button>`:`<div class="status-box error">${t('passkeyUnavailable')}</div>`}
       ${count?`<button class="btn sec" id="securityRemovePasskeys">${t('removePasskeys')}</button>`:''}`;
     const add=card.querySelector('#securityAddPasskey');
@@ -25951,7 +25959,7 @@ function teamNoticeBannerHtml(){
     <span style="font-size:24px">✉️</span>
     <span class="grow"><span class="strong">${esc(headline)}</span><br>
       <span class="muted">${esc(String(body).slice(0,140))}</span></span>
-    <span class="muted" style="font-size:11px">${esc(t('adminBroadcastBannerDismiss'))}</span>
+    <span class="muted" style="font-size:12px">${esc(t('adminBroadcastBannerDismiss'))}</span>
   </button>`;
 }
 function dismissTeamNotice(){
@@ -26310,7 +26318,7 @@ function notifPrefsFormHtml({child=false}={}){
   if(easy){
     return `<div class="notif-prefs" style="margin-top:10px;display:grid;gap:8px">
       <p class="muted" style="font-size:12px;margin:0;line-height:1.45">${esc(t('notifEasyHint'))}</p>
-      <p class="muted" style="font-size:11px;margin:0;line-height:1.4">${esc(t('notifProCategories'))}</p>
+      <p class="muted" style="font-size:12px;margin:0;line-height:1.4">${esc(t('notifProCategories'))}</p>
     </div>`;
   }
   return `<div class="notif-prefs pro-only mode-pro-block" style="margin-top:10px;display:grid;gap:8px">
@@ -26322,7 +26330,7 @@ function notifPrefsFormHtml({child=false}={}){
       ${row('notifOptSound', t('notifOptSound'), prefs.sound)}
       ${row('notifOptVibrate', t('notifOptVibrate'), prefs.vibrate)}
     </div>
-    <p class="muted" style="font-size:11px;margin:0;line-height:1.4">${esc(t('notifDeliveryHint'))}</p>
+    <p class="muted" style="font-size:12px;margin:0;line-height:1.4">${esc(t('notifDeliveryHint'))}</p>
     <button class="btn sec sm" type="button" id="notifPrefsSave">${esc(t('saveContact'))}</button>
   </div>`;
 }
@@ -26363,11 +26371,11 @@ function sheetNotifPrefs(){
     <p>${esc(isEasy()?t('notifEasyHint'):t('notifPrefsHint'))}</p></div>
     ${iosInstall
       ? `<button class="btn" type="button" id="notifInstallSheet">${esc(t('childInstallTitle'))}</button>
-         <p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(t('notifInstallSteps'))}</p>`
+         <p class="muted" style="font-size:12px;margin:8px 0 0;line-height:1.4">${esc(t('notifInstallSteps'))}</p>`
       : `<button class="btn ${on?'sec':''}" type="button" id="notifToggle" ${canEnable?'':'disabled'}>${esc(on?t('notifEnabled'):(child?t('notifEnableChild'):t('notifEnable')))}</button>`}
-    ${!iosInstall && platformHint?`<p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}
+    ${!iosInstall && platformHint?`<p class="muted" style="font-size:12px;margin:8px 0 0;line-height:1.4">${esc(platformHint)}</p>`:''}
     ${cap.android && window.__paidiaDeferredInstall?`<button class="btn sec sm" type="button" id="pwaInstallAndroidInline" style="margin-top:8px">${esc(t('installAppAndroid'))}</button>`:''}
-    <p class="muted" style="font-size:11px;margin:8px 0 0;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
+    <p class="muted" style="font-size:12px;margin:8px 0 0;line-height:1.4">${esc(t('notifRuntimeHint'))}</p>
     <button class="btn sec sm" type="button" id="notifTestBtn" style="margin-top:8px" ${perm==='granted'?'':'disabled'}>${esc(t('notifTest'))}</button>
     ${on?notifPrefsFormHtml({child}):''}
     <button class="btn sec" type="button" id="notifPrefsClose" style="margin-top:10px">${esc(t('close'))}</button>`);

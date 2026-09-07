@@ -1,3 +1,9 @@
+## v236 · 2026-09-07
+
+- Desk Kids: full-width dense directory, compact KPI strip, pencil/trash icon actions instead of long edit labels.
+- Staff overview label fixed (`mit Noten` instead of child-facing `Meine Noten`); empty attendance shows `offen`.
+- Cache `paidia-v236`.
+
 ## v235 · 2026-09-07
 
 - Zo-Ai child isolation: kid-only knowledge pack (`child-overview` / `child-safety`), UI context whitelist, anti-injection prompt, reply leak filter, untrusted `<user_message>` wrapping.
