@@ -1,3 +1,8 @@
+## v232 · 2026-09-07
+
+- Master Tutorial (`?`) in the top bar on PC and mobile: explain this page (spotlight per control) or full app tour.
+- Cache `paidia-v232`.
+
 ## v231 · 2026-09-07
 
 - Admin hub: change any profile PIN/email; send access emails with info + App buttons; broadcast CTAs.

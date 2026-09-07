@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 231,
-  label: 'v231',
+  version: 232,
+  label: 'v232',
   changed: {
-    de: 'Admin: PINs ändern, Zugangs-Mails mit Buttons.',
-    el: 'Admin: αλλαγή PIN, info-mail με κουμπιά.',
+    de: 'Tutorial-Taste oben: Seite erklären oder ganze App-Tour.',
+    el: 'Κουμπί Tutorial πάνω: εξήγηση σελίδας ή πλήρης περιήγηση.',
   },
 };
 const T = {
@@ -532,10 +532,18 @@ const T = {
     tutorialSaveError:'Die Einführung konnte nicht gespeichert werden. Prüfe die Verbindung und versuche es erneut.',
     tutorialTip:'Tippe den markierten Bereich oder „Verstanden“. Du kannst jederzeit überspringen und später fortsetzen.',
     tutorialOpen:'App-Tutorial öffnen', tutorialReplay:'App-Tour', tutorialClose:'Tutorial beenden',
-    tutorialReplayTip:'Jederzeit über Hilfe (?) oder Profil. Easy = kürzer, Pro = mehr Seiten.',
-    helpCenter:'Hilfe & Zo-Ai', helpCenterHint:'App-Tour, Team-Gespräch und Zo-Ai. Zo-Ai kann mit Bestätigung Lager, Liste und Plan ändern.',
+    tutorialReplayTip:'Jederzeit über ? oben oder Hilfe. Easy = kürzer, Pro = mehr Seiten.',
+    tutorialMaster:'Tutorial',
+    tutorialThisPage:'Diese Seite erklären',
+    tutorialFullApp:'Ganze App-Tour',
+    tutorialPageDone:'Seiten-Tutorial fertig.',
+    tutorialPageEmpty:'Für diese Seite gibt es noch keine Highlights.',
+    tutorialMasterHint:'Markiert die wichtigen Elemente dieser Seite — oder starte die komplette App-Tour.',
+    tutorialPageKicker:'Diese Seite',
+    helpCenter:'Hilfe & Zo-Ai', helpCenterHint:'Seiten-Tutorial (? oben), App-Tour, Feedback und Zo-Ai. Zo-Ai kann mit Bestätigung Lager, Liste und Plan ändern.',
     tutorialGotIt:'Verstanden', tutorialSkip:'Überspringen', tutorialResume:'Tour fortsetzen',
     startTutorial:'App-Tour starten', startTutorialHint:'Echte Buttons & Seiten — Easy kurz, Pro vollständig. Fortsetzen möglich.',
+    startPageTutorial:'Diese Seite erklären', startPageTutorialHint:'Markiert die Bedienelemente der aktuellen Seite.',
     feedbackNav:'Feedback', feedbackTitle:'Melden & Vorschlagen',
     feedbackHint:'Fehler melden, Änderung oder Ergänzung vorschlagen. Seite wird automatisch mitgeschickt.',
     feedbackTypeBug:'Fehler', feedbackTypeChange:'Änderung', feedbackTypeAddition:'Ergänzung',
@@ -1780,10 +1788,18 @@ const T = {
     tutorialSaveError:'Η ξενάγηση δεν αποθηκεύτηκε. Έλεγξε τη σύνδεση και δοκίμασε ξανά.',
     tutorialTip:'Πάτα την περιοχή με φως ή «Το κατάλαβα». Μπορείς να παραλείψεις και να συνεχίσεις αργότερα.',
     tutorialOpen:'Άνοιγμα tutorial εφαρμογής', tutorialReplay:'Περιήγηση εφαρμογής', tutorialClose:'Τέλος tutorial',
-    tutorialReplayTip:'Οποτεδήποτε από το ? ή το Προφίλ. Easy = σύντομο, Pro = περισσότερες σελίδες.',
-    helpCenter:'Βοήθεια & Zo-Ai', helpCenterHint:'Περιήγηση εφαρμογής, συνομιλία ομάδας και Zo-Ai. Η Zo-Ai μπορεί με επιβεβαίωση να αλλάξει αποθήκη, λίστα και πρόγραμμα.',
+    tutorialReplayTip:'Οποτεδήποτε από το ? πάνω ή τη Βοήθεια. Easy = σύντομο, Pro = περισσότερες σελίδες.',
+    tutorialMaster:'Tutorial',
+    tutorialThisPage:'Εξήγηση αυτής της σελίδας',
+    tutorialFullApp:'Πλήρης περιήγηση εφαρμογής',
+    tutorialPageDone:'Το tutorial σελίδας ολοκληρώθηκε.',
+    tutorialPageEmpty:'Δεν υπάρχουν ακόμη highlights για αυτή τη σελίδα.',
+    tutorialMasterHint:'Δείχνει τα σημαντικά στοιχεία αυτής της σελίδας — ή ξεκίνα την πλήρη περιήγηση.',
+    tutorialPageKicker:'Αυτή η σελίδα',
+    helpCenter:'Βοήθεια & Zo-Ai', helpCenterHint:'Tutorial σελίδας (? πάνω), περιήγηση εφαρμογής, feedback και Zo-Ai. Η Zo-Ai μπορεί με επιβεβαίωση να αλλάξει αποθήκη, λίστα και πρόγραμμα.',
     tutorialGotIt:'Το κατάλαβα', tutorialSkip:'Παράλειψη', tutorialResume:'Συνέχεια tour',
     startTutorial:'Έναρξη περιήγησης', startTutorialHint:'Πραγματικά κουμπιά & σελίδες — Easy σύντομο, Pro πλήρες.',
+    startPageTutorial:'Εξήγηση σελίδας', startPageTutorialHint:'Δείχνει τα στοιχεία της τρέχουσας σελίδας.',
     feedbackNav:'Αναφορά', feedbackTitle:'Αναφορά & πρόταση',
     feedbackHint:'Αναφορά σφάλματος, αίτημα αλλαγής ή προσθήκης. Η σελίδα συμπληρώνεται αυτόματα.',
     feedbackTypeBug:'Σφάλμα', feedbackTypeChange:'Αλλαγή', feedbackTypeAddition:'Προσθήκη',
@@ -4285,7 +4301,7 @@ function normalizeUiModeSurfaces(){
 function uiModeToggleHtml({compact=false, scope='page'}={}){
   const mode = uiMode();
   const sc = scope==='global' ? 'global' : 'page';
-  return `<div class="ui-mode-seg${compact?' is-compact':''}" role="group" aria-label="${esc(t('uiModeLabel'))}" data-ui-mode-scope="${sc}">
+  return `<div class="ui-mode-seg${compact?' is-compact':''}" role="group" aria-label="${esc(t('uiModeLabel'))}" data-ui-mode-scope="${sc}" data-tour="ui-mode">
     <button type="button" class="${mode==='easy'?'on':''}" data-set-ui-mode="easy" data-ui-scope="${sc}" title="${esc(t('uiModeEasyHint'))}">
       ${ui('u-leaf','sm')}<span>${esc(t('uiModeEasy'))}</span>
     </button>
@@ -4828,16 +4844,153 @@ function writeTourProgress(patch={}){
 
 function tourCopy(de, el){ return state.lang==='el' ? el : de; }
 
-function buildTourSteps(){
-  const easy = isEasy();
-  const mk = (id, target, place, deTitle, elTitle, deBody, elBody, opts={})=>({
+function tourMk(id, target, place, deTitle, elTitle, deBody, elBody, opts={}){
+  return {
     id, target, place,
     title:()=>tourCopy(deTitle, elTitle),
     body:()=>tourCopy(deBody, elBody),
     easy: opts.easy!==false,
     proOnly: !!opts.proOnly,
     activate: opts.activate!==false,
-  });
+    optional: !!opts.optional,
+  };
+}
+
+function tourTargetReady(el){
+  if(!el) return false;
+  try{
+    const st = getComputedStyle(el);
+    if(st.display==='none' || st.visibility==='hidden') return false;
+    const r = el.getBoundingClientRect();
+    if(r.width < 2 && r.height < 2) return false;
+  }catch{ return false; }
+  return true;
+}
+
+function tourFindTarget(sel){
+  if(!sel) return null;
+  const escSel = (typeof CSS!=='undefined' && CSS.escape) ? CSS.escape(sel) : String(sel).replace(/"/g,'');
+  let all = [...document.querySelectorAll(`[data-tour="${escSel}"]`)];
+  if(!all.length && state.mode==='child' && String(sel).startsWith('kid-nav-')){
+    try{
+      if(!document.body.classList.contains('sheet-kid-site-open')) openKidSiteMenu();
+    }catch{}
+    all = [...document.querySelectorAll(`[data-tour="${escSel}"]`)];
+  }
+  return all.find(tourTargetReady) || all[0] || null;
+}
+
+function tourStepVisible(step){
+  if(!step?.target) return false;
+  return tourTargetReady(tourFindTarget(step.target));
+}
+
+function buildPageTourSteps(){
+  const easy = isEasy();
+  const mk = tourMk;
+  const filter = steps => steps.filter(s=>(easy ? !s.proOnly : true) && tourStepVisible(s));
+
+  if(state.mode==='child'){
+    const v = state.childView || 'today';
+    const place = {childView:v};
+    const byView = {
+      today: [
+        mk('kid-start','kid-start',place,'Start','Start','Dein Tag: Punkte, nächste Schritte und schnelle Wege.','Η μέρα σου: πόντοι, επόμενα βήματα και γρήγορες διαδρομές.'),
+        mk('kid-nav-more','kid-nav-more',place,'Menü','Μενού','Über Mehr öffnest du Plan, Lernen und weitere Seiten.','Από το Άλλα ανοίγεις πρόγραμμα, μάθηση και άλλες σελίδες.',{optional:true,activate:false}),
+        mk('kid-zoai','nav-zoai',place,'Zo-Ai','Zo-Ai','Frag Zo-Ai zu Tag oder Spielen. Speichern machen die Betreuer.','Ρώτα τη Zo-Ai για τη μέρα ή τα παιχνίδια. Την αποθήκευση κάνουν οι φροντιστές.',{activate:false}),
+      ],
+      games: [
+        mk('kid-games','kid-games',place,'Spiele','Παιχνίδια','Wähle ein Spiel. „Alle Spiele“ bringt dich zurück.','Διάλεξε παιχνίδι. Το «Όλα τα παιχνίδια» σε γυρίζει πίσω.'),
+      ],
+      rate: [
+        mk('kid-rate','kid-rate',place,'Bewertungen','Αξιολογήσεις','Tippe Sterne für Leben und Schule.','Πάτα αστέρια για ζωή και σχολείο.'),
+      ],
+      bonus: [
+        mk('kid-bonus','kid-bonus',place,'Bonus','Μπόνους','Bonus aus Serie und Aufgaben — nur anschauen.','Μπόνους από σερί και εργασίες — μόνο για θέα.'),
+      ],
+      notes: [
+        mk('kid-notes','kid-notes',place,'Notizen','Σημειώσεις','Private Notizen bleiben auf diesem Gerät.','Οι ιδιωτικές σημειώσεις μένουν σε αυτή τη συσκευή.'),
+      ],
+    };
+    const chrome = [
+      mk('chrome-tour','chrome-tour',place,'Tutorial','Tutorial','Dieses ? startet die Erklärung der aktuellen Seite.','Αυτό το ? ξεκινά την εξήγηση της τρέχουσας σελίδας.',{activate:false}),
+      mk('chrome-lang','chrome-lang',place,'Sprache','Γλώσσα','DE ↔ ΕΛ wechseln.','Αλλαγή DE ↔ ΕΛ.',{activate:false}),
+    ];
+    return filter([...(byView[v]||byView.today), ...chrome]);
+  }
+
+  const tab = state.tab || 'home';
+  const place = {tab};
+  const chrome = [
+    mk('chrome-tour','chrome-tour',place,'Tutorial (?)','Tutorial (?)','Immer hier: diese Seite erklären oder die ganze App-Tour.','Πάντα εδώ: εξήγηση σελίδας ή πλήρης περιήγηση.',{activate:false}),
+    mk('chrome-notifs','chrome-notifs',place,'Mitteilungen','Ειδοποιήσεις','Benachrichtigungen und Team-Hinweise.','Ειδοποιήσεις και μηνύματα ομάδας.',{activate:false}),
+    mk('chrome-lang','chrome-lang',place,'Sprache','Γλώσσα','Sprache umschalten: DE oder Ελληνικά.','Αλλαγή γλώσσας: DE ή Ελληνικά.',{activate:false}),
+    mk('nav-zoai','nav-zoai',place,'Zo-Ai','Zo-Ai','Fragen oder Änderungen — immer mit Bestätigen (+ PIN für den Plan).','Ερωτήσεις ή αλλαγές — πάντα με Επιβεβαίωση (+ PIN για το πρόγραμμα).',{activate:false}),
+  ];
+  const pages = {
+    home: [
+      mk('home-main','home-main',place,'Home','Αρχική','Dein Start: Überblick und schnelle Wege für heute.','Η αρχή σου: επισκόπηση και γρήγορες διαδρομές για σήμερα.'),
+      mk('ui-mode','ui-mode',place,'Easy / Pro','Easy / Pro','Easy = weniger Optionen. Pro = alle Werkzeuge.','Easy = λιγότερες επιλογές. Pro = όλα τα εργαλεία.',{optional:true,activate:false}),
+      mk('home-pulse','home-pulse',place,'Signale','Σήματα','Kurzer Überblick: offene Aufgaben, Liste, Lager.','Σύντομη εικόνα: εργασίες, λίστα, αποθήκη.',{optional:true}),
+      mk('home-tasks','home-tasks',place,'Meine Aufgaben','Οι εργασίες μου','Heutige Aufgaben abhaken, wenn erledigt.','Σήμερα: τσεκάρισμα όταν τελειώνεις.',{optional:true}),
+      mk('home-actions','home-actions',place,'Schnellwege','Γρήγορα','Direkt zu Plan, Buch oder Kindern.','Απευθείας σε πρόγραμμα, βιβλίο ή παιδιά.',{optional:true}),
+    ],
+    schedule: [
+      mk('plan-views','plan-views',place,'Ansicht','Προβολή','Tag, Woche oder Kalender wählen.','Διάλεξε ημέρα, εβδομάδα ή ημερολόγιο.'),
+      mk('plan-house','plan-house',place,'Hausfilter','Φίλτρο σπιτιού','Nur ein Haus oder alle Häuser.','Ένα σπίτι ή όλα.',{optional:true}),
+      mk('plan-add','plan-add',place,'Eintrag hinzufügen','Νέα εγγραφή','Neuen Plan-Eintrag für den gewählten Tag.','Νέα εγγραφή για την επιλεγμένη ημέρα.',{optional:true,activate:false}),
+    ],
+    stock: [
+      mk('stock-command','stock-command',place,'Lager-Leiste','Γραμμή αποθήκης','Haus, Suche und Aktionen für Bestände.','Σπίτι, αναζήτηση και ενέργειες αποθέματος.'),
+      mk('stock-houses','stock-houses',place,'Haus','Σπίτι','Haus wählen, dann Mengen prüfen.','Διάλεξε σπίτι και έλεγξε ποσότητες.',{optional:true}),
+      mk('stock-search','stock-search',place,'Suche','Αναζήτηση','Artikel schnell finden.','Βρες προϊόντα γρήγορα.',{optional:true}),
+    ],
+    shop: [
+      mk('shop-command','shop-command',place,'Liste','Λίστα','Haus, Freitag und Plan/Warenkorb steuern.','Σπίτι, Παρασκευή και πλάνο/καλάθι.'),
+      mk('shop-houses','shop-houses',place,'Einkaufshaus','Σπίτι αγορών','Für welches Haus die Liste gilt.','Για ποιο σπίτι ισχύει η λίστα.',{optional:true}),
+      mk('shop-friday','shop-friday',place,'Freitag','Παρασκευή','Einkaufstag wählen und Liste füllen.','Διάλεξε ημέρα αγορών και γέμισε τη λίστα.',{optional:true}),
+    ],
+    talk: [
+      mk('talk-chat','talk-chat',place,'Team-Chat','Chat ομάδας','Kurze Absprachen und Nachrichten ans Team.','Σύντομες συνεννοήσεις και μηνύματα στην ομάδα.'),
+      mk('talk-topics','talk-topics',place,'Besprechung','Θέματα','Themen für die Besprechung merken.','Κράτα θέματα για τη σύσκεψη.',{optional:true}),
+    ],
+    kids: [
+      mk('kids-main','kids-main',place,'Kinder','Παιδιά','Schulübersicht, Profile und Entwicklung.','Επισκόπηση σχολείου, προφίλ και πρόοδος.'),
+      mk('kids-tabs','kids-tabs',place,'Bereiche','Ενότητες','Verzeichnis, Anwesenheit, Hausaufgaben und mehr.','Κατάλογος, παρουσία, εργασίες και άλλα.',{optional:true}),
+    ],
+    gallery: [
+      mk('gallery-main','gallery-main',place,'Momente','Στιγμές','Fotos vom Haus — sicher teilen.','Φωτογραφίες του σπιτιού — ασφαλές κοινοποίηση.'),
+      mk('gallery-share','gallery-share',place,'Teilen','Κοινοποίηση','Neuen Moment mit Foto posten.','Νέα στιγμή με φωτογραφία.',{optional:true,activate:false}),
+    ],
+    book: [
+      mk('book-main','book-main',place,'Buch','Βιβλίο','Schichtbuch und Übergabe an die nächste Schicht.','Βιβλίο βάρδιας και παράδοση στην επόμενη.'),
+      mk('book-panes','book-panes',place,'Bereiche','Ενότητες','Übergabe schreiben oder Protokoll lesen.','Γράψε παράδοση ή διάβασε πρωτόκολλο.',{optional:true}),
+      mk('book-cal','book-cal',place,'Kalender','Ημερολόγιο','Tag wählen und alles für den Tag sehen.','Διάλεξε ημέρα και δες τα όλα.',{optional:true}),
+      mk('book-write','book-write',place,'Schreiben','Γράψιμο','Hier schreibst du die Übergabe für heute.','Εδώ γράφεις την παράδοση για σήμερα.',{optional:true}),
+    ],
+    pocket: [
+      mk('pocket-main','pocket-main',place,'Taschengeld','Χαρτζιλίκι','Beträge und Verlauf für Taschengeld.','Ποσά και ιστορικό χαρτζιλικιού.'),
+    ],
+    personnel: [
+      mk('personnel-main','personnel-main',place,'Personal','Προσωπικό','Team-Übersicht und heutige Schichten.','Επισκόπηση ομάδας και σημερινές βάρδιες.'),
+    ],
+    school: [
+      mk('school-main','school-main',place,'Schule','Σχολείο','Fächer und „was wir gemacht haben“.','Μαθήματα και «τι κάναμε».'),
+    ],
+    admin: [
+      mk('admin-ops','admin-ops',place,'Admin','Admin','Team, Mitteilungen, Zugänge und System.','Ομάδα, μηνύματα, πρόσβαση και σύστημα.'),
+      mk('admin-nav','admin-nav',place,'Admin-Bereiche','Ενότητες Admin','Zwischen Admin-Bereichen wechseln.','Μετακίνηση μεταξύ ενοτήτων Admin.',{optional:true}),
+    ],
+  };
+  const pageSteps = pages[tab] || [
+    mk('page-fallback','home-main',place,'Seite','Σελίδα','Nutze ? oben für Erklärungen auf den Hauptseiten.','Χρησιμοποίησε το ? πάνω για εξηγήσεις στις κύριες σελίδες.',{optional:true}),
+  ];
+  return filter([...pageSteps, ...chrome]);
+}
+
+function buildTourSteps(){
+  const easy = isEasy();
+  const mk = tourMk;
 
   if(state.mode==='child'){
     const steps = [
@@ -4862,6 +5015,10 @@ function buildTourSteps(){
       mk('kid-notes','kid-notes',{childView:'notes'},
         'Notizen','Σημειώσεις',
         'Private Notizen bleiben auf diesem Gerät.','Οι ιδιωτικές σημειώσεις μένουν σε αυτή τη συσκευή.'),
+      mk('chrome-tour','chrome-tour',{childView:'today'},
+        'Tutorial (?)','Tutorial (?)',
+        'Jederzeit oben: diese Seite erklären oder die ganze Tour nochmal.','Οποτεδήποτε πάνω: εξήγηση σελίδας ή ξανά όλη την περιήγηση.',
+        {activate:false}),
       mk('kid-zoai','nav-zoai',{childView:'today'},
         'Zo-Ai','Zo-Ai',
         'Frag Zo-Ai zu deinem Tag oder zu Spielen. Speichern machen die Betreuerinnen und Betreuer.','Ρώτα τη Zo-Ai για τη μέρα σου ή για παιχνίδια. Την αποθήκευση κάνουν οι φροντιστές.',
@@ -4877,12 +5034,24 @@ function buildTourSteps(){
   }
 
   const steps = [
+    mk('staff-chrome','chrome-tour',{tab:'home'},
+      'Tutorial (?)','Tutorial (?)',
+      'Oben: dieses Tutorial, Mitteilungen, Sprache und Profil.','Πάνω: αυτό το tutorial, ειδοποιήσεις, γλώσσα και προφίλ.',
+      {activate:false}),
     mk('staff-home','home-main',{tab:'home'},
       'Home','Αρχική',
       'Hier siehst du deine Aufgaben und wichtigen Hinweise für heute.','Εδώ βλέπεις τις εργασίες και τις σημαντικές ειδοποιήσεις για σήμερα.'),
+    mk('staff-home-tasks','home-tasks',{tab:'home'},
+      'Aufgaben','Εργασίες',
+      'Heutige Aufgaben — abhaken wenn erledigt.','Σημερινές εργασίες — τσεκάρισμα όταν τελειώνεις.',
+      {optional:true}),
     mk('staff-plan','plan-views',{tab:'schedule'},
       'Plan','Πρόγραμμα',
       'Wechsle zwischen Tag und Woche. Mit dem Hausfilter siehst du nur ein Haus.','Άλλαξε μεταξύ ημέρας και εβδομάδας. Με το φίλτρο σπιτιού βλέπεις μόνο ένα σπίτι.'),
+    mk('staff-plan-add','plan-add',{tab:'schedule'},
+      'Hinzufügen','Προσθήκη',
+      'Neuen Eintrag für den gewählten Tag anlegen.','Νέα εγγραφή για την επιλεγμένη ημέρα.',
+      {optional:true, activate:false}),
     mk('staff-stock','stock-command',{tab:'stock'},
       'Lager','Αποθήκη',
       'Haus wählen, suchen, Mengen mit − und ＋ ändern. Mehrfachauswahl und Regale gibt es in Pro.','Διάλεξε σπίτι, ψάξε, άλλαξε ποσότητες με − και ＋. Μαζική επιλογή και ράφια υπάρχουν στο Pro.'),
@@ -4898,7 +5067,7 @@ function buildTourSteps(){
       {activate:false}),
   ];
   if(!easy){
-    steps.splice(5, 0,
+    steps.splice(8, 0,
       mk('staff-kids','kids-main',{tab:'kids'},
         'Kinder','Παιδιά',
         'Schulübersicht, Noten und Profile der Kinder.','Επισκόπηση σχολείου, βαθμοί και προφίλ παιδιών.',
@@ -4911,6 +5080,10 @@ function buildTourSteps(){
         'Buch','Βιβλίο',
         'Schichtbuch schreiben und das Protokoll lesen.','Γράψε το βιβλίο βάρδιας και διάβασε το πρωτόκολλο.',
         {proOnly:true}),
+      mk('staff-book-write','book-write',{tab:'book'},
+        'Übergabe','Παράδοση',
+        'Hier schreibst du, was die nächste Schicht wissen muss.','Εδώ γράφεις τι πρέπει να ξέρει η επόμενη βάρδια.',
+        {proOnly:true, optional:true}),
     );
   }
   return steps.filter(s=>easy ? !s.proOnly : true);
@@ -4947,18 +5120,6 @@ function tourEnsureRoot(){
   window.addEventListener('resize', ()=>{ if(state.tourActive) tourPaintCurrent(); }, {passive:true});
   window.addEventListener('scroll', ()=>{ if(state.tourActive) tourPaintCurrent(); }, {passive:true, capture:true});
   return root;
-}
-
-function tourFindTarget(sel){
-  if(!sel) return null;
-  let el = document.querySelector(`[data-tour="${sel}"]`);
-  if(!el && state.mode==='child' && String(sel).startsWith('kid-nav-')){
-    try{
-      if(!document.body.classList.contains('sheet-kid-site-open')) openKidSiteMenu();
-    }catch{}
-    el = document.querySelector(`[data-tour="${sel}"]`);
-  }
-  return el;
 }
 
 function tourPlaceStep(step){
@@ -5027,7 +5188,7 @@ function tourPaintCurrent(){
   if(!step){ tourFinish({done:true}); return; }
   document.querySelectorAll('.tour-target-live').forEach(n=>n.classList.remove('tour-target-live'));
   const el = tourFindTarget(step.target);
-  if(!el || el.offsetParent===null || getComputedStyle(el).visibility==='hidden'){
+  if(!tourTargetReady(el)){
     if(state._tourMissGuard !== state.tourIndex){
       state._tourMissGuard = state.tourIndex;
       setTimeout(()=>tourAdvance({activate:false, silent:true}), 40);
@@ -5037,14 +5198,16 @@ function tourPaintCurrent(){
   root.hidden = false;
   document.body.classList.add('tour-open');
   const de = state.lang!=='el';
-  root.querySelector('#tourKicker').textContent = de ? 'App-Tour' : 'Περιήγηση';
+  root.querySelector('#tourKicker').textContent = state.tourPageScoped
+    ? t('tutorialPageKicker')
+    : (de ? 'App-Tour' : 'Περιήγηση');
   root.querySelector('#tourCount').textContent = T[state.lang].tutorialStep(state.tourIndex+1, steps.length);
   root.querySelector('#tourTitle').textContent = step.title();
   root.querySelector('#tourBody').textContent = step.body();
   root.querySelector('#tourSkip').textContent = t('tutorialSkip');
   root.querySelector('#tourGotIt').textContent = state.tourIndex>=steps.length-1 ? t('tutorialFinish') : t('tutorialGotIt');
   tourPosition(el);
-  writeTourProgress({index: state.tourIndex, done:false});
+  if(!state.tourPageScoped) writeTourProgress({index: state.tourIndex, done:false});
 }
 
 function tourAdvance({activate=false, silent=false}={}){
@@ -5065,7 +5228,7 @@ function tourAdvance({activate=false, silent=false}={}){
     return;
   }
   state.tourIndex = next;
-  writeTourProgress({index: next, done:false});
+  if(!state.tourPageScoped) writeTourProgress({index: next, done:false});
   const nextStep = steps[next];
   const changed = tourPlaceStep(nextStep);
   const paint = ()=>tourPaintCurrent();
@@ -5076,27 +5239,37 @@ function tourAdvance({activate=false, silent=false}={}){
 
 async function tourFinish({done=true, skipped=false}={}){
   if(!state.tourActive && !state.tourResolve) return;
+  const pageScoped = !!state.tourPageScoped;
   state.tourActive = false;
+  state.tourPageScoped = false;
   document.body.classList.remove('tour-open');
   document.querySelectorAll('.tour-target-live').forEach(n=>n.classList.remove('tour-target-live'));
   const root = document.getElementById('tourRoot');
   if(root) root.hidden = true;
-  writeTourProgress({index: state.tourIndex, done:true, skipped});
-  writeOnboardingLocal();
-  state.onboardingComplete = true;
   const resolve = state.tourResolve;
   state.tourResolve = null;
   state.tourSteps = [];
+  if(pageScoped){
+    if(done || skipped) toast(t('tutorialPageDone'), 'success', 2800);
+    if(typeof resolve==='function') resolve();
+    try{ paintTopChrome(); }catch{}
+    return;
+  }
+  writeTourProgress({index: state.tourIndex, done:true, skipped});
+  writeOnboardingLocal();
+  state.onboardingComplete = true;
   try{ await syncOnboardingComplete(state.onboardingVersion); }
   catch(err){ console.warn('tour onboarding sync failed; kept local', err); }
   if(done || skipped) toast(t('tutorialDone'), 'success', 3600);
   if(typeof resolve==='function') resolve();
+  try{ paintTopChrome(); }catch{}
 }
 
 function openTutorial({required=false, resume=true}={}){
   try{ tipCancelSchedule(); tipHide(); }catch{}
   try{ closeSheet(); }catch{}
   try{ closeChatPanel(); }catch{}
+  state.tourPageScoped = false;
   const steps = buildTourSteps();
   if(!steps.length){
     writeOnboardingLocal();
@@ -5117,6 +5290,7 @@ function openTutorial({required=false, resume=true}={}){
   state.tourActive = true;
   state.onboardingVersion = TOUR_VERSION;
   tourEnsureRoot();
+  try{ paintTopChrome(); }catch{}
   return new Promise(resolve=>{
     state.tourResolve = resolve;
     const first = steps[startIndex];
@@ -5127,6 +5301,38 @@ function openTutorial({required=false, resume=true}={}){
 
 function openMandatoryTutorial(){ return openTutorial({required:true, resume:true}); }
 function openAppTutorial(){ return openTutorial({required:false, resume:false}); }
+
+function openPageTutorial(){
+  try{ tipCancelSchedule(); tipHide(); }catch{}
+  try{ closeSheet(); }catch{}
+  try{ closeChatPanel(); }catch{}
+  const steps = buildPageTourSteps();
+  if(!steps.length){
+    toast(t('tutorialPageEmpty'), 'info');
+    return Promise.resolve();
+  }
+  state.tourPageScoped = true;
+  state.tourSteps = steps;
+  state.tourIndex = 0;
+  state.tourRequired = false;
+  state.tourActive = true;
+  tourEnsureRoot();
+  try{ paintTopChrome(); }catch{}
+  return new Promise(resolve=>{
+    state.tourResolve = resolve;
+    setTimeout(()=>tourPaintCurrent(), 30);
+  });
+}
+
+function sheetMasterTutorial(){
+  openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia Thassos</div><h2>${esc(t('tutorialMaster'))}</h2><p>${esc(t('tutorialMasterHint'))}</p></div>
+    <div class="help-center-grid">
+      <button class="help-center-card" id="tourThisPage" type="button"><span class="icon">🔦</span><b>${esc(t('tutorialThisPage'))}</b><span>${esc(t('startPageTutorialHint'))}</span></button>
+      <button class="help-center-card" id="tourFullApp" type="button"><span class="icon">📘</span><b>${esc(t('tutorialFullApp'))}</b><span>${esc(t('startTutorialHint'))}</span></button>
+    </div>`);
+  sheetEl.querySelector('#tourThisPage').onclick=()=>{ closeSheet(); openPageTutorial(); };
+  sheetEl.querySelector('#tourFullApp').onclick=()=>{ closeSheet(); openAppTutorial(); };
+}
 
 async function ensureOnboarding({afterLogin=false}={}){
   if(state.onboardingComplete) return;
@@ -6203,10 +6409,12 @@ function sheetHelp(){
 function sheetHelpCenter(){
   openSheet(`<div class="help-center-hero"><div class="import-kicker">Armonia Thassos</div><h2>${t('helpCenter')}</h2><p>${t('helpCenterHint')}</p></div>
     <div class="help-center-grid">
+      <button class="help-center-card" id="helpPageTutorial" type="button"><span class="icon">🔦</span><b>${t('startPageTutorial')}</b><span>${t('startPageTutorialHint')}</span></button>
       <button class="help-center-card" id="helpTutorial" type="button"><span class="icon">📘</span><b>${t('startTutorial')}</b><span>${t('startTutorialHint')}</span></button>
       <button class="help-center-card" id="helpFeedback" type="button"><span class="icon">💬</span><b>${esc(t('feedbackTitle'))}</b><span>${esc(t('feedbackHint'))}</span></button>
     </div>
     <p class="muted" style="margin:14px 0 0;font-size:12.5px">${ui('u-sparkle')} ${esc(t('helpChat'))} · ${esc(t('navChat'))}</p>`);
+  sheetEl.querySelector('#helpPageTutorial').onclick=()=>{ closeSheet(); openPageTutorial(); };
   sheetEl.querySelector('#helpTutorial').onclick=()=>{ closeSheet(); openAppTutorial(); };
   sheetEl.querySelector('#helpFeedback').onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
 }
@@ -6523,7 +6731,7 @@ function viewGallery(){
       <p class="gal-drive-line pro-only mode-pro-block">${esc(state.galleryDrive?t('galleryDriveOn'):t('galleryDriveOff'))}</p>
     </div>
     ${hasFeed?galleryOrgBarHtml(posts):''}
-    <div class="gal-compose-bar">
+    <div class="gal-compose-bar" data-tour="gallery-share">
       <button class="gal-fab" type="button" id="galShare" aria-label="${esc(t('galleryShare'))}">
         <span>${ui('u-camera')}</span><b>${esc(t('galleryNewPost'))}</b>
       </button>
@@ -6899,7 +7107,7 @@ function viewTalk(){
       <button class="on" type="button" data-talk-pane="chat">${ui('u-chat')} ${esc(t('staffTalkChat'))}</button>
       <button type="button" data-talk-pane="topics">${ui('u-tasks')} ${esc(t('staffTalkAgenda'))}<span id="talkMobileTopicCount">${cachedOpen}</span></button>
     </nav>
-    <aside class="talk-topics glass-1" aria-label="${esc(t('staffTalkTopics'))}">
+    <aside class="talk-topics glass-1" data-tour="talk-topics" aria-label="${esc(t('staffTalkTopics'))}">
       <div class="talk-section-head">
         <div><span class="talk-eyebrow">${esc(t('staffTalkToday'))}</span><h3>${esc(t('staffTalkTopics'))}</h3></div>
         <span class="talk-count" id="talkTopicBadge">${cachedOpen}</span>
@@ -8099,7 +8307,7 @@ function viewScheduleDay(){
         <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
         ${jumpToday}
       </div>
-      <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
+      <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry" data-tour="plan-add">${esc(t('topAdd'))}</button>
       <div class="plan-day-summary" aria-label="${esc(t('planDayLoad'))}">
         <span><b>${all.length}</b><small>${esc(t('dueToday'))}</small></span>
         <span><b>${unassignedCount}</b><small>${esc(t('unassigned'))}</small></span>
@@ -8453,7 +8661,7 @@ function viewScheduleWeek(){
       <div class="plan-hero-actions">
         ${layoutSeg}
         ${weekSwitcher}
-        <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
+        <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry" data-tour="plan-add">${esc(t('topAdd'))}</button>
       </div>
       ${weekAiBar}
       <div class="plan-week-summary">
@@ -9306,7 +9514,7 @@ function viewPersonnel(){
   const selected = state.personnelId && emp(state.personnelId);
   if(selected){
     const items = typeof dashboardAssignments==='function' ? dashboardAssignments(today, selected.id) : [];
-    return `<section class="personnel-page">
+    return `<section class="personnel-page" data-tour="personnel-main">
       <button type="button" class="btn sm sec" id="personnelBack">${esc(t('adminTeamBack')||'←')}</button>
       <header class="admin-detail-hero" style="margin-top:12px">
         <div class="pa avatar" style="background:${safeColor(selected.color)}">${initials(selected.name)}</div>
@@ -9319,7 +9527,7 @@ function viewPersonnel(){
       ${isAdminUser()?`<button class="btn sec" type="button" id="personnelOpenAdmin">${esc(t('personnelOpenAdmin'))}</button>`:''}
     </section>`;
   }
-  return `<section class="personnel-page">
+  return `<section class="personnel-page" data-tour="personnel-main">
     <div class="brand-kicker">ARMONIA</div>
     <h2 style="margin:4px 0 6px">${esc(t('titlePersonnel'))}</h2>
     <p class="muted">${esc(t('personnelHint'))}</p>
@@ -9349,20 +9557,20 @@ function viewSchoolMoodle(){
     <button type="button" class="${pane==='kids'?'on':''}" data-school-pane="kids">${esc(t('navKids'))}</button>
   </div>`;
   if(pane==='kids'){
-    return `<section class="school-moodle">${subNav}
+    return `<section class="school-moodle" data-tour="school-main">${subNav}
       <p class="muted">${esc(t('schoolMoodleHint'))}</p>
       <button class="btn" type="button" id="schoolOpenKids">${esc(t('navKids'))} →</button>
     </section>`;
   }
   if(pane==='subjects'){
-    return `<section class="school-moodle">${subNav}
+    return `<section class="school-moodle" data-tour="school-main">${subNav}
       <div class="admin-team-roster">${subjects.map(s=>`<button type="button" class="admin-person admin-team-card ${s.id===subjectId?'on':''}" data-school-subject="${esc(s.id)}">
         <div class="admin-person-name">${esc(subjectLabel(s))}</div>
         <div class="muted">${esc(t('schoolWhatWeDid'))}</div>
       </button>`).join('')}</div>
     </section>`;
   }
-  return `<section class="school-moodle">
+  return `<section class="school-moodle" data-tour="school-main">
     <div class="brand-kicker">SCHOOL MOODLE ARMONIA</div>
     <h2 style="margin:4px 0">${esc(t('titleSchoolMoodle'))}</h2>
     <p class="muted">${esc(t('schoolMoodleHint'))}</p>
@@ -9620,7 +9828,7 @@ function viewSchedule(){
           <span class="pro-only mode-pro-block contents">${viewBtn('shift','u-clock',t('viewShift'))}
           ${viewBtn('events','u-megaphone',t('viewEvents'),eventsShort)}</span>
         </div>
-        ${showHouse?`<div class="seg planner-seg planner-seg-house house-selector" id="hFilter" role="tablist" aria-label="${esc(t('filterHouse'))}">
+        ${showHouse?`<div class="seg planner-seg planner-seg-house house-selector" id="hFilter" data-tour="plan-house" role="tablist" aria-label="${esc(t('filterHouse'))}">
           <button type="button" class="${state.houseFilter===''?'on':''}" data-h="" title="${esc(t('all'))}" aria-label="${esc(t('all'))}">${esc(t('all'))}</button>
           ${planningHouses().map(h=>`<button type="button" class="${state.houseFilter===h.id?'on':''}" data-h="${h.id}" title="${esc(h.name)}" aria-label="${esc(h.name)}">${esc(h.short)}</button>`).join('')}
         </div>`:''}`;
@@ -9632,7 +9840,7 @@ function viewSchedule(){
         ${viewBtn('calendar','u-calendar',t('viewCalendar'),calShort)}
         <button type="button" class="planner-more-toggle pro-only mode-pro-block" id="plannerMoreToggle" aria-label="${esc(t('menuFilters'))}"><b aria-hidden="true">···</b><span>${esc(t('navMore'))}</span></button>
       </div>
-      ${showHouse?`<div class="planner-mobile-house" role="tablist" aria-label="${esc(t('filterHouse'))}">
+      ${showHouse?`<div class="planner-mobile-house" data-tour="plan-house" role="tablist" aria-label="${esc(t('filterHouse'))}">
         <button type="button" class="${state.houseFilter===''?'on':''}" data-plan-house="">${esc(t('all'))}</button>
         ${planningHouses().map(h=>`<button type="button" class="${state.houseFilter===h.id?'on':''}" data-plan-house="${h.id}">${esc(h.short)}</button>`).join('')}
       </div>`:''}
@@ -10194,12 +10402,12 @@ function viewStock(){
       <p>${state.lang==='el'?'Το ελάχιστο απόθεμα εμφανίζεται ανά προϊόν. Καταγράψτε κάθε παραλαβή και κατανάλωση ώστε η ομάδα να γνωρίζει τι υπάρχει.':'Der Mindestbestand steht bei jedem Artikel. Erfasse Zugänge und Verbrauch, damit das Team den aktuellen Vorrat kennt.'}</p>
     </section>
     <div class="stock-command" data-tour="stock-command" aria-label="${esc(t('headerStock'))}">
-      <div class="seg house-selector" id="sHouse" aria-label="${t('filterHouse')}">
+      <div class="seg house-selector" id="sHouse" data-tour="stock-houses" aria-label="${t('filterHouse')}">
         ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-home','sm')} ${esc(h.short)}</button>`).join('')}
         <button class="${hid==='all'?'on':''}" data-h="all">${t('bothHouses')}</button>
       </div>
       <div class="stock-command-row">
-        <label class="stock-search">${ui('u-search','sm')}<input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}" autocomplete="off" enterkeyhint="search">${state.stockQuery?`<button type="button" id="stockClear" aria-label="${t('close')}">×</button>`:''}</label>
+        <label class="stock-search" data-tour="stock-search">${ui('u-search','sm')}<input id="stockSearch" value="${esc(state.stockQuery)}" placeholder="${t('stockSearch')}" aria-label="${t('stockSearch')}" autocomplete="off" enterkeyhint="search">${state.stockQuery?`<button type="button" id="stockClear" aria-label="${t('close')}">×</button>`:''}</label>
         ${hid!=='all'&&isPro()?`<button class="btn stock-primary-action stock-quick-add-btn pine-settle" type="button" id="stockQuickAdd">${ui('u-plus')} ${esc(t('stockQuickAdd'))}</button>`:''}
         <details class="stock-more pro-only mode-pro-block"><summary aria-label="${esc(t('stockMoreActions'))}">•••</summary><div class="stock-more-popover">
           ${hid==='all'?`<button class="stock-more-action ${state.stockTiles?'on':''}" type="button" id="stockTilesToggle">${ui('u-tasks','sm')} ${esc(state.stockTiles?t('stockTilesOff'):t('stockTilesOn'))}</button>`:''}
@@ -13623,11 +13831,11 @@ function viewShop(){
       </div>
     </header>
     <section class="shop-command" data-tour="shop-command" aria-label="${esc(t('shopTitle'))}">
-      <div class="seg house-selector" id="shHouse" aria-label="${t('chooseShoppingHouse')}">
+      <div class="seg house-selector" id="shHouse" data-tour="shop-houses" aria-label="${t('chooseShoppingHouse')}">
         ${shoppingHouses().map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-person','sm')} ${esc(h.short)}</button>`).join('')}
       </div>
       <div class="shop-flow-row">
-        <div class="friday-picker compact">
+        <div class="friday-picker compact" data-tour="shop-friday">
           <button data-friday-shift="-7" aria-label="${t('previousFriday')}">‹</button>
           <label class="friday-date" title="${t('chooseFriday')}"><input type="date" id="shopFridayDate" value="${friday}"><b>${esc(fridayText(friday))}</b><span>${fridayState} · ${open.length}</span></label>
           <button data-friday-shift="7" aria-label="${t('nextFriday')}">›</button>
@@ -15063,7 +15271,7 @@ function bookCalendarHtml(){
   const markers = bookJournalMarkersForMonth(y, m);
   const cells = calendarMonthGrid(y, m, markers);
   const monthName = cm.toLocaleDateString(state.lang==='el'?'el-GR':'de-DE', {month:'long', year:'numeric'});
-  return `<section class="book-cal cal-shell" aria-label="${esc(t('viewCalendar'))}">
+  return `<section class="book-cal cal-shell" data-tour="book-cal" aria-label="${esc(t('viewCalendar'))}">
     <div class="cal-head">
       <button class="btn sm sec cal-nav" type="button" data-book-cal-shift="-1" aria-label="${esc(t('calPrev'))}">${t('calPrev')}</button>
       <div class="cal-month">
@@ -15221,7 +15429,7 @@ function shiftDiaryCard(){
     </section>`;
   })() : '';
 
-  return `<div class="journal-book">
+  return `<div class="journal-book" data-tour="book-write">
     ${handoffFlowHtml()}
     ${bookDayStripHtml()}
     ${bookCalendarHtml()}
@@ -15383,7 +15591,7 @@ function viewBook(){
       <p>${esc(heroHint)}</p>
       ${isEasy()?`<p class="easy-only muted">${esc(t('bookEasyHint'))}</p>`:''}
     </header>
-    <div class="book-panes" role="tablist">
+    <div class="book-panes" data-tour="book-panes" role="tablist">
       <button type="button" role="tab" class="book-pane-btn ${pane==='shift'?'on':''}" data-book-pane="shift" aria-selected="${pane==='shift'}">${esc(t('bookPaneShift'))}</button>
       <button type="button" role="tab" class="book-pane-btn pro-only mode-pro-block ${pane==='log'?'on':''}" data-book-pane="log" aria-selected="${pane==='log'}">${esc(t('bookPaneLog'))}</button>
       <button type="button" role="tab" class="book-pane-btn pro-only mode-pro-block ${pane==='people'?'on':''}" data-book-pane="people" aria-selected="${pane==='people'}">${esc(t('bookPanePeople'))}</button>
@@ -17592,7 +17800,7 @@ function viewKids(){
     <div><b>${graded}</b><span>${esc(t('childGrades'))}</span></div>
     <div><b>${openHomework}</b><span>${esc(t('kidsOpenHomework'))}</span></div>
   </section>`;
-  const tabs=`<div class="kids-pane-tabs" role="tablist">
+  const tabs=`<div class="kids-pane-tabs" data-tour="kids-tabs" role="tablist">
     <button type="button" class="chip ${pane==='directory'?'on':''}" data-kids-pane="directory">${esc(t('navKids'))}</button>
     <button type="button" class="chip ${pane==='attendance'?'on':''}" data-kids-pane="attendance">${esc(t('schoolAttendance'))}</button>
     <button type="button" class="chip ${pane==='homework'?'on':''}" data-kids-pane="homework">${esc(t('schoolHomework'))}</button>
@@ -20755,8 +20963,8 @@ function viewAdminOps(){
   if(!isAdminUser()) return `<section class="card"><p class="muted">${esc(t('adminRequired'))}</p></section>`;
   const pane=ADMIN_SECTIONS.some(([id])=>id===state.adminPane)?state.adminPane:'ops';
   const section=ADMIN_SECTIONS.find(([id])=>id===pane);
-  const seg=`<nav class="admin-section-nav" aria-label="${state.lang==='el'?'Ενότητες διαχείρισης':'Verwaltungsbereiche'}">${ADMIN_SECTIONS.map(([id,de,el])=>`<a href="#admin/${id}" ${id===pane?'aria-current="page"':''}>${esc(state.lang==='el'?el:de)}</a>`).join('')}</nav><label class="admin-section-picker"><span>${state.lang==='el'?'Ενότητα':'Bereich'}</span><select id="adminSectionSelect">${ADMIN_SECTIONS.map(([id,de,el])=>`<option value="${id}" ${id===pane?'selected':''}>${esc(state.lang==='el'?el:de)}</option>`).join('')}</select></label>`;
-  if(!['ops','team'].includes(pane))return `<div class="admin-ops admin-center">${seg}<header class="admin-ops-hero"><p class="eyebrow">Armonia</p><h2>${esc(state.lang==='el'?section[2]:section[1])}</h2></header><section class="admin-section-content">${adminSectionHtml(pane)}</section></div>`;
+  const seg=`<nav class="admin-section-nav" data-tour="admin-nav" aria-label="${state.lang==='el'?'Ενότητες διαχείρισης':'Verwaltungsbereiche'}">${ADMIN_SECTIONS.map(([id,de,el])=>`<a href="#admin/${id}" ${id===pane?'aria-current="page"':''}>${esc(state.lang==='el'?el:de)}</a>`).join('')}</nav><label class="admin-section-picker"><span>${state.lang==='el'?'Ενότητα':'Bereich'}</span><select id="adminSectionSelect">${ADMIN_SECTIONS.map(([id,de,el])=>`<option value="${id}" ${id===pane?'selected':''}>${esc(state.lang==='el'?el:de)}</option>`).join('')}</select></label>`;
+  if(!['ops','team'].includes(pane))return `<div class="admin-ops admin-center" data-tour="admin-ops">${seg}<header class="admin-ops-hero"><p class="eyebrow">Armonia</p><h2>${esc(state.lang==='el'?section[2]:section[1])}</h2></header><section class="admin-section-content">${adminSectionHtml(pane)}</section></div>`;
   if(pane==='team'){
     const detail=state.adminWorkerId?adminWorkerDetailHtml(state.adminWorkerId):'';
     return `<div class="admin-ops admin-ops-team" data-tour="admin-ops">
@@ -21875,10 +22083,10 @@ function viewHome(){
   const pulseCandidates = pulseLive;
   const pulseHtml = pulseCandidates.map(p=>signal(p.jump, p.value, p.label, p.icon, p.tone)).join('');
   const pulseBlock = pulseHtml
-    ? `<div class="home-mobile-pulse" role="group" aria-label="${esc(t('homeSignals'))}">${pulseHtml}</div>`
+    ? `<div class="home-mobile-pulse" data-tour="home-pulse" role="group" aria-label="${esc(t('homeSignals'))}">${pulseHtml}</div>`
     : '';
   const pulseBlockDesk = pulseHtml
-    ? `<div class="home-command-pulse home-command-pulse-compact" role="group" aria-label="${esc(t('homeSignals'))}">${pulseHtml}</div>`
+    ? `<div class="home-command-pulse home-command-pulse-compact" data-tour="home-pulse" role="group" aria-label="${esc(t('homeSignals'))}">${pulseHtml}</div>`
     : '';
   const heroPrimaryBtn = presenceNeedsLate
     ? `<button class="home-primary" type="button" id="homeHeroPresence" data-home-presence="1">${esc(primaryLabel)}</button>`
@@ -21899,14 +22107,14 @@ function viewHome(){
       </button>`:''}
       ${teamNoticeBannerHtml()}
       ${pulseBlock}
-      <section class="home-mobile-tasks" aria-labelledby="mobileTasksTitle">
+      <section class="home-mobile-tasks" data-tour="home-tasks" aria-labelledby="mobileTasksTitle">
         <header><div><span>${esc(eventDayLabel(today))}</span><h2 id="mobileTasksTitle">${esc(t('myTasks'))}</h2></div><b>${esc(String(todayOpen.length))}</b></header>
         <div class="task-list">${todayAssignments.length
           ? todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join('')
           : `<div class="mobile-empty-row"><span>${esc(t('noTasks'))}</span><button type="button" data-home-jump="day">${esc(t('homeOpenPlan'))}</button></div>`}
         </div>
       </section>
-      <nav class="home-mobile-actions" aria-label="${esc(t('homeMore'))}">
+      <nav class="home-mobile-actions" data-tour="home-actions" aria-label="${esc(t('homeMore'))}">
         <button type="button" data-home-jump="day">${ui('u-calendar','sm')}<span>${esc(t('homeOpenPlan'))}</span></button>
         <button type="button" id="homeQuickBook">${ui('u-note','sm')}<span>${esc(t('headerBook'))}</span></button>
         <button type="button" data-home-jump="kids">${ui('u-person','sm')}<span>${esc(t('navKids'))}</span></button>
@@ -21932,7 +22140,7 @@ function viewHome(){
     </button>`:''}
     ${teamNoticeBannerHtml()}
     ${shiftStartCard?'':`${shiftPresenceBannerHtml()}${shiftStockCheckBannerHtml()}`}
-    <section class="card home-today-card">
+    <section class="card home-today-card" data-tour="home-tasks">
       <div class="block-h"><span class="t"><small>${esc(eventDayLabel(today))}</small>${esc(t('myTasks'))}</span><span class="hrs">${esc(String(todayOpen.length))}</span></div>
       <div class="task-list">${todayAssignments.length?todayAssignments.map(e=>dashboardTaskCard(e,today,user.id)).join(''):emptyState(ui('u-check'), t('noTasks'), t('noTasksHint'), planCta)}</div>
     </section>
@@ -21966,7 +22174,7 @@ function viewHome(){
         <h1>${esc(t('homeHello'))}${user?`, <span>${esc(user.name)}</span>`:''}</h1>
         <p>${esc(t('homeOverview'))}</p>
         ${isEasy()?`<p class="easy-only muted home-easy-hint">${esc(t('homeEasyHint'))}</p>`:''}
-        <div class="home-command-actions">
+        <div class="home-command-actions" data-tour="home-actions">
           ${heroPrimaryBtn}
           <button class="home-secondary ghost" type="button" id="homeQuickBook">${ui('u-note','sm')} ${esc(t('headerBook'))}</button>
         </div>
@@ -22116,6 +22324,12 @@ function paintTopChrome(){
     profiles.title = t('profilesBack');
     profiles.setAttribute('aria-label', t('switchProfile'));
   }
+  const tourBtn=document.getElementById('btnTour');
+  if(tourBtn){
+    tourBtn.hidden = !(state.user||state.child);
+    tourBtn.title = t('tutorialMaster');
+    tourBtn.setAttribute('aria-label', t('tutorialMaster'));
+  }
   // Staff actions live in each page — keep sticky header clean.
   const tools=document.getElementById('topTools');
   if(tools && state.mode!=='child'){
@@ -22135,7 +22349,7 @@ function paintTopChrome(){
 
 function onTopAction(id){
   feedback('tap');
-  if(id==='tutorial'){ openAppTutorial(); return; }
+  if(id==='tutorial'){ sheetMasterTutorial(); return; }
   if(id==='addEntry'){ sheetEntry(null, state.date); return; }
   if(id==='importWeek'){
     if(isEasy()){ toast(t('uiModeProHint'),'info'); return; }
@@ -24206,6 +24420,10 @@ document.getElementById('chatClose')?.addEventListener('click', ()=>{
 });
 document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
 document.getElementById('btnLang').onclick = () => setLang(state.lang === 'de' ? 'el' : 'de');
+document.getElementById('btnTour')?.addEventListener('click', ()=>{
+  feedback('tap');
+  sheetMasterTutorial();
+});
 document.getElementById('btnNotifs')?.addEventListener('click', ()=>{
   if(state.mode==='child'){
     sheetNotifPrefs();

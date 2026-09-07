@@ -7,11 +7,20 @@ Real-app coach-marks — **not** a Next/Next sheet carousel. Dim overlay + hole 
 | Trigger | Function | Notes |
 |---------|----------|--------|
 | First login | `ensureOnboarding` → `openMandatoryTutorial` | Resumes unfinished `tourSeen` |
-| Hilfe / ? | `sheetHelpCenter` → `#helpTutorial` → `openAppTutorial` | Fresh start (`resume:false`) |
+| **Top bar `?`** | `sheetMasterTutorial` → `openPageTutorial` / `openAppTutorial` | Permanent `#btnTour` (PC + mobile) |
+| Hilfe / ? sheet | `sheetHelpCenter` → page or full tour | Same choices |
 | Kids “So geht’s” | `sheetChildHowTo` → `#childHowToTour` | Same as replay |
-| Profile / top tutorial | `onTopAction('tutorial')` / `data-page-act="tutorial"` | `openAppTutorial` |
+| Profile / top tutorial | `onTopAction('tutorial')` | Opens master sheet |
 
-Core: `buildTourSteps`, `tourPaintCurrent`, `tourAdvance`, `tourFinish` in `app.js`. Overlay host `#tourRoot`.
+### Page-scoped tour
+
+`openPageTutorial` / `buildPageTourSteps` — highlights controls **on the current page** (tasks, filters, add, chat, …). Does **not** write onboarding progress. Overlay kicker = “Diese Seite”.
+
+### Full app tour
+
+`openAppTutorial` / `buildTourSteps` — walks major pages (Easy shorter, Pro adds Kids/Gallery/Buch).
+
+Core: `buildTourSteps`, `buildPageTourSteps`, `tourPaintCurrent`, `tourAdvance`, `tourFinish` in `app.js`. Overlay host `#tourRoot`.
 
 ## Persistence
 
