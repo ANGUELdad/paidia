@@ -1,3 +1,10 @@
+## v235 · 2026-09-07
+
+- Zo-Ai child isolation: kid-only knowledge pack (`child-overview` / `child-safety`), UI context whitelist, anti-injection prompt, reply leak filter, untrusted `<user_message>` wrapping.
+- Session role always wins over client spoof; child never receives inventory / opsSnapshot / staff topic map.
+- Tests: `tests/test_zoai_child_security.py` (prompt-injection corpus, no live LLM).
+- Cache `paidia-v235`.
+
 ## v234 · 2026-09-07
 
 - Desk login: auth gate fully covers app/rail (fixes blank white main stage when chrome leaked through).

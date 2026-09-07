@@ -123,11 +123,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 234,
-    label: 'v234',
+    version: 235,
+    label: 'v235',
     changed: {
-      de: 'Login-Gate deckt Desk-Chrome ab — kein leeres weißes Hauptfenster mehr.',
-      el: 'Η πύλη σύνδεσης καλύπτει το Desk — όχι άλλο κενό άσπρο παράθυρο.',
+      de: 'Zo-Ai Kind: kein Admin-/Lager-Leck — härtere Isolation gegen Prompt-Injection.',
+      el: 'Zo-Ai παιδί: χωρίς διαρροή admin/αποθέματος — ισχυρότερη απομόνωση.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

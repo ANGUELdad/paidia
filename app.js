@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 234,
-  label: 'v234',
+  version: 235,
+  label: 'v235',
   changed: {
-    de: 'Login-Gate deckt Desk-Chrome ab — kein leeres weißes Hauptfenster mehr.',
-    el: 'Η πύλη σύνδεσης καλύπτει το Desk — όχι άλλο κενό άσπρο παράθυρο.',
+    de: 'Zo-Ai Kind: kein Admin-/Lager-Leck — härtere Isolation gegen Prompt-Injection.',
+    el: 'Zo-Ai παιδί: χωρίς διαρροή admin/αποθέματος — ισχυρότερη απομόνωση.',
   },
 };
 const T = {
