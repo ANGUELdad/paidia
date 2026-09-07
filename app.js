@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 237,
-  label: 'v237',
+  version: 238,
+  label: 'v238',
   changed: {
-    de: 'Desk Liste/Plan: dichte Zeilen, kompakte Steuerung — mehr Produkte auf einen Blick.',
-    el: 'Desk Λίστα/Πλάνο: πυκνές γραμμές, συμπαγή στοιχεία.',
+    de: 'Desk Liste: eine Spalte, dünne Produktzeilen — kein Seiten-Rail mehr.',
+    el: 'Desk Λίστα: μία στήλη, λεπτές γραμμές προϊόντων.',
   },
 };
 const T = {
@@ -369,7 +369,7 @@ const T = {
     correctionPh:'z.B. Ausgang 2kg Hähnchen war 1kg',
     correctionWhat:'Was korrigierst du', saved:'Gespeichert',
     logNoDelete:'Einträge werden nie gelöscht oder geändert. Jede Korrektur ist ein neuer Eintrag.',
-    typeIN:'Eingang', typeOUT:'Ausgang', typeSHOP:'Einkauf', typeSCHEDULE:'Plan',
+    att_unrecorded:'Nicht erfasst', typeATTENDANCE:'Schulbesuch', typeCOUNT:'Bestandszählung', typeIN:'Eingang', typeOUT:'Ausgang', typeSHOP:'Einkauf', typeSCHEDULE:'Plan',
     typeCORRECTION:'Korrektur', typeLOGIN:'Anmeldung', typeNOTES:'Hinweise', typeEVENT:'Event',
     entryStaff:'Personal', entryChild:'Kinder',
     entryStaffSub:'Plan, Lager, Einkauf, Protokoll', entryChildSub:'Was mache ich diese Woche',
@@ -1626,7 +1626,7 @@ const T = {
     correctionPh:'π.χ. η έξοδος 2kg κοτόπουλο ήταν 1kg',
     correctionWhat:'Τι διορθώνεις', saved:'Αποθηκεύτηκε',
     logNoDelete:'Οι εγγραφές δεν διαγράφονται και δεν τροποποιούνται. Κάθε διόρθωση είναι νέα εγγραφή.',
-    typeIN:'Είσοδος', typeOUT:'Έξοδος', typeSHOP:'Ψώνια', typeSCHEDULE:'Πρόγραμμα',
+    att_unrecorded:'Χωρίς καταγραφή', typeATTENDANCE:'Σχολική παρουσία', typeCOUNT:'Καταμέτρηση αποθέματος', typeIN:'Είσοδος', typeOUT:'Έξοδος', typeSHOP:'Ψώνια', typeSCHEDULE:'Πρόγραμμα',
     typeCORRECTION:'Διόρθωση', typeLOGIN:'Σύνδεση', typeNOTES:'Σημειώσεις', typeEVENT:'Event',
     entryStaff:'Προσωπικό', entryChild:'Παιδιά',
     entryStaffSub:'Πρόγραμμα, αποθήκη, ψώνια, καταγραφές', entryChildSub:'Τι κάνω αυτή την εβδομάδα',
@@ -17642,7 +17642,7 @@ function childProgressSummary(kidId){
     ? Math.round((scored.reduce((sum,row)=>sum+row.score,0)/scored.length)*10)/10
     : 0;
   const weekDays=weekDates(week);
-  const attendance=weekDays.map(date=>attendanceFor(kidId,date)).filter(Boolean);
+  const attendance=weekDays.map(date=>attendanceFor(kidId,date)).filter(row=>row&&['present','absent','excused'].includes(row.status));
   const present=attendance.filter(row=>row.status==='present').length;
   const attendancePct=attendance.length?Math.round((present/attendance.length)*100):0;
   const homework=(DB.homework||[]).filter(row=>!row.kidId||row.kidId===kidId);
@@ -18254,21 +18254,32 @@ function viewSchoolActivityPane(){
 }
 
 function viewAttendanceGrid(){
-  const ds=state.date||iso(new Date());
+  const ds=state.date||iso(new Date()),el=state.lang==='el';
+  const selected=state.attSelected||[],selecting=!!state.attSelectionMode;
+  const statuses=['present','absent','excused','unrecorded'];
   const rows=(DB.children||[]).map(k=>{
-    const a=attendanceFor(k.id,ds);
-    const st=a?.status||'';
+    const status=attendanceFor(k.id,ds)?.status||'unrecorded';
     return `<div class="att-grid-row">
-      <button type="button" class="linkish" data-open-kid="${k.id}"><b>${esc(k.name)}</b></button>
-      <div class="att-btns">
-        <button type="button" class="chip ${st==='present'?'on':''}" data-att-kid="${k.id}" data-att-date="${ds}" data-att-status="present">${esc(t('att_present'))}</button>
-        <button type="button" class="chip ${st==='absent'?'on':''}" data-att-kid="${k.id}" data-att-date="${ds}" data-att-status="absent">${esc(t('att_absent'))}</button>
-        <button type="button" class="chip ${st==='excused'?'on':''}" data-att-kid="${k.id}" data-att-date="${ds}" data-att-status="excused">${esc(t('att_excused'))}</button>
-      </div>
+      ${selecting?`<label class="att-select"><input type="checkbox" data-att-select="${esc(k.id)}" ${selected.includes(k.id)?'checked':''}><span>${esc(k.name)}</span></label>`:`<button type="button" class="linkish" data-open-kid="${esc(k.id)}"><b>${esc(k.name)}</b></button>`}
+      <div class="att-btns" role="group" aria-label="${esc(k.name)}">${statuses.map(st=>`<button type="button" class="chip ${st===status?'on':''}" aria-pressed="${st===status}" data-att-kid="${esc(k.id)}" data-att-date="${ds}" data-att-status="${st}">${esc(t('att_'+st))}</button>`).join('')}</div>
     </div>`;
   }).join('');
-  return `<div class="att-grid card"><div class="block-h"><span class="t">${esc(eventDayLabel(ds))}</span>
-    <input type="date" id="attDatePick" value="${ds}"/></div>${rows}</div>`;
+  return `<div class="att-grid card"><div class="block-h"><span class="t">${esc(eventDayLabel(ds))}</span><label class="f"><span>${el?'Ημερομηνία':'Datum'}</span><input type="date" id="attDatePick" value="${ds}" ${selecting?'disabled':''}></label></div>
+    <button class="btn sec" id="attSelectionToggle">${esc(selecting?t('selectDone'):t('selectMode'))}</button>
+    ${selecting?`<div class="attendance-bulk"><p id="attSelectedCount" role="status">${selected.length} ${el?'επιλεγμένα':'ausgewählt'} · ${esc(eventDayLabel(ds))}</p><button class="btn sec" id="attSelectVisible">${el?'Επιλογή όλων των εμφανιζόμενων':'Alle angezeigten auswählen'}</button><label class="f"><span>${el?'Νέα κατάσταση':'Neuer Status'}</span><select id="attBulkStatus"><option value="">${el?'Χωρίς αλλαγή':'Unverändert'}</option>${statuses.map(st=>`<option value="${st}" ${state.attBulkStatus===st?'selected':''}>${esc(t('att_'+st))}</option>`).join('')}</select></label><button class="btn" id="attBulkPreview">${el?'Έλεγχος αλλαγών':'Änderungen prüfen'}</button></div>`:''}${rows||`<p>${esc(t('kidsEmpty'))}</p>`}</div>`;
+}
+function previewAttendanceBulk(){
+  const el=state.lang==='el',ids=[...(state.attSelected||[])],date=state.date||iso(new Date()),status=state.attBulkStatus;
+  const eligible=(DB.children||[]).filter(k=>ids.includes(k.id));
+  if(!eligible.length||!['present','absent','excused','unrecorded'].includes(status)){toast(el?'Επίλεξε παιδιά και νέα κατάσταση.':'Wähle Kinder und einen neuen Status.','error');return;}
+  openSheet(`<h2>${el?'Έλεγχος παρουσιών':'Anwesenheit prüfen'}</h2><p>${esc(eventDayLabel(date))} · ${esc(t('att_'+status))}</p><p>${ids.length} ${el?'επιλεγμένα':'ausgewählt'} · ${eligible.length} ${el?'προς αλλαγή':'werden geändert'} · ${ids.length-eligible.length} ${el?'εξαιρούνται':'ausgeschlossen'}</p><ul>${eligible.map(k=>`<li>${esc(k.name)}</li>`).join('')}</ul><p id="attBulkError" role="alert"></p><button class="btn" id="attBulkConfirm">${el?'Αποθήκευση παρουσιών':'Anwesenheit speichern'}</button>`);
+  sheetEl.querySelector('#attBulkConfirm').onclick=async event=>{
+    const changes=eligible.map(k=>({kidId:k.id,date,status}));
+    if(!await runDomainOperation('attendance.set',{changes},event.currentTarget)){
+      const error=sheetEl.querySelector('#attBulkError');if(error)error.textContent=el?'Οι παρουσίες δεν επιβεβαιώθηκαν. Η επιλογή διατηρήθηκε.':'Die Anwesenheit wurde nicht bestätigt. Deine Auswahl bleibt erhalten.';return;
+    }
+    state.attSelected=[];state.attSelectionMode=false;state.attBulkStatus='';closeSheet();render();toast(t('attSaved'),'success');
+  };
 }
 
 function viewHomeworkStaff(){
@@ -18489,18 +18500,26 @@ function wireKidsView(v){
   });
   wirePaidiaCal(v);
   v.querySelectorAll('[data-att-kid]').forEach(b=>{
-    b.onclick=()=>{
+    b.onclick=async ()=>{
       let st=b.dataset.attStatus;
       if(b.dataset.attCycle){
         const cur=attendanceFor(b.dataset.attKid, b.dataset.attDate)?.status;
         st = cur==='present'?'absent':cur==='absent'?'excused':'present';
       }
-      setAttendance(b.dataset.attKid, b.dataset.attDate, st);
-      save(); toast(t('attSaved'),'success'); render();
+      if(!await runDomainOperation('attendance.set',{changes:[{kidId:b.dataset.attKid,date:b.dataset.attDate,status:st}]},b))return;
+      toast(t('attSaved'),'success');render();
     };
   });
   const attDate=v.querySelector('#attDatePick');
   if(attDate) attDate.onchange=()=>{ state.date=attDate.value; render(); };
+  v.querySelector('#attSelectionToggle')?.addEventListener('click',()=>{state.attSelectionMode=!state.attSelectionMode;state.attSelected=[];state.attBulkStatus='';render();});
+  v.querySelector('#attSelectVisible')?.addEventListener('click',()=>{state.attSelected=(DB.children||[]).map(k=>k.id);render();});
+  v.querySelector('#attBulkStatus')?.addEventListener('change',event=>{state.attBulkStatus=event.target.value;});
+  v.querySelector('#attBulkPreview')?.addEventListener('click',previewAttendanceBulk);
+  v.querySelectorAll('[data-att-select]').forEach(input=>input.onchange=()=>{
+    const selected=new Set(state.attSelected||[]);if(input.checked)selected.add(input.dataset.attSelect);else selected.delete(input.dataset.attSelect);state.attSelected=[...selected];
+    const count=v.querySelector('#attSelectedCount');if(count)count.textContent=T[state.lang].selectedCount(selected.size)+' · '+eventDayLabel(state.date||iso(new Date()));
+  });
   v.querySelectorAll('[data-hw-toggle]').forEach(inp=>{
     inp.onchange=()=>{
       const h=(DB.homework||[]).find(x=>x.id===inp.dataset.hwToggle);

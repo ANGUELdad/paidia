@@ -1060,12 +1060,30 @@ body.shell-desk #view .schedule-agenda-empty {
 /* ── Liste / shop plan — dense desk board ─────────────────────────────── */
 body.shell-desk #view .shop-shell,
 body.shell-desk #view .shop-shell-plan,
-body.shell-desk[data-tab="shop"] #view .shop-shell-plan {
+body.shell-desk[data-tab="shop"] #view .shop-shell-plan,
+body.shell-desk.layout-desktop #view .shop-shell-plan {
   width: 100% !important;
   max-width: none !important;
   margin: 0 !important;
   display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
   gap: 8px !important;
+  align-items: stretch !important;
+}
+
+body.shell-desk #view .shop-shell-plan > .ops-hero,
+body.shell-desk #view .shop-shell-plan > .shop-overview,
+body.shell-desk #view .shop-shell-plan > .shop-command,
+body.shell-desk #view .shop-shell-plan > .shop-list-card,
+body.shell-desk #view .shop-shell-plan > .shop-take-card,
+body.shell-desk #view .shop-shell-plan > .req-card,
+body.shell-desk #view .shop-shell-plan > .shop-history,
+body.shell-desk #view .shop-shell-plan > .shop-resume-card {
+  grid-column: 1 !important;
+  grid-row: auto !important;
+  position: static !important;
+  width: 100% !important;
+  max-width: none !important;
 }
 
 body.shell-desk #view .shop-overview {

@@ -1,3 +1,8 @@
+## v238 · 2026-09-07
+
+- Desk Liste: force single-column plan board (no sticky side command rail); keep dense thin product rows.
+- Cache `paidia-v238`.
+
 ## v237 · 2026-09-07
 
 - Desk Liste (`#shop/plan`): full-width dense board — compact overview/KPI strip, thin command chrome, small product lines (~30px steppers).
