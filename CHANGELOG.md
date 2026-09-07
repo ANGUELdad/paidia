@@ -1,3 +1,8 @@
+## v237 · 2026-09-07
+
+- Desk Liste (`#shop/plan`): full-width dense board — compact overview/KPI strip, thin command chrome, small product lines (~30px steppers).
+- Cache `paidia-v237`.
+
 ## v236 · 2026-09-07
 
 - Desk Kids: full-width dense directory, compact KPI strip, pencil/trash icon actions instead of long edit labels.

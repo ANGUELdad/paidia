@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 236,
-  label: 'v236',
+  version: 237,
+  label: 'v237',
   changed: {
-    de: 'Desk Kinder: dichtere Liste, Stift statt „Bearbeiten“, korrekte Noten-Kennzahl.',
-    el: 'Desk Παιδιά: πυκνότερη λίστα, μολύβι αντί για κείμενο επεξεργασίας.',
+    de: 'Desk Liste/Plan: dichte Zeilen, kompakte Steuerung — mehr Produkte auf einen Blick.',
+    el: 'Desk Λίστα/Πλάνο: πυκνές γραμμές, συμπαγή στοιχεία.',
   },
 };
 const T = {
@@ -4477,7 +4477,8 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
   if(!who) return false;
   const cacheOwner=mode+':'+data.profileId;
   let previousOwner;try{previousOwner=localStorage.getItem('paidia.cacheOwner');}catch{}
-  if(previousOwner!==cacheOwner&&(previousOwner||mode==='child')){
+  const legacyChildCache=mode==='child'&&localStorage.getItem('paidia.childCacheVersion')!=='2';
+  if((previousOwner!==cacheOwner&&(previousOwner||mode==='child'))||legacyChildCache){
     // A different account must never render the previous account's cached records.
     SHARED_KEYS.forEach(key=>{DB[key]=SHARED_DICT_KEYS.has(key)?{}:[];});
     DB.children=mode==='child'?[{...who}]:structuredClone(SEED.children||[]);
@@ -4486,7 +4487,7 @@ function applyAuthenticatedProfile(data,{logLogin=false}={}){
     state.galleryItems=[];state.helpMessages=[];state.pendingHelpActions=[];
     try{localStorage.removeItem(KEY);localStorage.setItem('paidia.sharedRev','0');}catch{}
   }
-  try{localStorage.setItem('paidia.cacheOwner',cacheOwner);}catch{}
+  try{localStorage.setItem('paidia.cacheOwner',cacheOwner);if(mode==='child')localStorage.setItem('paidia.childCacheVersion','2');}catch{}
   state.mode=mode;
   if(mode==='staff'){
     state.sessionAdmin = data.admin===true || !!who.admin || KNOWN_ADMIN_IDS.has(who.id);

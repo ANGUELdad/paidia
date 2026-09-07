@@ -123,11 +123,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 236,
-    label: 'v236',
+    version: 237,
+    label: 'v237',
     changed: {
-      de: 'Desk Kinder: dichtere Liste, Stift statt „Bearbeiten“, korrekte Noten-Kennzahl.',
-      el: 'Desk Παιδιά: πυκνότερη λίστα, μολύβι αντί για κείμενο επεξεργασίας.',
+      de: 'Desk Liste/Plan: dichte Zeilen, kompakte Steuerung — mehr Produkte auf einen Blick.',
+      el: 'Desk Λίστα/Πλάνο: πυκνές γραμμές, συμπαγή στοιχεία.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

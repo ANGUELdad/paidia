@@ -1056,6 +1056,320 @@ body.shell-desk #view .schedule-agenda-empty {
   height: auto !important;
   align-self: center !important;
 }
+
+/* ── Liste / shop plan — dense desk board ─────────────────────────────── */
+body.shell-desk #view .shop-shell,
+body.shell-desk #view .shop-shell-plan,
+body.shell-desk[data-tab="shop"] #view .shop-shell-plan {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  display: grid !important;
+  gap: 8px !important;
+}
+
+body.shell-desk #view .shop-overview {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #fff !important;
+  border: 1px solid rgba(26, 40, 34, 0.1) !important;
+}
+
+body.shell-desk #view .shop-overview .brand-kicker,
+body.shell-desk #view .shop-overview .ui-mode-row {
+  display: none !important;
+}
+
+body.shell-desk #view .shop-overview h2 {
+  font: 750 18px/1.1 var(--font-ui) !important;
+  letter-spacing: -0.02em !important;
+}
+
+body.shell-desk #view .shop-overview-copy > span {
+  margin-top: 2px !important;
+  font-size: 11px !important;
+  max-width: none !important;
+}
+
+body.shell-desk #view .shop-overview-stats {
+  border-radius: 10px !important;
+  grid-template-columns: repeat(3, minmax(64px, 88px)) !important;
+}
+
+body.shell-desk #view .shop-overview-stats > div {
+  min-width: 0 !important;
+  padding: 8px 10px !important;
+}
+
+body.shell-desk #view .shop-overview-stats b {
+  font-size: 16px !important;
+}
+
+body.shell-desk #view .shop-overview-stats span {
+  margin-top: 2px !important;
+  font-size: 10px !important;
+}
+
+body.shell-desk #view .shop-shell-plan > .shop-command,
+body.shell-desk #view .shop-command {
+  gap: 8px !important;
+  margin: 0 0 6px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-bottom: 0 !important;
+  background: transparent !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+body.shell-desk #view .shop-command > .house-selector {
+  gap: 6px !important;
+  padding: 0 !important;
+}
+
+body.shell-desk #view .shop-command > .house-selector button {
+  min-height: 34px !important;
+  max-height: 36px !important;
+  padding: 5px 10px !important;
+  font-size: 12px !important;
+}
+
+body.shell-desk #view .shop-flow-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+body.shell-desk #view .friday-picker.compact {
+  min-height: 36px !important;
+  gap: 4px !important;
+}
+
+body.shell-desk #view .friday-picker.compact button {
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+}
+
+body.shell-desk #view .friday-picker .friday-date b {
+  font-size: 13px !important;
+}
+
+body.shell-desk #view .friday-picker .friday-date span {
+  font-size: 11px !important;
+}
+
+body.shell-desk #view .shop-panel-seg button {
+  min-height: 34px !important;
+  max-height: 36px !important;
+  padding: 5px 11px !important;
+  font-size: 12px !important;
+}
+
+body.shell-desk #view .shop-easy-strip {
+  gap: 6px !important;
+  margin: 0 !important;
+}
+
+body.shell-desk #view .shop-easy-strip .btn,
+body.shell-desk #view #shopEasyFoto,
+body.shell-desk #view #shopAutoFill,
+body.shell-desk #view #startFridayTop {
+  min-height: 34px !important;
+  max-height: 36px !important;
+  height: 34px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+  flex: 0 1 auto !important;
+}
+
+/* Photo CTA → single compact line on desk */
+body.shell-desk #view .shop-photo-banner {
+  margin: 0 !important;
+  padding: 6px 10px !important;
+  gap: 8px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+}
+
+body.shell-desk #view .shop-photo-banner .btn {
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+}
+
+body.shell-desk #view .shop-add-row {
+  margin: 0 !important;
+}
+
+body.shell-desk #view .shop-add-row .cart-quick {
+  gap: 6px !important;
+}
+
+body.shell-desk #view .shop-add-row .cart-quick input {
+  height: 36px !important;
+  min-height: 36px !important;
+  font-size: 13px !important;
+  padding: 0 10px !important;
+}
+
+body.shell-desk #view .shop-add-row .cart-quick .btn {
+  min-width: 96px !important;
+  min-height: 36px !important;
+  height: 36px !important;
+  padding-inline: 10px !important;
+  font-size: 12px !important;
+}
+
+body.shell-desk #view .shop-list-card {
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+body.shell-desk #view .shop-list-heading {
+  min-height: 0 !important;
+  padding: 8px 12px !important;
+  gap: 8px !important;
+}
+
+body.shell-desk #view .shop-list-heading p {
+  font-size: 13px !important;
+}
+
+body.shell-desk #view .shop-list-heading span {
+  margin-top: 1px !important;
+  font-size: 11px !important;
+}
+
+body.shell-desk #view .shop-list-heading .btn,
+body.shell-desk #view .shop-list-heading .btn.sm {
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-item {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 0 !important;
+  padding: 5px 10px !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-item-name {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  line-height: 1.2 !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-item-name .prod-ico {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-item-sub {
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  margin-top: 1px !important;
+  color: #5a6c64 !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-stock-chip {
+  margin-top: 0 !important;
+  padding: 1px 6px !important;
+  font-size: 9px !important;
+}
+
+body.shell-desk #view .shop-list-card .cart-controls {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  width: auto !important;
+}
+
+body.shell-desk #view .shop-list-card .cart-step,
+body.shell-desk #view .shop-list-card .mini-x {
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  font-size: 14px !important;
+  border-radius: 8px !important;
+}
+
+body.shell-desk #view .shop-list-card .cart-qty-input {
+  width: 52px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  border-radius: 8px !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-empty {
+  min-height: 0 !important;
+  padding: 18px 16px !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-empty .big {
+  font-size: 28px !important;
+  margin-bottom: 4px !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-empty h3 {
+  font-size: 15px !important;
+  margin: 0 0 4px !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-empty p {
+  font-size: 12px !important;
+  margin: 0 auto !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-start-actions {
+  margin-top: 10px !important;
+  gap: 6px !important;
+  width: min(100%, 420px) !important;
+}
+
+body.shell-desk #view .shop-list-card .shop-start-actions .btn {
+  min-height: 36px !important;
+  height: 36px !important;
+  font-size: 12px !important;
+}
+
+body.shell-desk #view .shop-take-row {
+  display: grid !important;
+  grid-template-columns: 56px minmax(0, 1fr) !important;
+  gap: 8px !important;
+  align-items: center !important;
+  padding: 5px 8px !important;
+  min-height: 0 !important;
+  border-bottom: 1px solid rgba(26, 40, 34, 0.06);
+  font-size: 13px !important;
+}
+
+body.shell-desk #view .req-item {
+  padding: 8px 10px !important;
+  gap: 8px !important;
+  min-height: 0 !important;
+}
+
 body.shell-desk .admin-section-nav {
   display: flex !important;
   flex-wrap: wrap !important;
