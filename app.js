@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 228,
-  label: 'v228',
+  version: 229,
+  label: 'v229',
   changed: {
-    de: 'Konflikt per Banner, Chrome 44px, leere Pulse weg, Schienen-Fade.',
-    el: 'Σύγκρουση με banner, Chrome 44px, χωρίς κενά pulse, fade σε ράγες.',
+    de: 'Plan springt auf heute, wenn das Datum veraltet ist.',
+    el: 'Το πρόγραμμα πάει στο σήμερα αν η ημερομηνία είναι παλιά.',
   },
 };
 const T = {
@@ -3951,7 +3951,10 @@ const state = {
   date: (function(){
     try{
       const v = localStorage.getItem('paidia.scheduleDate');
-      if(v && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+      if(v && /^\d{4}-\d{2}-\d{2}$/.test(v)){
+        const today = iso(new Date());
+        return v < today ? today : v;
+      }
     }catch{}
     return iso(new Date());
   })(),
@@ -7470,18 +7473,26 @@ function consumePresenceDeepLink(){
 const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids','pocket','rules','admin'];
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
 const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
-const SCHEDULE_VIEW_LAST_KEY = 'paidia.scheduleViewLast';
 const SCHEDULE_DATE_KEY = 'paidia.scheduleDate';
+const SCHEDULE_VIEW_LAST_KEY = 'paidia.scheduleViewLast';
 const WEEK_MOBILE_FULL_KEY = 'paidia.weekMobileFull';
 const WEEK_LAYOUT_KEY = 'paidia.weekLayout';
 const WEEK_LAYOUT_EXPLICIT_KEY = 'paidia.weekLayoutExplicit';
 
+/** Past persisted dates must not hide "today" after midnight / next open. */
+function snapScheduleDateIfStale(ds){
+  const today = iso(new Date());
+  if(!ds || !/^\d{4}-\d{2}-\d{2}$/.test(ds)) return today;
+  // Keep future planning dates; only snap when stuck in the past.
+  if(ds < today) return today;
+  return ds;
+}
 function recallScheduleDate(){
   try{
     const v = localStorage.getItem(SCHEDULE_DATE_KEY);
-    if(v && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+    if(v && /^\d{4}-\d{2}-\d{2}$/.test(v)) return snapScheduleDateIfStale(v);
   }catch{}
-  return null;
+  return iso(new Date());
 }
 function persistScheduleDate(ds){
   if(!ds || !/^\d{4}-\d{2}-\d{2}$/.test(ds)) return;
@@ -7492,6 +7503,24 @@ function setScheduleDate(ds, {renderAfter=false}={}){
   state.date = ds;
   persistScheduleDate(ds);
   if(renderAfter) render();
+}
+/** Call when landing on Plan — restore today if still on a previous day. */
+function ensureScheduleShowsToday(){
+  const today = iso(new Date());
+  const next = snapScheduleDateIfStale(state.date || recallScheduleDate());
+  if(next !== state.date){
+    state.date = next;
+    persistScheduleDate(next);
+  }
+  if(state.date === today) return;
+  // If somehow still not today but week strip would exclude today, jump to today.
+  try{
+    const week = weekDates(state.date);
+    if(!week.includes(today) && state.date < today){
+      state.date = today;
+      persistScheduleDate(today);
+    }
+  }catch{}
 }
 function weekMobileFullMode(){
   try{ return sessionStorage.getItem(WEEK_MOBILE_FULL_KEY)==='1'; }catch{ return false; }
@@ -7608,6 +7637,7 @@ function applyRouteFromHash(){
     }
   }
   state.tab = route.tab;
+  if(route.tab === 'schedule') ensureScheduleShowsToday();
   if(route.scheduleView) setScheduleView(route.scheduleView, {persist:true});
   if(route.shopPanel){
     state.shopPanel = route.shopPanel === 'store' ? 'plan' : route.shopPanel;
@@ -7952,12 +7982,16 @@ function viewScheduleDay(){
   const longDate = `${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
   const unassignedCount=all.filter(e=>!entryEmployeeIds(e).length).length;
   const housesCount=new Set(all.flatMap(entryHouseIds)).size;
+  const jumpToday = state.date!==today
+    ? `<button class="btn sm sec week-today-btn" type="button" data-week-today>${esc(t('today'))}</button>`
+    : '';
   return `
     <header class="plan-hero plan-day-hero">
       <div class="plan-hero-copy">
         <div class="brand-kicker">${esc(t('viewDay'))}</div>
         <h2 class="plan-hero-date">${esc(longDate)}</h2>
         <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
+        ${jumpToday}
       </div>
       <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry">${esc(t('topAdd'))}</button>
       <div class="plan-day-summary" aria-label="${esc(t('planDayLoad'))}">
@@ -10418,6 +10452,7 @@ function navigateStaffTab(next, opts={}){
   if(next!==leaving && !confirmLeaveUnsaved()) return false;
   if(leaving==='schedule' && next!=='schedule') rememberScheduleView(state.scheduleView || 'week');
   if(next==='schedule' && leaving!=='schedule'){
+    ensureScheduleShowsToday();
     if(opts.scheduleView) setScheduleView(opts.scheduleView);
     else{
       const route=routeFromHash();
@@ -10426,7 +10461,10 @@ function navigateStaffTab(next, opts={}){
       }
     }
   }else if(opts.scheduleView && next==='schedule'){
+    ensureScheduleShowsToday();
     setScheduleView(opts.scheduleView);
+  }else if(next==='schedule'){
+    ensureScheduleShowsToday();
   }
   if(opts.shopPanel) state.shopPanel=opts.shopPanel;
   if(opts.kidReset) state.staffKidId=null;

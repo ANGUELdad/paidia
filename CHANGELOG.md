@@ -1,3 +1,8 @@
+## v229 · 2026-09-07
+
+- Schedule snaps a past `paidia.scheduleDate` to today on boot and when opening Plan; day view gets a Today jump.
+- Cache `paidia-v229`.
+
 # Changelog
 
 ## v228 · 2026-09-07
