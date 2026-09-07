@@ -210,15 +210,24 @@ def _auth_profiles():
     session = _session_from_request()
     if not session:
         return _json(401, {"error": "Authentication required", "code": "auth_required"})
-    profile_ids = list(paidia.AUTH_USERS) if session.get("admin") else [session["profile_id"]]
     delivery = paidia.email_delivery_status()
-    return _json(200, {
-        "profiles": [{
+    if session.get("admin"):
+        profiles = paidia.admin_auth_profile_rows()
+    else:
+        profile_id = session["profile_id"]
+        user = paidia.AUTH_USERS.get(profile_id) or {}
+        disp = paidia.PROFILE_DISPLAY.get(str(profile_id), {})
+        profiles = [{
             "profileId": profile_id,
-            "mode": paidia.AUTH_USERS[profile_id]["mode"],
-            "email": paidia.AUTH_USERS[profile_id].get("email", ""),
-            "phone": paidia.AUTH_USERS[profile_id].get("phone", ""),
-        } for profile_id in profile_ids if profile_id in paidia.AUTH_USERS],
+            "mode": user.get("mode") or session.get("mode") or "staff",
+            "name": str(user.get("name") or disp.get("name") or profile_id),
+            "email": user.get("email", ""),
+            "phone": user.get("phone", ""),
+            "hasPin": bool(user.get("pin_hash")),
+            "admin": bool(session.get("admin")),
+        }] if profile_id in paidia.AUTH_USERS else []
+    return _json(200, {
+        "profiles": profiles,
         "canManageAll": bool(session.get("admin")),
         "emailConfigured": delivery["configured"],
         "emailProvider": delivery["provider"],
@@ -604,6 +613,8 @@ def entry(flask_path: str = ""):
         "/api/auth/profile/pin": ("handle_profile_pin", True),
         "/auth/admin/child": ("handle_admin_child", True),
         "/api/auth/admin/child": ("handle_admin_child", True),
+        "/auth/admin/profile": ("handle_admin_profile", True),
+        "/api/auth/admin/profile": ("handle_admin_profile", True),
         "/auth/passkey/register/options": ("handle_passkey_register_options", True),
         "/api/auth/passkey/register/options": ("handle_passkey_register_options", True),
         "/auth/passkey/register/verify": ("handle_passkey_register_verify", True),

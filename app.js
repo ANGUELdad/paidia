@@ -266,6 +266,20 @@ const T = {
     adminActions:'Aktionen', adminShiftToday:'Dienst heute', adminOpenDay:'Tagesplan',
     adminOpenWeek:'Wochenplan', adminOpenStock:'Lager', adminOpenShop:'Einkauf',
     adminContact:'Kontakt / E-Mail', adminAssignToday:'Heute zuweisen',
+    adminAccessTitle:'PINs & Zugänge',
+    adminAccessHint:'PIN ändern, E-Mail setzen, Zugangs-Mail mit Buttons senden.',
+    adminAccessOpen:'Zugänge verwalten',
+    adminAccessPin:'PIN setzen',
+    adminAccessEmail:'E-Mail setzen',
+    adminAccessSend:'Info-Mail senden',
+    adminAccessEmailPin:'Neue PIN in der Mail mitschicken',
+    adminAccessNoEmail:'Keine E-Mail hinterlegt',
+    adminAccessPinSaved:'PIN gespeichert',
+    adminAccessEmailSaved:'E-Mail gespeichert',
+    adminAccessSent:'Zugangs-Mail gesendet',
+    adminAccessHasPin:'PIN gesetzt',
+    adminAccessMissingPin:'Kein PIN',
+    adminBroadcastCtaHint:'Mails enthalten Login-Buttons (Desktop, Mobile, Plan).',
     adminShiftsWeek:'Dienste der Woche', adminMarkDone:'Erledigt', adminRemoveAssign:'Aufgabe streichen',
     noEntries:'Keine Einträge',
     weekNotes:'Hinweise der Woche', besprechung:'Besprechung: Mo 13:30',
@@ -1500,6 +1514,20 @@ const T = {
     adminActions:'Ενέργειες', adminShiftToday:'Βάρδια σήμερα', adminOpenDay:'Ημερήσιο',
     adminOpenWeek:'Εβδομαδιαίο', adminOpenStock:'Αποθήκη', adminOpenShop:'Ψώνια',
     adminContact:'Επικοινωνία / Email', adminAssignToday:'Ανάθεση σήμερα',
+    adminAccessTitle:'PIN & πρόσβαση',
+    adminAccessHint:'Άλλαξε PIN, βάλε email, στείλε mail με κουμπιά και στοιχεία.',
+    adminAccessOpen:'Διαχείριση πρόσβασης',
+    adminAccessPin:'Ορισμός PIN',
+    adminAccessEmail:'Ορισμός email',
+    adminAccessSend:'Αποστολή info-mail',
+    adminAccessEmailPin:'Να συμπεριληφθεί το νέο PIN στο mail',
+    adminAccessNoEmail:'Δεν υπάρχει email',
+    adminAccessPinSaved:'Το PIN αποθηκεύτηκε',
+    adminAccessEmailSaved:'Το email αποθηκεύτηκε',
+    adminAccessSent:'Το mail πρόσβασης στάλθηκε',
+    adminAccessHasPin:'Υπάρχει PIN',
+    adminAccessMissingPin:'Χωρίς PIN',
+    adminBroadcastCtaHint:'Τα mail έχουν κουμπιά Login (Desktop, Mobile, Plan).',
     adminShiftsWeek:'Βάρδιες εβδομάδας', adminMarkDone:'Ολοκληρώθηκε', adminRemoveAssign:'Ακύρωση εργασίας',
     noEntries:'Καμία εγγραφή',
     weekNotes:'Σημειώσεις εβδομάδας', besprechung:'Σύσκεψη: Δευτέρα 13:30',
@@ -20671,6 +20699,7 @@ function adminWorkerDetailHtml(employeeId){
       <button class="btn sm sec" type="button" data-admin-worker-go="shop">${esc(t('adminOpenShop'))}</button>
       <button class="btn sm sec" type="button" data-admin-worker-go="audit">${esc(t('adminOpenAudit'))}</button>
       <button class="btn sm sec" type="button" data-admin-worker-go="contact">${esc(t('adminContact'))}</button>
+      <button class="btn sm sec" type="button" data-admin-worker-go="access">${esc(t('adminAccessTitle'))}</button>
       <button class="btn sm sec" type="button" data-admin-worker-go="sheet">${esc(t('adminDetails'))}</button>
     </div>
     <div class="admin-ops-chips" role="group" aria-label="${esc(t('bookRangeLabel'))}">
@@ -20707,7 +20736,11 @@ function adminSectionHtml(pane){
     const limit=state.adminAuditLimit||50;
     return `<label class="f"><span>${text('Aktivität durchsuchen','Αναζήτηση δραστηριότητας')}</span><input type="search" id="adminAuditSearch" value="${esc(state.adminAuditQuery||'')}" placeholder="${text('Person, Vorgang oder Grund','Πρόσωπο, ενέργεια ή αιτία')}"></label><p class="muted">${Math.min(filtered.length,limit)} / ${filtered.length}</p>${rows(filtered.slice(0,limit).map(r=>record(typeLabel(r.type)||r.type||'—',[r.ts?fmtDT(r.ts):'',emp(r.employeeId)?.name,r.text||r.reason||r.msg].filter(Boolean).join(' · '))))}${filtered.length>limit?`<button class="btn sec" data-admin-tool="more-audit">${text('Weitere 50 laden','Φόρτωση άλλων 50')}</button>`:''}`;
   }
-  if(pane==='communications')return rows([record(text('Nachricht an das Team','Μήνυμα στην ομάδα'),text('Empfänger und Nachricht vor dem Versand prüfen.','Έλεγχος παραληπτών και μηνύματος πριν την αποστολή.'),`<button class="btn" data-admin-tool="broadcast">${text('Nachricht erstellen','Δημιουργία μηνύματος')}</button>`),record(text('Teamgespräch','Συνομιλία ομάδας'),text('Gespräche und Besprechungsnotizen.','Συνομιλίες και σημειώσεις συναντήσεων.'),link('#talk',text('Gespräche öffnen','Άνοιγμα συνομιλιών')))]);
+  if(pane==='communications')return rows([
+    record(text('PINs & Zugänge','PIN & πρόσβαση'),text('PIN ändern, E-Mail setzen, Zugangs-Mail mit App-Buttons.','Αλλαγή PIN, email και info-mail με κουμπιά εφαρμογής.'),`<button class="btn" data-admin-tool="access">${text('Zugänge verwalten','Διαχείριση πρόσβασης')}</button>`),
+    record(text('Nachricht an das Team','Μήνυμα στην ομάδα'),text('Empfänger und Nachricht vor dem Versand prüfen. Mails enthalten Login-Buttons.','Έλεγχος παραληπτών πριν την αποστολή. Τα mail έχουν κουμπιά σύνδεσης.'),`<button class="btn" data-admin-tool="broadcast">${text('Nachricht erstellen','Δημιουργία μηνύματος')}</button>`),
+    record(text('Teamgespräch','Συνομιλία ομάδας'),text('Gespräche und Besprechungsnotizen.','Συνομιλίες και σημειώσεις συναντήσεων.'),link('#talk',text('Gespräche öffnen','Άνοιγμα συνομιλιών')))
+  ]);
   if(pane==='automations')return `<p>${text('Diese Benachrichtigungsregeln gelten für dieses Gerät. Ein zentraler Ausführungsverlauf ist noch nicht verfügbar.','Αυτοί οι κανόνες ειδοποιήσεων ισχύουν για αυτή τη συσκευή. Δεν υπάρχει ακόμη κεντρικό ιστορικό εκτέλεσης.')}</p>${rows(Object.entries(notifAutomations()).filter(([key])=>key!=='updatedAt').map(([key,value])=>record(t({shiftStart:'autoShiftStart',lowStock:'autoLowStock',presenceLate:'autoPresenceLate',broadcastBanner:'autoBroadcastBanner',fridayShop:'autoFridayShop',activities:'autoActivities',handover:'autoHandover',ratings:'autoRatings'}[key]),value?text('Aktiv','Ενεργό'):text('Inaktiv','Ανενεργό'))))}<button class="btn" data-admin-tool="automations">${text('Regeln bearbeiten','Επεξεργασία κανόνων')}</button>`;
   if(pane==='system')return rows([
     record(text('Verbindung','Σύνδεση'),navigator.onLine?text('Netzwerk verfügbar; Dienststatus wird bei Anfragen geprüft.','Διαθέσιμο δίκτυο· η υπηρεσία ελέγχεται κατά τα αιτήματα.'):text('Offline','Χωρίς σύνδεση')),
@@ -20824,6 +20857,7 @@ function wireAdminOpsView(root){
     const action=button.dataset.adminTool;
     if(action==='feedback')sheetFeedbackInbox();
     if(action==='broadcast')sheetBroadcastEmail();
+    if(action==='access')sheetAdminAccessHub();
     if(action==='automations')sheetAdminAutomations();
     if(action==='retry')pushShared();
     if(action==='more-audit'){state.adminAuditLimit=(state.adminAuditLimit||50)+50;render();}
@@ -20858,6 +20892,7 @@ function wireAdminOpsView(root){
     if(act==='shop'){ navigateStaffTab('shop'); return; }
     if(act==='audit'){ sheetSecurityAudit({profileId:id}); return; }
     if(act==='contact'){ sheetSecurityAccess(); return; }
+    if(act==='access'){ sheetAdminAccessHub(id); return; }
     if(act==='sheet' && id){ sheetAdminStaff(id); return; }
   });
   root.querySelectorAll('[data-ops-house]').forEach(btn=>btn.onclick=()=>{
@@ -20974,6 +21009,167 @@ function adminTeamPanel(today){
   ${rewardCenter}`;
 }
 
+async function adminProfileApi(action, payload={}){
+  const response = await fetch('/api/auth/admin/profile', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body: JSON.stringify({action, lang: state.lang, ...payload}),
+  });
+  const data = await response.json().catch(()=>({}));
+  if(!response.ok){
+    const err = new Error(data.error || String(response.status));
+    err.code = data.code;
+    throw err;
+  }
+  return data;
+}
+
+async function sheetAdminAccessHub(focusId){
+  if(!isAdminUser()){ toast(t('adminRequired'),'error'); return; }
+  openSheet(`<div class="admin-detail-hero"><div class="pa avatar" style="background:linear-gradient(145deg,#2a6b52,#2f5a63)">🔐</div>
+    <div class="grow"><div class="muted">ARMONIA · ADMIN</div><h3 style="margin:1px 0">${esc(t('adminAccessTitle'))}</h3>
+      <div class="muted">${esc(t('adminAccessHint'))}</div></div></div>
+    <div id="adminAccessStatus" class="status-box" style="display:none;margin:8px 0" role="status"></div>
+    <div id="adminAccessList" class="admin-record-list"><p class="muted">…</p></div>`);
+  const listEl = sheetEl.querySelector('#adminAccessList');
+  const statusEl = sheetEl.querySelector('#adminAccessStatus');
+  const paint = (profiles, emailConfigured)=>{
+    if(!listEl) return;
+    if(!profiles.length){
+      listEl.innerHTML = `<p class="muted">—</p>`;
+      return;
+    }
+    listEl.innerHTML = profiles.map(p=>{
+      const name = p.name || emp(p.profileId)?.name || kid(p.profileId)?.name || p.profileId;
+      const mail = p.email || '';
+      const pinLbl = p.hasPin ? t('adminAccessHasPin') : t('adminAccessMissingPin');
+      return `<article class="admin-record" data-access-id="${esc(p.profileId)}">
+        <div>
+          <h3>${esc(name)}${p.admin?' <span class="admin-badge">ADMIN</span>':''}</h3>
+          <p>${esc(p.profileId)} · ${esc(p.mode)} · ${esc(pinLbl)} · ${esc(mail || t('adminAccessNoEmail'))}</p>
+        </div>
+        <div class="admin-action-grid" style="margin-top:8px">
+          <button class="btn sm" type="button" data-access-pin="${esc(p.profileId)}">${esc(t('adminAccessPin'))}</button>
+          <button class="btn sm sec" type="button" data-access-email="${esc(p.profileId)}">${esc(t('adminAccessEmail'))}</button>
+          <button class="btn sm sec" type="button" data-access-send="${esc(p.profileId)}" ${mail?'':'disabled'}>${esc(t('adminAccessSend'))}</button>
+        </div>
+      </article>`;
+    }).join('');
+    if(statusEl){
+      statusEl.style.display = 'block';
+      statusEl.className = `status-box ${emailConfigured?'success':''}`;
+      statusEl.textContent = emailConfigured
+        ? t('adminBroadcastCtaHint')
+        : t('adminBroadcastOffline');
+    }
+    sheetEl.querySelectorAll('[data-access-pin]').forEach(btn=>{
+      btn.onclick = ()=>sheetAdminSetPin(btn.dataset.accessPin, profiles);
+    });
+    sheetEl.querySelectorAll('[data-access-email]').forEach(btn=>{
+      btn.onclick = ()=>sheetAdminSetEmail(btn.dataset.accessEmail, profiles);
+    });
+    sheetEl.querySelectorAll('[data-access-send]').forEach(btn=>{
+      btn.onclick = ()=>sheetAdminSendAccess(btn.dataset.accessSend, profiles);
+    });
+    if(focusId){
+      const card = sheetEl.querySelector(`[data-access-id="${CSS.escape(focusId)}"]`);
+      card?.scrollIntoView({block:'nearest'});
+    }
+  };
+  try{
+    const response = await fetch('/api/auth/profiles', {credentials:'same-origin'});
+    const data = await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(data.error||String(response.status));
+    paint(data.profiles||[], data.emailConfigured!==false);
+  }catch(err){
+    console.error(err);
+    if(listEl) listEl.innerHTML = `<p class="muted">${esc(t('adminBroadcastFailed'))}</p>`;
+  }
+}
+
+function sheetAdminSetPin(profileId, profiles){
+  const row = (profiles||[]).find(p=>p.profileId===profileId) || {profileId};
+  const name = row.name || emp(profileId)?.name || kid(profileId)?.name || profileId;
+  openSheet(`<h3 style="margin:0 0 8px">${esc(t('adminAccessPin'))} · ${esc(name)}</h3>
+    <label class="f"><span>${esc(t('newPin'))}</span><input id="apPin" type="password" inputmode="numeric" pattern="\\d{4,6}" maxlength="6" autocomplete="new-password"></label>
+    <label class="f"><span>${esc(t('confirmPin'))}</span><input id="apPin2" type="password" inputmode="numeric" pattern="\\d{4,6}" maxlength="6" autocomplete="new-password"></label>
+    <label class="f" style="flex-direction:row;align-items:center;gap:10px">
+      <input type="checkbox" id="apEmailPin">
+      <span>${esc(t('adminAccessEmailPin'))}</span>
+    </label>
+    <button class="btn" type="button" id="apSave">${esc(t('changePin'))}</button>
+    <button class="btn sec" type="button" id="apBack" style="margin-top:8px">${esc(t('adminTeamBack')||'←')}</button>`);
+  sheetEl.querySelector('#apBack').onclick = ()=>sheetAdminAccessHub(profileId);
+  sheetEl.querySelector('#apSave').onclick = ()=>{
+    const pin = String(sheetEl.querySelector('#apPin')?.value||'');
+    const pin2 = String(sheetEl.querySelector('#apPin2')?.value||'');
+    if(pin!==pin2 || !/^\d{4,6}$/.test(pin)){ toast(t('kidPinMismatch')||t('changePin'),'error'); return; }
+    const emailPin = !!sheetEl.querySelector('#apEmailPin')?.checked;
+    askPin(t('adminAccessPin')+': '+name, async()=>{
+      try{
+        const data = await adminProfileApi('set_pin', {profileId, pin, emailPin});
+        toast(data.emailed ? t('adminAccessSent') : t('adminAccessPinSaved'), 'success');
+        logEntry('ADMIN', `PIN · ${name} (${profileId})`);
+        sheetAdminAccessHub(profileId);
+      }catch(err){
+        toast(err.message||t('adminBroadcastFailed'),'error');
+      }
+    }, {requirePin:true});
+  };
+}
+
+function sheetAdminSetEmail(profileId, profiles){
+  const row = (profiles||[]).find(p=>p.profileId===profileId) || {profileId};
+  const name = row.name || emp(profileId)?.name || kid(profileId)?.name || profileId;
+  openSheet(`<h3 style="margin:0 0 8px">${esc(t('adminAccessEmail'))} · ${esc(name)}</h3>
+    <label class="f"><span>${esc(t('emailLabel'))}</span><input id="apEmail" type="email" value="${esc(row.email||'')}" placeholder="name@example.com"></label>
+    <button class="btn" type="button" id="apSave">${esc(t('saved')||'OK')}</button>
+    <button class="btn sec" type="button" id="apBack" style="margin-top:8px">${esc(t('adminTeamBack')||'←')}</button>`);
+  sheetEl.querySelector('#apBack').onclick = ()=>sheetAdminAccessHub(profileId);
+  sheetEl.querySelector('#apSave').onclick = ()=>{
+    const email = String(sheetEl.querySelector('#apEmail')?.value||'').trim().toLowerCase();
+    askPin(t('adminAccessEmail')+': '+name, async()=>{
+      try{
+        await adminProfileApi('set_email', {profileId, email});
+        toast(t('adminAccessEmailSaved'),'success');
+        logEntry('ADMIN', `Email · ${name} · ${email||'—'}`);
+        sheetAdminAccessHub(profileId);
+      }catch(err){
+        toast(err.message||t('adminBroadcastFailed'),'error');
+      }
+    }, {requirePin:true});
+  };
+}
+
+function sheetAdminSendAccess(profileId, profiles){
+  const row = (profiles||[]).find(p=>p.profileId===profileId) || {profileId};
+  const name = row.name || emp(profileId)?.name || kid(profileId)?.name || profileId;
+  if(!row.email){ toast(t('adminAccessNoEmail'),'error'); return; }
+  openSheet(`<h3 style="margin:0 0 8px">${esc(t('adminAccessSend'))} · ${esc(name)}</h3>
+    <p class="muted">${esc(row.email)}</p>
+    <p class="muted">${esc(t('adminBroadcastCtaHint'))}</p>
+    <label class="f"><span>${esc(t('newPin'))} (${esc(t('adminAccessEmailPin'))})</span>
+      <input id="apPinOpt" type="password" inputmode="numeric" pattern="\\d{4,6}" maxlength="6" placeholder="····"></label>
+    <button class="btn" type="button" id="apSend">${esc(t('adminAccessSend'))}</button>
+    <button class="btn sec" type="button" id="apBack" style="margin-top:8px">${esc(t('adminTeamBack')||'←')}</button>`);
+  sheetEl.querySelector('#apBack').onclick = ()=>sheetAdminAccessHub(profileId);
+  sheetEl.querySelector('#apSend').onclick = ()=>{
+    const pin = String(sheetEl.querySelector('#apPinOpt')?.value||'');
+    if(pin && !/^\d{4,6}$/.test(pin)){ toast(t('kidPinMismatch')||'PIN','error'); return; }
+    askPin(t('adminAccessSend')+': '+name, async()=>{
+      try{
+        await adminProfileApi('send_info', {profileId, email: row.email, pin: pin||undefined});
+        toast(t('adminAccessSent'),'success');
+        logEntry('ADMIN', `Access mail · ${name}`);
+        sheetAdminAccessHub(profileId);
+      }catch(err){
+        toast(err.message||t('adminBroadcastFailed'),'error',5200);
+      }
+    }, {requirePin:true});
+  };
+}
+
 async function sheetBroadcastEmail(){
   if(!isAdminUser()){toast(t('adminRequired'),'error');return;}
   const draft=state._broadcastDraft||{};
@@ -20996,6 +21192,7 @@ async function sheetBroadcastEmail(){
       <div class="muted">${esc(who)} · ${esc(audience)}</div>
       <p>${esc(message)}</p>
       <div class="muted bp-sub">${esc(subject)}</div>
+      <div class="muted" style="margin-top:8px;font-size:12px">${esc(t('adminBroadcastCtaHint'))}</div>
     </div>`;
   };
   const refreshCount=async()=>{
@@ -21150,6 +21347,7 @@ function sheetAdminStaff(employeeId){
       <button class="btn sm sec" type="button" id="adminPersonShop">🛒 ${t('adminOpenShop')}</button>
       <button class="btn sm sec" type="button" id="adminPersonAudit">📖 ${t('adminOpenAudit')}</button>
       <button class="btn sm sec" type="button" id="adminPersonContact">✉️ ${t('adminContact')}</button>
+      <button class="btn sm sec" type="button" id="adminPersonAccess">🔐 ${t('adminAccessTitle')}</button>
       <button class="btn sm sec" type="button" id="adminPersonCalendar">📅 ${t('calTitle')}</button>
     </div>
     <div class="block-h" style="margin-top:14px"><span class="t">🕒 ${t('adminShiftsWeek')}</span></div>
@@ -21213,6 +21411,8 @@ function sheetAdminStaff(employeeId){
   sheetEl.querySelector('#adminPersonContact').onclick=()=>{
     closeSheet(); setTimeout(()=>sheetSecurityAccess(),180);
   };
+  const accessBtn=sheetEl.querySelector('#adminPersonAccess');
+  if(accessBtn) accessBtn.onclick=()=>{ closeSheet(); setTimeout(()=>sheetAdminAccessHub(employeeId),180); };
   sheetEl.querySelector('#adminPersonCalendar')?.addEventListener('click',()=>{
     sheetCalendar(employeeId,'staff');
   });

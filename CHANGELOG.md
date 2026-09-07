@@ -1,3 +1,8 @@
+## v231 · 2026-09-07
+
+- Admin hub: change any profile PIN/email; send access emails with info + App buttons; broadcast CTAs.
+- Cache `paidia-v231`.
+
 ## v230 · 2026-09-07
 
 - iOS notifications audit notes; live still needs VAPID env for background push.

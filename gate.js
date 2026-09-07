@@ -123,11 +123,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 230,
-    label: 'v230',
+    version: 231,
+    label: 'v231',
     changed: {
-      de: 'Kalender-Tagesdetail, Personal, School Moodle, iOS-Push-Audit.',
-      el: 'Λεπτομέρειες ημέρας, Προσωπικό, School Moodle, έλεγχος iOS push.',
+      de: 'Admin: PINs ändern, Zugangs-Mails mit Buttons.',
+      el: 'Admin: αλλαγή PIN, info-mail με κουμπιά.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

@@ -3770,14 +3770,100 @@ def profile_email_directory() -> list[dict]:
         email = (user.get("email") or "").strip().lower()
         if not email or not valid_email(email):
             continue
+        disp = PROFILE_DISPLAY.get(str(profile_id), {})
         rows.append({
             "profileId": profile_id,
             "mode": user.get("mode") or "staff",
-            "name": user.get("name") or profile_id,
+            "name": str(user.get("name") or disp.get("name") or profile_id).strip() or profile_id,
             "email": email,
-            "admin": bool(user.get("admin")),
+            "admin": bool(user.get("admin")) or profile_id in ADMIN_PROFILE_IDS,
         })
     return rows
+
+
+def admin_auth_profile_rows() -> list[dict]:
+    """Admin directory: every login profile with contact + PIN presence (never the PIN)."""
+    rows = []
+    for profile_id, user in AUTH_USERS.items():
+        disp = PROFILE_DISPLAY.get(str(profile_id), {})
+        rows.append({
+            "profileId": profile_id,
+            "mode": user.get("mode") or "staff",
+            "name": str(user.get("name") or disp.get("name") or profile_id).strip() or profile_id,
+            "email": str(user.get("email") or "").strip().lower(),
+            "phone": str(user.get("phone") or "").strip(),
+            "hasPin": bool(str(user.get("pin_hash") or "").strip()),
+            "admin": bool(user.get("admin")) or profile_id in ADMIN_PROFILE_IDS,
+        })
+    rows.sort(key=lambda r: (0 if r["mode"] == "staff" else 1, (r.get("name") or "").lower()))
+    return rows
+
+
+def send_profile_access_email(
+    recipient: str,
+    *,
+    profile_name: str,
+    profile_id: str,
+    mode: str,
+    pin: str | None = None,
+    lang: str = "de",
+) -> None:
+    """Automated access email with profile info table + deep-link buttons."""
+    lang = "el" if str(lang).lower().startswith("el") else "de"
+    base = (os.environ.get("PAIDIA_PUBLIC_URL") or "").rstrip("/") or "https://armonia-thassos.vercel.app"
+    is_el = lang == "el"
+    title = "Στοιχεία πρόσβασης" if is_el else "Zugangsdaten"
+    kicker = "Προφίλ" if is_el else "Zugang"
+    role = ("Παιδί" if mode == "child" else "Προσωπικό") if is_el else ("Kind" if mode == "child" else "Team")
+    rows = [
+        ("Name" if not is_el else "Όνομα", profile_name),
+        ("Profil-ID" if not is_el else "ID προφίλ", profile_id),
+        ("Rolle" if not is_el else "Ρόλος", role),
+        ("E-Mail", recipient),
+    ]
+    if pin:
+        rows.append(("PIN", pin))
+    body_bits = [
+        f"<p style=\"margin:0 0 14px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+        f"{'Γεια σου' if is_el else 'Hallo'} <b>{email_escape(profile_name)}</b>,</p>",
+        f"<p style=\"margin:0 0 14px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#455851\">"
+        f"{'Εδώ είναι τα στοιχεία σου για την εφαρμογή Armonia Thassos.' if is_el else 'Hier sind deine Zugangsdaten für die Armonia Thassos App.'}</p>",
+        email_info_table(rows),
+    ]
+    if pin:
+        body_bits.append(email_callout(
+            "Κράτα το PIN ιδιωτικό — μην το προωθείς." if is_el else "PIN privat halten — nicht weiterleiten.",
+            tone="warn",
+        ))
+    body_bits.append(
+        email_button(f"{base}/desk/", "Desktop öffnen" if not is_el else "Άνοιγμα Desktop")
+        + email_button(f"{base}/m/", "Mobile öffnen" if not is_el else "Άνοιγμα Mobile")
+        + email_button(f"{base}/desk/#schedule/day", "Plan / Πρόγραμμα")
+        + (email_button(f"{base}/school/", "School Moodle") if mode != "child" else "")
+        + email_button(f"{base}/", "Login" if not is_el else "Σύνδεση")
+    )
+    footer = (
+        "Admin · Αυτόματο μήνυμα · μην απαντάς σε αυτό το email"
+        if is_el else
+        "Admin · Automatische Nachricht · bitte nicht antworten"
+    )
+    text_body = (
+        f"{title}\n\n{profile_name} ({profile_id})\n"
+        f"Role: {role}\nEmail: {recipient}\n"
+        + (f"PIN: {pin}\n" if pin else "")
+        + f"\nApp: {base}/\nDesk: {base}/desk/\nMobile: {base}/m/\n"
+    )
+    html_body = email_shell(
+        title,
+        kicker,
+        "".join(body_bits),
+        footer,
+        preheader=f"{profile_name} · {title}",
+    )
+    subject = (
+        f"Armonia Thassos – {title}: {profile_name}"
+    )
+    send_email(recipient, subject, text_body, html_body)
 
 
 def broadcast_recipients(audience: str = "all") -> list[dict]:
@@ -3807,7 +3893,8 @@ def audience_label(audience: str, lang: str = "de") -> str:
 
 
 def send_broadcast_email(recipient: str, *, subject: str, title: str, body: str,
-                         sender_name: str, audience_label: str, lang: str = "de") -> None:
+                         sender_name: str, audience_label: str, lang: str = "de",
+                         recipient_name: str = "") -> None:
     lang = "el" if str(lang).lower().startswith("el") else "de"
     kicker = "Μήνυμα ομάδας" if lang == "el" else "Team-Nachricht"
     from_line = (
@@ -3825,10 +3912,26 @@ def send_broadcast_email(recipient: str, *, subject: str, title: str, body: str,
         if lang == "el"
         else "Nachricht aus der Admin-Zentrale"
     )
+    who = (recipient_name or "").strip()
+    greet = (
+        f"<p style=\"margin:0 0 12px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
+        f"{'Γεια σου' if lang == 'el' else 'Hallo'}"
+        f"{(' <b>' + email_escape(who) + '</b>') if who else ''},</p>"
+    )
+    base = (os.environ.get("PAIDIA_PUBLIC_URL") or "").rstrip("/") or "https://armonia-thassos.vercel.app"
+    cta = (
+        email_button(f"{base}/desk/", "Desktop" if lang == "de" else "Desktop")
+        + email_button(f"{base}/m/", "Mobile")
+        + email_button(f"{base}/desk/#schedule/day", "Plan" if lang == "de" else "Πρόγραμμα")
+        + email_button(f"{base}/desk/#home", "Home")
+    )
     text_body = (
-        f"{title}\n\n{body}\n\n"
+        f"{title}\n\n"
+        + (f"Hallo {who},\n\n" if who else "")
+        + f"{body}\n\n"
         f"— {sender_name} (Admin)\n"
         f"Armonia Thassos · {audience_label}\n"
+        f"App: {base}/\n"
     )
     paragraphs = "".join(
         f"<p style=\"margin:0 0 12px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"
@@ -3845,8 +3948,10 @@ def send_broadcast_email(recipient: str, *, subject: str, title: str, body: str,
             f"letter-spacing:.08em;text-transform:uppercase;"
             f"font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif\">"
             f"{from_line}</p>"
+            + greet
             + paragraphs
             + email_callout(callout, tone="info")
+            + cta
         ),
         footer,
         preheader=f"{sender_name}: {title or subject}",
@@ -3883,6 +3988,7 @@ def deliver_broadcast(
                 sender_name=sender_name,
                 audience_label=label,
                 lang=lang,
+                recipient_name=str(row.get("name") or ""),
             )
             sent += 1
         except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
@@ -5374,16 +5480,20 @@ class Handler(SimpleHTTPRequestHandler):
                 self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
                 return
             profile_ids = list(AUTH_USERS) if session.get("admin") else [session["profile_id"]]
+            delivery = email_delivery_status()
             self.json_response(200, {
-                "profiles": [{
+                "profiles": admin_auth_profile_rows() if session.get("admin") else [{
                     "profileId": profile_id,
                     "mode": AUTH_USERS[profile_id]["mode"],
+                    "name": str(AUTH_USERS[profile_id].get("name") or PROFILE_DISPLAY.get(profile_id, {}).get("name") or profile_id),
                     "email": AUTH_USERS[profile_id].get("email", ""),
                     "phone": AUTH_USERS[profile_id].get("phone", ""),
-                } for profile_id in profile_ids],
+                    "hasPin": bool(AUTH_USERS[profile_id].get("pin_hash")),
+                    "admin": bool(session.get("admin")),
+                } for profile_id in profile_ids if profile_id in AUTH_USERS],
                 "canManageAll": bool(session.get("admin")),
-                "emailConfigured": email_delivery_status()["configured"],
-                "emailProvider": email_delivery_status()["provider"],
+                "emailConfigured": delivery["configured"],
+                "emailProvider": delivery["provider"],
             })
             return
         if parsed.path == "/api/auth/session":
@@ -5688,6 +5798,9 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if path == "/api/auth/admin/child":
             self.handle_admin_child(body)
+            return
+        if path == "/api/auth/admin/profile":
+            self.handle_admin_profile(body)
             return
         if path == "/api/auth/profile/email/test":
             self.handle_profile_email_test(body)
@@ -6573,6 +6686,134 @@ class Handler(SimpleHTTPRequestHandler):
             "color": AUTH_USERS[profile_id]["color"],
             "action": action,
         })
+
+    def handle_admin_profile(self, body: dict) -> None:
+        """Admin-only: set PIN / email for any profile, or send access-info email with CTAs."""
+        session = self.current_auth_session()
+        if not session:
+            self.json_response(401, {"error": "Authentication required", "code": "auth_required"})
+            return
+        if not session.get("admin"):
+            self.json_response(403, {"error": "Admin only", "code": "admin_required"})
+            return
+        action = str(body.get("action") or "").strip().lower()
+        profile_id = str(body.get("profileId") or "").strip()
+        if not re.fullmatch(r"[ek][A-Za-z0-9_-]{1,24}", profile_id):
+            self.json_response(400, {"error": "Invalid profile id", "code": "invalid_id"})
+            return
+        user = AUTH_USERS.get(profile_id)
+        if not user:
+            self.json_response(404, {"error": "Profile not found", "code": "profile_not_found"})
+            return
+        disp = PROFILE_DISPLAY.get(profile_id, {})
+        name = str(user.get("name") or disp.get("name") or profile_id).strip() or profile_id
+        mode = str(user.get("mode") or "staff")
+        lang = "el" if str(body.get("lang") or "").lower().startswith("el") else "de"
+
+        if action == "set_email":
+            email = str(body.get("email") or "").strip().lower()
+            if email and not valid_email(email):
+                self.json_response(400, {"error": "Invalid email", "code": "invalid_email"})
+                return
+            user["email"] = email
+            try:
+                persist_auth_users(require_durable=False)
+                set_auth_override(
+                    profile_id,
+                    pin_hash=str(user.get("pin_hash") or ""),
+                    email=email,
+                    phone=str(user.get("phone") or ""),
+                )
+                persist_auth_overrides()
+            except RuntimeError:
+                self.json_response(507, {"error": "Could not save", "code": "storage"})
+                return
+            append_security_event("admin_set_email", session["profile_id"], self.client_ip(), {
+                "targetId": profile_id,
+            })
+            self.json_response(200, {"ok": True, "profileId": profile_id, "email": email, "action": action})
+            return
+
+        if action == "set_pin":
+            pin = str(body.get("pin") or "")
+            if not re.fullmatch(r"\d{4,6}", pin):
+                self.json_response(400, {"error": "PIN must be 4–6 digits", "code": "invalid_pin"})
+                return
+            user["pin_hash"] = hash_pin(pin)
+            try:
+                persist_auth_users(require_durable=False)
+                set_auth_override(
+                    profile_id,
+                    pin_hash=user["pin_hash"],
+                    email=str(user.get("email") or ""),
+                    phone=str(user.get("phone") or ""),
+                )
+                persist_auth_overrides()
+            except RuntimeError:
+                self.json_response(507, {"error": "Could not save", "code": "storage"})
+                return
+            append_security_event("admin_set_pin", session["profile_id"], self.client_ip(), {
+                "targetId": profile_id,
+            })
+            include_pin = bool(body.get("emailPin"))
+            emailed = False
+            email = str(user.get("email") or "").strip().lower()
+            if include_pin and email and valid_email(email) and email_delivery_status()["configured"]:
+                try:
+                    send_profile_access_email(
+                        email,
+                        profile_name=name,
+                        profile_id=profile_id,
+                        mode=mode,
+                        pin=pin,
+                        lang=lang,
+                    )
+                    emailed = True
+                except (EmailDeliveryError, RuntimeError, OSError, smtplib.SMTPException):
+                    emailed = False
+            self.json_response(200, {
+                "ok": True,
+                "profileId": profile_id,
+                "action": action,
+                "emailed": emailed,
+            })
+            return
+
+        if action == "send_info":
+            email = str(body.get("email") or user.get("email") or "").strip().lower()
+            if not email or not valid_email(email):
+                self.json_response(400, {"error": "Email required", "code": "email_missing"})
+                return
+            if not email_delivery_status()["configured"]:
+                self.json_response(503, {"error": "Email delivery is not configured", "code": "email_not_configured"})
+                return
+            pin = str(body.get("pin") or "")
+            if pin and not re.fullmatch(r"\d{4,6}", pin):
+                self.json_response(400, {"error": "PIN must be 4–6 digits", "code": "invalid_pin"})
+                return
+            try:
+                send_profile_access_email(
+                    email,
+                    profile_name=name,
+                    profile_id=profile_id,
+                    mode=mode,
+                    pin=pin or None,
+                    lang=lang,
+                )
+            except EmailDeliveryError as exc:
+                self.json_response(502, {"error": str(exc), "code": getattr(exc, "code", "delivery_failed")})
+                return
+            except (RuntimeError, OSError, smtplib.SMTPException):
+                self.json_response(502, {"error": "Delivery failed", "code": "delivery_failed"})
+                return
+            append_security_event("admin_send_access_email", session["profile_id"], self.client_ip(), {
+                "targetId": profile_id,
+                "includedPin": bool(pin),
+            })
+            self.json_response(200, {"ok": True, "profileId": profile_id, "action": action, "emailed": True})
+            return
+
+        self.json_response(400, {"error": "Unknown action", "code": "invalid_action"})
 
     def handle_profile_email_test(self, body: dict) -> None:
         user, profile_id = self.editable_profile(body)
