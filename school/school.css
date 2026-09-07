@@ -1,0 +1,13 @@
+/* School Moodle Armonia shell accents */
+body.shell-school{
+  --school-accent:#1d4d4f;
+}
+body.shell-school #title::before{
+  content:'School · ';
+  font-weight:650;
+  opacity:.72;
+}
+body.shell-school .school-moodle{
+  max-width:720px;
+  margin:0 auto;
+}

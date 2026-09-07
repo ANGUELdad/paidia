@@ -1,8 +1,8 @@
 {
-  "version": 229,
-  "label": "v229",
+  "version": 230,
+  "label": "v230",
   "changed": {
-    "de": "Plan springt auf heute, wenn das Datum veraltet ist.",
-    "el": "Το πρόγραμμα πάει στο σήμερα αν η ημερομηνία είναι παλιά."
+    "de": "Kalender-Tagesdetail, Personal, School Moodle, iOS-Push-Audit.",
+    "el": "Λεπτομέρειες ημέρας, Προσωπικό, School Moodle, έλεγχος iOS push."
   }
 }

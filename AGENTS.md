@@ -41,6 +41,10 @@ Brand stays Armonia; HIG does not mean “look like iOS”.
 
 **Notifications matrix (OS × browser):** [docs/agents/NOTIFICATIONS_MATRIX.md](docs/agents/NOTIFICATIONS_MATRIX.md)
 
+**iOS notifications audit:** [docs/agents/IOS_NOTIFICATIONS_AUDIT.md](docs/agents/IOS_NOTIFICATIONS_AUDIT.md)
+
+**School Moodle Armonia:** [docs/agents/SCHOOL_MOODLE_ARMONIA.md](docs/agents/SCHOOL_MOODLE_ARMONIA.md)
+
 **Web Push (VAPID partial):** [docs/agents/WEB_PUSH_LATER.md](docs/agents/WEB_PUSH_LATER.md)
 
 **Git push to origin:** [docs/agents/PUSH_ORIGIN.md](docs/agents/PUSH_ORIGIN.md) — use `ANGUELdad` (not `anguel0z`) or push fails with 403.

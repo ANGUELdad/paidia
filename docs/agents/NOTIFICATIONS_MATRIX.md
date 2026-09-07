@@ -1,7 +1,7 @@
 # Notifications matrix — OS × browser × what works
 
 **Scope:** Root PWA (`notifications.js`, `app.js` sweep, `sw.js`).  
-**Last updated:** 2026-08-30 (v163).
+**Last updated:** 2026-09-07 (v230 audit). Live still needs VAPID env — see [IOS_NOTIFICATIONS_AUDIT.md](IOS_NOTIFICATIONS_AUDIT.md).
 
 ## Delivery modes
 

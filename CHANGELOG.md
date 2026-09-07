@@ -1,3 +1,10 @@
+## v230 · 2026-09-07
+
+- iOS notifications audit notes; live still needs VAPID env for background push.
+- Book + Plan calendars: multi-dot markers + shared day ops detail; important dates CRUD.
+- Staff `#personnel` hub; School Moodle Armonia (`#school` + `/school/`) with lesson notes.
+- Cache `paidia-v230`.
+
 ## v229 · 2026-09-07
 
 - Schedule snaps a past `paidia.scheduleDate` to today on boot and when opening Plan; day view gets a Today jump.

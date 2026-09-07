@@ -43,9 +43,15 @@ def inject_shell(html: str, shell: str, ver: str) -> str:
     if shell == "m":
         extra_css = "/mobile/mobile.css"
         extra_js = "/mobile/mobile-app.js"
+        label = "Mobile"
+    elif shell == "school":
+        extra_css = "/school/school.css"
+        extra_js = "/school/school-app.js"
+        label = "School"
     else:
         extra_css = "/desk/desk.css"
         extra_js = "/desk/desk-app.js"
+        label = "Desktop"
     head_bits = f"""
 <meta name="paidia-shell" content="{shell}">
 <script>document.documentElement.dataset.shell="{shell}";window.__PAIDIA_SHELL__="{shell}";</script>
@@ -101,8 +107,7 @@ def inject_shell(html: str, shell: str, ver: str) -> str:
         count=1,
         flags=re.I,
     )
-    # Title
-    label = "Mobile" if shell == "m" else "Desktop"
+    # Title (label already set above for m / desk / school)
     html = html.replace("<title>Armonia Thassos</title>", f"<title>Armonia Thassos · {label}</title>", 1)
     return html
 
@@ -110,7 +115,7 @@ def inject_shell(html: str, shell: str, ver: str) -> str:
 def main() -> None:
     ver = build_version()
     raw = SRC.read_text(encoding="utf-8")
-    for shell, folder in (("m", "mobile"), ("desk", "desk")):
+    for shell, folder in (("m", "mobile"), ("desk", "desk"), ("school", "school")):
         html = rewrite_asset_paths(raw)
         html = inject_shell(html, shell, ver)
         out = ROOT / folder / "index.html"

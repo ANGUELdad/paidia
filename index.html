@@ -3507,7 +3507,8 @@
   .plan-calendar .cal-dots i{display:block;width:5px;height:5px;border-radius:50%}
   .plan-calendar .cal-dots i.ev{background:var(--plan-sun)}
   .plan-calendar .cal-dots i.tk{background:var(--plan-sea)}
-  .plan-calendar .cal-cell.on .cal-dots i.ev,.plan-calendar .cal-cell.on .cal-dots i.tk{background:rgba(255,255,255,.88)}
+  .plan-calendar .cal-dots i.im{background:#b45309}
+  .plan-calendar .cal-cell.on .cal-dots i.ev,.plan-calendar .cal-cell.on .cal-dots i.tk,.plan-calendar .cal-cell.on .cal-dots i.im{background:rgba(255,255,255,.88)}
   .plan-calendar .cal-legend{
     display:flex;flex-wrap:wrap;gap:10px 14px;margin:0 0 10px;font-size:11px;font-weight:650;color:var(--plan-meta);
   }
@@ -3515,6 +3516,18 @@
   .plan-calendar .cal-legend i{display:inline-block;width:6px;height:6px;border-radius:50%}
   .plan-calendar .cal-legend i.ev{background:var(--plan-sun)}
   .plan-calendar .cal-legend i.tk{background:var(--plan-sea)}
+  .plan-calendar .cal-legend i.im,.book-cal .cal-legend i.im,.book-cal .cal-dots i.im{background:#b45309}
+  .book-cal .cal-dots i.tk{background:var(--plan-sea,#2f5a63)}
+  .book-cal .cal-dots i.ev{background:var(--plan-sun,#e8a317)}
+  .day-ops-panel{margin-top:12px;padding:14px 14px 10px}
+  .day-ops-sec{margin:12px 0 4px}
+  .day-ops-sec h3{font-size:13px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+  .day-ops-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+  .day-ops-list li{padding:8px 10px;border-radius:12px;background:rgba(15,23,42,.04);font-size:13px;line-height:1.35;position:relative}
+  .day-ops-list .mini-x{position:absolute;top:6px;right:6px}
+  .school-moodle .planner-seg{margin:10px 0}
+  .personnel-page .admin-team-roster{margin-top:12px}
+  .important-dates-panel{padding:12px}
   .plan-calendar .cal-shell .cal-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 8px;align-items:center}
   .plan-calendar .cal-shell .cal-actions .btn{min-height:44px}
   .plan-calendar .cal-notif-pill{
@@ -6068,9 +6081,9 @@
   }
 
 </style>
-<link rel="stylesheet" href="ui-v110.css?v=229">
-<link rel="stylesheet" href="ui-v213.css?v=229">
-<link rel="stylesheet" href="shared/workspace.css?v=229">
+<link rel="stylesheet" href="ui-v110.css?v=230">
+<link rel="stylesheet" href="ui-v213.css?v=230">
+<link rel="stylesheet" href="shared/workspace.css?v=230">
 <style>
   /* v177 — staff mobile: no floating Zo (Mehr → Zo-Ai); hide when chat open */
   body.layout-mobile:not(.mode-child) .zoai-fab,
@@ -6146,6 +6159,8 @@
       <button type="button" data-tab="shop" data-tour="nav-shop"><svg class="i nav-ico" aria-hidden="true"><use href="#i-shop"/></svg><span data-nav="shop"></span></button>
       <button type="button" class="dock-secondary" data-tab="talk" data-staff-only="1" data-tour="nav-talk"><svg class="i nav-ico" aria-hidden="true"><use href="#i-talk"/></svg><span data-nav="talk"></span></button>
       <button type="button" class="dock-secondary" data-tab="book" data-tour="nav-book"><svg class="i nav-ico" aria-hidden="true"><use href="#i-book"/></svg><span data-nav="book"></span></button>
+      <button type="button" class="dock-secondary" data-tab="personnel" data-staff-only="1" data-tour="nav-personnel"><svg class="i nav-ico" aria-hidden="true"><use href="#u-users"/></svg><span data-nav="personnel"></span></button>
+      <button type="button" class="dock-secondary" data-tab="school" data-staff-only="1" data-tour="nav-school"><svg class="i nav-ico" aria-hidden="true"><use href="#u-sparkle"/></svg><span data-nav="school"></span></button>
       <button type="button" class="dock-secondary" data-tab="admin" data-admin-only="1" data-tour="nav-admin"><svg class="i nav-ico" aria-hidden="true"><use href="#u-sparkle"/></svg><span data-nav="admin"></span></button>
       <button type="button" class="dock-more" id="dockMore" aria-haspopup="dialog"><span class="nav-ico dock-more-glyph" aria-hidden="true">···</span><span id="dockMoreLabel">Mehr</span></button>
     </nav>
@@ -6187,12 +6202,12 @@
   <span class="u-sr" data-nav-chat>Zo-Ai</span>
 </button>
 
-<script src="shared/shell.js?v=229"></script>
-<script src="shared/core.js?v=229"></script>
-<script src="shared/workspace.js?v=229"></script>
-<script src="shared/i18n.js?v=229"></script>
-<script src="shared/ops.js?v=229"></script>
-<script src="shared/dirty.js?v=229"></script>
+<script src="shared/shell.js?v=230"></script>
+<script src="shared/core.js?v=230"></script>
+<script src="shared/workspace.js?v=230"></script>
+<script src="shared/i18n.js?v=230"></script>
+<script src="shared/ops.js?v=230"></script>
+<script src="shared/dirty.js?v=230"></script>
 <script>
 /* Gate FIRST — never block PIN behind tip/notif scripts (hung SW = forever Laden). */
 /* After auth, PaidiaShell routes to /m/ or /desk/ (dual websites). */
@@ -6211,9 +6226,9 @@
   }catch(e){}
 })();
 </script>
-<script src="gate.js?v=229"></script>
-<script src="page-tips.js?v=229" async></script>
-<script src="zoai-tips.js?v=229" async></script>
-<script src="notifications.js?v=229" async></script>
+<script src="gate.js?v=230"></script>
+<script src="page-tips.js?v=230" async></script>
+<script src="zoai-tips.js?v=230" async></script>
+<script src="notifications.js?v=230" async></script>
 </body>
 </html>

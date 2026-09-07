@@ -4,16 +4,16 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 229,
-  label: 'v229',
+  version: 230,
+  label: 'v230',
   changed: {
-    de: 'Plan springt auf heute, wenn das Datum veraltet ist.',
-    el: 'Το πρόγραμμα πάει στο σήμερα αν η ημερομηνία είναι παλιά.',
+    de: 'Kalender-Tagesdetail, Personal, School Moodle, iOS-Push-Audit.',
+    el: 'Λεπτομέρειες ημέρας, Προσωπικό, School Moodle, έλεγχος iOS push.',
   },
 };
 const T = {
   de: {
-    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navPocket:'Taschengeld', navAdmin:'Admin', navMore:'Mehr',
+    appTitle:'Armonia Thassos', navHome:'Home', navSchedule:'Plan', navStock:'Lager', navShop:'Liste', navBook:'Buch', navGallery:'Momente', navTalk:'Talk', navKids:'Kinder', navPocket:'Taschengeld', navPersonnel:'Personal', navSchool:'Schule', navAdmin:'Admin', navMore:'Mehr',
     titleHome:'Home', titleSchedule:'Wochenplan', titleStock:'Lager', titleShop:'Listen & Einkauf', titleBook:'Buch', titleGallery:'Momente', titleTalk:'Team-Gespräch', titleKids:'Kinder & Schule', titlePocket:'Taschengeld', kidsHeroHint:'Schule, Entwicklung und Spiel-Fortschritt auf einen Blick', kidsEmpty:'Keine Kinder hinterlegt', kidAdd:'Kind hinzufügen', kidRemove:'Kind entfernen', kidEdit:'Kind bearbeiten', kidNamePh:'Vorname', kidPinPh:'PIN (4–6 Ziffern)', kidPinConfirm:'PIN bestätigen', kidAdded:'Kind gespeichert', kidRemoved:'Kind entfernt', kidRemoveConfirm:'Dieses Kind wirklich entfernen? Login wird gelöscht.', kidPinMismatch:'PIN stimmt nicht', kidNameRequired:'Name fehlt', kidAdminOnly:'Nur Admins können Kinder hinzufügen/entfernen', profilePhoto:'Profilfoto', profilePhotoChange:'Foto ändern', profilePhotoRemove:'Foto entfernen', profilePhotoHint:'Wird oben rechts angezeigt', schoolSubjects:'Fächer', schoolAttendance:'Anwesenheit', schoolHomework:'Hausaufgaben', schoolTimetable:'Stundenplan', thisWeek:'Diese Woche', gradeSaved:'Note gespeichert', attSaved:'Anwesenheit gespeichert', hwSaved:'Hausaufgabe gespeichert', ttSaved:'Stunde gespeichert', subSaved:'Fach gespeichert', subAdd:'Fach hinzufügen', subArchive:'Archivieren', subActivate:'Aktivieren', subEmpty:'Noch keine Fächer', att_present:'Da', att_absent:'Fehlt', att_excused:'Entschuldigt', hwEmpty:'Keine Hausaufgaben', hwAdd:'Hausaufgabe', hwTitlePh:'z.B. Mathe S.12', hwAllKids:'Alle Kinder', ttEmpty:'Keine Stunden', ttAdd:'Stunde hinzufügen', homeShiftRing:'Schicht', homeWeekSpark:'7 Tage erledigt', planDayLoad:'Tageslast', zoSavedLager:'Im Lager gespeichert', zoSavedListe:'In der Liste gespeichert', zoSavedPlan:'Im Plan gespeichert', zoSavedSchool:'Schule gespeichert', zoSavedNote:'Notiz gespeichert',
     kidsOverview:'Übersicht', kidsTracked:'Kinder', kidsOpenHomework:'Hausaufgaben offen',
     schoolOverview:'Schulübersicht', gradeAverage:'Notenschnitt', gradeNoData:'Noch keine Noten', attendanceWeek:'Anwesenheit diese Woche',
@@ -83,11 +83,44 @@ const T = {
     journalBrowse:'Frühere Übergaben',
     journalDayDone:'Übergabe für diesen Tag ist geschrieben',
     journalDayEmpty:'An diesem Tag noch nichts geschrieben',
-    bookCalHint:'Tippe einen Tag. Punkte = Einträge · Orange = noch ungelesen.',
+    bookCalHint:'Tippe einen Tag. Punkte = Übergabe · Plan · Events · Wichtige Termine.',
     bookCalToday:'Heute',
     bookCalLegend:'Einträge',
     bookCalLegendUnread:'Ungelesen',
+    bookCalLegendPlan:'Plan',
+    bookCalLegendEvent:'Event',
+    bookCalLegendImportant:'Wichtig',
     bookCalPickDay:'Tag wählen',
+    dayOpsTitle:'Tag im Überblick',
+    dayOpsJournal:'Übergabe',
+    dayOpsPlan:'Plan',
+    dayOpsEvents:'Events',
+    dayOpsLog:'Verlauf',
+    dayOpsStock:'Lagerchecks',
+    dayOpsImportant:'Wichtige Termine',
+    dayOpsEmpty:'Nichts für diesen Tag.',
+    dayDetailTitle:'Tagesdetail',
+    navPersonnel:'Personal',
+    titlePersonnel:'Personal',
+    personnelHint:'Team, Schichten und Aktivität — nur für Mitarbeitende.',
+    personnelTodayShift:'Heute im Plan',
+    personnelOpenAdmin:'Admin Team',
+    navSchool:'Schule',
+    titleSchoolMoodle:'School Moodle Armonia',
+    schoolMoodleHint:'Fächer, was wir gemacht haben, Hausaufgaben und Notizen.',
+    schoolLessonNotes:'Unterrichtsnotizen',
+    schoolLessonAdd:'Notiz hinzufügen',
+    schoolLessonEmpty:'Noch keine Unterrichtsnotiz.',
+    schoolWhatWeDid:'Was wir gemacht haben',
+    schoolLessonBodyPh:'Was wurde heute im Fach gemacht?',
+    importantDatesTitle:'Wichtige Termine',
+    importantDatesAdd:'Termin',
+    importantDatesEmpty:'Keine wichtigen Termine.',
+    importantDateKind:'Art',
+    importantKindMilestone:'Meilenstein',
+    importantKindHoliday:'Feiertag',
+    importantKindDeadline:'Frist',
+    importantKindOther:'Sonstiges',
     bookDayPages:'Übergaben dieses Tages',
     bookEasyHint:'Einfach: lesen, schreiben, bestätigen. Kalender für alle Tage.',
     handoffFlowTitle:'So läuft die Übergabe',
@@ -1214,7 +1247,7 @@ const T = {
     pasteScreenshot:'Bild einfügen', pickScreenshot:'Bild / Foto wählen',
   },
   el: {
-    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navPocket:'Χαρτζιλίκι', navAdmin:'Admin', navMore:'Άλλα',
+    appTitle:'Armonia Thassos', navHome:'Αρχική', navSchedule:'Πρόγραμμα', navStock:'Αποθήκη', navShop:'Λίστα', navBook:'Βιβλίο', navGallery:'Στιγμές', navTalk:'Talk', navKids:'Παιδιά', navPocket:'Χαρτζιλίκι', navPersonnel:'Προσωπικό', navSchool:'Σχολείο', navAdmin:'Admin', navMore:'Άλλα',
     titleHome:'Αρχική', titleSchedule:'Εβδομαδιαίο πρόγραμμα', titleStock:'Αποθήκη', titleShop:'Λίστες & Ψώνια', titleBook:'Βιβλίο', titleGallery:'Στιγμές', titleTalk:'Συνομιλία ομάδας', titleKids:'Παιδιά & Σχολείο', titlePocket:'Χαρτζιλίκι', kidsHeroHint:'Σχολείο, ανάπτυξη και πρόοδος παιχνιδιών με μια ματιά', kidsEmpty:'Δεν υπάρχουν παιδιά', kidAdd:'Προσθήκη παιδιού', kidRemove:'Αφαίρεση παιδιού', kidEdit:'Επεξεργασία παιδιού', kidNamePh:'Όνομα', kidPinPh:'PIN (4–6 ψηφία)', kidPinConfirm:'Επιβεβαίωση PIN', kidAdded:'Το παιδί αποθηκεύτηκε', kidRemoved:'Το παιδί αφαιρέθηκε', kidRemoveConfirm:'Να αφαιρεθεί αυτό το παιδί; Το login θα διαγραφεί.', kidPinMismatch:'Το PIN δεν ταιριάζει', kidNameRequired:'Λείπει το όνομα', kidAdminOnly:'Μόνο admins μπορούν να προσθέτουν/αφαιρούν παιδιά', profilePhoto:'Φωτογραφία προφίλ', profilePhotoChange:'Αλλαγή φωτογραφίας', profilePhotoRemove:'Αφαίρεση φωτογραφίας', profilePhotoHint:'Εμφανίζεται πάνω δεξιά', schoolSubjects:'Μαθήματα', schoolAttendance:'Παρουσία', schoolHomework:'Εργασίες', schoolTimetable:'Ωρολόγιο', thisWeek:'Αυτή την εβδομάδα', gradeSaved:'Ο βαθμός αποθηκεύτηκε', attSaved:'Η παρουσία αποθηκεύτηκε', hwSaved:'Η εργασία αποθηκεύτηκε', ttSaved:'Η ώρα αποθηκεύτηκε', subSaved:'Το μάθημα αποθηκεύτηκε', subAdd:'Προσθήκη μαθήματος', subArchive:'Αρχειοθέτηση', subActivate:'Ενεργοποίηση', subEmpty:'Δεν υπάρχουν μαθήματα', att_present:'Παρόν', att_absent:'Απών', att_excused:'Δικαιολογημένο', hwEmpty:'Καμία εργασία', hwAdd:'Εργασία', hwTitlePh:'π.χ. Μαθηματικά σ.12', hwAllKids:'Όλα τα παιδιά', ttEmpty:'Καμία ώρα', ttAdd:'Προσθήκη ώρας', homeShiftRing:'Βάρδια', homeWeekSpark:'7 ημέρες ολοκληρωμένα', planDayLoad:'Φόρτος ημέρας', zoSavedLager:'Αποθηκεύτηκε στο ψυγείο', zoSavedListe:'Αποθηκεύτηκε στη λίστα', zoSavedPlan:'Αποθηκεύτηκε στο πρόγραμμα', zoSavedSchool:'Αποθηκεύτηκε στο σχολείο', zoSavedNote:'Η σημείωση αποθηκεύτηκε',
     kidsOverview:'Επισκόπηση', kidsTracked:'παιδιά', kidsOpenHomework:'ανοιχτές εργασίες',
     schoolOverview:'Σχολική εικόνα', gradeAverage:'Μέσος βαθμός', gradeNoData:'Δεν υπάρχουν βαθμοί ακόμα', attendanceWeek:'Παρουσία αυτή την εβδομάδα',
@@ -1284,11 +1317,44 @@ const T = {
     journalBrowse:'Παλιότερες παραδόσεις',
     journalDayDone:'Η παράδοση για αυτή τη μέρα έχει γραφτεί',
     journalDayEmpty:'Αυτή τη μέρα δεν έχει γραφτεί ακόμα τίποτα',
-    bookCalHint:'Πάτα μια μέρα. Τελείες = καταχωρήσεις · πορτοκαλί = μη διαβασμένο.',
+    bookCalHint:'Πάτα μια μέρα. Τελείες = παράδοση · πρόγραμμα · events · σημαντικές ημερομηνίες.',
     bookCalToday:'Σήμερα',
     bookCalLegend:'Καταχωρήσεις',
     bookCalLegendUnread:'Μη διαβασμένο',
+    bookCalLegendPlan:'Πρόγραμμα',
+    bookCalLegendEvent:'Event',
+    bookCalLegendImportant:'Σημαντικό',
     bookCalPickDay:'Επίλεξε μέρα',
+    dayOpsTitle:'Ημέρα με μια ματιά',
+    dayOpsJournal:'Παράδοση',
+    dayOpsPlan:'Πρόγραμμα',
+    dayOpsEvents:'Events',
+    dayOpsLog:'Ιστορικό',
+    dayOpsStock:'Έλεγχοι αποθήκης',
+    dayOpsImportant:'Σημαντικές ημερομηνίες',
+    dayOpsEmpty:'Τίποτα για αυτή τη μέρα.',
+    dayDetailTitle:'Λεπτομέρειες ημέρας',
+    navPersonnel:'Προσωπικό',
+    titlePersonnel:'Προσωπικό',
+    personnelHint:'Ομάδα, βάρδιες και δραστηριότητα — μόνο για προσωπικό.',
+    personnelTodayShift:'Σήμερα στο πρόγραμμα',
+    personnelOpenAdmin:'Admin ομάδα',
+    navSchool:'Σχολείο',
+    titleSchoolMoodle:'School Moodle Armonia',
+    schoolMoodleHint:'Μαθήματα, τι κάναμε, εργασίες και σημειώσεις.',
+    schoolLessonNotes:'Σημειώσεις μαθήματος',
+    schoolLessonAdd:'Προσθήκη σημείωσης',
+    schoolLessonEmpty:'Δεν υπάρχει ακόμα σημείωση μαθήματος.',
+    schoolWhatWeDid:'Τι κάναμε',
+    schoolLessonBodyPh:'Τι έγινε σήμερα στο μάθημα;',
+    importantDatesTitle:'Σημαντικές ημερομηνίες',
+    importantDatesAdd:'Ημερομηνία',
+    importantDatesEmpty:'Δεν υπάρχουν σημαντικές ημερομηνίες.',
+    importantDateKind:'Είδος',
+    importantKindMilestone:'Ορόσημο',
+    importantKindHoliday:'Αργία',
+    importantKindDeadline:'Προθεσμία',
+    importantKindOther:'Άλλο',
     bookDayPages:'Παραδόσεις αυτής της μέρας',
     bookEasyHint:'Απλό: διάβασε, γράψε, επιβεβαίωσε. Ημερολόγιο για όλες τις μέρες.',
     handoffFlowTitle:'Πώς γίνεται η παράδοση',
@@ -2786,7 +2852,7 @@ const MUTABLE = ['template', 'overrides', 'weeks', 'events', 'taskCompletions', 
                  'customProducts', 'customCategories', 'productOverrides',
                  'customActivities', 'customReasons', 'customListRemoveReasons', 'profilePrefs', 'shiftNotes', 'stockChecks', 'shiftCheckins',
                  'children', 'groups',
-                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable', 'schoolMaterials', 'schoolMaterialMedia', 'schoolActivity',
+                 'chores', 'choreSubmissions', 'xpLog', 'gameStats', 'kidRatings', 'staffKidRatings', 'staffKidRatingSummaries', 'kidNotes', 'subjects', 'subjectGrades', 'attendance', 'homework', 'schoolTimetable', 'schoolMaterials', 'schoolMaterialMedia', 'schoolActivity', 'schoolLessonNotes', 'importantDates',
                  'houseRules', 'kidBadgePrefs', 'staffKidDayRatings', 'kidZoAiLogs'];
 
 let DB = load();
@@ -2811,8 +2877,9 @@ function normalizeDbShape(db = DB){
     'feedbackReports','customProducts','customCategories','customActivities','customReasons',
     'customListRemoveReasons','log','stockChecks','shiftCheckins','kidRatings','staffKidRatings',
     'staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework',
-    'schoolTimetable','chores','choreSubmissions','xpLog','children','groups',
-    'houseRules','staffKidDayRatings','kidZoAiLogs',
+    'schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity','schoolLessonNotes',
+    'chores','choreSubmissions','xpLog','children','groups',
+    'houseRules','staffKidDayRatings','kidZoAiLogs','importantDates',
   ].forEach(k => { if(!Array.isArray(db[k])) db[k] = []; });
   if(!db.stock || typeof db.stock !== 'object' || Array.isArray(db.stock)) db.stock = {};
   if(!db.productOverrides || typeof db.productOverrides !== 'object' || Array.isArray(db.productOverrides)) db.productOverrides = {};
@@ -2988,7 +3055,7 @@ const SHARED_KEYS = [
   'children','groups',
   'chores','choreSubmissions',
   'xpLog','gameStats',
-  'kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity',
+  'kidRatings','staffKidRatings','staffKidRatingSummaries','kidNotes','subjects','subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity','schoolLessonNotes','importantDates',
   'houseRules','kidBadgePrefs','staffKidDayRatings','kidZoAiLogs',
 ];
 const SHARED_DICT_KEYS = new Set(['stock','profilePrefs','productOverrides','weeks','shiftNotes','pocketMoneySettings','kidBadgePrefs','gameStats']);
@@ -3969,6 +4036,10 @@ const state = {
   bookHouse: '',
   bookShowSecondary: false,
   bookShowMoreSecs: false,
+  personnelId: null,
+  schoolPane: 'lessons',
+  schoolSubjectId: '',
+  schoolLessonDate: iso(new Date()),
   rulesEditId: null,
   chatOpen: false,
   chatMode: 'ai', // ai | talk | help
@@ -7470,7 +7541,7 @@ function consumePresenceDeepLink(){
   }catch{ return false; }
 }
 
-const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids','pocket','rules','admin'];
+const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids','pocket','personnel','school','rules','admin'];
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
 const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
 const SCHEDULE_DATE_KEY = 'paidia.scheduleDate';
@@ -7618,6 +7689,7 @@ function routeFromHash(){
   }
   if(tab === 'admin')route.adminPane=ADMIN_SECTIONS.some(([id])=>id===parts[1])?parts[1]:'ops';
   if(tab === 'pocket' && parts[1]) route.pocketKidId = parts[1];
+  if(tab === 'school' && parts[1] && ['lessons','subjects','kids'].includes(parts[1])) route.schoolPane = parts[1];
   return route;
 }
 
@@ -7645,6 +7717,7 @@ function applyRouteFromHash(){
   if(route.adminPane)state.adminPane=route.adminPane;
   if(route.kidsPane) state.kidsPane = route.kidsPane;
   if(route.pocketKidId) state.pocketKidId = route.pocketKidId;
+  if(route.schoolPane) state.schoolPane = route.schoolPane;
   return true;
 }
 
@@ -7673,6 +7746,11 @@ function hashForState(){
   }
   if(state.tab === 'pocket'){
     return state.pocketKidId ? `#pocket/${state.pocketKidId}` : '#pocket';
+  }
+  if(state.tab === 'personnel') return '#personnel';
+  if(state.tab === 'school'){
+    const pane = state.schoolPane || 'lessons';
+    return pane && pane !== 'lessons' ? `#school/${pane}` : '#school';
   }
   if(state.tab === 'rules') return '#rules';
   return '';
@@ -9048,12 +9126,260 @@ function calendarMarkersForMonth(y, m){
     const entries = entriesFor(ds).filter(e=>!e.cancelled &&
       (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter)));
     const events = (DB.events||[]).filter(e=>e.status==='published' && e.date===ds);
-    if(entries.length || events.length){
-      const titles = entries.map(e=>actLabel(e.activityId)).filter(Boolean);
-      markers.set(ds, {tasks:entries.length, events:events.length, titles});
+    const important = (DB.importantDates||[]).filter(x=>x && x.date===ds);
+    if(entries.length || events.length || important.length){
+      const titles = [
+        ...entries.map(e=>actLabel(e.activityId)).filter(Boolean),
+        ...important.map(x=>x.title||x.de||x.el||'').filter(Boolean),
+      ];
+      markers.set(ds, {tasks:entries.length, events:events.length, important:important.length, titles});
     }
   }
   return markers;
+}
+
+function ensureImportantDates(){
+  if(!Array.isArray(DB.importantDates)) DB.importantDates = [];
+  return DB.importantDates;
+}
+function importantDateLabel(item){
+  if(!item) return '';
+  if(state.lang==='el') return item.el || item.de || item.title || '';
+  return item.de || item.el || item.title || '';
+}
+function importantKindLabel(kind){
+  const k = String(kind||'other');
+  if(k==='milestone') return t('importantKindMilestone');
+  if(k==='holiday') return t('importantKindHoliday');
+  if(k==='deadline') return t('importantKindDeadline');
+  return t('importantKindOther');
+}
+function dayOpsSummary(ds, domains){
+  const want = Object.assign({journal:true, plan:true, events:true, log:true, stock:true, important:true}, domains||{});
+  const out = {ds, journal:[], plan:[], events:[], log:[], stock:[], important:[]};
+  if(want.journal){
+    out.journal = Object.values(DB.shiftNotes||{}).filter(n=>n && n.text && n.date===ds)
+      .sort((a,b)=>(b.ts||0)-(a.ts||0));
+  }
+  if(want.plan){
+    out.plan = entriesFor(ds).filter(e=>!e.cancelled &&
+      (!state.houseFilter || !entryHouseIds(e).length || entryHouseIds(e).includes(state.houseFilter)));
+  }
+  if(want.events){
+    out.events = (DB.events||[]).filter(e=>e.status==='published' && e.date===ds)
+      .sort((a,b)=>String(a.from||'').localeCompare(String(b.from||'')));
+  }
+  if(want.important){
+    out.important = ensureImportantDates().filter(x=>x && x.date===ds)
+      .sort((a,b)=>String(a.title||'').localeCompare(String(b.title||'')));
+  }
+  if(want.stock){
+    out.stock = (DB.stockChecks||[]).filter(c=>{ if(!c) return false; if(c.date===ds) return true; try{ return c.ts && iso(new Date(c.ts))===ds; }catch{ return false; } }).slice(0,12);
+  }
+  if(want.log){
+    const dayStart = new Date(ds+'T00:00:00').getTime();
+    const dayEnd = dayStart + 86400000;
+    out.log = (DB.log||[]).filter(l=>{
+      const ts = Number(l?.ts)||0;
+      if(ts && ts>=dayStart && ts<dayEnd) return true;
+      return String(l?.date||'')===ds;
+    }).slice(0,16);
+  }
+  return out;
+}
+function dayOpsSummaryHtml(ds, domains){
+  const s = dayOpsSummary(ds, domains);
+  const d = new Date(ds+'T12:00:00');
+  const head = `${DAY_LONG[state.lang][dowIdx(d)]} ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+  const section = (title, items, renderItem)=>{
+    if(!items.length) return '';
+    return `<section class="day-ops-sec"><h3>${esc(title)} <span class="pill gray">${items.length}</span></h3>
+      <ul class="day-ops-list">${items.map(renderItem).join('')}</ul></section>`;
+  };
+  const body = [
+    section(t('dayOpsImportant'), s.important, x=>`<li><b>${esc(importantDateLabel(x))}</b> <span class="muted">${esc(importantKindLabel(x.kind))}</span>${x.note?`<div class="muted">${esc(String(x.note).slice(0,160))}</div>`:''}</li>`),
+    section(t('dayOpsEvents'), s.events, e=>`<li><b>${esc(e.emoji||'📣')} ${esc(L(e))}</b> <span class="muted">${esc(e.from||'')}–${esc(e.to||'')}</span></li>`),
+    section(t('dayOpsPlan'), s.plan, e=>`<li><b>${esc(actLabel(e.activityId))}</b> <span class="muted">${esc(entryTime(e)||'')} · ${esc(employeeNames(e)||'—')}</span></li>`),
+    section(t('dayOpsJournal'), s.journal, n=>{
+      const who = emp(n.employeeId);
+      return `<li><b>${esc(who?.name||'—')}</b> <span class="muted">${esc(String(n.text||'').slice(0,120))}</span></li>`;
+    }),
+    section(t('dayOpsStock'), s.stock, c=>`<li><b>${esc(c.houseId||c.house||'—')}</b> <span class="muted">${esc(c.byName||c.by||'')}</span></li>`),
+    section(t('dayOpsLog'), s.log, l=>`<li><b>${esc(typeLabel(l.type)||l.type||'')}</b> <span class="muted">${esc(String(l.text||'').slice(0,100))}</span></li>`),
+  ].filter(Boolean).join('');
+  return `<section class="day-ops-panel card" aria-label="${esc(t('dayOpsTitle'))}">
+    <header class="row between" style="gap:8px;align-items:flex-start">
+      <div><div class="brand-kicker">${esc(t('dayDetailTitle'))}</div><h2 style="margin:2px 0;font-size:17px">${esc(head)}</h2></div>
+      <span class="muted" style="font-size:12px">${esc(ds)}</span>
+    </header>
+    ${body || `<p class="muted">${esc(t('dayOpsEmpty'))}</p>`}
+  </section>`;
+}
+
+
+function importantDatesListHtml(limit=12){
+  ensureImportantDates();
+  const today = iso(new Date());
+  const items = [...(DB.importantDates||[])]
+    .filter(x=>x && x.date)
+    .sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const upcoming = items.filter(x=>x.date>=today).slice(0, limit);
+  const show = upcoming.length ? upcoming : items.slice(-limit).reverse();
+  if(!show.length) return `<p class="muted">${esc(t('importantDatesEmpty'))}</p>`;
+  return `<ul class="day-ops-list important-dates-list">${show.map(x=>`<li>
+    <button type="button" class="linkish" data-important-edit="${esc(x.id)}"><b>${esc(importantDateLabel(x))}</b></button>
+    <span class="muted">${esc(x.date)} · ${esc(importantKindLabel(x.kind))}</span>
+    <button type="button" class="mini-x" data-important-del="${esc(x.id)}" aria-label="${esc(t('delete')||'×')}">×</button>
+  </li>`).join('')}</ul>`;
+}
+function sheetImportantDate(existing=null){
+  ensureImportantDates();
+  const item = existing || {id:null, date:state.date||iso(new Date()), kind:'milestone', de:'', el:'', title:'', note:''};
+  openSheet(`<h3 style="margin:0 0 8px">${esc(existing?t('importantDatesAdd'):t('importantDatesAdd'))}</h3>
+    <label class="f"><span>${esc(t('eventTitle')||'Title')}</span><input id="impTitle" value="${esc(importantDateLabel(item)||item.title||'')}" required></label>
+    <div class="row" style="gap:10px">
+      <label class="f grow"><span>${esc(t('bookCalPickDay'))}</span><input type="date" id="impDate" value="${esc(item.date||'')}"></label>
+      <label class="f grow"><span>${esc(t('importantDateKind'))}</span>
+        <select id="impKind">
+          <option value="milestone" ${item.kind==='milestone'?'selected':''}>${esc(t('importantKindMilestone'))}</option>
+          <option value="holiday" ${item.kind==='holiday'?'selected':''}>${esc(t('importantKindHoliday'))}</option>
+          <option value="deadline" ${item.kind==='deadline'?'selected':''}>${esc(t('importantKindDeadline'))}</option>
+          <option value="other" ${item.kind==='other'?'selected':''}>${esc(t('importantKindOther'))}</option>
+        </select>
+      </label>
+    </div>
+    <label class="f"><span>${esc(t('eventDescription')||'Note')}</span><textarea id="impNote" rows="2">${esc(item.note||'')}</textarea></label>
+    <button class="btn" type="button" id="impSave">${esc(t('save')||'OK')}</button>`);
+  sheetEl.querySelector('#impSave').onclick=()=>{
+    const title = (sheetEl.querySelector('#impTitle')?.value||'').trim();
+    if(!title){ toast(t('kidNameRequired')||'…','error'); return; }
+    const date = sheetEl.querySelector('#impDate')?.value || iso(new Date());
+    const kind = sheetEl.querySelector('#impKind')?.value || 'other';
+    const note = (sheetEl.querySelector('#impNote')?.value||'').trim().slice(0,400);
+    const value = {
+      id: item.id || uid(),
+      date, kind, note,
+      de: title, el: title, title,
+      ts: Date.now(),
+      by: state.user?.id||'',
+    };
+    const idx = DB.importantDates.findIndex(x=>x.id===value.id);
+    if(idx>=0) DB.importantDates[idx]=value; else DB.importantDates.push(value);
+    try{ save(); }catch{}
+    closeSheet();
+    toast(t('saved')||'OK','success');
+    render();
+  };
+}
+function viewPersonnel(){
+  if(state.mode!=='staff') return viewHome();
+  const today = iso(new Date());
+  const people = DB.employees||[];
+  const selected = state.personnelId && emp(state.personnelId);
+  if(selected){
+    const items = typeof dashboardAssignments==='function' ? dashboardAssignments(today, selected.id) : [];
+    return `<section class="personnel-page">
+      <button type="button" class="btn sm sec" id="personnelBack">${esc(t('adminTeamBack')||'←')}</button>
+      <header class="admin-detail-hero" style="margin-top:12px">
+        <div class="pa avatar" style="background:${safeColor(selected.color)}">${initials(selected.name)}</div>
+        <div class="grow"><div class="muted">${esc(t('titlePersonnel'))}</div>
+          <h2 style="margin:2px 0">${esc(selected.name)}${selected.admin?'<span class="admin-badge">ADMIN</span>':''}</h2>
+          <div class="muted">${esc(L(selected.role))} · ${esc(employeeShiftSummary(selected.id,today))}</div></div>
+      </header>
+      <h3 style="margin:16px 0 8px">${esc(t('personnelTodayShift'))}</h3>
+      ${items.length?`<ul class="day-ops-list">${items.map(e=>`<li><b>${esc(actLabel(e.activityId))}</b> <span class="muted">${esc(entryTime(e)||'')}</span></li>`).join('')}</ul>`:`<p class="muted">${esc(t('nothingToday')||t('dayOpsEmpty'))}</p>`}
+      ${isAdminUser()?`<button class="btn sec" type="button" id="personnelOpenAdmin">${esc(t('personnelOpenAdmin'))}</button>`:''}
+    </section>`;
+  }
+  return `<section class="personnel-page">
+    <div class="brand-kicker">ARMONIA</div>
+    <h2 style="margin:4px 0 6px">${esc(t('titlePersonnel'))}</h2>
+    <p class="muted">${esc(t('personnelHint'))}</p>
+    <div class="admin-team-roster">${people.map(person=>`<button type="button" class="admin-person admin-team-card" data-personnel-id="${esc(person.id)}">
+      <div class="admin-person-top"><div class="pa avatar" style="background:${safeColor(person.color)}">${initials(person.name)}</div>
+        <div class="grow"><div class="admin-person-name">${esc(person.name)}${person.admin?'<span class="admin-badge">ADMIN</span>':''}</div>
+          <div class="admin-person-role">${esc(L(person.role))} · ${esc(employeeShiftSummary(person.id,today))}</div></div></div>
+    </button>`).join('')||`<p class="muted">${esc(t('adminTeamEmpty')||'—')}</p>`}</div>
+  </section>`;
+}
+function viewSchoolMoodle(){
+  if(state.mode!=='staff' && state.mode!=='child') return viewHome();
+  ensureSchoolDb();
+  if(!Array.isArray(DB.schoolLessonNotes)) DB.schoolLessonNotes = [];
+  const pane = state.schoolPane || 'lessons';
+  const subjects = activeSubjects();
+  const subjectId = state.schoolSubjectId || subjects[0]?.id || '';
+  const subject = subjectById(subjectId);
+  const today = iso(new Date());
+  const notes = (DB.schoolLessonNotes||[])
+    .filter(n=>n && (!subjectId || n.subjectId===subjectId))
+    .sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')) || (b.ts||0)-(a.ts||0))
+    .slice(0,40);
+  const subNav = `<div class="seg planner-seg" role="tablist">
+    <button type="button" class="${pane==='lessons'?'on':''}" data-school-pane="lessons">${esc(t('schoolLessonNotes'))}</button>
+    <button type="button" class="${pane==='subjects'?'on':''}" data-school-pane="subjects">${esc(t('schoolSubjects')||'Fächer')}</button>
+    <button type="button" class="${pane==='kids'?'on':''}" data-school-pane="kids">${esc(t('navKids'))}</button>
+  </div>`;
+  if(pane==='kids'){
+    return `<section class="school-moodle">${subNav}
+      <p class="muted">${esc(t('schoolMoodleHint'))}</p>
+      <button class="btn" type="button" id="schoolOpenKids">${esc(t('navKids'))} →</button>
+    </section>`;
+  }
+  if(pane==='subjects'){
+    return `<section class="school-moodle">${subNav}
+      <div class="admin-team-roster">${subjects.map(s=>`<button type="button" class="admin-person admin-team-card ${s.id===subjectId?'on':''}" data-school-subject="${esc(s.id)}">
+        <div class="admin-person-name">${esc(subjectLabel(s))}</div>
+        <div class="muted">${esc(t('schoolWhatWeDid'))}</div>
+      </button>`).join('')}</div>
+    </section>`;
+  }
+  return `<section class="school-moodle">
+    <div class="brand-kicker">SCHOOL MOODLE ARMONIA</div>
+    <h2 style="margin:4px 0">${esc(t('titleSchoolMoodle'))}</h2>
+    <p class="muted">${esc(t('schoolMoodleHint'))}</p>
+    ${subNav}
+    <div class="seg planner-seg-house" role="tablist" style="margin:10px 0;flex-wrap:wrap">
+      ${subjects.map(s=>`<button type="button" class="${s.id===subjectId?'on':''}" data-school-subject="${esc(s.id)}">${esc(subjectLabel(s))}</button>`).join('')}
+    </div>
+    ${state.mode==='staff'?`<button class="btn sm" type="button" id="schoolLessonAdd">＋ ${esc(t('schoolLessonAdd'))}</button>`:''}
+    <h3 style="margin:14px 0 8px">${esc(t('schoolWhatWeDid'))}${subject?` · ${esc(subjectLabel(subject))}`:''}</h3>
+    ${notes.length?`<div class="events-grid">${notes.map(n=>`<article class="event-staff-card">
+      <header class="row between"><b>${esc(n.date||'')}</b><span class="muted">${esc(subjectLabel(subjectById(n.subjectId)))}</span></header>
+      <p>${esc(n.body||'')}</p>
+      <div class="muted">${esc(emp(n.by)?.name||n.byName||'')}</div>
+    </article>`).join('')}</div>`:`<div class="empty">${esc(t('schoolLessonEmpty'))}</div>`}
+    ${dayOpsSummaryHtml(state.schoolLessonDate||today, {journal:false, plan:false, log:false, stock:false, events:true, important:true})}
+  </section>`;
+}
+function sheetSchoolLesson(){
+  ensureSchoolDb();
+  if(!Array.isArray(DB.schoolLessonNotes)) DB.schoolLessonNotes = [];
+  const subjects = activeSubjects();
+  const sid = state.schoolSubjectId || subjects[0]?.id || '';
+  openSheet(`<h3 style="margin:0 0 8px">${esc(t('schoolLessonAdd'))}</h3>
+    <label class="f"><span>${esc(t('schoolSubjects')||'Fach')}</span>
+      <select id="slSubject">${subjects.map(s=>`<option value="${esc(s.id)}" ${s.id===sid?'selected':''}>${esc(subjectLabel(s))}</option>`).join('')}</select>
+    </label>
+    <label class="f"><span>${esc(t('bookCalPickDay'))}</span><input type="date" id="slDate" value="${esc(iso(new Date()))}"></label>
+    <label class="f"><span>${esc(t('schoolWhatWeDid'))}</span><textarea id="slBody" rows="4" placeholder="${esc(t('schoolLessonBodyPh'))}"></textarea></label>
+    <button class="btn" type="button" id="slSave">${esc(t('save')||'OK')}</button>`);
+  sheetEl.querySelector('#slSave').onclick=()=>{
+    const subjectId = sheetEl.querySelector('#slSubject')?.value;
+    const date = sheetEl.querySelector('#slDate')?.value || iso(new Date());
+    const body = (sheetEl.querySelector('#slBody')?.value||'').trim().slice(0,2000);
+    if(!subjectId || !body){ toast(t('schoolLessonEmpty'),'error'); return; }
+    DB.schoolLessonNotes.push({
+      id: uid(), subjectId, date, body,
+      by: state.user?.id||'', byName: state.user?.name||'', ts: Date.now(),
+    });
+    try{ logSchoolActivity({kidId:'', kind:'lesson', title:body.slice(0,80), subjectId, date, refId:subjectId+':'+date}); }catch{}
+    try{ save(); }catch{}
+    state.schoolSubjectId = subjectId;
+    closeSheet();
+    toast(t('actLogged')||'OK','success');
+    render();
+  };
 }
 
 function calendarMonthGrid(year, month, markers){
@@ -9202,12 +9528,13 @@ function viewScheduleCalendar(){
     <div class="cal-legend" aria-hidden="true">
       <span><i class="tk"></i>${esc(taskLegend)}</span>
       <span><i class="ev"></i>${esc(eventLegend)}</span>
+      <span><i class="im"></i>${esc(t('bookCalLegendImportant'))}</span>
     </div>
     <div class="cal-weekdays">${DAY_NAMES[state.lang].map(dn=>`<span>${esc(dn.slice(0,2))}</span>`).join('')}</div>
     <div class="cal-grid" role="grid" aria-label="${esc(monthName)}">${cells.map(c=>{
       if(!c) return `<div class="cal-cell empty" role="presentation"></div>`;
       const on = c.ds===state.date, isToday = c.ds===today;
-      const dots = c.mark ? `<span class="cal-dots">${c.mark.events?'<i class="ev"></i>':''}${c.mark.tasks?'<i class="tk"></i>':''}</span>` : '';
+      const dots = c.mark ? `<span class="cal-dots">${c.mark.events?'<i class="ev"></i>':''}${c.mark.tasks?'<i class="tk"></i>':''}${c.mark.important?'<i class="im"></i>':''}</span>` : '';
       const titles = c.mark?.titles || [];
       const preview = titles.length ? (()=>{
         const shown = titles.slice(0,2).map(title=>{
@@ -9228,6 +9555,14 @@ function viewScheduleCalendar(){
       <button class="btn sec sm" type="button" id="exportIcs">${ui('u-calendar')} ${esc(t('exportCalendar'))}</button>
       ${notifRow}
     </div>
+    ${dayOpsSummaryHtml(state.date)}
+    <section class="important-dates-panel card" style="margin-top:12px">
+      <div class="row between">
+        <h2 style="font-size:15px;margin:0">${esc(t('importantDatesTitle'))}</h2>
+        <button class="btn sm" type="button" id="addImportantDate">＋ ${esc(t('importantDatesAdd'))}</button>
+      </div>
+      ${importantDatesListHtml()}
+    </section>
     <div class="cal-upcoming">
       <div class="block-h plan-block-h"><span class="t">${ui('u-megaphone')} ${esc(t('upcomingEvents'))}</span></div>
       ${upcoming.length ? upcoming.map(homeEventCard).join('') : `<div class="empty">${esc(t('noEvents'))}</div>`}
@@ -14674,11 +15009,21 @@ function bookJournalMarkersForMonth(y, m){
     if(!n || !n.text || !n.date) return;
     const [yy, mm] = String(n.date).split('-').map(Number);
     if(yy!==y || mm!==m+1) return;
-    const cur = markers.get(n.date) || {pages:0, unread:0};
+    const cur = markers.get(n.date) || {pages:0, unread:0, plan:0, events:0, important:0};
     cur.pages += 1;
     if(me && handoffNeedsAck(n, me)) cur.unread += 1;
     markers.set(n.date, cur);
   });
+  const pad = n=>String(n).padStart(2,'0');
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = y+'-'+pad(m+1)+'-'+pad(d);
+    const cur = markers.get(ds) || {pages:0, unread:0, plan:0, events:0, important:0};
+    cur.plan = entriesFor(ds).filter(e=>!e.cancelled).length;
+    cur.events = (DB.events||[]).filter(e=>e.status==='published' && e.date===ds).length;
+    cur.important = (DB.importantDates||[]).filter(x=>x && x.date===ds).length;
+    if(cur.pages || cur.unread || cur.plan || cur.events || cur.important) markers.set(ds, cur);
+  }
   return markers;
 }
 
@@ -14703,19 +15048,23 @@ function bookCalendarHtml(){
     <div class="cal-legend" aria-hidden="true">
       <span><i class="bk"></i>${esc(t('bookCalLegend'))}</span>
       <span><i class="ur"></i>${esc(t('bookCalLegendUnread'))}</span>
+      <span><i class="tk"></i>${esc(t('bookCalLegendPlan'))}</span>
+      <span><i class="ev"></i>${esc(t('bookCalLegendEvent'))}</span>
+      <span><i class="im"></i>${esc(t('bookCalLegendImportant'))}</span>
     </div>
     <div class="cal-weekdays">${DAY_NAMES[state.lang].map(dn=>`<span>${esc(dn.slice(0,2))}</span>`).join('')}</div>
     <div class="cal-grid" role="grid" aria-label="${esc(monthName)}">${cells.map(c=>{
       if(!c) return `<div class="cal-cell empty" role="presentation"></div>`;
       const on = c.ds===selected, isToday = c.ds===today;
-      const has = !!(c.mark && c.mark.pages);
-      const unread = !!(c.mark && c.mark.unread);
+      const mark = c.mark || {};
+      const has = !!(mark.pages || mark.plan || mark.events || mark.important);
+      const unread = !!mark.unread;
       const dots = has
-        ? `<span class="cal-dots"><i class="bk"></i>${unread?'<i class="ur"></i>':''}</span>`
+        ? `<span class="cal-dots">${mark.pages?`<i class="bk"></i>`:''}${unread?'<i class="ur"></i>':''}${mark.plan?`<i class="tk"></i>`:''}${mark.events?`<i class="ev"></i>`:''}${mark.important?`<i class="im"></i>`:''}</span>`
         : '';
       return `<button type="button" class="cal-cell ${on?'on':''} ${isToday?'today':''} ${has?'has':''} ${unread?'unread':''}" data-book-cal-date="${c.ds}"
         role="gridcell" aria-pressed="${on?'true':'false'}"
-        aria-label="${esc(c.d + (isToday ? ' · ' + t('today') : '') + (has ? ' · ' + T[state.lang].journalPages(c.mark.pages) : '') + (unread ? ' · ' + t('bookCalLegendUnread') : ''))}">
+        aria-label="${esc(c.d + (isToday ? ' · ' + t('today') : '') + (mark.pages ? ' · ' + T[state.lang].journalPages(mark.pages) : '') + (unread ? ' · ' + t('bookCalLegendUnread') : ''))}">
         <span class="cal-n">${c.d}</span>${dots}</button>`;
     }).join('')}</div>
     <div class="book-cal-actions">
@@ -14847,9 +15196,10 @@ function shiftDiaryCard(){
   return `<div class="journal-book">
     ${handoffFlowHtml()}
     ${bookDayStripHtml()}
+    ${bookCalendarHtml()}
+    ${dayOpsSummaryHtml(day, {journal:false})}
     <button type="button" class="book-secondary-toggle" id="bookSecondaryToggle">${esc(state.bookShowSecondary?t('bookHideCal'):t('bookShowCal'))}</button>
     <div class="book-secondary" ${state.bookShowSecondary?'':'hidden'}>
-      ${bookCalendarHtml()}
       ${housePicker}
       ${proArchive}
     </div>
@@ -16707,7 +17057,7 @@ const DEFAULT_SUBJECTS = [
 
 function ensureSchoolDb(){
   if(!Array.isArray(DB.subjects) || !DB.subjects.length) DB.subjects = structuredClone(DEFAULT_SUBJECTS);
-  ['subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity','kidRatings','staffKidRatings','kidNotes'].forEach(k=>{
+  ['subjectGrades','attendance','homework','schoolTimetable','schoolMaterials','schoolMaterialMedia','schoolActivity','schoolLessonNotes','kidRatings','staffKidRatings','kidNotes'].forEach(k=>{
     if(!Array.isArray(DB[k])) DB[k] = [];
   });
 }
@@ -21484,7 +21834,8 @@ function maybePromptPasskeySetup(){
 function mobileChromeTitle(){
   const map = {
     home:'navHome', schedule:'navSchedule', stock:'navStock', shop:'navShop',
-    book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids', pocket:'navPocket', rules:'rulesTab', admin:'adminOpsTitle',
+    book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids', pocket:'navPocket',
+    personnel:'navPersonnel', school:'navSchool', rules:'rulesTab', admin:'adminOpsTitle',
   };
   return t(map[state.tab] || 'navHome');
 }
@@ -21518,6 +21869,8 @@ function dynamicHeaderTitle(){
   if(state.tab==='talk') return t('headerTalk');
   if(state.tab==='kids') return t('headerKids');
   if(state.tab==='pocket') return t('headerPocket');
+  if(state.tab==='personnel') return t('titlePersonnel');
+  if(state.tab==='school') return t('titleSchoolMoodle');
   if(state.tab==='rules') return t('rulesTitle');
   if(state.tab==='admin') return t('adminOpsTitle');
   if(state.tab==='book') return t('headerBook');
@@ -22281,6 +22634,8 @@ function staffViewHtml(){
   if(state.tab==='shop') return viewShop();
   if(state.tab==='kids') return viewKids();
   if(state.tab==='pocket') return viewPocket();
+  if(state.tab==='personnel') return viewPersonnel();
+  if(state.tab==='school') return viewSchoolMoodle();
   if(state.tab==='talk') return viewTalk();
   if(state.tab==='rules') return viewRules();
   if(state.tab==='admin') return isAdminUser()?viewAdminOps():viewHome();
@@ -22317,7 +22672,7 @@ function render(){
   }
   normalizeUiModeSurfaces();
   if(state.tab==='admin' && !isAdminUser()) state.tab='home';
-  if(state.tab==='talk' && state.mode!=='staff') state.tab='home';
+  if((state.tab==='personnel' || state.tab==='school' || state.tab==='talk') && state.mode!=='staff') state.tab='home';
   const restoreMatrixFs = document.body.classList.contains('matrix-fullscreen')
     ? (document.querySelector('.matrix-shell.is-fullscreen .matrix-toolbar-title')?.textContent || '')
     : '';
@@ -22340,7 +22695,7 @@ function render(){
   document.querySelectorAll('nav button[data-tab]').forEach(b=>b.classList.toggle('on', b.dataset.tab===state.tab));
   const dockMore=document.getElementById('dockMore');
   if(dockMore){
-    const moreTabs=['gallery','talk','book','kids','pocket','rules','admin'];
+    const moreTabs=['gallery','talk','book','kids','pocket','personnel','school','rules','admin'];
     const tabBtn=[...document.querySelectorAll('nav.dock button[data-tab]')].find(b=>b.dataset.tab===state.tab);
     let primaryVisible=false;
     if(tabBtn && !tabBtn.hidden){
@@ -23265,8 +23620,43 @@ function wire(){
     feedback('toggle'); render();
   };
   v.querySelectorAll('[data-cal-date]').forEach(b=>{
-    b.onclick=()=>{ state.date=b.dataset.calDate; setScheduleView('day'); render(); };
+    b.onclick=()=>{ state.date=b.dataset.calDate; feedback('tap'); render(); };
   });
+  const addImportantDate=v.querySelector('#addImportantDate');
+  if(addImportantDate) addImportantDate.onclick=()=>sheetImportantDate();
+  v.querySelectorAll('[data-important-edit]').forEach(b=>{
+    b.onclick=()=>{
+      const item=(DB.importantDates||[]).find(x=>x.id===b.dataset.importantEdit);
+      if(item) sheetImportantDate(item);
+    };
+  });
+  v.querySelectorAll('[data-important-del]').forEach(b=>{
+    b.onclick=()=>{
+      ensureImportantDates();
+      DB.importantDates = DB.importantDates.filter(x=>x.id!==b.dataset.importantDel);
+      try{ save(); }catch{}
+      feedback('tap'); render();
+    };
+  });
+  v.querySelectorAll('[data-personnel-id]').forEach(b=>{
+    b.onclick=()=>{ state.personnelId=b.dataset.personnelId; feedback('tap'); render(); };
+  });
+  const personnelBack=v.querySelector('#personnelBack');
+  if(personnelBack) personnelBack.onclick=()=>{ state.personnelId=null; render(); };
+  const personnelOpenAdmin=v.querySelector('#personnelOpenAdmin');
+  if(personnelOpenAdmin) personnelOpenAdmin.onclick=()=>{
+    state.tab='admin'; state.adminPane='team'; state.adminWorkerId=state.personnelId||null; syncLocationHash(); render();
+  };
+  v.querySelectorAll('[data-school-pane]').forEach(b=>{
+    b.onclick=()=>{ state.schoolPane=b.dataset.schoolPane; feedback('toggle'); render(); };
+  });
+  v.querySelectorAll('[data-school-subject]').forEach(b=>{
+    b.onclick=()=>{ state.schoolSubjectId=b.dataset.schoolSubject; state.schoolPane='lessons'; feedback('tap'); render(); };
+  });
+  const schoolLessonAdd=v.querySelector('#schoolLessonAdd');
+  if(schoolLessonAdd) schoolLessonAdd.onclick=()=>sheetSchoolLesson();
+  const schoolOpenKids=v.querySelector('#schoolOpenKids');
+  if(schoolOpenKids) schoolOpenKids.onclick=()=>navigateStaffTab('kids');
   const exportIcs=v.querySelector('#exportIcs');
   if(exportIcs) exportIcs.onclick=exportScheduleCalendarIcs;
   const enableNotifs=v.querySelector('#enableNotifs');
@@ -23566,6 +23956,8 @@ function sheetMobileMore(){
     {tab:'gallery', ico:'u-camera', label:t('navGallery')},
     {tab:'talk', ico:'u-chat', label:t('navTalk')},
     {tab:'book', ico:'u-book', label:t('navBook')},
+    {tab:'personnel', ico:'u-users', label:t('navPersonnel')},
+    {tab:'school', ico:'u-sparkle', label:t('navSchool')},
     {tab:'rules', ico:'u-book', label:t('rulesTab')},
     {tab:'pocket', ico:'u-receipt', label:t('navPocket')},
     ...(isAdminUser()?[{tab:'admin', ico:'u-sparkle', label:t('navAdmin')}]:[]),
