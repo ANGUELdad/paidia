@@ -3273,6 +3273,7 @@ async function runDomainOperation(action,payload,button){
             sharedDirty=JSON.stringify(merged.value)!==JSON.stringify(theirs);
             workspace.status('conflict',()=>runDomainOperation(action,payload,button));
           }
+        }else workspace.status('failed',()=>runDomainOperation(action,payload,button));
       }else workspace.status('failed',()=>runDomainOperation(action,payload,button));
       return false;
     }
