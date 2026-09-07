@@ -109,6 +109,10 @@ body.shell-m:not(.mode-child) .topbtn {
   box-sizing: border-box !important;
 }
 body.shell-m:not(.mode-child) #btnUser {
+  width: 44px !important;
+  min-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
   border-radius: 999px !important;
   overflow: hidden !important;
   order: 99; /* always far right */
