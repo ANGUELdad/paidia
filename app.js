@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 238,
-  label: 'v238',
+  version: 240,
+  label: 'v240',
   changed: {
-    de: 'Desk Liste: eine Spalte, dünne Produktzeilen — kein Seiten-Rail mehr.',
-    el: 'Desk Λίστα: μία στήλη, λεπτές γραμμές προϊόντων.',
+    de: 'Ruhigere Mitteilungen: weniger Kategorien, kein Doppel-Toast, max. 1 OS-Hinweis alle ~12 Min.',
+    el: 'Πιο ήσυχες ειδοποιήσεις: λιγότερες κατηγορίες, χωρίς διπλό toast, το πολύ 1 OS ανά ~12 λεπτά.',
   },
 };
 const T = {
@@ -369,7 +369,7 @@ const T = {
     correctionPh:'z.B. Ausgang 2kg Hähnchen war 1kg',
     correctionWhat:'Was korrigierst du', saved:'Gespeichert',
     logNoDelete:'Einträge werden nie gelöscht oder geändert. Jede Korrektur ist ein neuer Eintrag.',
-    att_unrecorded:'Nicht erfasst', typeATTENDANCE:'Schulbesuch', typeCOUNT:'Bestandszählung', typeIN:'Eingang', typeOUT:'Ausgang', typeSHOP:'Einkauf', typeSCHEDULE:'Plan',
+    att_unrecorded:'Nicht erfasst', typeSTATE:'Gespeicherte Änderungen', typeATTENDANCE:'Schulbesuch', typeCOUNT:'Bestandszählung', typeIN:'Eingang', typeOUT:'Ausgang', typeSHOP:'Einkauf', typeSCHEDULE:'Plan',
     typeCORRECTION:'Korrektur', typeLOGIN:'Anmeldung', typeNOTES:'Hinweise', typeEVENT:'Event',
     entryStaff:'Personal', entryChild:'Kinder',
     entryStaffSub:'Plan, Lager, Einkauf, Protokoll', entryChildSub:'Was mache ich diese Woche',
@@ -1626,7 +1626,7 @@ const T = {
     correctionPh:'π.χ. η έξοδος 2kg κοτόπουλο ήταν 1kg',
     correctionWhat:'Τι διορθώνεις', saved:'Αποθηκεύτηκε',
     logNoDelete:'Οι εγγραφές δεν διαγράφονται και δεν τροποποιούνται. Κάθε διόρθωση είναι νέα εγγραφή.',
-    att_unrecorded:'Χωρίς καταγραφή', typeATTENDANCE:'Σχολική παρουσία', typeCOUNT:'Καταμέτρηση αποθέματος', typeIN:'Είσοδος', typeOUT:'Έξοδος', typeSHOP:'Ψώνια', typeSCHEDULE:'Πρόγραμμα',
+    att_unrecorded:'Χωρίς καταγραφή', typeSTATE:'Αποθηκευμένες αλλαγές', typeATTENDANCE:'Σχολική παρουσία', typeCOUNT:'Καταμέτρηση αποθέματος', typeIN:'Είσοδος', typeOUT:'Έξοδος', typeSHOP:'Ψώνια', typeSCHEDULE:'Πρόγραμμα',
     typeCORRECTION:'Διόρθωση', typeLOGIN:'Σύνδεση', typeNOTES:'Σημειώσεις', typeEVENT:'Event',
     entryStaff:'Προσωπικό', entryChild:'Παιδιά',
     entryStaffSub:'Πρόγραμμα, αποθήκη, ψώνια, καταγραφές', entryChildSub:'Τι κάνω αυτή την εβδομάδα',
@@ -22542,7 +22542,7 @@ function sheetChildHowTo(){
   sheetEl.querySelector('#childHowToNotifs').onclick=async()=>{
     const ok=await enableAppNotifications();
     toast(ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
-    if(ok){ closeSheet(); runNotificationSweep({force:true}); }
+    if(ok){ closeSheet(); try{ updateAppBadge(dueItemCount()); }catch{} }
   };
 }
 
@@ -24427,7 +24427,7 @@ function wire(){
   if(enableNotifs) enableNotifs.onclick=async()=>{
     const ok=await enableAppNotifications();
     toast(ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
-    if(ok) runNotificationSweep({force:true});
+    if(ok) try{ updateAppBadge(dueItemCount()); }catch{}
     render();
   };
   const cancelFriday=v.querySelector('#cancelFriday');
@@ -25098,7 +25098,9 @@ async function mountSecurityAccess(pageHost){
       if(state.mode==='staff'){ try{ save(); }catch{} }
       st.style.display='block';
       setStatus(st,t('autoSaved'),'success');
-      try{ runNotificationSweep({force:true}); }catch{}
+      try{ updateAppBadge(dueItemCount()); }catch{}
+      // Soft sweep — respect cooldown/seen (force:true used to dump every due toast).
+      try{ runNotificationSweep(); }catch{}
     };
   }
   if(calendarCard){
@@ -26038,23 +26040,40 @@ function sheetAdminAutomations(){
 
 function notifPrefs(){
   try{
-    const current=JSON.parse(localStorage.getItem('paidia.notif')||'{}')||{};
-    if(typeof current.enabled==='boolean') return current;
-    const legacy=JSON.parse(localStorage.getItem('paidia.notifPrefs')||'{}')||{};
-    if(legacy.enabled===true || (typeof Notification!=='undefined' && Notification.permission==='granted')){
-      const migrated={...current,...legacy,enabled:true,updatedAt:Date.now()};
-      localStorage.setItem('paidia.notif',JSON.stringify(migrated));
-      return migrated;
+    let current=JSON.parse(localStorage.getItem('paidia.notif')||'{}')||{};
+    if(typeof current.enabled!=='boolean'){
+      const legacy=JSON.parse(localStorage.getItem('paidia.notifPrefs')||'{}')||{};
+      if(legacy.enabled===true || (typeof Notification!=='undefined' && Notification.permission==='granted')){
+        current={...current,...legacy,enabled:true,updatedAt:Date.now()};
+        localStorage.setItem('paidia.notif',JSON.stringify(current));
+      }else{
+        current={...legacy,...current};
+      }
     }
-    return {...legacy,...current};
+    // One-shot quieting for existing installs that had every category on.
+    if(current.enabled && !current.antiSpam239){
+      current={
+        ...current,
+        antiSpam239:true,
+        shopping:false,
+        stock:false,
+        journal:false,
+        ratings:false,
+        reminders:false,
+        leadMinutes:Math.min(Number(current.leadMinutes)||30, 15),
+        updatedAt:Date.now(),
+      };
+      try{ localStorage.setItem('paidia.notif', JSON.stringify(current)); }catch{}
+    }
+    return current;
   }catch{ return {}; }
 }
 function notifCatDefaults(){
   const fromModule=(typeof PaidiaNotify!=='undefined' && PaidiaNotify.CAT_DEFAULTS)||{};
   return {
     shifts:true, handover:true, activities:true, events:true,
-    shopping:true, stock:true, journal:true, ratings:true,
-    chores:true, reminders:true, ...fromModule,
+    shopping:false, stock:false, journal:false, ratings:false,
+    chores:true, reminders:false, ...fromModule,
   };
 }
 function notifPrefsResolved(){
@@ -26066,7 +26085,7 @@ function notifPrefsResolved(){
     ...raw,
     quietStart:raw.quietStart||'22:00',
     quietEnd:raw.quietEnd||'07:00',
-    leadMinutes:Number.isFinite(lead)&&lead>=0?lead:30,
+    leadMinutes:Number.isFinite(lead)&&lead>=0?lead:15,
     sound:raw.sound!==false,
     vibrate:raw.vibrate!==false,
   };
@@ -26224,23 +26243,27 @@ function childPlanEntriesToday(kidId){
 function dueItemCount(){
   if(state.mode==='child'&&state.child){
     const today=iso(new Date());
-    const events=childEventsFor(state.child.id).filter(e=>e.status==='published'&&e.date>=today).length;
+    const events=childEventsFor(state.child.id).filter(e=>{
+      if(e.status!=='published'||e.date!==today) return false;
+      try{ return isWithinLeadWindow(eventStartDate(e), notifPrefsResolved().leadMinutes); }catch{ return false; }
+    }).length;
     const chores=childChoresDueCount(state.child.id);
     const ratings=childRatingsDueCount(state.child.id);
-    const acts=childPlanEntriesToday(state.child.id).length;
-    return events+chores+ratings+acts;
+    return events+chores+ratings;
   }
   if(state.mode!=='staff'||!state.user) return 0;
   const today=iso(new Date()), user=state.user;
-  let overdue=0;
-  dashboardDates(-7,-1).forEach(dateStr=>dashboardAssignments(dateStr,user.id).forEach(e=>{
-    if(!completionFor(dateStr,e.id,user.id)) overdue++;
-  }));
+  // Badge = today's open work only (not a 7-day backlog — that felt like spam).
   const todayOpen=dashboardAssignments(today,user.id).filter(e=>!completionFor(today,e.id,user.id)).length;
   const ratings=staffRatingsDueCount()>0?1:0;
   const important=importantThingsDueCount()>0?1:0;
+  let presence=0;
+  try{
+    const active=typeof activeShiftPresence==='function'?activeShiftPresence(user.id):null;
+    if(active && !active.checkin) presence=1;
+  }catch{}
   try{ if(typeof emitKidRatingHooks==='function' && !window.__paidiaRatingHooksPrimed){ emitKidRatingHooks(); window.__paidiaRatingHooksPrimed=true; } }catch{}
-  return todayOpen+overdue+ratings+important;
+  return todayOpen+ratings+important+presence;
 }
 function updateAppBadge(count){
   try{
@@ -26297,20 +26320,20 @@ function collectNotifPrefsFromForm(root){
   return {
     quietStart:root.querySelector('#notifQuietStart')?.value||'22:00',
     quietEnd:root.querySelector('#notifQuietEnd')?.value||'07:00',
-    leadMinutes:Number.isFinite(lead)&&lead>=0?lead:30,
+    leadMinutes:Number.isFinite(lead)&&lead>=0?lead:15,
     sound:bool('notifOptSound', true),
     vibrate:bool('notifOptVibrate', true),
     shifts:bool('notifOptShifts', true),
     handover:bool('notifOptHandover', true),
     activities:bool('notifOptActivities', true),
     events:bool('notifOptEvents', true),
-    shopping:bool('notifOptShopping', true),
-    stock:bool('notifOptStock', true),
-    journal:bool('notifOptJournal', true),
-    ratings:bool('notifOptRatings', true),
-    kidRatingReminders:bool('notifOptRatings', true),
+    shopping:bool('notifOptShopping', false),
+    stock:bool('notifOptStock', false),
+    journal:bool('notifOptJournal', false),
+    ratings:bool('notifOptRatings', false),
+    kidRatingReminders:bool('notifOptRatings', false),
     chores:bool('notifOptChores', true),
-    reminders:bool('notifOptReminders', true),
+    reminders:bool('notifOptReminders', false),
   };
 }
 function notifPrefsFormHtml({child=false}={}){
@@ -26514,7 +26537,8 @@ async function enableAppNotifications(){
       await PaidiaNotify.subscribePush();
     }
   }catch{}
-  try{ await runNotificationSweep({force:true}); }catch{}
+  // Do NOT force-dump every due reminder — that was the spam burst on enable.
+  try{ updateAppBadge(dueItemCount()); }catch{}
   window.__paidiaNotifLastReason='granted';
   return true;
 }
@@ -26591,15 +26615,38 @@ async function registerPaidiaServiceWorker(timeoutMs){
 function markNotifSeen(key){
   setNotifPrefs({seen:{...notifPrefs().seen, [key]:'1'}});
 }
-async function deliverOnce(key, force, title, opts){
+
+/** Anti-spam: at most one OS toast per sweep, and a global cooldown between toasts. */
+const OS_NOTIF_COOLDOWN_MS = 12 * 60 * 1000;
+const MAX_OS_PER_SWEEP = 1;
+let __notifSweepBusy = false;
+let __lastOsNotifAt = 0;
+let __lastWakeSweepAt = 0;
+
+async function deliverOnce(key, force, title, opts, {critical=false}={}){
   const seen=notifPrefs().seen||{};
   if(!force && seen[key]==='1') return false;
+  if(!force && !critical){
+    if((window.__paidiaOsNotifSweepCount||0) >= MAX_OS_PER_SWEEP) return false;
+    if(Date.now() - (__lastOsNotifAt||0) < OS_NOTIF_COOLDOWN_MS) return false;
+  }
   const delivered=await showAppNotification(title, opts);
-  if(delivered) markNotifSeen(key);
+  if(delivered){
+    markNotifSeen(key);
+    if(!critical){
+      window.__paidiaOsNotifSweepCount = (window.__paidiaOsNotifSweepCount||0) + 1;
+      __lastOsNotifAt = Date.now();
+    }
+  }
   return delivered;
 }
-async function runNotificationSweep({force=false}={}){
+async function runNotificationSweep({force=false, os=true}={}){
+  if(__notifSweepBusy && !force) return;
+  __notifSweepBusy = true;
+  window.__paidiaOsNotifSweepCount = 0;
+  try{
   try{ updateAppBadge(dueItemCount()); }catch{}
+  if(!os) return;
   try{
     if(!notifPrefs().enabled || typeof Notification==='undefined' || Notification.permission!=='granted') return;
   }catch{ return; }
@@ -26700,25 +26747,19 @@ async function runNotificationSweep({force=false}={}){
         if(bad) attention++;
       });
       if(attention>0){
-        const key=`low-${attention}`;
-        const seen=notifPrefs().seen||{};
-        if(force || seen.low!==key){
-          const delivered=await showAppNotification(T[state.lang].notifLowStock(attention),{
-            tag:'paidia-low', body:t('headerStock'), data:{url:'./?tab=stock'},
-          });
-          if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, low:key}});
-        }
+        // Once per calendar day — not re-keyed on attention count (that re-spammed).
+        await deliverOnce(`low-${today}`, force, T[state.lang].notifLowStock(attention), {
+          tag:'paidia-low', body:t('headerStock'), data:{url:'./?tab=stock'},
+        });
       }
     }
   }catch{}
 
   try{
     if(prefs.shifts!==false && auto.shiftStart && typeof shiftStockCheckPending==='function' && shiftStockCheckPending()){
-      const seen=notifPrefs().seen||{};
-      if(force || !seen.shiftCheck){
-        const delivered=await showAppNotification(t('notifShiftCheck'),{tag:'paidia-shift-check', body:'Kalyvia', data:{url:'./?tab=stock'}});
-        if(delivered) setNotifPrefs({seen:{...notifPrefs().seen, shiftCheck:true}});
-      }
+      await deliverOnce(`shift-check-${today}`, force, t('notifShiftCheck'), {
+        tag:'paidia-shift-check', body:'Kalyvia', data:{url:'./?tab=stock'},
+      });
     }
   }catch{}
 
@@ -26817,7 +26858,7 @@ async function runNotificationSweep({force=false}={}){
             requireInteraction:true,
             body:`${T[state.lang].lateAlertBody(alert.date,alert.from)} · ${alert.reason||'—'}`,
             data:{url:'./?tab=home'},
-          });
+          }, {critical:true});
       }
     }
   }catch{}
@@ -26839,7 +26880,7 @@ async function runNotificationSweep({force=false}={}){
   try{
     if(state.mode==='staff' && prefs.shopping!==false){
       const openReqs = ensureListRequests().filter(r=>r && r.status==='open');
-      for(const req of openReqs.slice(0,12)){
+      for(const req of openReqs.slice(0,3)){
         await deliverOnce(`list-req-${req.id}`, force, T[state.lang].notifNewRequest(req.name), {
           tag:'paidia-list-request',
           body:T[state.lang].shopRequestAskedBy(listRequestRequesterName(req)),
@@ -26853,19 +26894,28 @@ async function runNotificationSweep({force=false}={}){
     if(typeof emitKidRatingHooks==='function') emitKidRatingHooks();
     await deliverRatingReminders({force});
   }catch{}
+  }finally{ __notifSweepBusy=false; }
 }
 
 function scheduleNotificationSweep(){
   setTimeout(()=>runNotificationSweep(), 2500);
+  // Full OS sweep every 15m; 60s tick is badge-only (was flooding toasts).
   setInterval(()=>runNotificationSweep(), 15*60*1000);
   setInterval(()=>{
-    if((state.mode==='staff' && state.user) || (state.mode==='child' && state.child)) runNotificationSweep();
+    if((state.mode==='staff' && state.user) || (state.mode==='child' && state.child)){
+      runNotificationSweep({os:false});
+    }
   }, 60*1000);
   const onWake=()=>{
     if(document.visibilityState!=='visible') return;
-    if((state.mode==='staff' && state.user) || (state.mode==='child' && state.child)){
-      try{ runNotificationSweep(); }catch{}
+    if(!((state.mode==='staff' && state.user) || (state.mode==='child' && state.child))) return;
+    const now=Date.now();
+    if(now - (__lastWakeSweepAt||0) < 5*60*1000){
+      try{ runNotificationSweep({os:false}); }catch{}
+      return;
     }
+    __lastWakeSweepAt = now;
+    try{ runNotificationSweep(); }catch{}
   };
   document.addEventListener('visibilitychange', onWake);
   window.addEventListener('focus', onWake);

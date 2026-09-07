@@ -12,19 +12,19 @@
     handover: true,
     activities: true,
     events: true,
-    shopping: true,
-    stock: true,
-    journal: true,
-    ratings: true,
+    shopping: false,
+    stock: false,
+    journal: false,
+    ratings: false,
     chores: true,
-    reminders: true,
+    reminders: false,
   };
 
   const defaultPrefs = () => ({
     enabled: false,
     quietStart: '22:00',
     quietEnd: '07:00',
-    leadMinutes: 30,
+    leadMinutes: 15,
     sound: true,
     vibrate: true,
     kidRatingReminders: true,
@@ -467,20 +467,10 @@
       return {shown: 0, upcoming: 0};
     }
     const items = collectUpcoming(ctx, Math.max(prefs.leadMinutes, 15));
-    let shown = 0;
-    const fired = loadFired();
-    for(const it of items){
-      if(it.kind === 'event' && !prefs.events) continue;
-      if((it.kind === 'activity' || it.kind === 'task') && !prefs.activities) continue;
-      if(it.kind === 'shopping' && !prefs.shopping) continue;
-      if(it.kind === 'rating' && !prefs.ratings) continue;
-      if(fired.has(it.id)) continue;
-      if(inQuietHours(prefs)) continue;
-      const ok = await showNotification(it.title, {body: it.body, tag: it.id, data: {url: it.url}});
-      if(ok){ markFired(it.id); shown++; }
-    }
+    // Badge / calendar only — OS toasts are owned by app.js runNotificationSweep
+    // (avoids double-firing the same rating/event reminders).
     updateBadge(items.length);
-    return {shown, upcoming: items.length};
+    return {shown: 0, upcoming: items.length};
   }
 
   function calendarMonthGrid(year, month, markers){

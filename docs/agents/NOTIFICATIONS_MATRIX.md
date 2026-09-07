@@ -1,7 +1,7 @@
 # Notifications matrix — OS × browser × what works
 
 **Scope:** Root PWA (`notifications.js`, `app.js` sweep, `sw.js`).  
-**Last updated:** 2026-09-07 (v230 audit). Live still needs VAPID env — see [IOS_NOTIFICATIONS_AUDIT.md](IOS_NOTIFICATIONS_AUDIT.md).
+**Last updated:** 2026-09-07 (v240 anti-spam). Live still needs VAPID env — see [IOS_NOTIFICATIONS_AUDIT.md](IOS_NOTIFICATIONS_AUDIT.md).
 
 ## Delivery modes
 
@@ -13,7 +13,7 @@
 | **Web Push (VAPID)** | Background, even if app closed | `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` on server; client `PushManager.subscribe` → `POST /api/push/subscribe` |
 | **Email / WhatsApp** | Separate channels | Resend/SMTP / WhatsApp Cloud API |
 
-Without VAPID keys, `/api/health` reports `notifications.webPush: false`. Local scheduled sweeps still run every ~60s / 15m while the session is active (`runNotificationSweep`).
+Without VAPID keys, `/api/health` reports `notifications.webPush: false`. Local OS sweeps run every **15m** while the session is active; the **60s** tick updates the in-app badge only. Wake/focus OS sweeps are throttled to ~5m. At most **one** non-critical OS toast per sweep, with a **~12m** global cooldown. Critical presence/late alerts still bypass the cooldown.
 
 ## Capability detection (client)
 
@@ -48,7 +48,9 @@ Without VAPID keys, `/api/health` reports `notifications.webPush: false`. Local 
 
 ## Category toggles → what fires
 
-Prefs in `paidia.notif` (settings UI). Sweep in `runNotificationSweep` / `PaidiaNotify.syncFromContext`.
+Prefs in `paidia.notif` (settings UI). Sweep in `runNotificationSweep` only (`PaidiaNotify.syncFromContext` is badge/calendar — no OS toasts).
+
+**Quieter defaults (v240):** shopping / stock / journal / ratings / reminders **off**; shifts / handover / activities / events / chores **on**. Existing installs get a one-shot `antiSpam239` migration that flips those noisy categories off and caps lead to 15m.
 
 | Pref key | Staff | Child | Trigger (local, when enabled + permission) |
 |----------|-------|-------|---------------------------------------------|

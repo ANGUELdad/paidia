@@ -1,3 +1,20 @@
+## v240 · 2026-09-07
+
+- Anti-spam notifications: quieter category defaults; one-shot migrate existing installs (`antiSpam239`).
+- No double OS toasts (`syncFromContext` badge-only); max 1 non-critical toast per sweep + ~12m cooldown.
+- 60s tick = badge only; full OS sweep every 15m; wake throttled ~5m; enable no longer dumps all due items.
+- Badge counts today’s open work (not 7-day backlog); low-stock once per day.
+- Cache `paidia-v240`.
+
+## v239 · 2026-09-07 · local verification
+
+- Atomic attendance commands and bulk preview; unrecorded attendance is distinct from absent and excluded from attendance percentages.
+- Child ops responses are allowlisted and scoped; other children's money, staff notes, inventory and unknown collections are excluded. Older child caches are reset.
+- Persist school lesson notes and important dates; reject unknown shared collections instead of silently discarding them.
+- Preserve server command audit records through compatibility snapshots; validate receipt units, stock references and initial counts.
+- Raised literal sub-12px UI text to 12px. Updated behavioral privacy/notification checks and corrupt-data normalization.
+- Full redesign release gates remain open in docs/agents/redesign/IMPLEMENTATION.md. No release publication in this task. Cache paidia-v239.
+
 ## v238 · 2026-09-07
 
 - Desk Liste: force single-column plan board (no sticky side command rail); keep dense thin product rows.
