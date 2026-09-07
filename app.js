@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 232,
-  label: 'v232',
+  version: 233,
+  label: 'v233',
   changed: {
-    de: 'Tutorial-Taste oben: Seite erklären oder ganze App-Tour.',
-    el: 'Κουμπί Tutorial πάνω: εξήγηση σελίδας ή πλήρης περιήγηση.',
+    de: 'Momente & Konto als Unterseiten; Lager-Zeilen; Plan-Woche; Liste Remove-all; Pocket-Schiene.',
+    el: 'Στιγμές & λογαριασμός ως υποσελίδες· λεπτές γραμμές αποθήκης· εβδομάδα· Liste· pocket.',
   },
 };
 const T = {
@@ -3691,6 +3691,7 @@ function applyProductOverride(p){
     unit: o.unit || p.unit,
     cat: o.cat || p.cat,
     alias: Array.isArray(o.alias) ? o.alias : (p.alias || []),
+    icon: o.icon != null ? o.icon : p.icon,
   };
 }
 
@@ -3703,6 +3704,7 @@ function persistProductFields(pid, fields){
     if(fields.unit != null) custom.unit = fields.unit;
     if(fields.cat != null) custom.cat = fields.cat;
     if(fields.alias != null) custom.alias = fields.alias;
+    if(fields.icon != null) custom.icon = fields.icon;
     return;
   }
   DB.productOverrides ||= {};
@@ -4050,6 +4052,9 @@ const state = {
   stockOrderFreeze: null, // {house, filter, query, order:[pid...]} | null
   listPendingRemove: [], // shop list ids marked for remove (reason at confirm)
   adminPane: 'ops', // ops | team
+  accountPane: 'overview',
+  galleryPane: 'feed', // feed | people | compose | post
+  galleryPostId: null,
   adminWorkerId: null,
   adminWorkerRange: 'week', // today | week | month | all
   shopQuery: '',
@@ -6671,7 +6676,7 @@ function galleryPostCard(post, idx=0){
   const catId = galleryPostCategory(post);
   const catBadge = `<span class="gal-cat-pill">${esc(galleryCategoryLabel(catId))}</span>`;
   return `<article class="gal-post gal-enter ${flagged?'is-flagged':''}" style="--gal-i:${idx}" data-gal-id="${esc(post.id)}">
-    <header class="gal-head">
+    <header class="gal-head" data-gal-open="${esc(post.id)}" role="link" tabindex="0">
       <span class="gal-ava" style="background:${esc(post.byColor||'#94a3b8')}">${esc((post.byName||'?').slice(0,2).toUpperCase())}</span>
       <div class="grow">
         <b>${esc(post.byName||'—')}</b>
@@ -6710,42 +6715,104 @@ function galleryPostCard(post, idx=0){
   </article>`;
 }
 
+function galleryPeopleHtml(posts){
+  const map = new Map();
+  (posts||[]).forEach(p=>{
+    const id = String(p.by||'');
+    if(!id) return;
+    if(!map.has(id)) map.set(id, {id, name:p.byName||'—', color:p.byColor||'#94a3b8', mode:p.byMode, count:0, likes:0});
+    const row = map.get(id);
+    row.count += 1;
+    row.likes += (p.likes||[]).length;
+  });
+  const people = [...map.values()].sort((a,b)=>b.count-a.count);
+  if(!people.length) return emptyState(ui('u-users'), t('galleryEmpty'), t('galleryEmptyHint'));
+  return `<div class="gal-people-grid">${people.map(p=>`<button type="button" class="gal-person-card" data-gal-by="${esc(p.id)}">
+    <span class="gal-ava" style="background:${esc(p.color)}">${esc((p.name||'?').slice(0,2).toUpperCase())}</span>
+    <b>${esc(p.name)}</b>
+    <small>${esc(p.mode==='child'?t('galleryByKid'):t('galleryByStaff'))} · ${p.count}</small>
+  </button>`).join('')}</div>`;
+}
+
+function galleryComposePageHtml(){
+  const catChips = GALLERY_CATEGORIES.map(c=>
+    `<button type="button" class="chip" data-gal-compose-cat="${c.id}">${esc(t(c.key))}</button>`
+  ).join('');
+  return `<div class="gal-compose gal-compose-page">
+      <div class="gal-preview empty" id="galPreview"><span>${ui('u-camera')}</span></div>
+      <div class="row" style="gap:8px;flex-wrap:wrap;margin:10px 0">
+        <button class="btn sec sm" type="button" id="galPick">${t('galleryPick')}</button>
+        <button class="btn sec sm" type="button" id="galCam">${t('galleryCamera')}</button>
+        <button class="btn sec sm" type="button" id="galCaptionAi">${ui('u-sparkle')} ${t('galleryCaptionAi')}</button>
+      </div>
+      <input type="file" accept="image/*" id="galFile" hidden>
+      <div id="galCamBox" hidden>
+        <video id="galVideo" playsinline autoplay muted style="width:100%;border-radius:14px;background:#0f172a"></video>
+        <button class="btn sm" type="button" id="galSnap" style="margin-top:8px">${t('galleryCamera')}</button>
+      </div>
+      <label class="f"><span>${t('galCategory')}</span>
+        <div class="gal-filter-row" id="galComposeCats">${catChips}</div></label>
+      <label class="f"><span>${t('galleryCaption')}</span>
+        <textarea id="galCaption" rows="3" maxlength="280" placeholder="${esc(t('galleryCaptionPh'))}"></textarea>
+      </label>
+      <div class="status-box muted" id="galStatus"></div>
+      <button class="btn" type="button" id="galSubmit">${t('galleryPost')}</button>
+    </div>`;
+}
+
 function viewGallery(){
   const posts = state.galleryPosts || [];
   const hasFeed = posts.length > 0;
-  const sections = groupGalleryPosts(posts);
-  let cardIdx = 0;
-  const feedHtml = sections.map(sec=>{
-    const cards = sec.posts.map(p=>galleryPostCard(p, cardIdx++)).join('');
-    if(!cards) return '';
-    if(!sec.label || state.galGroup==='feed') return cards;
-    return `<section class="gal-section"><h3 class="gal-section-h">${esc(sec.label)}</h3><div class="gal-section-feed">${cards}</div></section>`;
-  }).join('');
-  return `<div class="gal-shell" data-tour="gallery-main">
-    <div class="gal-hero ${hasFeed?'compact':''}">
-      <div class="brand-kicker">Armonia Thassos</div>
-      <div class="ui-mode-row">${uiModeToggleHtml({compact:true})}</div>
-      <h2>${t('galleryTitle')}</h2>
-      ${hasFeed?'':`<p>${t('galleryHint')}</p><p class="gal-safe-line">${esc(t('gallerySafeHint'))}</p>`}
-      ${isEasy()?`<p class="easy-only muted">${esc(t('galleryEasyHint'))}</p>`:''}
-      <p class="gal-drive-line pro-only mode-pro-block">${esc(state.galleryDrive?t('galleryDriveOn'):t('galleryDriveOff'))}</p>
-    </div>
-    ${hasFeed?galleryOrgBarHtml(posts):''}
+  const pane = state.galleryPane || 'feed';
+  const nav = [
+    {id:'feed', href:'#gallery/feed', label: state.lang==='el'?'Ροή':'Feed', on: pane==='feed' || pane==='post'},
+    {id:'people', href:'#gallery/people', label: state.lang==='el'?'Άτομα':'People', on: pane==='people'},
+    {id:'compose', href:'#gallery/compose', label: state.lang==='el'?'Νέο':'Neu', on: pane==='compose'},
+  ];
+
+  let body = '';
+  if(pane==='compose'){
+    body = galleryComposePageHtml();
+  } else if(pane==='people'){
+    body = `<div class="gal-people-pane">${galleryPeopleHtml(posts)}</div>`;
+  } else if(pane==='post' && state.galleryPostId){
+    const post = posts.find(p=>String(p.id)===String(state.galleryPostId));
+    body = post
+      ? `<div class="gal-post-detail">${galleryPostCard(post, 0)}</div>`
+      : `<div class="empty">${esc(t('galleryEmpty'))}</div>`;
+  } else {
+    const sections = groupGalleryPosts(posts);
+    let cardIdx = 0;
+    const feedHtml = sections.map(sec=>{
+      const cards = sec.posts.map(p=>galleryPostCard(p, cardIdx++)).join('');
+      if(!cards) return '';
+      if(!sec.label || state.galGroup==='feed') return cards;
+      return `<section class="gal-section"><h3 class="gal-section-h">${esc(sec.label)}</h3><div class="gal-section-feed">${cards}</div></section>`;
+    }).join('');
+    body = `${hasFeed?galleryOrgBarHtml(posts):''}
     <div class="gal-compose-bar" data-tour="gallery-share">
-      <button class="gal-fab" type="button" id="galShare" aria-label="${esc(t('galleryShare'))}">
+      <a class="gal-fab" href="#gallery/compose" id="galShare" aria-label="${esc(t('galleryShare'))}">
         <span>${ui('u-camera')}</span><b>${esc(t('galleryNewPost'))}</b>
-      </button>
+      </a>
       <button class="gal-refresh pro-only mode-pro-block" type="button" id="galRefresh" aria-label="refresh">↻</button>
     </div>
     ${state.galleryLoading && !posts.length?`<div class="empty">${esc(t('galleryLoading'))}</div>`:''}
     <div class="gal-feed" id="galFeed">
-      ${posts.length ? feedHtml : emptyState(ui('u-camera'), t('galleryEmpty'), t('galleryEmptyHint'), `<button class="btn" type="button" id="galEmptyShare">${esc(t('galleryComposeCta'))}</button>`)}
+      ${posts.length ? feedHtml : emptyState(ui('u-camera'), t('galleryEmpty'), t('galleryEmptyHint'), `<a class="btn" href="#gallery/compose" id="galEmptyShare">${esc(t('galleryComposeCta'))}</a>`)}
     </div>
     <div class="gal-lightbox" id="galLightbox" hidden>
       <button type="button" class="gal-lightbox-close" id="galLightClose" aria-label="${esc(t('close'))}">×</button>
       <img id="galLightImg" alt="">
-    </div>
-  </div>`;
+    </div>`;
+  }
+
+  return sectionShellHtml({
+    title: t('galleryTitle'),
+    eyebrow: 'Armonia Thassos · Moments',
+    nav,
+    tour: 'gallery-main',
+    body: `<div class="gal-shell gal-shell-nested" data-gal-pane="${esc(pane)}">${body}</div>`,
+  });
 }
 
 function childGalleryView(){
@@ -6754,9 +6821,52 @@ function childGalleryView(){
 
 function bindGallery(root){
   if(!root) return;
-  const openCompose=()=>{ feedback('select'); sheetGalleryCompose(); };
-  root.querySelector('#galShare')?.addEventListener('click', openCompose);
-  root.querySelector('#galEmptyShare')?.addEventListener('click', openCompose);
+  const openCompose=()=>{
+    feedback('select');
+    if(state.mode==='child'){ sheetGalleryCompose(); return; }
+    state.tab='gallery';
+    state.galleryPane='compose';
+    state.galleryPostId=null;
+    syncLocationHash();
+    render();
+  };
+  root.querySelector('#galShare')?.addEventListener('click', (ev)=>{
+    if(root.querySelector('#galShare')?.tagName==='A'){
+      // hash navigation handles compose; still prevent double-sheet
+      if(state.mode==='child'){ ev.preventDefault(); openCompose(); }
+      return;
+    }
+    openCompose();
+  });
+  root.querySelector('#galEmptyShare')?.addEventListener('click', (ev)=>{
+    if(ev.currentTarget?.tagName==='A' && state.mode!=='child') return;
+    ev.preventDefault();
+    openCompose();
+  });
+  if(root.querySelector('.gal-compose-page')){
+    bindGalleryComposePage(root);
+  }
+  root.querySelectorAll('.gal-person-card[data-gal-by]').forEach(btn=>{
+    btn.onclick=()=>{
+      state.galFilterBy = btn.dataset.galBy || '';
+      state.galleryPane = 'feed';
+      state.galleryPostId = null;
+      saveGalOrg();
+      syncLocationHash();
+      render();
+    };
+  });
+  root.querySelectorAll('[data-gal-open]').forEach(btn=>{
+    btn.onclick=(ev)=>{
+      if(ev.target.closest('button')) return;
+      const id = btn.dataset.galOpen;
+      if(!id || state.galleryPane==='post') return;
+      state.galleryPane='post';
+      state.galleryPostId=id;
+      syncLocationHash();
+      render();
+    };
+  });
   root.querySelector('#galRefresh')?.addEventListener('click', async ()=>{
     feedback('select');
     await refreshGallery();
@@ -6777,6 +6887,7 @@ function bindGallery(root){
     };
   });
   root.querySelectorAll('[data-gal-by]').forEach(btn=>{
+    if(btn.classList.contains('gal-person-card')) return;
     btn.onclick = ()=>{
       state.galFilterBy = btn.dataset.galBy || '';
       saveGalOrg();
@@ -6872,6 +6983,7 @@ function bindGallery(root){
         const data = await galleryApi('delete', {id: btn.dataset.galDel});
         applyGallerySnapshot(data);
         feedback('save');
+        if(state.galleryPane==='post'){ state.galleryPane='feed'; state.galleryPostId=null; }
         render();
       }catch{ toast(t('galleryFail'), 'error'); }
     };
@@ -6915,6 +7027,107 @@ function bindGallery(root){
         toast(err.code==='unsafe'?t('galleryBlocked'):t('galleryFail'), 'error');
       }
     };
+  });
+}
+
+function bindGalleryComposePage(root){
+  let photo = null;
+  let galCat = 'allgemein';
+  const preview = root.querySelector('#galPreview');
+  const status = root.querySelector('#galStatus');
+  root.querySelectorAll('[data-gal-compose-cat]').forEach(btn=>{
+    btn.onclick = ()=>{
+      galCat = btn.dataset.galComposeCat || 'allgemein';
+      root.querySelectorAll('[data-gal-compose-cat]').forEach(b=>b.classList.toggle('on', b.dataset.galComposeCat===galCat));
+    };
+  });
+  root.querySelector(`[data-gal-compose-cat="${galCat}"]`)?.classList.add('on');
+  const setPhoto = (dataUrl)=>{
+    photo = dataUrl;
+    preview?.classList.remove('empty');
+    if(preview) preview.innerHTML = `<img src="${esc(dataUrl)}" alt="">`;
+    if(status) setStatus(status, '', 'info');
+  };
+  root.querySelector('#galPick')?.addEventListener('click', ()=> root.querySelector('#galFile')?.click());
+  root.querySelector('#galFile')?.addEventListener('change', async (ev)=>{
+    const file = ev.target.files?.[0];
+    if(!file) return;
+    try{
+      if(status) setStatus(status, '…', 'info');
+      const data = await galleryFileData(file);
+      setPhoto(data);
+    }catch{
+      if(status) setStatus(status, t('galleryFail'), 'error');
+    }
+  });
+  root.querySelector('#galCam')?.addEventListener('click', async ()=>{
+    const box = root.querySelector('#galCamBox');
+    if(box) box.hidden = false;
+    const ok = await startCamera(root.querySelector('#galVideo'), status);
+    if(!ok && box) box.hidden = true;
+  });
+  root.querySelector('#galSnap')?.addEventListener('click', async ()=>{
+    const raw = snap(root.querySelector('#galVideo'));
+    if(!raw){ if(status) setStatus(status, t('galleryNeedPhoto'), 'error'); return; }
+    try{
+      const data = await compressGalleryPhoto(raw);
+      setPhoto(data);
+      stopCamera();
+      const box = root.querySelector('#galCamBox');
+      if(box) box.hidden = true;
+    }catch{
+      if(status) setStatus(status, t('galleryFail'), 'error');
+    }
+  });
+  root.querySelector('#galCaptionAi')?.addEventListener('click', async ()=>{
+    const btn = root.querySelector('#galCaptionAi');
+    const ta = root.querySelector('#galCaption');
+    if(!btn||!ta) return;
+    btn.disabled = true;
+    const prev = btn.textContent;
+    btn.textContent = t('galleryCaptionAiLoading');
+    try{
+      const response = await fetch('/api/gallery/caption', {
+        method:'POST', credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          topic: ta.value.trim() || '',
+          game: '',
+          lang: state.lang || 'de',
+          hint: ta.value.trim() || '',
+        }),
+      });
+      const data = await response.json().catch(()=>({}));
+      if(!response.ok || !data.caption) throw new Error(data.error||'caption');
+      ta.value = String(data.caption).slice(0,280);
+      if(status) setStatus(status, '', 'info');
+      feedback('save');
+    }catch{
+      if(status) setStatus(status, t('galleryCaptionAiFail'), 'error');
+    }finally{
+      btn.disabled = false;
+      btn.textContent = prev;
+    }
+  });
+  root.querySelector('#galSubmit')?.addEventListener('click', async ()=>{
+    if(!photo){ if(status) setStatus(status, t('galleryNeedPhoto'), 'error'); return; }
+    const caption = (root.querySelector('#galCaption')?.value||'').trim();
+    const btn = root.querySelector('#galSubmit');
+    if(btn) btn.disabled = true;
+    try{
+      const data = await galleryApi('create', {photo, caption, category: galCat});
+      applyGallerySnapshot(data);
+      stopCamera();
+      toast(t('galleryPosted'), 'success');
+      feedback('save');
+      state.galleryPane = 'feed';
+      state.galleryPostId = null;
+      syncLocationHash();
+      render();
+    }catch(err){
+      if(status) setStatus(status, err.code==='photo_too_large'?t('galleryTooBig'):err.code==='unsafe'?t('galleryBlocked'):t('galleryFail'), 'error');
+      if(btn) btn.disabled = false;
+    }
   });
 }
 
@@ -7777,7 +7990,7 @@ function consumePresenceDeepLink(){
   }catch{ return false; }
 }
 
-const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids','pocket','personnel','school','rules','admin'];
+const ROUTE_TABS = ['home','gallery','schedule','stock','shop','book','talk','kids','pocket','personnel','school','rules','admin','account'];
 const ROUTE_SCHEDULE_VIEWS = ['day','week','calendar','shift','events'];
 const ROUTE_SHOP_PANELS = ['plan','take','store','requests'];
 const SCHEDULE_DATE_KEY = 'paidia.scheduleDate';
@@ -7924,6 +8137,15 @@ function routeFromHash(){
     if(kidsPanes.includes(pane)) route.kidsPane = pane;
   }
   if(tab === 'admin')route.adminPane=ADMIN_SECTIONS.some(([id])=>id===parts[1])?parts[1]:'ops';
+  if(tab === 'account'){
+    const panes=['overview','devices','notifications','pin','session'];
+    route.accountPane = panes.includes(parts[1]) ? parts[1] : 'overview';
+  }
+  if(tab === 'gallery'){
+    if(parts[1]==='post' && parts[2]){ route.galleryPane='post'; route.galleryPostId=parts[2]; }
+    else if(['feed','people','compose'].includes(parts[1])) route.galleryPane=parts[1];
+    else route.galleryPane='feed';
+  }
   if(tab === 'pocket' && parts[1]) route.pocketKidId = parts[1];
   if(tab === 'school' && parts[1] && ['lessons','subjects','kids'].includes(parts[1])) route.schoolPane = parts[1];
   return route;
@@ -7951,6 +8173,11 @@ function applyRouteFromHash(){
     state.shopPanel = route.shopPanel === 'store' ? 'plan' : route.shopPanel;
   }
   if(route.adminPane)state.adminPane=route.adminPane;
+  if(route.accountPane) state.accountPane=route.accountPane;
+  if(route.galleryPane){
+    state.galleryPane=route.galleryPane;
+    state.galleryPostId=route.galleryPostId||null;
+  }
   if(route.kidsPane) state.kidsPane = route.kidsPane;
   if(route.pocketKidId) state.pocketKidId = route.pocketKidId;
   if(route.schoolPane) state.schoolPane = route.schoolPane;
@@ -7959,8 +8186,13 @@ function applyRouteFromHash(){
 
 function hashForState(){
   if(state.tab==='admin')return '#admin/'+(state.adminPane||'ops');
+  if(state.tab==='account')return '#account/'+(state.accountPane||'overview');
   if(state.tab === 'home') return '#home';
-  if(state.tab === 'gallery') return '#gallery';
+  if(state.tab === 'gallery'){
+    if(state.galleryPane==='post' && state.galleryPostId) return `#gallery/post/${state.galleryPostId}`;
+    const gp = state.galleryPane||'feed';
+    return gp==='feed' ? '#gallery' : `#gallery/${gp}`;
+  }
   if(state.tab === 'book') return '#book';
   if(state.tab === 'talk') return '#talk';
   if(state.tab === 'stock') return '#stock';
@@ -8651,25 +8883,27 @@ function viewScheduleWeek(){
 
   const first = new Date(week[0]+'T12:00:00'), last = new Date(week[6]+'T12:00:00');
   return `
-    ${weekJump}
-    <header class="plan-hero plan-hero-week">
-      <div class="plan-hero-copy">
-        <div class="brand-kicker">${esc(t('viewWeek'))}</div>
-        <h2 class="plan-hero-date">${t('weekOf')}: ${first.getDate()}.${first.getMonth()+1}. – ${last.getDate()}.${last.getMonth()+1}.${last.getFullYear()}</h2>
-        <p class="plan-hero-meet">${esc(t('besprechung'))}</p>
-      </div>
-      <div class="plan-hero-actions">
-        ${layoutSeg}
-        ${weekSwitcher}
-        <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry" data-tour="plan-add">${esc(t('topAdd'))}</button>
+    <header class="plan-week-chrome">
+      <div class="plan-week-chrome-top">
+        <div class="plan-week-range">
+          <span class="brand-kicker">${esc(t('viewWeek'))}</span>
+          <b>${first.getDate()}.${first.getMonth()+1}. – ${last.getDate()}.${last.getMonth()+1}.${last.getFullYear()}</b>
+          <span class="plan-meet-chip">${esc(t('besprechung'))}</span>
+        </div>
+        <div class="plan-week-chrome-actions">
+          ${layoutSeg}
+          ${weekSwitcher}
+          <button class="plan-hero-cta page-act primary" type="button" data-page-act="addEntry" data-tour="plan-add">${esc(t('topAdd'))}</button>
+        </div>
       </div>
       ${weekAiBar}
-      <div class="plan-week-summary">
+      <div class="plan-week-summary compact">
         <span><b>${weekEntries.length}</b><small>${esc(t('dueToday'))}</small></span>
         <span><b>${activeDays}</b><small>${esc(t('viewDay'))}</small></span>
         <span><b>${unassignedCount}</b><small>${esc(t('unassigned'))}</small></span>
       </div>
     </header>
+    ${weekJump}
     ${rotateCoach}
     ${showAgenda ? agendaBlock : ''}
     ${showMatrixFull ? matrixBlock : ''}
@@ -10223,8 +10457,15 @@ const PROD_ICON = {
   'Wasser':'bottle','Sprudelwasser':'glass-fill',
 };
 const catIconId  = cid => CAT_ICON[cid] || 'fork-knife';
-const prodIconId = pr  => (pr && PROD_ICON[pr.de]) || catIconId(pr && pr.cat);
+const prodIconId = pr  => (pr && pr.icon) || (pr && PROD_ICON[pr.de]) || catIconId(pr && pr.cat);
 const svgIcon = (id, cls) => `<svg class="${cls}" aria-hidden="true"><use href="#f-${id}"/></svg>`;
+const FOOD_ICON_PICK = ['cheese','carrot','wheat','bottle','bottle-droplet','fork-knife','milk-carton','butter','butter-ghee','yogurt','egg','meat','tomato','cucumber','chili','eggplant','apple','lemon','grape','bread','bowl-rice','corn','food-seasoning','canned-food','honey','glass-fill'];
+function foodIconPickerHtml(selected){
+  const cur = selected || 'fork-knife';
+  return `<div class="food-icon-picker" role="listbox" aria-label="icon">
+    ${FOOD_ICON_PICK.map(id=>`<button type="button" class="food-icon-opt ${id===cur?'on':''}" data-food-icon="${id}" aria-pressed="${id===cur?'true':'false'}">${svgIcon(id,'prod-ico')}</button>`).join('')}
+  </div>`;
+}
 
 /** Soft “full jar” ceiling for the tactile fill meter (not a hard max). */
 function stockFillPct(qty, p){
@@ -10299,19 +10540,22 @@ function viewStock(){
     const lastWhen=lastMove?.ts?(typeof relativeTime==='function'?relativeTime(lastMove.ts):'') : '';
     const lastBit=lastMove?`${lastMove.type==='IN'?'＋':'−'} ${lastWhen}${lastWho?` · ${lastWho}`:''}`:'';
     const draftBit=draftDelta?` · ${draftDelta>0?'+':''}${draftDelta}`:'';
-    return `<div class="stock-product stock-board-row ${st} has-stepper ${flash} ${pendingOut?'await-reason':''} ${draftDelta?'has-draft':''} ${sel?'selected':''}" data-stock-row="${p.id}">
+    const stLabel=t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy');
+    return `<div class="stock-product stock-board-row stock-row-dense ${st} has-stepper ${flash} ${pendingOut?'await-reason':''} ${draftDelta?'has-draft':''} ${sel?'selected':''}" data-stock-row="${p.id}">
       ${selecting?`<button class="bulk-check ${sel?'on':''}" type="button" data-bulk-toggle="${p.id}" aria-pressed="${sel?'true':'false'}" aria-label="${esc(t('selectMode'))}"></button>`:''}
-      ${jarHtml(qty,p,st)}
+      <span class="stock-row-ico" aria-hidden="true">${svgIcon(prodIconId(p),'prod-ico')}</span>
       <button class="stock-product-main" data-stock-product="${p.id}" type="button" aria-label="${t('tapProduct')}: ${esc(L(p))}">
-        <div class="stock-product-name">${svgIcon(prodIconId(p),'prod-ico')}${esc(L(p))}</div>
-        <div class="stock-product-meta">${t(st==='empty'?'stockOutState':st==='low'?'stockLow':'stockHealthy')} · ${state.lang==='el'?'Ελάχιστο':'Minimum'} ${thr} ${esc(p.unit)}${onList?` · ${esc(t('navShop'))}`:''}${draftBit?`<span class="muted">${esc(draftBit)}</span>`:''}</div>
-        ${lastBit?`<div class="stock-product-last muted">${esc(lastBit)}</div>`:''}
+        <div class="stock-product-name">${esc(L(p))}</div>
+        <div class="stock-product-meta"><span class="stock-st-pill ${st}">${esc(stLabel)}</span> · min ${thr}${onList?` · ${esc(t('navShop'))}`:''}${draftBit?`<span class="muted">${esc(draftBit)}</span>`:''}${lastBit?` · ${esc(lastBit)}`:''}</div>
       </button>
-      ${!selecting && !onList?`<button class="btn ghost sm stock-to-list" type="button" data-stock-want="${p.id}" title="${esc(t('bulkToList'))}" aria-label="${esc(t('bulkToList'))}">→ ${esc(t('navShop'))}</button>`:''}
-      ${!selecting?`<button class="btn ghost sm stock-edit-btn" type="button" data-stock-edit="${p.id}" title="${esc(t('stockEdit'))}" aria-label="${esc(t('stockEditAria'))}: ${esc(L(p))}"><span aria-hidden="true">✎</span> ${esc(t('stockEdit'))}</button>`:''}
+      ${!selecting && !onList?`<button class="btn ghost sm stock-to-list" type="button" data-stock-want="${p.id}" title="${esc(t('bulkToList'))}" aria-label="${esc(t('bulkToList'))}">→</button>`:''}
+      ${!selecting?`<button class="btn ghost sm stock-edit-btn" type="button" data-stock-edit="${p.id}" title="${esc(t('stockEdit'))}" aria-label="${esc(t('stockEditAria'))}: ${esc(L(p))}">✎</button>`:''}
       <div class="stock-stepper" role="group" aria-label="${esc(L(p))}">
         <button class="stock-step out pine-settle" type="button" data-stock-step="OUT" data-pid="${p.id}" aria-label="${t('stockOut')} −${step} ${esc(p.unit)}" ${qty<=0?'disabled':''}><span class="stock-step-glyph" aria-hidden="true">−</span></button>
-        <div class="stock-qty">${qty}<small>${esc(p.unit)}</small></div>
+        <label class="stock-qty-edit"><span class="sr-only">${esc(L(p))} qty</span>
+          <input class="stock-qty-input" type="number" inputmode="decimal" min="0" step="any" data-stock-qty="${p.id}" value="${qty}" aria-label="${esc(L(p))}">
+          <small>${esc(p.unit)}</small>
+        </label>
         <button class="stock-step in pine-settle" type="button" data-stock-step="IN" data-pid="${p.id}" aria-label="${t('stockIn')} +${step} ${esc(p.unit)}"><span class="stock-step-glyph" aria-hidden="true">+</span></button>
       </div>
     </div>`;
@@ -10401,7 +10645,8 @@ function viewStock(){
       <div><b>${(DB.listEntries||[]).filter(e=>['open','pending','missing'].includes(e.status)&&(hid==='all'||e.houseId===hid)).length}</b><span>${state.lang==='el'?'Στη λίστα αγορών':'Auf der Einkaufsliste'}</span></div>
       <p>${state.lang==='el'?'Το ελάχιστο απόθεμα εμφανίζεται ανά προϊόν. Καταγράψτε κάθε παραλαβή και κατανάλωση ώστε η ομάδα να γνωρίζει τι υπάρχει.':'Der Mindestbestand steht bei jedem Artikel. Erfasse Zugänge und Verbrauch, damit das Team den aktuellen Vorrat kennt.'}</p>
     </section>
-    <div class="stock-command" data-tour="stock-command" aria-label="${esc(t('headerStock'))}">
+    <div class="stock-command stock-command-center" data-tour="stock-command" aria-label="${esc(t('headerStock'))}">
+      <div class="stock-command-core">
       <div class="seg house-selector" id="sHouse" data-tour="stock-houses" aria-label="${t('filterHouse')}">
         ${DB.houses.map(h=>`<button class="${hid===h.id?'on':''}" data-h="${h.id}">${ui('u-home','sm')} ${esc(h.short)}</button>`).join('')}
         <button class="${hid==='all'?'on':''}" data-h="all">${t('bothHouses')}</button>
@@ -10415,6 +10660,7 @@ function viewStock(){
           <button class="stock-more-action ${state.selectMode==='stock'?'on':''}" type="button" id="stockSelectToggle">${ui('u-check','sm')} ${esc(state.selectMode==='stock'?t('selectDone'):t('selectMode'))}</button>
           <button class="stock-more-action" type="button" id="stockShiftCheck">${ui('u-check','sm')} ${esc(t('shiftStockCheck'))}</button>`:''}
         </div></details>
+      </div>
       </div>
       ${hid!=='all'&&isEasy()?`<div class="stock-easy-actions" role="toolbar" aria-label="${esc(t('headerStock'))}">
         <button class="btn stock-easy-btn pine-settle" type="button" id="stockQuickAddEasy">${ui('u-plus','sm')} ${esc(t('stockQuickAdd'))}</button>
@@ -10504,6 +10750,7 @@ function sheetStockDetail(pid,hid=state.house){
 
     <label class="f"><span>${t('productNameDe')}</span><input id="editProdDe" value="${esc(p.de||'')}" autocomplete="off"></label>
     <label class="f"><span>${t('productNameEl')}</span><input id="editProdEl" value="${esc(p.el||'')}" autocomplete="off"></label>
+    <div class="f"><span>${state.lang==='el'?'Εικονίδιο':'Icon'}</span>${foodIconPickerHtml(prodIconId(p))}</div>
     <div class="row" style="gap:8px">
       <label class="f grow"><span>${t('stockFoodUnit')}</span>
         <select id="editProdUnit">${['Stk','L','g','kg'].map(u=>`<option value="${u}" ${p.unit===u?'selected':''}>${u}</option>`).join('')}</select>
@@ -10539,11 +10786,23 @@ function sheetStockDetail(pid,hid=state.house){
     return Number.isFinite(n) && n>=0 ? roundStock(n) : null;
   };
 
+  sheetEl.querySelectorAll('[data-food-icon]').forEach(btn=>{
+    btn.onclick=()=>{
+      sheetEl.querySelectorAll('[data-food-icon]').forEach(b=>{
+        b.classList.toggle('on', b===btn);
+        b.setAttribute('aria-pressed', b===btn?'true':'false');
+      });
+      const ico=sheetEl.querySelector('.stock-detail-icon');
+      if(ico) ico.innerHTML=svgIcon(btn.dataset.foodIcon,'detail-ico');
+    };
+  });
+
   sheetEl.querySelector('#editProdSave').onclick=()=>{
     const de=(sheetEl.querySelector('#editProdDe')?.value||'').trim();
     const el=(sheetEl.querySelector('#editProdEl')?.value||'').trim();
     const unit=sheetEl.querySelector('#editProdUnit')?.value||'Stk';
     const cat=sheetEl.querySelector('#editProdCat')?.value||'custom';
+    const icon=sheetEl.querySelector('.food-icon-opt.on')?.dataset.foodIcon || prodIconId(p);
     const alias=(sheetEl.querySelector('#editProdAlias')?.value||'')
       .split(/[,;]+/).map(s=>s.trim()).filter(Boolean);
     if(!de && !el){ toast(t('productNameRequired'),'error'); return; }
@@ -10561,7 +10820,7 @@ function sheetStockDetail(pid,hid=state.house){
     if(badQty){ toast(t('needQty'),'error'); return; }
 
     const apply=()=>{
-      persistProductFields(pid, {de:nameDe, el:nameEl, unit, cat, alias});
+      persistProductFields(pid, {de:nameDe, el:nameEl, unit, cat, alias, icon});
       qtyChanges.forEach(({houseId, prev, next})=>{
         DB.stock[stockKey(houseId,pid)]=next;
         const delta=roundStock(next-prev);
@@ -11541,6 +11800,7 @@ function sheetStockQuickAdd(opts={}){
   let qty = 1;
   let unit = 'Stk';
   let cat = CATS()[0]?.id || 'custom';
+  let pickIcon = 'fork-knife';
 
   const syncQtyField = ()=>{
     const q = sheetEl.querySelector('#qaQty');
@@ -11626,6 +11886,7 @@ function sheetStockQuickAdd(opts={}){
     <div class="stock-qa-meta">
       <label class="f"><span>${esc(t('stockFoodCat'))}</span>
         <select id="qaCat">${CATS().map(c=>`<option value="${esc(c.id)}">${esc(L(c))}</option>`).join('')}</select></label>
+      <div class="f"><span>${state.lang==='el'?'Εικονίδιο':'Icon'}</span>${foodIconPickerHtml('fork-knife')}</div>
     </div>
     ${isPro()?`<details class="stock-qa-bulk pro-only mode-pro-block">
       <summary>${esc(t('stockBulkPaste'))}</summary>
@@ -11643,6 +11904,15 @@ function sheetStockQuickAdd(opts={}){
       hid = b.dataset.h;
       sheetEl.querySelectorAll('#qaHouse button').forEach(x=>x.classList.toggle('on', x===b));
       paint();
+    };
+  });
+  sheetEl.querySelectorAll('[data-food-icon]').forEach(btn=>{
+    btn.onclick=()=>{
+      pickIcon = btn.dataset.foodIcon || 'fork-knife';
+      sheetEl.querySelectorAll('[data-food-icon]').forEach(b=>{
+        b.classList.toggle('on', b===btn);
+        b.setAttribute('aria-pressed', b===btn?'true':'false');
+      });
     };
   });
   const nameInp = sheetEl.querySelector('#qaName');
@@ -11740,7 +12010,7 @@ function sheetStockQuickAdd(opts={}){
       state.house = prevHouse;
     }
     DB.customProducts ||= [];
-    const created={id:'cp-'+uid(),cat,de:name,el:name,unit,alias:[],custom:true};
+    const created={id:'cp-'+uid(),cat,de:name,el:name,unit,alias:[],icon:pickIcon,custom:true};
     DB.customProducts.push(created);
     if(!save()){ DB.customProducts=DB.customProducts.filter(p=>p.id!==created.id); return; }
     commitOne(created.id, qty);
@@ -12975,9 +13245,9 @@ function viewPocket(){
   const summary = kids.map(k=>{
     const bal = pocketBalance(k.id);
     const on = k.id===kidId ? ' on' : '';
-    return `<button type="button" class="pocket-kid-card${on}" data-pocket-kid="${esc(k.id)}">
+    return `<button type="button" class="pocket-kid-card pocket-kid-row${on}" data-pocket-kid="${esc(k.id)}">
       <span class="pocket-kid-av" style="background:${esc(k.color||'#c7d2fe')}">${esc((k.name||'?')[0]||'?')}</span>
-      <span class="grow"><b>${esc(k.name)}</b><small>${esc(formatEuro(bal))}</small></span>
+      <span class="pocket-kid-line grow"><b>${esc(k.name)}</b><small>${esc(formatEuro(bal))}</small></span>
     </button>`;
   }).join('') || `<p class="muted">${esc(t('kidsEmpty'))}</p>`;
 
@@ -20920,6 +21190,32 @@ function adminWorkerDetailHtml(employeeId){
 }
 
 const ADMIN_SECTIONS=[['ops','Übersicht','Επισκόπηση'],['team','Team','Ομάδα'],['supplies','Häuser & Vorräte','Σπίτια & προμήθειες'],['school','Kinder & Schule','Παιδιά & σχολείο'],['review','Prüfung','Έλεγχος'],['finance','Finanzen','Οικονομικά'],['audit','Aktivität','Δραστηριότητα'],['communications','Mitteilungen','Επικοινωνία'],['automations','Automationen','Αυτοματισμοί'],['system','Systemstatus','Κατάσταση συστήματος']];
+
+/** Shared nested-page shell: desk sidebar + mobile horizontal subnav (Admin/Moments/Account). */
+function sectionShellHtml({title='', eyebrow='', nav=[], body='', tour=''}={}){
+  const items = (nav||[]).map(it=>{
+    const label = it.label || '';
+    const href = it.href || '#';
+    const on = !!it.on;
+    return `<a class="section-shell-link${on?' on':''}" href="${esc(href)}" ${on?'aria-current="page"':''}>${esc(label)}</a>`;
+  }).join('');
+  const picker = (nav||[]).length
+    ? `<label class="section-shell-picker"><span class="sr-only">${esc(title||'Nav')}</span>
+        <select data-section-shell-pick>${(nav||[]).map(it=>`<option value="${esc(it.href||'')}" ${it.on?'selected':''}>${esc(it.label||'')}</option>`).join('')}</select>
+      </label>`
+    : '';
+  return `<div class="section-shell" ${tour?`data-tour="${esc(tour)}"`:''}>
+    <header class="section-shell-hero">
+      ${eyebrow?`<p class="eyebrow brand-kicker">${esc(eyebrow)}</p>`:''}
+      <h2>${esc(title)}</h2>
+    </header>
+    <div class="section-shell-layout">
+      <nav class="section-shell-nav" aria-label="${esc(title)}">${items}</nav>
+      ${picker}
+      <div class="section-shell-body">${body||''}</div>
+    </div>
+  </div>`;
+}
 function adminSectionHtml(pane){
   const text=(de,el)=>state.lang==='el'?el:de;
   const empty=text('Keine Einträge vorhanden.','Δεν υπάρχουν καταγραφές.');
@@ -22244,6 +22540,7 @@ function mobileChromeTitle(){
     home:'navHome', schedule:'navSchedule', stock:'navStock', shop:'navShop',
     book:'navBook', talk:'navTalk', gallery:'navGallery', kids:'navKids', pocket:'navPocket',
     personnel:'navPersonnel', school:'navSchool', rules:'rulesTab', admin:'adminOpsTitle',
+    account:'securityAccess',
   };
   return t(map[state.tab] || 'navHome');
 }
@@ -22281,6 +22578,7 @@ function dynamicHeaderTitle(){
   if(state.tab==='school') return t('titleSchoolMoodle');
   if(state.tab==='rules') return t('rulesTitle');
   if(state.tab==='admin') return t('adminOpsTitle');
+  if(state.tab==='account') return t('securityAccess');
   if(state.tab==='book') return t('headerBook');
   return t('headerBook');
 }
@@ -23052,6 +23350,7 @@ function staffViewHtml(){
   if(state.tab==='school') return viewSchoolMoodle();
   if(state.tab==='talk') return viewTalk();
   if(state.tab==='rules') return viewRules();
+  if(state.tab==='account') return viewAccount();
   if(state.tab==='admin') return isAdminUser()?viewAdminOps():viewHome();
   return viewBook();
 }
@@ -23173,7 +23472,12 @@ function render(){
     if(state.tab==='rules') wireRulesView(viewEl);
     if(state.tab==='pocket') wirePocketView(viewEl);
     if(state.tab==='admin') wireAdminOpsView(viewEl);
+    if(state.tab==='account') wireAccountView(viewEl);
     if(state.tab==='gallery') bindGallery(viewEl);
+    viewEl.querySelector('[data-section-shell-pick]')?.addEventListener('change', (ev)=>{
+      const href = ev.target.value;
+      if(href){ location.hash = href.replace(/^#/, '#'); }
+    });
     if(state.tab==='talk'){
       const mount=document.getElementById('talkPageMount');
       if(mount) mountStaffTalkChat(mount);
@@ -23716,6 +24020,24 @@ function wire(){
     if(!pid || !dir) return;
     adjustStockDraft(pid, dir);
   });
+  v.querySelectorAll('[data-stock-qty]').forEach(inp=>{
+    const apply=()=>{
+      if(state.house==='all'){ toast(t('selectHouse'),'info'); return; }
+      const pid=inp.dataset.stockQty;
+      const p=prod(pid); if(!p) return;
+      const live=DB.stock[stockKey(state.house,pid)]??0;
+      let next=Number(String(inp.value||'').replace(',','.'));
+      if(!Number.isFinite(next) || next<0){ inp.value=String(roundStock(live+Number(state.stockDraft[pid]||0))); return; }
+      next=roundStock(next);
+      const delta=roundStock(next-live);
+      if(Math.abs(delta)<0.0001) delete state.stockDraft[pid];
+      else state.stockDraft[pid]=delta;
+      feedback('select');
+      render();
+    };
+    inp.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); apply(); } });
+    inp.addEventListener('change', apply);
+  });
   v.querySelectorAll('[data-draft-reason]').forEach(b=>{
     b.onclick=()=>{
       state.stockDraftReason=b.dataset.draftReason;
@@ -24131,9 +24453,11 @@ function wire(){
     render();
   });
   v.querySelector('#listRemoveAll')?.addEventListener('click', ()=>{
-    markAllOpenListPending();
-    feedback('select');
-    render();
+    const hid=shopHouse();
+    const open=fridayEntries(hid).filter(e=>e.status==='open');
+    if(!open.length) return;
+    feedback('open');
+    sheetRemoveListItem(open.map(e=>e.id));
   });
   v.querySelector('#listPendingUndo')?.addEventListener('click', ()=>{
     clearListPendingRemove();
@@ -24418,7 +24742,11 @@ document.getElementById('chatClose')?.addEventListener('click', ()=>{
   feedback('tap');
   closeChatPanel();
 });
-document.getElementById('btnUser').onclick = () => (state.user||state.child) ? sheetSecurityAccess() : openGate();
+document.getElementById('btnUser').onclick = () => {
+  if(!(state.user||state.child)){ openGate(); return; }
+  if(state.mode==='staff') openAccount('overview');
+  else sheetSecurityAccess();
+};
 document.getElementById('btnLang').onclick = () => setLang(state.lang === 'de' ? 'el' : 'de');
 document.getElementById('btnTour')?.addEventListener('click', ()=>{
   feedback('tap');
@@ -24594,9 +24922,59 @@ async function sheetSecurityAudit(opts={}){
   await paint();
 }
 
+function openAccount(pane){
+  try{ closeSheet(); }catch{}
+  state.tab = 'account';
+  state.accountPane = pane || 'overview';
+  syncLocationHash();
+  render();
+}
+
+const ACCOUNT_SECTIONS = [
+  ['overview','Übersicht','Επισκόπηση'],
+  ['devices','Geräte','Συσκευές'],
+  ['notifications','Mitteilungen','Ειδοποιήσεις'],
+  ['pin','PIN','PIN'],
+  ['session','Sitzung','Συνεδρία'],
+];
+
+function viewAccount(){
+  const who = state.user || state.child;
+  if(!who) return `<section class="card"><p class="muted">${esc(t('noUser'))}</p></section>`;
+  const pane = ACCOUNT_SECTIONS.some(([id])=>id===state.accountPane) ? state.accountPane : 'overview';
+  state.accountPane = pane;
+  const nav = ACCOUNT_SECTIONS.map(([id,de,el])=>({
+    id,
+    href: `#account/${id}`,
+    label: state.lang==='el' ? el : de,
+    on: pane===id,
+  }));
+  return sectionShellHtml({
+    title: t('securityAccess'),
+    eyebrow: profileName(who),
+    nav,
+    body: `<div class="account-security" id="accountSecurityHost" data-account-pane="${esc(pane)}"></div>`,
+  });
+}
+
+async function wireAccountView(root){
+  const host = root?.querySelector('#accountSecurityHost');
+  if(!host) return;
+  await mountSecurityAccess(host);
+}
+
 async function sheetSecurityAccess(){
   const who=state.user||state.child;if(!who){openGate();return;}
-  openSheet(`<div class="security-hero mail-hero">
+  if(state.mode==='staff'){
+    openAccount(state.accountPane||'overview');
+    return;
+  }
+  await mountSecurityAccess(null);
+}
+
+async function mountSecurityAccess(pageHost){
+  const who=state.user||state.child;if(!who){openGate();return;}
+  const html = `<div class="security-hero mail-hero">
       <div class="row" style="gap:12px;align-items:center">
         <div class="security-icon mail-icon">${esc(profileEmoji(who)||'👤')}</div>
         <div class="grow">
@@ -24621,15 +24999,39 @@ async function sheetSecurityAccess(){
     ${isAdminUser()?`<button class="btn sec" id="securityOps">📊 ${esc(t('adminOpsOpen'))}</button>`:''}
     ${isAdminUser()?`<button class="btn sec" id="securityAuditTrail">📖 ${esc(t('auditTrailTitle'))}</button>`:''}
     <button class="btn sec" id="securitySwitch">↔ ${t('switchProfile')}</button>
-    <button class="btn sec" id="securityLogout">${t('signOut')}</button>`);
-  const profileCard=sheetEl.querySelector('#securityProfile'),card=sheetEl.querySelector('#securityPasskey');
-  const customizeCard=sheetEl.querySelector('#securityCustomize');
-  const uiModeCard=sheetEl.querySelector('#securityUiMode');
-  const notifCard=sheetEl.querySelector('#securityNotifs');
-  const devicesCard=sheetEl.querySelector('#securityDevices');
-  const calendarCard=sheetEl.querySelector('#securityCalendar');
-  const pinCard=sheetEl.querySelector('#securityPin');
-  const storageEl=sheetEl.querySelector('#securityStorage');
+    <button class="btn sec" id="securityLogout">${t('signOut')}</button>`;
+  let root;
+  if(pageHost){
+    pageHost.innerHTML = html;
+    root = pageHost;
+    const pane = state.accountPane || 'overview';
+    const show = {
+      overview: ['securityStorage','securityUiMode','securityCustomize','securityProfile','securityTutorial','securityFeedback','securityFeedbackInbox','securityOps','securityAuditTrail'],
+      devices: ['securityDevices','securityPasskey'],
+      notifications: ['securityNotifs','securityCalendar'],
+      pin: ['securityPin'],
+      session: ['securityStorage','securitySwitch','securityLogout','securityTutorial','securityFeedback','securityFeedbackInbox','securityOps','securityAuditTrail'],
+    };
+    const keep = new Set(show[pane] || show.overview);
+    // Always keep hero
+    [...root.querySelectorAll('.security-passkey-card, .status-box, button.btn')].forEach(el=>{
+      if(el.classList.contains('security-hero') || el.classList.contains('mail-hero')) return;
+      const id = el.id;
+      if(id && !keep.has(id)) el.hidden = true;
+    });
+    root.querySelector('.security-hero')?.removeAttribute('hidden');
+  } else {
+    openSheet(html);
+    root = sheetEl;
+  }
+  const profileCard=root.querySelector('#securityProfile'),card=root.querySelector('#securityPasskey');
+  const customizeCard=root.querySelector('#securityCustomize');
+  const uiModeCard=root.querySelector('#securityUiMode');
+  const notifCard=root.querySelector('#securityNotifs');
+  const devicesCard=root.querySelector('#securityDevices');
+  const calendarCard=root.querySelector('#securityCalendar');
+  const pinCard=root.querySelector('#securityPin');
+  const storageEl=root.querySelector('#securityStorage');
   const pref=profilePref(who.id);
   fillSecurityDevicesCard(devicesCard);
   if(notifCard){
@@ -24653,7 +25055,7 @@ async function sheetSecurityAccess(){
       const ok=await enableAppNotifications();
       st.style.display='block';
       setStatus(st, ok?t('notifEnabled'):notifEnableFailureMessage(), ok?'success':'error');
-      if(ok) sheetSecurityAccess();
+      if(ok){ if(pageHost) mountSecurityAccess(pageHost); else sheetSecurityAccess(); }
     };
     notifCard.querySelector('#notifTestBtn').onclick=async()=>{
       const st=notifCard.querySelector('#notifStatus');
@@ -24732,7 +25134,7 @@ async function sheetSecurityAccess(){
         const st=customizeCard.querySelector('#profileLookStatus');
         st.style.display='block'; setStatus(st,t('profileSaved'),'success');
         render();
-        sheetSecurityAccess();
+        if(pageHost) mountSecurityAccess(pageHost); else sheetSecurityAccess();
       }
     };
     customizeCard.querySelector('#saveProfileLook').onclick=()=>persistLook();
@@ -24802,7 +25204,7 @@ async function sheetSecurityAccess(){
       storageEl.className=`status-box ${durable?'success':'error'}`;
       storageEl.textContent = durable ? t('profileStorageOk') : t('profileStorageWarn');
     }
-    paintWebauthnOriginWarn(health, storageEl?.parentElement || sheetEl);
+    paintWebauthnOriginWarn(health, storageEl?.parentElement || root);
     if(!response.ok||!data.authenticated)throw new Error(t('authUnavailable'));
     if(!profilesResponse.ok||!Array.isArray(profilesData.profiles))throw new Error(t('authUnavailable'));
     const profiles=profilesData.profiles;
@@ -24894,37 +25296,37 @@ async function sheetSecurityAccess(){
     const add=card.querySelector('#securityAddPasskey');
     if(add)add.onclick=async()=>{
       add.disabled=true;
-      try{await registerPasskey();toast(t('passkeyAdded'),'success');closeSheet();sheetSecurityAccess();}
+      try{await registerPasskey();toast(t('passkeyAdded'),'success');if(pageHost){ mountSecurityAccess(pageHost); } else { closeSheet(); sheetSecurityAccess(); }}
       catch(error){toast(error.name==='NotAllowedError'?t('passkeyCancelled'):error.message||t('authUnavailable'),'error',5200);add.disabled=false;}
     };
     const remove=card.querySelector('#securityRemovePasskeys');
     if(remove){let armed=false;remove.onclick=async()=>{
       if(!armed){armed=true;remove.textContent=`${t('removePasskeys')} · ✓`;remove.classList.add('out');return;}
       remove.disabled=true;
-      try{await passkeyApi('/api/auth/passkey/remove',{});toast(t('passkeyRemoved'),'success');closeSheet();sheetSecurityAccess();}
+      try{await passkeyApi('/api/auth/passkey/remove',{});toast(t('passkeyRemoved'),'success');if(pageHost){ mountSecurityAccess(pageHost); } else { closeSheet(); sheetSecurityAccess(); }}
       catch(error){toast(error.message||t('authUnavailable'),'error');remove.disabled=false;}
     };}
   }catch(error){
     profileCard.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;
     card.innerHTML=`<div class="status-box error">${esc(error.message||t('authUnavailable'))}</div>`;
   }
-  const tutorialButton=sheetEl.querySelector('#securityTutorial');
+  const tutorialButton=root.querySelector('#securityTutorial');
   if(tutorialButton) tutorialButton.onclick=openAppTutorial;
-  const feedbackButton=sheetEl.querySelector('#securityFeedback');
+  const feedbackButton=root.querySelector('#securityFeedback');
   if(feedbackButton) feedbackButton.onclick=()=>{ closeSheet(); sheetFeedbackHub(); };
-  const feedbackInboxBtn=sheetEl.querySelector('#securityFeedbackInbox');
+  const feedbackInboxBtn=root.querySelector('#securityFeedbackInbox');
   if(feedbackInboxBtn) feedbackInboxBtn.onclick=()=>{ closeSheet(); sheetFeedbackInbox(); };
-  const auditBtn=sheetEl.querySelector('#securityAuditTrail');
+  const auditBtn=root.querySelector('#securityAuditTrail');
   if(auditBtn) auditBtn.onclick=()=>{ closeSheet(); setTimeout(()=>sheetSecurityAudit(),180); };
-  const opsBtn=sheetEl.querySelector('#securityOps');
+  const opsBtn=root.querySelector('#securityOps');
   if(opsBtn) opsBtn.onclick=()=>{
     closeSheet();
     if(!isAdminUser()){ toast(t('adminRequired'),'error'); return; }
     state.tab='admin'; syncLocationHash(); render();
   };
-  const switchButton=sheetEl.querySelector('#securitySwitch');
+  const switchButton=root.querySelector('#securitySwitch');
   if(switchButton) switchButton.onclick=()=>{closeSheet();logoutServerSession();};
-  const logoutButton=sheetEl.querySelector('#securityLogout');
+  const logoutButton=root.querySelector('#securityLogout');
   if(logoutButton) logoutButton.onclick=()=>{closeSheet();logoutServerSession();};
 }
 

@@ -1,3 +1,12 @@
+## v233 · 2026-09-07
+
+- Nested Moments (`#gallery/*`) and Account (`#account/*`) with section shell (desk sidebar / mobile subnav).
+- Liste: Remove-all opens reason sheet immediately; pending confirm dock is viewport-fixed.
+- Stock: dense full-width rows, centered house+search bar, clearer icons, icon picker, type-in qty.
+- Plan week: single week chrome (no giant period hero); AI/Import in compact toolbar.
+- Pocket: thin kid rail so every kid (incl. last) is easy to reach.
+- Cache `paidia-v233`.
+
 ## v232 · 2026-09-07
 
 - Master Tutorial (`?`) in the top bar on PC and mobile: explain this page (spotlight per control) or full app tour.
