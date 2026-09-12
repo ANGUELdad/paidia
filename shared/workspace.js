@@ -49,7 +49,7 @@
   try{el.setSelectionRange(snapshot.start,snapshot.end);}catch{}
   scrollTo(snapshot.x,snapshot.y);
  }
- const stateKeys=['tab','childView','date','house','scheduleView','calendarMonth','shopPanel','shopFriday','kidsPane','kidId','pocketKidId','adminSection','adminPane','adminWorkerId','adminAuditQuery','adminAuditLimit','stockQuery','stockFilter','stockDraft','stockDraftReason','stockOpenCategories','selectMode','selectedIds','bookDraft','bookDate','bookHouse','pocketCompose'];
+ const stateKeys=['tab','childView','date','house','scheduleView','calendarMonth','shopPanel','shopFriday','kidsPane','kidId','pocketKidId','adminSection','adminPane','adminWorkerId','adminAuditQuery','adminAuditLimit','stockQuery','stockFilter','stockDraft','stockDraftReason','stockOpenCategories','selectMode','selectedIds','bookDraft','bookDate','bookHouse','pocketCompose','attSelectionMode','attSelected','attBulkStatus'];
  function stash(state){
   const owner=state.user?.id||state.child?.id;if(!owner)return;
   const snapshot={owner,mode:state.mode,at:Date.now(),state:{},fields:[]};

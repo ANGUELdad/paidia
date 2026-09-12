@@ -53,3 +53,7 @@
 | `docs/zoai/*` | Runtime Zo-Ai knowledge | keyword inject |
 
 Zo-Ai product knowledge (chat injection): `docs/zoai/KNOWLEDGE_MAP.md` — separate from coding-agent maps.
+
+## Redesign implementation checkpoint (v226)
+
+See [implementation and remaining release gates](redesign/IMPLEMENTATION.md) and [static entry-point inventory](redesign/inventory.json). Shared commands: `operations.py`; client command/state helpers: `shared/workspace.js` and `runDomainOperation` in `app.js`; trusted product/house reference: `domain-catalog.json`. Use `scripts/run-local-qa.py` for isolated local testing.

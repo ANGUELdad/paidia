@@ -328,6 +328,8 @@ OPS_KEYS = (
     "schoolMaterials",
     "schoolMaterialMedia",
     "schoolActivity",
+    "schoolLessonNotes",
+    "importantDates",
     # In-app bug / change / addition reports (staff + kids create; staff triage).
     "feedbackReports",
     # Staff-managed pocket money ledger (kids read via ops pull; client filters by kidId).
@@ -2021,6 +2023,8 @@ def get_ops_for_session(since: int, session: dict) -> dict:
     if session.get("mode") != "child" or not payload.get("changed"):
         return payload
     kid_id = str(session.get("profile_id") or "").strip()
+    from operations import project_child_state
+    payload=project_child_state(payload,kid_id,OPS_DICT_KEYS)
     payload.pop("staffKidRatings", None)
     payload["staffKidRatingSummaries"] = staff_rating_summaries_for_kid(kid_id) if kid_id else []
     return payload
@@ -5726,6 +5730,8 @@ class Handler(SimpleHTTPRequestHandler):
             "ui-v213.css",
             "ui-v244.css",
             "ui-v245.css",
+            "ui-v246.css",
+            "ui-v247.css",
             "sw.js",
             "manifest.webmanifest",
             # Login shows the running version + DE/EL "what changed" from this.

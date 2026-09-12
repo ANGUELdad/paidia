@@ -1,0 +1,532 @@
+{
+  "houses": [
+    {
+      "id": "h1",
+      "name": "Kalyvia (Villa)",
+      "short": "Kalyvia"
+    },
+    {
+      "id": "h2",
+      "name": "Limenaria",
+      "short": "Limenaria"
+    },
+    {
+      "id": "h3",
+      "name": "Julian groß",
+      "short": "Julian groß",
+      "planning": false
+    },
+    {
+      "id": "h4",
+      "name": "Valeria + Lea",
+      "short": "Valeria+Lea",
+      "planning": false
+    }
+  ],
+  "products": [
+    {
+      "id": "p1",
+      "cat": "fridge",
+      "de": "Milch",
+      "el": "Γάλα",
+      "en": "milk",
+      "unit": "L"
+    },
+    {
+      "id": "p2",
+      "cat": "fridge",
+      "de": "Butter",
+      "el": "Βούτυρο",
+      "en": "butter",
+      "unit": "Stk"
+    },
+    {
+      "id": "p3",
+      "cat": "fridge",
+      "de": "Margarine",
+      "el": "Μαργαρίνη",
+      "unit": "Stk"
+    },
+    {
+      "id": "p4",
+      "cat": "fridge",
+      "de": "Käse",
+      "el": "Τυρί",
+      "en": "cheese",
+      "unit": "g"
+    },
+    {
+      "id": "p5",
+      "cat": "fridge",
+      "de": "Streukäse",
+      "el": "Τριμμένο τυρί",
+      "unit": "Stk",
+      "alias": [
+        "steukäse",
+        "streukase"
+      ]
+    },
+    {
+      "id": "p6",
+      "cat": "fridge",
+      "de": "Frischkäse",
+      "el": "Τυρί κρέμα",
+      "unit": "Stk"
+    },
+    {
+      "id": "p7",
+      "cat": "fridge",
+      "de": "Feta",
+      "el": "Φέτα",
+      "unit": "g"
+    },
+    {
+      "id": "p8",
+      "cat": "fridge",
+      "de": "Joghurt",
+      "el": "Γιαούρτι",
+      "en": "yogurt",
+      "unit": "Stk",
+      "alias": [
+        "jogurt"
+      ]
+    },
+    {
+      "id": "p9",
+      "cat": "fridge",
+      "de": "Eier",
+      "el": "Αυγά",
+      "en": "eggs",
+      "unit": "Stk"
+    },
+    {
+      "id": "p10",
+      "cat": "fridge",
+      "de": "Schinken",
+      "el": "Ζαμπόν",
+      "en": "ham",
+      "unit": "g"
+    },
+    {
+      "id": "p11",
+      "cat": "fridge",
+      "de": "Salami",
+      "el": "Σαλάμι",
+      "en": "salami",
+      "unit": "g"
+    },
+    {
+      "id": "p20",
+      "cat": "produce",
+      "de": "Tomaten",
+      "el": "Ντομάτες",
+      "en": "tomato",
+      "unit": "Stk"
+    },
+    {
+      "id": "p21",
+      "cat": "produce",
+      "de": "Gurken",
+      "el": "Αγγούρια",
+      "en": "cucumber",
+      "unit": "Stk"
+    },
+    {
+      "id": "p22",
+      "cat": "produce",
+      "de": "Zwiebeln",
+      "el": "Κρεμμύδια",
+      "en": "onions",
+      "unit": "Stk"
+    },
+    {
+      "id": "p23",
+      "cat": "produce",
+      "de": "Frühlingszwiebeln",
+      "el": "Φρέσκα κρεμμυδάκια",
+      "unit": "Stk"
+    },
+    {
+      "id": "p24",
+      "cat": "produce",
+      "de": "Knoblauch",
+      "el": "Σκόρδο",
+      "unit": "Stk",
+      "alias": [
+        "knobi"
+      ]
+    },
+    {
+      "id": "p25",
+      "cat": "produce",
+      "de": "Paprika",
+      "el": "Πιπεριές",
+      "unit": "Stk"
+    },
+    {
+      "id": "p26",
+      "cat": "produce",
+      "de": "Zucchini",
+      "el": "Κολοκυθάκια",
+      "unit": "Stk"
+    },
+    {
+      "id": "p27",
+      "cat": "produce",
+      "de": "Möhren",
+      "el": "Καρότα",
+      "en": "carrots",
+      "unit": "Stk",
+      "alias": [
+        "karotten",
+        "mohren"
+      ]
+    },
+    {
+      "id": "p28",
+      "cat": "produce",
+      "de": "Spinat",
+      "el": "Σπανάκι",
+      "unit": "Stk"
+    },
+    {
+      "id": "p29",
+      "cat": "produce",
+      "de": "Petersilie",
+      "el": "Μαϊντανός",
+      "unit": "Stk"
+    },
+    {
+      "id": "p30",
+      "cat": "produce",
+      "de": "Nektarinen",
+      "el": "Νεκταρίνια",
+      "en": "nectarines",
+      "unit": "Stk"
+    },
+    {
+      "id": "p31",
+      "cat": "produce",
+      "de": "Äpfel",
+      "el": "Μήλα",
+      "en": "apples",
+      "unit": "Stk",
+      "alias": [
+        "apfel"
+      ]
+    },
+    {
+      "id": "p32",
+      "cat": "produce",
+      "de": "Bananen",
+      "el": "Μπανάνες",
+      "en": "bananas",
+      "unit": "Stk"
+    },
+    {
+      "id": "p33",
+      "cat": "produce",
+      "de": "Zitronen",
+      "el": "Λεμόνια",
+      "en": "lemons",
+      "unit": "Stk"
+    },
+    {
+      "id": "p34",
+      "cat": "produce",
+      "de": "Wassermelone",
+      "el": "Καρπούζι",
+      "en": "watermelon",
+      "unit": "Stk"
+    },
+    {
+      "id": "p40",
+      "cat": "dry",
+      "de": "Toastbrot",
+      "el": "Ψωμί τοστ",
+      "unit": "Stk"
+    },
+    {
+      "id": "p41",
+      "cat": "dry",
+      "de": "Deutsches Brot",
+      "el": "Γερμανικό ψωμί",
+      "en": "german dark bread",
+      "unit": "Stk"
+    },
+    {
+      "id": "p42",
+      "cat": "dry",
+      "de": "Cornflakes",
+      "el": "Κορν φλέικς",
+      "unit": "Stk"
+    },
+    {
+      "id": "p43",
+      "cat": "dry",
+      "de": "Granola",
+      "el": "Granola",
+      "unit": "Stk",
+      "alias": [
+        "cranola"
+      ]
+    },
+    {
+      "id": "p44",
+      "cat": "dry",
+      "de": "Haferflocken",
+      "el": "Βρώμη",
+      "en": "oat flakes",
+      "unit": "Stk",
+      "alias": [
+        "rolled oats"
+      ]
+    },
+    {
+      "id": "p45",
+      "cat": "dry",
+      "de": "Kirschmarmelade",
+      "el": "Μαρμελάδα κεράσι",
+      "unit": "Stk"
+    },
+    {
+      "id": "p46",
+      "cat": "dry",
+      "de": "Reis",
+      "el": "Ρύζι",
+      "en": "rice",
+      "unit": "kg"
+    },
+    {
+      "id": "p47",
+      "cat": "dry",
+      "de": "Makkaroni",
+      "el": "Μακαρόνια",
+      "unit": "Stk"
+    },
+    {
+      "id": "p48",
+      "cat": "dry",
+      "de": "Spirelli",
+      "el": "Βίδες",
+      "unit": "Stk"
+    },
+    {
+      "id": "p49",
+      "cat": "dry",
+      "de": "Spaghetti",
+      "el": "Σπαγγέτι",
+      "unit": "Stk",
+      "alias": [
+        "spagetti"
+      ]
+    },
+    {
+      "id": "p50",
+      "cat": "dry",
+      "de": "Lasagneplatten",
+      "el": "Φύλλα λαζάνια",
+      "unit": "Stk",
+      "alias": [
+        "lassagneplatten"
+      ]
+    },
+    {
+      "id": "p51",
+      "cat": "dry",
+      "de": "Mais",
+      "el": "Καλαμπόκι",
+      "unit": "Stk"
+    },
+    {
+      "id": "p52",
+      "cat": "dry",
+      "de": "Salz",
+      "el": "Αλάτι",
+      "unit": "Stk"
+    },
+    {
+      "id": "p53",
+      "cat": "dry",
+      "de": "Pfeffer gemahlen",
+      "el": "Πιπέρι τριμμένο",
+      "en": "black pepper",
+      "unit": "Stk"
+    },
+    {
+      "id": "p54",
+      "cat": "dry",
+      "de": "Öl",
+      "el": "Λάδι",
+      "en": "oil",
+      "unit": "L"
+    },
+    {
+      "id": "p55",
+      "cat": "dry",
+      "de": "Essig weiß",
+      "el": "Ξύδι λευκό",
+      "unit": "Stk"
+    },
+    {
+      "id": "p56",
+      "cat": "dry",
+      "de": "Essig rot",
+      "el": "Ξύδι κόκκινο",
+      "unit": "Stk"
+    },
+    {
+      "id": "p57",
+      "cat": "dry",
+      "de": "Tomatensoße",
+      "el": "Σάλτσα ντομάτας",
+      "en": "tomato sauce",
+      "unit": "Stk"
+    },
+    {
+      "id": "p58",
+      "cat": "dry",
+      "de": "Ketchup",
+      "el": "Κέτσαπ",
+      "unit": "Stk",
+      "alias": [
+        "kesap"
+      ]
+    },
+    {
+      "id": "p59",
+      "cat": "dry",
+      "de": "Blätterteig",
+      "el": "Φύλλο σφολιάτας",
+      "unit": "Stk"
+    },
+    {
+      "id": "p60",
+      "cat": "dry",
+      "de": "Backpapier",
+      "el": "Λαδόκολλα",
+      "en": "baking paper",
+      "unit": "Stk"
+    },
+    {
+      "id": "p61",
+      "cat": "dry",
+      "de": "Alufolie",
+      "el": "Αλουμινόχαρτο",
+      "unit": "Stk",
+      "alias": [
+        "alufelgen"
+      ]
+    },
+    {
+      "id": "p62",
+      "cat": "dry",
+      "de": "Wraps",
+      "el": "Wraps",
+      "unit": "Stk"
+    },
+    {
+      "id": "p63",
+      "cat": "dry",
+      "de": "Vanillearoma",
+      "el": "Άρωμα βανίλιας",
+      "unit": "Stk"
+    },
+    {
+      "id": "p64",
+      "cat": "dry",
+      "de": "Süßsauer im Glas",
+      "el": "Γλυκόξινο σε βάζο",
+      "unit": "Stk"
+    },
+    {
+      "id": "p70",
+      "cat": "drinks",
+      "de": "Wasser",
+      "el": "Νερό",
+      "en": "water",
+      "unit": "Stk"
+    },
+    {
+      "id": "p71",
+      "cat": "drinks",
+      "de": "Sprudelwasser",
+      "el": "Ανθρακούχο νερό",
+      "en": "sparkling water",
+      "unit": "Stk"
+    },
+    {
+      "id": "p80",
+      "cat": "household",
+      "de": "Klopapier",
+      "el": "Χαρτί υγείας",
+      "unit": "Stk"
+    },
+    {
+      "id": "p81",
+      "cat": "household",
+      "de": "Küchenrolle",
+      "el": "Χαρτί κουζίνας",
+      "en": "kitchen paper towels",
+      "unit": "Stk"
+    },
+    {
+      "id": "p82",
+      "cat": "household",
+      "de": "Feuchttücher",
+      "el": "Υγρά μαντηλάκια",
+      "en": "wet wipes",
+      "unit": "Stk"
+    },
+    {
+      "id": "p83",
+      "cat": "household",
+      "de": "Müllsäcke",
+      "el": "Σακούλες σκουπιδιών",
+      "unit": "Stk",
+      "alias": [
+        "müllsacke",
+        "mullsacke"
+      ]
+    },
+    {
+      "id": "p84",
+      "cat": "household",
+      "de": "Schwämme",
+      "el": "Σφουγγάρια",
+      "unit": "Stk",
+      "alias": [
+        "schwäme",
+        "schwamme"
+      ]
+    },
+    {
+      "id": "p85",
+      "cat": "household",
+      "de": "Spüli",
+      "el": "Υγρό πιάτων",
+      "unit": "Stk"
+    },
+    {
+      "id": "p86",
+      "cat": "household",
+      "de": "Bodenputzmittel",
+      "el": "Καθαριστικό δαπέδου",
+      "unit": "Stk"
+    },
+    {
+      "id": "p87",
+      "cat": "household",
+      "de": "Waschmaschinensalz",
+      "el": "Αλάτι πλυντηρίου",
+      "unit": "Stk"
+    },
+    {
+      "id": "p88",
+      "cat": "household",
+      "de": "Besen",
+      "el": "Σκούπα",
+      "unit": "Stk"
+    }
+  ]
+}

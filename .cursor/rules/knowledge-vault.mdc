@@ -1,0 +1,25 @@
+---
+description: Vault-first + map-first — cut Cursor token burn on Paidia
+alwaysApply: true
+---
+
+# Knowledge vault first (token saver)
+
+Before exploring large sources (`app.js`, `server.py`, `index.html`):
+
+1. Read **`knowledge/AGENT_START.md`** (or `docs/agents/TOKEN_REDUCE.md`) — never paste whole `app.js` / `server.py`.
+2. Match the ask → **`docs/agents/map.json`** or **`knowledge/topics/<id>.md`** (keywords → files + snippet).
+3. Prefer **Graphify MCP** (`query_graph` / `get_neighbors` / `shortest_path`) or CLI `graphify explain|path` when `graphify-out/graph.json` exists.
+4. Prefer **claude-mem `smart_search`** for folded AST views over dumping files.
+5. Open **only** listed files; `rg` a function from the snippet; read a **line range** (~±80).
+6. Cap parallel reads (~3–5). Small diffs. Client UI → ship checklist (`build.json`, `APP_BUILD`, `?v=`, `paidia-vN`).
+
+## Obsidian
+
+Vault root: `knowledge/`. Hub: `knowledge/Home.md`. Site layout: `knowledge/SITE.md`. Memory: `knowledge/MEMORY.md`. Refresh: `python3 scripts/build-knowledge-vault.py`.
+
+## Do not
+
+- Preload full specs / entire handoff docs unless the task needs them
+- Inject coding-agent maps into Zo-Ai `/api/chat` (use `docs/zoai/` for runtime)
+- Skip the map when “you already know” — maps prevent wrong-file edits

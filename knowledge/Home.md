@@ -44,6 +44,8 @@ Obsidian vault for **humans + coding agents**. Goal: answer “where is X?” in
 - [[topics/pocket]] — Staff #pocket tab + kid pocket view; pocketMoneyTxns + pocketMoneySettings ops.
 - [[topics/child]] — renderChild tabs; install/how-to; event notifs; Zo-Ai read-only.
 - [[topics/tokens]] — Vault-first: knowledge/AGENT_START + topics/* + map.json; Graphify MCP; never full app.js/
+- [[topics/rules]] — Shared houseRules ops array; viewRules/childRulesView; staff edit kids read-only; ROUTE_TA
+- [[topics/operations-workspace]] — Atomic POST /api/operations (apply_operation + update_json_atomic); client PaidiaWorkspace
 
 ## Zo-Ai runtime (in-app chat — not coding maps)
 - [[zoai/overview]]

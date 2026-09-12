@@ -4,11 +4,11 @@
    ════════════════════════════════════════════════════════════════ */
 /** Keep in sync with build.json — shown on login. */
 const APP_BUILD = {
-  version: 243,
-  label: 'v243',
+  version: 246,
+  label: 'v246',
   changed: {
-    de: 'Mobile: volle Breite, dichtere Buttons und Karten — weniger Leerraum.',
-    el: 'Κινητό: πλήρες πλάτος, πυκνότερα κουμπιά/κάρτες — λιγότερος κενός χώρος.',
+    de: 'Plan-A Redesign: sichtbare Lager-Entwürfe, lesbare Anwesenheit, Inbox auf Home, Liste öffnet den Supermarkt, weniger Chrome vor Inhalt.',
+    el: 'Plan-A redesign: ορατά πρόχειρα αποθήκης, αναγνώσιμη παρουσία, inbox στο Home, η Λίστα ανοίγει το σούπερ μάρκετ, λιγότερο chrome πριν το περιεχόμενο.',
   },
 };
 const T = {
@@ -432,7 +432,7 @@ const T = {
     kidGuideNext:'Als Nächstes',
     kidGuideHintStart:'Schau deinen Tag an oder öffne Spiele.',
     kidGuideHintGames:'Wähle ein Spiel. Mit „Alle Spiele“ kommst du zurück.',
-    kidGuideHintRate:'Vergib Noten für diese Woche — 1 ist sehr gut.',
+    kidGuideHintRate:'Schau dir deine Woche an — Staff vergibt die Noten.',
     kidGuideHintBonus:'Sieh, wie du Extra-Sterne verdienen kannst.',
     kidGuideHintNotes:'Schreib auf, was du nicht vergessen willst.',
     kidGuideHintPlan:'Dein Stundenplan — tippe einen Tag an.',
@@ -448,7 +448,7 @@ const T = {
     kidHomeDash:'Dein Tag',
     kidHomeCtaTitle:'Wohin als Nächstes?',
     kidHomeCtaGames:'Spiele öffnen',
-    kidHomeCtaRate:'Woche bewerten',
+    kidHomeCtaRate:'Meine Woche ansehen',
     kidHomeCtaBonus:'Mein Bonus',
     kidHomeCtaPocket:'Taschengeld ansehen',
     kidHomeCtaNotes:'Notiz schreiben',
@@ -889,7 +889,7 @@ const T = {
     kidBonusStreak:n=>`${n} Tage in Folge ohne verpasste Aufgabe.`,
     kidBonusAllWeek:'Ganze Woche alle Aufgaben', kidBonusRead:'5 Tage in Folge gelesen',
     kidBonusHelp:'Jemandem geholfen', kidBonusTidy:'Zimmer 7 Tage ordentlich',
-    kidNotesTitle:'Notizen', kidNotesKicker:'Nur für dich',
+    kidNotesTitle:'Notizen', kidNotesKicker:'Dein Tagebuch — Betreuer können mitlesen',
     kidNotesAsk:'Wie war dein Tag?', kidNotesPlaceholder:'Schreib auf, was du nicht vergessen willst…',
     kidNotesSave:'Notiz speichern', kidNotesSaved:'Notiz gespeichert',
     kidNotesWrite:'Notiz schreiben', kidNotesEdit:'Bearbeiten', kidNotesDelete:'Löschen',
@@ -928,7 +928,7 @@ const T = {
     gameDice:'Würfel', gameDiceHint:'Würfle · wer ist dran?',
     gameSimon:'Simon', gameSimonHint:'Merk dir die Farben · tippe die Reihe',
     gameColors:'Farbtreffer', gameColorsHint:'Tippe die richtige Farbe · Tempo!',
-    gameLearn:'Griechisch lernen', gameLearnHint:'20 Karten · Themen · Zo-Ai · wie Duolingo',
+    gameLearn:'Griechisch lernen', gameLearnHint:'Karten lernen — ein Thema nach dem anderen',
     gameQuiz:'Wissen', gameQuizHint:'14 Fragen · Natur, Griechenland, Spa',
     gameMath:'Rechnen', gameMathHint:'Stufen · Leben · Tempo!',
     gameIsland:'Insel-Pfad', gameIslandHint:'3D-Pfad · Thassos & Natur · ~4 Min',
@@ -1691,7 +1691,7 @@ const T = {
     kidGuideNext:'Επόμενο',
     kidGuideHintStart:'Δες τη μέρα σου ή άνοιξε παιχνίδια.',
     kidGuideHintGames:'Διάλεξε παιχνίδι. Με «Όλα τα παιχνίδια» γυρνάς πίσω.',
-    kidGuideHintRate:'Βάλε βαθμούς για αυτή την εβδομάδα — το 1 είναι άριστα.',
+    kidGuideHintRate:'Δες την εβδομάδα σου — οι βαθμοί μπαίνουν από το προσωπικό.',
     kidGuideHintBonus:'Δες πώς κερδίζεις έξτρα αστέρια.',
     kidGuideHintNotes:'Γράψε ό,τι δεν θες να ξεχάσεις.',
     kidGuideHintPlan:'Το ωρολόγιό σου — πάτα μια μέρα.',
@@ -1707,7 +1707,7 @@ const T = {
     kidHomeDash:'Η μέρα σου',
     kidHomeCtaTitle:'Πού μετά;',
     kidHomeCtaGames:'Άνοιξε παιχνίδια',
-    kidHomeCtaRate:'Βαθμολόγησε την εβδομάδα',
+    kidHomeCtaRate:'Η εβδομάδα μου',
     kidHomeCtaBonus:'Το μπόνους μου',
     kidHomeCtaPocket:'Δες το χαρτζιλίκι',
     kidHomeCtaNotes:'Γράψε σημείωση',
@@ -2141,7 +2141,7 @@ const T = {
     kidBonusStreak:n=>`${n} μέρες στη σειρά χωρίς χαμένη αποστολή.`,
     kidBonusAllWeek:'Όλες οι αποστολές της εβδομάδας', kidBonusRead:'5 μέρες στη σειρά διάβασμα',
     kidBonusHelp:'Βοήθησες κάποιον', kidBonusTidy:'Τακτοποιημένο δωμάτιο 7 μέρες',
-    kidNotesTitle:'Σημειώσεις', kidNotesKicker:'Μόνο για σένα',
+    kidNotesTitle:'Σημειώσεις', kidNotesKicker:'Το ημερολόγιό σου — οι φροντιστές μπορούν να το δουν',
     kidNotesAsk:'Πώς ήταν η μέρα σου;', kidNotesPlaceholder:'Γράψε ό,τι δεν θες να ξεχάσεις…',
     kidNotesSave:'Αποθήκευση', kidNotesSaved:'Η σημείωση αποθηκεύτηκε',
     kidNotesWrite:'Γράψε σημείωση', kidNotesEdit:'Επεξεργασία', kidNotesDelete:'Διαγραφή',
@@ -2188,7 +2188,7 @@ const T = {
     gameDice:'Ζάρι', gameDiceHint:'Ρίξε · ποιος είναι σειρά;',
     gameSimon:'Simon', gameSimonHint:'Θυμήσου τα χρώματα · πάτα τη σειρά',
     gameColors:'Χρώματα', gameColorsHint:'Πάτα το σωστό χρώμα · γρήγορα!',
-    gameLearn:'Μάθε Ελληνικά', gameLearnHint:'20 κάρτες · θέματα · Zo-Ai · σαν Duolingo',
+    gameLearn:'Μάθε Ελληνικά', gameLearnHint:'Μάθε κάρτες — ένα θέμα κάθε φορά',
     gameQuiz:'Γνώση', gameQuizHint:'14 ερωτήσεις · φύση, Ελλάδα, spa',
     gameMath:'Μαθηματικά', gameMathHint:'Επίπεδα · ζωές · γρήγορα!',
     gameIsland:'Μονοπάτι νησιού', gameIslandHint:'3D μονοπάτι · Θάσος & φύση · ~4 λεπτά',
@@ -8605,7 +8605,7 @@ function weekAgendaBoardHtml(week, byDate, stamps, today){
       <div><span>${esc(t('viewWeek'))}</span><h3 id="weekAgendaTitle">${esc(t('weekAgenda'))}</h3></div>
       <p class="week-full-hint muted">${esc(t('weekFullHint'))}</p>
     </header>
-    <div class="week-agenda-board" role="list">${columns}</div>
+    <div class="week-agenda-board" role="list" data-week-swipe>${columns}</div>
   </section>`;
 }
 
@@ -9000,8 +9000,8 @@ function viewScheduleWeek(){
       </div>
       ${weekAiBar}
       <div class="plan-week-summary compact">
-        <span><b>${weekEntries.length}</b><small>${esc(t('dueToday'))}</small></span>
-        <span><b>${activeDays}</b><small>${esc(t('viewDay'))}</small></span>
+        <span><b>${weekEntries.length}</b><small>${esc(state.lang==='el'?'Εβδομάδα':'Woche')}</small></span>
+        <span><b>${activeDays}</b><small>${esc(state.lang==='el'?'Ημέρες':'Tage')}</small></span>
         <span><b>${unassignedCount}</b><small>${esc(t('unassignedStat'))}</small></span>
       </div>
     </header>
@@ -11661,15 +11661,21 @@ function commitStockDraft(){
   });
 }
 
-const SHIFT_STOCK_HOUSE = 'h1'; // Kalyvia (Villa)
+function shiftStockHouseId(){
+  // Follow the lit house chip; 'all' / empty falls back to Kalyvia.
+  const h = state.house;
+  if(h && h !== 'all') return h;
+  return 'h1';
+}
+const SHIFT_STOCK_HOUSE = 'h1'; // legacy alias — prefer shiftStockHouseId()
 
-function stockCheckForDate(houseId=SHIFT_STOCK_HOUSE, dateStr=iso(new Date())){
+function stockCheckForDate(houseId=shiftStockHouseId(), dateStr=iso(new Date())){
   return (DB.stockChecks||[]).slice().reverse().find(c=>c.houseId===houseId && c.date===dateStr) || null;
 }
 
 function shiftStockCheckBannerHtml(){
   const today=iso(new Date());
-  const done=stockCheckForDate(SHIFT_STOCK_HOUSE, today);
+  const done=stockCheckForDate(shiftStockHouseId(), today);
   if(done){
     const who=emp(done.by);
     return `<div class="shift-check-banner done">
@@ -11699,7 +11705,7 @@ function paintShiftStockCheckSheet(draft){
   const pct=total?Math.round(done/total*100):0;
   const rows=products.map(p=>{
     const mark=draft.marks[p.id]||'';
-    const qty=draft.qtys[p.id] ?? (DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0);
+    const qty=draft.qtys[p.id] ?? (DB.stock[stockKey(shiftStockHouseId(),p.id)]??0);
     const tone=mark?`is-${mark}`:'';
     return `<article class="shift-check-card ${tone}" data-check-pid="${p.id}">
       <div class="shift-check-main">
@@ -11715,7 +11721,7 @@ function paintShiftStockCheckSheet(draft){
   }).join('');
   return `<div class="shift-check-flow">
     <header class="shift-check-head">
-      <p class="brand-kicker">${esc(house(SHIFT_STOCK_HOUSE)?.short||'Kalyvia')}</p>
+      <p class="brand-kicker">${esc(house(shiftStockHouseId())?.short||'Kalyvia')}</p>
       <h2>${esc(t('shiftStockCheck'))}</h2>
       <p>${esc(t('shiftStockCheckHint'))}</p>
       <div class="shift-check-progress" id="shiftCheckProgress" aria-live="polite">
@@ -11733,13 +11739,13 @@ function paintShiftStockCheckSheet(draft){
 }
 
 function sheetShiftStockCheck(){
-  const houses=[house(SHIFT_STOCK_HOUSE)].filter(Boolean);
+  const houses=[house(shiftStockHouseId())].filter(Boolean);
   const products=PRODUCTS().slice().sort(stockSortByState(p=>stockProductStateFor(houses,p)));
   const draft={
     order:products.map(p=>p.id),
     marks:{},
-    base:Object.fromEntries(products.map(p=>[p.id, DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0])),
-    qtys:Object.fromEntries(products.map(p=>[p.id, DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0])),
+    base:Object.fromEntries(products.map(p=>[p.id, DB.stock[stockKey(shiftStockHouseId(),p.id)]??0])),
+    qtys:Object.fromEntries(products.map(p=>[p.id, DB.stock[stockKey(shiftStockHouseId(),p.id)]??0])),
   };
   openSheet(paintShiftStockCheckSheet(draft), {kind:'shift-check'});
   wireShiftStockCheckSheet(draft);
@@ -11782,7 +11788,7 @@ function wireShiftStockCheckSheet(draft){
   };
   const applyMark=(pid, mark)=>{
     const p=prod(pid); if(!p) return;
-    const base=draft.base[pid] ?? (DB.stock[stockKey(SHIFT_STOCK_HOUSE,pid)]??0);
+    const base=draft.base[pid] ?? (DB.stock[stockKey(shiftStockHouseId(),pid)]??0);
     draft.marks[pid]=mark;
     draft.qtys[pid]=shiftCheckQtyForMark(p, mark, base);
     paintCard(pid);
@@ -11798,7 +11804,7 @@ function wireShiftStockCheckSheet(draft){
     products().forEach(p=>{
       if(draft.marks[p.id]) return;
       draft.marks[p.id]='ok';
-      draft.qtys[p.id]=draft.base[p.id] ?? (DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0);
+      draft.qtys[p.id]=draft.base[p.id] ?? (DB.stock[stockKey(shiftStockHouseId(),p.id)]??0);
       paintCard(p.id);
     });
     syncChrome();
@@ -11826,24 +11832,24 @@ function wireShiftStockCheckSheet(draft){
       const items=[];
       const fixes=[];
       list.forEach(p=>{
-        const prev=DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]??0;
+        const prev=DB.stock[stockKey(shiftStockHouseId(),p.id)]??0;
         const next=draft.qtys[p.id]??prev;
         const mark=draft.marks[p.id]||'ok';
         const status=next===prev ? mark : (mark==='ok'?'fixed':mark);
         items.push({productId:p.id,name:L(p),qty:next,prev,status,mark,unit:p.unit});
         if(next!==prev){
-          DB.stock[stockKey(SHIFT_STOCK_HOUSE,p.id)]=next;
+          DB.stock[stockKey(shiftStockHouseId(),p.id)]=next;
           const delta=roundStock(next-prev);
           fixes.push({productId:p.id,name:L(p),delta,unit:p.unit,mark});
           logEntry(delta>0?'IN':'OUT',
-            `${delta>0?t('typeIN'):t('typeOUT')} @ ${house(SHIFT_STOCK_HOUSE).short} · ${t('shiftStockCheck')}: ${L(p)} ${delta>0?'+':''}${delta} ${p.unit}`,
-            {houseId:SHIFT_STOCK_HOUSE, productId:p.id, qty:Math.abs(delta), unit:p.unit, stockCheck:true, mark});
+            `${delta>0?t('typeIN'):t('typeOUT')} @ ${house(shiftStockHouseId()).short} · ${t('shiftStockCheck')}: ${L(p)} ${delta>0?'+':''}${delta} ${p.unit}`,
+            {houseId:shiftStockHouseId(), productId:p.id, qty:Math.abs(delta), unit:p.unit, stockCheck:true, mark});
         }
       });
       DB.stockChecks=DB.stockChecks||[];
       DB.stockChecks.push({
         id:'sc-'+uid(),
-        houseId:SHIFT_STOCK_HOUSE,
+        houseId:shiftStockHouseId(),
         date:today,
         by:who.id,
         byName:who.name,
@@ -11858,14 +11864,14 @@ function wireShiftStockCheckSheet(draft){
       logEntry('STOCKCHECK',
         T[state.lang].shiftStockCheckSaved(items.length, who.name)
           +(fixes.length?` · ${fixes.map(f=>`${f.name} ${f.delta>0?'+':''}${f.delta}`).join(', ')}`:''),
-        {houseId:SHIFT_STOCK_HOUSE, date:today, count:items.length, fixes:fixes.length});
+        {houseId:shiftStockHouseId(), date:today, count:items.length, fixes:fixes.length});
       state.stockCheckRespAck=false;
       if(!save()) return;
       closeSheet();
       render();
       feedback('save');
       toast(t('shiftStockCheckDone'),'success');
-      try{ queueOpsAlert('stockcheck', {houseId:SHIFT_STOCK_HOUSE, by:who.name, count:items.length, fixes:fixes.length}); }catch{}
+      try{ queueOpsAlert('stockcheck', {houseId:shiftStockHouseId(), by:who.name, count:items.length, fixes:fixes.length}); }catch{}
     });
   });
 }
@@ -13467,7 +13473,6 @@ function viewPocket(){
         <div class="pocket-cal-wrap">${pocketMonthCalHtml(kidId)}</div>
       </div>
       ${pocketComposeHtml(kidId)}
-      ${pocketPresetChipsHtml(kidId)}
       <div class="pocket-staff-actions" role="group">
         <button type="button" class="btn" data-pocket-add="${esc(kidId)}">＋ ${esc(t('pocketMoneyIn'))}</button>
         <button type="button" class="btn sec" data-pocket-remove="${esc(kidId)}">− ${esc(t('pocketMoneyOut'))}</button>
@@ -13486,6 +13491,7 @@ function viewPocket(){
       </label>
       <h3 class="pocket-history-h">${esc(t('pocketMoneyHistory'))}</h3>
       <ul class="pocket-txn-list pocket-txn-full">${listHtml}</ul>
+      ${pocketPresetChipsHtml(kidId)}
     </section>`;
   }
 
@@ -14242,7 +14248,7 @@ function viewShop(){
         </div>
         <div class="seg shop-panel-seg" id="shopPanel">
           <button class="${state.shopPanel==='plan'?'on':''}" data-shop-panel="plan" type="button">${t('shopPlan')}</button>
-          <button class="${state.shopPanel==='take'?'on':''}" data-shop-panel="take" type="button">${t('shopTake')}</button>
+          <button class="${state.shopPanel==='take'?'on':''}" data-shop-panel="take" type="button" id="shopStoreModeBtn">${t('storeMode')}</button>
           <button class="${state.shopPanel==='requests'?'on':''}" data-shop-panel="requests" type="button">${t('shopRequests')}${openReqCount?` · ${openReqCount}`:''}</button>
         </div>
         <details class="shop-more pro-only mode-pro-block"><summary aria-label="${esc(t('shopMoreActions'))}">•••</summary><div class="shop-more-popover">
@@ -14270,24 +14276,17 @@ function viewShop(){
     </section>`;
 
   const takeListCard = (!inStore && state.shopPanel==='take') ? (()=>{
-    const allTake = [...open, ...pending.filter(e=>!e.decision)];
-    const byCatTake = {};
-    allTake.forEach(e=>{
-      const c = e.productId ? (prod(e.productId)?.cat||'other') : 'other';
-      (byCatTake[c] ||= []).push(e);
-    });
-    return `<section class="card shop-take-card">
-      <div class="shop-take-h"><b>${t('shopTake')}</b><span class="muted">${t('shopTakeHint')}</span></div>
-      ${allTake.length ? catOrder.filter(c=>byCatTake[c]).map(c=>{
-        const cat = CATS().find(x=>x.id===c);
-        return `<div class="shop-take-cat"><div class="shop-take-cat-h">${cat?esc(L(cat)):t('other')}</div>
-          ${byCatTake[c].map(e=>`<div class="shop-take-row"><span class="shop-take-qty">${e.qty}${esc(e.unit)}</span><span class="shop-take-name">${svgIcon(prodIconId(e.productId?prod(e.productId):matchProduct(e.name)),'prod-ico')}${esc(e.name)}</span></div>`).join('')}
-        </div>`;
-      }).join('') : `<div class="shop-empty compact">
-        <div class="big">🧺</div>
-        <h3>${t('noFridayItems')}</h3>
-        <p>${t('shopTakeEmptyHint')}</p>
-      </div>`}
+    const n = open.length + pending.filter(e=>!e.decision).length;
+    return `<section class="card shop-take-card shop-store-door">
+      <div class="shop-take-h"><b>${esc(t('storeMode'))}</b><span class="muted">${esc(t('shopTakeHint'))}</span></div>
+      ${n
+        ? `<p class="muted">${esc(T[state.lang].cartReady(n))}</p>
+           <button class="btn" type="button" id="startFridayTop">${esc(t('storeMode'))}</button>`
+        : `<div class="shop-empty compact">
+            <h3>${esc(t('noFridayItems'))}</h3>
+            <p>${esc(t('shopTakeEmptyHint'))}</p>
+            <button class="btn sec" type="button" data-shop-panel="plan">${esc(t('shopPlan'))}</button>
+          </div>`}
     </section>`;
   })() : '';
 
@@ -15829,22 +15828,14 @@ function shiftDiaryCard(){
     </section>`;
   })() : '';
 
-  return `<div class="journal-book" data-tour="book-write">
-    ${handoffFlowHtml()}
-    ${bookDayStripHtml()}
-    ${bookCalendarHtml()}
-    ${dayOpsSummaryHtml(day, {journal:false})}
-    <button type="button" class="book-secondary-toggle" id="bookSecondaryToggle">${esc(state.bookShowSecondary?t('bookHideCal'):t('bookShowCal'))}</button>
-    <div class="book-secondary" ${state.bookShowSecondary?'':'hidden'}>
-      ${housePicker}
-      ${proArchive}
-    </div>
+  return `<div class="journal-book shift-diary-stack" data-tour="book-write">
     <div class="journal-duty ${dutyCls} ${isToday?'is-today':''}">
       <span>${isToday?`<b class="handoff-today-mark">${esc(t('handoffMineSpotlight'))}</b> · `:''}${dutyLabel}</span>
       <span class="pill ${written?'in':(isToday?'out':'gray')}">${written?'✓':(isToday?'!':'·')}</span>
     </div>
     ${isToday ? shiftStockCheckBannerHtml() : ''}
     ${incomingBlock}
+    ${handoffFlowHtml()}
     <article class="journal-spread" aria-label="${esc(t('shiftDiaryMine'))}">
       <div class="journal-spine" aria-hidden="true"></div>
       <div class="journal-page">
@@ -15878,6 +15869,14 @@ function shiftDiaryCard(){
         <button class="btn" id="shiftNoteSave" type="button">${mode==='rewrite'?t('journalRewriteSave'):t('shiftDiarySave')}</button>
         ${written?`<button class="btn sec" id="shiftNoteMode" type="button" data-journal-mode="${mode==='rewrite'?'ink':'rewrite'}">${mode==='rewrite'?t('journalContinue'):t('journalRewrite')}</button>`:''}
       </div>
+    </div>
+    ${bookDayStripHtml()}
+    ${dayOpsSummaryHtml(day, {journal:false})}
+    <button type="button" class="book-secondary-toggle" id="bookSecondaryToggle">${esc(state.bookShowSecondary?t('bookHideCal'):t('bookShowCal'))}</button>
+    <div class="book-secondary" ${state.bookShowSecondary?'':'hidden'}>
+      ${bookCalendarHtml()}
+      ${housePicker}
+      ${proArchive}
     </div>
     <section class="journal-archive">
       <div class="row between book-panel-head">
@@ -17522,9 +17521,13 @@ function kidHomeCtaHtml(){
     {id:'plan', label:t('kidHomeCtaPlan'), ico:'u-calendar', tone:'sea', pro:true},
     {id:'rewards', label:t('kidHomeCtaStars'), ico:'u-sparkle', tone:'sun', pro:true},
   ];
+  const easy = isEasy();
+  const dockDup = new Set(['games','rate','pocket','notes']);
+  const shown = items.filter(it=>!(easy && dockDup.has(it.id)));
+  if(!shown.length) return '';
   return `<div class="kid-home-cta" role="navigation" aria-label="${esc(t('kidHomeCtaTitle'))}">
     <div class="kid-panel-h"><b>${esc(t('kidHomeCtaTitle'))}</b></div>
-    <div class="kid-home-cta-grid">${items.map(it=>`
+    <div class="kid-home-cta-grid">${shown.map(it=>`
       <button type="button" class="kid-home-cta-tile ${it.tone}${it.pro?' pro-only mode-pro-block':''}" data-child-view="${it.id}">
         <span class="kid-home-cta-ico" aria-hidden="true">${ui(it.ico)}</span>
         <span>${esc(it.label)}</span>
@@ -17593,13 +17596,15 @@ function childStartView(c){
       </header>
       <div class="kid-home-layout">
         <div class="kid-home-main">
-          <section class="level-card">
+          <section class="level-card${xp===0?' is-fresh':''}">
             ${progressRingHtml(pct, lv)}
             <div class="level-copy">
               <div class="level-xp">${esc(t('kidXpOf')(xp, nextXp))}</div>
-              <div class="level-next">${lv>=XP_LEVELS.length-1?(state.lang==='el'?'Έφτασες στο ανώτερο επίπεδο':'Höchste Stufe erreicht'):esc(t('kidXpRemain')(Math.max(0,nextXp-xp)))}</div>
+              <div class="level-next">${xp===0
+                ? esc(state.lang==='el'?'Παίξε ένα παιχνίδι για το πρώτο σου αστέρι':'Spiel ein Spiel für deinen ersten Stern')
+                : (lv>=XP_LEVELS.length-1?(state.lang==='el'?'Έφτασες στο ανώτερο επίπεδο':'Höchste Stufe erreicht'):esc(t('kidXpRemain')(Math.max(0,nextXp-xp))))}</div>
               <div class="level-tag">${esc(t('kidLevelCard')(lv))}</div>
-              ${levelMeterHtml(pct)}
+              ${xp===0?`<p class="level-fresh-msg">${esc(state.lang==='el'?'Καλώς ήρθες — ξεκίνα από τα Παιχνίδια.':'Willkommen — starte bei Spiele.')}</p>`:levelMeterHtml(pct)}
             </div>
           </section>
           ${kidHomeCtaHtml()}
@@ -17662,6 +17667,16 @@ function childStundenplanView(c){
   const list = childEntriesFor(state.date, c.id);
   const now = new Date();
   const nowMin = now.getHours()*60 + now.getMinutes();
+  const nextBusyDs = !list.length
+    ? week.find(ds => ds > state.date && childEntriesFor(ds, c.id).length)
+      || week.find(ds => ds !== state.date && childEntriesFor(ds, c.id).length)
+    : null;
+  const nextBusyBtn = nextBusyDs ? (()=>{
+    const d = new Date(nextBusyDs+'T12:00:00');
+    const label = `${DAY_NAMES[state.lang][dowIdx(d)]} ${d.getDate()}.`;
+    const cta = state.lang==='el' ? `Δες ${label}` : `Zu ${label}`;
+    return `<button type="button" class="btn sm" data-date="${nextBusyDs}">${esc(cta)}</button>`;
+  })() : '';
   const blocks = list.length ? list.map((e,i)=>{
     const b = blockDef(e.block);
     const [fh,fm] = String(b?.from||'00:00').split(':').map(Number);
@@ -17677,7 +17692,7 @@ function childStundenplanView(c){
         <span>${esc(entryTime(e))}</span>
       </div>
     </div>`;
-  }).join('') : emptyState(svgUse('i-kid-plan',28), t('nothingToday'));
+  }).join('') : emptyState(svgUse('i-kid-plan',28), t('nothingToday'), '', nextBusyBtn);
   return `
     <header class="kid-header">
       <p class="eyebrow">Armonia</p>
@@ -18191,12 +18206,12 @@ function viewKids(){
       <span class="kid-dir-main grow">
         <span class="kid-dir-name"><b>${esc(k.name)}</b><small class="kid-dir-att${attClass}">${esc(attLbl)}</small></span>
         <span class="kid-dir-metrics">
-          <span><b>${summary.gradeAverage||emptyMark}</b>${esc(t('gradeAverage'))}</span>
-          <span><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:emptyMark}</b>${esc(t('schoolAttendance'))}</span>
-          <span class="pro-only mode-pro-block"><b>${summary.homeworkOpen}</b>${esc(t('schoolHomework'))}</span>
-          <span><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):emptyMark}</b>${esc(t('staffWeekAverage'))}</span>
-          <span class="pro-only mode-pro-block"><b>${summary.xp}</b>XP · Lv ${summary.level}</span>
-          <span class="pro-only mode-pro-block"><b>${summary.game.wins||0}</b>${esc(t('gameWins'))}</span>
+          <span><b>${summary.gradeAverage||emptyMark}</b><i>${esc(t('gradeAverage'))}</i></span>
+          <span><b>${summary.attendanceRecorded?`${summary.attendancePct}%`:emptyMark}</b><i>${esc(t('schoolAttendance'))}</i></span>
+          <span class="pro-only mode-pro-block"><b>${summary.homeworkOpen}</b><i>${esc(t('schoolHomework'))}</i></span>
+          <span><b>${summary.staffRating.average?summary.staffRating.average.toFixed(1):emptyMark}</b><i>${esc(t('staffWeekAverage'))}</i></span>
+          <span class="pro-only mode-pro-block"><b>${summary.xp}</b><i>XP · Lv ${summary.level}</i></span>
+          <span class="pro-only mode-pro-block"><b>${summary.game.wins||0}</b><i>${esc(t('gameWins'))}</i></span>
         </span>
       </span>
       <span class="kid-dir-arrow" aria-hidden="true">→</span>
@@ -19291,8 +19306,8 @@ function childBonusView(kidId){
         <span>${esc(t('kidBonusStreak')(b.streak))}</span>
       </div>
     </section>
-    <p class="muted"><button type="button" class="btn ghost" data-child-view="pocket">${esc(t('pocketMoneyOpenTab'))}</button></p>
-    <section class="kid-card kid-surface pro-only mode-pro-block">
+    <p class="muted"><button type="button" class="btn ghost" data-child-view="rewards">${esc(t('kidNavStars'))}</button></p>
+    <section class="kid-card kid-surface">
       <h2>${esc(t('kidBonusHow'))}</h2>
       ${items}
     </section></div>`;
@@ -19495,9 +19510,16 @@ function childAufgabenView(kidId){
 }
 
 function childLearnHubView(){
+  const stats = state.child ? loadGameStats(state.child.id) : {};
+  const lastId = ['learn','quiz','math','eduhub'].includes(stats.lastGameId) ? stats.lastGameId : 'learn';
+  const lastGame = CHILD_GAMES.find(g=>g.id===lastId);
+  const continueBtn = lastGame
+    ? `<button type="button" class="btn" data-game="${esc(lastGame.id)}" style="margin:8px 0 14px">${esc(state.lang==='el'?'Συνέχεια':'Weiter')}: ${esc(t(lastGame.titleKey))}</button>`
+    : '';
   return `
     <header class="kid-header"><p class="eyebrow">Armonia Learn</p><h2>${esc(t('kidLearnHubTitle'))}</h2>
       <p class="kid-hello">${esc(t('kidLearnHubHint'))}</p></header>
+    ${continueBtn}
     <div class="course-grid">
       <button type="button" class="course-tile" data-game="learn"><span class="bar"></span><b>${esc(t('gameLearn'))}</b><span>${esc(t('gameLearnHint'))}</span></button>
       <button type="button" class="course-tile sea" data-game="quiz"><span class="bar"></span><b>${esc(t('gameQuiz'))}</b><span>${esc(t('gameQuizHint'))}</span></button>
@@ -19516,6 +19538,15 @@ function childRewardsView(kidId){
   const pct = lv >= XP_LEVELS.length-1 ? 100 : Math.round(((xp-curXp)/Math.max(1,nextXp-curXp))*100);
   const weekDelta = kidWeekXpDelta(kidId);
   const streak = kidStreakDays(kidId);
+  if(xp===0){
+    return `
+    <header class="kid-header"><p class="eyebrow">Armonia</p><h2>${esc(t('kidSterneTitle'))}</h2>
+      <p class="kid-hello">${esc(c.name)}</p></header>
+    <section class="kid-card kid-surface">
+      <p>${esc(state.lang==='el'?'Δεν έχεις αστέρια ακόμα. Παίξε ένα παιχνίδι!':'Noch keine Sterne — spiel ein Spiel!')}</p>
+      <button type="button" class="btn" data-child-view="games">${esc(t('kidNavGames'))}</button>
+    </section>`;
+  }
   return `
     <header class="kid-header"><p class="eyebrow">Armonia</p><h2>${esc(t('kidSterneTitle'))}</h2>
       <p class="kid-hello">${esc(c.name)} · ${esc(lvName)}</p></header>
@@ -19916,7 +19947,13 @@ function childGamesLobby(){
   const streakChip = stats.streak>1
     ? `<span class="arcade-streak">${ui('u-party','sm')} ${esc(t('gameStreak')(stats.streak))}</span>`
     : '';
+  const lastId = stats.lastGameId;
+  const lastGame = lastId ? CHILD_GAMES.find(g=>g.id===lastId) : null;
+  const continueRow = lastGame
+    ? `<button type="button" class="btn arcade-continue" data-game="${esc(lastGame.id)}">${esc(state.lang==='el'?'Συνέχεια':'Weiter')}: ${esc(t(lastGame.titleKey))}</button>`
+    : '';
   return `<div class="arcade-lobby kid-page" data-tour="kid-games">
+      ${continueRow}
       <div class="arcade-hero kid-hero">
         <div class="arcade-hero-text">
           <div class="brand-kicker">Armonia</div>
@@ -21223,9 +21260,9 @@ function operationsOverviewHtml(){
     return `<article class="ops-house"><header><h3>${esc(h.short||h.name||h.id)}</h3><span class="ops-status ${empty||low||unknown?'attention':''}">${esc(empty||low||unknown?text('Prüfung nötig','Χρειάζεται έλεγχος'):text('Bestand ausreichend','Επαρκές απόθεμα'))}</span></header><dl><div><dt>${text('Nicht vorrätig','Χωρίς απόθεμα')}</dt><dd>${empty}</dd></div><div><dt>${text('Unter Mindestbestand','Κάτω από το ελάχιστο')}</dt><dd>${low}</dd></div><div><dt>${text('Noch nicht erfasst','Χωρίς καταγραφή')}</dt><dd>${unknown}</dd></div><div><dt>${text('Artikelarten','Είδη προϊόντων')}</dt><dd>${products.length}</dd></div></dl><p>${text('Letzter Lagercheck','Τελευταίος έλεγχος')}: ${last?esc(last.date||''):text('Noch nicht dokumentiert','Δεν έχει καταγραφεί ακόμη')}</p><button class="btn sec" type="button" data-ops-house="${esc(h.id)}">${text('Lager öffnen','Άνοιγμα αποθήκης')} →</button></article>`;
   }).join('');
   return `<section class="ops-overview" aria-label="${text('Operative Übersicht','Επισκόπηση λειτουργίας')}">
+    <div class="ops-priority"><div><h3>${text('Was braucht Aufmerksamkeit?','Τι χρειάζεται προσοχή;')}</h3><p>${text('Die Zahlen beziehen sich auf die aktuell geladenen Daten. Fehlende Einträge sind keine Bestätigung einer erledigten Prüfung.','Οι αριθμοί βασίζονται στα δεδομένα που έχουν φορτωθεί. Η απουσία καταγραφής δεν επιβεβαιώνει ότι έγινε έλεγχος.')}</p></div><div class="ops-priority-actions"><a class="btn sec" href="#shop/plan">${text('Einkauf prüfen','Έλεγχος αγορών')} · ${pending.length}</a><a class="btn sec" href="#schedule/week">${text('Wochenplan prüfen','Έλεγχος εβδομάδας')} · ${issues.length}</a><button class="btn sec" type="button" id="opsFeedback">${text('Rückmeldungen prüfen','Έλεγχος αναφορών')} · ${feedbackCount}</button><button class="btn sec" type="button" data-admin-go="team">${text('Team öffnen','Άνοιγμα ομάδας')}</button></div></div>
     <div class="admin-ops-desk-stats" aria-label="${text('Tageslage','Καθημερινή εικόνα')}">${deskStats.map(([n,label])=>`<div class="admin-ops-stat-tile"><b>${n}</b><span>${esc(label)}</span></div>`).join('')}</div>
     <div class="ops-metrics">${metrics.map(([n,label,href])=>`<a class="ops-metric" href="${href}"><strong>${n}</strong><span>${label}</span><span aria-hidden="true">↗</span></a>`).join('')}</div>
-    <div class="ops-priority"><div><h3>${text('Was braucht Aufmerksamkeit?','Τι χρειάζεται προσοχή;')}</h3><p>${text('Die Zahlen beziehen sich auf die aktuell geladenen Daten. Fehlende Einträge sind keine Bestätigung einer erledigten Prüfung.','Οι αριθμοί βασίζονται στα δεδομένα που έχουν φορτωθεί. Η απουσία καταγραφής δεν επιβεβαιώνει ότι έγινε έλεγχος.')}</p></div><div class="ops-priority-actions"><a class="btn sec" href="#shop/plan">${text('Einkauf prüfen','Έλεγχος αγορών')} · ${pending.length}</a><a class="btn sec" href="#schedule/week">${text('Wochenplan prüfen','Έλεγχος εβδομάδας')} · ${issues.length}</a><button class="btn sec" type="button" id="opsFeedback">${text('Rückmeldungen prüfen','Έλεγχος αναφορών')} · ${feedbackCount}</button><button class="btn sec" type="button" data-admin-go="team">${text('Team öffnen','Άνοιγμα ομάδας')}</button></div></div>
     <section class="card admin-ops-section" aria-label="${text('Live-Aktivitäten','Ζωντανή δραστηριότητα')}"><h3 style="margin:0 0 10px">${text('Live · letzte Bewegungen','Live · τελευταίες κινήσεις')}</h3><div class="admin-live-feed">${liveFeed}</div></section>
     <div class="ops-house-grid">${houses}</div>
   </section>`;
@@ -22533,7 +22570,7 @@ function viewHome(){
       <span class="w-stat-lbl">${esc(label)}</span>
     </button>`;
   const pulsePool = [
-    {jump:'day', value:overdue.length, label:t('overdue'), icon:'u-alert', tone:overdue.length?'tone-out':'', weight:overdue.length?400:40},
+    {jump:'inbox', value:overdue.length, label:t('overdue'), icon:'u-alert', tone:overdue.length?'tone-out':'', weight:overdue.length?400:40},
     {jump:'day', value:todayOpen.length, label:t('dueToday'), icon:'u-tasks', tone:todayOpen.length?'tone-pine':'', weight:todayOpen.length?300:30},
     {jump:'shop', value:openListCount, label:t('homeSignalList'), icon:'u-cart', tone:openListCount?'tone-sea':'', weight:openListCount?200:20},
     {jump:'stock', value:lowStockCount, label:t('homeSignalStock'), icon:'u-leaf', tone:lowStockCount?'tone-amber':'', weight:lowStockCount?100:10},
@@ -22560,6 +22597,19 @@ function viewHome(){
         <p class="home-start-lede">${esc(t('homeOverview'))}</p>
         ${isEasy()?`<p class="easy-only muted home-easy-hint">${esc(t('homeEasyHint'))}</p>`:''}
       </header>
+      ${(()=>{
+        const inbox = staffInboxItems().slice(0,5);
+        if(!inbox.length) return '';
+        const rows = inbox.map(it=>`<button type="button" class="home-rail-notif" data-inbox-jump="${esc(it.jump||'')}">
+          <span class="w-stat-ico" aria-hidden="true">${ui(it.icon||'u-alert','sm')}</span>
+          <span class="grow"><b>${esc(it.title||'')}</b><small>${esc(it.meta||'')}</small></span>
+          <span aria-hidden="true">→</span>
+        </button>`).join('');
+        return `<section class="home-mobile-inbox" aria-label="${esc(t('homeMore'))}">
+          ${rows}
+          <button type="button" class="btn ghost sm" id="homeInboxAll">${esc(t('homeMore'))}</button>
+        </section>`;
+      })()}
       ${shiftStartCard}
       ${showJournalDuty?`<button class="mobile-alert-row" type="button" id="homeWriteBook">
         ${ui('u-alert','sm')}<span><b>${esc(t('journalDutyHome'))}</b><small>${esc(t('bookJournalHint'))}</small></span><span>→</span>
@@ -23679,7 +23729,16 @@ function wire(){
   const v = document.getElementById('view');
   wireAdaptiveChrome(v);
   v.querySelector('#plannerMoreToggle')?.addEventListener('click',()=>{
-    v.querySelector('.planner-chrome-wrap .adaptive-chrome-summary')?.click();
+    // Phone hides .planner-chrome-wrap (v244), so proxy-clicking it does nothing.
+    // Surface Dienst / Events here instead.
+    openSheet(`<div class="help-center-hero"><h2>${esc(t('filterView'))}</h2></div>
+      <button type="button" class="btn" data-plan-more-view="shift">${esc(t('viewShift'))}</button>
+      <button type="button" class="btn sec" data-plan-more-view="events" style="margin-top:8px">${esc(t('viewEvents'))}</button>
+      <button type="button" class="btn ghost" id="planMoreClose" style="margin-top:8px">${esc(t('close'))}</button>`);
+    sheetEl.querySelector('#planMoreClose')?.addEventListener('click',()=>closeSheet());
+    sheetEl.querySelectorAll('[data-plan-more-view]').forEach(btn=>{
+      btn.onclick=()=>{ closeSheet(); setScheduleView(btn.dataset.planMoreView); render(); };
+    });
   });
   v.querySelectorAll('[data-page-act]').forEach(b=>{
     b.onclick=()=>{ feedback('tap'); onTopAction(b.dataset.pageAct); };
@@ -23737,6 +23796,7 @@ function wire(){
     btn.onclick=()=>{
       feedback('tap');
       const jump=btn.dataset.homeJump;
+      if(jump==='inbox'){ sheetNotifCenter(); return; }
       if(jump==='shop'){ navigateStaffTab('shop',{shopPanel:'plan'}); return; }
       if(jump==='stock'){ navigateStaffTab('stock'); return; }
       if(jump==='kids'){ navigateStaffTab('kids',{kidReset:true}); return; }
@@ -23744,6 +23804,8 @@ function wire(){
       navigateStaffTab('schedule',{scheduleView:jump==='events'?'events':jump==='week'?'week':'day'});
     };
   });
+  const homeInboxAll=v.querySelector('#homeInboxAll');
+  if(homeInboxAll) homeInboxAll.onclick=()=>{ feedback('open'); sheetNotifCenter(); };
   const homeGalleryOpen=v.querySelector('#homeGalleryOpen');
   if(homeGalleryOpen) homeGalleryOpen.onclick=()=>{
     feedback('open');
@@ -23938,12 +24000,11 @@ function wire(){
       if(!t) return;
       const dx=t.clientX-sx, dy=t.clientY-sy;
       if(Math.abs(dx)<56 || Math.abs(dx)<Math.abs(dy)*1.2) return;
-      const week=weekDates(state.date);
-      const idx=week.indexOf(state.date);
-      if(idx<0) return;
-      const next = dx<0 ? week[idx+1] : week[idx-1];
-      if(!next) return;
-      setScheduleDate(next);
+      // ±7 days so the gesture matches the week range in the header
+      // (day-to-day used to stop at Sunday with no next-week step).
+      const base = new Date(state.date+'T12:00:00');
+      base.setDate(base.getDate() + (dx<0 ? 7 : -7));
+      setScheduleDate(iso(base));
       feedback('select');
       render();
     }, {passive:true});
@@ -27065,7 +27126,7 @@ if('serviceWorker' in navigator){
 }
 function shiftStockCheckPending(){
   try{
-    return !stockCheckForDate(SHIFT_STOCK_HOUSE, iso(new Date()));
+    return !stockCheckForDate(shiftStockHouseId(), iso(new Date()));
   }catch{
     return false;
   }

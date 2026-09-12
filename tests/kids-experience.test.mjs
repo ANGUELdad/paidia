@@ -32,7 +32,8 @@ test('child home exposes school and personalized game challenge', () => {
   assert.match(app, /childSchoolSnapshotHtml\(c\.id\)/);
   assert.match(app, /childGameChallengeHtml\(c\.id\)/);
   assert.match(app, /data-game-challenge/);
-  assert.match(app, /state\.childView='games'/);
+  assert.match(app, /setChildView\('games'\)/);
+  assert.match(app, /startChildGame\(button\.dataset\.gameChallenge\)/);
 });
 
 test('responsive kids dashboard styles exist', () => {

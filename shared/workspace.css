@@ -46,3 +46,10 @@ body.shell-m .admin-section-picker{display:grid}
   .admin-section-picker{display:grid}
 }
 @media(max-width:600px){.admin-section-nav{display:none}.admin-section-picker{display:grid;gap:8px;margin:0 0 14px;font-size:14px}}
+
+.attendance-bulk{display:flex;flex-wrap:wrap;gap:12px;align-items:end;padding:16px 0;border-bottom:1px solid #cbd5ce;margin-bottom:8px}
+.attendance-bulk p{flex-basis:100%;margin:0;font-size:14px;line-height:1.5}
+.attendance-bulk .f{flex:1 1 160px;margin:0}
+.att-select{display:flex;align-items:center;gap:12px;min-height:48px;cursor:pointer;max-width:100%;overflow-wrap:anywhere}
+.att-select input{width:24px;height:24px;accent-color:#245440}
+@media(max-width:600px){.attendance-bulk{align-items:stretch;flex-direction:column}.attendance-bulk .f{flex-basis:auto}.att-btns{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}.att-btns .chip{white-space:normal!important;min-height:48px!important}}

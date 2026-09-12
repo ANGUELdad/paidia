@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const app = readFileSync(new URL('../app.js', import.meta.url), 'utf8');
 
@@ -54,13 +55,22 @@ test('late check-ins persist an administrator alert with the reason', () => {
   assert.match(app, /function sheetLateAlert/);
 });
 
-test('notification enablement fails when the test cannot be delivered', () => {
-  assert.match(app, /const delivered=await showAppNotification\(t\('notifTest'\)/);
-  assert.match(app, /if\(!delivered\) return false/);
+test('notification enablement fails when the test cannot be delivered', async () => {
+  const start=app.indexOf('async function enableAppNotifications(){');
+  const end=app.indexOf('\nasync function showAppNotification',start);
+  let prefs={},attempts=0;
+  const Notification={permission:'granted'};
+  const context={window:{Notification},Notification,notifCapabilities:()=>({reason:'granted'}),
+    setNotifPrefs:patch=>{prefs={...prefs,...patch};},registerPaidiaServiceWorker:async()=>null,
+    showAppNotification:async()=>{attempts++;return false;},t:key=>key};
+  vm.runInNewContext(app.slice(start,end),context);
+  assert.equal(await context.enableAppNotifications(),false);
+  assert.equal(prefs.enabled,false);assert.equal(attempts,2);
+  assert.equal(context.window.__paidiaNotifLastReason,'delivery-failed');
 });
 
 test('closing Profile during async security loading cannot assign through null', () => {
-  assert.match(app, /const tutorialButton=sheetEl\.querySelector\('#securityTutorial'\)/);
+  assert.match(app, /const tutorialButton=(?:sheetEl|root)\.querySelector\('#securityTutorial'\)/);
   assert.match(app, /if\(tutorialButton\) tutorialButton\.onclick=openAppTutorial/);
   assert.doesNotMatch(app, /sheetEl\.querySelector\('#securityTutorial'\)\.onclick/);
 });

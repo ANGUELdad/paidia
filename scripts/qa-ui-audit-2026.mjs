@@ -26,7 +26,7 @@ const OUT = path.join(ROOT, '.qa-screens', TAG);
 fs.mkdirSync(OUT, { recursive: true });
 
 const STAFF_TABS = ['home', 'schedule', 'stock', 'shop', 'book', 'talk', 'kids', 'pocket', 'gallery', 'admin'];
-const KID_VIEWS = ['today', 'games', 'rate', 'bonus', 'notes', 'plan', 'stars', 'learn', 'gallery'];
+const KID_VIEWS = ['today', 'games', 'rate', 'bonus', 'notes', 'plan', 'rewards', 'learn', 'gallery'];
 
 const PHONE = { ...devices['iPhone 15 Pro'], viewport: { width: 393, height: 852 } };
 const PC = { viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 };
@@ -106,9 +106,14 @@ function collect(isPhone) {
     const r = el.getBoundingClientRect();
     if (r.width < 12) return;
     if (r.right > vw + 2 || r.left < -2) {
-      // scrollable rails legitimately extend; flag only if the rail itself overflows
-      const par = el.parentElement;
-      const parScrolls = par && getComputedStyle(par).overflowX !== 'visible';
+      // scrollable rails legitimately extend; walk ancestors (not only parent)
+      let par = el.parentElement;
+      let parScrolls = false;
+      while (par && par !== document.body) {
+        const ox = getComputedStyle(par).overflowX;
+        if (ox !== 'visible' && ox !== 'clip') { parScrolls = true; break; }
+        par = par.parentElement;
+      }
       if (parScrolls) return;
       push('overflow-x', 'P0', el, `extends to ${Math.round(r.right)} (vw ${vw})`);
     }
@@ -390,7 +395,8 @@ async function capture(page, surfaceName, pageId, isPhone) {
 
 async function auditSurface({ surfaceName, shellPath, contextOpts, isPhone }) {
   const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext(contextOpts);
+  // Block SW so freshly shipped CSS (ui-vNNN) is never served as a cached 404.
+  const context = await browser.newContext({ ...contextOpts, serviceWorkers: 'block' });
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e.message || e)));
@@ -398,6 +404,7 @@ async function auditSurface({ surfaceName, shellPath, contextOpts, isPhone }) {
   await page.addInitScript(() => {
     localStorage.setItem('paidia.lang', 'de');
     localStorage.setItem('paidia.uiMode', 'pro');
+    localStorage.setItem('paidia.pwaInstallDismiss', '1');
     localStorage.setItem('paidia.tourSeen', '1');
     localStorage.setItem('paidia.tipsSeen', '1');
     localStorage.setItem('paidia.pwaInstallDismiss', '1');
@@ -410,7 +417,7 @@ async function auditSurface({ surfaceName, shellPath, contextOpts, isPhone }) {
     await page.evaluate((t) => {
       state.tab = t;
       if (t === 'stock') state.house = 'h1';
-      if (t === 'schedule') state.planView = 'day';
+      if (t === 'schedule') setScheduleView('day', { persist: false });
       if (t === 'admin') state.adminPane = 'ops';
       render();
       scrollTo(0, 0);
@@ -418,7 +425,7 @@ async function auditSurface({ surfaceName, shellPath, contextOpts, isPhone }) {
     await capture(page, surfaceName, `staff-${tab}`, isPhone);
   }
 
-  await page.evaluate(() => { state.tab = 'schedule'; state.planView = 'week'; render(); scrollTo(0, 0); }).catch(() => {});
+  await page.evaluate(() => { state.tab = 'schedule'; setScheduleView('week', { persist: false }); render(); scrollTo(0, 0); }).catch(() => {});
   await capture(page, surfaceName, 'staff-schedule-week', isPhone);
 
   // Kid portal
@@ -426,7 +433,10 @@ async function auditSurface({ surfaceName, shellPath, contextOpts, isPhone }) {
   await bootShell(page, shellPath);
   for (const view of KID_VIEWS) {
     await page.evaluate((v) => {
-      try { setChildView(v, { push: false }); } catch (e) { state.childView = v; render(); }
+      // setChildView only mutates state — goChildView is what paints. Without an
+      // explicit render() every kid capture was the same image.
+      try { setChildView(v, { push: false }); } catch (e) { state.childView = v; }
+      render();
       scrollTo(0, 0);
     }, view).catch((e) => errors.push(`kid ${view}: ${e.message}`));
     await capture(page, surfaceName, `kid-${view}`, isPhone);

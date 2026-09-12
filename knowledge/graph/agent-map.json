@@ -511,6 +511,56 @@
       "id": "file:scripts/build-knowledge-vault.py",
       "type": "file",
       "label": "scripts/build-knowledge-vault.py"
+    },
+    {
+      "id": "topic:rules",
+      "type": "topic",
+      "label": "rules",
+      "keys": [
+        "rules",
+        "houseRules",
+        "Hausregeln",
+        "Κανόνες",
+        "viewRules",
+        "childRulesView"
+      ],
+      "snippet": "Shared houseRules ops array; viewRules/childRulesView; staff edit kids read-only; ROUTE_TABS rules; kids cannot kid-ops write."
+    },
+    {
+      "id": "topic:operations-workspace",
+      "type": "topic",
+      "label": "operations-workspace",
+      "keys": [
+        "operations",
+        "PaidiaWorkspace",
+        "state.commit",
+        "pushShared",
+        "update_json_atomic",
+        "adminPane",
+        "workspace.js",
+        "/api/operations"
+      ],
+      "snippet": "Atomic POST /api/operations (apply_operation + update_json_atomic); client PaidiaWorkspace reconcile/status; Admin ADMIN_SECTIONS panes; pushShared uses durable commits."
+    },
+    {
+      "id": "file:operations.py",
+      "type": "file",
+      "label": "operations.py"
+    },
+    {
+      "id": "file:shared/workspace.js",
+      "type": "file",
+      "label": "shared/workspace.js"
+    },
+    {
+      "id": "file:shared/workspace.css",
+      "type": "file",
+      "label": "shared/workspace.css"
+    },
+    {
+      "id": "file:tests/test_operations.py",
+      "type": "file",
+      "label": "tests/test_operations.py"
     }
   ],
   "edges": [
@@ -905,6 +955,61 @@
       "rel": "opens"
     },
     {
+      "from": "topic:rules",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:rules",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:rules",
+      "to": "file:ui-v110.css",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:operations-workspace",
+      "to": "file:operations.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:operations-workspace",
+      "to": "file:shared/workspace.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:operations-workspace",
+      "to": "file:shared/workspace.css",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:operations-workspace",
+      "to": "file:db.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:operations-workspace",
+      "to": "file:server.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:operations-workspace",
+      "to": "file:api/index.py",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:operations-workspace",
+      "to": "file:app.js",
+      "rel": "opens"
+    },
+    {
+      "from": "topic:operations-workspace",
+      "to": "file:tests/test_operations.py",
+      "rel": "opens"
+    },
+    {
       "from": "topic:tour",
       "to": "topic:page-tips",
       "rel": "shares_files",
@@ -1095,6 +1200,24 @@
       ]
     },
     {
+      "from": "topic:tour",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:tour",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:page-tips",
       "to": "topic:zoai-tips",
       "rel": "shares_files",
@@ -1252,6 +1375,22 @@
       ]
     },
     {
+      "from": "topic:page-tips",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:page-tips",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
       "from": "topic:zoai-tips",
       "to": "topic:nav-menu",
       "rel": "shares_files",
@@ -1402,6 +1541,22 @@
       ]
     },
     {
+      "from": "topic:zoai-tips",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:zoai-tips",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
       "from": "topic:nav-menu",
       "to": "topic:feedback",
       "rel": "shares_files",
@@ -1540,6 +1695,23 @@
       ]
     },
     {
+      "from": "topic:nav-menu",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "ui-v110.css"
+      ]
+    },
+    {
+      "from": "topic:nav-menu",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
       "from": "topic:feedback",
       "to": "topic:auth",
       "rel": "shares_files",
@@ -1693,6 +1865,24 @@
       ]
     },
     {
+      "from": "topic:feedback",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:feedback",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:auth",
       "to": "topic:gate",
       "rel": "shares_files",
@@ -1838,6 +2028,24 @@
       ]
     },
     {
+      "from": "topic:auth",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:auth",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:gate",
       "to": "topic:book",
       "rel": "shares_files",
@@ -1951,6 +2159,22 @@
       ]
     },
     {
+      "from": "topic:gate",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:gate",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
       "from": "topic:book",
       "to": "topic:shop",
       "rel": "shares_files",
@@ -2055,6 +2279,22 @@
       ]
     },
     {
+      "from": "topic:book",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:book",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
       "from": "topic:shop",
       "to": "topic:admin-ops",
       "rel": "shares_files",
@@ -2173,6 +2413,24 @@
       ]
     },
     {
+      "from": "topic:shop",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:shop",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:admin-ops",
       "to": "topic:stock",
       "rel": "shares_files",
@@ -2282,6 +2540,24 @@
       ]
     },
     {
+      "from": "topic:admin-ops",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:admin-ops",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:stock",
       "to": "topic:schedule",
       "rel": "shares_files",
@@ -2362,6 +2638,22 @@
       ]
     },
     {
+      "from": "topic:stock",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:stock",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
       "from": "topic:schedule",
       "to": "topic:calendar",
       "rel": "shares_files",
@@ -2434,6 +2726,22 @@
       ]
     },
     {
+      "from": "topic:schedule",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:schedule",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
       "from": "topic:calendar",
       "to": "topic:presence",
       "rel": "shares_files",
@@ -2498,6 +2806,22 @@
       ]
     },
     {
+      "from": "topic:calendar",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:calendar",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
       "from": "topic:presence",
       "to": "topic:email",
       "rel": "shares_files",
@@ -2555,6 +2879,22 @@
       ]
     },
     {
+      "from": "topic:presence",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:presence",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
       "from": "topic:email",
       "to": "topic:notif",
       "rel": "shares_files",
@@ -2625,6 +2965,25 @@
       ]
     },
     {
+      "from": "topic:email",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:email",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "api/index.py",
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:notif",
       "to": "topic:zoai",
       "rel": "shares_files",
@@ -2659,6 +3018,22 @@
     {
       "from": "topic:notif",
       "to": "topic:child",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:notif",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:notif",
+      "to": "topic:operations-workspace",
       "rel": "shares_files",
       "files": [
         "app.js"
@@ -2717,6 +3092,25 @@
       ]
     },
     {
+      "from": "topic:zoai",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:zoai",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "api/index.py",
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:talk",
       "to": "topic:gallery",
       "rel": "shares_files",
@@ -2759,6 +3153,24 @@
       ]
     },
     {
+      "from": "topic:talk",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:talk",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:gallery",
       "to": "topic:db",
       "rel": "shares_files",
@@ -2792,6 +3204,24 @@
       ]
     },
     {
+      "from": "topic:gallery",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:gallery",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:db",
       "to": "topic:deploy",
       "rel": "shares_files",
@@ -2809,10 +3239,44 @@
       ]
     },
     {
+      "from": "topic:db",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:db",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "db.py",
+        "server.py"
+      ]
+    },
+    {
       "from": "topic:deploy",
       "to": "topic:pocket",
       "rel": "shares_files",
       "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:deploy",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:deploy",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "api/index.py",
         "server.py"
       ]
     },
@@ -2822,6 +3286,49 @@
       "rel": "shares_files",
       "files": [
         "app.js"
+      ]
+    },
+    {
+      "from": "topic:pocket",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:pocket",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
+      ]
+    },
+    {
+      "from": "topic:child",
+      "to": "topic:rules",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:child",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js"
+      ]
+    },
+    {
+      "from": "topic:rules",
+      "to": "topic:operations-workspace",
+      "rel": "shares_files",
+      "files": [
+        "app.js",
+        "server.py"
       ]
     }
   ],

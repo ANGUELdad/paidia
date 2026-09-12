@@ -1,0 +1,249 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ui-v247.css — iPhone layout repair (after v246-iphone Playwright critique)
+
+   Captures: .qa-screens/v246-iphone/
+   Notes:    .qa-screens/v246-iphone/CRITIQUE.md
+
+   Beat mobile.css !important where it re-opens chrome we already tried to cut.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Plan week: mobile.css forces Agenda/Tabelle + week switcher visible ── */
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .week-layout-seg,
+body.layout-mobile[data-tab="schedule"] #view .plan-week-chrome-actions .week-layout-seg {
+  display: none !important;
+}
+
+/* Phone week: one primary CTA + day rail. Date switcher + AI fill row are
+   chrome before content (~180px). Keep "+ Eintrag"; tuck the rest. */
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .week-switcher,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions .week-nav,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-actions > .row:has(.week-switcher),
+body.shell-m[data-tab="schedule"] #view .week-ai-bar {
+  display: none !important;
+}
+
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome {
+  padding: 10px 12px !important;
+  gap: 8px !important;
+}
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome-top {
+  gap: 6px !important;
+}
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome .plan-hero-cta,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome #planAddEntry,
+body.shell-m[data-tab="schedule"] #view .plan-week-chrome [data-page-act="addEntry"] {
+  min-height: 48px !important;
+  width: 100% !important;
+}
+
+/* Selected day chip: sea-on-pine failed WCAG (~1.6:1). Use near-white ink. */
+body.shell-m #view .plan-day-chip.day.on,
+body.shell-m #view .planner .day.on,
+body.shell-m #view .week-jump-day.is-selected {
+  background: var(--brand, #2a6b52) !important;
+  border-color: var(--brand, #2a6b52) !important;
+  color: #f4faf6 !important;
+}
+body.shell-m #view .plan-day-chip.day.on .d,
+body.shell-m #view .plan-day-chip.day.on .n,
+body.shell-m #view .plan-day-chip.day.on .n i,
+body.shell-m #view .plan-day-chip.day.on .c,
+body.shell-m #view .planner .day.on .d,
+body.shell-m #view .planner .day.on .n,
+body.shell-m #view .week-jump-day.is-selected .wj-name,
+body.shell-m #view .week-jump-day.is-selected .wj-date,
+body.shell-m #view .week-jump-day.is-selected .wj-count {
+  color: #f4faf6 !important;
+}
+
+/* Tag/Woche sticky strip was overlapping house chips (P0 overlap). */
+body.shell-m[data-tab="schedule"] #view .planner-focus-switch {
+  position: relative !important;
+  top: auto !important;
+  margin-bottom: 8px !important;
+}
+body.shell-m[data-tab="schedule"] #view .planner-focus-switch button,
+body.shell-m[data-tab="schedule"] #view .planner-mobile-house button {
+  position: relative;
+  z-index: 1;
+}
+
+/* Plan hero: contain horizontal bleed from long Besprechung line. */
+body.shell-m[data-tab="schedule"] #view .plan-hero,
+body.shell-m[data-tab="schedule"] #view .plan-day-hero {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-inline: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+body.shell-m[data-tab="schedule"] #view .plan-hero h2,
+body.shell-m[data-tab="schedule"] #view .plan-day-hero h2 {
+  overflow-wrap: anywhere;
+  line-height: 1.15;
+}
+/* Week focus: don't repeat add/open under the day column when chrome already has CTA */
+body.shell-m[data-tab="schedule"] #view .week-agenda-foot {
+  display: none !important;
+}
+
+/* ── Pocket: kid rail text must truncate inside the card ── */
+body.shell-m #view .pocket-kids-rail {
+  overflow-x: auto !important;
+  max-width: 100%;
+}
+body.shell-m #view .pocket-kid-card {
+  max-width: 168px !important;
+  min-width: 140px !important;
+  overflow: hidden !important;
+}
+body.shell-m #view .pocket-kid-line.grow {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  display: grid !important;
+  gap: 2px;
+}
+body.shell-m #view .pocket-kid-line b,
+body.shell-m #view .pocket-kid-line small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Pocket month amounts are illegible in 7-col cells — dots only on phone. */
+body.shell-m #view .pocket-month-cal .paidia-cal-label,
+body.layout-mobile #view .pocket-month-cal .paidia-cal-label {
+  display: none !important;
+}
+body.shell-m #view .pocket-month-cal .cal-cell.has,
+body.shell-m #view .pocket-month-cal .paidia-cal-day.has {
+  box-shadow: inset 0 -3px 0 var(--brand, #2a6b52);
+}
+
+/* ── Kids directory: metric label glued to value; giant empty admin btns ── */
+body.shell-m #view .kid-dir-metrics > span {
+  display: grid !important;
+  gap: 2px !important;
+  white-space: normal !important;
+  min-width: 0 !important;
+}
+body.shell-m #view .kid-dir-metrics > span b {
+  display: block !important;
+  margin: 0 !important;
+}
+body.shell-m #view .kid-dir-metrics > span i {
+  font-style: normal;
+  color: var(--meta, #5c6a63);
+  font-size: 11px;
+  line-height: 1.2;
+}
+body.shell-m #view .kid-dir-admin {
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  margin: 4px 0 10px !important;
+}
+body.shell-m #view .kid-dir-admin .btn,
+body.shell-m #view .kid-dir-admin .kid-dir-ico {
+  flex: 0 0 auto !important;
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  min-height: 44px !important;
+  max-height: 44px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+}
+
+/* ── Kid Spiele: rail must own overflow (stops false P0 + page bleed) ── */
+body.mode-child #view .arcade-rail {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+  padding: 2px 2px 8px !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+}
+body.mode-child #view .arcade-rail > .arcade-tile {
+  flex: 0 0 82% !important;
+  width: 82% !important;
+  max-width: 82% !important;
+  min-width: 0 !important;
+  scroll-snap-align: start;
+}
+body.mode-child #view .arcade-rail > * {
+  max-width: 100%;
+  min-width: 0;
+}
+body.mode-child #view .arcade-copy {
+  overflow: hidden !important;
+  min-width: 0 !important;
+}
+body.mode-child #view .arcade-copy b,
+body.mode-child #view .arcade-hint {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  max-width: 100%;
+}
+body.mode-child #view .arcade-hint {
+  font-size: 12px;
+  line-height: 1.25;
+  max-height: none;
+}
+body.mode-child #view .arcade-xp {
+  color: var(--ink, #1a2822) !important;
+  background: color-mix(in srgb, var(--sun, #c48a1a) 18%, #fff) !important;
+  font-weight: 700;
+}
+
+/* Kid dock clearance — CTAs / last cards clipped under dock */
+body.mode-child.shell-m #view .kid-shell,
+body.mode-child.layout-mobile #view .kid-shell {
+  padding-bottom: calc(var(--kid-dock-h, 84px) + env(safe-area-inset-bottom, 0px) + 28px) !important;
+}
+body.mode-child.shell-m #view .kid-home-cta,
+body.mode-child.shell-m #view .course-grid {
+  margin-bottom: 8px;
+}
+
+/* First-run banner: button was flush to the right edge */
+body.mode-child #view .kid-first-run,
+body.mode-child #view .kid-guide-banner,
+body.mode-child #view [class*="first-run"] {
+  padding-right: 14px !important;
+}
+body.mode-child #view .kid-first-run .btn,
+body.mode-child #view .kid-guide-banner .btn {
+  margin-inline: 0 !important;
+  align-self: flex-start;
+}
+
+/* ── Stock: reclaim hero so shelves reach the fold ── */
+body.shell-m[data-tab="stock"] #view .stock-pantry-hero {
+  padding: 4px 4px 8px !important;
+}
+body.shell-m[data-tab="stock"] #view .stock-pantry-hero .brand-kicker,
+body.shell-m[data-tab="stock"] #view .stock-pantry-hero .stock-security-legend {
+  margin: 0 !important;
+}
+body.shell-m[data-tab="stock"] #view .stock-priority-grid {
+  margin-top: 8px !important;
+}
+
+/* ── Shop / Home: keep rails contained ── */
+body.shell-m #view .house-selector,
+body.shell-m #view .shop-panel-seg,
+body.shell-m #view .plan-days,
+body.shell-m #view .week-jump {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}

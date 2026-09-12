@@ -76,7 +76,7 @@ test('normalizeDbShape coerces corrupt mutable buckets', () => {
       childrenLen: Array.isArray(db.children) && db.children.length > 0,
     });
   `;
-  const result = vm.runInNewContext(snippet, { structuredClone }, { timeout: 1000 });
+  const result = vm.runInNewContext(snippet, { structuredClone, migrateValeriaLeaHouse:()=>{}, ensureHouseRulesSeed:()=>{} }, { timeout: 1000 });
   assert.equal(result.eventsIsArray, true);
   assert.equal(result.listIsArray, true);
   assert.equal(result.stockIsObject, true);

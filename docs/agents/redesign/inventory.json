@@ -1,0 +1,666 @@
+{
+  "generatedFrom": "app.js",
+  "scope": "Static entry points only; dynamic actions and embedded games require runtime coverage.",
+  "routes": {
+    "staff": [
+      "home",
+      "schedule",
+      "stock",
+      "shop",
+      "book",
+      "kids",
+      "pocket",
+      "talk",
+      "gallery",
+      "rules",
+      "admin"
+    ],
+    "child": [
+      "today",
+      "plan",
+      "aufgaben",
+      "rewards",
+      "learn",
+      "games",
+      "rate",
+      "pocket",
+      "bonus",
+      "notes",
+      "events",
+      "gallery",
+      "rules"
+    ]
+  },
+  "functions": [
+    {
+      "name": "saveHouseRule",
+      "line": 3014,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "saveLocal",
+      "line": 3122,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applySharedPayload",
+      "line": 3178,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "startSharedSync",
+      "line": 3598,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyProductOverride",
+      "line": 3685,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "saveGalOrg",
+      "line": 4125,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyUiModeClass",
+      "line": 4322,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireUiModeControls",
+      "line": 4339,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyAuthenticatedProfile",
+      "line": 4473,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetMasterTutorial",
+      "line": 5336,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyHelpActions",
+      "line": 5845,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetHelpProposals",
+      "line": 6233,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetHelp",
+      "line": 6295,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetHelpCenter",
+      "line": 6418,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyGallerySnapshot",
+      "line": 6527,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewGallery",
+      "line": 6767,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetGalleryCompose",
+      "line": 7138,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewTalk",
+      "line": 7299,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetStaffTalk",
+      "line": 7357,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "startCamera",
+      "line": 7387,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "saveProfileCalendar",
+      "line": 7634,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetCalendar",
+      "line": 7673,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "saveShiftPresence",
+      "line": 7872,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetShiftPresence",
+      "line": 7915,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyRouteFromHash",
+      "line": 8158,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyCancelScheduleEntry",
+      "line": 8373,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewScheduleDay",
+      "line": 8514,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewShifts",
+      "line": 8636,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetShiftDay",
+      "line": 8675,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewScheduleWeek",
+      "line": 8744,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyWeekImportPlan",
+      "line": 8998,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetImportWeek",
+      "line": 9062,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetAiSchedule",
+      "line": 9342,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetImportantDate",
+      "line": 9709,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewPersonnel",
+      "line": 9748,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewSchoolMoodle",
+      "line": 9779,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetSchoolLesson",
+      "line": 9829,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wirePaidiaCal",
+      "line": 9928,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewScheduleCalendar",
+      "line": 9971,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewSchedule",
+      "line": 10047,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetEntry",
+      "line": 10109,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewStock",
+      "line": 10487,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetStockDetail",
+      "line": 10736,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetRemoveListItem",
+      "line": 10950,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "confirmLeaveUnsaved",
+      "line": 11265,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyStockDelta",
+      "line": 11377,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetInitialStockCount",
+      "line": 11474,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "commitStockDraft",
+      "line": 11511,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetShiftStockCheck",
+      "line": 11609,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireShiftStockCheckSheet",
+      "line": 11622,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetBulkStockSetQty",
+      "line": 11748,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetBulkStockMoveCat",
+      "line": 11776,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetStockQuickAdd",
+      "line": 11801,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetStockBoard",
+      "line": 12070,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetShoppingHistory",
+      "line": 12644,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "applyPocketPreset",
+      "line": 12953,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "deletePocketTxn",
+      "line": 12987,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wirePocketCompose",
+      "line": 13113,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetPocketTxn",
+      "line": 13136,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wirePocketActions",
+      "line": 13139,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewPocket",
+      "line": 13235,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wirePocketView",
+      "line": 13384,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetChildMyRequests",
+      "line": 13539,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetShopBookedSummary",
+      "line": 13719,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetFeedbackCompose",
+      "line": 13860,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetFeedbackInbox",
+      "line": 13931,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetFeedbackHub",
+      "line": 13993,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetCreateListRequest",
+      "line": 14022,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewShop",
+      "line": 14084,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "startFridayBatch",
+      "line": 14381,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "confirmFridayBatch",
+      "line": 14439,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetImportList",
+      "line": 14815,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetReceipt",
+      "line": 15067,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewBook",
+      "line": 15830,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetCorrection",
+      "line": 15884,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetGameShareMoment",
+      "line": 16234,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "startChildGame",
+      "line": 16589,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "leaveChildGame",
+      "line": 16650,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewChoreReview",
+      "line": 17036,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireKidSiteMenuRoot",
+      "line": 17168,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetKidMore",
+      "line": 17218,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireKidChrome",
+      "line": 17230,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewRules",
+      "line": 17893,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetAdminKid",
+      "line": 17962,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewKids",
+      "line": 18042,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewKidProfile",
+      "line": 18114,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewSchoolMaterials",
+      "line": 18197,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewSchoolActivityPane",
+      "line": 18240,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewAttendanceGrid",
+      "line": 18256,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewHomeworkStaff",
+      "line": 18285,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewSchoolTimetable",
+      "line": 18314,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewSubjectsAdmin",
+      "line": 18345,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireRulesView",
+      "line": 18372,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireKidsView",
+      "line": 18409,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "renderChild",
+      "line": 19421,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewAdminRewardCenter",
+      "line": 19702,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetEvent",
+      "line": 20866,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewAdminOps",
+      "line": 21286,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireAdminOpsView",
+      "line": 21381,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetAdminAccessHub",
+      "line": 21560,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetAdminSetPin",
+      "line": 21623,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetAdminSetEmail",
+      "line": 21654,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetAdminSendAccess",
+      "line": 21677,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetBroadcastEmail",
+      "line": 21705,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetAdminStaff",
+      "line": 21846,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetNotifCenter",
+      "line": 22153,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetLateAlert",
+      "line": 22205,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetShiftEnd",
+      "line": 22281,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewHome",
+      "line": 22367,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetChildHowTo",
+      "line": 22520,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireAdaptiveChrome",
+      "line": 23194,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetMobileMore",
+      "line": 24718,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetSecurityAudit",
+      "line": 24866,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "viewAccount",
+      "line": 24969,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireAccountView",
+      "line": 24988,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetSecurityAccess",
+      "line": 24994,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "wireLangSwitch",
+      "line": 25397,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "startGateKeyboardWatch",
+      "line": 25443,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "renderEntrance",
+      "line": 25497,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "renderProfiles",
+      "line": 25527,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "renderGatePin",
+      "line": 25576,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "renderResetRequest",
+      "line": 25764,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "renderResetForm",
+      "line": 25820,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetAdminAutomations",
+      "line": 26006,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetInstallNotif",
+      "line": 26378,
+      "coverage": "unreviewed"
+    },
+    {
+      "name": "sheetNotifPrefs",
+      "line": 26402,
+      "coverage": "unreviewed"
+    }
+  ]
+}

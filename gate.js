@@ -123,11 +123,11 @@
   // Fallback for the first paint, before build.json lands. Keep in step with
   // build.json on every release — it is what shows if the fetch fails.
   const APP_BUILD = {
-    version: 245,
-    label: 'v245',
+    version: 247,
+    label: 'v247',
     changed: {
-      de: 'Handy aufgeräumt: weniger Banner, Inhalte sofort sichtbar, klarere Dock-Symbole. „Nicht gespeichert“ warnt nur noch bei echten Änderungen.',
-      el: 'Καθαρό κινητό: λιγότερα banner, το περιεχόμενο φαίνεται αμέσως, πιο καθαρά εικονίδια. Η προειδοποίηση «μη αποθηκευμένα» εμφανίζεται μόνο σε πραγματικές αλλαγές.',
+      de: 'iPhone-Layout: Plan-Chrome gekürzt, lesbare Tageschips, Pocket/Kids/Spiele ohne Overflow, Dock-Abstand.',
+      el: 'Διάταξη iPhone: λιγότερο chrome στο Plan, αναγνώσιμα chips, χωρίς overflow σε Pocket/Kids/Spiele, χώρος για το dock.',
     },
   };
   const SW_BUILD_KEY = 'paidia.swBuild';

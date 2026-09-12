@@ -1,3 +1,37 @@
+## v247 · 2026-09-08
+
+iPhone Playwright critique pass (`.qa-screens/v246-iphone/` + `CRITIQUE.md`).
+New stylesheet `ui-v247.css` — beat `mobile.css` !important that kept Plan
+Agenda/Tabelle + week switcher open after v246.
+
+- Plan: hide Agenda/Tabelle, week switcher, AI fill row on phone; stop Tag/Woche sticky overlap; selected day chips readable (near-white on brand).
+- Pocket: truncate kid rail text; hide illegible calendar amount labels on phone.
+- Kinder: metric value/label stack (no `0%Anwesenheit`); compact 44×44 edit/remove.
+- Kid Spiele/Start: arcade rail owns overflow; XP contrast; dock clearance; first-run padding.
+- Lager: tighter pantry hero so shelves can reach the fold.
+- Cache `paidia-v247`.
+
+## v246 · 2026-09-08
+
+Ship-today Plan A slices from `docs/agents/redesign/*` — concrete page fixes,
+not full Plan B restructures. New stylesheet `ui-v246.css`. Notes index:
+[docs/agents/redesign/INDEX.md](docs/agents/redesign/INDEX.md).
+
+- Lager: `has-draft` rows visible again (beat the `!important` stepper rule).
+- Kinder: attendance colours restored on phone; excused gets its own ink.
+- Home: mobile inbox from `staffInboxItems()`; Überfällig opens the inbox, not today's plan.
+- Liste: Mitnehmen segment is the door into `Im Supermarkt` store mode.
+- Plan: phone chrome trimmed (~229px); ··· opens Dienst/Events (was dead behind a hidden wrap); week summary labels tell the truth; week swipe on agenda board (±7 days).
+- Kid Plan: empty day offers jump to next day with entries.
+- Taschengeld: horizontal kid rail; Verlauf before Schnellbeträge.
+- Buch: duty → incoming → write first; calendar moved under secondary.
+- Admin: attention block first; phone hides the 4.6-screen desk dump.
+- Momente: full-width gallery grid on desktop; hide duplicate Feed picker on phone.
+- Kid: honest Notizen kicker; truthful Bewertung CTAs; Bonus missions in Easy; fresh zero-star Start; Weiter from `lastGameId`; empty Sterne collapses; dock-duplicate CTAs hidden in Easy; Learn/Games continue; eyebrow contrast; desktop kid FAB hidden.
+- Lagercheck follows the lit house chip (`shiftStockHouseId()`).
+- Audit harness: `rewards` not `stars` for Sterne captures.
+- Cache `paidia-v246`.
+
 ## v245 · 2026-09-07
 
 Audited by driving the **real gate login** on an iPhone (mode card → profile →

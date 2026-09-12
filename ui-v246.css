@@ -1,0 +1,357 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ui-v246.css — Plan A / ship-today redesign slices (loads after ui-v245.css)
+
+   Driven by docs/agents/redesign/* Plan A specs. Prefer CSS and small template
+   trims over full Plan B restructures. Re-run:
+     node scripts/qa-ui-audit-2026.mjs --tag=v246
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1. Live defects — visibility / contrast / FAB
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Lager draft state was stamped but invisible: ui-v213 loses to
+   body:not(.mode-child) .stock-product.has-stepper { background/border !important }. */
+#view .stock-product.has-draft,
+body:not(.mode-child) #view .stock-product.has-stepper.has-draft {
+  border-color: color-mix(in srgb, var(--brand, #2a6b52) 55%, var(--line)) !important;
+  background: color-mix(in srgb, var(--brand, #2a6b52) 10%, #fff) !important;
+  box-shadow: inset 3px 0 0 var(--brand, #2a6b52);
+}
+#view .stock-product.has-draft .stock-product-meta .muted::after {
+  content: " · Δ";
+  color: var(--brand, #2a6b52);
+  font-weight: 700;
+}
+
+/* Kinder attendance — ui-v244 forced every state to the same grey. */
+body #view .kid-dir-att.att-present,
+body #view .kid-dir-att.att-ok {
+  color: var(--brand, #2a6b52) !important;
+  font-weight: 700;
+}
+body #view .kid-dir-att.att-absent,
+body #view .kid-dir-att.att-out {
+  color: #c2410c !important;
+  font-weight: 700;
+}
+body #view .kid-dir-att.att-excused,
+body #view .kid-dir-att.att-late {
+  color: #8a5a00 !important;
+  font-weight: 700;
+}
+body #view .kid-dir-att.att-none {
+  color: #5c6a63 !important;
+  font-weight: 500;
+}
+
+/* Kid Plan / Lernen eyebrows were sea-on-pine at ~1.16:1. */
+body.mode-child #view .kid-hero .eyebrow,
+body.mode-child #view .arcade-hero .eyebrow,
+body.mode-child #view .kid-header .eyebrow {
+  color: color-mix(in srgb, var(--ink, #1a2822) 72%, transparent) !important;
+}
+body.mode-child #view .kid-hero.kid-hero-dark .eyebrow,
+body.mode-child #view .arcade-hero.kid-hero-dark .eyebrow,
+body.mode-child #view .next-up .eyebrow {
+  color: rgba(255, 255, 255, .82) !important;
+}
+
+/* Desktop kid FAB still covered calendar cells (v245 only hid staff desk + phone kid). */
+body.layout-desktop.mode-child .zoai-fab,
+body.shell-desk.mode-child .zoai-fab {
+  display: none !important;
+}
+
+/* Empty month calendars on all kid surfaces (promote beyond phone-only). */
+body.mode-child #view .kid-tab-cal-wrap:not(:has(.cal-cell.has)) {
+  display: none !important;
+}
+
+/* Rating week tint on desktop too (was phone-only in v245). */
+body.mode-child #view .rate-cal-shell .cal-cell.on {
+  background: var(--pine-tint, rgba(42, 107, 82, .10));
+  border-color: color-mix(in srgb, var(--brand, #2a6b52) 40%, transparent);
+  color: var(--ink, #1a2822);
+  box-shadow: inset 0 -3px 0 var(--brand, #2a6b52);
+}
+body.mode-child #view .rate-cal-shell .cal-cell.on :is(.cal-n, .rate-cal-avg) {
+  color: var(--ink, #1a2822);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   2. Phone density — Plan / Pocket / Shop / Admin / Gallery / Home
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+
+  /* Plan: reclaim ~229px so Monday sits above the fold. */
+  body.shell-m[data-tab="schedule"] #view .week-layout-seg,
+  body.layout-mobile[data-tab="schedule"] #view .week-layout-seg {
+    display: none !important;
+  }
+  body.shell-m[data-tab="schedule"] #view .week-agenda-shell > header,
+  body.layout-mobile[data-tab="schedule"] #view .week-agenda-shell > header {
+    display: none !important;
+  }
+  body.shell-m[data-tab="schedule"] #view .plan-week-summary,
+  body.layout-mobile[data-tab="schedule"] #view .plan-week-summary {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    padding: 8px 0 !important;
+    font-size: 12px !important;
+  }
+  body.shell-m[data-tab="schedule"] #view .plan-week-summary span,
+  body.layout-mobile[data-tab="schedule"] #view .plan-week-summary span {
+    display: inline-flex !important;
+    align-items: baseline !important;
+    gap: 4px !important;
+  }
+  body.shell-m[data-tab="schedule"] #view .week-ai-bar,
+  body.layout-mobile[data-tab="schedule"] #view .week-ai-bar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 8px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.shell-m[data-tab="schedule"] #view .week-ai-bar .btn,
+  body.layout-mobile[data-tab="schedule"] #view .week-ai-bar .btn {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    white-space: nowrap !important;
+  }
+
+  /* Taschengeld: kid rail horizontal so ledger reaches the fold. */
+  body.shell-m #view .pocket-kids-rail,
+  body.layout-mobile #view .pocket-kids-rail {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 8px !important;
+    padding-bottom: 4px !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  body.shell-m #view .pocket-kids-rail::-webkit-scrollbar { display: none; }
+  body.shell-m #view .pocket-kids-rail .pocket-kid-card,
+  body.layout-mobile #view .pocket-kids-rail .pocket-kid-card {
+    flex: 0 0 auto !important;
+    min-width: 148px !important;
+    max-width: 180px !important;
+    width: auto !important;
+  }
+
+  /* Liste: drop chrome that burns the fold before items. */
+  body.shell-m[data-tab="shop"] #view .shop-overview-stats,
+  body.shell-m[data-tab="shop"] #view .shop-overview-copy > span,
+  body.shell-m[data-tab="shop"] #view .shop-photo-banner {
+    display: none !important;
+  }
+  body.shell-m[data-tab="shop"] #view .shop-list-heading {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--bg, #f4f7f5);
+    padding-block: 6px;
+  }
+  body.shell-m #view .store-choice-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  body.shell-m #view .store-choice {
+    min-height: 0 !important;
+  }
+  body.shell-m #view .store-guidance {
+    display: block !important;
+  }
+
+  /* Lager: compress so first shelf is on-screen. */
+  body.shell-m[data-tab="stock"] #view .stock-context {
+    display: none !important;
+  }
+  body.shell-m[data-tab="stock"] #view .stock-pantry-hero {
+    padding: 8px 12px !important;
+  }
+  body.shell-m[data-tab="stock"] #view .stock-priority-grid > .empty-state {
+    grid-column: 1 / -1;
+  }
+  body.shell-m[data-tab="stock"] #view .stock-workspace:has(~ .stock-draft-dock) {
+    padding-bottom: 96px !important;
+  }
+
+  /* Admin: phone is an index, not the 4.6-screen dump. */
+  body.shell-m[data-tab="admin"] #view .admin-ops-desktop,
+  body.shell-m[data-tab="admin"] #view .ops-house-grid {
+    display: none !important;
+  }
+  body.shell-m[data-tab="admin"] #view .admin-ops-hero {
+    padding: 10px 12px !important;
+  }
+  body.shell-m[data-tab="admin"] #view .admin-live-feed {
+    max-height: 220px;
+    overflow: auto;
+  }
+
+  /* Gallery: hide duplicate Feed picker on phone. */
+  body.shell-m[data-tab="gallery"] #view .section-shell-picker {
+    display: none !important;
+  }
+
+  /* Home: lede and Easy/Pro row steal the fold from duties. */
+  body.shell-m[data-tab="home"] #view .home-start-lede {
+    display: none !important;
+  }
+  body.shell-m[data-tab="home"] #view .home-start-hero .ui-mode-row {
+    display: none !important;
+  }
+  body.shell-m[data-tab="home"] #view .home-shift-step-cta.primary {
+    min-height: 48px !important;
+  }
+  body.shell-m[data-tab="home"] #view .home-mobile-inbox {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 12px;
+  }
+  body.shell-m[data-tab="home"] #view .home-mobile-inbox .home-rail-notif {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--glass-strong, #fff);
+    color: inherit;
+    min-height: 52px;
+  }
+  body.shell-m[data-tab="home"] #view .home-mobile-inbox .home-rail-notif .grow {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  body.shell-m[data-tab="home"] #view .home-mobile-inbox .home-rail-notif b {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  body.shell-m[data-tab="home"] #view .home-mobile-inbox .home-rail-notif small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  body.shell-m[data-tab="shop"] #view .shop-store-door .btn {
+    min-height: 48px;
+    width: 100%;
+  }
+
+  /* De-card oversized heroes — plain content, not empty cards. */
+  body.shell-m #view :is(.stock-overview, .shop-overview, .talk-overview, .kids-hero, .book-hero, .admin-ops-hero) {
+    padding: 4px 2px 8px !important;
+    border: 0 !important;
+    background: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Kid Momente: hide staff chrome. */
+  body.mode-child.shell-m #view .section-shell-nav,
+  body.mode-child.shell-m #view .section-shell-picker,
+  body.mode-child.shell-m #view .gal-refresh,
+  body.mode-child.shell-m #view .gal-org-bar {
+    display: none !important;
+  }
+
+  /* Talk: stop truncating topic titles. */
+  body.shell-m #view .talk-topic-copy b {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   3. Desktop density
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* Gallery feed was capped at 520px on a 1220px stage. */
+body.layout-desktop #view .gal-feed,
+body.shell-desk #view .gal-feed {
+  max-width: none !important;
+  width: 100% !important;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+}
+
+/* Talk / shop overviews no longer need a brochure max-width. */
+body.layout-desktop #view .talk-page,
+body.shell-desk #view .talk-page {
+  max-width: none !important;
+}
+body.layout-desktop #view .talk-topic-copy b,
+body.shell-desk #view .talk-topic-copy b {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* Kinder directory metrics reclaim dead row width. */
+body.layout-desktop #view .kid-dir-metrics,
+body.shell-desk #view .kid-dir-metrics {
+  width: auto !important;
+  max-width: none !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+/* Soften duplicate page heroes on desktop (title already in chrome). */
+body.layout-desktop #view .kids-hero,
+body.layout-desktop #view .book-hero,
+body.layout-desktop #view .admin-ops-hero {
+  padding: 12px 16px !important;
+}
+
+/* Hover: desk.css buried dock/card hover inside prefers-reduced-motion. */
+@media (hover: hover) and (pointer: fine) {
+  body.layout-desktop nav.dock button:hover,
+  body.shell-desk nav.dock button:hover {
+    background: color-mix(in srgb, var(--brand, #2a6b52) 12%, transparent);
+  }
+  body.layout-desktop #view .kid-dir-card:hover,
+  body.shell-desk #view .kid-dir-card:hover {
+    border-color: color-mix(in srgb, var(--brand, #2a6b52) 35%, var(--line)) !important;
+    box-shadow: 0 4px 14px rgba(26, 40, 34, .08) !important;
+  }
+}
+
+/* Phone: hide Anwesenheits-irrelevant Notenschnitt metric (nth-child 1), keep attendance. */
+@media (max-width: 899px) {
+  body.shell-m #view .kid-dir-metrics > span:nth-child(1) {
+    display: none !important;
+  }
+  body.shell-m #view .kid-dir-metrics > span:nth-child(2) {
+    display: inline-flex !important;
+  }
+}
+
+/* Fresh zero-star Start state. */
+body.mode-child #view .level-card.is-fresh .level-ring-pct,
+body.mode-child #view .level-card.is-fresh .meter {
+  opacity: .55;
+}
+body.mode-child #view .level-card.is-fresh .level-fresh-msg {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--muted, #5c6a63);
+}
+
+/* Buch secondary calendar (when JS wraps it). */
+#view .book-secondary {
+  opacity: .92;
+}
+@media (max-width: 899px) {
+  body.shell-m[data-tab="book"] #view .book-secondary {
+    order: 9;
+  }
+  body.shell-m[data-tab="book"] #view .shift-diary-stack {
+    display: flex;
+    flex-direction: column;
+  }
+}

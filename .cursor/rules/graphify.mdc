@@ -1,0 +1,20 @@
+---
+description: Prefer graphify graph when available; do not block vault/map workflow
+alwaysApply: true
+---
+
+# Graphify (optional orientation)
+
+This repo may have `graphify-out/graph.json` (AST graph; rebuild: `graphify update . --no-cluster`).
+
+**When exploring architecture or “where does X connect?”:**
+- Prefer Graphify MCP / CLI: `graphify explain "…"`, `graphify path "A" "B"`
+- Or vault notes under `knowledge/` + `docs/agents/map.json` (often enough)
+
+**Do not** require graphify before every Read/Grep. Use Read/Grep when:
+1. You already have a function/file from the map/vault and need a line range to edit
+2. The graph is missing / stale and the vault topic lists the files
+3. You are mid-edit on a known hot path
+
+After meaningful code structure changes, refresh with `graphify update . --no-cluster` (no LLM cost).
+If `graphify-out/wiki/index.md` or `GRAPH_REPORT.md` exist, prefer those for broad orientation over raw dumps.
